@@ -153,3 +153,57 @@ static func compile(goals: Array, threshold: float) -> Object:
 
 static func _num(v: float) -> String:
 	return "%.17f" % v if v >= 0.0 else "(%.17f)" % v
+
+
+# ------------------------------------------------------------------ GOAP-lite (NI-8)
+## A tiny forward-chaining planner over bitmask facts. An action row is four ints in a flat PackedInt32Array: [pre, add, del, cost], where `pre`,
+## `add` and `del` are masks of facts and `cost` is in the caller's work units. `plan` finds the cheapest sequence of at most `max_depth` actions
+## (ties go to the lower index, so the answer is deterministic) that takes `state` to one holding every fact of `goal`. Returns the action
+## indices in order; empty when `goal` already holds or no sequence of that length reaches it (callers tell the two apart with `plan_holds`).
+const ACT_W := 4
+const PLAN_MAX_DEPTH := 3
+
+
+static func plan_holds(state: int, goal: int) -> bool:
+	return (state & goal) == goal
+
+
+static func plan(acts: PackedInt32Array, state: int, goal: int, max_depth := PLAN_MAX_DEPTH) -> PackedInt32Array:
+	if plan_holds(state, goal):
+		return PackedInt32Array()
+	var out: Array = []
+	_plan_dfs(acts, state, goal, mini(max_depth, PLAN_MAX_DEPTH), 0, PackedInt32Array(), [1 << 30], out)
+	return out[0] if not out.is_empty() else PackedInt32Array()
+
+
+static func _plan_dfs(acts: PackedInt32Array, state: int, goal: int, depth: int, cost: int, path: PackedInt32Array, bestc: Array, out: Array) -> void:
+	if depth <= 0:
+		return
+	var n := acts.size() / ACT_W
+	for a in n:
+		var o := a * ACT_W
+		var pre := acts[o]
+		if (state & pre) != pre:
+			continue
+		var ns := (state | acts[o + 1]) & ~acts[o + 2]
+		if ns == state:
+			continue                                   # an action that changes nothing is never part of a plan
+		var nc := cost + acts[o + 3]
+		if nc >= int(bestc[0]):
+			continue
+		var np := path.duplicate()
+		np.append(a)
+		if plan_holds(ns, goal):
+			bestc[0] = nc
+			out.clear()
+			out.append(np)
+		else:
+			_plan_dfs(acts, ns, goal, depth - 1, nc, np, bestc, out)
+
+
+## Total cost of a plan returned by `plan`.
+static func plan_cost(acts: PackedInt32Array, path: PackedInt32Array) -> int:
+	var c := 0
+	for a in path:
+		c += acts[a * ACT_W + 3]
+	return c

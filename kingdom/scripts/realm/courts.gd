@@ -926,6 +926,11 @@ func secret_from_case(holder: String, cid: String) -> bool:
 	return learn_secret(holder, String(c["culprit"]), "guilty of %s" % String(c["crime"]), float((Soc.CRIMES[String(c["crime"])] as Dictionary)["sev"]) / 6.0, cid)
 
 
+## The one ledger of who knows what about whom. secrets.gd (NI-8) owns what people hide and writes what is found here (src "slot:N" names the secret).
+func secrets_ledger() -> Array:
+	return _secrets
+
+
 func secrets_known(holder: String, about := "") -> Array:
 	var out: Array = []
 	for sc: Dictionary in _secrets:

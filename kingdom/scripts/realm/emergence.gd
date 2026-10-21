@@ -14,6 +14,14 @@ extends "res://scripts/realm/realm_module.gd"
 ## days; a chain started by another may not start a kind already in its ancestry; depth is capped at MAX_DEPTH; at most MAX_LIVE chains
 ## run at once and MAX_NEW start per day.
 ##
+## Chains reach people (NI-7): a stage may also touch 3 to 12 specific townspeople (PFX): the event is appraised into their psyche (so a bold farmer and
+## a fragile one take a failed harvest differently), pairs of them may get a bond event, and their decision day is pulled forward (a poke, which also
+## shakes any plan they hold). Bounded four ways: CHAIN_PEOPLE per chain, PERSON_DAY_CAP per day for the realm, a PCOOL_DAYS cooldown per person (and
+## nobody takes the same chain's blow twice), and the existing depth / cooldown / live caps. Natural hazards leave a town alone for TOWN_QUIET days after
+## one ended and never pile on a town with a live chain, so most weeks in most towns are ordinary.
+## Every event a chain writes carries the number of the event that caused it (events.gd parent link), the first one the trigger's: `scripts/sim/trace.gd`
+## answers "what caused event E" and "why does X feel this" from those links and `person_fx`.
+##
 ## Cost: events are read once a day (the ring since yesterday), hazards once a week (30 towns, a hash each), stages from a day-bucket
 ## queue. Saved state: live chains, the effect list (bounded), 60 history lines.
 
@@ -27,6 +35,24 @@ const MAX_LIVE := 24
 const MAX_NEW := 2
 const FX_MAX := 160
 const HIST_MAX := 60
+const CHAIN_PEOPLE := 16          # people one chain may touch in all
+const PERSON_DAY_CAP := 24        # people the whole realm's chains may touch in a day
+const PCOOL_DAYS := 10            # days before the same person is touched again
+const PFX_MAX := 60               # person effects kept for the inspector
+const TOWN_QUIET := 28            # days a town is left alone by new natural hazards after one starts
+## What a stage does to people: chain kind -> stage -> [psyche kind, severity, reliability, people, bond event between pairs ("" none), poke 1/0].
+const PFX := {
+	"harvest_failure": {0: ["famine", 0.55, 1.0, 10, "", 1], 1: ["famine", 0.3, 0.7, 6, "help", 1]},
+	"epidemic": {0: ["emergency", 0.6, 1.0, 10, "", 1], 1: ["emergency", 0.3, 0.6, 6, "help", 0]},
+	"rift_activation": {0: ["raid", 0.7, 1.0, 12, "", 1], 1: ["emergency", 0.4, 0.8, 8, "help", 1]},
+	"unsafe_road": {0: ["crime", 0.35, 0.6, 5, "", 0]},
+	"tax_rise": {0: ["emergency", 0.25, 1.0, 8, "", 1]},
+	"noble_death": {0: ["death", 0.3, 0.5, 6, "", 0]},
+	"guild_collapse": {1: ["emergency", 0.3, 1.0, 6, "spat", 1]},
+	"mine_discovery": {0: ["trade", 0.4, 0.8, 6, "", 1]},
+	"army_departure": {0: ["battle", 0.2, 0.5, 5, "", 0]},
+	"recognition": {0: ["founding", 0.35, 0.7, 6, "", 0]},
+}
 const CHAIN_KEEP := 40            # finished chains kept as counts only after this many
 ## Weekly hazard per town (before multipliers) of the natural chains.
 const HAZARD := {"mine_discovery": 0.0016, "harvest_failure": 0.0, "rift_activation": 0.0006, "epidemic": 0.0012, "unsafe_road": 0.0022}
@@ -46,7 +72,11 @@ var _next := 1
 var _day := 0
 var _new_today := 0
 var _kind_n: Dictionary = {}     # kind -> chains ever started
-var stats := {"started": 0, "children": 0, "blocked_loop": 0, "blocked_cool": 0, "news": 0, "effects": 0, "finished": 0}
+var _cur := 0                    # the chain whose stage is running (events written meanwhile carry its causal link)
+var _pcool: Dictionary = {}      # ch -> day before which no chain touches it again
+var _pfx: Array = []             # [day, ch, psyche kind, chain id, event n] newest last
+var _pday := 0                   # people touched today
+var stats := {"started": 0, "children": 0, "blocked_loop": 0, "blocked_cool": 0, "news": 0, "effects": 0, "finished": 0, "people": 0, "weeks": 0, "weeks_calm": 0, "town_weeks": 0}
 
 
 func _now() -> int:
@@ -170,8 +200,16 @@ func _news(kind: String, sid: int, text: String, mag: float, delay: int, officia
 	stats["news"] = int(stats["news"]) + 1
 
 
-func _ev(kind: String, sid: int, actors: Array, cause: String, outcome: String, w := 3) -> void:
-	Events.log_to(hub, kind, "ss:%d" % sid if sid >= 0 else "", actors, cause, outcome, w)
+func _ev(kind: String, sid: int, actors: Array, cause: String, outcome: String, w := 3) -> int:
+	var c: Dictionary = _cn.get(_cur, {})
+	var par := 0
+	if not c.is_empty():
+		var dd: Dictionary = c["data"]
+		par = int(dd.get("le", dd.get("ev", 0)))
+	var n := Events.log_to(hub, kind, "ss:%d" % sid if sid >= 0 else "", actors, cause, outcome, w, par)
+	if n > 0 and not c.is_empty():
+		(c["data"] as Dictionary)["le"] = n
+	return n
 
 
 func _plan(cid: int, stage: int, in_days: int) -> void:
@@ -206,8 +244,14 @@ func start(kind: String, sid: int, opts: Dictionary = {}) -> int:
 	var cid := _next
 	_next += 1
 	_cool[ck] = _now() + COOLDOWN
+	var data: Dictionary = (opts.get("data", {}) as Dictionary).duplicate(true)
+	if parent > 0 and _cn.has(parent):                            # a knock-on is caused by the last thing its parent did
+		var pd: Dictionary = (_cn[parent] as Dictionary)["data"]
+		data["ev"] = int(pd.get("le", pd.get("ev", 0)))
+	elif int(opts.get("ev", 0)) > 0:
+		data["ev"] = int(opts["ev"])                              # the event that triggered it
 	_cn[cid] = {"k": kind, "sid": sid, "place": place, "d0": _now(), "stage": 0, "par": parent, "anc": anc, "depth": depth, "done": false,
-		"data": (opts.get("data", {}) as Dictionary).duplicate(true)}
+		"data": data}
 	if parent == 0:
 		_new_today += 1
 	stats["started"] = int(stats["started"]) + 1
@@ -237,6 +281,7 @@ func _finish(cid: int) -> void:
 	if c.is_empty():
 		return
 	c["done"] = true
+	(c["data"] as Dictionary).erase("hit")
 	stats["finished"] = int(stats["finished"]) + 1
 
 
@@ -293,6 +338,7 @@ func _run(cid: int, stage: int) -> void:
 		return
 	if bool(c["done"]):
 		return
+	_cur = cid
 	c["stage"] = stage
 	var sid := int(c["sid"])
 	var name := PD.sname(sid) if sid >= 0 else "the realm"
@@ -307,6 +353,73 @@ func _run(cid: int, stage: int) -> void:
 		"army_departure": _army(cid, c, stage, sid, name)
 		"epidemic": _epidemic(cid, c, stage, sid, name)
 		"recognition": _recognition(cid, c, stage, sid, name)
+	_touch(cid, c, stage, sid)
+	_cur = 0
+
+
+## NI-7: the stage's effect on specific townspeople (see PFX). Returns how many were touched.
+func _touch(cid: int, c: Dictionary, stage: int, sid: int) -> int:
+	var rows: Dictionary = PFX.get(String(c["k"]), {})
+	if sid < 0 or not rows.has(stage):
+		return 0
+	var mn: Variant = _mod("minds")
+	var ps: Variant = _mod("psyche")
+	var room := mini(CHAIN_PEOPLE - ((c["data"] as Dictionary).get("hit", []) as Array).size(), PERSON_DAY_CAP - _pday)
+	if mn == null or ps == null or room <= 0:
+		return 0
+	var row: Array = rows[stage]
+	var now := _now()
+	var hit: Array = (c["data"] as Dictionary).get("hit", [])
+	var done: Array = []
+	var ev_n := int((c["data"] as Dictionary).get("le", (c["data"] as Dictionary).get("ev", 0)))
+	for ch: String in mn.witnesses_at(sid, mini(int(row[3]), room) + 3, "fx%d_%d" % [cid, stage]):
+		if done.size() >= mini(int(row[3]), room):
+			break
+		if hit.has(ch) or int(_pcool.get(ch, -1)) > now or not mn.is_alive(ch):
+			continue
+		if not ps.experience(ch, String(row[0]), float(row[1]), float(row[2]), int(row[3]), now):
+			continue
+		done.append(ch)
+		hit.append(ch)
+		_pcool[ch] = now + PCOOL_DAYS
+		_pfx.append([now, ch, String(row[0]), cid, ev_n])
+		if int(row[5]) == 1:
+			mn.poke(ch)
+		if float(row[1]) >= 0.5:
+			mn.shake_plan(ch, 20)
+	if done.is_empty():
+		return 0
+	if _pfx.size() > PFX_MAX:
+		_pfx = _pfx.slice(_pfx.size() - PFX_MAX)
+	var bk := String(row[4])
+	var bo: Variant = _mod("bonds")
+	if bk != "" and bo != null:
+		var i := 0
+		while i + 1 < done.size():
+			bo.event(bk, String(done[i]), String(done[i + 1]), now, 1.0)
+			i += 2
+	(c["data"] as Dictionary)["hit"] = hit
+	_pday += done.size()
+	stats["people"] = int(stats["people"]) + done.size()
+	var n := _ev("mood", sid, done.slice(0, 4), "chain_people", "%d townspeople feel it" % done.size(), 1)
+	if n > 0:
+		(c["data"] as Dictionary)["le"] = n
+	return done.size()
+
+
+## Effects chains have had on `ch` lately, newest first: [{day, kind (psyche), chain, ev (the event that caused it)}].
+func person_fx(ch: String) -> Array:
+	var out: Array = []
+	for i in range(_pfx.size() - 1, -1, -1):
+		var e: Array = _pfx[i]
+		if String(e[1]) == ch:
+			out.append({"day": int(e[0]), "kind": String(e[2]), "chain": int(e[3]), "ev": int(e[4])})
+	return out
+
+
+## True when no chain is live in the town (an ordinary stretch).
+func calm(sid: int) -> bool:
+	return local(sid).is_empty()
 
 
 func _mine(cid: int, c: Dictionary, stage: int, sid: int, name: String) -> void:
@@ -574,7 +687,7 @@ func _scan_events() -> void:
 		var kind := String(r["kind"])
 		var sid := _sid_of(String(r["where"]), reg)
 		if cause == "noble_death":
-			start("noble_death", sid if sid >= 0 else PD.capital_sid())
+			start("noble_death", sid if sid >= 0 else PD.capital_sid(), {"ev": n})
 		elif kind == "founding" and cause == "dissolved" and int(r["weight"]) >= 3:
 			var om: Variant = _mod("organizations")
 			for a: Variant in r["actors"]:
@@ -582,10 +695,10 @@ func _scan_events() -> void:
 				if om != null and oid.begins_with("org:") and om.exists(oid) and String(om.org(oid).get("type", "")) in GUILD_TYPES \
 						and int(om.org(oid).get("stage", 0)) >= 2 and int(om.org(oid).get("end", 0)) - int(om.org(oid).get("born", 0)) >= 40:
 					var gs := int(om.org(oid).get("sid", sid))
-					start("guild_collapse", gs, {"data": {"name": String(om.org(oid).get("name", "A guild"))}, "place": oid})
+					start("guild_collapse", gs, {"data": {"name": String(om.org(oid).get("name", "A guild"))}, "place": oid, "ev": n})
 					break
 		elif cause == "recognised" and kind == "military":
-			start("recognition", sid if sid >= 0 else PD.capital_sid(), {"data": {"who": String(r["outcome"]).substr(0, 40)}})
+			start("recognition", sid if sid >= 0 else PD.capital_sid(), {"data": {"who": String(r["outcome"]).substr(0, 40)}, "ev": n})
 
 
 func _sid_of(where: String, reg: Variant) -> int:
@@ -632,7 +745,10 @@ func _hazards(week: int) -> void:
 	for s: Dictionary in WorldGen.settlements:
 		var sid := int(s["id"])
 		var pop := int(s.get("population", 200))
+		var hush: bool = not local(sid).is_empty() or int(_cool.get("any|%d" % sid, -1)) > _now()      # ordinary stability: no new trouble on top of trouble
 		for k: String in HAZARD:
+			if hush:
+				continue
 			var p := float(HAZARD[k])
 			if k == "epidemic":
 				p *= 0.6 + float(pop) / 600.0
@@ -645,7 +761,9 @@ func _hazards(week: int) -> void:
 				var opts := {}
 				if k == "epidemic":
 					opts["data"] = {"sev": 0.6 + float(absi(hash([WorldSim.SEED, "sev", week, sid])) % 100) / 100.0}
-				start(k, sid, opts)
+				if start(k, sid, opts) > 0:
+					_cool["any|%d" % sid] = _now() + TOWN_QUIET
+					hush = true
 		# The dry harvest: judged once a year, at the end of autumn, from a hash weighted by how much grain the town's farms have.
 		if posmod(_now(), 360) / 7 == 262 / 7 and week > 0:
 			var bad := 0.06
@@ -661,6 +779,7 @@ func _hazards(week: int) -> void:
 func tick_day(day: int, _ctx: Dictionary) -> Array:
 	_day = day
 	_new_today = 0
+	_pday = 0
 	_scan_events()
 	var list: Array = _due.get(day, [])
 	_due.erase(day)
@@ -674,6 +793,16 @@ func tick_week(week: int, _ctx: Dictionary) -> Array:
 	_scan_state(week)
 	_hazards(week)
 	_prune_fx()
+	var live_towns := {}
+	for k2: Variant in _cn:
+		if not bool((_cn[k2] as Dictionary)["done"]):
+			live_towns[int((_cn[k2] as Dictionary)["sid"])] = true
+	stats["weeks"] = int(stats["weeks"]) + 1
+	stats["town_weeks"] = int(stats["town_weeks"]) + WorldGen.settlements.size()
+	stats["weeks_calm"] = int(stats["weeks_calm"]) + WorldGen.settlements.size() - live_towns.size()
+	for pc: Variant in _pcool.keys():
+		if int(_pcool[pc]) < _now():
+			_pcool.erase(pc)
 	# Old finished chains fold into the history lines.
 	var done: Array = []
 	for k: Variant in _cn:
@@ -699,6 +828,7 @@ func catch_up(days: int, _ctx: Dictionary) -> Array:
 		if next > target:
 			break
 		_day = next
+		_pday = 0
 		var list: Array = _due.get(next, [])
 		_due.erase(next)
 		for e: Array in list:
@@ -719,7 +849,7 @@ func serialize() -> Dictionary:
 	for d: Variant in _due:
 		due[str(d)] = _due[d]
 	return {"cn": cn, "due": due, "fx": _fx.duplicate(true), "cool": _cool.duplicate(), "hist": _hist.duplicate(), "tax": _seen_tax.duplicate(), "kn": _kind_n.duplicate(),
-		"le": _last_ev, "n": _next, "day": _day, "st": stats.duplicate()}
+		"le": _last_ev, "n": _next, "day": _day, "st": stats.duplicate(), "pc": _pcool.duplicate(), "pf": _pfx.duplicate(true)}
 
 
 func deserialize(d: Dictionary) -> void:
@@ -760,6 +890,14 @@ func deserialize(d: Dictionary) -> void:
 	var kn: Dictionary = d.get("kn", {})
 	for k: Variant in kn:
 		_kind_n[String(k)] = int(kn[k])
+	_pcool = {}
+	for k: Variant in (d.get("pc", {}) as Dictionary):
+		_pcool[String(k)] = int(d["pc"][k])
+	_pfx = []
+	for e2: Variant in d.get("pf", []):
+		var a3: Array = e2
+		if a3.size() >= 5:
+			_pfx.append([int(a3[0]), String(a3[1]), String(a3[2]), int(a3[3]), int(a3[4])])
 	_last_ev = int(d.get("le", 0))
 	_next = int(d.get("n", 1))
 	_day = int(d.get("day", 0))
@@ -770,6 +908,14 @@ func deserialize(d: Dictionary) -> void:
 
 ## JSON turns the integers inside a chain's data into floats: put them back.
 func _fix_data(data: Dictionary) -> Dictionary:
+	for ik: String in ["to", "ev", "le"]:
+		if data.has(ik):
+			data[ik] = int(data[ik])
+	if data.has("hit"):
+		var hs: Array = []
+		for x: Variant in data["hit"]:
+			hs.append(String(x))
+		data["hit"] = hs
 	if data.has("to"):
 		data["to"] = int(data["to"])
 	if data.has("kids"):

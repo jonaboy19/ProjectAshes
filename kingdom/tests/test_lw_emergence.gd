@@ -415,7 +415,12 @@ func test_save_round_trip_is_exact_and_chains_resume() -> void:
 	_run(h2, 513, 560)
 	var s1: Dictionary = em.serialize().duplicate()
 	var s2: Dictionary = e2.serialize().duplicate()
-	s1.erase("le")                                                      # the copy's event ring is its own
+	s1.erase("le")                                                      # the copy's event ring is its own, so are the event numbers chains remember (NI-6 "ev" / "le")
 	s2.erase("le")
+	for sx: Dictionary in [s1, s2]:
+		sx["cn"] = (JSON.parse_string(JSON.stringify(sx["cn"])) as Dictionary)
+		for cc: Variant in sx["cn"]:
+			((sx["cn"][cc] as Array)[8] as Dictionary).erase("ev")
+			((sx["cn"][cc] as Array)[8] as Dictionary).erase("le")
 	assert_str(_norm(s2)).is_equal(_norm(s1))
 	assert_int(JSON.stringify(em.serialize()).length()).is_less(20_000)

@@ -33,6 +33,7 @@ const BZ := preload("res://scripts/realm/businesses.gd")
 const Registry := preload("res://scripts/realm/registry.gd")
 const Persona := preload("res://scripts/realm/persona.gd")
 const Core := preload("res://scripts/sim/utility_core.gd")
+const FD := preload("res://scripts/realm/farming_data.gd")
 
 const YEAR := 360
 const CHUNK := 5
@@ -51,6 +52,8 @@ const BOOM_KINDS := ["mine", "recognition"]
 ## Days before the same character tries the same kind of thing again: [after success, after failure], by goal index.
 const GOAL_WAIT := [[0, 0], [0, 0], [0, 0], [0, 0], [120, 30], [20, 12], [240, 60], [180, 20], [14, 14], [60, 60], [90, 30], [0, 0]]
 const GOALS_FILE := "res://data/npc/goals.json"
+const PLANS_FILE := "res://data/npc/plans.json"
+const MAX_PLANS := 240               # characters holding a plan at once (the save keeps six small ints for each)
 const TRACE_K := 3                   # decisions kept per near-tier character (NI-3 decision trace)
 const BYTE := 1.0 / 255.0
 ## The input vector a goal's gates and terms read (data/npc/goals.json spells these lowercase). One flat PackedFloat32Array reused by
@@ -102,6 +105,8 @@ static var _gdef: Array = []         # compiled goals.json: [goal index, base, g
 static var _gthr := 0.22
 static var _gfast: Object = null     # goals.json compiled by utility_core.compile (null: interpret with Core.evaluate)
 static var _inp_names: PackedStringArray = PackedStringArray()
+static var _pcfg: Dictionary = {}     # data/npc/plans.json, resolved: {acts, aid, run, plans: [{id, goal, acts(flat), map(local -> global action), ...}], ...}
+var _plan: Dictionary = {}           # ch -> [template, commitment 0..255, started day, last day, failures, remembered facts]
 var _cost := 0
 var _phase := 0                      # 1 seeding characters, 2 pairing them into households (not saved: a load resumes with the slow top-up)
 var _couple_q: Array = []
@@ -110,7 +115,8 @@ var _moves_today := 0
 var _moves_day := -1
 var _prof: Dictionary = {}
 var stats := {"decisions": 0, "idle": 0, "work": 0, "job_changed": 0, "wed": 0, "land": 0, "business": 0, "org_join": 0, "org_found": 0, "move": 0, "contract": 0,
-	"petition": 0, "enlist": 0, "retire": 0, "failed": 0, "deaths": 0, "births_adults": 0, "demoted": 0, "promoted": 0, "pokes": 0}
+	"petition": 0, "enlist": 0, "retire": 0, "failed": 0, "deaths": 0, "births_adults": 0, "demoted": 0, "promoted": 0, "pokes": 0,
+	"plans_started": 0, "plans_done": 0, "plans_dropped": 0, "plan_steps": 0}
 
 
 func _now() -> int:
@@ -558,6 +564,8 @@ func on_married(a: String, b: String, _hid: String) -> void:
 func poke(ch: String) -> void:
 	if not _m.has(ch):
 		return
+	if _plan.has(ch):
+		shake_plan(ch, int(_plan_cfg().get("shake", 30)) / 2)       # news that wakes a character also weakens its resolve
 	var r: Dictionary = _m[ch]
 	if int(r["n"]) > _now() + 1:
 		_schedule(ch, _now() + 1)
@@ -583,6 +591,7 @@ func die(ch: String, cause := "age") -> bool:
 	var om: Variant = _om()
 	var sid := town_of(ch)
 	var nm_age := age_of(ch)
+	_plan.erase(ch)
 	stats["deaths"] = int(stats["deaths"]) + 1
 	_dead += 1
 	var dn: Variant = _mod("dynasties")
@@ -958,11 +967,330 @@ func trace(ch: String) -> Array:
 	return out
 
 
+## The input vector of the newest recorded decision as {input name: value} (non-zero ones), {} when there is none: the numbers behind trace().
+func trace_inputs(ch: String) -> Dictionary:
+	_load_goals()
+	var ring: Array = _trace.get(ch, [])
+	var out := {}
+	if ring.is_empty():
+		return out
+	var inp: PackedFloat32Array = (ring[ring.size() - 1] as Array)[2]
+	for i in inp.size():
+		if inp[i] != 0.0 and i < _inp_names.size():
+			out[_inp_names[i]] = snappedf(inp[i], 0.001)
+	return out
+
+
 func _holds_land(ch: String) -> bool:
 	var fm: Variant = _mod("farming")
 	if fm == null:
 		return false
 	return not (fm.parcels_of(ch) as Array).is_empty() or not (fm.rented_by(ch) as Array).is_empty()
+
+
+# ------------------------------------------------------------------ plans (NI-8, GOAP-lite)
+
+## data/npc/plans.json resolved once: facts to bit masks, actions to flat [pre, add, del, cost] rows, templates to the (at most 3) actions they may use.
+static func _plan_cfg() -> Dictionary:
+	if not _pcfg.is_empty():
+		return _pcfg
+	var f := FileAccess.open(PLANS_FILE, FileAccess.READ)
+	var doc: Variant = JSON.parse_string(f.get_as_text()) if f != null else null
+	if not (doc is Dictionary):
+		push_error("minds: %s is missing or invalid" % PLANS_FILE)
+		_pcfg = {"plans": [], "start_chance": 0.0}
+		return _pcfg
+	var d: Dictionary = (doc as Dictionary).duplicate(true)
+	var facts: Array = d["facts"]
+	var mask := func(names: Array) -> int:
+		var m := 0
+		for n: Variant in names:
+			var i := facts.find(String(n))
+			if i >= 0:
+				m |= 1 << i
+		return m
+	var aid: Dictionary = {}
+	var run: Array = []
+	var rows: Array = []
+	for a: Dictionary in d["actions"]:
+		aid[String(a["id"])] = rows.size()
+		run.append(String(a["run"]))
+		rows.append([int(mask.call(a["pre"])), int(mask.call(a["add"])), 0, int(a["cost"])])
+	var plans: Array = []
+	for p: Dictionary in d["plans"]:
+		var flat := PackedInt32Array()
+		var map: Array = []
+		for sid2: Variant in (p["steps"] as Array).slice(0, Core.PLAN_MAX_DEPTH):
+			var gi: int = int(aid.get(String(sid2), -1))
+			if gi < 0:
+				continue
+			map.append(gi)
+			for v: Variant in rows[gi]:
+				flat.append(int(v))
+		p["flat"] = flat
+		p["map"] = map
+		p["gmask"] = int(mask.call(p["goal"]))
+		plans.append(p)
+	d["plans"] = plans
+	d["rows"] = rows
+	d["run"] = run
+	d["aid"] = aid
+	d["wmask"] = int(mask.call(d["world"]))
+	d["facts_n"] = facts.size()
+	_pcfg = d
+	return _pcfg
+
+
+func _plan_def(ch: String) -> Dictionary:
+	var p: Array = _plan.get(ch, [])
+	if p.is_empty():
+		return {}
+	var plans: Array = _plan_cfg()["plans"]
+	return plans[int(p[0])] if int(p[0]) < plans.size() else {}
+
+
+func _trait(ch: String, field: int) -> float:
+	if _pe == null:
+		_pe = _mod("persona")
+	if _pe == null:
+		return 0.5
+	var o: int = _pe.off(ch)
+	return float((_pe.buf() as PackedByteArray)[o + field]) * BYTE if o >= 0 else 0.5
+
+
+## The facts about `ch` the planner tests, as a bit mask (the order of "facts" in plans.json): cash 100, funds 320, land held, a field sown,
+## two friends, a founding of its own, plus whatever the plan itself remembers (a petition filed).
+func _plan_state(ch: String, rec: Dictionary, c: Dictionary, ach: int, hot := true) -> int:
+	var s := ach & ~int(_plan_cfg()["wmask"])
+	var cash := int(c["cash"])
+	if cash >= 100:
+		s |= 1
+	if cash >= 320:
+		s |= 2
+	if hot:
+		if _holds_land(ch):
+			s |= 4
+			if _farm_started(ch):
+				s |= 8
+		if _bo == null:
+			_bo = _mod("bonds")
+		if _bo != null and (_bo.friends(ch, 12.0, 3) as Array).size() >= 2:
+			s |= 16
+	if String(rec["fo"]) != "":
+		s |= 64
+	return s
+
+
+func _farm_started(ch: String) -> bool:
+	var fm: Variant = _mod("farming")
+	if fm == null:
+		return false
+	for pid: Variant in (fm.parcels_of(ch) as Array) + (fm.rented_by(ch) as Array):
+		for i in int(fm.fields_count(String(pid))):
+			if String((fm.field(String(pid), i) as Dictionary).get("c", "")) != "":
+				return true
+	return false
+
+
+## Picks the template this character would follow from its present state (the best score above start_min among those whose gates hold and
+## which a plan of at most 3 steps can finish), and starts it. `only` forces one template (tests, scripted lives). False when nothing fits.
+func _plan_start(ch: String, rec: Dictionary, c: Dictionary, age: int, day: int, only: String) -> bool:
+	var cfg := _plan_cfg()
+	if _plan.has(ch) or _plan.size() >= MAX_PLANS:
+		return false
+	var best := -1
+	var bs := float(cfg.get("start_min", 0.45)) if only == "" else -1.0e9
+	var ti := 0
+	var state := -1
+	for p: Dictionary in cfg["plans"]:
+		if only != "" and String(p["id"]) != only:
+			ti += 1
+			continue
+		if age < int(p["min_age"]) or age > int(p["max_age"]) or (bool(p["farmer"]) and String(c["prof"]) != "farmer"):
+			ti += 1
+			continue
+		if state < 0:
+			state = _plan_state(ch, rec, c, 0)
+		var g: int = p["gmask"]
+		if not Core.plan_holds(state, g) and not Core.plan(p["flat"], state, g).is_empty():
+			var sc := float(p["base"]) + (_roll("plr", day, ch) - 0.5) * 0.1
+			for t: String in p["terms"]:
+				sc += float(p["terms"][t]) * _trait_named(ch, t)
+			if sc > bs:
+				bs = sc
+				best = ti
+		ti += 1
+	if best < 0:
+		return false
+	var amb := _trait(ch, Persona.O_AMB)
+	var disc := _trait(ch, Persona.O_DISC)
+	var commit := clampi(int(float(cfg["c0"]) + float(cfg["c_amb"]) * amb + float(cfg["c_disc"]) * disc), 0, 255)
+	_plan[ch] = [best, commit, day, day, 0, 0]
+	stats["plans_started"] = int(stats["plans_started"]) + 1
+	return true
+
+
+func _trait_named(ch: String, t: String) -> float:
+	match t:
+		"amb": return _trait(ch, Persona.O_AMB)
+		"disc": return _trait(ch, Persona.O_DISC)
+		"loy": return _trait(ch, Persona.O_LOY)
+		"bold": return _trait(ch, Persona.O_BOLD)
+		"warm": return _trait(ch, Persona.O_WARM)
+		"hon": return _trait(ch, Persona.O_HON)
+	return 0.0
+
+
+## Starts template `plan_id` for `ch` now (a scripted life, a quest giver, a test). False when it is not possible from where the character stands.
+func plan_begin(ch: String, plan_id: String) -> bool:
+	var rec: Dictionary = _m.get(ch, {})
+	var om: Variant = _om()
+	if rec.is_empty() or om == null or not om.has_char(ch):
+		return false
+	var d := _now()
+	return _plan_start(ch, rec, om.char_rec(ch), (d - int(rec["b"])) / YEAR, d, plan_id)
+
+
+## Breaks resolve: a shock (bad news, a poke from a chain) takes `amount` off the commitment; at or below the quit line the plan is dropped
+## at the next decision.
+func shake_plan(ch: String, amount: int) -> void:
+	var p: Array = _plan.get(ch, [])
+	if not p.is_empty():
+		p[1] = int(p[1]) - amount
+
+
+func _plan_drop(ch: String, rec: Dictionary, day: int, done: bool) -> void:
+	_plan.erase(ch)
+	if done:
+		stats["plans_done"] = int(stats["plans_done"]) + 1
+		_ev("trade", town_of(ch), [ch], "plan_done", "%s sees a long plan through" % ch, 2)
+	else:
+		stats["plans_dropped"] = int(stats["plans_dropped"]) + 1
+		rec["cd"] = maxi(int(rec["cd"]), day + 40)         # a changed mind does not start another plan at once
+
+
+## The character's plan as data: {} when it has none. {id, hidden, commit, fails, born, steps: [action ids still to do, in order], goal: [fact names]}.
+func plan_of(ch: String) -> Dictionary:
+	var p: Array = _plan.get(ch, [])
+	var def := _plan_def(ch)
+	if p.is_empty() or def.is_empty():
+		return {}
+	var cfg := _plan_cfg()
+	var steps: Array = []
+	var om: Variant = _om()
+	if om != null and om.has_char(ch) and _m.has(ch):
+		var st := _plan_state(ch, _m[ch], om.char_rec(ch), int(p[5]))
+		for a: int in Core.plan(def["flat"], st, int(def["gmask"])):
+			steps.append(_action_id(int((def["map"] as Array)[a])))
+	return {"id": String(def["id"]), "hidden": bool(def.get("hidden", false)), "commit": int(p[1]), "fails": int(p[4]), "born": int(p[2]), "steps": steps, "goal": def["goal"]}
+
+
+func _action_id(gi: int) -> String:
+	for k: Variant in (_plan_cfg()["aid"] as Dictionary):
+		if int(_plan_cfg()["aid"][k]) == gi:
+			return String(k)
+	return ""
+
+
+func plans_count() -> int:
+	return _plan.size()
+
+
+## One decision day of a character that holds a plan. Returns -1 when the plan ended (finished, dropped or no longer possible) and the usual
+## choice should run, else (goal index << 1) | step done. Commitment decays with the days since the last look (closed form: a long sleep is one
+## multiplication), steps run through the module APIs of the goals (_a_land, _a_petition, _a_found ...) and spend their work units.
+func _plan_run(ch: String, rec: Dictionary, c: Dictionary, age: int, day: int, facts: Dictionary) -> int:
+	var cfg := _plan_cfg()
+	var p: Array = _plan[ch]
+	var def := _plan_def(ch)
+	if def.is_empty():
+		_plan.erase(ch)
+		return -1
+	var el := maxi(0, day - int(p[3]))
+	p[3] = day
+	p[1] = int(p[1]) - int(float(el) * (float(cfg["decay"]) + float(cfg["decay_vol"]) * _trait(ch, Persona.O_VOL)))
+	if day - int(p[2]) > int(cfg["give_up_days"]) * 6 or int(p[1]) <= int(cfg["quit"]):
+		_plan_drop(ch, rec, day, false)
+		return -1
+	var state := _plan_state(ch, rec, c, int(p[5]))
+	var goal: int = def["gmask"]
+	if Core.plan_holds(state, goal):
+		_plan_drop(ch, rec, day, true)
+		return -1
+	var path := Core.plan(def["flat"], state, goal)
+	if path.is_empty():                                          # the world changed under the plan (the money is gone, the land taken): no way left
+		_plan_drop(ch, rec, day, false)
+		return -1
+	var gi: int = int((def["map"] as Array)[path[0]])
+	var run := String((cfg["run"] as Array)[gi])
+	var cost := int((cfg["rows"] as Array)[gi][3])
+	stats["plan_steps"] = int(stats["plan_steps"]) + 1
+	var gidx := 1
+	var ok := false
+	match run:
+		"save":
+			return (1 << 1)                                    # waiting for the purse to fill: costs no work, the resolve keeps fading
+		"land":
+			gidx = 3
+			ok = _a_land(ch, c, day)
+		"farm":
+			gidx = 3
+			ok = _a_farm(ch, day)
+		"allies":
+			gidx = 5
+			ok = _a_allies(ch, c, day)
+		"petition":
+			gidx = 9
+			ok = _a_petition(ch, c, day, facts)
+			if ok:
+				p[5] = int(p[5]) | (1 << (cfg["facts"] as Array).find("petition"))
+		"found":
+			gidx = 6
+			ok = _a_found(ch, c, day)
+	_cost += cost
+	if ok:
+		p[1] = mini(255, int(p[1]) + int(cfg["gain"]))
+		p[4] = 0
+		rec["l"] = day
+		rec["f"] = 0
+	else:
+		p[1] = int(p[1]) - int(cfg["fail"])
+		p[4] = int(p[4]) + 1
+		if int(p[4]) >= 3:
+			_plan_drop(ch, rec, day, false)
+			return -1
+	return (gidx << 1) | (1 if ok else 0)
+
+
+## Starts the first field of the character's farm: seed bought from its purse and sown with the farming module's own calls.
+func _a_farm(ch: String, day: int) -> bool:
+	var fm: Variant = _mod("farming")
+	if fm == null:
+		return false
+	var season: int = fm.season_of(day)
+	for pid: Variant in (fm.parcels_of(ch) as Array) + (fm.rented_by(ch) as Array):
+		var ps := String(pid)
+		for i in int(fm.fields_count(ps)):
+			if String((fm.field(ps, i) as Dictionary).get("c", "")) != "":
+				continue
+			for crop: String in ["wheat", "barley", "peas"]:
+				if FD.can_sow(crop, season) and fm.buy_seed(ps, crop, int(FD.CROPS[crop]["seed"]), ch) == "":
+					if bool((fm.do_task(ps, i, "sow", crop, ch) as Dictionary).get("ok", false)):
+						return true
+	return false
+
+
+## Makes friends: a helping hand to two townspeople (bonds.gd turns it into trust, affection and obligation, scaled by both persons).
+func _a_allies(ch: String, c: Dictionary, day: int) -> bool:
+	if _bo == null:
+		_bo = _mod("bonds")
+	if _bo == null:
+		return false
+	var n := 0
+	for o: String in witnesses_at(int(c["sid"]), 4, "ally%s%d" % [ch, day]):
+		if o != ch and n < 2 and _bo.event("help", ch, o, day, 2.0):
+			n += 1
+	return n > 0
 
 
 # ------------------------------------------------------------------ actions
@@ -1399,6 +1727,12 @@ func _decide(ch: String, day: int) -> bool:
 		if advance_founding(fo, day) == "" and (not om.exists(fo) or int(om.org(fo)["stage"]) >= 3 or String(om.org(fo)["leader"]) != ch):
 			rec["fo"] = ""
 	var facts := _town_facts(sid, day)
+	if not _plan.is_empty() and _plan.has(ch):
+		var pr := _plan_run(ch, rec, c, age, day, facts)
+		if pr >= 0:                                          # a step of the character's plan was its day (a dropped or finished plan falls through to the usual choice)
+			rec["g"] = pr >> 1
+			_schedule(ch, day + (CADENCE_NEAR if tier == 1 else CADENCE_MID))
+			return (pr & 1) == 1
 	var tp0 := Time.get_ticks_usec()
 	var goal := _choose(ch, rec, c, age, day, tier, facts)
 	if profile:
@@ -1408,6 +1742,8 @@ func _decide(ch: String, day: int) -> bool:
 	var done := false
 	if goal == 0:
 		stats["idle"] = int(stats["idle"]) + 1
+		if age >= ADULT + 2 and day >= int(rec["cd"]) and _plan.size() < MAX_PLANS and _roll("pl", day, ch) < float(_plan_cfg().get("start_chance", 0.06)):
+			_plan_start(ch, rec, c, age, day, "")
 	else:
 		var ta0 := Time.get_ticks_usec()
 		_cost += 6 if goal in [4, 5, 6, 7] else 2
@@ -1482,6 +1818,7 @@ func _demote(ch: String, _rec: Dictionary, c: Dictionary) -> bool:
 	om.unemploy(ch)
 	_m.erase(ch)
 	_trace.erase(ch)
+	_plan.erase(ch)
 	var pe: Variant = _mod("persona")
 	if pe != null:
 		pe.drop(ch)
@@ -1644,7 +1981,13 @@ func serialize() -> Dictionary:
 	var agg: Dictionary = {}
 	for sid: Variant in _agg:
 		agg[str(sid)] = [int(float((_agg[sid] as Array)[0])), int(float((_agg[sid] as Array)[1]))]
-	return {"m": rows, "agg": agg, "dead": _dead, "day": _day, "seeded": _seeded, "focus": _focus, "ff": focus_fixed, "st": stats.duplicate()}
+	var pl: Dictionary = {}
+	for ch2: Variant in _plan:
+		pl[ch2] = (_plan[ch2] as Array).duplicate()
+	var out := {"m": rows, "agg": agg, "dead": _dead, "day": _day, "seeded": _seeded, "focus": _focus, "ff": focus_fixed, "st": stats.duplicate()}
+	if not pl.is_empty():
+		out["pl"] = pl
+	return out
 
 
 func deserialize(d: Dictionary) -> void:
@@ -1683,6 +2026,12 @@ func deserialize(d: Dictionary) -> void:
 	var agg: Dictionary = d.get("agg", {})
 	for k: Variant in agg:
 		_agg[int(k)] = [float((agg[k] as Array)[0]), float((agg[k] as Array)[1])]
+	_plan = {}
+	var pl: Dictionary = d.get("pl", {})
+	for k: Variant in pl:
+		var a2: Array = pl[k]
+		if a2.size() >= 6 and _m.has(String(k)):
+			_plan[String(k)] = [int(a2[0]), int(a2[1]), int(a2[2]), int(a2[3]), int(a2[4]), int(a2[5])]
 	_dead = int(d.get("dead", 0))
 	_day = int(d.get("day", 0))
 	_seeded = bool(d.get("seeded", false))

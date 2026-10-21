@@ -2,7 +2,8 @@ extends "res://scripts/realm/realm_module.gd"
 ## EventRecord log (LW-1.2, docs/design/LIVING_WORLD_SANDBOX.md Part C and E).
 ## One append-only ring of the 2,000 most recent events. Systems write, news / rumour / memory / chronicle / justice read.
 ## A record is a packed array (about 60-90 B of JSON):
-##   [n, day, kind, where, actors[], cause, outcome, weight]
+##   [n, day, kind, where, actors[], cause, outcome, weight(, parent n)]
+## The optional 9th element is the number of the event that caused this one (NI-6: scripts/sim/trace.gd walks it); it is left off when 0.
 ## n is the number in "ev:n" (minted by the registry, never reused), where / actors are persistent ids (legacy keys are
 ## resolved through the registry; one that cannot be resolved stays as written), cause and outcome are short plain
 ## strings, weight 0..9 (>= HIST_WEIGHT survives compaction as a historic line).
@@ -41,7 +42,7 @@ var _dirty := true
 
 ## Appends one event. `where` is a persistent id, a legacy key or "" ; `actors` persistent ids or legacy keys.
 ## Returns the event number (the n of "ev:n").
-func record(kind: String, where: Variant, actors: Array, cause: String, outcome: String, weight := 1, day := -1) -> int:
+func record(kind: String, where: Variant, actors: Array, cause: String, outcome: String, weight := 1, day := -1, parent := 0) -> int:
 	var reg: RefCounted = hub.mod("registry") if hub != null else null
 	var n := 0
 	var w := ""
@@ -62,7 +63,10 @@ func record(kind: String, where: Variant, actors: Array, cause: String, outcome:
 				break
 			acts.append(String(a))
 	var d := day if day >= 0 else (WorldSim.day if WorldSim != null else 0)
-	_ring.append([n, d, kind, w, acts, cause.substr(0, CAUSE_MAX), outcome.substr(0, OUTCOME_MAX), clampi(weight, 0, 9)])
+	var row: Array = [n, d, kind, w, acts, cause.substr(0, CAUSE_MAX), outcome.substr(0, OUTCOME_MAX), clampi(weight, 0, 9)]
+	if parent > 0 and parent < n:
+		row.append(parent)
+	_ring.append(row)
 	_totals[kind] = int(_totals.get(kind, 0)) + 1
 	_dirty = true
 	if _ring.size() > CAP:
@@ -90,12 +94,13 @@ func _compact() -> void:
 
 
 ## Static entry for realm modules: no-op when `hub` has no events module.
-static func log_to(h: Variant, kind: String, where: Variant, actors: Array, cause: String, outcome: String, weight := 1) -> void:
+static func log_to(h: Variant, kind: String, where: Variant, actors: Array, cause: String, outcome: String, weight := 1, parent := 0) -> int:
 	if h == null:
-		return
+		return 0
 	var ev: Variant = h.mod("events")
 	if ev != null:
-		ev.record(kind, where, actors, cause, outcome, weight)
+		return int(ev.record(kind, where, actors, cause, outcome, weight, -1, parent))
+	return 0
 
 
 ## Static entry for sim scripts (family, life_courses ...): writes to Life.realm's log when it exists.
@@ -127,7 +132,38 @@ func total() -> int:
 
 static func _row(r: Array) -> Dictionary:
 	return {"id": "ev:%d" % int(r[0]), "n": int(r[0]), "day": int(r[1]), "kind": r[2], "where": r[3], "actors": r[4], "cause": r[5],
-		"outcome": r[6], "weight": int(r[7])}
+		"outcome": r[6], "weight": int(r[7]), "parent": int(r[8]) if r.size() > 8 else 0}
+
+
+## One event by number (a dictionary like `recent` rows), or {} when it has been folded out of the ring. The ring is ordered by number, so this is a binary search.
+func get_event(n: int) -> Dictionary:
+	var lo := 0
+	var hi := _ring.size() - 1
+	while lo <= hi:
+		var mid := (lo + hi) / 2
+		var v := int((_ring[mid] as Array)[0])
+		if v == n:
+			return _row(_ring[mid])
+		if v < n:
+			lo = mid + 1
+		else:
+			hi = mid - 1
+	return {}
+
+
+## Events whose parent is `n` (what it caused), oldest first. Scans the ring: for tools, not per-frame use.
+func children_of(n: int, limit := 20) -> Array:
+	var out: Array = []
+	var i := _ring.size() - 1
+	while i >= 0 and int((_ring[i] as Array)[0]) > n:
+		i -= 1
+	i += 1
+	while i < _ring.size() and out.size() < limit:
+		var r: Array = _ring[i]
+		if r.size() > 8 and int(r[8]) == n:
+			out.append(_row(r))
+		i += 1
+	return out
 
 
 ## Newest first.
@@ -249,7 +285,10 @@ func deserialize(d: Dictionary) -> void:
 				var acts: Array = []
 				for x: Variant in (a[4] as Array if a[4] is Array else []):
 					acts.append(String(x))
-				_ring.append([int(a[0]), int(a[1]), String(a[2]), String(a[3]), acts, String(a[5]), String(a[6]), int(a[7])])
+				var row: Array = [int(a[0]), int(a[1]), String(a[2]), String(a[3]), acts, String(a[5]), String(a[6]), int(a[7])]
+				if a.size() > 8 and int(a[8]) > 0:
+					row.append(int(a[8]))
+				_ring.append(row)
 		if _ring.size() > CAP:
 			_ring = _ring.slice(_ring.size() - CAP)
 	var c: Variant = d.get("counts", {})
