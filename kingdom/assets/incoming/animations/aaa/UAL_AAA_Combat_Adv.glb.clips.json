@@ -1,0 +1,116 @@
+[
+ {
+  "name": "Parry_High_Deflect",
+  "loop": false,
+  "seconds": 3.0,
+  "frames": 91,
+  "keys": 1052,
+  "source": "002/02_08.bvh",
+  "range_s": [
+   0.5,
+   3.5
+  ],
+  "autotrim": null,
+  "loop_pts": null,
+  "floor_fix_m": -0.017,
+  "contact_lift_m": 0.0,
+  "min_foot_m": -0.0,
+  "travel_m": 0.09,
+  "hip_scale": 0.0515
+ },
+ {
+  "name": "Parry_Sword_Riposte",
+  "loop": false,
+  "seconds": 3.5,
+  "frames": 106,
+  "keys": 1291,
+  "source": "002/02_08.bvh",
+  "range_s": [
+   4.0,
+   7.5
+  ],
+  "autotrim": null,
+  "loop_pts": null,
+  "floor_fix_m": -0.018,
+  "contact_lift_m": 0.0,
+  "min_foot_m": -0.002,
+  "travel_m": 0.1,
+  "hip_scale": 0.0515
+ },
+ {
+  "name": "Combat_Fencing_Lunge",
+  "loop": false,
+  "seconds": 3.5,
+  "frames": 106,
+  "keys": 1332,
+  "source": "002/02_08.bvh",
+  "range_s": [
+   8.0,
+   11.5
+  ],
+  "autotrim": null,
+  "loop_pts": null,
+  "floor_fix_m": -0.018,
+  "contact_lift_m": 0.0,
+  "min_foot_m": -0.001,
+  "travel_m": 0.22,
+  "hip_scale": 0.0515
+ },
+ {
+  "name": "Combat_Shield_Bash_Stagger",
+  "loop": false,
+  "seconds": 2.5,
+  "frames": 76,
+  "keys": 1023,
+  "source": "144/144_07.bvh",
+  "range_s": [
+   0.5,
+   3.0
+  ],
+  "autotrim": null,
+  "loop_pts": null,
+  "floor_fix_m": -0.014,
+  "contact_lift_m": 0.0,
+  "min_foot_m": -0.0,
+  "travel_m": 0.24,
+  "hip_scale": 0.0583
+ },
+ {
+  "name": "Combat_Dodge_Sidestep_L",
+  "loop": false,
+  "seconds": 2.5,
+  "frames": 76,
+  "keys": 907,
+  "source": "144/144_11.bvh",
+  "range_s": [
+   20.0,
+   22.5
+  ],
+  "autotrim": null,
+  "loop_pts": null,
+  "floor_fix_m": -0.016,
+  "contact_lift_m": 0.0,
+  "min_foot_m": -0.0,
+  "travel_m": 0.05,
+  "hip_scale": 0.0583
+ },
+ {
+  "name": "Combat_Dodge_Sidestep_R",
+  "loop": false,
+  "seconds": 2.5,
+  "frames": 76,
+  "keys": 869,
+  "source": "144/144_11.bvh",
+  "range_s": [
+   23.0,
+   25.5
+  ],
+  "autotrim": null,
+  "loop_pts": null,
+  "floor_fix_m": -0.015,
+  "contact_lift_m": 0.0,
+  "min_foot_m": -0.0,
+  "travel_m": 0.05,
+  "hip_scale": 0.0583
+ }
+]

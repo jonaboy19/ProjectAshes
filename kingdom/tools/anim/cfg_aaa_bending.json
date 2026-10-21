@@ -1,0 +1,131 @@
+{
+ "source_type": "bvh",
+ "bvh_dir": "${ANIM_SRC}/cmu-mocap/data",
+ "ual": "../../assets/incoming/quaternius/universal-animation-library/Unreal-Godot/UAL1_Standard.glb",
+ "out": "../../assets/incoming/animations/aaa/UAL_AAA_Bending_Avatar.glb",
+ "smooth": 0.015,
+ "fingers": "relaxed",
+ "finger_poses": {
+  "relaxed": ["Idle_Loop", 0.0],
+  "fist": ["Punch_Jab", 0.4],
+  "open": ["Spell_Simple_Idle_Loop", 0.5],
+  "grip": ["Sword_Idle", 0.0]
+ },
+ "map": {
+  "pelvis": "Hips",
+  "spine_01": "LowerBack",
+  "spine_02": "Spine",
+  "spine_03": "Spine1",
+  "neck_01": "Neck",
+  "Head": "Head",
+  "clavicle_l": "LeftShoulder",
+  "upperarm_l": "LeftArm",
+  "lowerarm_l": "LeftForeArm",
+  "hand_l": "LeftHand",
+  "clavicle_r": "RightShoulder",
+  "upperarm_r": "RightArm",
+  "lowerarm_r": "RightForeArm",
+  "hand_r": "RightHand",
+  "thigh_l": "LeftUpLeg",
+  "calf_l": "LeftLeg",
+  "foot_l": "LeftFoot",
+  "ball_l": "LeftToeBase",
+  "thigh_r": "RightUpLeg",
+  "calf_r": "RightLeg",
+  "foot_r": "RightFoot",
+  "ball_r": "RightToeBase"
+ },
+ "clips": [
+  {
+   "name": "Bending_Water_Flow_Stance",
+   "file": "012/12_04.bvh",
+   "start": 0.5,
+   "end": 5.5,
+   "loop": true
+  },
+  {
+   "name": "Bending_Water_Circular_Push",
+   "file": "012/12_04.bvh",
+   "start": 6.0,
+   "end": 11.0,
+   "loop": false
+  },
+  {
+   "name": "Bending_Water_Wave_Whip",
+   "file": "012/12_04.bvh",
+   "start": 12.0,
+   "end": 17.5,
+   "loop": false
+  },
+  {
+   "name": "Bending_Water_Dual_Stream",
+   "file": "012/12_04.bvh",
+   "start": 20.0,
+   "end": 25.5,
+   "loop": false
+  },
+  {
+   "name": "Bending_Earth_Rooted_Stance",
+   "file": "144/144_11.bvh",
+   "start": 1.0,
+   "end": 5.0,
+   "loop": true
+  },
+  {
+   "name": "Bending_Earth_Pillar_Thrust",
+   "file": "144/144_11.bvh",
+   "start": 6.0,
+   "end": 10.5,
+   "loop": false
+  },
+  {
+   "name": "Bending_Earth_Wall_Raise",
+   "file": "144/144_11.bvh",
+   "start": 12.0,
+   "end": 16.5,
+   "loop": false
+  },
+  {
+   "name": "Bending_Fire_Sun_Salutation",
+   "file": "144/144_30.bvh",
+   "start": 1.0,
+   "end": 6.0,
+   "loop": true
+  },
+  {
+   "name": "Bending_Fire_Punch_Burst",
+   "file": "144/144_20.bvh",
+   "start": 1.0,
+   "end": 4.5,
+   "loop": false
+  },
+  {
+   "name": "Bending_Fire_High_Kick",
+   "file": "144/144_05.bvh",
+   "start": 1.0,
+   "end": 4.5,
+   "loop": false
+  },
+  {
+   "name": "Bending_Air_Spiral_Spin",
+   "file": "144/144_15.bvh",
+   "start": 1.0,
+   "end": 5.0,
+   "loop": false
+  },
+  {
+   "name": "Bending_Air_Palm_Deflect",
+   "file": "144/144_15.bvh",
+   "start": 6.0,
+   "end": 10.0,
+   "loop": false
+  },
+  {
+   "name": "Bending_Air_Acrobatic_Evade",
+   "file": "144/144_01.bvh",
+   "start": 1.0,
+   "end": 4.5,
+   "loop": false
+  }
+ ]
+}
