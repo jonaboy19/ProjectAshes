@@ -33,7 +33,18 @@ Everything below is optimized for mobile, licence-checked (CC0/MIT, or CC-BY wit
     - Aetherial Sky Islands (floating landmasses, anti-gravity leylines, cloud harbors).
     - Submerged Water Cities (Tide Empress underwater palace, pressurized coral domes).
     - Colossal Subterranean Dwarven Cavern (Hollowdeep: 10km underground mountain cave, stalactite keeps, molten lava aqueducts).
-  - **Direct Visual Renders:** Real Blender 5.2 camera renders of the models and cottage interior/exterior are available in `docs/VALENCIOUS_WORLD_VIEWER.html` and `docs/img/actual_renders/`.
+  - **Direct Visual Renders:** Real Blender 5.2 camera renders of the models, cottage interior/exterior, and tournament arena are available in `docs/VALENCIOUS_WORLD_VIEWER.html` and `docs/img/actual_renders/`.
+
+- **Grand Tournament Colosseum & Arenas (2026-10-22 User Priority):**
+  - **Asset:** `kingdom/assets/generated/arena_colosseum.glb` (8,575 tris, 30.8m x 30.8m footprint, built by `tools/blender/make_tournament_arena.py`). Features 18m diameter sand combat pit with heavy timber-and-iron safety barrier, 4-tier spectator amphitheatre bleachers, elevated Royal Box with velvet canopy and gold thrones, 4 perimeter battle turrets, and dual gladiator tunnel portals with iron portcullises.
+  - **City & Regional Placement:** Integrated into `CityPlanner.plan()` for `kind in ["castle", "town"]` (Kingsreach Royal Capital and major towns), and placed by `RegionSites.plan()` as the "Valencious Grand Arena" between Ashford and Kingsreach.
+  - **Tournament System:** `kingdom/scripts/sim/tournament_system.gd` handles 4 championship tiers (Novice, Knight, Champion, Mythic), 8-contender brackets, combat resolution, player wagering, and custom rewards/titles ("Blade of Valencious").
+- **Hidden Wilderness Discoveries & Secrets (RegionSites):**
+  - **Smuggler's Hidden Cove:** Secret water cache with gemstones and crates behind Emberglass Mere waterfall.
+  - **Ancient Celestial Runestone:** Deep-forest cultivation grove in Duskbriar Wood with glowing cyan mana pulse.
+  - **Gundarak Dwarven Magma Portal:** Volcanic basalt cavern entrance in the northern crags of Mount Taiyun.
+  - **Hermit Daoist Cultivation Sanctuary:** Inaccessible pinnacle stone terrace with ancient martial manuals and cedar tea table.
+  - **Buried Bandit Lord Strongbox:** Hidden underground cellar under the collapsed watchtower rubble.
 
 - `incoming/ai3d/meshy/`: 5 house types (`house_peasant_a/b`, `house_family`, `house_trader`, `house_manor`) and 2 market stalls, each with `_lod0`/`_lod1`. **These replace the Blender village houses.** Use the same near/far LOD swap as the hero buildings.
 - `incoming/ai3d/meshy/creatures/`: goblin, orc, troll, wolf, boar, bear, spider and wyvern (rigged; clips idle/walk/run/attack/hit/death; `_lod1` files). Meshy bipeds have empty hands, so attach weapons to `RightHand`.
