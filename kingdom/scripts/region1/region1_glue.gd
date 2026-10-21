@@ -170,9 +170,25 @@ func _bind_wardlines() -> void:
 	var elders := elder_network_ids(_net)
 	if not (wl.layout_source == "network" and wl.n == _net.stones.size()):
 		wl.bind_network(_net, elders)    # a save loaded later replaces this with its own layout
+	_reserve_story_link_slots()
 	_net.coverage_override = wl.coverage_callable()
 	if not wl.event.is_connected(_on_ward_event):
 		wl.event.connect(_on_ward_event)
+
+
+## Auto-linking fills the Rift's Edge camp stones (East 4, West 5 of a max of 4), so "Route 3 ward-lines toward the Edge"
+## had almost no free slot. Every stone the story adds for its own places keeps STORY_LINK_SLOTS spare links for the player.
+const STORY_LINK_SLOTS := 3
+
+
+func _reserve_story_link_slots() -> void:
+	wl.story_slots.clear()
+	for spec: Dictionary in Places.story_stone_specs():
+		if not bool(spec["force"]):
+			continue
+		for s: Dictionary in _net.stones:
+			if String(s["name"]) == String(spec["name"]):
+				wl.reserve_story_slots(int(s["id"]), STORY_LINK_SLOTS)
 
 
 ## Network id -> the story's stone ids (registry "stones"): "miller_stone", "greenhollow_road", "elder_glade", ...
@@ -497,11 +513,10 @@ func _open_link_menu(id: int) -> String:
 func _link_menu(id: int) -> Dictionary:
 	# A second-level menu: the three nearest stones this one is not linked to yet.
 	var cand: Array = []
-	var max_degree := int(wl._cd("links", "max_degree", 4))
 	for i in wl.n:
 		if i == id or wl._find_link(id, i) >= 0:
 			continue
-		if wl.degree(i) >= max_degree or wl.degree(id) >= max_degree:
+		if wl.degree(i) >= wl.link_cap(i) or wl.degree(id) >= wl.link_cap(id):
 			continue      # a full stone cannot take another wardline: offering it only ended in "the link will not hold"
 		var d: float = wl.st_pos[id].distance_to(wl.st_pos[i])
 		if d <= float(wl._cf("links", "max_len")):
@@ -523,21 +538,44 @@ func _back_to_stone(id: int) -> String:
 	return ""
 
 
+## "" (any place), the places near the stone and the story's own ids for it.
+func _link_end_ids(id: int) -> Array[String]:
+	var out: Array[String] = [""]
+	for pid in Places.registry().get("places", {}):
+		var r := Places.resolve(String(pid))
+		if not r.is_empty() and (wl.st_pos[id] as Vector2).distance_to(r["pos"]) <= maxf(float(r["radius"]) * 3.0, 260.0):
+			out.append(String(pid))
+	out.append_array(story_stone_ids(id))
+	return out
+
+
+## A wardline has no direction and is one line: each open "link" objective hears it once, from whichever end matches
+## (it used to count once per place the first stone stood near, and only for the stone picked second).
+func _notify_link_story(a: int, b: int) -> void:
+	if story == null or story.story == null:
+		return
+	var ends_a := _link_end_ids(a)
+	var ends_b := _link_end_ids(b)
+	for step_id: String in story.story.active_steps():
+		var o: Dictionary = story.story.current_objective(step_id)
+		for sub: Dictionary in (o.get("of", []) if String(o.get("type", "")) == "any" else [o]):
+			if String(sub.get("type", "")) != "wardline_link":
+				continue
+			var hit: Dictionary = {}
+			for dir_ab in [[ends_a, ends_b], [ends_b, ends_a]]:
+				for f: String in dir_ab[0]:
+					for t: String in dir_ab[1]:
+						if hit.is_empty() and (not sub.has("from") or String(sub["from"]) == f) and (not sub.has("to") or String(sub["to"]) == t):
+							hit = {"from": f, "to": t, "amount": 1}
+			if not hit.is_empty():
+				story.notify(&"wardline_link", hit)
+
+
 func _make_link(a: int, b: int) -> String:
 	var res: Dictionary = wl.add_link(a, b)
 	if not bool(res.get("ok", false)):
 		return "The link will not hold (%s)." % String(res.get("reason", "too far"))
-	var tos: Array[String] = [""]
-	for pid in Places.registry().get("places", {}):
-		var r := Places.resolve(String(pid))
-		if not r.is_empty() and (wl.st_pos[b] as Vector2).distance_to(r["pos"]) <= maxf(float(r["radius"]) * 3.0, 260.0):
-			tos.append(String(pid))
-	tos.append_array(story_stone_ids(b))
-	var froms: Array[String] = [""]
-	froms.append_array(story_stone_ids(a))
-	for f in froms:
-		for t in tos:
-			story.notify(&"wardline_link", {"from": f, "to": t, "amount": 1})
+	_notify_link_story(a, b)
 	_push_to_network()
 	return "The wardline hums into place."
 

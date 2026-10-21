@@ -354,6 +354,23 @@ func _rebuild_adj() -> void:
 		_push(_adj, l["b"], li)
 
 
+## Extra player-link slots reserved on a stone (stone id -> count), on top of max_degree. The story names the
+## Rift's Edge camp stones as the end of its ward-lines, and auto-linking already fills them, so the glue reserves room there.
+var story_slots: Dictionary = {}
+
+
+func reserve_story_slots(id: int, extra: int) -> void:
+	if extra > 0:
+		story_slots[id] = extra
+	else:
+		story_slots.erase(id)
+
+
+## Live links a stone may hold: max_degree plus any slots reserved for the story.
+func link_cap(id: int) -> int:
+	return int(_cd("links", "max_degree", 4)) + int(story_slots.get(id, 0))
+
+
 func degree(id: int) -> int:
 	var d := 0
 	for l in links:
@@ -1191,8 +1208,7 @@ func add_link(a: int, b: int) -> Dictionary:
 	var length := st_pos[a].distance_to(st_pos[b])
 	if length > _cf("links", "max_len"):
 		return {"ok": false, "reason": "too_far", "len": length, "max": _cf("links", "max_len")}
-	var md := int(_cd("links", "max_degree", 4))
-	if degree(a) >= md or degree(b) >= md:
+	if degree(a) >= link_cap(a) or degree(b) >= link_cap(b):
 		return {"ok": false, "reason": "too_many_links"}
 	if li >= 0:
 		links[li]["cut"] = false
