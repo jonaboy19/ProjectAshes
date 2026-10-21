@@ -16,6 +16,7 @@ var _front := false
 var _tick := 0
 var _anim: Animation
 var _sk_path := ""
+var _w := 0
 
 func _initialize() -> void:
 	for a in OS.get_cmdline_user_args():
@@ -57,9 +58,12 @@ func _initialize() -> void:
 			_anim.track_set_path(t, NodePath(_sk_path + tp.substr(colon)))
 	inst.free()
 	var w := int(_frames * _cell * 130)
+	_w = w
 	var h := int(_height * 130)
 	DisplayServer.window_set_size(Vector2i(w, h))
 	root.size = Vector2i(w, h)
+
+func _build() -> void:
 	var env := WorldEnvironment.new()
 	var e := Environment.new()
 	e.background_mode = Environment.BG_COLOR
@@ -138,7 +142,9 @@ func _props(o: Vector3) -> void:
 
 func _process(_d: float) -> bool:
 	_tick += 1
-	if _tick == 10:
+	if _tick == 2:
+		_build()
+	if _tick == 14:
 		root.get_texture().get_image().save_png(_out)
 		print("SAVED ", _out)
 		return true

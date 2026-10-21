@@ -1,0 +1,215 @@
+{
+ "source_type": "bvh",
+ "bvh_dir": "${ANIM_SRC}/cmu-mocap/data",
+ "ual": "../../assets/incoming/quaternius/universal-animation-library/Unreal-Godot/UAL1_Standard.glb",
+ "out": "../../assets/incoming/animations/aaa/UAL_AAA_LivingWorld.glb",
+ "smooth": 0.015,
+ "fingers": "relaxed",
+ "finger_poses": {
+  "relaxed": ["Idle_Loop", 0.0],
+  "fist": ["Punch_Jab", 0.4],
+  "open": ["Spell_Simple_Idle_Loop", 0.5],
+  "grip": ["Sword_Idle", 0.0]
+ },
+ "map": {
+  "pelvis": "Hips",
+  "spine_01": "LowerBack",
+  "spine_02": "Spine",
+  "spine_03": "Spine1",
+  "neck_01": "Neck",
+  "Head": "Head",
+  "clavicle_l": "LeftShoulder",
+  "upperarm_l": "LeftArm",
+  "lowerarm_l": "LeftForeArm",
+  "hand_l": "LeftHand",
+  "clavicle_r": "RightShoulder",
+  "upperarm_r": "RightArm",
+  "lowerarm_r": "RightForeArm",
+  "hand_r": "RightHand",
+  "thigh_l": "LeftUpLeg",
+  "calf_l": "LeftLeg",
+  "foot_l": "LeftFoot",
+  "ball_l": "LeftToeBase",
+  "thigh_r": "RightUpLeg",
+  "calf_r": "RightLeg",
+  "foot_r": "RightFoot",
+  "ball_r": "RightToeBase"
+ },
+ "clips": [
+  {
+   "name": "Tavern_Sit_Idle",
+   "file": "013/13_04.bvh",
+   "start": 2.5,
+   "end": 7.0,
+   "loop": true
+  },
+  {
+   "name": "Tavern_Sit_LegSwing",
+   "file": "014/14_29.bvh",
+   "start": 2.5,
+   "end": 7.5,
+   "loop": true
+  },
+  {
+   "name": "Tavern_Sit_Fidget_Ponder",
+   "file": "013/13_05.bvh",
+   "start": 2.0,
+   "end": 6.5,
+   "loop": true
+  },
+  {
+   "name": "Tavern_Stand_To_Sit",
+   "file": "013/13_02.bvh",
+   "start": 4.5,
+   "end": 8.0,
+   "loop": false
+  },
+  {
+   "name": "Tavern_Sit_To_Stand",
+   "file": "013/13_01.bvh",
+   "start": 10.0,
+   "end": 13.5,
+   "loop": false
+  },
+  {
+   "name": "Tavern_Chug_Beer",
+   "file": "079/79_33.bvh",
+   "start": 0.5,
+   "end": 4.5,
+   "loop": false
+  },
+  {
+   "name": "Tavern_Eat_Dinner",
+   "file": "079/79_12.bvh",
+   "start": 1.0,
+   "end": 5.5,
+   "loop": true
+  },
+  {
+   "name": "Social_Laugh_Banter",
+   "file": "013/13_14.bvh",
+   "start": 1.5,
+   "end": 5.5,
+   "loop": true
+  },
+  {
+   "name": "Social_Handshake",
+   "file": "079/79_06.bvh",
+   "start": 0.8,
+   "end": 4.2,
+   "loop": false
+  },
+  {
+   "name": "Blacksmith_Hammer_Anvil",
+   "file": "062/62_07.bvh",
+   "start": 1.0,
+   "end": 6.0,
+   "loop": true
+  },
+  {
+   "name": "Woodcutter_Chop_Axe",
+   "file": "079/79_01.bvh",
+   "start": 0.5,
+   "end": 4.5,
+   "loop": true
+  },
+  {
+   "name": "Peasant_Sweep_Floor",
+   "file": "079/79_55.bvh",
+   "start": 0.5,
+   "end": 4.8,
+   "loop": true
+  },
+  {
+   "name": "Peasant_Dig_Ground",
+   "file": "079/79_04.bvh",
+   "start": 1.0,
+   "end": 5.5,
+   "loop": true
+  },
+  {
+   "name": "Peasant_Rake_Leaves",
+   "file": "079/79_87.bvh",
+   "start": 0.5,
+   "end": 5.0,
+   "loop": true
+  },
+  {
+   "name": "Worker_Carry_Cargo",
+   "file": "070/70_01.bvh",
+   "start": 0.5,
+   "end": 3.5,
+   "loop": true
+  },
+  {
+   "name": "Worker_Move_Heavy_Box",
+   "file": "079/79_25.bvh",
+   "start": 0.5,
+   "end": 4.5,
+   "loop": false
+  },
+  {
+   "name": "River_Fishing_Cast_Reel",
+   "file": "079/79_34.bvh",
+   "start": 1.0,
+   "end": 5.5,
+   "loop": true
+  },
+  {
+   "name": "NPC_Direct_Point_Wave",
+   "file": "013/13_27.bvh",
+   "start": 1.5,
+   "end": 6.5,
+   "loop": false
+  },
+  {
+   "name": "Vendor_Wave_Greeting",
+   "file": "014/14_24.bvh",
+   "start": 1.0,
+   "end": 5.0,
+   "loop": false
+  },
+  {
+   "name": "Market_Trade_Inspect",
+   "file": "079/79_16.bvh",
+   "start": 0.5,
+   "end": 4.5,
+   "loop": false
+  },
+  {
+   "name": "Guard_Look_Around_Scan",
+   "file": "139/139_01.bvh",
+   "start": 1.0,
+   "end": 6.5,
+   "loop": true
+  },
+  {
+   "name": "Standing_Shift_Weight_Idle",
+   "file": "139/139_02.bvh",
+   "start": 1.0,
+   "end": 6.0,
+   "loop": true
+  },
+  {
+   "name": "Cold_Shiver_Campfire",
+   "file": "079/79_68.bvh",
+   "start": 1.0,
+   "end": 5.5,
+   "loop": true
+  },
+  {
+   "name": "Wounded_Limp_Walk",
+   "file": "077/77_19.bvh",
+   "start": 0.5,
+   "end": 3.5,
+   "loop": true
+  },
+  {
+   "name": "Brawler_Tavern_Jab",
+   "file": "014/14_01.bvh",
+   "start": 1.0,
+   "end": 4.5,
+   "loop": false
+  }
+ ]
+}

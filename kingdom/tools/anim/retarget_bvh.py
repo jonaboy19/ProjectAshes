@@ -76,13 +76,173 @@ def assign(obj, act):
 
 # finger poses sampled from UAL clips: {"fist": ["Punch_Jab", 0.4]} (clip, fraction)
 finger_pose = {}
-for key, (clip, frac) in cfg.get("finger_poses", {}).items():
-    act = ual_actions[clip]
-    assign(tgt, act)
-    f0, f1 = act.frame_range
-    scene.frame_set(int(round(f0 + (f1 - f0) * frac)))
-    finger_pose[key] = {n: tgt.pose.bones[n].rotation_quaternion.copy() for n in FINGER}
+core_finger_poses = {
+    "relaxed": ("Idle_Loop", 0.0),
+    "fist": ("Punch_Jab", 0.4),
+    "open": ("Spell_Simple_Idle_Loop", 0.5),
+    "grip": ("Sword_Idle", 0.0)
+}
+core_finger_poses.update(cfg.get("finger_poses", {}))
+for key, (clip_name, frac) in core_finger_poses.items():
+    if clip_name in ual_actions:
+        act = ual_actions[clip_name]
+        assign(tgt, act)
+        f0, f1 = act.frame_range
+        scene.frame_set(int(round(f0 + (f1 - f0) * frac)))
+        finger_pose[key] = {n: tgt.pose.bones[n].rotation_quaternion.copy() for n in FINGER}
 assign(tgt, None)
+
+def slerp_quat(q0, q1, t):
+    dot = float(np.sum(q0 * q1))
+    if dot < 0.0:
+        q1 = -q1
+        dot = -dot
+    if dot > 0.9995:
+        res = q0 + t * (q1 - q0)
+        norm = float(np.linalg.norm(res))
+        return res / (norm if norm > 1e-6 else 1.0)
+    dot = min(1.0, max(-1.0, dot))
+    theta_0 = math.acos(dot)
+    sin_theta_0 = math.sin(theta_0)
+    theta = theta_0 * t
+    sin_theta = math.sin(theta)
+    s0 = math.cos(theta) - dot * sin_theta / sin_theta_0
+    s1 = sin_theta / sin_theta_0
+    return (s0 * q0) + (s1 * q1)
+
+def apply_natural_dynamic_fingers(Q, clip_name, finger_pose, IDX, FINGER, FPS, requested_fp=None):
+    n_frames = len(Q)
+    if "point" not in finger_pose and "open" in finger_pose and "fist" in finger_pose:
+        finger_pose["point"] = {}
+        for n in FINGER:
+            finger_pose["point"][n] = finger_pose["open"][n] if "index" in n else finger_pose["fist"][n]
+
+    p_relaxed = {n: np.array([finger_pose["relaxed"][n].w, finger_pose["relaxed"][n].x, finger_pose["relaxed"][n].y, finger_pose["relaxed"][n].z]) for n in FINGER}
+    p_fist = {n: np.array([finger_pose["fist"][n].w, finger_pose["fist"][n].x, finger_pose["fist"][n].y, finger_pose["fist"][n].z]) for n in FINGER} if "fist" in finger_pose else p_relaxed
+    p_open = {n: np.array([finger_pose["open"][n].w, finger_pose["open"][n].x, finger_pose["open"][n].y, finger_pose["open"][n].z]) for n in FINGER} if "open" in finger_pose else p_relaxed
+    p_grip = {n: np.array([finger_pose["grip"][n].w, finger_pose["grip"][n].x, finger_pose["grip"][n].y, finger_pose["grip"][n].z]) for n in FINGER} if "grip" in finger_pose else p_fist
+    p_point = {n: np.array([finger_pose["point"][n].w, finger_pose["point"][n].x, finger_pose["point"][n].y, finger_pose["point"][n].z]) for n in FINGER} if "point" in finger_pose else p_relaxed
+
+    name_l = clip_name.lower()
+    
+    # Explicit override if forced by user config
+    if requested_fp == "fist":
+        for t in range(n_frames):
+            for n in FINGER: Q[t, IDX[n]] = p_fist[n]
+        return
+
+    # 1. Vault: open palm on plant, curl on release
+    if "vault" in name_l or "hurdle" in name_l:
+        for t in range(n_frames):
+            frac = t / max(1, n_frames - 1)
+            if 0.25 <= frac <= 0.65:
+                plant_blend = math.sin((frac - 0.25) / 0.40 * math.pi)
+                for n in FINGER: Q[t, IDX[n]] = slerp_quat(p_relaxed[n], p_open[n], plant_blend * 0.85)
+            elif frac > 0.65:
+                push_blend = math.sin((frac - 0.65) / 0.35 * math.pi)
+                for n in FINGER: Q[t, IDX[n]] = slerp_quat(p_relaxed[n], p_grip[n], push_blend * 0.4)
+            else:
+                for n in FINGER: Q[t, IDX[n]] = p_relaxed[n]
+        return
+
+    # 2. Ladder Climb: open reach upward, tight grip pulling down
+    if "climb" in name_l or "ladder" in name_l:
+        for side in ["_l", "_r"]:
+            offset = 0.0 if side == "_l" else math.pi
+            for t in range(n_frames):
+                tt = (t / max(1, n_frames)) * 4.0 * math.pi + offset
+                phase = math.sin(tt)
+                for n in [b for b in FINGER if b.endswith(side)]:
+                    if phase > 0.0:
+                        Q[t, IDX[n]] = slerp_quat(p_relaxed[n], p_grip[n], phase * 0.9)
+                    else:
+                        Q[t, IDX[n]] = slerp_quat(p_relaxed[n], p_open[n], (-phase) * 0.7)
+        return
+
+    # 3. Pointing / Signaling: index finger straight, others fist; waves open
+    if "point" in name_l or "direct" in name_l:
+        for t in range(n_frames):
+            frac = t / max(1, n_frames - 1)
+            if frac < 0.6:
+                for n in FINGER:
+                    Q[t, IDX[n]] = p_point[n] if n.endswith("_r") else p_relaxed[n]
+            else:
+                wave_t = math.sin((frac - 0.6) * 15.0) * 0.5 + 0.5
+                for n in FINGER:
+                    Q[t, IDX[n]] = slerp_quat(p_open[n], p_relaxed[n], wave_t) if n.endswith("_r") else p_relaxed[n]
+        return
+
+    # 4. Vendor Greeting: lively friendly wave
+    if "vendor" in name_l or "greeting" in name_l or "wave" in name_l:
+        for t in range(n_frames):
+            wave_osc = math.sin(t * 0.35) * 0.5 + 0.5
+            for n in FINGER: Q[t, IDX[n]] = slerp_quat(p_open[n], p_relaxed[n], wave_osc * 0.7)
+        return
+
+    # 5. Tools & Crafts: hammer, axe, shovel, rake, fishing rod
+    if any(k in name_l for k in ["hammer", "blacksmith", "chop", "axe", "sweep", "dig", "rake", "fish"]):
+        for t in range(n_frames):
+            for n in FINGER:
+                if any(k in name_l for k in ["hammer", "blacksmith"]):
+                    Q[t, IDX[n]] = p_grip[n] if n.endswith("_r") else slerp_quat(p_relaxed[n], p_grip[n], 0.4)
+                else:
+                    Q[t, IDX[n]] = p_grip[n]
+        return
+
+    # 6. Drinking & Dining
+    if any(k in name_l for k in ["beer", "drink", "eat", "dinner"]):
+        for t in range(n_frames):
+            for n in FINGER:
+                Q[t, IDX[n]] = slerp_quat(p_relaxed[n], p_grip[n], 0.8) if n.endswith("_r") else p_relaxed[n]
+        return
+
+    # 7. Shivering / Cold: rub fingers together
+    if "shiver" in name_l or "cold" in name_l:
+        for t in range(n_frames):
+            osc = math.sin(t * 0.8) * 0.5 + 0.5
+            for n in FINGER: Q[t, IDX[n]] = slerp_quat(p_fist[n], p_open[n], osc * 0.5)
+        return
+
+    # 8. Combat strikes, brawls & shield blocks
+    if any(k in name_l for k in ["sword", "punch", "jab", "block", "brawler", "combat", "hit_react"]):
+        for t in range(n_frames):
+            for n in FINGER: Q[t, IDX[n]] = p_fist[n]
+        return
+
+    # 9. Locomotion / Stride Cycles: passive tendon inertial swing
+    if any(k in name_l for k in ["walk", "run", "limp", "carry", "stop", "turn", "march", "jump"]):
+        for side in ["_l", "_r"]:
+            arm_name = "upperarm" + side
+            if arm_name in IDX:
+                pitch = Q[:, IDX[arm_name], 1]
+                p_min, p_max = float(np.min(pitch)), float(np.max(pitch))
+                p_range = p_max - p_min if (p_max - p_min) > 0.01 else 1.0
+                swing_factor = (pitch - p_min) / p_range
+            else:
+                tt = np.linspace(0, 4 * np.pi, n_frames)
+                swing_factor = 0.5 + 0.5 * np.sin(tt + (0 if side == "_l" else np.pi))
+
+            for n in [b for b in FINGER if b.endswith(side)]:
+                for t in range(n_frames):
+                    alpha = float(swing_factor[t])
+                    # forward swing: passive curl towards grip (45%)
+                    # backward swing: extension towards open (25%)
+                    if alpha > 0.5:
+                        curl = (alpha - 0.5) * 2.0 * 0.45
+                        Q[t, IDX[n]] = slerp_quat(p_relaxed[n], p_grip[n], curl)
+                    else:
+                        rel = (0.5 - alpha) * 2.0 * 0.25
+                        Q[t, IDX[n]] = slerp_quat(p_relaxed[n], p_open[n], rel)
+        return
+
+    # 10. Default / Tavern Idles: organic breathing micro-movements
+    for t in range(n_frames):
+        drift = math.sin(t * 0.12) * 0.15 + math.cos(t * 0.08) * 0.1
+        for n in FINGER:
+            if drift > 0:
+                Q[t, IDX[n]] = slerp_quat(p_relaxed[n], p_grip[n], drift)
+            else:
+                Q[t, IDX[n]] = slerp_quat(p_relaxed[n], p_open[n], -drift)
 for a in ual_actions.values():
     bpy.data.actions.remove(a)
 for tr in list(tgt.animation_data.nla_tracks):
@@ -295,11 +455,8 @@ def bake_clip(rig, f_start, f_end, step, clip):
             a = max(0, act[0] - 6); b = min(len(Q), act[-1] + 7)
             Q, Pw = Q[a:b], Pw[a:b]
             clip["_autotrim"] = [round(a / FPS, 2), round(b / FPS, 2)]
-    # fingers
-    fp = clip.get("fingers", cfg.get("fingers"))
-    if fp in finger_pose:
-        for n, qq in finger_pose[fp].items():
-            Q[:, IDX[n]] = (qq.w, qq.x, qq.y, qq.z)
+    # fingers - natural dynamic articulation
+    apply_natural_dynamic_fingers(Q, clip.get("name", ""), finger_pose, IDX, FINGER, FPS, clip.get("fingers"))
     Q = continuity(Q)
     # travel -> root (optional track); pelvis keeps sway only
     mode = clip.get("inplace", cfg.get("inplace", "smooth"))
