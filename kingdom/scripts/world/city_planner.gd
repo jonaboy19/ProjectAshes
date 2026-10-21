@@ -88,6 +88,11 @@ static func plan(s: Dictionary, gate_angles: Array[float], seed_value: int) -> D
 		var keep_ang := gates[0] - PI * 0.5
 		landmarks.append({"asset": "stable", "pos": c + Vector2(cos(keep_ang), sin(keep_ang)) * (church_r + 2.0),
 			"yaw": atan2(-cos(keep_ang), -sin(keep_ang)), "scale": 9.0})
+		# Tournament Arena in major cities and castle capitals
+		var arena_ang := gates[0] + PI * 0.78
+		var arena_r := r * (0.62 if kind == "castle" else 0.55)
+		landmarks.append({"asset": "arena_colosseum", "pos": c + Vector2(cos(arena_ang), sin(arena_ang)) * arena_r,
+			"yaw": atan2(-cos(arena_ang), -sin(arena_ang)), "scale": 1.0})
 
 	# Lots along every street.
 	var lots: Array = result["lots"]

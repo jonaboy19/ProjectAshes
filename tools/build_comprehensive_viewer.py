@@ -1,7 +1,7 @@
-"""Comprehensive World and Interiors Viewer Generator for Project Ashes.
-Injects all 10 enterable interiors, races lineup, orc evolution, dark elf hero,
-ashford village square, 32km regional map, and historical kingdoms blueprint into
-docs/VALENCIOUS_WORLD_VIEWER.html with full Base64 embeds (no missing files).
+"""Comprehensive World, Interiors, Tournament Arenas and Hidden Secrets Viewer Generator for Project Ashes.
+Injects all 10 enterable interiors, the Grand Tournament Colosseum, hidden secret caches,
+races lineup, orc evolution, dark elf hero, ashford village square, 32km regional map,
+and historical kingdoms blueprint into docs/VALENCIOUS_WORLD_VIEWER.html with full Base64 embeds.
 """
 import os, sys, base64, shutil
 
@@ -24,18 +24,21 @@ def get_b64(path):
 def copy_and_b64(src_path, dst_filename):
     dst_path = os.path.join(ACTUAL_DIR, dst_filename)
     brain_path = os.path.join(BRAIN_IMG_DIR, dst_filename)
+    if os.path.exists(dst_path):
+        return get_b64(dst_path)
     if os.path.exists(src_path):
-        if os.path.abspath(src_path) != os.path.abspath(dst_path):
-            shutil.copy2(src_path, dst_path)
-        if os.path.abspath(src_path) != os.path.abspath(brain_path):
-            shutil.copy2(src_path, brain_path)
-        return get_b64(dst_path)
-    elif os.path.exists(dst_path):
-        return get_b64(dst_path)
+        try:
+            if os.path.abspath(src_path) != os.path.abspath(dst_path):
+                shutil.copy2(src_path, dst_path)
+            if os.path.abspath(src_path) != os.path.abspath(brain_path):
+                shutil.copy2(src_path, brain_path)
+        except Exception:
+            pass
+        return get_b64(src_path)
     return ""
 
 def main():
-    print("Building Comprehensive Valencious World & Interiors Showcase HTML...")
+    print("Building Comprehensive Valencious World, Arena & Secrets Showcase HTML...")
     
     # Interiors
     b64_manor = copy_and_b64(os.path.join(PREV_DIR, "interior_manor_a.png"), "render_interior_noble_manor.png")
@@ -49,6 +52,9 @@ def main():
     b64_guild = copy_and_b64(os.path.join(PREV_DIR, "interior_guild_a.png"), "render_interior_guild_hall.png")
     b64_healer = copy_and_b64(os.path.join(PREV_DIR, "interior_healer_a.png"), "render_interior_healer_house.png")
     b64_house = copy_and_b64(os.path.join(PREV_DIR, "interior_house_a.png"), "render_enterable_cottage_interior.png")
+    
+    # Arena & Landmarks
+    b64_arena = copy_and_b64(os.path.join(PREV_DIR, "arena_colosseum_a.png"), "render_valencious_tournament_arena.png")
     
     # Heroes & World
     b64_darkelf = copy_and_b64(os.path.join(ACTUAL_DIR, "render_dark_elf_aaa_hero.png"), "render_dark_elf_aaa_hero.png")
@@ -64,7 +70,7 @@ def main():
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Valencious 32km World & AAA 3D Interiors Showcase</title>
+<title>Valencious 32km World, Arenas & AAA 3D Interiors</title>
 <style>
 :root {{
   --bg-primary: #0a0b10;
@@ -213,21 +219,78 @@ main {{
 
 <header>
   <div class="header-title">
-    <h1>VALENCIOUS 32KM WORLD & ACTUAL 3D ASSETS</h1>
-    <p>Project Ashes • Blender 5.2 Cycles PBR Renders • 10 Enterable Interiors • 20 Races • Regional POIs</p>
+    <h1>VALENCIOUS 32KM WORLD, ARENAS & AAA INTERIORS</h1>
+    <p>Project Ashes • Blender 5.2 Cycles PBR Renders • Grand Tournament Arenas • 10 Enterable Interiors • Hidden Secrets</p>
   </div>
   <div class="nav-tabs">
-    <button class="nav-btn active" onclick="switchTab('interiors')">🏰 Enterable 3D Interiors</button>
+    <button class="nav-btn active" onclick="switchTab('arena')">⚔️ Grand Tournament Arenas</button>
+    <button class="nav-btn" onclick="switchTab('interiors')">🏰 Enterable 3D Interiors</button>
+    <button class="nav-btn" onclick="switchTab('secrets')">🗝️ Hidden Secrets & Dungeons</button>
     <button class="nav-btn" onclick="switchTab('actual3d')">📸 Hero Models & Ashford</button>
     <button class="nav-btn" onclick="switchTab('future')">🏛️ Distant Historical Nations</button>
-    <button class="nav-btn" onclick="switchTab('academies')">⛩️ Kingdom Academies & Sects</button>
   </div>
 </header>
 
 <main>
 
-  <!-- TAB 0: ENTERABLE 3D INTERIORS -->
-  <section id="tab-interiors" class="tab-content active">
+  <!-- TAB 0: TOURNAMENT ARENAS -->
+  <section id="tab-arena" class="tab-content active">
+    <div class="section-banner">
+      <h2>⚔️ Valencious Grand Tournament Colosseum & Arenas</h2>
+      <p>Built with procedural ashlar masonry in Blender 5.2. Integrated into Kingsreach Royal Capital and regional tournament grounds along the King's Highway. Features sand dueling pit, spectator amphitheatre tiers, the Royal Box with crimson velvet canopy, dual iron-portcullis gladiator gates, and weapon armory.</p>
+    </div>
+
+    <div class="gallery-grid">
+      <!-- ARENA HERO -->
+      <div class="gallery-card" style="grid-column: 1 / -1;">
+        <img src="data:image/png;base64,{b64_arena}" alt="Valencious Grand Tournament Colosseum" style="height: 480px;">
+        <div class="card-content">
+          <span class="card-tag tag-red">Major World Landmark • Tournament Grounds</span>
+          <h3>Valencious Grand Colosseum & Combat Amphitheatre</h3>
+          <p>The centerpiece of military prowess and martial tournaments in Valencious. Host to the Novice Trials, Knight's Joust, Champions' Clash, and Clash of the Immortals. Features a 18m diameter sand duel ring, 4-tier spectator bleachers, royal viewing box with gold thrones, 4 perimeter battle turrets, and gladiator staging tunnels.</p>
+          <div class="stats-badge">
+            <div>Footprint: <span>30.8m x 30.8m</span></div>
+            <div>Height: <span>20.1m</span></div>
+            <div>Mesh: <span>8,575 tris</span></div>
+            <div>Asset: <span>arena_colosseum.glb</span></div>
+            <div>Cities: <span>Kingsreach Capital, Ashford Regional Grounds</span></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- FIGHTERS & BRACKETS -->
+      <div class="gallery-card">
+        <div class="card-content">
+          <span class="card-tag tag-gold">Tournament Contenders</span>
+          <h3>Ranked Arena Champions</h3>
+          <ul style="margin-left: 20px; color: var(--text-muted); font-size: 14px; margin-top: 10px;">
+            <li><strong>Sir Gareth the Iron Wall:</strong> Royal Paladin, sword & heavy shield, 850 HP.</li>
+            <li><strong>Sylas Obsidian Fang:</strong> Dark Elf Shadowblade, dual venom daggers, 680 HP.</li>
+            <li><strong>Gromkar Bonecleaver:</strong> Tuskridge Orc Warlord, two-handed battle axe, 1200 HP.</li>
+            <li><strong>Elder Li Tian:</strong> Heavenly Mist Cultivator, flowing jian sword, 750 HP.</li>
+            <li><strong>Lady Elowen:</strong> Royal Academy Spellblade, enchanted rapier, 920 HP.</li>
+            <li><strong>Drogath Stonefist:</strong> Gundarak Dwarven Magma Smith, magma warhammer, 1050 HP.</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="gallery-card">
+        <div class="card-content">
+          <span class="card-tag tag-purple">Tournament Rules & Stakes</span>
+          <h3>4-Tier Championship Progression</h3>
+          <ul style="margin-left: 20px; color: var(--text-muted); font-size: 14px; margin-top: 10px;">
+            <li><strong>Bronze Tier (Novice Trial):</strong> 25 gold entry • 250 gold purse • Title "Arena Challenger"</li>
+            <li><strong>Silver Tier (Knight's Joust):</strong> 100 gold entry • 1,000 gold purse • Full Caldric Knight Plate</li>
+            <li><strong>Gold Tier (Champions' Clash):</strong> 500 gold entry • 5,000 gold purse • Obsidian Sunblade</li>
+            <li><strong>Mythic Tier (Clash of Immortals):</strong> 2,500 gold entry • 25,000 gold purse • Title "Blade of Valencious" + Crown Dragon Relic</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- TAB 1: ENTERABLE 3D INTERIORS -->
+  <section id="tab-interiors" class="tab-content">
     <div class="section-banner">
       <h2>🏰 100% Walk-In Enterable Interiors (PC Master Tier)</h2>
       <p>Every building features custom timber/stone architecture, baked ray-cast vertex lighting, physical box colliders, walk-in doorway triggers (no loading screens), and NPC markers. Rendered with Blender 5.2 Cycles AgX Punchy.</p>
@@ -302,8 +365,8 @@ main {{
           <h3>Valencious Royal Academy Laboratory</h3>
           <p>Master alchemist demonstration bench with bubbling glowing brew, specimen vials, and open grimoires. Student lecture amphitheater desks, multi-tiered arcana library stacks, and arcane violet/cerulean glow.</p>
           <div class="stats-badge">
-            <div>Mesh: <span>45,120 tris</span></div>
-            <div>File: <span>academy_interior.tscn (5.8 MB)</span></div>
+            <div>Mesh: <span>54,654 tris</span></div>
+            <div>File: <span>academy_interior.tscn (7.2 MB)</span></div>
             <div>Door: <span>(0.0, 1.4m x 2.4m)</span></div>
           </div>
         </div>
@@ -386,7 +449,52 @@ main {{
     </div>
   </section>
 
-  <!-- TAB 1: HERO MODELS & ASHFORD -->
+  <!-- TAB 2: HIDDEN SECRETS & DUNGEONS -->
+  <section id="tab-secrets" class="tab-content">
+    <div class="section-banner">
+      <h2>🗝️ Hidden Secrets, Caches & Subterranean Dungeons</h2>
+      <p>Hidden throughout the 32x32km Valencious wilderness for players to discover through exploration, quest rumors, and environmental clues.</p>
+    </div>
+    <div class="gallery-grid">
+      <div class="gallery-card">
+        <div class="card-content">
+          <span class="card-tag tag-emerald">Water Secret • Hidden Cove</span>
+          <h3>Smuggler's Cove & Waterfall Cache</h3>
+          <p>Concealed behind the roaring waterfall cascade on Emberglass Mere. Contains waterlogged iron-banded chests with illicit smuggled gemstones, stolen Caldric customs manifests, and a rowboat dock.</p>
+        </div>
+      </div>
+      <div class="gallery-card">
+        <div class="card-content">
+          <span class="card-tag tag-blue">Arcane Mystery • Deep Woods</span>
+          <h3>Ancient Celestial Runestone Grove</h3>
+          <p>Hidden deep within the heart of Duskbriar Wood where the forest canopy blocks the sun. A glowing cyan runestone pulsating with celestial mana, surrounded by rare spirit herbs and glowing butterflies.</p>
+        </div>
+      </div>
+      <div class="gallery-card">
+        <div class="card-content">
+          <span class="card-tag tag-red">Subterranean Dungeon • Northern Crags</span>
+          <h3>Gundarak Dwarven Magma Portal</h3>
+          <p>Carved directly into the volcanic basalt cliff-face of Mount Taiyun. An ancient stone gate surrounded by runic ward stones, leading down into the subterranean magma forges and deep dwarven realm.</p>
+        </div>
+      </div>
+      <div class="gallery-card">
+        <div class="card-content">
+          <span class="card-tag tag-purple">Wuxia Cultivation • Mountain Peak</span>
+          <h3>Hermit Daoist Cultivation Sanctuary</h3>
+          <p>A secluded stone terrace perched on an inaccessible pinnacle above the cloud line. Features an ancient stone meditation slab, cedar tea table, and scrolls containing forgotten martial arts cultivation manuals.</p>
+        </div>
+      </div>
+      <div class="gallery-card">
+        <div class="card-content">
+          <span class="card-tag tag-gold">Ruins Cache • Watchtower Vault</span>
+          <h3>Buried Bandit Lord Strongbox</h3>
+          <p>Underneath the rubble and timber debris of the Old Watchtower knoll lies a hidden stone trapdoor into an underground smuggler cellar with weapons, gold bars, and regional map markings.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- TAB 3: HERO MODELS & ASHFORD -->
   <section id="tab-actual3d" class="tab-content">
     <div class="gallery-grid">
       <div class="gallery-card">
@@ -445,7 +553,7 @@ main {{
     </div>
   </section>
 
-  <!-- TAB 2: DISTANT HISTORICAL NATIONS -->
+  <!-- TAB 4: DISTANT HISTORICAL NATIONS -->
   <section id="tab-future" class="tab-content">
     <div class="section-banner">
       <h2>🏛️ Blueprint: Distant Civilizations & Fantasy Realms</h2>
@@ -485,37 +593,6 @@ main {{
           <span class="card-tag tag-red">Subterranean Deep Dwarves</span>
           <h3>Gundarak Magma Cavern & Obsidian Forge</h3>
           <p>Enormous subterranean cavern city carved out of basalt, powered by roaring magma channels, giant hydraulic hammers, and rune-carved gates.</p>
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <!-- TAB 3: ACADEMIES & SECTS -->
-  <section id="tab-academies" class="tab-content">
-    <div class="section-banner">
-      <h2>⛩️ Schools, Sects, and Educational Institutions</h2>
-      <p>Comprehensive educational infrastructure across the continent, both inside metropolises and secluded in remote wilderness peaks.</p>
-    </div>
-    <div class="gallery-grid">
-      <div class="gallery-card">
-        <div class="card-content">
-          <span class="card-tag tag-purple">Urban Magic School</span>
-          <h3>Kingsreach Royal Magic Academy</h3>
-          <p>Located in the capital upper district. Features grand lecture halls, astronomical observatories, enchanted library vaults, and elemental duel yards.</p>
-        </div>
-      </div>
-      <div class="gallery-card">
-        <div class="card-content">
-          <span class="card-tag tag-blue">Wilderness Wuxia Sect</span>
-          <h3>Mount Taiyun Heavenly Mist Sect</h3>
-          <p>Perched upon thousand-step mountain staircases above the cloud line. Daoist cultivation chambers, sword-polishing waterfalls, and spirit gardens.</p>
-        </div>
-      </div>
-      <div class="gallery-card">
-        <div class="card-content">
-          <span class="card-tag tag-gold">Knight & Military College</span>
-          <h3>Valencious High War College</h3>
-          <p>Heavy stone fortress school training squires in formation tactics, lance combat, siege engineering, and chivalric command.</p>
         </div>
       </div>
     </div>

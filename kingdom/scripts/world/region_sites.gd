@@ -56,6 +56,10 @@ static func plan(seed_value: int) -> Array[Dictionary]:
 	var outpost := _rift_outpost(rift, out, rng)
 	if not outpost.is_empty():
 		out.append(outpost)
+	var arena := _tournament_arena(rng, out)
+	if not arena.is_empty():
+		out.append(arena)
+	out.append_array(_hidden_discoveries(rng, out))
 	for i in out.size():
 		out[i]["id"] = i
 	return out
@@ -556,3 +560,89 @@ static func _rift(taken: Array[Dictionary]) -> Dictionary:
 	_part(site, "nature:boulder_large", Vector2(-8, -9), 1.0, true)
 	site["lights"].append([Vector3(0, 4.0, 0), Color(0.7, 0.35, 1.0), 22.0, true])
 	return site
+
+
+## Regional Grand Tournament Arena placed along the King's highway between Ashford and Kingsreach.
+static func _tournament_arena(rng: RandomNumberGenerator, taken: Array[Dictionary]) -> Dictionary:
+	var home: Vector2 = WorldGen.settlements[0]["pos"]
+	var capital: Vector2 = WorldGen.settlements[1]["pos"] if WorldGen.settlements.size() > 1 else Vector2(800, -800)
+	var mid := (home + capital) * 0.48
+	var best := Vector2.INF
+	for i in 40:
+		var q := mid + Vector2(rng.randf_range(-140, 140), rng.randf_range(-140, 140))
+		if _free(q, 24.0, taken, 18.0):
+			best = q
+			break
+	if best == Vector2.INF:
+		return {}
+	var site := _site("Valencious Grand Arena", "arena", best, rng.randf() * TAU, 32.0, true)
+	_part(site, "arena_colosseum", Vector2.ZERO, 0.0, true)
+	_part(site, "props/covered_wagon", Vector2(18, -10), 0.4, true)
+	_part(site, "props/weapon_rack", Vector2(-16, -8), 0.0, true)
+	_part(site, "props/barrel_cluster", Vector2(-15, 12), 0.0, true)
+	_part(site, "banner_pole", Vector2(0, -18), 0.0, true)
+	_part(site, "banner_pole", Vector2(0, 18), PI, true)
+	site["lights"].append([Vector3(0, 4.0, 0), Color(1.0, 0.7, 0.3), 16.0, false])
+	return site
+
+
+## Hidden secret locations across the wilderness: smuggler cache, celestial runestone,
+## subterranean dwarven magma portal, hermit sanctuary, and buried bandit vault.
+static func _hidden_discoveries(rng: RandomNumberGenerator, taken: Array[Dictionary]) -> Array[Dictionary]:
+	var out: Array[Dictionary] = []
+	
+	# 1. Smuggler's Secret Water Cache (near lake shore)
+	var lake_p := WorldGen.lake_center
+	var q_lake := lake_p + Vector2(cos(1.2), sin(1.2)) * (WorldGen.lake_radius + 22.0)
+	if _free(q_lake, 10.0, taken, 10.0):
+		var s1 := _site("Smuggler's Hidden Cove", "hidden_cache", q_lake, rng.randf() * TAU, 8.0, false)
+		_part(s1, "props/crate_stack", Vector2.ZERO, 0.2, true)
+		_part(s1, "props/barrel", Vector2(1.5, 0.5), 0.0, true)
+		_part(s1, "props/sack_pile", Vector2(-1.2, 0.8), 0.4, true)
+		_part(s1, "nature:rock_cluster", Vector2(2.5, -1.0), 0.8)
+		s1["lights"].append([Vector3(0, 0.5, 0), Color(0.8, 0.6, 0.2), 4.0, true])
+		out.append(s1)
+		
+	# 2. Celestial Runestone Grove (Deep forest sanctuary)
+	for i in 30:
+		var q_grove := Vector2(rng.randf_range(-900, 900), rng.randf_range(-900, 900))
+		if WorldGen.forest_density(q_grove.x, q_grove.y) > 0.45 and _free(q_grove, 14.0, taken, 25.0):
+			var s2 := _site("Ancient Celestial Runestone", "secret_runestone", q_grove, 0.0, 14.0, true)
+			_part(s2, "meshy:landmark_runestone@7", Vector2.ZERO, 0.0, true)
+			_part(s2, "nature:rock_cluster", Vector2(-4, 3), 0.3)
+			_part(s2, "nature:rock_cluster", Vector2(4, -3), 1.2)
+			_part(s2, "nature:fern_a", Vector2(-2, -2), 0.0)
+			_part(s2, "nature:fern_b", Vector2(2, 2), 0.5)
+			s2["lights"].append([Vector3(0, 2.5, 0), Color(0.3, 0.85, 1.0), 12.0, true])
+			out.append(s2)
+			break
+
+	# 3. Subterranean Dwarven Magma Gate (Northern crags)
+	for i in 30:
+		var q_dwarf := Vector2(rng.randf_range(-400, 400), rng.randf_range(-1400, -800))
+		if WorldGen.height(q_dwarf.x, q_dwarf.y) > 18.0 and _free(q_dwarf, 16.0, taken, 20.0):
+			var s3 := _site("Gundarak Magma Cavern Entrance", "dwarf_cavern", q_dwarf, 0.0, 16.0, true)
+			_part(s3, "mine/mine_entrance", Vector2.ZERO, 0.0, true)
+			_part(s3, "nature:boulder_large", Vector2(-6, 2), 0.5, true)
+			_part(s3, "nature:boulder_large", Vector2(6, 2), -0.5, true)
+			_part(s3, "props/anvil_stump", Vector2(3, 4), 0.0, true)
+			_part(s3, "props/crate_stack", Vector2(-4, 5), 0.3, true)
+			s3["lights"].append([Vector3(0, 2.0, 1.0), Color(1.0, 0.35, 0.08), 14.0, true])
+			out.append(s3)
+			break
+
+	# 4. Hermit Cultivator Sanctuary (Wuxia misty peak)
+	for i in 30:
+		var q_hermit := Vector2(rng.randf_range(600, 1200), rng.randf_range(-800, -200))
+		if _free(q_hermit, 12.0, taken, 25.0):
+			var s4 := _site("Hermit Daoist Sanctuary", "hermit_grove", q_hermit, 0.0, 12.0, true)
+			_part(s4, "nature:rock_slab", Vector2.ZERO, 0.0, true)
+			_part(s4, "props/bench", Vector2(0, 1.5), 0.0, true)
+			_part(s4, "props/produce_table", Vector2(0, -1.5), 0.0, true)
+			_part(s4, "nature:young_oak", Vector2(-4, 0), 0.0)
+			_part(s4, "nature:flowers_cool", Vector2(2, 2), 0.0)
+			s4["lights"].append([Vector3(0, 1.5, 0), Color(0.5, 0.9, 0.7), 8.0, false])
+			out.append(s4)
+			break
+			
+	return out

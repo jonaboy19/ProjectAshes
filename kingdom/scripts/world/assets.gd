@@ -130,6 +130,8 @@ const BUILDINGS := {
 	"bench": [GEN + "props/bench.glb", 0.0],
 	"castle": [GEN + "castle_keep.glb", 0.0],
 	"temple": [GEN + "temple.glb", 0.0],
+	"arena_colosseum": [GEN + "arena_colosseum.glb", 0.0],
+	"arena": [GEN + "arena_colosseum.glb", 0.0],
 	"watchtower": [RTS + "WatchTower_SecondAge_Level3.gltf", 7.0],
 	"wall": [GEN + "town_wall.glb", 0.0],
 	"wall_tower": [GEN + "town_wall_tower.glb", 0.0],
