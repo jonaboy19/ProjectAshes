@@ -42,10 +42,12 @@ const MODULES := {
 	"towers": preload("res://scripts/realm/towers.gd"),
 	"ecology": preload("res://scripts/realm/ecology.gd"),
 	"farming": preload("res://scripts/realm/farming.gd"),     # LW Stage 3: land ladder, fields, livestock, farm economy, NPC farmers
+	"organizations": preload("res://scripts/realm/organizations.gd"),   # LW Stage 4: one generic organization record (ranks, rights, succession, branches)
+	"businesses": preload("res://scripts/realm/businesses.gd"),         # LW Stage 4: shops, workshops, inns, caravans with accounts and remote reports
 	"build_kit": preload("res://scripts/realm/build_kit.gd"),   # Build-kit hook: modular piece building (docs/regions/HOOKS_FOR_CLOUD.md)
 }
 ## Order matters within a tier: land before factions before campaign.
-const ORDER := ["registry", "events", "settlements", "land", "camps", "civilization", "migration", "followers", "recruitment", "factions", "strongholds", "campaign", "city_life", "society", "governance", "notables", "news", "exploration", "power_paths", "education", "cultivation", "household", "callups", "work", "scribe", "soldier", "trades", "enterprise", "construction", "towers", "ecology", "farming", "build_kit"]
+const ORDER := ["registry", "events", "settlements", "land", "camps", "civilization", "migration", "followers", "recruitment", "factions", "strongholds", "campaign", "city_life", "society", "governance", "notables", "news", "exploration", "power_paths", "education", "cultivation", "household", "callups", "work", "scribe", "soldier", "trades", "enterprise", "construction", "towers", "ecology", "farming", "organizations", "businesses", "build_kit"]
 ## Max microseconds of realm work per frame (mobile: ~0.6 ms of a 16.6 ms frame).
 const PUMP_BUDGET_USEC := 600
 

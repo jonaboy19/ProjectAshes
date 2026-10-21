@@ -1480,6 +1480,23 @@ func sell_goods(pid: String, item: String, qty := -1, floor_ratio := 0.0, from_s
 	return gold
 
 
+## Vertical integration (LW-4.3): hand up to `qty` whole units of `item` from the farm's store to a business. The goods leave the store
+## here and nowhere else creates them; `price_each` gold per unit is paid by the buyer (the farm's operator earns it, 0 = an internal
+## transfer inside one owner). Returns the units actually moved.
+func transfer_goods(pid: String, item: String, qty: int, price_each := 0) -> int:
+	var P: Dictionary = _p.get(pid, {})
+	if P.is_empty() or qty <= 0:
+		return 0
+	var st: Dictionary = P["store"]
+	var n := mini(qty, int(floor(float(st.get(item, 0.0)))))
+	if n <= 0:
+		return 0
+	st[item] = float(st[item]) - n
+	if price_each > 0:
+		_income(P, operator(P), n * price_each)
+	return n
+
+
 ## Proceeds go to the one who sells; a delegated or autonomous player farm sends them through the farm group's budget first (wages), and a
 ## dishonest steward skims some (recruitment audit() finds it).
 func _income(P: Dictionary, who: String, gold: int) -> void:
