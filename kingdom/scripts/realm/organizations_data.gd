@@ -101,15 +101,19 @@ const COMPAT_MERGE := {"craft_guild": ["craft_guild"], "merchant_company": ["mer
 	"criminal_syndicate": ["criminal_syndicate"], "religious_order": ["religious_order"], "academy": ["academy"], "militia": ["militia", "mercenary_company"]}
 
 
+const _EMPTY := {}
+
+
 static func type_def(t: String) -> Dictionary:
 	return TYPES.get(t, {})
 
 
 static func rank_rights(t: String, rank: int) -> Array:
-	var td: Dictionary = TYPES.get(t, {})
-	var ov: Dictionary = td.get("rights", {})
-	if ov.has(str(rank)):
-		return ov[str(rank)]
+	var td: Dictionary = TYPES.get(t, _EMPTY)
+	if td.has("rights"):
+		var ov: Dictionary = td["rights"]
+		if ov.has(str(rank)):
+			return ov[str(rank)]
 	return BASE_RIGHTS[clampi(rank, 0, RANK_COUNT - 1)]
 
 

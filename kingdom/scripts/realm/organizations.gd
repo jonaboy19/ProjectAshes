@@ -21,12 +21,17 @@ extends "res://scripts/realm/realm_module.gd"
 const D := preload("res://scripts/realm/organizations_data.gd")
 const Events := preload("res://scripts/realm/events.gd")
 const Reg := preload("res://scripts/realm/registry.gd")
+const Codec := preload("res://scripts/realm/save_codec.gd")
 
 const ORG_CAP := 400
 const MEMBER_CAP := 4000
-const ORG_CHUNK := 20
+const ORG_CHUNK := 6                # orgs a day-tick job looks at (a body costs 10 to 40 us, so a job stays under 0.3 ms)
 const FAR_DAYS := 28
-const NPC_PER_DAY := 10
+const NPC_PER_DAY := 10            # NPC decisions a day while there are 120 NPCs or fewer
+const NPC_PER_DAY_CROWDED := 6     # ... and a day when there are more: a crowded world's far bodies decide less often (each still at most once in 3 days)
+const NPC_CROWDED_AT := 120
+const NPC_JOBS := 2                # the day's NPC decisions are split over this many jobs
+const CAND_WINDOW := 8             # an NPC weighs at most this many bodies of one fitting type in its town (a window picked by its id)
 const NPC_CADENCE := 3          # one decision per NPC per 3 days
 const ACTOR_SEED := 96
 const ACTORS_MAX := 400
@@ -41,6 +46,11 @@ const REP_DECAY := 0.97
 const LEAVE_BREACH_REP := 4.0
 const FOUNDED_KEEP := 30        # a dissolved org's stub is kept this many days
 const HIST_MAX := 6
+const NO_DAY := 1 << 30              # "never": a day that is not coming
+const _NO_ROWS := {}
+const _NO_KEYS := []
+const DISPUTE_KEEP_DAYS := 20       # a ruled grievance is forgotten (a count in the stats) after this many days
+const ZERO_PAY := [0, 0, 0, 0, 0, 0]   # shared default so a settle allocates nothing
 
 var _o: Dictionary = {}          # org id -> org
 var _c: Dictionary = {}          # ch -> character axes record
@@ -49,7 +59,8 @@ var _pt: Dictionary = {}         # petition id -> petition
 var _mem: Dictionary = {}        # ch -> [org ids] (derived, rebuilt on load)
 var _ord: Array = []             # sorted org ids (cache)
 var _npc: Array = []             # sorted NPC actor ids (cache)
-var _npc_ok := false
+var _npc_town: Dictionary = {}   # town -> sorted NPC ids there (cache, built with _npc)
+var _npc_ok := true                # the NPC lists are kept as NPCs appear; only a load or an out-of-order change builds them again
 var _next_d := 1
 var _adapt_todo: Array = []
 var _adapt_next := 0
@@ -60,7 +71,13 @@ var _types_cache: Dictionary = {}
 var _mcount := 0
 var _reg: RefCounted = null
 var _pl := ""
-var _sidx: Dictionary = {}
+var _sidx: Dictionary = {}       # town -> [org ids]
+var _tidx: Dictionary = {}       # town -> {type -> [org ids]}
+var _hire: Dictionary = {}       # town -> {type -> [hiring org ids in id order]} (derived, not saved; _touch keeps it true)
+var _regm: RefCounted = null     # the registry module, once found
+var _tkc: Dictionary = {}        # type -> packed per-type numbers (static data, rebuilt on demand)
+var _hep: Dictionary = {}        # town -> hiring epoch (bumped by anything that changes who may join there; not saved)
+var _nseen: Dictionary = {}      # NPC -> the epoch of its town when it last looked for a body (not saved)
 var _sidx_ok := false
 var _next_a := 1
 var _next_p := 1
@@ -132,9 +149,10 @@ func _is_player(ch: String) -> bool:
 	if ch == "player":
 		return true
 	if _pl == "":
-		var reg := _mod("registry")
-		if reg != null:
-			_pl = reg.lookup("pl:player")
+		if _regm == null:
+			_regm = _mod("registry")
+		if _regm != null:
+			_pl = _regm.lookup("pl:player")
 	return ch != "" and ch == _pl
 
 
@@ -147,7 +165,7 @@ func ensure_char(ch: String, init := {}) -> Dictionary:
 			"sk": (init.get("sk", {}) as Dictionary).duplicate(), "rep": float(init.get("rep", 0.0)), "npc": bool(init.get("npc", false)),
 			"amb": String(init.get("amb", "")), "own": [], "fol": ""}
 		if bool(init.get("npc", false)):
-			_npc_ok = false
+			_npc_append(ch)
 	elif not init.is_empty():
 		var r: Dictionary = _c[ch]
 		for k: String in init:
@@ -155,7 +173,25 @@ func ensure_char(ch: String, init := {}) -> Dictionary:
 				r["sk"] = (init["sk"] as Dictionary).duplicate()
 			elif r.has(k):
 				r[k] = init[k]
+				if k == "sid" or k == "npc":
+					_npc_ok = false                      # the town index of the NPCs is built from these
 	return _c[ch]
+
+
+## A new NPC joins the sorted list, the cadence buckets and the town index without rebuilding them (they are minted in id order).
+## Out of order, or while the lists are not built, the next use builds them again.
+func _npc_append(ch: String) -> void:
+	if not _npc_ok:
+		return
+	if not _npc.is_empty() and int(ch.substr(3)) < int(String(_npc[-1]).substr(3)):
+		_npc_ok = false
+		return
+	(_npc_b[_npc.size() % NPC_CADENCE] as Array).append(ch)
+	var ts := int(_c[ch]["sid"])
+	if not _npc_town.has(ts):
+		_npc_town[ts] = []
+	(_npc_town[ts] as Array).append(ch)
+	_npc.append(ch)
 
 
 func has_char(ch: String) -> bool:
@@ -174,10 +210,11 @@ func spawn_actor(sid: int, prof: String, cash: int, sk := {}, rep := 0.0, amb :=
 
 
 func profession(ch: String) -> String:
-	return String(_c.get(ch, {}).get("prof", ""))
+	return String((_c.get(ch, _NO_ROWS) as Dictionary).get("prof", ""))
 
 
 func set_profession(ch: String, prof: String) -> void:
+	_nseen.erase(ch)
 	ensure_char(ch)["prof"] = prof
 
 
@@ -196,14 +233,14 @@ func unemploy(ch: String) -> void:
 
 
 func skill_of(ch: String, stat: String) -> float:
-	var sk: Dictionary = _c.get(ch, {}).get("sk", {})
+	var sk: Dictionary = (_c.get(ch, _NO_ROWS) as Dictionary).get("sk", _NO_ROWS)
 	if sk.has(stat):
 		return float(sk[stat])
 	return 0.15 + float(absi(hash([WorldSim.SEED, "osk", ch, stat])) % 70) / 100.0
 
 
 func reputation_of(ch: String) -> float:
-	return float(_c.get(ch, {}).get("rep", 0.0))
+	return float((_c.get(ch, _NO_ROWS) as Dictionary).get("rep", 0.0))
 
 
 func add_reputation(ch: String, d: float) -> void:
@@ -223,7 +260,7 @@ func gold_available() -> int:
 func purse(ch: String) -> int:
 	if _is_player(ch):
 		return gold_available()
-	return int(_c.get(ch, {}).get("cash", 0))
+	return int((_c.get(ch, _NO_ROWS) as Dictionary).get("cash", 0))
 
 
 func pay(ch: String, amt: int) -> bool:
@@ -244,18 +281,21 @@ func earn(ch: String, amt: int) -> void:
 	if _is_player(ch):
 		pending_gold += amt
 	else:
-		ensure_char(ch)["cash"] = int(_c[ch]["cash"]) + amt
+		var r: Variant = _c.get(ch)
+		if r == null:
+			r = ensure_char(ch)
+		r["cash"] = int(r["cash"]) + amt
 
 
 ## A payer or payee that is a character (purse) or an organization (treasury).
 func can_afford(who: String, amt: int) -> bool:
-	if Reg.prefix_of(who) == "org":
+	if who.begins_with("org:"):
 		return int(_o.get(who, {}).get("treasury", 0)) >= amt
 	return purse(who) >= amt
 
 
 func pay_from(who: String, amt: int) -> bool:
-	if Reg.prefix_of(who) == "org":
+	if who.begins_with("org:"):
 		if not _o.has(who) or int(_o[who]["treasury"]) < amt:
 			return false
 		_o[who]["treasury"] = int(_o[who]["treasury"]) - amt
@@ -264,7 +304,7 @@ func pay_from(who: String, amt: int) -> bool:
 
 
 func pay_to(who: String, amt: int) -> void:
-	if Reg.prefix_of(who) == "org":
+	if who.begins_with("org:"):
 		if _o.has(who):
 			_o[who]["treasury"] = int(_o[who]["treasury"]) + amt
 		return
@@ -315,6 +355,45 @@ func _wake(oid: String, d: int) -> void:
 	_plan(oid, d)
 
 
+## A seat, a stage, a policy or a body changed in this body's town: the NPCs there look again.
+func _touch(o: Dictionary) -> void:
+	_bump(o)
+	_hire_patch(o)
+
+
+## Only the epoch: something an NPC waits on has changed (a refusal, an expired application) but the hiring lists have not.
+func _bump(o: Dictionary) -> void:
+	var s := int(o["sid"])
+	_hep[s] = int(_hep.get(s, 0)) + 1
+
+
+func _eligible(o: Dictionary) -> bool:
+	return int(o["stage"]) >= 1 and o["st"] == "active" and not o.has("legacy") and o["pol"]["open"] and (o["m"] as Dictionary).size() < capacity(o["id"])
+
+
+## Keeps the town's hiring list (if one was built) true to this body after it changed: one insert or erase, never a rescan.
+func _hire_patch(o: Dictionary) -> void:
+	var by_t: Dictionary = _hire.get(int(o["sid"]), _NO_ROWS)
+	if not by_t.has(o["type"]):
+		return
+	var lst: Array = by_t[o["type"]]
+	var oid: String = o["id"]
+	var at := lst.bsearch_custom(oid, _by_org_n)
+	var present: bool = at < lst.size() and lst[at] == oid
+	var want: bool = _eligible(o)
+	if want and not present:
+		lst.insert(at, oid)
+	elif present and not want:
+		lst.remove_at(at)
+
+
+## Orders org ids by their number (the order org_ids() uses), for the hiring lists.
+func _by_org_n(a: String, b: String) -> bool:
+	var na := int(a.substr(4)) if a.begins_with("org:") else -1
+	var nb := int(b.substr(4)) if b.begins_with("org:") else -1
+	return na < nb or (na == nb and a < b)
+
+
 func _plan(oid: String, d: int) -> void:
 	if _sched.has(d):
 		(_sched[d] as Array).append(oid)
@@ -326,12 +405,20 @@ func _plan(oid: String, d: int) -> void:
 func _rebuild_rc(o: Dictionary) -> void:
 	var rc := [0, 0, 0, 0, 0, 0]
 	var ks := 0.0
+	var cmx := 0.0
+	var ppd := NO_DAY
 	var m: Dictionary = o["m"]
 	for ch: String in m:
-		rc[clampi(int(m[ch]["r"]), 0, 5)] += 1
-		ks += float(m[ch].get("k", 0.5))
+		var row: Dictionary = m[ch]
+		rc[clampi(int(row["r"]), 0, 5)] += 1
+		ks += float(row.get("k", 0.5))
+		cmx = maxf(cmx, float(row["c"]))
+		if int(row["pd"]) >= 0:
+			ppd = mini(ppd, int(row["pd"]))
 	o["rcv"] = rc
 	o["ks"] = ks
+	o["cmx"] = cmx
+	o["ppd"] = ppd
 
 
 func _set_rank(o: Dictionary, ch: String, rank: int) -> void:
@@ -355,11 +442,11 @@ func memberships(ch: String) -> Array:
 
 
 func is_member(oid: String, ch: String) -> bool:
-	return _o.get(oid, {}).get("m", {}).has(ch)
+	return (((_o.get(oid, _NO_ROWS) as Dictionary).get("m", _NO_ROWS)) as Dictionary).has(ch)
 
 
 func rank_of(oid: String, ch: String) -> int:
-	var m: Dictionary = _o.get(oid, {}).get("m", {})
+	var m: Dictionary = (_o.get(oid, _NO_ROWS) as Dictionary).get("m", _NO_ROWS)
 	return int(m[ch]["r"]) if m.has(ch) else -1
 
 
@@ -382,11 +469,11 @@ func members_of(oid: String, min_rank := 0) -> Array:
 
 
 func member_count(oid: String) -> int:
-	return (_o.get(oid, {}).get("m", {}) as Dictionary).size()
+	return ((_o.get(oid, _NO_ROWS) as Dictionary).get("m", _NO_ROWS) as Dictionary).size()
 
 
 func type_of(oid: String) -> Dictionary:
-	return D.type_def(String(_o.get(oid, {}).get("type", "")))
+	return D.type_def(String((_o.get(oid, _NO_ROWS) as Dictionary).get("type", "")))
 
 
 func rank_name(oid: String, rank: int) -> String:
@@ -398,12 +485,13 @@ func rank_name(oid: String, rank: int) -> String:
 
 
 func rights_at(oid: String, rank: int) -> Array:
-	var o: Dictionary = _o.get(oid, {})
+	var o: Dictionary = _o.get(oid, _NO_ROWS)
 	if o.is_empty() or rank < 0:
 		return []
-	var ov: Dictionary = o.get("rk", {})
-	if ov.has(str(rank)):
-		return ov[str(rank)]
+	if o.has("rk"):
+		var ov: Dictionary = o["rk"]
+		if ov.has(str(rank)):
+			return ov[str(rank)]
 	return D.rank_rights(String(o["type"]), rank)
 
 
@@ -440,19 +528,55 @@ func count_at(oid: String, rank: int) -> int:
 
 
 func capacity(oid: String) -> int:
-	var o: Dictionary = _o.get(oid, {})
-	return 8 + (24 if not (o.get("hq", {}) as Dictionary).is_empty() else 0) + 10 * int(o.get("stage", 0))
+	var o: Dictionary = _o.get(oid, _NO_ROWS)
+	return 8 + (24 if not (o.get("hq", _NO_ROWS) as Dictionary).is_empty() else 0) + 10 * int(o.get("stage", 0))
+
+
+func _ensure_sidx() -> void:
+	if _sidx_ok:
+		return
+	_sidx = {}
+	_tidx = {}
+	for oid: String in org_ids():
+		_index_town(oid)
+	_sidx_ok = true
+
+
+## Files an org under its town and under (town, type), so a hiring search touches only the bodies that could fit.
+func _index_town(oid: String) -> void:
+	var s: int = int(_o[oid]["sid"])
+	var t: String = _o[oid]["type"]
+	if not _sidx.has(s):
+		_sidx[s] = []
+		_tidx[s] = {}
+	(_sidx[s] as Array).append(oid)
+	var by_t: Dictionary = _tidx[s]
+	if not by_t.has(t):
+		by_t[t] = []
+	(by_t[t] as Array).append(oid)
+
+
+## The bodies of this type in this town that are taking people (stage 1 or more, open, a seat free, not a mirror), listed in id order.
+## Rebuilt only when the town's epoch has moved, so a hundred NPCs looking in a quiet town share one walk.
+func _hiring(sid: int, type: String) -> Array:
+	var by_t: Dictionary = _hire.get(sid, _NO_ROWS)
+	if by_t.has(type):
+		return by_t[type]
+	_ensure_sidx()
+	var out: Array = []
+	for oid: String in (_tidx.get(sid, _NO_ROWS) as Dictionary).get(type, _NO_KEYS):
+		var o: Dictionary = _o.get(oid, {})
+		if not o.is_empty() and _eligible(o):
+			out.append(oid)
+	out.sort_custom(_by_org_n)
+	if not _hire.has(sid):
+		_hire[sid] = {}
+	_hire[sid][type] = out
+	return out
 
 
 func orgs_in(sid: int, type := "") -> Array:
-	if not _sidx_ok:
-		_sidx = {}
-		for oid: String in org_ids():
-			var s: int = int(_o[oid]["sid"])
-			if not _sidx.has(s):
-				_sidx[s] = []
-			(_sidx[s] as Array).append(oid)
-		_sidx_ok = true
+	_ensure_sidx()
 	var out: Array = []
 	for oid2: String in _sidx.get(sid, []):
 		var o: Dictionary = _o.get(oid2, {})
@@ -475,16 +599,15 @@ func _new_org(type: String, nm: String, sid: int, mode: String, forced_id := "")
 		"succ": {"mode": String(td.get("succ", "election")), "heir": ""}, "hq": {}, "charter": {}, "legal": "none", "treasury": 0,
 		"pol": {"dues": 1.0, "wage": 1.0, "open": true}, "m": {}, "app": {}, "dis": [], "parent": "", "br": [], "assets": [], "rep": 0.0, "act": 0.0,
 		"born": born, "lw": born - (int(Reg.parse(oid).get("n", 0)) % FAR_DAYS), "nd": born, "strife": 0.0, "sw": 0, "nw": 0, "late": 0, "hist": [],
-		"pet": "", "cd": -100, "split_from": "", "merged": "", "dt": mode == "manual", "owed": 0, "n": int(Reg.parse(oid).get("n", 0)), "off": 0.0, "pl": born + 1 + int(Reg.parse(oid).get("n", 0)) % 7, "rcv": [0, 0, 0, 0, 0, 0], "ks": 0.0}
+		"pet": "", "cd": -100, "split_from": "", "merged": "", "dt": mode == "manual", "owed": 0, "n": int(Reg.parse(oid).get("n", 0)), "off": 0.0, "pl": born + 1 + int(Reg.parse(oid).get("n", 0)) % 7, "rcv": [0, 0, 0, 0, 0, 0], "ks": 0.0, "cmx": 0.0, "ppd": NO_DAY}
 	if _ord.size() == _o.size() - 1:
 		_ord.append(oid)
 	else:
 		_ord = []
 	if _sidx_ok:
-		if not _sidx.has(sid):
-			_sidx[sid] = []
-		(_sidx[sid] as Array).append(oid)
+		_index_town(oid)
 	_plan(oid, int(_o[oid]["pl"]))
+	_touch(_o[oid])
 	return oid
 
 
@@ -527,15 +650,18 @@ func join_conflict(oid: String, ch: String) -> String:
 	var o: Dictionary = _o.get(oid, {})
 	if o.is_empty() or String(o["st"]) != "active":
 		return "That organization does not exist."
+	var held: Array = _mem.get(ch, _NO_KEYS)
+	if held.is_empty():
+		return ""                                    # holds no seat anywhere: nothing can conflict
 	if is_member(oid, ch):
 		return "Already a member."
 	var td := D.type_def(String(o["type"]))
-	for other: String in memberships(ch):
+	for other: String in held:
 		var ot := String(_o[other]["type"])
 		var otd := D.type_def(ot)
 		if bool(td.get("excl", false)) and bool(otd.get("excl", false)):
 			return "Sworn to %s; an oath of service excludes another." % _o[other]["name"]
-		if ot in (td.get("conflicts", []) as Array) or String(o["type"]) in (otd.get("conflicts", []) as Array):
+		if ot in (td.get("conflicts", _NO_KEYS) as Array) or String(o["type"]) in (otd.get("conflicts", _NO_KEYS) as Array):
 			return "%s and %s will never share a member." % [td.get("label", ""), otd.get("label", "")]
 		if bool(_o[other]["m"][ch].get("b", 0)) and bool(otd.get("excl", false)) and bool(td.get("excl", false)):
 			return "Bound by contract to %s." % _o[other]["name"]
@@ -606,6 +732,7 @@ func draft_charter(oid: String, by: String, text: String, rules := {}) -> Dictio
 		o["pol"]["dues"] = clampf(float(rules["dues"]), 0.0, 3.0)
 	if rules.has("open"):
 		o["pol"]["open"] = bool(rules["open"])
+		_touch(o)
 	if float(type_of(oid).get("recog_rep", 0)) >= 9999.0:
 		o["legal"] = "outlaw"
 	_restage(oid)
@@ -682,6 +809,7 @@ func rent_hq(oid: String, by: String, sid: int, rent := -1) -> Dictionary:
 	o["treasury"] = int(o["treasury"]) - r * 2
 	stats["rent"] = int(stats["rent"]) + r * 2
 	o["hq"] = {"pr": _mint("pr"), "sid": sid, "rent": r, "since": _day, "legal": "leased"}
+	_touch(o)
 	o["late"] = 0
 	_restage(oid)
 	_ev("founding", "ss:%d" % sid if sid >= 0 else "", [by, oid], "hq", "%s takes a house" % o["name"], 1)
@@ -690,18 +818,20 @@ func rent_hq(oid: String, by: String, sid: int, rent := -1) -> Dictionary:
 
 func _restage(oid: String) -> void:
 	var o: Dictionary = _o[oid]
-	var td := D.type_def(String(o["type"]))
+	var tk := _tk(o["type"])
 	var st := 0
-	if member_count(oid) >= int(td.get("min_founders", 2)):
+	if float((o["m"] as Dictionary).size()) >= tk[9]:
 		st = 1
-		if not (o["charter"] as Dictionary).is_empty() and String(o["legal"]) in ["recognised", "outlaw"]:
+		var legal: String = o["legal"]
+		if not (o["charter"] as Dictionary).is_empty() and (legal == "recognised" or legal == "outlaw"):
 			st = 2
 			if not (o["hq"] as Dictionary).is_empty():
 				st = 3
-				if float(o["rep"]) >= float(td.get("stand_rep", 25.0)) and int(o["sw"]) >= 4:
+				if float(o["rep"]) >= tk[10] and int(o["sw"]) >= 4:
 					st = 4
 	if st != int(o["stage"]):
 		o["stage"] = st
+		_touch(o)
 		_hist(o, "stage: " + String(D.STAGES[st]))
 
 
@@ -709,13 +839,19 @@ func _restage(oid: String) -> void:
 
 func _add_member(oid: String, ch: String, rank: int, sponsor: String, bound := 0, ct := "") -> void:
 	var o: Dictionary = _o[oid]
-	var td := D.type_def(String(o["type"]))
-	o["m"][ch] = {"r": rank, "s": _day, "c": 0.0, "t": 60.0, "sp": sponsor, "b": bound, "ar": 0, "ct": ct,
+	var td: Dictionary = D.TYPES.get(o["type"], _NO_ROWS)
+	var rows: Dictionary = o["m"]
+	var row := {"r": rank, "s": _day, "c": 0.0, "t": 60.0, "sp": sponsor, "b": bound, "ar": 0, "ct": ct,
 		"pd": (_day + int(td.get("prob", 7))) if rank == D.PROBATION else -1, "k": snappedf(skill_of(ch, String(td.get("skill", ""))), 0.01)}
+	rows[ch] = row
 	_index(ch, oid, true)
 	_mcount += 1
+	if rows.size() == capacity(oid):
+		_touch(o)                                   # the last seat went: it stops hiring
 	(o["rcv"] as Array)[clampi(rank, 0, 5)] += 1
-	o["ks"] = float(o["ks"]) + float(o["m"][ch]["k"])
+	if rank == D.PROBATION:
+		o["ppd"] = mini(int(o["ppd"]), int(row["pd"]))
+	o["ks"] = float(o["ks"]) + float(row["k"])
 	if _is_player(ch):
 		o["dt"] = true
 	_wake(oid, _day + 1)
@@ -731,8 +867,9 @@ func apply(oid: String, ch: String, sponsor := "") -> Dictionary:
 	var o: Dictionary = _o[oid]
 	if not bool(o["pol"]["open"]) and sponsor == "":
 		return {"ok": false, "reason": "They are not taking people."}
-	if member_count(oid) >= capacity(oid):
-		return {"ok": false, "reason": "There is no room: %d of %d seats." % [member_count(oid), capacity(oid)]}
+	var seats: int = (o["m"] as Dictionary).size()
+	if seats >= capacity(oid):
+		return {"ok": false, "reason": "There is no room: %d of %d seats." % [seats, capacity(oid)]}
 	if (o["app"] as Dictionary).has(ch):
 		return {"ok": false, "reason": "You have applied already."}
 	if sponsor != "" and not is_member(oid, sponsor):
@@ -745,27 +882,28 @@ func apply(oid: String, ch: String, sponsor := "") -> Dictionary:
 
 ## What the examiners think of an applicant: {ok, score, reasons[]}. Skill, name, fee and (when the type asks) a sponsor.
 func evaluate_application(oid: String, ch: String) -> Dictionary:
-	var o: Dictionary = _o.get(oid, {})
-	var a: Dictionary = o.get("app", {}).get(ch, {})
-	var td := type_of(oid)
-	var ent: Dictionary = td.get("entry", {})
+	var o: Dictionary = _o.get(oid, _NO_ROWS)
+	var a: Dictionary = (o.get("app", _NO_ROWS) as Dictionary).get(ch, _NO_ROWS)
+	var td: Dictionary = D.TYPES.get(o.get("type", ""), _NO_ROWS)
+	var ent: Dictionary = td.get("entry", _NO_ROWS)
 	var reasons: Array = []
 	var ok := true
 	var sk := skill_of(ch, String(td.get("skill", "")))
+	var rep_ch := reputation_of(ch)
 	if sk < float(ent.get("skill", 0.0)):
 		ok = false
 		reasons.append("Not skilled enough (%.2f of %.2f)." % [sk, float(ent.get("skill", 0.0))])
-	if reputation_of(ch) < float(ent.get("rep", 0)):
+	if rep_ch < float(ent.get("rep", 0)):
 		ok = false
 		reasons.append("Not known well enough.")
-	if bool(ent.get("sponsor", false)) and String(a.get("sp", "")) == "":
+	var sp := String(a.get("sp", ""))
+	if bool(ent.get("sponsor", false)) and sp == "":
 		ok = false
 		reasons.append("Needs a sponsor from among the members.")
 	if purse(ch) < int(ent.get("fee", 0)):
 		ok = false
 		reasons.append("Cannot pay the %d gold entry fee." % int(ent.get("fee", 0)))
-	var sp := String(a.get("sp", ""))
-	var score := sk * 50.0 + reputation_of(ch) * 0.4 + (12.0 if sp != "" else 0.0) + (6.0 if profession(ch) in (td.get("prof", []) as Array) else 0.0)
+	var score := sk * 50.0 + rep_ch * 0.4 + (12.0 if sp != "" else 0.0) + (6.0 if profession(ch) in (td.get("prof", _NO_KEYS) as Array) else 0.0)
 	return {"ok": ok, "score": snappedf(score, 0.1), "reasons": reasons}
 
 
@@ -775,6 +913,11 @@ func applicants(oid: String) -> Array:
 
 ## A member with the recruit right accepts or refuses an applicant. Accepting seats them on probation.
 func decide(oid: String, by: String, ch: String, accept: bool) -> Dictionary:
+	return _decide_app(oid, by, ch, accept, _NO_ROWS)
+
+
+## `ev` is the examiners' verdict when the caller has just asked for it (nothing changes between the two asks).
+func _decide_app(oid: String, by: String, ch: String, accept: bool, ev_in: Dictionary) -> Dictionary:
 	var o: Dictionary = _o.get(oid, {})
 	if o.is_empty() or not can(oid, by, "recruit"):
 		return {"ok": false, "reason": "You have no right to admit people."}
@@ -782,14 +925,17 @@ func decide(oid: String, by: String, ch: String, accept: bool) -> Dictionary:
 		return {"ok": false, "reason": "They have not applied."}
 	if not accept:
 		o["app"].erase(ch)
+		_bump(o)
 		return {"ok": true, "joined": false}
-	var ev := evaluate_application(oid, ch)
+	var ev: Dictionary = ev_in if not ev_in.is_empty() else evaluate_application(oid, ch)
 	if not bool(ev["ok"]):
 		o["app"].erase(ch)
+		_bump(o)
 		return {"ok": true, "joined": false, "reasons": ev["reasons"]}
 	var why := join_conflict(oid, ch)
 	if why != "":
 		o["app"].erase(ch)
+		_bump(o)
 		return {"ok": true, "joined": false, "reasons": [why]}
 	if _total_members() >= MEMBER_CAP or member_count(oid) >= capacity(oid):
 		return {"ok": false, "reason": "There is no room."}
@@ -940,8 +1086,10 @@ func record_activity(oid: String, ch: String, amount: float, kind := "work") -> 
 		return
 	o["act"] = float(o["act"]) + amount
 	if (o["m"] as Dictionary).has(ch):
-		o["m"][ch]["c"] = float(o["m"][ch]["c"]) + amount
-		o["m"][ch]["t"] = minf(100.0, float(o["m"][ch]["t"]) + amount * 0.3)
+		var row: Dictionary = o["m"][ch]
+		row["c"] = float(row["c"]) + amount
+		row["t"] = minf(100.0, float(row["t"]) + amount * 0.3)
+		o["cmx"] = maxf(float(o.get("cmx", 0.0)), float(row["c"]))
 	add_reputation(ch, amount * 0.05)
 
 
@@ -953,10 +1101,13 @@ func _remove(oid: String, ch: String, why: String) -> void:
 	var was_leader := String(o["leader"]) == ch
 	(o["rcv"] as Array)[clampi(int(row["r"]), 0, 5)] -= 1
 	o["ks"] = float(o["ks"]) - float(row.get("k", 0.5))
+	var was_full: bool = (o["m"] as Dictionary).size() == capacity(oid)
 	o["m"].erase(ch)
 	_mcount -= 1
+	if was_full:
+		_touch(o)                                   # a full body has a seat again
 	_index(ch, oid, false)
-	if String(_c.get(ch, {}).get("emp", {}).get("by", "")) == oid:
+	if String(((_c.get(ch, _NO_ROWS) as Dictionary).get("emp", _NO_ROWS) as Dictionary).get("by", "")) == oid:
 		unemploy(ch)
 	var rc := _mod("recruitment")
 	if rc != null and String(row.get("ct", "")) != "":
@@ -1327,6 +1478,7 @@ func merge(into: String, gone: String, by: String, consent := true) -> Dictionar
 		_index(ch, gone, false)
 		if (a["m"] as Dictionary).has(ch):
 			a["m"][ch]["c"] = float(a["m"][ch]["c"]) + float(bm[ch]["c"])
+			a["cmx"] = maxf(float(a.get("cmx", 0.0)), float(a["m"][ch]["c"]))
 			continue
 		var rk := int(bm[ch]["r"])
 		if rk >= D.LEADER:
@@ -1339,6 +1491,8 @@ func merge(into: String, gone: String, by: String, consent := true) -> Dictionar
 		_index(ch, into, true)
 		moved += 1
 	b["m"] = {}
+	_touch(a)
+	_touch(b)
 	_rebuild_rc(a)
 	_rebuild_rc(b)
 	_recount()
@@ -1418,8 +1572,11 @@ func _remove_row_only(oid: String, ch: String) -> void:
 	var row: Dictionary = o["m"][ch]
 	(o["rcv"] as Array)[clampi(int(row["r"]), 0, 5)] -= 1
 	o["ks"] = float(o["ks"]) - float(row.get("k", 0.5))
+	var was_full: bool = (o["m"] as Dictionary).size() == capacity(oid)
 	o["m"].erase(ch)
 	_mcount -= 1
+	if was_full:
+		_touch(o)
 	_index(ch, oid, false)
 
 
@@ -1483,6 +1640,7 @@ func _close(oid: String, reason: String) -> int:
 	o["br"] = []
 	o["treasury"] = 0
 	o["st"] = "dissolved"
+	_touch(o)
 	o["end"] = _day
 	_hist(o, "closed: " + reason)
 	stats["dissolved"] = int(stats["dissolved"]) + 1
@@ -1496,16 +1654,120 @@ func _close(oid: String, reason: String) -> int:
 ## One week of an organization's money. A body that is watched (the player belongs to it or leads it, or `watch()` was called) settles member
 ## by member through their purses. Every other body settles in closed form from rank counts (O(members) integer work), so 400 of them cost
 ## well under a millisecond a day; their members' personal purses are not simulated, only the body's own flows.
+## Per-type numbers as one packed array so a far body's settle reads floats, not Variants:
+## 0 dues, 1 rate, 2 yield, 3..8 pay per rank, 9 min_founders, 10 stand_rep, 11 hq_rent.
+func _tk(type: String) -> PackedFloat64Array:
+	var hit: Variant = _tkc.get(type)
+	if hit != null:
+		return hit
+	var td: Dictionary = D.TYPES.get(type, _NO_ROWS)
+	var pay: Array = td.get("pay", ZERO_PAY)
+	var a := PackedFloat64Array([float(td.get("dues", 0)), float(td.get("rate", 1.0)), float(td.get("yield", 1.0)),
+		float(pay[0]), float(pay[1]), float(pay[2]), float(pay[3]), float(pay[4]), float(pay[5]),
+		float(td.get("min_founders", 2)), float(td.get("stand_rep", 25.0)), float(td.get("hq_rent", 0))])
+	_tkc[type] = a
+	return a
+
+
+## The closed-form week of a body nobody watches (O(1) in its members; see the comment on _settle).
+func _settle_far(oid: String, day: int) -> void:
+	var o: Dictionary = _o[oid]
+	var tk := _tk(o["type"])
+	var pol: Dictionary = o["pol"]
+	var wage_mult: float = pol["wage"]
+	var w := maxf(1.0, float(day - maxi(int(o["lw"]), int(o["born"]))) / 7.0)      # a far body settles several weeks in one closed-form step
+	var counts: Array = o["rcv"]
+	var c0: float = counts[0]
+	var c1: float = counts[1]
+	var c2: float = counts[2]
+	var c3: float = counts[3]
+	var c4: float = counts[4]
+	var c5: float = counts[5]
+	var n_all: int = (o["m"] as Dictionary).size()
+	var skill_sum: float = float(o["ks"]) * (float(n_all) - c0) / maxf(1.0, float(n_all))
+	var income: float = tk[0] * float(pol["dues"]) * (c1 + c2 + 0.5 * c3) * w
+	var act: float = o["act"]
+	if o["mode"] != "manual":
+		act += skill_sum * tk[1] * 0.8 * w
+	income += act * tk[2]
+	o["rep"] = clampf(float(o["rep"]) * (REP_DECAY if w == 1.0 else pow(REP_DECAY, w)) + act * 0.6, 0.0, 100.0)
+	o["act"] = 0.0
+	var tre: float = float(o["treasury"]) + income
+	var hq: Dictionary = o["hq"]
+	if not hq.is_empty():
+		var rent := int(round(float(hq.get("rent", 0)) * w))
+		if rent > 0:
+			if tre >= rent:
+				tre -= rent
+				o["late"] = 0
+				stats["rent"] = int(stats["rent"]) + rent
+			else:
+				o["late"] = int(o["late"]) + 1
+				if int(o["late"]) >= 3:
+					o["hq"] = {}
+					_touch(o)
+					_hist(o, "lost the headquarters")
+					_ev("founding", "", [oid], "evicted", "%s is evicted" % o["name"], 2)
+	var total_sal: float = w * wage_mult * (c0 * tk[3] + c1 * tk[4] + c2 * tk[5] + c3 * tk[6] + c4 * tk[7] + c5 * tk[8])
+	var unpaid := false
+	if tre >= total_sal:
+		tre -= total_sal
+		o["owed"] = 0
+	else:
+		unpaid = true
+		var left := tre
+		left -= minf(left, w * c5 * round(tk[8] * wage_mult))
+		left -= minf(left, w * c4 * round(tk[7] * wage_mult))
+		left -= minf(left, w * c3 * round(tk[6] * wage_mult))
+		left -= minf(left, w * c2 * round(tk[5] * wage_mult))
+		left -= minf(left, w * c1 * round(tk[4] * wage_mult))
+		left -= minf(left, w * c0 * round(tk[3] * wage_mult))
+		tre = left
+		o["owed"] = int(o.get("owed", 0)) + 1
+	tre -= 0.4 * float(n_all) * w
+	# A branch sends a tenth of its week up.
+	var parent: String = o["parent"]
+	if parent != "" and _o.has(parent) and income > 0.0 and tre > 0.0:
+		var tribute := income * BRANCH_TRIBUTE
+		tre -= tribute
+		_o[parent]["treasury"] = int(_o[parent]["treasury"]) + int(tribute)
+	o["treasury"] = int(floor(tre))
+	var nw := int(o["nw"])
+	if unpaid or tre < 0.0:
+		nw += int(w)
+		o["nw"] = nw
+		o["sw"] = 0
+		o["strife"] = float(o["strife"]) + w
+	else:
+		nw = 0
+		o["nw"] = 0
+		o["sw"] = int(o["sw"]) + int(w)
+		o["strife"] = maxf(0.0, float(o["strife"]) - 0.5 * w)
+	o["lw"] = day
+	if nw >= 8 or (n_all == 0 and o["st"] == "active"):
+		_close(oid, "bankrupt" if nw >= 8 else "empty")
+		return
+	if (day / 7 + int(o["n"])) % 3 == 0 or w > 1.0:                  # a far body is always a body that runs itself unless its mode is manual
+		if o["mode"] != "manual" or w > 1.0:
+			_week_politics(oid, day, counts)
+	if int(o["stage"]) < 4:
+		_restage(oid)
+
+
 func _settle(oid: String, day: int) -> void:
 	var o: Dictionary = _o[oid]
-	var td := D.type_def(String(o["type"]))
+	if not o["dt"]:
+		_settle_far(oid, day)
+		return
+	var td: Dictionary = D.TYPES.get(o["type"], _NO_ROWS)
 	var rows: Dictionary = o["m"]
-	var dues_mult := float(o["pol"]["dues"])
-	var wage_mult := float(o["pol"]["wage"])
-	var npc_run := String(o["mode"]) != "manual"
-	var detail := bool(o["dt"])
+	var pol: Dictionary = o["pol"]
+	var dues_mult: float = pol["dues"]
+	var wage_mult: float = pol["wage"]
+	var npc_run: bool = o["mode"] != "manual"
+	var detail: bool = o["dt"]
 	var w := 1.0 if detail else maxf(1.0, float(day - maxi(int(o["lw"]), int(o["born"]))) / 7.0)      # a far body settles several weeks in one closed-form step
-	var pay_tab: Array = td.get("pay", [0, 0, 0, 0, 0, 0])
+	var pay_tab: Array = td.get("pay", ZERO_PAY)
 	var dues_base := float(td.get("dues", 0))
 	var counts: Array = o["rcv"]
 	var income := 0.0
@@ -1525,7 +1787,7 @@ func _settle(oid: String, day: int) -> void:
 	else:
 		income += dues_base * dues_mult * (float(counts[1]) + float(counts[2]) + 0.5 * float(counts[3])) * w
 	# Activity: real (record_activity) always; a delegated or autonomous body also works on its own, closed form.
-	var act := float(o["act"])
+	var act: float = o["act"]
 	if npc_run:
 		act += skill_sum * float(td.get("rate", 1.0)) * 0.8 * w
 	income += act * float(td.get("yield", 1.0))
@@ -1534,18 +1796,20 @@ func _settle(oid: String, day: int) -> void:
 	var tre := float(o["treasury"]) + income
 	# Rent, then salaries from the top rank down.
 	var hq: Dictionary = o["hq"]
-	var rent := int(round(float(hq.get("rent", 0)) * w))
-	if rent > 0:
-		if tre >= rent:
-			tre -= rent
-			o["late"] = 0
-			stats["rent"] = int(stats["rent"]) + rent
-		else:
-			o["late"] = int(o["late"]) + 1
-			if int(o["late"]) >= 3:
-				o["hq"] = {}
-				_hist(o, "lost the headquarters")
-				_ev("founding", "", [oid], "evicted", "%s is evicted" % o["name"], 2)
+	if not hq.is_empty():
+		var rent := int(round(float(hq.get("rent", 0)) * w))
+		if rent > 0:
+			if tre >= rent:
+				tre -= rent
+				o["late"] = 0
+				stats["rent"] = int(stats["rent"]) + rent
+			else:
+				o["late"] = int(o["late"]) + 1
+				if int(o["late"]) >= 3:
+					o["hq"] = {}
+					_touch(o)
+					_hist(o, "lost the headquarters")
+					_ev("founding", "", [oid], "evicted", "%s is evicted" % o["name"], 2)
 	var unpaid := false
 	var total_sal := 0.0
 	if detail:
@@ -1594,7 +1858,7 @@ func _settle(oid: String, day: int) -> void:
 				left -= minf(left, need)
 			tre = left
 		o["owed"] = int(o.get("owed", 0)) + 1
-	tre -= 0.4 * float(rows.size()) * w
+	tre -= 0.4 * float(n_all) * w
 	# A branch sends a tenth of its week up.
 	var parent: String = o["parent"]
 	if parent != "" and _o.has(parent) and income > 0.0 and tre > 0.0:
@@ -1602,18 +1866,20 @@ func _settle(oid: String, day: int) -> void:
 		tre -= tribute
 		_o[parent]["treasury"] = int(_o[parent]["treasury"]) + int(tribute)
 	o["treasury"] = int(floor(tre))
+	var nw: int = o["nw"]
 	if unpaid or tre < 0.0:
-		o["nw"] = int(o["nw"]) + int(w)
+		nw += int(w)
+		o["nw"] = nw
 		o["sw"] = 0
 		o["strife"] = float(o["strife"]) + w
 	else:
+		nw = 0
 		o["nw"] = 0
 		o["sw"] = int(o["sw"]) + int(w)
 		o["strife"] = maxf(0.0, float(o["strife"]) - 0.5 * w)
 	o["lw"] = day
-	o["off"] = _offer_base(o)
-	if int(o["nw"]) >= 8 or (rows.is_empty() and String(o["st"]) == "active"):
-		_close(oid, "bankrupt" if int(o["nw"]) >= 8 else "empty")
+	if nw >= 8 or (n_all == 0 and o["st"] == "active"):
+		_close(oid, "bankrupt" if nw >= 8 else "empty")
 		return
 	if npc_run and (day / 7 + int(o["n"])) % 3 == 0 or w > 1.0:
 		_week_politics(oid, day, counts)
@@ -1623,15 +1889,18 @@ func _settle(oid: String, day: int) -> void:
 
 ## Days between two settlements: a watched, young or troubled body every week; a quiet far one every four.
 func _gap(o: Dictionary) -> int:
-	if bool(o["dt"]) or int(o["stage"]) < 3 or int(o["nw"]) > 0 or float(o["strife"]) >= 3.0 or int(o["late"]) > 0 or not (o["app"] as Dictionary).is_empty():
+	if o["dt"] or o["stage"] < 3 or o["nw"] > 0 or o["strife"] >= 3.0 or o["late"] > 0 or not (o["app"] as Dictionary).is_empty():
 		return 7
 	return FAR_DAYS
 
 
 func _offer_base(o: Dictionary) -> float:
-	var td := D.type_def(String(o["type"]))
-	return float((td.get("pay", [0, 0]) as Array)[1]) * float(o["pol"]["wage"]) * 2.0 + float(o["rep"]) * 0.3 \
-		- float(td.get("dues", 0)) * float(o["pol"]["dues"]) + (4.0 if int(o["treasury"]) > 0 else -8.0) + float(int(o["stage"]))
+	var tk := _tk(o["type"])
+	var pol: Dictionary = o["pol"]
+	var rp: float = o["rep"]
+	var tr := int(o["treasury"])
+	var sg := int(o["stage"])
+	return tk[4] * float(pol["wage"]) * 2.0 + rp * 0.3 - tk[0] * float(pol["dues"]) + (4.0 if tr > 0 else -8.0) + float(sg)
 
 
 ## Weekly politics of a body that runs itself: one promotion, a leaderless seat, grievances and, when strife runs high, a schism.
@@ -1641,12 +1910,13 @@ func _week_politics(oid: String, day: int, counts: Array) -> void:
 	if String(o["leader"]) == "" and not rows.is_empty():
 		_succeed(oid, "vacant")
 	# The best candidate who clears the bar for the next rank, seats permitting; the highest-ranked member with the right promotes.
+	# Nobody can clear the lowest bar while no member has banked that much (o.cmx caps every contribution), so a quiet body skips the walk.
 	var n := rows.size()
 	var by := ""
 	var by_r := -1
 	var best := ""
 	var best_c := -1.0
-	for ch: String in rows:
+	for ch: String in (rows if float(o["cmx"]) >= float(D.BASE_NEED[1]) else _NO_ROWS):
 		var m: Dictionary = rows[ch]
 		var rk := int(m["r"])
 		if rk > by_r or (rk == by_r and ch < by):
@@ -1703,14 +1973,11 @@ func tick_day_chunks(day: int, _ctx: Dictionary) -> Array:
 	if auto_seed and not _seeded:
 		_seed_actors()
 	# The due queue: every body asked to be looked at on or before today (a skipped day is never lost).
+	# (A body listed twice is looked at once: _org_chunk skips an entry whose live wake-up is already behind it.)
 	var due: Array = []
-	var seen := {}
 	for d: int in _sched.keys():
 		if d <= day:
-			for oid: String in _sched[d]:
-				if not seen.has(oid):
-					seen[oid] = true
-					due.append(oid)
+			due.append_array(_sched[d])
 			_sched.erase(d)
 	var out: Array = []
 	var i := 0
@@ -1718,7 +1985,8 @@ func tick_day_chunks(day: int, _ctx: Dictionary) -> Array:
 		var part := due.slice(i, i + ORG_CHUNK)
 		out.append(func() -> Array: return _org_chunk(part, day))
 		i += ORG_CHUNK
-	out.append(func() -> Array: return _npc_day(day))
+	for part in NPC_JOBS:
+		out.append(func() -> Array: return _npc_day(day, part))
 	out.append(func() -> Array: return _adapt_step(day))
 	return out
 
@@ -1757,11 +2025,19 @@ func _org_chunk(ids: Array, day: int) -> Array:
 func _org_day(oid: String, day: int, msgs: Array) -> void:
 	var o: Dictionary = _o[oid]
 	var gap := _gap(o)
-	var nd := day + gap + (int(o["n"]) % 2 if gap == 7 else 0)      # a quiet far body is looked at once a month
-	# Probation ends.
-	if int((o["rcv"] as Array)[0]) > 0:
-		for ch: String in o["m"].keys():
-			var m: Dictionary = o["m"][ch]
+	var lw := int(o["lw"])
+	var jit := int(o["n"]) % 2 if gap == 7 else 0
+	# The next look is the next settle (a quiet far body is looked at once a month). Bodies keep the phase their id gave them
+	# (lw = born - n % 28), so a world founded in one day does not settle in one day.
+	var nd := (day + gap + jit) if day - lw >= gap else (lw + gap + jit)
+	var manual: bool = o["mode"] == "manual"
+	# Probation ends (o.ppd is the earliest end of any probation, so a body with none running, or none due, is not walked).
+	var ppd: int = o["ppd"]
+	if ppd <= day:
+		var rows: Dictionary = o["m"]
+		var next_pd := NO_DAY
+		for ch: String in rows.keys():
+			var m: Dictionary = rows[ch]
 			var pd := int(m["pd"])
 			if pd >= 0:
 				if day >= pd:
@@ -1774,41 +2050,48 @@ func _org_day(oid: String, day: int, msgs: Array) -> void:
 						_remove(oid, ch, "failed probation")
 						continue
 				else:
-					nd = mini(nd, pd)
+					next_pd = mini(next_pd, pd)
+		o["ppd"] = next_pd
+		nd = mini(nd, next_pd)
+	elif ppd < NO_DAY:
+		nd = mini(nd, ppd)
 	# Applications: a body that runs itself decides; a manual one waits for its player (applicants lose patience).
 	var app: Dictionary = o["app"]
-	for ch2: String in app.keys():
+	for ch2: String in (app.keys() if not app.is_empty() else _NO_KEYS):
 		if day - int(app[ch2]["d"]) >= APP_DAYS:
 			app.erase(ch2)
+			_bump(o)
 			continue
-		if String(o["mode"]) != "manual":
+		if not manual:
 			var by := _recruiter(oid)
 			if by != "":
 				var ev := evaluate_application(oid, ch2)
-				decide(oid, by, ch2, bool(ev["ok"]) and float(ev["score"]) >= 12.0)
+				_decide_app(oid, by, ch2, bool(ev["ok"]) and float(ev["score"]) >= 12.0, ev)
 				continue
 		nd = mini(nd, day + 1)
 	# Disputes the hall has left open too long are ruled by whoever sits highest.
-	for d: Dictionary in o["dis"]:
-		if String(d["st"]) == "open":
-			if day - int(d["day"]) >= DISPUTE_RULE_DAYS:
-				_rule_auto(oid, d)
-			else:
-				nd = mini(nd, int(d["day"]) + DISPUTE_RULE_DAYS)
-	var keep: Array = []
-	for d2: Dictionary in o["dis"]:
-		if String(d2["st"]) == "open" or day - int(d2["day"]) < 20:
-			keep.append(d2)
-	if keep.size() != (o["dis"] as Array).size():
-		o["dis"] = keep
+	var dis: Array = o["dis"]
+	if not dis.is_empty():
+		for d: Dictionary in dis:
+			if String(d["st"]) == "open":
+				if day - int(d["day"]) >= DISPUTE_RULE_DAYS:
+					_rule_auto(oid, d)
+				else:
+					nd = mini(nd, int(d["day"]) + DISPUTE_RULE_DAYS)
+		var keep: Array = []
+		for d2: Dictionary in dis:
+			if String(d2["st"]) == "open" or day - int(d2["day"]) < DISPUTE_KEEP_DAYS:
+				keep.append(d2)
+		if keep.size() != dis.size():
+			o["dis"] = keep
 	# Petition stub.
-	var pid := String(o["pet"])
+	var pid: String = o["pet"]
 	if pid != "" and _pt.has(pid) and String(_pt[pid]["st"]) == "pending":
 		if day - int(_pt[pid]["day"]) >= PETITION_DAYS:
 			_stub_petition(_pt[pid])
 		else:
 			nd = mini(nd, int(_pt[pid]["day"]) + PETITION_DAYS)
-	if String(o["mode"]) != "manual" and int(o["stage"]) < 3 and String(o["leader"]) != "":
+	if not manual and int(o["stage"]) < 3 and o["leader"] != "":
 		_npc_found_step(oid, day)
 		nd = mini(nd, day + 3)
 	o["nd"] = nd
@@ -1829,11 +2112,16 @@ func _recruiter(oid: String) -> String:
 	var rows: Dictionary = _o[oid]["m"]
 	var best := ""
 	var br := -1
+	var may := [0, 0, 0, 0, 0, 0]                  # per rank: 0 unknown, 1 may recruit, 2 may not (rights depend on the rank alone)
 	for ch: String in rows:
-		var r := int(rows[ch]["r"])
-		if r >= D.VETERAN and (r > br or (r == br and ch < best)) and can(oid, ch, "recruit"):
-			best = ch
-			br = r
+		var r: int = rows[ch]["r"]
+		if r >= D.VETERAN and (r > br or (r == br and ch < best)):
+			var rr := clampi(r, 0, 5)
+			if int(may[rr]) == 0:
+				may[rr] = 1 if "recruit" in rights_at(oid, r) else 2
+			if int(may[rr]) == 1:
+				best = ch
+				br = r
 	return best
 
 
@@ -1847,8 +2135,13 @@ func _npc_list() -> Array:
 				_npc.append(ch)
 		_npc.sort_custom(func(a: String, b: String) -> bool: return int(a.substr(3)) < int(b.substr(3)))
 		_npc_b = [[], [], []]
+		_npc_town = {}
 		for i in _npc.size():
 			(_npc_b[i % NPC_CADENCE] as Array).append(_npc[i])
+			var ts := int(_c[_npc[i]]["sid"])
+			if not _npc_town.has(ts):
+				_npc_town[ts] = []
+			(_npc_town[ts] as Array).append(_npc[i])
 		_npc_ok = true
 	return _npc
 
@@ -1856,9 +2149,10 @@ func _npc_list() -> Array:
 ## NPC actors in a town with no employer (the labour pool for businesses).
 func unemployed_npcs(sid: int, limit: int) -> Array:
 	var out: Array = []
-	for ch: String in _npc_list():
+	_npc_list()
+	for ch: String in _npc_town.get(sid, _NO_KEYS):
 		var c: Dictionary = _c[ch]
-		if int(c["sid"]) == sid and (c["emp"] as Dictionary).is_empty() and (_mem.get(ch, []) as Array).is_empty():
+		if (c["emp"] as Dictionary).is_empty() and (_mem.get(ch, _NO_KEYS) as Array).is_empty():
 			out.append(ch)
 			if out.size() >= limit:
 				break
@@ -1915,7 +2209,7 @@ func offer_score(oid: String, ch: String) -> float:
 	return _offer_base(o) + (6.0 if profession(ch) in (td.get("prof", []) as Array) else -4.0)
 
 
-func _npc_day(day: int) -> Array:
+func _npc_day(day: int, part := 0) -> Array:
 	var msgs: Array = []
 	if _npc_list().is_empty():
 		return msgs
@@ -1924,28 +2218,37 @@ func _npc_day(day: int) -> Array:
 	if bucket.is_empty():
 		return msgs
 	var ptr := int(_npc_ptr[bi])
-	var todo := mini(NPC_PER_DAY, bucket.size())
-	for k in todo:
+	var quota := NPC_PER_DAY if _npc.size() <= NPC_CROWDED_AT else NPC_PER_DAY_CROWDED
+	var total := mini(quota, bucket.size())
+	var per := (quota + NPC_JOBS - 1) / NPC_JOBS
+	var lo := part * per
+	if lo >= total:
+		return msgs
+	var hi := mini(total, lo + per)
+	for k in range(lo, hi):
 		_decide(String(bucket[(ptr + k) % bucket.size()]), day)
-	_npc_ptr[bi] = (ptr + todo) % bucket.size()
+	if hi >= total:
+		_npc_ptr[bi] = (ptr + total) % bucket.size()
 	return msgs
 
 
 func _decide(ch: String, day: int) -> void:
 	var c: Dictionary = _c[ch]
 	var sid := int(c["sid"])
-	var mine: Array = _mem.get(ch, [])
-	var roll := float(absi(hash([WorldSim.SEED, "odc", day, ch])) % 1000) / 1000.0
 	var amb_found := String(c["amb"]) == "found"
-	# A business, when there is money and a taste for it (businesses.gd uses the same founding call as the player).
-	if amb_found and roll < 0.12 and (c["own"] as Array).is_empty():
-		var bm := _mod("businesses")
-		if bm != null:
-			bm.npc_try_found(ch, day)
+	var roll := 0.0
+	if amb_found:
+		roll = float(absi(hash([WorldSim.SEED, "odc", day, ch])) % 1000) / 1000.0
+		# A business, when there is money and a taste for it (businesses.gd uses the same founding call as the player).
+		if roll < 0.12 and (c["own"] as Array).is_empty():
+			var bm := _mod("businesses")
+			if bm != null:
+				bm.npc_try_found(ch, day)
 	var types := _types_for(String(c["prof"]))
 	if types.is_empty():
 		return
 	# Already seated in one fitting body: nothing more to decide.
+	var mine: Array = _mem.get(ch, _NO_KEYS)
 	for oid: String in mine:
 		if String(_o[oid]["type"]) in types:
 			return
@@ -1958,28 +2261,35 @@ func _decide(ch: String, day: int) -> void:
 			if bool(res.get("ok", false)):
 				stats["npc_founded"] = int(stats["npc_founded"]) + 1
 				return
-	# Look for the best body that is hiring and fits.
-	var cands: Array = []
-	orgs_in(-9)                                                               # builds the town index
-	for oid2: String in _sidx.get(sid, []):
-		var o: Dictionary = _o.get(oid2, {})
-		if o.is_empty() or int(o["stage"]) < 1 or String(o["st"]) != "active" or not (String(o["type"]) in types) or o.has("legacy"):
-			continue
-		if not bool(o["pol"]["open"]) or (o["m"] as Dictionary).size() >= capacity(oid2):
-			continue
-		cands.append([_offer_base(o) + 6.0, oid2])
-	if cands.is_empty():
+	# Look for the best body that is hiring and fits. Event-driven: nothing in this town has changed hands, changed stage or opened or
+	# closed a seat since this body last looked (every such change bumps the town's epoch), so the answer would be the same.
+	var ep := int(_hep.get(sid, 0))
+	if int(_nseen.get(ch, -1)) == ep:
 		return
-	cands.sort_custom(func(a: Array, b: Array) -> bool: return a[0] > b[0] or (a[0] == b[0] and a[1] < b[1]))
-	for cd: Array in cands:
-		if join_conflict(String(cd[1]), ch) != "":
-			continue
-		if cands.size() >= 2:
-			stats["contested"] = int(stats["contested"]) + 1
-		var res2 := apply(String(cd[1]), ch, _recruiter(String(cd[1])))
-		if bool(res2.get("ok", false)):
-			stats["npc_joined"] = int(stats["npc_joined"]) + 1
+	_nseen[ch] = ep
+	var n_elig := 0
+	var best_id := ""
+	var best_sc := -1.0e30
+	var h0 := ch.hash()
+	for t2: String in types:
+		var lst: Array = _hiring(sid, t2)
+		var ln := lst.size()
+		n_elig += ln
+		var first := (h0 % ln) if ln > CAND_WINDOW else 0
+		for k in mini(ln, CAND_WINDOW):
+			var oid2: String = lst[(first + k) % ln]
+			var sc := _offer_base(_o[oid2]) + 6.0
+			if sc > best_sc or (sc == best_sc and oid2 < best_id):
+				if join_conflict(oid2, ch) == "":
+					best_sc = sc
+					best_id = oid2
+	if best_id == "":
 		return
+	if n_elig >= 2:
+		stats["contested"] = int(stats["contested"]) + 1
+	var res2 := apply(best_id, ch, _recruiter(best_id))
+	if bool(res2.get("ok", false)):
+		stats["npc_joined"] = int(stats["npc_joined"]) + 1
 
 
 func _npc_org_name(t: String, sid: int, ch: String, r: RandomNumberGenerator) -> String:
@@ -2232,6 +2542,22 @@ func adapt_all() -> int:
 
 
 # ------------------------------------------------------------------ save
+#
+# Schema 2 ("v": 2) stores columns instead of dictionaries (docs/design/LIVING_WORLD_SANDBOX.md Part E, save budget):
+#   - ids are numbers, delta-coded against the one before ("ch:51" -> 51, then 1, 1, 1 ...); anything that is not "ch:N" stays a string;
+#   - an org's members are id list + rank string + one sparse column per field (a uniform column is one scalar, a mostly-uniform one is
+#     [default, index, value, ...], an all-default one is absent);
+#   - derived state (rank counts, skill sum, wake-up day, contribution cap, probation floor, hiring lists) is rebuilt on load, never saved;
+#   - stage-change history is two numbers; resolved grievances are dropped once they are older than DISPUTE_KEEP_DAYS (the stats keep the count).
+# Schema 1 (a dictionary per org, a dictionary per character) still loads: see _load_v1.
+
+const SAVE_V := 2
+const LEGALS := ["none", "petitioned", "recognised", "outlaw"]
+const DIS_ST := ["open", "ruled"]
+## Keys of an org record that are written by hand (or not at all); every other key is written as it is when it differs from a blank org.
+const _HAND_KEYS := ["id", "type", "name", "sid", "st", "stage", "leader", "founders", "mode", "succ", "hq", "charter", "legal", "treasury", "pol",
+	"m", "app", "dis", "hist", "born", "lw", "dt", "rcv", "ks", "pl", "nd", "cmx", "ppd", "off", "n"]
+
 
 func _blank_org() -> Dictionary:
 	return {"st": "active", "stage": 0, "leader": "", "founders": [], "hq": {}, "charter": {}, "legal": "none", "treasury": 0,
@@ -2239,23 +2565,404 @@ func _blank_org() -> Dictionary:
 		"strife": 0.0, "sw": 0, "nw": 0, "late": 0, "hist": [], "pet": "", "cd": -100, "split_from": "", "merged": "", "owed": 0}
 
 
-## Member rows are stored as arrays and an org only writes the fields that differ from a blank one (the doc's save budget).
-func _pack_org(o: Dictionary) -> Dictionary:
+func _put(out: Dictionary, key: String, vals: Array, dflt: Variant) -> void:
+	var c: Variant = Codec.col(vals, dflt)
+	if c != null:
+		out[key] = c
+
+
+func _save_org(o: Dictionary) -> Dictionary:
 	var blank := _blank_org()
 	var out := {}
+	var t := String(o["type"])
+	var ti := D.TYPE_IDS.find(t)
+	var mi := D.MODES.find(String(o["mode"]))
+	var lg := LEGALS.find(String(o["legal"]))
+	# z: type, stage, legal standing, mode (an index, or the word itself when it is not one of the known ones)
+	out["z"] = [ti if ti >= 0 else t, int(o["stage"]), lg if lg >= 0 else o["legal"], mi if mi >= 0 else o["mode"]]
+	out["n"] = o["name"]
+	out["s"] = int(o["sid"])
+	out["b"] = int(o["born"])
+	out["w"] = int(o["lw"])
+	if String(o["st"]) != "active":
+		out["x"] = o["st"]
+	# the leader is written only when it is not the first member of the top rank; the founders only when they are not just the leader
+	var lead := String(o["leader"])
+	if lead != _top_member(o["m"]):
+		out["ld"] = Codec.enc_id(lead, "ch")
+	var fo: Array = o["founders"]
+	if not (fo == [lead] if lead != "" else fo.is_empty()):
+		out["fo"] = Codec.enc_ids(fo, "ch")
+	if bool(o["dt"]) != (String(o["mode"]) == "manual"):
+		out["dt"] = bool(o["dt"])
+	var sc: Dictionary = o["succ"]
+	if String(sc["mode"]) != String(D.type_def(t).get("succ", "election")) or String(sc["heir"]) != "":
+		var si := D.SUCCESSION.find(String(sc["mode"]))
+		out["su"] = [si if si >= 0 else sc["mode"], Codec.enc_id(String(sc["heir"]), "ch")]
+	var hq: Dictionary = o["hq"]
+	if not hq.is_empty():
+		if hq.size() == 5 and hq.has("pr") and hq.has("sid") and hq.has("rent") and hq.has("since") and hq.has("legal"):
+			out["hq"] = [Codec.enc_id(String(hq["pr"]), "pr"), int(hq["sid"]), int(hq["rent"]), int(hq["since"]), hq["legal"]]
+		else:
+			out["hqd"] = hq
+	var chd: Dictionary = o["charter"]
+	if not chd.is_empty():
+		if chd.size() == 2 and chd.has("text") and chd.has("day"):
+			out["ch"] = [int(chd["day"]), chd["text"]]
+		else:
+			out["chd"] = chd
+	if int(o["treasury"]) != 0:
+		out["tr"] = int(o["treasury"])
+	var pol: Dictionary = o["pol"]
+	if float(pol["dues"]) != 1.0 or float(pol["wage"]) != 1.0 or not bool(pol["open"]):
+		out["po"] = [pol["dues"], pol["wage"], 1 if bool(pol["open"]) else 0]
+	# applicants: [id, day, sponsor, ...]
+	var app: Dictionary = o["app"]
+	if not app.is_empty():
+		var ap: Array = []
+		for ch: String in app:
+			ap.append(Codec.enc_id(ch, "ch"))
+			ap.append(int(app[ch]["d"]))
+			ap.append(Codec.enc_id(String(app[ch].get("sp", "")), "ch"))
+		out["ap"] = ap
+	# grievances: open ones and the recent rulings, [id, a, b, kind, text, day, state, ruling]
+	var dis: Array = []
+	for d: Dictionary in o["dis"]:
+		if String(d["st"]) != "open" and _day - int(d["day"]) >= DISPUTE_KEEP_DAYS:
+			continue
+		dis.append([Codec.enc_id(String(d["id"]), "d"), Codec.enc_id(String(d["a"]), "ch"), Codec.enc_id(String(d["b"]), "ch"), d["k"], d["t"], int(d["day"]),
+			DIS_ST.find(String(d["st"])), String(d.get("ruling", ""))])
+	if not dis.is_empty():
+		out["dis"] = dis
+	# history: a stage change is its day * 8 + stage, anything else stays a line of text
+	var hs: Array = []
+	for line: String in o["hist"]:
+		var code := _hist_code(line)
+		hs.append(code if code >= 0 else line)
+	if not hs.is_empty():
+		out["h"] = hs
 	for k: String in o:
-		if k == "id" or k == "m" or k == "rcv" or k == "ks" or k == "pl" or k == "nd":
+		if k in _HAND_KEYS:
 			continue
 		if blank.has(k) and o[k] == blank[k]:
 			continue
-		out[k] = o[k]
-	var rows := {}
-	var m: Dictionary = o["m"]
-	for ch: String in m:
-		var r: Dictionary = m[ch]
-		rows[ch] = [r["r"], r["s"], r["c"], r["t"], r["sp"], r["b"], r["ar"], r["ct"], r["pd"], r["k"]]
-	out["m"] = rows
+		out[k] = snappedf(float(o[k]), 0.01) if (k == "rep" or k == "act" or k == "strife") else o[k]
+	_save_members(o, out)
 	return out
+
+
+## "d12 stage: premises" -> 12 * 8 + 3, or -1 when the line is anything else.
+func _top_member(rows: Dictionary) -> String:
+	for ch: String in rows:
+		if int(rows[ch]["r"]) == D.LEADER:
+			return ch
+	return ""
+
+
+func _hist_code(line: String) -> int:
+	if not line.begins_with("d"):
+		return -1
+	var sp := line.find(" stage: ")
+	if sp < 2:
+		return -1
+	var dpart := line.substr(1, sp - 1)
+	if not dpart.is_valid_int() or int(dpart) < 0:
+		return -1
+	var si := D.STAGES.find(line.substr(sp + 8))
+	return int(dpart) * 8 + si if si >= 0 else -1
+
+
+func _save_members(o: Dictionary, out: Dictionary) -> void:
+	var rows: Dictionary = o["m"]
+	if rows.is_empty():
+		return
+	var ids: Array = rows.keys()
+	out["mi"] = Codec.enc_ids(ids, "ch")
+	var ranks := ""
+	var rlist: Array = []
+	var plain := true
+	var s: Array = []
+	var c: Array = []
+	var t: Array = []
+	var sp: Array = []
+	var b: Array = []
+	var ar: Array = []
+	var ct: Array = []
+	var pd: Array = []
+	var k: Array = []
+	var k_int := true
+	for ch: String in ids:
+		var r: Dictionary = rows[ch]
+		var rk := int(r["r"])
+		if rk < 0 or rk > 9:
+			plain = false
+		rlist.append(rk)
+		ranks += str(clampi(rk, 0, 9))
+		s.append(int(r["s"]))
+		c.append(float(r["c"]))
+		t.append(float(r["t"]))
+		sp.append(Codec.enc_id(String(r["sp"]), "ch"))
+		b.append(int(r["b"]))
+		ar.append(int(r["ar"]))
+		ct.append(String(r["ct"]))
+		pd.append(int(r["pd"]))
+		var kf := float(r.get("k", 0.5))
+		k.append(kf)
+		if absf(kf * 100.0 - roundf(kf * 100.0)) > 0.000001:
+			k_int = false
+	out["mr"] = ranks if plain else rlist
+	_put(out, "ms", s, int(o["born"]))
+	_put(out, "mc", c, 0.0)
+	_put(out, "mt", t, 60.0)
+	_put(out, "mp", sp, "")
+	_put(out, "mb", b, 0)
+	_put(out, "ma", ar, 0)
+	_put(out, "mq", ct, "")
+	_put(out, "mz", pd, -1)
+	if k_int:
+		var ki: Array = []
+		for kf2: float in k:
+			ki.append(int(roundf(kf2 * 100.0)))
+		out["mk"] = ki
+	else:
+		out["mkf"] = k
+
+
+func _load_org(oid: String, v: Dictionary) -> Dictionary:
+	var o := _blank_org()
+	o["id"] = oid
+	var z: Array = v.get("z", [0, 0, 0, 0])
+	var ti: Variant = z[0]
+	o["type"] = String(ti) if ti is String else String(D.TYPE_IDS[clampi(int(ti), 0, D.TYPE_IDS.size() - 1)])
+	o["stage"] = int(z[1])
+	var lg: Variant = z[2]
+	o["legal"] = String(lg) if lg is String else String(LEGALS[clampi(int(lg), 0, LEGALS.size() - 1)])
+	var md: Variant = z[3]
+	o["mode"] = String(md) if md is String else String(D.MODES[clampi(int(md), 0, D.MODES.size() - 1)])
+	o["name"] = String(v.get("n", ""))
+	o["sid"] = int(v.get("s", -1))
+	o["born"] = int(v.get("b", 0))
+	o["lw"] = int(v.get("w", int(o["born"])))
+	o["st"] = String(v.get("x", "active"))
+	var mem := _load_members(o, v)
+	o["m"] = mem
+	o["leader"] = Codec.dec_id(v["ld"], "ch") if v.has("ld") else _top_member(mem)
+	if v.has("fo"):
+		o["founders"] = Codec.dec_ids(v["fo"], "ch")
+	elif String(o["leader"]) != "":
+		o["founders"] = [o["leader"]]
+	o["dt"] = bool(v["dt"]) if v.has("dt") else (o["mode"] == "manual")
+	var tsucc := String(D.type_def(String(o["type"])).get("succ", "election"))
+	o["succ"] = {"mode": tsucc, "heir": ""}
+	if v.has("su"):
+		var su: Array = v["su"]
+		var sm: Variant = su[0]
+		o["succ"] = {"mode": String(sm) if sm is String else String(D.SUCCESSION[clampi(int(sm), 0, D.SUCCESSION.size() - 1)]),
+			"heir": Codec.dec_id(su[1], "ch") if su.size() > 1 else ""}
+	if v.has("hq"):
+		var h: Array = v["hq"]
+		o["hq"] = {"pr": Codec.dec_id(h[0], "pr"), "sid": int(h[1]), "rent": int(h[2]), "since": int(h[3]), "legal": String(h[4])}
+	elif v.has("hqd"):
+		o["hq"] = v["hqd"]
+	if v.has("ch"):
+		var chv: Array = v["ch"]
+		o["charter"] = {"text": String(chv[1]), "day": int(chv[0])}
+	elif v.has("chd"):
+		o["charter"] = v["chd"]
+	o["treasury"] = int(v.get("tr", 0))
+	if v.has("po"):
+		var po: Array = v["po"]
+		o["pol"] = {"dues": float(po[0]), "wage": float(po[1]), "open": int(po[2]) != 0}
+	if v.has("ap"):
+		var ap: Array = v["ap"]
+		var i := 0
+		while i + 2 < ap.size():
+			o["app"][Codec.dec_id(ap[i], "ch")] = {"d": int(ap[i + 1]), "sp": Codec.dec_id(ap[i + 2], "ch")}
+			i += 3
+	if v.has("dis"):
+		for row: Array in v["dis"]:
+			var d := {"id": Codec.dec_id(row[0], "d"), "a": Codec.dec_id(row[1], "ch"), "b": Codec.dec_id(row[2], "ch"), "k": String(row[3]), "t": String(row[4]),
+				"day": int(row[5]), "st": String(DIS_ST[clampi(int(row[6]), 0, 1)])}
+			if String(row[7]) != "":
+				d["ruling"] = String(row[7])
+			(o["dis"] as Array).append(d)
+	if v.has("h"):
+		for x: Variant in v["h"]:
+			if x is String:
+				(o["hist"] as Array).append(x)
+			else:
+				(o["hist"] as Array).append("d%d stage: %s" % [int(x) / 8, String(D.STAGES[int(x) % 8])])
+	for k: String in v:
+		if k in _SAVE_SHORT:
+			continue
+		o[k] = v[k]
+	for k2: String in ["owed", "late", "sw", "nw", "cd"]:
+		o[k2] = int(o[k2])
+	for k3: String in ["rep", "act", "strife"]:
+		o[k3] = float(o[k3])
+	if o.has("end"):
+		o["end"] = int(o["end"])
+	if o.has("pd"):
+		o["pd"] = int(o["pd"])
+	o["n"] = int(Reg.parse(oid).get("n", 0))
+	o["nd"] = 0
+	o["off"] = 0.0
+	o["rcv"] = [0, 0, 0, 0, 0, 0]
+	o["ks"] = 0.0
+	o["cmx"] = 0.0
+	o["ppd"] = NO_DAY
+	o["pl"] = 0
+	return o
+
+
+const _SAVE_SHORT := ["z", "n", "s", "b", "w", "x", "ld", "fo", "dt", "su", "hq", "hqd", "ch", "chd", "tr", "po", "ap", "dis", "h",
+	"mi", "mr", "ms", "mc", "mt", "mp", "mb", "ma", "mq", "mz", "mk", "mkf"]
+
+
+func _load_members(o: Dictionary, v: Dictionary) -> Dictionary:
+	var m := {}
+	if not v.has("mi"):
+		return m
+	var ids := Codec.dec_ids(v["mi"], "ch")
+	var n := ids.size()
+	var rv: Variant = v.get("mr", "")
+	var s := Codec.uncol(v.get("ms"), n, int(o["born"]))
+	var c := Codec.uncol(v.get("mc"), n, 0.0)
+	var t := Codec.uncol(v.get("mt"), n, 60.0)
+	var sp := Codec.uncol(v.get("mp"), n, "")
+	var b := Codec.uncol(v.get("mb"), n, 0)
+	var ar := Codec.uncol(v.get("ma"), n, 0)
+	var ct := Codec.uncol(v.get("mq"), n, "")
+	var pd := Codec.uncol(v.get("mz"), n, -1)
+	for i in n:
+		var rk := 1
+		if rv is String:
+			rk = int((rv as String)[i]) if i < (rv as String).length() else 1
+		else:
+			rk = int((rv as Array)[i])
+		var kk := 0.5
+		if v.has("mk"):
+			kk = float((v["mk"] as Array)[i]) / 100.0
+		elif v.has("mkf"):
+			kk = float((v["mkf"] as Array)[i])
+		var spv: Variant = sp[i]
+		m[ids[i]] = {"r": rk, "s": int(s[i]), "c": float(c[i]), "t": float(t[i]), "sp": Codec.dec_id(spv, "ch") if not (spv is String) else String(spv),
+			"b": int(b[i]), "ar": int(ar[i]), "ct": String(ct[i]), "pd": int(pd[i]), "k": kk}
+	return m
+
+
+## Characters: ids and one sparse column per field; the rarely used ones (employment, skills, holdings, followers) go in "x" by row.
+const SKILL_STATS := ["combat", "crafting", "trading", "farming", "faith", "lore", "stealth"]
+
+
+## The seven stat skills as [bitmask of the stats present, thousandths ...]; anything else (another key, a value that is not a whole
+## thousandth) stays a dictionary.
+static func _pack_skills(sk: Dictionary) -> Variant:
+	var mask := 0
+	var vals: Array = []
+	for i in SKILL_STATS.size():
+		var st: String = SKILL_STATS[i]
+		if sk.has(st):
+			var f := float(sk[st])
+			if absf(f * 1000.0 - roundf(f * 1000.0)) > 0.000001:
+				return sk
+			mask |= 1 << i
+			vals.append(int(roundf(f * 1000.0)))
+	if vals.size() != sk.size():
+		return sk
+	return [mask] + vals
+
+
+static func _unpack_skills(v: Variant) -> Dictionary:
+	if v is Dictionary:
+		return v
+	var a: Array = v
+	var out := {}
+	var at := 1
+	for i in SKILL_STATS.size():
+		if (int(a[0]) >> i) & 1 == 1:
+			out[SKILL_STATS[i]] = float(a[at]) / 1000.0
+			at += 1
+	return out
+
+
+func _save_chars() -> Dictionary:
+	var ids: Array = []
+	var prof: Array = []
+	var cash: Array = []
+	var sid: Array = []
+	var rep: Array = []
+	var npc: Array = []
+	var amb: Array = []
+	var extra := {}
+	for ch: String in _c:
+		var c: Dictionary = _c[ch]
+		var x := {}
+		if not (c["emp"] as Dictionary).is_empty():
+			x["emp"] = c["emp"]
+		if not (c["sk"] as Dictionary).is_empty():
+			x["sk"] = _pack_skills(c["sk"])
+		if not (c["own"] as Array).is_empty():
+			x["own"] = c["own"]
+		if String(c["fol"]) != "":
+			x["fol"] = c["fol"]
+		if x.is_empty() and String(c["prof"]) == "" and int(c["cash"]) == 0 and int(c["sid"]) == -1 and float(c["rep"]) == 0.0 \
+				and not bool(c["npc"]) and String(c["amb"]) == "":
+			continue                                                     # a blank record is made again when the character is next seen
+		if not x.is_empty():
+			extra[str(ids.size())] = x
+		ids.append(ch)
+		prof.append(String(c["prof"]))
+		cash.append(int(c["cash"]))
+		sid.append(int(c["sid"]))
+		rep.append(snappedf(float(c["rep"]), 0.01))
+		npc.append(1 if bool(c["npc"]) else 0)
+		amb.append(String(c["amb"]))
+	var out := {"i": Codec.enc_ids(ids, "ch")}
+	_put(out, "p", prof, "")
+	_put(out, "c", cash, 0)
+	_put(out, "s", sid, -1)
+	_put(out, "r", rep, 0.0)
+	_put(out, "n", npc, 0)
+	_put(out, "a", amb, "")
+	if not extra.is_empty():
+		out["x"] = extra
+	return out
+
+
+func _load_chars(v: Dictionary) -> void:
+	var ids := Codec.dec_ids(v.get("i", []), "ch")
+	var n := ids.size()
+	var prof := Codec.uncol(v.get("p"), n, "")
+	var cash := Codec.uncol(v.get("c"), n, 0)
+	var sid := Codec.uncol(v.get("s"), n, -1)
+	var rep := Codec.uncol(v.get("r"), n, 0.0)
+	var npc := Codec.uncol(v.get("n"), n, 0)
+	var amb := Codec.uncol(v.get("a"), n, "")
+	var extra: Dictionary = v.get("x", {})
+	for i in n:
+		var x: Dictionary = extra.get(str(i), _NO_ROWS)
+		_c[ids[i]] = {"prof": String(prof[i]), "emp": x.get("emp", {}), "cash": int(cash[i]), "sid": int(sid[i]), "sk": x.get("sk", {}),
+			"rep": float(rep[i]), "npc": int(npc[i]) != 0, "amb": String(amb[i]), "own": x.get("own", []), "fol": String(x.get("fol", ""))}
+		if x.has("sk"):
+			_c[ids[i]]["sk"] = _unpack_skills(x["sk"])
+
+
+func serialize() -> Dictionary:
+	var ids: Array = _o.keys()
+	var recs: Array = []
+	for oid: String in ids:
+		recs.append(_save_org(_o[oid]))
+	var assets := {}
+	for aid: String in _a:
+		var a: Dictionary = _a[aid]
+		assets[aid] = [a["kind"], a["name"], a["value"], a["owner"]]
+	var pets := {}
+	for pid: String in _pt:
+		var p: Dictionary = _pt[pid]
+		pets[pid] = [p["org"], int(p["day"]), p["st"], p["why"]]
+	return {"v": SAVE_V, "oi": Codec.enc_ids(ids, "org"), "o": recs, "c": _save_chars(), "a": assets, "pt": pets, "nd": _next_d, "na": _next_a,
+		"np": _next_p, "day": _day, "seeded": _seeded, "st": stats.duplicate(), "pg": pending_gold}
 
 
 func _unpack_org(oid: String, v: Dictionary) -> Dictionary:
@@ -2277,44 +2984,6 @@ func _unpack_org(oid: String, v: Dictionary) -> Dictionary:
 	return o
 
 
-func _pack_char(c: Dictionary) -> Dictionary:
-	var out := {}
-	if String(c["prof"]) != "":
-		out["prof"] = c["prof"]
-	if not (c["emp"] as Dictionary).is_empty():
-		out["emp"] = c["emp"]
-	if int(c["cash"]) != 0:
-		out["cash"] = c["cash"]
-	if int(c["sid"]) != -1:
-		out["sid"] = c["sid"]
-	if not (c["sk"] as Dictionary).is_empty():
-		out["sk"] = c["sk"]
-	if float(c["rep"]) != 0.0:
-		out["rep"] = c["rep"]
-	if bool(c["npc"]):
-		out["npc"] = true
-	if String(c["amb"]) != "":
-		out["amb"] = c["amb"]
-	if not (c["own"] as Array).is_empty():
-		out["own"] = c["own"]
-	if String(c["fol"]) != "":
-		out["fol"] = c["fol"]
-	return out
-
-
-func serialize() -> Dictionary:
-	var packed := {}
-	for oid: String in _o:
-		packed[oid] = _pack_org(_o[oid])
-	var chars := {}
-	for ch: String in _c:
-		var pc := _pack_char(_c[ch])
-		if not pc.is_empty():
-			chars[ch] = pc
-	return {"o": packed, "c": chars, "a": _a.duplicate(true), "pt": _pt.duplicate(true), "nd": _next_d, "na": _next_a,
-		"np": _next_p, "day": _day, "seeded": _seeded, "st": stats.duplicate(), "pg": pending_gold}
-
-
 func deserialize(d: Dictionary) -> void:
 	_o = {}
 	_c = {}
@@ -2324,6 +2993,60 @@ func deserialize(d: Dictionary) -> void:
 	_ord = []
 	_sidx_ok = false
 	_npc_ok = false
+	_hire = {}
+	_nseen = {}
+	if int(d.get("v", 1)) >= 2:
+		_load_v2(d)
+	else:
+		_load_v1(d)
+	_sched = {}
+	for oid: String in _o:
+		for ch: String in _o[oid]["m"]:
+			_index(ch, oid, true)
+			if not _c.has(ch):
+				ensure_char(ch)
+		_rebuild_rc(_o[oid])
+		_o[oid]["pl"] = int(d.get("day", 0)) + 1 + (int(Reg.parse(oid).get("n", 0)) % 7)
+		_plan(oid, int(_o[oid]["pl"]))
+	_recount()
+	_npc_ok = false
+	_npc_list()                                  # built now, not in the middle of a day tick
+	_pl = ""
+	_next_d = int(d.get("nd", 1))
+	_next_a = int(d.get("na", 1))
+	_next_p = int(d.get("np", 1))
+	_day = int(d.get("day", 0))
+	_seeded = bool(d.get("seeded", false))
+	pending_gold = int(d.get("pg", 0))
+	var st: Variant = d.get("st", {})
+	if st is Dictionary:
+		for k: String in st:
+			stats[k] = int(st[k])
+
+
+func _load_v2(d: Dictionary) -> void:
+	var ids := Codec.dec_ids(d.get("oi", []), "org")
+	var recs: Array = d.get("o", [])
+	for i in mini(ids.size(), recs.size()):
+		if recs[i] is Dictionary:
+			_o[ids[i]] = _load_org(ids[i], recs[i])
+	var c: Variant = d.get("c", {})
+	if c is Dictionary:
+		_load_chars(c)
+	var a: Variant = d.get("a", {})
+	if a is Dictionary:
+		for aid: String in a:
+			var row: Array = a[aid]
+			_a[aid] = {"id": aid, "kind": String(row[0]), "name": String(row[1]), "value": int(row[2]), "owner": String(row[3])}
+	var pt: Variant = d.get("pt", {})
+	if pt is Dictionary:
+		for pid: String in pt:
+			var p: Array = pt[pid]
+			_pt[pid] = {"id": pid, "org": String(p[0]), "day": int(p[1]), "st": String(p[2]), "why": String(p[3])}
+
+
+## Schema 1 (before the column format): a dictionary per org, per character and per asset. Kept so an old save still loads.
+func _load_v1(d: Dictionary) -> void:
 	var o: Variant = d.get("o", {})
 	if o is Dictionary:
 		for k: String in o:
@@ -2346,27 +3069,6 @@ func deserialize(d: Dictionary) -> void:
 	if pt is Dictionary:
 		for k: String in pt:
 			_pt[k] = pt[k]
-	_sched = {}
-	for oid: String in _o:
-		for ch: String in _o[oid]["m"]:
-			_index(ch, oid, true)
-			if not _c.has(ch):
-				ensure_char(ch)
-		_rebuild_rc(_o[oid])
-		_o[oid]["pl"] = int(d.get("day", 0)) + 1 + (int(Reg.parse(oid).get("n", 0)) % 7)
-		_plan(oid, int(_o[oid]["pl"]))
-	_recount()
-	_pl = ""
-	_next_d = int(d.get("nd", 1))
-	_next_a = int(d.get("na", 1))
-	_next_p = int(d.get("np", 1))
-	_day = int(d.get("day", 0))
-	_seeded = bool(d.get("seeded", false))
-	pending_gold = int(d.get("pg", 0))
-	var st: Variant = d.get("st", {})
-	if st is Dictionary:
-		for k: String in st:
-			stats[k] = int(st[k])
 
 
 ## JSON turns ints into floats; put the integer fields back so comparisons and match keys behave.

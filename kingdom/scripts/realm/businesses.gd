@@ -23,9 +23,11 @@ extends "res://scripts/realm/realm_module.gd"
 const FD := preload("res://scripts/realm/farming_data.gd")
 const Events := preload("res://scripts/realm/events.gd")
 const Reg := preload("res://scripts/realm/registry.gd")
+const Codec := preload("res://scripts/realm/save_codec.gd")
 
+const _NO_KEYS := []
 const BIZ_CAP := 500
-const BIZ_CHUNK := 10
+const BIZ_CHUNK := 4                # businesses a day-tick job settles (about 40 us each, so a job stays under 0.3 ms)
 const REPORT_MAX := 8
 const LEDGER_MAX := 8
 const RESERVE := 60.0
@@ -61,11 +63,19 @@ var _b: Dictionary = {}          # bz id -> business
 var _ord: Array = []             # sorted ids (cache)
 var _sup: Dictionary = {}        # sid -> {"w": week, good: units}
 var _grp: Dictionary = {}        # "sid|kind|recipe" -> [ids] (derived)
+var _dist: Dictionary = {}       # (a, b) -> distance index (the map does not move; cleared when the world is set up again)
+var _om: RefCounted = null       # the organizations module, once found
+var _gpm: Dictionary = {}        # group key -> price stats (derived; see _price_stats)
+var _kcnt: Dictionary = {}       # "sid|kind" -> live businesses there (derived)
+var _kcnt_ok := false
 var _grp_ok := false
+var _live_n := -1                # live businesses (derived; _dirty() clears it)
+var _gat: Dictionary = {}        # group key -> [sum of the members' attraction, updates since it was summed from scratch] (derived)
 var _own: Dictionary = {}        # owner -> [ids] (derived)
 var _own_ok := false
 var _war: Dictionary = {}        # group key -> day the war was first seen
 var _pop: Dictionary = {}        # sid -> population override (tests)
+var _popc: Dictionary = {}       # sid -> population as last worked out (the world's ranges do not change while a game runs)
 var _own_n := 0
 var _day := 0
 var _sched: Dictionary = {}      # day -> [business ids to look at] (due queue)
@@ -87,7 +97,9 @@ func _mod(n: String) -> RefCounted:
 
 
 func _orgm() -> RefCounted:
-	return _mod("organizations")
+	if _om == null:
+		_om = _mod("organizations")
+	return _om
 
 
 func _mint() -> String:
@@ -115,26 +127,40 @@ func today() -> int:
 
 func set_population(sid: int, n: int) -> void:
 	_pop[sid] = n
+	_popc.erase(sid)
 
 
 func population(sid: int) -> int:
+	var hit: Variant = _popc.get(sid)
+	if hit != null:
+		return hit
+	var out := 300
 	if _pop.has(sid):
-		return int(_pop[sid])
-	if sid >= 0 and sid < WorldSim.ranges.size():
+		out = int(_pop[sid])
+	elif sid >= 0 and sid < WorldSim.ranges.size():
 		var rg: Vector2i = WorldSim.ranges[sid]
-		return maxi(40, rg.y - rg.x)
-	return 300
+		out = maxi(40, rg.y - rg.x)
+	else:
+		return out                                   # an unknown town is not remembered
+	_popc[sid] = out
+	return out
 
 
 ## Distance index between two settlements, 1 (next door) .. 8.
 func distance_idx(a: int, b: int) -> int:
 	if a == b:
 		return 0
+	var key := a * 4096 + b
+	var hit: Variant = _dist.get(key)
+	if hit != null:
+		return hit
+	var out := clampi(absi(a - b), 1, 8)
 	if a >= 0 and b >= 0 and a < WorldGen.settlements.size() and b < WorldGen.settlements.size():
 		var pa: Vector2 = WorldGen.settlements[a]["pos"]
 		var pb: Vector2 = WorldGen.settlements[b]["pos"]
-		return clampi(int(pa.distance_to(pb) / 600.0) + 1, 1, 8)
-	return clampi(absi(a - b), 1, 8)
+		out = clampi(int(pa.distance_to(pb) / 600.0) + 1, 1, 8)
+		_dist[key] = out                                   # only a distance measured on the map is kept
+	return out
 
 
 # ------------------------------------------------------------------ queries
@@ -157,15 +183,20 @@ func ids() -> Array:
 func count(active_only := true) -> int:
 	if not active_only:
 		return _b.size()
-	var n := 0
-	for k: String in _b:
-		if String(_b[k]["st"]) in ["active", "restructuring", "insolvent"]:
-			n += 1
-	return n
+	if _live_n < 0:
+		_live_n = 0
+		for k: String in _b:
+			if _LIVE.has(_b[k]["st"]):
+				_live_n += 1
+	return _live_n
+
+
+const _LIVE := {"active": true, "restructuring": true, "insolvent": true}
+const _NO_ROWS := {}
 
 
 func _live(b: Dictionary) -> bool:
-	return String(b["st"]) in ["active", "restructuring", "insolvent"]
+	return _LIVE.has(b["st"])
 
 
 func owned_by(who: String) -> Array:
@@ -186,6 +217,39 @@ func owned_by(who: String) -> Array:
 func _dirty() -> void:
 	_grp_ok = false
 	_own_ok = false
+	_live_n = -1
+	_kcnt_ok = false
+
+
+## A business was founded: file it in the group lists (if they are built) instead of building them again. New ids are the highest, so
+## appending keeps the lists in id order.
+func _enlist(b: Dictionary) -> void:
+	_own_ok = false
+	_kcnt_ok = false
+	if _live_n >= 0:
+		_live_n += 1
+	if not _grp_ok:
+		return
+	var gk: String = b["gk"]
+	if not _grp.has(gk):
+		_grp[gk] = []
+	(_grp[gk] as Array).append(b["id"])
+	_gat.erase(gk)
+	_gpm.erase(gk)
+
+
+## A business closed: take it out of the group lists (if they are built).
+func _unlist(b: Dictionary) -> void:
+	_own_ok = false
+	_kcnt_ok = false
+	_live_n = -1
+	if not _grp_ok:
+		return
+	var gk: String = b["gk"]
+	if _grp.has(gk):
+		(_grp[gk] as Array).erase(b["id"])
+	_gat.erase(gk)
+	_gpm.erase(gk)
 
 
 func _gkey(b: Dictionary) -> String:
@@ -193,8 +257,15 @@ func _gkey(b: Dictionary) -> String:
 
 
 func _group(b: Dictionary) -> Array:
+	_build_groups()
+	return _grp.get(String(b["gk"]), _NO_KEYS)
+
+
+func _build_groups() -> void:
 	if not _grp_ok:
 		_grp = {}
+		_gat = {}
+		_gpm = {}
 		for k: String in ids():
 			var x: Dictionary = _b[k]
 			if _live(x):
@@ -203,7 +274,34 @@ func _group(b: Dictionary) -> Array:
 					_grp[gk] = []
 				(_grp[gk] as Array).append(k)
 		_grp_ok = true
-	return _grp.get(String(b["gk"]), [])
+
+
+## Sum of the attraction of everyone in the business's group, kept up to date by the difference each settlement makes (and summed again
+## from scratch every 32 updates so rounding cannot drift).
+func _group_attraction(b: Dictionary) -> float:
+	_build_groups()
+	var gk: String = b["gk"]
+	var hit: Variant = _gat.get(gk)
+	if hit != null:
+		return (hit as Array)[0]
+	var tot := 0.0
+	for k: String in _grp.get(gk, _NO_KEYS):
+		tot += float(_b[k]["at"])
+	_gat[gk] = [tot, 0]
+	return tot
+
+
+func _set_attraction(b: Dictionary, v: float) -> void:
+	var old: float = b["at"]
+	b["at"] = v
+	var hit: Variant = _gat.get(b["gk"])
+	if hit != null:
+		var h: Array = hit
+		if int(h[1]) >= 32:
+			_gat.erase(b["gk"])
+		else:
+			h[0] = float(h[0]) + v - old
+			h[1] = int(h[1]) + 1
 
 
 func rivals(bid: String) -> Array:
@@ -229,9 +327,12 @@ func staff_count(bid: String) -> int:
 
 
 func inventory_value(b: Dictionary) -> float:
+	var inv: Dictionary = b["inv"]
+	if inv.is_empty():
+		return 0.0
 	var v := 0.0
-	for g: String in b["inv"]:
-		v += float(b["inv"][g]) * float(GOODS.get(g, 2.0)) * WHOLESALE
+	for g: String in inv:
+		v += float(inv[g]) * float(GOODS.get(g, 2.0)) * WHOLESALE
 	return v
 
 
@@ -266,7 +367,7 @@ func found(owner: String, kind: String, sid: int, nm := "", recipe := "", capita
 	if _ord.size() == _b.size() - 1:
 		_ord.append(bid)
 	_plan(bid, int(_b[bid]["pl"]))
-	_dirty()
+	_enlist(_b[bid])
 	stats["founded"] = int(stats["founded"]) + 1
 	_ev("founding", sid, [owner, bid], "business", "%s opens" % _b[bid]["name"], 2)
 	return {"ok": true, "bz": bid}
@@ -280,10 +381,67 @@ func set_route(bid: String, from_sid: int, to_sid: int) -> bool:
 	return true
 
 
+## The group's prices, summed up once and kept until one of them changes: [lowest, who, second lowest, how many are at 0.88 or less].
+func _price_stats(b: Dictionary) -> Array:
+	_build_groups()
+	var gk: String = b["gk"]
+	var hit: Variant = _gpm.get(gk)
+	if hit != null:
+		return hit
+	var m1 := 9.0
+	var id1 := ""
+	var m2 := 9.0
+	var id2 := ""
+	var low := 0
+	for k: String in _grp.get(gk, _NO_KEYS):
+		var rp: float = _b[k]["pm"]
+		if rp <= 0.88:
+			low += 1
+		if rp < m1:
+			m2 = m1
+			id2 = id1
+			m1 = rp
+			id1 = k
+		elif rp < m2:
+			m2 = rp
+			id2 = k
+	var out: Array = [m1, id1, m2, low, id2]
+	_gpm[gk] = out
+	return out
+
+
+## Changes a price and keeps the group's price stats true: only when the business was one of the two cheapest do they need a new walk.
+func _set_pm(b: Dictionary, v: float) -> void:
+	var old: float = b["pm"]
+	b["pm"] = v
+	var hit: Variant = _gpm.get(b["gk"])
+	if hit == null:
+		return
+	var ps: Array = hit
+	var bid: String = b["id"]
+	if ps[1] == bid or ps[4] == bid:
+		_gpm.erase(b["gk"])
+		return
+	var low: int = ps[3]
+	if old <= 0.88:
+		low -= 1
+	if v <= 0.88:
+		low += 1
+	ps[3] = low
+	if v < float(ps[0]):
+		ps[2] = ps[0]
+		ps[4] = ps[1]
+		ps[0] = v
+		ps[1] = bid
+	elif v < float(ps[2]):
+		ps[2] = v
+		ps[4] = bid
+
+
 func set_price(bid: String, pm: float) -> bool:
 	if not _b.has(bid):
 		return false
-	_b[bid]["pm"] = clampf(pm, 0.5, 1.6)
+	_set_pm(_b[bid], clampf(pm, 0.5, 1.6))
 	return true
 
 
@@ -398,6 +556,17 @@ func _in(b: Dictionary, amt: float) -> void:
 	stats["sold_gold"] = int(stats["sold_gold"]) + int(amt)
 
 
+## An _in then an _out in one go (the same sums in the same order, with the book keeping done once).
+func _trade(b: Dictionary, got: float, spent: float) -> void:
+	var bal: float = b["bal"]
+	b["bal"] = bal + got - spent
+	b["in"] = float(b["in"]) + got
+	b["wi"] = float(b["wi"]) + got
+	b["out"] = float(b["out"]) + spent
+	b["wo"] = float(b["wo"]) + spent
+	stats["sold_gold"] = int(stats["sold_gold"]) + int(got)
+
+
 func _out(b: Dictionary, amt: float) -> void:
 	b["bal"] = float(b["bal"]) - amt
 	b["out"] = float(b["out"]) + amt
@@ -491,32 +660,36 @@ func _attended(b: Dictionary) -> bool:
 
 
 func _share(b: Dictionary) -> float:
-	var tot := 0.0
-	for k: String in _group(b):
-		tot += float(_b[k]["at"])
+	var tot := _group_attraction(b)
 	return float(b["at"]) / tot if tot > 0.0 else 1.0
 
 
 func _attract(b: Dictionary) -> float:
 	var staff_f := 0.8 + 0.1 * float((b["staff"] as Array).size())
-	return (0.5 + float(b["rep"]) / 100.0) * pow(1.0 / maxf(0.5, float(b["pm"])), 1.6) * staff_f
+	var pm: float = b["pm"]
+	var price_f := 1.0 if pm == 1.0 else pow(1.0 / maxf(0.5, pm), 1.6)               # pow(1, 1.6) is exactly 1
+	return (0.5 + float(b["rep"]) / 100.0) * price_f * staff_f
 
 
 # ------------------------------------------------------------------ the week
 
 ## Resolves `days` days of trading in one closed-form step and closes the books. Normally called by the staggered day tick.
 func settle(bid: String, days := 7, day := -1) -> void:
-	var b: Dictionary = _b.get(bid, {})
-	if b.is_empty() or not _live(b):
+	var b: Dictionary = _b.get(bid, _NO_ROWS)
+	if b.is_empty() or not _LIVE.has(b["st"]):
 		return
 	var d := day if day >= 0 else _day
 	_day = maxi(_day, d)
 	var kd: Dictionary = KINDS[b["kind"]]
 	var week := d / 7
-	var share := _share(b)
-	var eff := _eff(b)
+	if not _grp_ok:
+		_build_groups()
+	var gh: Variant = _gat.get(b["gk"])
+	var gtot: float = (gh as Array)[0] if gh != null else _group_attraction(b)
+	var share := float(b["at"]) / gtot if gtot > 0.0 else 1.0
+	var eff: float = b["ef"]
 	var staff: Array = b["staff"]
-	var restruct := String(b["st"]) == "restructuring"
+	var restruct: bool = b["st"] == "restructuring"
 	var served := 0.0
 	var wanted := 0.0
 	var rev0 := float(b["wi"])
@@ -616,46 +789,51 @@ func settle(bid: String, days := 7, day := -1) -> void:
 		served = sw[0]
 		wanted = sw[1]
 	# Goods spoil.
-	for g5: String in b["inv"].keys():
-		var rate := float(SPOIL.get(g5, 0.0)) * float(days) / 7.0
-		if rate > 0.0:
-			var lose := float(b["inv"][g5]) * minf(0.9, rate)
-			b["inv"][g5] = float(b["inv"][g5]) - lose
-			stats["wasted_units"] = int(stats["wasted_units"]) + int(lose)
-		if float(b["inv"][g5]) < 0.05:
-			b["inv"].erase(g5)
+	var inv: Dictionary = b["inv"]
+	if not inv.is_empty():
+		for g5: String in inv.keys():
+			var rate := float(SPOIL.get(g5, 0.0)) * float(days) / 7.0
+			if rate > 0.0:
+				var lose := float(inv[g5]) * minf(0.9, rate)
+				inv[g5] = float(inv[g5]) - lose
+				stats["wasted_units"] = int(stats["wasted_units"]) + int(lose)
+			if float(inv[g5]) < 0.05:
+				inv.erase(g5)
 	# A dishonest manager takes a cut and writes a better number in the report.
 	var gross := float(b["wi"]) - rev0
 	var skim := 0.0
-	if String(b["mode"]) == "delegated" and not (b["mgr"] as Dictionary).is_empty():
-		skim = (1.0 - float(b["mgr"]["hon"])) * 0.05 * gross
+	var mgr: Dictionary = b["mgr"]
+	if b["mode"] == "delegated" and not mgr.is_empty():
+		skim = (1.0 - float(mgr["hon"])) * 0.05 * gross
 		if skim > 0.0:
 			b["bal"] = float(b["bal"]) - skim
 			b["skim"] = float(b["skim"]) + skim
 	b["wsk"] = skim
 	# Expenses of the week: wages, a manager, rent, upkeep (halved while restructuring), interest.
 	var wk := float(days) / 7.0
-	var om := _orgm()
 	var wages := 0.0
 	var paid_wages := 0.0
 	for s: Dictionary in staff:
 		wages += float(s["w"]) * wk
-	if not (b["mgr"] as Dictionary).is_empty():
-		wages += float(b["mgr"]["w"]) * wk
+	if not mgr.is_empty():
+		wages += float(mgr["w"]) * wk
 	var rent := float(kd["rent"]) * wk
 	var upkeep := float(kd["up"]) * wk * (0.5 if restruct else 1.0)
 	var interest := 0.0 if restruct else float(b["debt"]) * INTEREST * wk
-	if float(b["bal"]) >= wages:
+	var cash: float = b["bal"]
+	if cash >= wages:
 		paid_wages = wages
 	else:
-		paid_wages = maxf(0.0, float(b["bal"]))
+		paid_wages = maxf(0.0, cash)
 	_out(b, paid_wages + rent + upkeep + interest)
-	if om != null and paid_wages > 0.0:
-		var share_w := paid_wages / maxf(1.0, wages)
-		for s2: Dictionary in staff:
-			om.earn(String(s2["ch"]), int(round(float(s2["w"]) * wk * share_w)))
-		if not (b["mgr"] as Dictionary).is_empty():
-			om.earn(String(b["mgr"]["ch"]), int(round(float(b["mgr"]["w"]) * wk * share_w)))
+	if paid_wages > 0.0:
+		var om := _orgm()
+		if om != null:
+			var share_w := paid_wages / maxf(1.0, wages)
+			for s2: Dictionary in staff:
+				om.earn(String(s2["ch"]), int(round(float(s2["w"]) * wk * share_w)))
+			if not mgr.is_empty():
+				om.earn(String(mgr["ch"]), int(round(float(mgr["w"]) * wk * share_w)))
 	# Reputation follows how many wanted customers were served.
 	var ratio := served / wanted if wanted > 0.0 else 1.0
 	b["rep"] = clampf(float(b["rep"]) * 0.9 + clampf(ratio, 0.0, 1.0) * 10.0, 0.0, 100.0)
@@ -673,8 +851,7 @@ func _agg(b: Dictionary, days: int, share: float, eff: float) -> Array:
 		"shop":
 			var cust := minf(pop * 0.006 * share * rep_f, float(1 + staff_n) * 30.0)
 			var items := cust * float(days) * 1.5 * eff
-			_in(b, items * 7.8 * pm)
-			_out(b, items * 7.8 * WHOLESALE)
+			_trade(b, items * 7.8 * pm, items * 7.8 * WHOLESALE)
 			stats["sold_units"] = int(stats["sold_units"]) + int(items)
 			return [items, cust * float(days) * 1.5]
 		"workshop":
@@ -710,40 +887,50 @@ func _agg(b: Dictionary, days: int, share: float, eff: float) -> Array:
 
 
 func _close_week(b: Dictionary, d: int, days: int) -> void:
-	var net := float(b["wi"]) - float(b["wo"])
+	var wi: float = b["wi"]
+	var wo: float = b["wo"]
+	var net := wi - wo
 	var led: Array = b["led"]
 	# One row per settlement: [closing day, in, out, cash, debt, what the manager took]. Reports are views of these rows.
 	b["avg"] = float(b["avg"]) * 0.7 + net * (0.3 * 7.0 / float(days) if days > 7 else 0.3)
-	b["li"] = float(b["wi"])
-	b["lo"] = float(b["wo"])
-	var restruct := String(b["st"]) == "restructuring"
+	b["li"] = wi
+	b["lo"] = wo
+	var st: String = b["st"]
+	var restruct := st == "restructuring"
 	# Credit.
-	var limit := credit_limit(b)
-	if float(b["bal"]) < 0.0:
-		var need := -float(b["bal"]) + 20.0
-		if float(b["debt"]) + need <= limit:
-			b["debt"] = float(b["debt"]) + need
-			b["bal"] = float(b["bal"]) + need
+	var limit := maxf(50.0, 3.0 * maxf(0.0, float(b["avg"])) + 0.4 * inventory_value(b) + 0.25 * float(b["cost"]))
+	var bal: float = b["bal"]
+	var debt: float = b["debt"]
+	if bal < 0.0:
+		var need := -bal + 20.0
+		if debt + need <= limit:
+			debt += need
+			bal += need
+			b["debt"] = debt
+			b["bal"] = bal
 			b["neg"] = 0
 		else:
 			b["neg"] = int(b["neg"]) + 1
 	else:
 		b["neg"] = 0
-		if float(b["debt"]) > 0.0 and float(b["bal"]) > RESERVE:
-			var rep_pay := minf(float(b["debt"]), float(b["bal"]) - RESERVE)
-			b["debt"] = float(b["debt"]) - rep_pay
-			b["bal"] = float(b["bal"]) - rep_pay
+		if debt > 0.0 and bal > RESERVE:
+			var rep_pay := minf(debt, bal - RESERVE)
+			debt -= rep_pay
+			bal -= rep_pay
+			b["debt"] = debt
+			b["bal"] = bal
 	# Dividends for a business that earns beyond its needs (delegated and autonomous ones pay out; a manual owner withdraws).
-	if String(b["mode"]) != "manual" and float(b["debt"]) <= 0.0 and float(b["bal"]) > RESERVE * 3.0 and not restruct:
-		_pay_out(b, (float(b["bal"]) - RESERVE * 2.0) * 0.5)
-	led.append([d, int(round(float(b["li"]))), int(round(float(b["lo"]))), int(round(float(b["bal"]))), int(round(float(b["debt"]))), int(round(float(b.get("wsk", 0.0))))])
+	var mode: String = b["mode"]
+	if mode != "manual" and debt <= 0.0 and bal > RESERVE * 3.0 and not restruct:
+		_pay_out(b, (bal - RESERVE * 2.0) * 0.5)
+		bal = b["bal"]
+	led.append([d, roundi(wi), roundi(wo), roundi(bal), roundi(float(b["debt"])), roundi(float(b.get("wsk", 0.0)))])
 	while led.size() > LEDGER_MAX:
 		led.pop_front()
 	# Reports reach an absent owner late (a body that runs itself needs none).
-	if String(b["mode"]) != "autonomous":
+	if mode != "autonomous":
 		_report(b, d)
 	# Insolvency.
-	var st := String(b["st"])
 	if st == "restructuring":
 		if d >= int(b["rs"]):
 			if float(b["avg"]) >= 0.0 and float(b["bal"]) >= 0.0:
@@ -758,14 +945,25 @@ func _close_week(b: Dictionary, d: int, days: int) -> void:
 		b["st"] = "insolvent"
 		b["ins"] = d
 		_ev("trade", int(b["sid"]), [String(b["id"])], "insolvent", "%s cannot pay its debts" % b["name"], 3)
-	if String(b["st"]) == "insolvent":
+	if b["st"] == "insolvent":
 		_resolve_insolvency(b, d)
-	if _live(b) and String(b["mode"]) == "autonomous":
+	if mode == "autonomous" and _live(b):
 		_manage(b, d)
 	b["wi"] = 0.0
 	b["wo"] = 0.0
 	b["lw"] = d
-	b["at"] = _attract(b)
+	var pmv: float = b["pm"]
+	var at_new := (0.5 + float(b["rep"]) / 100.0) * (1.0 if pmv == 1.0 else pow(1.0 / maxf(0.5, pmv), 1.6)) * (0.8 + 0.1 * float((b["staff"] as Array).size()))
+	var at_old: float = b["at"]
+	b["at"] = at_new
+	var ah: Variant = _gat.get(b["gk"])
+	if ah != null:
+		var a2: Array = ah
+		if int(a2[1]) >= 32:
+			_gat.erase(b["gk"])
+		else:
+			a2[0] = float(a2[0]) + at_new - at_old
+			a2[1] = int(a2[1]) + 1
 
 
 func credit_limit(b: Dictionary) -> float:
@@ -930,7 +1128,7 @@ func restructure(bid: String, by: String) -> Dictionary:
 	b["st"] = "restructuring"
 	b["rs"] = _day + RESTRUCTURE_DAYS
 	b["neg"] = 0
-	b["pm"] = 1.0
+	_set_pm(b, 1.0)
 	stats["restructured"] = int(stats["restructured"]) + 1
 	_ev("trade", int(b["sid"]), [bid, by], "restructure", "%s is restructured" % b["name"], 3)
 	return {"ok": true, "forgiven": int(cut)}
@@ -968,7 +1166,7 @@ func liquidate(bid: String, by: String, why := "closed") -> Dictionary:
 	for o2: String in b["sh"]:
 		if om != null and Reg.prefix_of(o2) == "ch":
 			om.add_reputation(o2, -2.0 if why in ["bankrupt", "creditors"] else 0.0)
-	_dirty()
+	_unlist(b)
 	_ev("trade", int(b["sid"]), [bid, String(b["owner"])], why, "%s closes (%s)" % [b["name"], why], 3)
 	return {"ok": true, "returned": int(maxf(0.0, left))}
 
@@ -976,27 +1174,21 @@ func liquidate(bid: String, by: String, why := "closed") -> Dictionary:
 # ------------------------------------------------------------------ autonomous owners
 
 func _manage(b: Dictionary, d: int) -> void:
-	var roll := float(absi(hash([WorldSim.SEED, "bm", d, b["n"]])) % 1000) / 1000.0
-	var roll2 := float(absi(hash([WorldSim.SEED, "bm2", d, b["n"]])) % 1000) / 1000.0
-	var bid := String(b["id"])
+	var bid: String = b["id"]
 	# Price war: follow a cheaper rival down, creep back up when alone.
-	var min_pm := 9.0
-	var n_low := 0
-	for k: String in _group(b):
-		if k == bid:
-			continue
-		var rp := float(_b[k]["pm"])
-		min_pm = minf(min_pm, rp)
-		if rp <= 0.88:
-			n_low += 1
-	var pm := float(b["pm"])
-	if min_pm < pm - 0.04 and float(b["bal"]) > RESERVE:
-		b["pm"] = maxf(0.7, pm - 0.06)
-	elif min_pm >= pm - 0.01 and pm < 1.0 and roll < 0.5:
-		b["pm"] = minf(1.0, pm + 0.03)
+	var ps: Array = _price_stats(b)
+	var pm: float = b["pm"]
+	var min_pm: float = ps[2] if ps[1] == bid else ps[0]
+	var n_low: int = int(ps[3]) - (1 if pm <= 0.88 else 0)
+	var bal: float = b["bal"]
+	if min_pm < pm - 0.04 and bal > RESERVE:
+		_set_pm(b, maxf(0.7, pm - 0.06))
+	elif min_pm >= pm - 0.01 and pm < 1.0 and float(absi(hash([WorldSim.SEED, "bm", d, b["n"]])) % 1000) / 1000.0 < 0.5:
+		_set_pm(b, minf(1.0, pm + 0.03))
 	# A hungry business with a rival in town sometimes tries to win customers by undercutting.
-	if min_pm < 9.0 and float(b["avg"]) < 0.06 * float(b["cost"]) and float(b["pm"]) >= 0.99 and roll2 < 0.5 and float(b["bal"]) > RESERVE:
-		b["pm"] = 0.88
+	if min_pm < 9.0 and float(b["avg"]) < 0.06 * float(b["cost"]) and float(b["pm"]) >= 0.99 and bal > RESERVE \
+			and float(absi(hash([WorldSim.SEED, "bm2", d, b["n"]])) % 1000) / 1000.0 < 0.5:
+		_set_pm(b, 0.88)
 	if float(b["pm"]) <= 0.88 and n_low >= 1:
 		var gk := String(b["gk"])
 		if not _war.has(gk) or d - int(_war[gk]) >= 28:
@@ -1032,11 +1224,15 @@ func npc_try_found(ch: String, day: int) -> bool:
 	if sid < 0:
 		return false
 	# One more of a kind only where the town can feed it.
-	var same := 0
-	for k: String in ids():
-		var x: Dictionary = _b[k]
-		if _live(x) and int(x["sid"]) == sid and String(x["kind"]) == kind:
-			same += 1
+	if not _kcnt_ok:
+		_kcnt = {}
+		for k2: String in _b:
+			var x2: Dictionary = _b[k2]
+			if _live(x2):
+				var kk := "%d|%s" % [int(x2["sid"]), x2["kind"]]
+				_kcnt[kk] = int(_kcnt.get(kk, 0)) + 1
+		_kcnt_ok = true
+	var same := int(_kcnt.get("%d|%s" % [sid, kind], 0))
 	if same >= maxi(1, population(sid) / 140):
 		return false
 	if kind == "workshop" and recipe == "":
@@ -1076,21 +1272,18 @@ func _wake(bid: String, d: int) -> void:
 
 ## Days between two settlements: a business traded in detail, or in trouble, every week; a quiet one that runs itself once a month.
 func _gap(b: Dictionary) -> int:
-	if bool(b["dt"]) or String(b["st"]) != "active" or int(b["neg"]) > 0 or float(b["bal"]) < RESERVE:
+	if b["dt"] or b["st"] != "active" or b["neg"] > 0 or b["bal"] < RESERVE:
 		return 7
 	return FAR_DAYS
 
 
 func tick_day_chunks(day: int, _ctx: Dictionary) -> Array:
 	_day = day
+	# (A business listed twice is settled once: _chunk skips an entry whose live wake-up is already behind it.)
 	var due: Array = []
-	var seen := {}
 	for d: int in _sched.keys():
 		if d <= day:
-			for k: String in _sched[d]:
-				if not seen.has(k):
-					seen[k] = true
-					due.append(k)
+			due.append_array(_sched[d])
 			_sched.erase(d)
 	var out: Array = []
 	var i := 0
@@ -1107,31 +1300,34 @@ func tick_day(day: int, ctx: Dictionary) -> Array:
 
 func _chunk(part: Array, day: int) -> Array:
 	for k: String in part:
-		var b: Dictionary = _b.get(k, {})
+		var b: Dictionary = _b.get(k, _NO_ROWS)
 		if b.is_empty():
 			continue
 		if not _live(b):
 			if String(b["st"]) == "closed" and day - int(b["end"]) > 60:
 				_b.erase(k)
 				_ord = []
-				_dirty()
 			else:
 				_plan(k, day + 30)
 			continue
 		if int(b["pl"]) > day:
 			continue                                   # an older wake-up; the live one is later
-		if not (b["rq"] as Array).is_empty():
+		var rq: Array = b["rq"]
+		if not rq.is_empty():
 			_deliver(b, day)
-		if day - int(b["lw"]) >= _gap(b):
-			settle(k, day - int(b["lw"]), day)
+		var gap := _gap(b)
+		var lw: int = b["lw"]
+		if day - lw >= gap:
+			settle(k, day - lw, day)
 			if not _live(b):
-				_dirty()
 				_plan(k, day + 61)
 				b["pl"] = day + 61
 				continue
-		var nxt: int = int(b["lw"]) + _gap(b)
-		if not (b["rq"] as Array).is_empty():
-			nxt = mini(nxt, int(b["rq"][0][0]))
+			gap = _gap(b)
+			lw = b["lw"]
+		var nxt: int = lw + gap
+		if not rq.is_empty():
+			nxt = mini(nxt, int(rq[0][0]))
 		nxt = maxi(nxt, day + 1)
 		b["pl"] = nxt
 		_plan(k, nxt)
@@ -1163,38 +1359,144 @@ func catch_up(days: int, _ctx: Dictionary) -> Array:
 
 
 # ------------------------------------------------------------------ save
+#
+# Schema 2 ("v": 2): one fixed-layout row per business plus a small dictionary for what is out of the ordinary (docs/design/
+# LIVING_WORLD_SANDBOX.md Part E). The row is [kind, town, mode, born, last settled, owner, cash, debt, average, in, out, last in, last out,
+# reputation, price, attraction, efficiency, ledger rows flattened]; whole numbers are written as ints. Left out because they can be
+# worked out again: the number, the group key, the default name, the default property id, the default shares and route, the default cost,
+# the detail flag, the next wake-up. Schema 1 (a dictionary per business) still loads: see _load_v1.
+
+const SAVE_V := 2
+const KIND_IDS := ["shop", "workshop", "inn", "caravan"]
+## Keys that are written by hand in the row (everything else is written as it is when it differs from a blank business).
+const _ROW_KEYS := ["id", "n", "gk", "pl", "kind", "sid", "mode", "born", "lw", "owner", "bal", "debt", "avg", "in", "out", "li", "lo", "rep", "pm", "at", "ef",
+	"led", "name", "pr", "sh", "route", "cost", "dt", "st", "rec"]
+
 
 func _blank() -> Dictionary:
 	return {"rec": "", "mgr": {}, "in": 0.0, "out": 0.0, "wi": 0.0, "wo": 0.0, "debt": 0.0, "neg": 0, "staff": [], "inv": {}, "pm": 1.0, "lk": [], "led": [], "rq": [],
 		"rl": [], "skim": 0.0, "rs": 0, "rc": 0, "ins": -1, "avg": 0.0, "li": 0.0, "lo": 0.0, "end": -1, "wsk": 0.0, "st": "active", "att": 0, "ef": 1.0, "at": 0.48}
 
 
-## Only the fields that differ from a blank business are written, floats rounded to a tenth.
-func _pack(b: Dictionary) -> Dictionary:
+func _default_name(kind: String, rec: String, bid: String) -> String:
+	return "%s of %s" % [rec.capitalize() if rec != "" else kind.capitalize(), bid]
+
+
+func _pack(b: Dictionary) -> Array:
+	var kind := String(b["kind"])
+	var rec := String(b["rec"])
+	var bid := String(b["id"])
+	var mi := MODES.find(String(b["mode"]))
+	var ki := KIND_IDS.find(kind)
+	var row: Array = [ki if ki >= 0 else kind, int(b["sid"]), mi if mi >= 0 else b["mode"], int(b["born"]), int(b["lw"]), Codec.enc_id(String(b["owner"]), "ch"),
+		Codec.num(float(b["bal"]), 0.1), Codec.num(float(b["debt"]), 0.1), Codec.num(float(b["avg"]), 0.1), Codec.num(float(b["in"]), 0.1),
+		Codec.num(float(b["out"]), 0.1), Codec.num(float(b["li"]), 0.1), Codec.num(float(b["lo"]), 0.1), Codec.num(float(b["rep"]), 0.1),
+		Codec.num(float(b["pm"]), 0.01), Codec.num(float(b["at"]), 0.01), Codec.num(float(b["ef"]), 0.01)]
+	for r: Array in b["led"]:
+		for x: Variant in r:
+			row.append(int(x))
+	var x := {}
+	if rec != "":
+		x["rec"] = rec
+	if String(b["name"]) != _default_name(kind, rec, bid):
+		x["name"] = b["name"]
+	var n := int(b["n"])
+	if String(b["pr"]) != "pr:%d" % n:
+		x["pr"] = b["pr"]
+	var owner := String(b["owner"])
+	var sh: Dictionary = b["sh"]
+	if not (sh.size() == 1 and sh.has(owner) and int(sh[owner]) == 100):
+		x["sh"] = sh
+	var rt: Array = b["route"]
+	if not (rt.size() == 2 and int(rt[0]) == int(b["sid"]) and int(rt[1]) == int(b["sid"])):
+		x["route"] = rt
+	if int(b["cost"]) != int((KINDS.get(kind, _NO_ROWS) as Dictionary).get("cost", 0)):
+		x["cost"] = int(b["cost"])
+	if bool(b["dt"]) != (String(b["mode"]) != "autonomous"):
+		x["dt"] = bool(b["dt"])
+	if String(b["st"]) != "active":
+		x["st"] = b["st"]
 	var blank := _blank()
-	var out := {}
 	for k: String in b:
-		if k == "id" or k == "pl":
+		if k in _ROW_KEYS:
 			continue
 		var v: Variant = b[k]
 		if blank.has(k) and v == blank[k]:
 			continue
 		if v is float:
-			v = snappedf(float(v), 0.01 if k == "ef" or k == "at" else 0.1)
+			v = snappedf(float(v), 0.1)
 		elif k == "inv":
 			var inv := {}
 			for g: String in v:
 				inv[g] = snappedf(float(v[g]), 0.1)
 			v = inv
-		out[k] = v
-	return out
+		x[k] = v
+	if not x.is_empty():
+		row.append(x)
+	return row
+
+
+func _unpack(bid: String, row: Array) -> Dictionary:
+	var b := _blank()
+	b["id"] = bid
+	var n := int(Reg.parse(bid).get("n", 0))
+	b["n"] = n
+	var k0: Variant = row[0]
+	var kind: String = k0 if k0 is String else String(KIND_IDS[clampi(int(k0), 0, KIND_IDS.size() - 1)])
+	b["kind"] = kind
+	b["sid"] = int(row[1])
+	var m0: Variant = row[2]
+	b["mode"] = m0 if m0 is String else String(MODES[clampi(int(m0), 0, MODES.size() - 1)])
+	b["born"] = int(row[3])
+	b["lw"] = int(row[4])
+	var owner := Codec.dec_id(row[5], "ch")
+	b["owner"] = owner
+	b["bal"] = float(row[6])
+	b["debt"] = float(row[7])
+	b["avg"] = float(row[8])
+	b["in"] = float(row[9])
+	b["out"] = float(row[10])
+	b["li"] = float(row[11])
+	b["lo"] = float(row[12])
+	b["rep"] = float(row[13])
+	b["pm"] = float(row[14])
+	b["at"] = float(row[15])
+	b["ef"] = float(row[16])
+	var x: Dictionary = {}
+	var end := row.size()
+	if end > 17 and row[end - 1] is Dictionary:
+		x = row[end - 1]
+		end -= 1
+	var led: Array = []
+	var i := 17
+	while i + 6 <= end:
+		led.append([int(row[i]), int(row[i + 1]), int(row[i + 2]), int(row[i + 3]), int(row[i + 4]), int(row[i + 5])])
+		i += 6
+	b["led"] = led
+	var rec := String(x.get("rec", ""))
+	b["rec"] = rec
+	b["name"] = x["name"] if x.has("name") else _default_name(kind, rec, bid)
+	b["pr"] = x["pr"] if x.has("pr") else "pr:%d" % n
+	b["sh"] = x["sh"] if x.has("sh") else {owner: 100}
+	b["route"] = x["route"] if x.has("route") else [int(b["sid"]), int(b["sid"])]
+	b["cost"] = int(x["cost"]) if x.has("cost") else int((KINDS.get(kind, _NO_ROWS) as Dictionary).get("cost", 0))
+	b["dt"] = bool(x["dt"]) if x.has("dt") else (String(b["mode"]) != "autonomous")
+	b["st"] = String(x.get("st", "active"))
+	b["gk"] = "%d|%s|%s" % [int(b["sid"]), kind, rec]
+	for k: String in x:
+		if k in _ROW_KEYS:
+			continue
+		b[k] = x[k]
+	b["pl"] = 0
+	return b
 
 
 func serialize() -> Dictionary:
-	var packed := {}
-	for k: String in _b:
-		packed[k] = _pack(_b[k])
-	return {"b": packed, "sup": _sup.duplicate(true), "war": _war.duplicate(), "day": _day, "st": stats.duplicate()}
+	var ids_all: Array = _b.keys()
+	var rows: Array = []
+	for k: String in ids_all:
+		rows.append(_pack(_b[k]))
+	return {"v": SAVE_V, "bi": Codec.enc_ids(ids_all, "bz"), "b": rows, "sup": _sup.duplicate(true), "war": _war.duplicate(), "day": _day, "st": stats.duplicate()}
 
 
 func deserialize(d: Dictionary) -> void:
@@ -1203,16 +1505,16 @@ func deserialize(d: Dictionary) -> void:
 	_war = {}
 	_sched = {}
 	_ord = []
+	_popc = {}
 	_dirty()
-	var b: Variant = d.get("b", {})
-	if b is Dictionary:
-		for k: String in b:
-			if b[k] is Dictionary:
-				var full := _blank()
-				full["id"] = k
-				for f: String in b[k]:
-					full[f] = b[k][f]
-				_b[k] = _fix(full)
+	if int(d.get("v", 1)) >= 2:
+		var ids := Codec.dec_ids(d.get("bi", []), "bz")
+		var rows: Array = d.get("b", [])
+		for i in mini(ids.size(), rows.size()):
+			if rows[i] is Array:
+				_b[ids[i]] = _fix(_unpack(ids[i], rows[i]))
+	else:
+		_load_v1(d)
 	for k2: String in _b:
 		var bb: Dictionary = _b[k2]
 		bb["pl"] = int(d.get("day", 0)) + 1 + (int(bb["n"]) % 7)
@@ -1232,6 +1534,19 @@ func deserialize(d: Dictionary) -> void:
 	if st is Dictionary:
 		for k: String in st:
 			stats[k] = int(st[k])
+
+
+## Schema 1: a dictionary per business, only the fields that differ from a blank one. Kept so an old save still loads.
+func _load_v1(d: Dictionary) -> void:
+	var b: Variant = d.get("b", {})
+	if b is Dictionary:
+		for k: String in b:
+			if b[k] is Dictionary:
+				var full := _blank()
+				full["id"] = k
+				for f: String in b[k]:
+					full[f] = b[k][f]
+				_b[k] = _fix(full)
 
 
 func _fix(v: Dictionary) -> Dictionary:

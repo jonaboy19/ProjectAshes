@@ -735,6 +735,126 @@ func test_save_round_trip_keeps_everything() -> void:
 	assert_bool(full.has("organizations") and full.has("businesses")).is_true()
 
 
+func test_the_column_save_keeps_applicants_probation_sponsors_and_oddities() -> void:
+	var h := _hub()
+	var om: RefCounted = h.mod("organizations")
+	var b := _body(h, "merchant_company", 4)
+	var oid: String = b["org"]
+	var lead: String = b["lead"]
+	var second: String = b["all"][1]
+	om.draft_charter(oid, lead, "We trade fairly.", {"dues": 1.5})
+	var probationer := _ch(h)
+	om._add_member(oid, probationer, D.PROBATION, second)
+	var outsider := _ch(h)
+	assert_bool(om.apply(oid, outsider, lead)["ok"]).is_true()
+	assert_bool(om.set_succession(oid, lead, "appointment", second)).is_true()
+	om.org(oid)["rk"] = {"1": ["work"]}
+	om.org(oid)["mode"] = "delegated"
+	om.record_activity(oid, b["all"][2], 7.5)
+	om.add_asset(oid, "ledger", "Ledger", 40)
+	om.open_dispute(oid, second, b["all"][2], "honour", "a slight")
+	om.org(oid)["treasury"] = 12345
+	om.char_rec(second)["sk"] = {"trading": 0.45, "lore": 0.2}
+	om.employ(b["all"][3], lead, 11, "ct:5")
+	var data: Dictionary = JSON.parse_string(JSON.stringify(om.serialize()))
+	assert_int(int(data["v"])).is_equal(2)
+	var h2 := _hub()
+	var om2: RefCounted = h2.mod("organizations")
+	om2.deserialize(data)
+	assert_str(_norm(om2.serialize())).is_equal(_norm(om.serialize()))
+	assert_array(om2.applicants(oid)).is_equal([outsider])
+	assert_int(om2.rank_of(oid, probationer)).is_equal(D.PROBATION)
+	assert_int(om2.member(oid, probationer)["pd"]).is_equal(om.member(oid, probationer)["pd"])
+	assert_str(om2.member(oid, probationer)["sp"]).is_equal(second)
+	assert_str(om2.org(oid)["succ"]["mode"]).is_equal("appointment")
+	assert_str(om2.org(oid)["succ"]["heir"]).is_equal(second)
+	assert_array(om2.org(oid)["rk"]["1"]).is_equal(["work"])
+	assert_str(om2.org(oid)["mode"]).is_equal("delegated")
+	assert_float(om2.member(oid, b["all"][2])["c"]).is_equal_approx(7.5, 0.001)
+	assert_int(om2.org(oid)["treasury"]).is_equal(12345)
+	assert_float(om2.org(oid)["pol"]["dues"]).is_equal(1.5)
+	assert_int(om2.disputes(oid).size()).is_equal(1)
+	assert_float(om2.char_rec(second)["sk"]["trading"]).is_equal_approx(0.45, 0.0005)
+	assert_str(om2.employment(b["all"][3])["ct"]).is_equal("ct:5")
+	assert_str(om2.org(oid)["leader"]).is_equal(lead)
+	assert_array(om2.org(oid)["founders"]).is_equal(om.org(oid)["founders"])
+	assert_int(om2.member_count(oid)).is_equal(om.member_count(oid))
+	# derived state is rebuilt, not saved: rank counts and the probation floor agree with the members
+	assert_array(om2.org(oid)["rcv"]).is_equal(om.org(oid)["rcv"])
+	assert_int(om2.org(oid)["ppd"]).is_equal(om.org(oid)["ppd"])
+
+
+func test_a_schema_1_save_still_loads() -> void:
+	var v1 := {
+		"o": {"org:7": {"type": "craft_guild", "name": "Old Guild", "sid": 2, "mode": "autonomous", "stage": 3, "leader": "ch:11", "founders": ["ch:11", "ch:12"],
+			"succ": {"mode": "election", "heir": ""}, "hq": {"pr": "pr:3", "sid": 2, "rent": 12, "since": 4, "legal": "leased"},
+			"charter": {"text": "We bind ourselves.", "day": 4}, "legal": "recognised", "treasury": 250, "born": 0, "lw": -3, "dt": false, "n": 7, "rep": 12.5, "off": 3.0,
+			"assets": ["a1"], "hist": ["d4 stage: premises", "d9 took a gift"],
+			"dis": [{"id": "d1", "a": "ch:11", "b": "ch:12", "k": "pay", "t": "x", "day": 5, "st": "open"}], "app": {"ch:13": {"d": 6, "sp": "ch:11"}},
+			"m": {"ch:11": [5, 0, 4.0, 70.0, "", 0, 0, "", -1, 0.7], "ch:12": [0, 2, 0.0, 60.0, "ch:11", 0, 0, "", 14, 0.4]}}},
+		"c": {"ch:11": {"prof": "smith", "cash": 400, "sid": 2, "sk": {"crafting": 0.8}, "rep": 12.0, "own": ["a2"]}, "ch:12": {"cash": 90, "npc": true, "amb": "join"}},
+		"a": {"a1": {"id": "a1", "kind": "forge", "name": "Forge", "value": 100, "owner": "org:7"}, "a2": {"id": "a2", "kind": "anvil", "name": "Anvil", "value": 20, "owner": "ch:11"}},
+		"pt": {"pt1": {"id": "pt1", "org": "org:7", "day": 4, "st": "granted", "why": ""}}, "nd": 2, "na": 3, "np": 2, "day": 10, "seeded": false, "st": {"founded": 3}, "pg": 0}
+	var h := _hub()
+	var om: RefCounted = h.mod("organizations")
+	om.deserialize(JSON.parse_string(JSON.stringify(v1)))
+	assert_str(om.org("org:7")["name"]).is_equal("Old Guild")
+	assert_int(om.org("org:7")["stage"]).is_equal(3)
+	assert_int(om.org("org:7")["treasury"]).is_equal(250)
+	assert_str(om.org("org:7")["leader"]).is_equal("ch:11")
+	assert_int(om.rank_of("org:7", "ch:11")).is_equal(D.LEADER)
+	assert_int(om.rank_of("org:7", "ch:12")).is_equal(D.PROBATION)
+	assert_int(om.member("org:7", "ch:12")["pd"]).is_equal(14)
+	assert_float(om.member("org:7", "ch:11")["k"]).is_equal_approx(0.7, 0.0001)
+	assert_array(om.applicants("org:7")).is_equal(["ch:13"])
+	assert_int(om.disputes("org:7").size()).is_equal(1)
+	assert_array(om.memberships("ch:12")).is_equal(["org:7"])
+	assert_float(om.skill_of("ch:11", "crafting")).is_equal_approx(0.8, 0.0001)
+	assert_int(om.purse("ch:11")).is_equal(400)
+	assert_str(om.asset("a1")["owner"]).is_equal("org:7")
+	assert_array(om.assets_owned_by("ch:11")).is_equal(["a2"])
+	assert_int(om.npc_count()).is_equal(1)
+	assert_int(om.today()).is_equal(10)
+	# it was written again in the new format, and that loads to the same thing
+	var out: Dictionary = om.serialize()
+	assert_int(int(out["v"])).is_equal(2)
+	var h2 := _hub()
+	var om2: RefCounted = h2.mod("organizations")
+	om2.deserialize(JSON.parse_string(JSON.stringify(out)))
+	assert_str(_norm(om2.serialize())).is_equal(_norm(out))
+	# and the loaded world carries on
+	for d in range(11, 40):
+		om2.tick_day(d, {})
+	assert_bool(om2.exists("org:7")).is_true()
+
+
+func test_the_hiring_lists_follow_the_bodies_through_every_change() -> void:
+	var h := _hub()
+	var om: RefCounted = h.mod("organizations")
+	var b := _body(h, "craft_guild", 4)
+	var oid: String = b["org"]
+	om.org(oid)["stage"] = 2
+	om._touch(om.org(oid))
+	var sid := int(om.org(oid)["sid"])
+	assert_array(om._hiring(sid, "craft_guild")).contains([oid])
+	# a closed body stops hiring; a stage-0 body does not hire
+	var young := _body(h, "craft_guild", 1)
+	assert_array(om._hiring(sid, "craft_guild")).not_contains([young["org"]])
+	om.dissolve(oid, b["lead"])
+	assert_array(om._hiring(sid, "craft_guild")).not_contains([oid])
+	# a full body stops hiring and a seat freed starts it again
+	var full := _body(h, "craft_guild", 3)
+	var fid: String = full["org"]
+	om.org(fid)["stage"] = 1
+	om._touch(om.org(fid))
+	assert_array(om._hiring(sid, "craft_guild")).contains([fid])
+	while om.member_count(fid) < om.capacity(fid):
+		om._add_member(fid, _ch(h), D.MEMBER, full["lead"])
+	assert_array(om._hiring(sid, "craft_guild")).not_contains([fid])
+	om._remove(fid, om.members_of(fid)[om.member_count(fid) - 1], "left")
+	assert_array(om._hiring(sid, "craft_guild")).contains([fid])
+
+
 # --- performance --------------------------------------------------------------------------
 
 func test_tick_cost_of_400_organizations_with_4000_members() -> void:
@@ -778,16 +898,18 @@ func test_tick_cost_of_400_organizations_with_4000_members() -> void:
 			var t0 := Time.get_ticks_usec()
 			(chunks[ci] as Callable).call()
 			var dt := Time.get_ticks_usec() - t0
-			if ci == chunks.size() - 2:
+			if ci >= chunks.size() - 1 - om.NPC_JOBS and ci < chunks.size() - 1:      # the day's NPC decisions come after the org jobs
 				npc_total += dt
 				npc_worst = maxi(npc_worst, dt)
 			else:
 				worst = maxi(worst, dt)
 			total += dt
-	print("LW-4.2 organizations: %d orgs, %d members, %d npcs; worst org job %d us, worst npc job %d us, avg npc %d us, avg day %d us (budget 600 us a job)" % [om.org_ids().size(), om._total_members(), om.npc_count(), worst, npc_worst, npc_total / days, total / days])
-	assert_int(worst).is_less(4000)                                         # budget 0.6 ms a job on a PC; generous for CI noise
-	assert_int(total / days).is_less(6000)
-	# the serialized size stays near the doc's budget (400 orgs, 4,000 member rows)
+	print("LW-4.2 organizations: %d orgs, %d members, %d npcs; worst org job %d us, worst npc job %d us, avg npc %d us, avg day %d us (budget 600 us a job, 500 us a day)" % [om.org_ids().size(), om._total_members(), om.npc_count(), worst, npc_worst, npc_total / days, total / days])
+	# The doc's budgets are 0.6 ms a job and 0.5 ms a day (Part E, LW-4.2). The asserts allow 6.7x on one job (a single
+	# scheduler hiccup lands in the max; the old limit was the same) and 4x on the day average for a loaded CI machine.
+	assert_int(maxi(worst, npc_worst)).is_less(4000)
+	assert_int(total / days).is_less(2000)
+	# the serialized size stays inside the doc's budget (400 orgs, 4,000 member rows: about 156 KB raw)
 	var raw := JSON.stringify(om.serialize()).length()
-	print("LW-4.2 organizations save: %d bytes raw for %d orgs / %d members" % [raw, om.org_ids().size(), om._total_members()])
-	assert_int(raw).is_less(600000)
+	print("LW-4.2 organizations save: %d bytes raw for %d orgs / %d members (budget 156000)" % [raw, om.org_ids().size(), om._total_members()])
+	assert_int(raw).is_less(156000)

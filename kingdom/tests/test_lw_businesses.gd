@@ -423,6 +423,72 @@ func test_business_save_round_trip_keeps_the_books_and_the_reports() -> void:
 	assert_str(_norm(h3.mod("organizations").serialize())).is_equal(_norm(h.mod("organizations").serialize()))
 
 
+func test_a_schema_1_save_still_loads() -> void:
+	var v1 := {"b": {
+		"bz:3": {"owner": "ch:9", "kind": "shop", "name": "Old Shop", "sid": 1, "pr": "pr:2", "mode": "autonomous", "bal": 220.5, "rep": 12.0, "sh": {"ch:9": 100},
+			"route": [1, 1], "born": 0, "lw": 10, "att": 0, "cost": 300, "n": 3, "gk": "1|shop|", "dt": false, "led": [[10, 100, 80, 220, 0, 0]], "avg": 5.5,
+			"in": 100.0, "out": 80.0, "li": 100.0, "lo": 80.0, "at": 0.5, "ef": 0.9, "inv": {"bread": 3.5}},
+		"bz:5": {"owner": "ch:9", "kind": "workshop", "rec": "bakery", "name": "Old Bakery", "sid": 1, "pr": "pr:4", "mode": "manual", "bal": 80.0, "rep": 10.0,
+			"sh": {"ch:9": 60, "ch:10": 40}, "route": [1, 1], "born": 0, "lw": 7, "att": 5, "cost": 450, "n": 5, "gk": "1|workshop|bakery", "dt": true,
+			"staff": [{"ch": "ch:20", "w": 12}], "st": "restructuring", "rs": 40}},
+		"sup": {}, "war": {}, "day": 12, "st": {"founded": 2}}
+	var h := _hub()
+	var bz: RefCounted = h.mod("businesses")
+	bz.deserialize(JSON.parse_string(JSON.stringify(v1)))
+	assert_int(bz.count()).is_equal(2)
+	assert_str(bz.biz("bz:3")["name"]).is_equal("Old Shop")
+	assert_float(bz.biz("bz:3")["bal"]).is_equal_approx(220.5, 0.001)
+	assert_float(bz.biz("bz:3")["inv"]["bread"]).is_equal_approx(3.5, 0.001)
+	assert_int(bz.biz("bz:5")["sh"]["ch:10"]).is_equal(40)
+	assert_str(bz.biz("bz:5")["st"]).is_equal("restructuring")
+	assert_int(bz.staff_count("bz:5")).is_equal(1)
+	assert_int(bz.biz("bz:3")["lw"]).is_equal(10)
+	assert_array(bz.owned_by("ch:10")).is_equal(["bz:5"])
+	# written again in the new format, which loads to the same thing
+	var out: Dictionary = bz.serialize()
+	assert_int(int(out["v"])).is_equal(2)
+	var h2 := _hub()
+	var bz2: RefCounted = h2.mod("businesses")
+	bz2.deserialize(JSON.parse_string(JSON.stringify(out)))
+	assert_str(_norm(bz2.serialize())).is_equal(_norm(out))
+	assert_str(bz2.biz("bz:5")["gk"]).is_equal("1|workshop|bakery")
+	assert_str(bz2.biz("bz:3")["pr"]).is_equal("pr:2")
+	assert_str(bz2.biz("bz:5")["name"]).is_equal("Old Bakery")
+	# the loaded world carries on
+	for d in range(13, 60):
+		bz2.tick_day(d, {})
+	assert_bool(bz2.exists("bz:3")).is_true()
+
+
+func test_the_row_save_keeps_names_shares_routes_and_the_detail_flag() -> void:
+	var h := _hub()
+	var bz: RefCounted = h.mod("businesses")
+	bz.set_population(2, 600)
+	var owner := _owner(h, 6000, 2)
+	var partner := _owner(h, 3000, 2)
+	var plain: String = bz.found(owner, "shop", 2)["bz"]                              # every default: name, property, shares, route, cost
+	var odd: String = bz.found(owner, "caravan", 2, "The Long Road", "", 900, "delegated")["bz"]
+	bz.set_route(odd, 2, 5)
+	bz.watch(plain, true)
+	assert_bool(bz.transfer_shares(odd, owner, partner, 30, 10)).is_true()
+	bz.set_price(odd, 0.84)
+	var data: Dictionary = JSON.parse_string(JSON.stringify(bz.serialize()))
+	var h2 := _hub()
+	var bz2: RefCounted = h2.mod("businesses")
+	bz2.deserialize(data)
+	assert_str(_norm(bz2.serialize())).is_equal(_norm(bz.serialize()))
+	assert_str(bz2.biz(plain)["name"]).is_equal(bz.biz(plain)["name"])
+	assert_str(bz2.biz(odd)["name"]).is_equal("The Long Road")
+	assert_array(bz2.biz(odd)["route"]).is_equal([2, 5])
+	assert_int(bz2.biz(odd)["sh"][partner]).is_equal(30)
+	assert_str(bz2.biz(odd)["owner"]).is_equal(bz.biz(odd)["owner"])
+	assert_float(bz2.biz(odd)["pm"]).is_equal_approx(0.84, 0.001)             # the price keeps its hundredths
+	assert_bool(bz2.biz(plain)["dt"]).is_true()
+	assert_str(bz2.biz(odd)["mode"]).is_equal("delegated")
+	assert_int(bz2.biz(odd)["cost"]).is_equal(bz.biz(odd)["cost"])
+	assert_str(bz2.biz(odd)["gk"]).is_equal(bz.biz(odd)["gk"])
+
+
 # --- performance ----------------------------------------------------------------------------
 
 func test_tick_cost_of_500_businesses() -> void:
@@ -462,7 +528,9 @@ func test_tick_cost_of_500_businesses() -> void:
 			worst = maxi(worst, dt)
 			total += dt
 	var raw := JSON.stringify(bz.serialize()).length()
-	print("LW-4.3 businesses: %d live, worst job %d us, avg day %d us (budget 400 us a day for 500), save %d bytes raw" % [bz.count(), worst, total / days, raw])
+	print("LW-4.3 businesses: %d live, worst job %d us, avg day %d us (budget 600 us a job, 400 us a day for 500), save %d bytes raw (budget 100000)" % [bz.count(), worst, total / days, raw])
+	# The doc's budgets are 0.6 ms a job, 0.4 ms a day and 100 KB (Part E, LW-4.3). The time asserts allow 6.7x on one job (a single
+	# scheduler hiccup lands in the max; the old limit was the same) and 5x on the day average for a loaded CI machine.
 	assert_int(worst).is_less(4000)
-	assert_int(total / days).is_less(6000)
-	assert_int(raw).is_less(400000)
+	assert_int(total / days).is_less(2000)
+	assert_int(raw).is_less(100000)

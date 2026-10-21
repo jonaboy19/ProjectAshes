@@ -318,6 +318,36 @@ Existing note: `CIVILIZATION.md` set the two-year save at under 1 MB; this doc r
 
 **How to verify:** a headless sim (`docs/balance/data/` pattern) with 1,000 upgraded Characters over 5 game years prints per-module tick maxima and save size; CI fails on a budget breach. Run through CI (`ashes-ci`), not the memory-short container.
 
+### Stage 4 measured: organizations (LW-4.2) and businesses (LW-4.3)
+
+`test_lw_organizations` (400 orgs, 4,000 members, 300 NPCs, 14 burn-in days, then 28 timed days) and `test_lw_businesses` (500 businesses, 28 burn-in days, then 28 timed days) print the numbers below; "day" is every job of `tick_day_chunks` summed, "job" the slowest single job. Measured with the Godot 4.6.2 editor (debug) binary on a shared 4-core 2.1 GHz container: runs differ by 20 to 30 percent, so the after column shows the best and the median of 7 runs. The test asserts allow 6.7x on one job and 4x to 5x on the day average (CI noise) and hold the save sizes to the budget exactly.
+
+| | Before | After (best / median) | Budget |
+|---|---|---|---|
+| Orgs, 400 / 4,000 members: day total | 1.90 ms | 0.57 / 0.60 ms | 0.5 ms |
+| Orgs: worst org job (20 bodies a job) | 1.27 ms | 0.24 / 0.33 ms (6 bodies a job) | 0.6 ms |
+| Orgs: worst NPC job | 1.21 ms | 0.15 / 0.18 ms (two jobs a day) | 0.6 ms |
+| Orgs: save, raw JSON | 526,046 B | 126,570 B | about 156 KB |
+| 500 businesses: day total | 1.03 ms | 0.64 / 0.74 ms | 0.4 ms |
+| Businesses: worst job (10 a job) | 0.97 ms | 0.27 / 0.42 ms (4 a job) | 0.6 ms |
+| Businesses: save, raw JSON | 185,127 B | 59,510 B | 100 KB |
+
+**Save (schema 2, `"v": 2`; schema 1 still loads, see `_load_v1` in each module).** Shared helpers are in `scripts/realm/save_codec.gd`.
+- Ids are numbers, delta-coded (`"ch:51"` is `51`, the next `1`); a run of three or more consecutive ids is `[run length]`. Anything that is not `prefix:integer` stays a string.
+- An org's members are an id list, a rank string (`"5331111111"`) and one sparse column per field (`ms mc mt mp mb ma mq mz`, skill as hundredths in `mk`). A column that is all default is not written; an all-equal one is a scalar; a mostly-equal one is `[most common, gap, value, ...]`.
+- Characters are columns too (`i p c s r n a`) with a side table `x` for employment, skills, holdings, followers; skills are `[mask, thousandths...]`.
+- Not saved because they are derived: rank counts, skill sum, contribution cap, probation floor, wake-up day, org number, `off`, hiring lists, and for a business the number, group key, default name, default property id, default shares and route, default cost, the detail flag and the wake-up day.
+- Pruned into nothing the player can miss: stage-change history is `day * 8 + stage` (one number), resolved grievances older than 20 days are dropped (their count stays in `stats["disputes"]`), org `rep`, `act`, `strife` and character `rep` are kept to hundredths. A business is one fixed-layout row plus a small dictionary for what is unusual; whole numbers are written as ints. Business price now keeps its hundredths (schema 1 rounded 0.88 to 0.9, which hid a price war on load).
+- Long-run history is the event log's job (`Events`); the records keep only their last 6 history lines (orgs) and 8 ledger rows (businesses), as before.
+
+**CPU.**
+- Event-driven instead of scanned: an NPC looks for a body only when something in its town changed (`_touch` / `_bump` raise a town epoch; hiring lists per town and type are patched in place, never rescanned); probation is looked at on `ppd`, the earliest end; weekly politics skips the member walk while `cmx` (the largest contribution) is below the lowest promotion bar; a business group's attraction total, price stats, live count and town counts are kept up to date by the change each settlement makes.
+- Staggering that holds: a quiet far body's next look is `lw + gap`, so the phase its id gave it (`lw = born - n % 28`) survives the first look (before, every body founded on one day settled on the same day again every 28 days, a 25 ms spike). NPC decisions stay hash-staggered by id into three buckets, split over two jobs a day, and drop from 10 to 6 a day once there are more than 120 NPCs (each NPC still decides at most once in 3 days).
+- Smaller jobs: `ORG_CHUNK` 6, `BIZ_CHUNK` 4, NPC decisions in 2 jobs.
+- No per-tick allocations in the hot paths: shared default arrays/dictionaries instead of `get(x, {})`, packed per-type numbers (`_tk`), a cached distance table, no literal arrays or dictionaries built per call in the settle and hiring paths, an application evaluated once instead of twice.
+
+**Not yet inside budget: the day totals.** Worst jobs are inside the 0.6 ms budget on both modules, saves are far inside theirs, but the day totals are 14 to 20 percent over for orgs and 1.6 to 1.8 times over for businesses on this machine. What is left is the closed-form settle itself: about 40 us a business and 25 us an org, a hundred or so Variant dictionary reads and writes each, which is the floor for per-record dictionaries in a debug GDScript build (a release export on a faster PC should be clearly quicker, but that is not measured here: re-measure there before spending more). The next step if it must come down on this build is to keep the hot numbers of a far body (cash, debt, reputation, counts) in packed arrays beside the record, or to settle a quiet autonomous business every 56 days instead of 28.
+
 ---
 
 ## Part F. Order of work and open questions
