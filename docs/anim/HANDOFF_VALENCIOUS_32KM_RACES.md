@@ -126,3 +126,30 @@ Provides behavioral weighting for every race:
 * **Combat Doctrines:** Shield phalanx, ranged kiting, aerial dive, stealth ambush, berserk charge.
 * **Schedules:** Diurnal (Humans, Halflings), Nocturnal (Dark Elves, Undead), Crepuscular (Beastkin dawn/dusk), Continuous (Dwarves).
 * **Hangouts:** Taverns, sacred groves, forge halls, crypt sanctums, high perches.
+
+
+---
+
+## 8. Distant Nations & Future Regions Expansion Blueprint (Handoff for Claude)
+
+For subsequent regions beyond the initial 32km Valencious continent, the world expands into distinct historical civilizations and mythic archetypes:
+
+### 1. Ancient Greek & Roman Imperial Theocracy (Solmarch / Aethelgard)
+* **Architectural Style:** White fluted marble colonnades, sprawling stone aqueducts spanning valleys, grand circular amphitheatres, and triumphal stone arches.
+* **Military & Culture:** Disciplined legionaries with interlocking rectangular scutum shields, bronze corinthian helmets, and paladin orders of the Solar Basilica.
+
+### 2. Ancient Egyptian River Kingdom (Oasis of Amun-Ra / Sun March)
+* **Architectural Style:** Monumental red sandstone pylons, towering carved obelisks, hypostyle halls with lotus columns, and riverside felucca docks along fertile river deltas.
+* **Lore & Powers:** Sand-shaping arts, solar alchemy, and underground necropolis labyrinths beneath shifting desert dunes.
+
+### 3. Aetherial Sky Islands (The Shattered Heavens)
+* **Architectural Style:** Floating continental landmasses tethered by colossal runic chains, anti-gravity leyline cascades, cloud harbors for sky ships, and high cliff aeries.
+* **Inhabitants:** Avian sky-dwellers and ascended Aetherborn mages.
+
+### 4. Submerged & Tidal Water Cities (Isles of Seirune Deep)
+* **Architectural Style:** Canal cities that partially submerge during high tides, connecting to deep-sea palaces under pressurized mana barrier domes with bioluminescent coral architecture.
+* **Inhabitants:** Tideweavers, Serpentkin, and Merfolk emissaries.
+
+### 5. Colossal Subterranean Dwarven Cavern Kingdom (Hollowdeep / Karnhollow)
+* **Architectural Style:** Built entirely inside a colossal 10-kilometer underground mountain cavern. Giant natural stalactites hollowed into multi-tiered fortresses, glowing molten metal aqueducts lighting the abyss, and monumental carved stone kings.
+* **Atmosphere:** Deep forging hammer rhythms, geothermal heat, and impenetrable vault doors.

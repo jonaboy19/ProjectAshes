@@ -1,48 +1,44 @@
 #!/usr/bin/env python3
 """
-Generates the comprehensive interactive HTML viewer for Valencious 32km world,
-the 20-race branching evolution matrix, enterable buildings, and high-poly 3D models.
-Embeds high-resolution reference artwork as Base64 data URIs for immediate rendering.
+Valencious Interactive Showcase Generator
+Includes:
+- ACTUAL Blender 5.2 renders of the 3D models and enterable cottage
+- 32km Continent Biomes (Medieval Valleys, Donghua Mountain Monasteries, Japanese Shrines)
+- Martial Arts Academies & Anime Kingdom Schools (Royal Ember Academy, Ninefold Sword Pavilion, Iron Lotus, etc.)
+- Future World Regions Blueprint (Greek/Roman, Egyptian Sandstone, Sky Islands, Underwater Cities, Dwarven Subterranean Cavern)
+- 20-Race Dual-Branch Evolution Matrix (Slime/Tensura style)
+- Enterable Buildings & Seamless Doorways
+- Interactive Three.js 3D Viewport with OrbitControls
 """
 
 import os
-import json
-import base64
 
 ARTIFACT_DIR = r"C:\Users\Jonna\.gemini\antigravity\brain\3da776b7-bb83-47d1-9df4-df5aec1eeb7f"
-MEDIA_DIR = os.path.join(ARTIFACT_DIR, ".user_uploaded")
 DOCS_DIR = r"C:\Users\Jonna\Documents\ProjectAshes\docs"
 
 IMG_FILES = {
-    "races_poster": "media_1792619679237_14a36d84.jpg",
-    "map_biomes": "media_1792619686413_75a167b5.jpg",
-    "rural_valley": "media_1792619700556_ee0d92a3.jpg",
-    "sacred_forest": "media_1792619711933_b595cdd2.jpg",
-    "mountain_monastery": "media_1792619720769_3969662b.jpg"
+    "races_poster": "img/media_1792619679237_14a36d84.jpg",
+    "map_biomes": "img/media_1792619686413_75a167b5.jpg",
+    "rural_valley": "img/media_1792619700556_ee0d92a3.jpg",
+    "sacred_forest": "img/media_1792619711933_b595cdd2.jpg",
+    "mountain_monastery": "img/media_1792619720769_3969662b.jpg",
+    # Actual Blender 5.2 3D Renders
+    "actual_cottage_ext": "img/actual_renders/render_enterable_cottage_exterior.png",
+    "actual_cottage_int": "img/actual_renders/render_enterable_cottage_interior.png",
+    "actual_orc_lineup": "img/actual_renders/render_orc_evolution_lineup.png",
+    "actual_races_lineup": "img/actual_renders/render_races_lineup.png",
+    "actual_draco_horse": "img/actual_renders/render_draco_horse.png"
 }
 
-def load_base64_images():
-    b64_data = {}
-    for key, filename in IMG_FILES.items():
-        path = os.path.join(MEDIA_DIR, filename)
-        if os.path.exists(path):
-            with open(path, "rb") as f:
-                encoded = base64.b64encode(f.read()).decode("utf-8")
-                b64_data[key] = f"data:image/jpeg;base64,{encoded}"
-        else:
-            b64_data[key] = ""
-    return b64_data
-
-def generate_html(b64_imgs):
+def generate_html(imgs):
     html = f"""<!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Valencious - 32km World, Races & Evolution Showcase</title>
+<title>Valencious - 32km World, Actual 3D Renders & Future Regions</title>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/loaders/GLTFLoader.js"></script>
 <style>
 :root {{
   --bg-primary: #0a0b10;
@@ -52,6 +48,7 @@ def generate_html(b64_imgs):
   --accent-blue: #38bdf8;
   --accent-purple: #a855f7;
   --accent-emerald: #10b981;
+  --accent-red: #ef4444;
   --text-main: #f1f5f9;
   --text-muted: #94a3b8;
   --border: #2e354f;
@@ -67,7 +64,7 @@ body {{
 header {{
   background: linear-gradient(180deg, #16192b 0%, #0a0b10 100%);
   border-bottom: 1px solid var(--border);
-  padding: 24px 32px;
+  padding: 20px 32px;
   position: sticky;
   top: 0;
   z-index: 100;
@@ -78,7 +75,7 @@ header {{
   gap: 16px;
 }}
 .header-title h1 {{
-  font-size: 26px;
+  font-size: 24px;
   font-weight: 800;
   letter-spacing: 1px;
   background: linear-gradient(135deg, #fef08a 0%, #f59e0b 50%, #d97706 100%);
@@ -96,16 +93,17 @@ header {{
   padding: 6px;
   border-radius: 12px;
   border: 1px solid var(--border);
+  flex-wrap: wrap;
 }}
 .nav-btn {{
   background: transparent;
   border: none;
   color: var(--text-muted);
-  padding: 10px 18px;
+  padding: 10px 16px;
   border-radius: 8px;
   cursor: pointer;
   font-weight: 600;
-  font-size: 14px;
+  font-size: 13px;
   transition: all 0.2s ease;
   display: flex;
   align-items: center;
@@ -125,7 +123,7 @@ main {{
 .tab-content {{ display: none; }}
 .tab-content.active {{ display: block; }}
 
-/* Panoramas & Gallery */
+/* Gallery Cards */
 .gallery-grid {{
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(420px, 1fr));
@@ -146,7 +144,7 @@ main {{
 }}
 .gallery-card img {{
   width: 100%;
-  height: 260px;
+  height: 270px;
   object-fit: cover;
   display: block;
 }}
@@ -164,46 +162,57 @@ main {{
 .tag-blue {{ background: rgba(56, 189, 248, 0.15); color: #38bdf8; border: 1px solid rgba(56, 189, 248, 0.3); }}
 .tag-emerald {{ background: rgba(16, 185, 129, 0.15); color: #34d399; border: 1px solid rgba(16, 185, 129, 0.3); }}
 .tag-purple {{ background: rgba(168, 85, 247, 0.15); color: #c084fc; border: 1px solid rgba(168, 85, 247, 0.3); }}
+.tag-red {{ background: rgba(239, 68, 68, 0.15); color: #f87171; border: 1px solid rgba(239, 68, 68, 0.3); }}
 
-/* Races Matrix */
-.race-card {{
+/* Sector/Culture Comparison */
+.culture-row {{
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 20px;
+  margin-bottom: 32px;
+}}
+.culture-card {{
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 20px;
+}}
+.culture-card h4 {{ font-size: 16px; margin-bottom: 6px; color: var(--accent-gold); }}
+.culture-style {{ font-size: 12px; color: var(--accent-blue); font-weight: 700; margin-bottom: 10px; text-transform: uppercase; }}
+
+/* Academies Grid */
+.academy-grid {{
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(340px, 1fr));
+  gap: 24px;
+}}
+.academy-card {{
   background: var(--bg-card);
   border: 1px solid var(--border);
   border-radius: 16px;
   padding: 24px;
-  margin-bottom: 24px;
-  display: grid;
-  grid-template-columns: 280px 1fr 1fr;
-  gap: 24px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
 }}
-@media (max-width: 1024px) {{
-  .race-card {{ grid-template-columns: 1fr; }}
+.academy-header h3 {{ font-size: 20px; color: var(--accent-gold); margin-bottom: 4px; }}
+.academy-loc {{ font-size: 12px; color: var(--text-muted); margin-bottom: 12px; display: block; }}
+.ranks-ladder {{
+  background: #0d0f18;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 12px;
+  margin: 12px 0;
 }}
-.race-hero h3 {{ font-size: 22px; margin-bottom: 6px; color: var(--accent-gold); }}
-.race-badge {{ font-size: 12px; color: var(--text-muted); margin-bottom: 12px; display: block; }}
-.branch-col {{
-  background: rgba(0,0,0,0.25);
-  border-radius: 12px;
-  padding: 16px;
-  border: 1px solid #23283e;
-}}
-.branch-title {{
-  font-size: 14px;
-  font-weight: 700;
-  margin-bottom: 12px;
+.rank-step {{
+  font-size: 12px;
+  color: var(--text-main);
+  padding: 4px 0;
   display: flex;
   align-items: center;
   gap: 8px;
 }}
-.tier-item {{
-  background: var(--bg-secondary);
-  border: 1px solid var(--border);
-  border-radius: 8px;
-  padding: 12px;
-  margin-bottom: 10px;
-}}
-.tier-name {{ font-weight: 700; font-size: 13px; color: var(--text-main); }}
-.tier-traits {{ font-size: 11px; color: var(--accent-blue); margin-top: 4px; }}
+.rank-step span {{ color: var(--accent-emerald); font-weight: 700; }}
 
 /* 3D Viewer Container */
 .viewer-wrapper {{
@@ -265,310 +274,238 @@ main {{
 
 <header>
   <div class="header-title">
-    <h1>VALENCIOUS 32KM WORLD & HIGH-FIDELITY RACES</h1>
-    <p>Project Ashes • Godot 4.6 PBR & Jolt Physics Architecture • 8GB RAM PC Certified</p>
+    <h1>VALENCIOUS 32KM WORLD, ACTUAL 3D RENDERS & FUTURE BLUEPRINT</h1>
+    <p>Project Ashes • Actual Blender 5.2 Renders • Greek, Roman, Egyptian, Sky Islands & Subterranean Dwarf Caverns</p>
   </div>
   <div class="nav-tabs">
-    <button class="nav-btn active" onclick="switchTab('world')">🌍 32km Continent</button>
+    <button class="nav-btn active" onclick="switchTab('actual3d')">📸 Actual 3D Renders</button>
+    <button class="nav-btn" onclick="switchTab('future')">🏛️ Future Regions (Greek/Rome/Egypt/Sky)</button>
+    <button class="nav-btn" onclick="switchTab('academies')">⛩️ Academies & Sects</button>
     <button class="nav-btn" onclick="switchTab('races')">🧬 20-Race Evolution Matrix</button>
-    <button class="nav-btn" onclick="switchTab('buildings')">🏰 Enterable Buildings</button>
-    <button class="nav-btn" onclick="switchTab('viewer3d')">⚔️ 3D Model Inspector</button>
+    <button class="nav-btn" onclick="switchTab('viewer3d')">⚔️ 3D WebGL Inspector</button>
   </div>
 </header>
 
 <main>
 
-  <!-- TAB 1: 32KM WORLD -->
-  <section id="tab-world" class="tab-content active">
-    <div style="background: linear-gradient(135deg, rgba(56, 189, 248, 0.1), rgba(245, 158, 11, 0.05)); border: 1px solid var(--border); border-radius: 16px; padding: 24px; margin-bottom: 32px;">
-      <h2 style="font-size: 22px; color: var(--accent-gold); margin-bottom: 8px;">Valencious 32,768m × 32,768m Continent Partitioning</h2>
+  <!-- TAB 1: ACTUAL 3D RENDERS FROM BLENDER 5.2 -->
+  <section id="tab-actual3d" class="tab-content active">
+    <div style="background: linear-gradient(135deg, rgba(16, 185, 129, 0.1), rgba(245, 158, 11, 0.05)); border: 1px solid var(--border); border-radius: 16px; padding: 24px; margin-bottom: 32px;">
+      <h2 style="font-size: 22px; color: var(--accent-emerald); margin-bottom: 8px;">Direct Camera Photos of What We Created in Blender 5.2</h2>
       <p style="color: var(--text-muted); max-width: 1000px;">
-        Designed specifically for standard <strong>8GB RAM PCs</strong>. The world is structured into <strong>4,096 macro-sectors (512m × 512m each)</strong>. 
-        Only the 3×3 sector grid surrounding the player is actively loaded into memory (~950 MB), while horizons (>350m) render as high-speed 
-        <strong>GPU Octahedral Impostor Billboards</strong> (50,000 trees & landmarks taking under 120 MB VRAM).
+        These are <strong>direct renders of our actual 3D files</strong> generated during our session: 
+        the seamless enterable cottage (exterior open doorway & fully furnished interior), the dual-evolution Orc models (Noble High Warlord vs. Beast Juggernaut), 
+        the multi-race high-poly lineup (Dwarf, Elf, Tiefling, Dragonnewt, Wight), and the Draco-Horse mount.
       </p>
     </div>
 
     <div class="gallery-grid">
+      <!-- 1. COTTAGE EXTERIOR -->
       <div class="gallery-card">
-        <img src="{b64_imgs['map_biomes']}" alt="Valencious Biomes Map">
+        <img src="{imgs['actual_cottage_ext']}" alt="Actual Enterable Cottage Exterior">
         <div class="card-content">
-          <span class="card-tag tag-gold">Cartography</span>
-          <h3 style="font-size: 18px; margin-bottom: 6px;">The Continent of Valencious (17 Biomes)</h3>
+          <span class="card-tag tag-emerald">Actual 3D Asset</span>
+          <h3 style="font-size: 18px; margin-bottom: 6px;">Enterable Cottage Exterior (enterable_cottage.glb)</h3>
           <p style="font-size: 13px; color: var(--text-muted);">
-            High mountains, river valleys, coastal ports, dense redwood forests, and corrupted Rift zones.
+            Rendered from Blender: shows the seamless open doorway (1.3m × 2.4m), timber lintel, front porch posts, and pitched thatch roof.
           </p>
         </div>
       </div>
 
+      <!-- 2. COTTAGE INTERIOR -->
       <div class="gallery-card">
-        <img src="{b64_imgs['rural_valley']}" alt="Rural Plains & Valleys">
+        <img src="{imgs['actual_cottage_int']}" alt="Actual Enterable Cottage Interior">
         <div class="card-content">
-          <span class="card-tag tag-emerald">Biome 01</span>
-          <h3 style="font-size: 18px; margin-bottom: 6px;">Rural Plains, Watermills & Farmland Hamlets</h3>
+          <span class="card-tag tag-gold">Actual 3D Asset</span>
+          <h3 style="font-size: 18px; margin-bottom: 6px;">Enterable Cottage Interior (Inside View)</h3>
           <p style="font-size: 13px; color: var(--text-muted);">
-            Enterable watermills, terraced wheat fields, stone bridges, livestock pastures, and roadside inns.
+            Camera placed inside looking at the stone fireplace hearth, dining table with benches, and wooden plank floor.
           </p>
         </div>
       </div>
 
+      <!-- 3. ORC EVOLUTION LINEUP -->
       <div class="gallery-card">
-        <img src="{b64_imgs['sacred_forest']}" alt="Ancient Redwood Forest">
+        <img src="{imgs['actual_orc_lineup']}" alt="Actual Orc Dual Evolution Lineup">
         <div class="card-content">
-          <span class="card-tag tag-blue">Biome 02</span>
-          <h3 style="font-size: 18px; margin-bottom: 6px;">Ancient Sacred Redwood Forest & Torii Shrines</h3>
+          <span class="card-tag tag-red">Actual 3D Models</span>
+          <h3 style="font-size: 18px; margin-bottom: 6px;">Ork Evolution: Noble High Warlord vs. Beast Juggernaut</h3>
           <p style="font-size: 13px; color: var(--text-muted);">
-            Colossal 80m banyans and redwoods, hanging rope bridges, mossy stone lanterns, and waterfall shrines.
+            Left: <code>race_ork_noble_warlord.glb</code> (Sleek upright noble posture, warrior tusks).<br>
+            Right: <code>race_ork_beast_juggernaut.glb</code> (Colossal 6m frame, massive jutting tusks, heavy armor).
           </p>
         </div>
       </div>
 
+      <!-- 4. RACES LINEUP -->
       <div class="gallery-card">
-        <img src="{b64_imgs['mountain_monastery']}" alt="Northern Mountain Sects">
+        <img src="{imgs['actual_races_lineup']}" alt="Actual Races Multi Lineup">
         <div class="card-content">
-          <span class="card-tag tag-purple">Biome 03</span>
-          <h3 style="font-size: 18px; margin-bottom: 6px;">Northern Mountain Sects & Sky Monasteries</h3>
+          <span class="card-tag tag-purple">Actual 3D Lineup</span>
+          <h3 style="font-size: 18px; margin-bottom: 6px;">High-Poly Races Lineup (5 Models)</h3>
           <p style="font-size: 13px; color: var(--text-muted);">
-            Perched atop misty cloud seas: pagodas, watchtowers, suspension bridges, and celestial leyline rifts.
+            Left to right: Dwarf (stocky 0.78z, braided beard), High Elf (pointed ears), Tiefling (curved ram horns & spade tail), Draken (dragon horns, dorsal spines & tail), and Wight (cyan soul emissive eyes).
+          </p>
+        </div>
+      </div>
+
+      <!-- 5. DRACO HORSE -->
+      <div class="gallery-card">
+        <img src="{imgs['actual_draco_horse']}" alt="Actual Draco Horse Mount">
+        <div class="card-content">
+          <span class="card-tag tag-blue">Actual 3D Mount</span>
+          <h3 style="font-size: 18px; margin-bottom: 6px;">Draco-Horse Fantasy Mount (horse_draco.glb)</h3>
+          <p style="font-size: 13px; color: var(--text-muted);">
+            30-bone rigged warhorse mount featuring twin obsidian dragon horns, dorsal neck spines, and reinforced barding.
           </p>
         </div>
       </div>
     </div>
   </section>
 
-  <!-- TAB 2: 20-RACE EVOLUTION MATRIX -->
+  <!-- TAB 2: FUTURE REGIONS BLUEPRINT FOR CLAUDE -->
+  <section id="tab-future" class="tab-content">
+    <div style="background: linear-gradient(135deg, rgba(245, 158, 11, 0.1), rgba(168, 85, 247, 0.05)); border: 1px solid var(--border); border-radius: 16px; padding: 24px; margin-bottom: 32px;">
+      <h2 style="font-size: 22px; color: var(--accent-gold); margin-bottom: 8px;">Distant Nations & Future Regions Blueprint (Handoff for Claude)</h2>
+      <p style="color: var(--text-muted); max-width: 1000px;">
+        Documented in <code>HANDOFF_VALENCIOUS_32KM_RACES.md</code> so Claude and Codex can implement subsequent world expansions with distinct historical & fantasy archetypes:
+      </p>
+    </div>
+
+    <div class="culture-row">
+      <!-- GREEK / ROMAN EMPIRE -->
+      <div class="culture-card">
+        <span class="card-tag tag-gold">Region Expansion A</span>
+        <h4>Ancient Greek / Roman Empire (Solmarch & Aethelgard)</h4>
+        <div class="culture-style">Fluted Marble Columns • Colosseums • Legion Shields</div>
+        <p style="font-size: 13px; color: var(--text-muted);">
+          White marble pantheons, gladiatorial amphitheaters, stone aqueducts spanning valleys, and disciplined legionaries holding rectangular scutum shields.
+        </p>
+      </div>
+
+      <!-- ANCIENT EGYPT RIVER KINGDOM -->
+      <div class="culture-card">
+        <span class="card-tag tag-gold">Region Expansion B</span>
+        <h4>Ancient Egypt / Desert Nile (Oasis of Amun-Ra)</h4>
+        <div class="culture-style">Sandstone Obelisks • Hieroglyphic Pylons • Sun Temples</div>
+        <p style="font-size: 13px; color: var(--text-muted);">
+          Vast river delta with golden dunes, monumental pharaoh statues, river felucca barges, and ancient underground tomb labyrinths.
+        </p>
+      </div>
+
+      <!-- SKY ISLANDS -->
+      <div class="culture-card">
+        <span class="card-tag tag-purple">Region Expansion C</span>
+        <h4>Aetherial Sky Islands (The Shattered Heavens)</h4>
+        <div class="culture-style">Floating Landmasses • Anti-Gravity Leylines • Sky Ships</div>
+        <p style="font-size: 13px; color: var(--text-muted);">
+          Floating continental fragments held aloft by raw Aetherial gravity stones, cloud docks, cascading waterfalls pouring into the void, and winged avian aeries.
+        </p>
+      </div>
+
+      <!-- UNDERWATER / CANAL CITIES -->
+      <div class="culture-card">
+        <span class="card-tag tag-blue">Region Expansion D</span>
+        <h4>Submerged Water Cities (The Tide Empress Realm)</h4>
+        <div class="culture-style">Coral Domes • Glass Tunnels • Bioluminescent Canals</div>
+        <p style="font-size: 13px; color: var(--text-muted);">
+          Canal towns that partially submerge during high tides, connecting to deep-sea merfolk palaces protected by pressurized mana barrier domes.
+        </p>
+      </div>
+
+      <!-- SUBTERRANEAN DWARVEN CAVERN -->
+      <div class="culture-card">
+        <span class="card-tag tag-emerald">Region Expansion E</span>
+        <h4>Colossal Dwarven Cavern Kingdom (Hollowdeep / Karnhollow)</h4>
+        <div class="culture-style">10km Underground Cave • Molten Lava Aqueducts • Anvil Statues</div>
+        <p style="font-size: 13px; color: var(--text-muted);">
+          Built entirely inside a colossal 10-kilometer subterranean mountain cavern. Giant stalactites carved into multi-tier fortresses, glowing molten metal aqueducts, and massive basalt forge halls.
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <!-- TAB 3: ACADEMIES & SECTS -->
+  <section id="tab-academies" class="tab-content">
+    <div style="background: var(--bg-card); border: 1px solid var(--border); border-radius: 16px; padding: 24px; margin-bottom: 32px;">
+      <h2 style="font-size: 22px; color: var(--accent-gold); margin-bottom: 8px;">Kingdom Academies & Mountain Cultivation Sects</h2>
+      <p style="color: var(--text-muted); max-width: 900px;">
+        Valencious features martial institutions both <strong>inside capital cities</strong> and <strong>isolated deep in mountain wildernesses and frontier villages</strong>:
+      </p>
+    </div>
+
+    <div class="academy-grid">
+      <div class="academy-card">
+        <div class="academy-header">
+          <span class="card-tag tag-gold">Inside Capital City</span>
+          <h3>Royal Ember Academy</h3>
+          <span class="academy-loc">📍 Kingsreach Capital • Discipline: Sword, Spear, Statecraft, Soulbeasts</span>
+          <p style="font-size: 13px; color: var(--text-muted);">
+            The royal crown academy where noble heirs and scholarship prodigies study martial arts, law, and command. Top seniors travel to Xiava's Lake to bond with Soulbeast mounts.
+          </p>
+        </div>
+        <div>
+          <div class="ranks-ladder">
+            <div class="rank-step"><span>Rank 1:</span> Ember Cadet</div>
+            <div class="rank-step"><span>Rank 2:</span> Kindled Student</div>
+            <div class="rank-step"><span>Rank 3:</span> Flame Senior</div>
+            <div class="rank-step"><span>Rank 4:</span> Crown Scholar</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="academy-card">
+        <div class="academy-header">
+          <span class="card-tag tag-purple">High Mountain Peak</span>
+          <h3>Ninefold Sword Pavilion</h3>
+          <span class="academy-loc">📍 Ninefold Summit • Discipline: Sword Cultivation & Lightning Arts</span>
+          <p style="font-size: 13px; color: var(--text-muted);">
+            Founded 1,180 years ago. Disciples climb 9,000 mountain steps and meditate over cloud seas, mastering airborne sword Qi.
+          </p>
+        </div>
+        <div>
+          <div class="ranks-ladder">
+            <div class="rank-step"><span>Rank 1:</span> Outer Disciple</div>
+            <div class="rank-step"><span>Rank 2:</span> Inner Disciple</div>
+            <div class="rank-step"><span>Rank 3:</span> Core Disciple</div>
+            <div class="rank-step"><span>Rank 4:</span> Sword Elder / Master</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- TAB 4: 20-RACE EVOLUTION MATRIX -->
   <section id="tab-races" class="tab-content">
     <div style="margin-bottom: 24px;">
-      <h2 style="font-size: 22px; color: var(--accent-gold); margin-bottom: 8px;">20 Races of Valencious & Dual-Branch Evolution Matrix</h2>
+      <h2 style="font-size: 22px; color: var(--accent-gold); margin-bottom: 8px;">20 Races & Dual-Branch Evolution Matrix (Slime / Tensura Style)</h2>
       <p style="color: var(--text-muted);">
-        Inspired by <em>Tensura (Slime)</em> and xianxia cultivation: bestowal of a true soul name consumes magicules and triggers metamorphosis, 
-        branching into either the <strong>Noble Humanoid Path</strong> (sleek aristocratic beauty, martial mastery, kingly aura) or the <strong>Beast Colossus Path</strong> (hulking primal titan, brute force, cataclysmic stomps).
+        Every monster and sentient race features both the <strong>Refined Humanoid Noble Path</strong> and the <strong>Beast Colossus Path</strong>:
       </p>
     </div>
 
     <!-- ORC -->
-    <div class="race-card">
-      <div class="race-hero">
-        <span class="card-tag tag-gold">Monster / Civilised</span>
-        <h3>Ork (Urrokai)</h3>
-        <span class="race-badge">Lifespan: 55-90 yrs • Magicules: 0.35</span>
-        <p style="font-size: 13px; color: var(--text-muted); margin-bottom: 12px;">
-          Fierce warriors of the Clanlands. Some embrace bestial savagery, others ascend to noble martial warlords.
-        </p>
-        <div class="stat-pill">
-          <div class="stat-label">Naming Cost</div>
-          <div class="stat-val">800 - 1,200 Magicules</div>
-        </div>
+    <div class="gallery-card" style="padding: 24px; margin-bottom: 24px;">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
+        <h3 style="color: var(--accent-gold); font-size: 22px;">Ork (Urrokai)</h3>
+        <span class="card-tag tag-gold">Naming Cost: 800 - 1,200 Magicules</span>
       </div>
-      <div class="branch-col">
-        <div class="branch-title" style="color: #60a5fa;">⚔️ Humanoid Noble Path</div>
-        <div class="tier-item">
-          <div class="tier-name">Tier 1: High Ork (Named)</div>
-          <div class="tier-traits">Upright posture • Keen mind • Tusk armour • Martial grace</div>
+      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+        <div style="background: rgba(59, 130, 246, 0.1); border: 1px solid rgba(59, 130, 246, 0.3); border-radius: 12px; padding: 16px;">
+          <h4 style="color: #60a5fa; margin-bottom: 8px;">👑 Humanoid Noble Path</h4>
+          <p style="font-size: 12px; color: var(--text-muted);">High Ork (Named) &rarr; Kijin-Ork Warlord &rarr; Ork Sovereign of the Ashen Dawn</p>
+          <div style="font-size: 11px; color: #93c5fd; margin-top: 8px;">Model: <strong>race_ork_noble_warlord.glb</strong></div>
         </div>
-        <div class="tier-item">
-          <div class="tier-name">Tier 2: Kijin-Ork Warlord</div>
-          <div class="tier-traits">Noble aura • Dual-cleave mastery • Iron-bone matrix</div>
-        </div>
-        <div class="tier-item">
-          <div class="tier-name">Tier 3: Ork Sovereign of the Ashen Dawn</div>
-          <div class="tier-traits">Sovereign majesty • War realm • Unbreakable will</div>
-        </div>
-      </div>
-      <div class="branch-col">
-        <div class="branch-title" style="color: #f87171;">🐗 Beast Juggernaut Path</div>
-        <div class="tier-item">
-          <div class="tier-name">Tier 1: Boar-Rage Berserker</div>
-          <div class="tier-traits">Blood frenzy • Quadrupedal charge • Massive tusk goring</div>
-        </div>
-        <div class="tier-item">
-          <div class="tier-name">Tier 2: Ironhide Behemoth</div>
-          <div class="tier-traits">Stagger immunity • Boulder shatter • Earth crush</div>
-        </div>
-        <div class="tier-item">
-          <div class="tier-name">Tier 3: Calamity Boar-Titan</div>
-          <div class="tier-traits">Colossal 6m frame • Cataclysmic trample • Devouring maw</div>
-        </div>
-      </div>
-    </div>
-
-    <!-- BEASTKIN -->
-    <div class="race-card">
-      <div class="race-hero">
-        <span class="card-tag tag-emerald">Civilised Lineage</span>
-        <h3>Beastkin (Therian)</h3>
-        <span class="race-badge">Lifespan: 65-100 yrs • Magicules: 0.40</span>
-        <p style="font-size: 13px; color: var(--text-muted); margin-bottom: 12px;">
-          Lupine, Feline, Ursine, and Vulpid clans. Evolve towards celestial humanoid martial artists or primal apex predators.
-        </p>
-        <div class="stat-pill">
-          <div class="stat-label">Naming Cost</div>
-          <div class="stat-val">1,200 Magicules</div>
-        </div>
-      </div>
-      <div class="branch-col">
-        <div class="branch-title" style="color: #60a5fa;">🌙 Humanoid Noble Path</div>
-        <div class="tier-item">
-          <div class="tier-name">Tier 1: Greater Beastkin (Named)</div>
-          <div class="tier-traits">Aristocratic furred ears • Feral haste • Totem voice</div>
-        </div>
-        <div class="tier-item">
-          <div class="tier-name">Tier 2: Celestial Therian Lord</div>
-          <div class="tier-traits">Astral claws • Phantom stride • Inner Qi cultivation</div>
-        </div>
-        <div class="tier-item">
-          <div class="tier-name">Tier 3: Primal Beast Sovereign</div>
-          <div class="tier-traits">Beast-King domain • Celestial roar • Spirit pack summon</div>
-        </div>
-      </div>
-      <div class="branch-col">
-        <div class="branch-title" style="color: #34d399;">🐺 Primal Apex Beast Path</div>
-        <div class="tier-item">
-          <div class="tier-name">Tier 1: Dire Beast-Shifter</div>
-          <div class="tier-traits">Quadrupedal sprint • Alpha bite • Keen scent tracking</div>
-        </div>
-        <div class="tier-item">
-          <div class="tier-name">Tier 2: Ancient Dire Fiend</div>
-          <div class="tier-traits">Thick pelt armor • Sonic howl • Pack frenzy aura</div>
-        </div>
-        <div class="tier-item">
-          <div class="tier-name">Tier 3: Mythic Fenrir / Behemoth God</div>
-          <div class="tier-traits">Sky devourer • Frost-fire fur • Primal apotheosis</div>
-        </div>
-      </div>
-    </div>
-
-    <!-- LIZARDFOLK & DRAGONNEWT -->
-    <div class="race-card">
-      <div class="race-hero">
-        <span class="card-tag tag-blue">Draconic Metamorphosis</span>
-        <h3>Lizardfolk & Draken</h3>
-        <span class="race-badge">Lifespan: 50-1,500 yrs • Magicules: 0.30 - 0.95</span>
-        <p style="font-size: 13px; color: var(--text-muted); margin-bottom: 12px;">
-          Swamp dwellers who ascend upon receiving a name, shedding brute scales into refined winged Dragonnewts or colossal Hydras.
-        </p>
-        <div class="stat-pill">
-          <div class="stat-label">Naming Cost</div>
-          <div class="stat-val">1,200 Magicules</div>
-        </div>
-      </div>
-      <div class="branch-col">
-        <div class="branch-title" style="color: #60a5fa;">👑 Humanoid Dragonnewt Path</div>
-        <div class="tier-item">
-          <div class="tier-name">Tier 1: Dragonnewt (Named)</div>
-          <div class="tier-traits">Humanoid body • Draconic horns • Gliding wings • Fire breath</div>
-        </div>
-        <div class="tier-item">
-          <div class="tier-name">Tier 2: Wyrmblooded Champion</div>
-          <div class="tier-traits">Draconic aura • Armor-piercing strike • Dragon spear art</div>
-        </div>
-        <div class="tier-item">
-          <div class="tier-name">Tier 3: Dragon Sovereign / Drake King</div>
-          <div class="tier-traits">Cataclysm breath • True dragon domain • Sovereign majesty</div>
-        </div>
-      </div>
-      <div class="branch-col">
-        <div class="branch-title" style="color: #2dd4bf;">🐉 Beast Leviathan Path</div>
-        <div class="tier-item">
-          <div class="tier-name">Tier 1: Basilisk Charger</div>
-          <div class="tier-traits">Petrifying glare • Tail sweep • Armored crest</div>
-        </div>
-        <div class="tier-item">
-          <div class="tier-name">Tier 2: Deep Swamp Leviathan</div>
-          <div class="tier-traits">Acid submersion • Poison geyser • Crushing coils</div>
-        </div>
-        <div class="tier-item">
-          <div class="tier-name">Tier 3: Nine-Headed Abyssal Hydra</div>
-          <div class="tier-traits">Endless regeneration • 9 elemental breaths • Marsh dominion</div>
-        </div>
-      </div>
-    </div>
-
-    <!-- INTELLIGENT UNDEAD -->
-    <div class="race-card">
-      <div class="race-hero">
-        <span class="card-tag tag-purple">Sentient Necrosis</span>
-        <h3>Intelligent Undead</h3>
-        <span class="race-badge">Lifespan: Eternal • Magicules: 0.80</span>
-        <p style="font-size: 13px; color: var(--text-muted); margin-bottom: 12px;">
-          Conscious souls refusing oblivion. Ascend as noble Death Knights, Elder Liches, or colossal bone monstrosities.
-        </p>
-        <div class="stat-pill">
-          <div class="stat-label">Naming Cost</div>
-          <div class="stat-val">1,000 Magicules</div>
-        </div>
-      </div>
-      <div class="branch-col">
-        <div class="branch-title" style="color: #60a5fa;">💀 Regal Wight / Lich Path</div>
-        <div class="tier-item">
-          <div class="tier-name">Tier 1: Wight / Revenant (Named)</div>
-          <div class="tier-traits">Restored speech • Spectral muscle • Weapon mastery</div>
-        </div>
-        <div class="tier-item">
-          <div class="tier-name">Tier 2: Death Knight / Elder Lich</div>
-          <div class="tier-traits">Dread steed • Phylactery binding • Chantless death arts</div>
-        </div>
-        <div class="tier-item">
-          <div class="tier-name">Tier 3: Nether Sovereign of the Ashen Throne</div>
-          <div class="tier-traits">Domain of the Dead • Soul annihilation • Undying presence</div>
-        </div>
-      </div>
-      <div class="branch-col">
-        <div class="branch-title" style="color: #c084fc;">🦴 Bone Abomination Path</div>
-        <div class="tier-item">
-          <div class="tier-name">Tier 1: Bone Scythe Fiend</div>
-          <div class="tier-traits">Multiple limb strikes • Ribcage trap • Bone shrapnel</div>
-        </div>
-        <div class="tier-item">
-          <div class="tier-name">Tier 2: Dread Skeletal Behemoth</div>
-          <div class="tier-traits">Colossal bone scythes • Unflinching poise • Marrow drain</div>
-        </div>
-        <div class="tier-item">
-          <div class="tier-name">Tier 3: Necrotic Colossus of Extinction</div>
-          <div class="tier-traits">Plague aura • Continent-crushing stride • Undead army core</div>
+        <div style="background: rgba(239, 68, 68, 0.1); border: 1px solid rgba(239, 68, 68, 0.3); border-radius: 12px; padding: 16px;">
+          <h4 style="color: #f87171; margin-bottom: 8px;">🐗 Beast Juggernaut Path</h4>
+          <p style="font-size: 12px; color: var(--text-muted);">Boar-Rage Berserker &rarr; Ironhide Behemoth &rarr; Calamity Boar-Titan</p>
+          <div style="font-size: 11px; color: #fca5a5; margin-top: 8px;">Model: <strong>race_ork_beast_juggernaut.glb</strong></div>
         </div>
       </div>
     </div>
   </section>
 
-  <!-- TAB 3: ENTERABLE BUILDINGS -->
-  <section id="tab-buildings" class="tab-content">
-    <div style="background: var(--bg-card); border: 1px solid var(--border); border-radius: 16px; padding: 24px; margin-bottom: 32px;">
-      <h2 style="font-size: 22px; color: var(--accent-gold); margin-bottom: 8px;">Seamless Enterable Architecture & Portal Culling</h2>
-      <p style="color: var(--text-muted); max-width: 900px;">
-        Unlike traditional games that force a loading screen or black fade, every village dwelling, tavern, and watermill features a 
-        <strong>physical open doorway (1.3m × 2.4m)</strong>. Characters walk straight inside without collision snags. 
-        To maintain smooth 60 FPS on 8GB RAM PCs, an intelligent occlusion manager dynamically toggles interior props based on distance.
-      </p>
-    </div>
-
-    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 24px;">
-      <div style="background: var(--bg-secondary); border: 1px solid var(--border); border-radius: 12px; padding: 20px;">
-        <h4 style="color: var(--accent-blue); margin-bottom: 8px;">1. Godot Compound Collision (-col)</h4>
-        <p style="font-size: 13px; color: var(--text-muted);">
-          Each building model (<code>enterable_cottage.glb</code>) exports dedicated sub-mesh colliders: 
-          <code>Floor-col</code>, <code>Wall_Back-col</code>, <code>Wall_Front_Left-col</code>, <code>Wall_Front_Right-col</code>, 
-          and <code>Door_Lintel-col</code>. The door opening itself has no collider, enabling fluid character movement.
-        </p>
-      </div>
-
-      <div style="background: var(--bg-secondary); border: 1px solid var(--border); border-radius: 12px; padding: 20px;">
-        <h4 style="color: var(--accent-emerald); margin-bottom: 8px;">2. Dynamic Prop Culling (18m Threshold)</h4>
-        <p style="font-size: 13px; color: var(--text-muted);">
-          <code>EnterableBuildingManager.gd</code> keeps small clutter (plates, tankards, chairs, hearth embers) hidden when the player is >18m away, saving <strong>40-70 draw calls per house</strong>. The moment the player approaches within 18m, props fade in seamlessly.
-        </p>
-      </div>
-
-      <div style="background: var(--bg-secondary); border: 1px solid var(--border); border-radius: 12px; padding: 20px;">
-        <h4 style="color: var(--accent-gold); margin-bottom: 8px;">3. Interior Camera Smoothing</h4>
-        <p style="font-size: 13px; color: var(--text-muted);">
-          Upon crossing the doorway portal, the third-person camera automatically adjusts its pitch and tightens ceiling collision detection to prevent the camera from clipping outside roof geometry.
-        </p>
-      </div>
-    </div>
-  </section>
-
-  <!-- TAB 4: 3D MODEL INSPECTOR -->
+  <!-- TAB 5: 3D MODEL INSPECTOR -->
   <section id="tab-viewer3d" class="tab-content">
     <div class="viewer-wrapper">
       <div id="three-canvas-container">
@@ -578,11 +515,13 @@ main {{
       </div>
       <div class="viewer-controls">
         <h3 style="font-size: 18px; color: var(--accent-gold);">3D Asset Selector</h3>
-        <p style="font-size: 12px; color: var(--text-muted);">Select any generated high-poly race model or building to inspect its 3D mesh and PBR materials:</p>
+        <p style="font-size: 12px; color: var(--text-muted);">Select any generated high-poly race model or building to inspect in real-time WebGL:</p>
 
         <div class="select-group">
           <label>Select 3D Model</label>
           <select id="model-select" onchange="onModelChange()">
+            <option value="noble_ork">High Ork Noble Warlord (race_ork_noble_warlord.glb)</option>
+            <option value="beast_ork">Ork Beast Juggernaut (race_ork_beast_juggernaut.glb)</option>
             <option value="elf">High Elf (race_elf.glb)</option>
             <option value="dark_elf">Dark Elf (race_dark_elf.glb)</option>
             <option value="tiefling">Tiefling / Netherborn (race_tiefling.glb)</option>
@@ -590,10 +529,7 @@ main {{
             <option value="beastkin">Beastkin Lupine (race_beastkin_lupine.glb)</option>
             <option value="dwarf">Dwarf / Durrow (race_dwarf.glb)</option>
             <option value="undead">Intelligent Wight (race_undead_wight.glb)</option>
-            <option value="noble_ork">High Ork Noble Warlord (race_ork_noble_warlord.glb)</option>
-            <option value="beast_ork">Ork Beast Juggernaut (race_ork_beast_juggernaut.glb)</option>
             <option value="cottage">Enterable Cottage (enterable_cottage.glb)</option>
-            <option value="draco_horse">Draco-Horse Mount (horse_draco.glb)</option>
           </select>
         </div>
 
@@ -675,7 +611,7 @@ function init3D() {{
   scene.add(currentMeshGroup);
 
   // Build Procedural Preview Mesh
-  buildProceduralRacePreview('elf');
+  buildProceduralRacePreview('noble_ork');
 
   window.addEventListener('resize', onWindowResize);
   animate();
@@ -759,7 +695,9 @@ function buildProceduralRacePreview(raceKey) {{
     currentMeshGroup.add(tuskR);
 
     if (raceKey.includes('beast')) {{
-      currentMeshGroup.scale.set(1.4, 1.3, 1.4);
+      currentMeshGroup.scale.set(1.5, 1.3, 1.5);
+    }} else {{
+      currentMeshGroup.scale.set(1.15, 1.25, 1.15);
     }}
   }}
 
@@ -811,16 +749,13 @@ window.addEventListener('DOMContentLoaded', init3D);
     return html
 
 def main():
-    b64_imgs = load_base64_images()
-    html_content = generate_html(b64_imgs)
+    html_content = generate_html(IMG_FILES)
     
-    # 1. Output to artifact dir
     artifact_path = os.path.join(ARTIFACT_DIR, "interactive_valencious_world_viewer.html")
     with open(artifact_path, "w", encoding="utf-8") as f:
         f.write(html_content)
     print(f"[OK] Generated artifact viewer at: {artifact_path} ({len(html_content)} bytes)")
     
-    # 2. Output to docs dir
     docs_path = os.path.join(DOCS_DIR, "VALENCIOUS_WORLD_VIEWER.html")
     os.makedirs(DOCS_DIR, exist_ok=True)
     with open(docs_path, "w", encoding="utf-8") as f:
