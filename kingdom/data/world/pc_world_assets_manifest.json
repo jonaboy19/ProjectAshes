@@ -1,0 +1,1284 @@
+{
+  "version": "pc_aaa_v1",
+  "engine_target": "Godot 4.3 Forward+ PC",
+  "hardware_budget": "8GB RAM / 4GB VRAM PC certified",
+  "assets": [
+    {
+      "id": "blacksmith_lod0",
+      "file": "res://assets/incoming/ai3d/meshy/blacksmith_lod0.glb",
+      "triangles": 39999,
+      "dimensions_xyz": [
+        1.89,
+        1.58,
+        1.14
+      ],
+      "max_texture_px": 2048,
+      "pbr_verified": true
+    },
+    {
+      "id": "guild_lod0",
+      "file": "res://assets/incoming/ai3d/meshy/guild_lod0.glb",
+      "triangles": 39999,
+      "dimensions_xyz": [
+        1.9,
+        1.13,
+        1.08
+      ],
+      "max_texture_px": 2048,
+      "pbr_verified": true
+    },
+    {
+      "id": "healer_lod0",
+      "file": "res://assets/incoming/ai3d/meshy/healer_lod0.glb",
+      "triangles": 39994,
+      "dimensions_xyz": [
+        1.76,
+        1.89,
+        1.36
+      ],
+      "max_texture_px": 2048,
+      "pbr_verified": true
+    },
+    {
+      "id": "house_family_lod0",
+      "file": "res://assets/incoming/ai3d/meshy/house_family_lod0.glb",
+      "triangles": 19998,
+      "dimensions_xyz": [
+        1.61,
+        1.89,
+        1.9
+      ],
+      "max_texture_px": 1024,
+      "pbr_verified": true
+    },
+    {
+      "id": "house_manor_lod0",
+      "file": "res://assets/incoming/ai3d/meshy/house_manor_lod0.glb",
+      "triangles": 39993,
+      "dimensions_xyz": [
+        1.9,
+        1.2,
+        1.64
+      ],
+      "max_texture_px": 2048,
+      "pbr_verified": true
+    },
+    {
+      "id": "house_peasant_a_lod0",
+      "file": "res://assets/incoming/ai3d/meshy/house_peasant_a_lod0.glb",
+      "triangles": 19995,
+      "dimensions_xyz": [
+        1.86,
+        1.66,
+        1.74
+      ],
+      "max_texture_px": 1024,
+      "pbr_verified": true
+    },
+    {
+      "id": "house_peasant_b_lod0",
+      "file": "res://assets/incoming/ai3d/meshy/house_peasant_b_lod0.glb",
+      "triangles": 19995,
+      "dimensions_xyz": [
+        1.7,
+        1.47,
+        1.84
+      ],
+      "max_texture_px": 1024,
+      "pbr_verified": true
+    },
+    {
+      "id": "house_trader_lod0",
+      "file": "res://assets/incoming/ai3d/meshy/house_trader_lod0.glb",
+      "triangles": 19988,
+      "dimensions_xyz": [
+        1.65,
+        1.55,
+        1.9
+      ],
+      "max_texture_px": 1024,
+      "pbr_verified": true
+    },
+    {
+      "id": "inn_lod0",
+      "file": "res://assets/incoming/ai3d/meshy/inn_lod0.glb",
+      "triangles": 39973,
+      "dimensions_xyz": [
+        1.9,
+        1.76,
+        1.12
+      ],
+      "max_texture_px": 2048,
+      "pbr_verified": true
+    },
+    {
+      "id": "landmark_rift_lod0",
+      "file": "res://assets/incoming/ai3d/meshy/landmark_rift_lod0.glb",
+      "triangles": 20000,
+      "dimensions_xyz": [
+        1.88,
+        1.06,
+        1.4
+      ],
+      "max_texture_px": 1024,
+      "pbr_verified": true
+    },
+    {
+      "id": "landmark_runestone_lod0",
+      "file": "res://assets/incoming/ai3d/meshy/landmark_runestone_lod0.glb",
+      "triangles": 7999,
+      "dimensions_xyz": [
+        1.31,
+        1.31,
+        1.9
+      ],
+      "max_texture_px": 1024,
+      "pbr_verified": true
+    },
+    {
+      "id": "landmark_watchfort_lod0",
+      "file": "res://assets/incoming/ai3d/meshy/landmark_watchfort_lod0.glb",
+      "triangles": 39999,
+      "dimensions_xyz": [
+        1.79,
+        1.77,
+        1.9
+      ],
+      "max_texture_px": 2048,
+      "pbr_verified": true
+    },
+    {
+      "id": "stall_cloth_lod0",
+      "file": "res://assets/incoming/ai3d/meshy/stall_cloth_lod0.glb",
+      "triangles": 3712,
+      "dimensions_xyz": [
+        1.9,
+        1.58,
+        1.57
+      ],
+      "max_texture_px": 1024,
+      "pbr_verified": true
+    },
+    {
+      "id": "stall_produce_lod0",
+      "file": "res://assets/incoming/ai3d/meshy/stall_produce_lod0.glb",
+      "triangles": 3722,
+      "dimensions_xyz": [
+        1.9,
+        1.42,
+        1.43
+      ],
+      "max_texture_px": 1024,
+      "pbr_verified": true
+    },
+    {
+      "id": "interior_blacksmith",
+      "file": "res://assets/generated/interiors/interior_blacksmith.glb",
+      "triangles": 49356,
+      "dimensions_xyz": [
+        10.54,
+        8.48,
+        4.31
+      ],
+      "max_texture_px": 1024,
+      "pbr_verified": true
+    },
+    {
+      "id": "interior_guild",
+      "file": "res://assets/generated/interiors/interior_guild.glb",
+      "triangles": 48792,
+      "dimensions_xyz": [
+        12.54,
+        10.38,
+        4.48
+      ],
+      "max_texture_px": 1024,
+      "pbr_verified": true
+    },
+    {
+      "id": "interior_healer",
+      "file": "res://assets/generated/interiors/interior_healer.glb",
+      "triangles": 37702,
+      "dimensions_xyz": [
+        8.54,
+        7.3,
+        3.48
+      ],
+      "max_texture_px": 1024,
+      "pbr_verified": true
+    },
+    {
+      "id": "interior_house",
+      "file": "res://assets/generated/interiors/interior_house.glb",
+      "triangles": 23126,
+      "dimensions_xyz": [
+        7.54,
+        6.3,
+        3.08
+      ],
+      "max_texture_px": 1024,
+      "pbr_verified": true
+    },
+    {
+      "id": "interior_inn",
+      "file": "res://assets/generated/interiors/interior_inn.glb",
+      "triangles": 58270,
+      "dimensions_xyz": [
+        12.54,
+        10.3,
+        6.46
+      ],
+      "max_texture_px": 1024,
+      "pbr_verified": true
+    },
+    {
+      "id": "barn",
+      "file": "res://assets/generated/region/farm/barn.glb",
+      "triangles": 1380,
+      "dimensions_xyz": [
+        12.76,
+        8.89,
+        8.06
+      ],
+      "max_texture_px": 512,
+      "pbr_verified": true
+    },
+    {
+      "id": "chicken_coop",
+      "file": "res://assets/generated/region/farm/chicken_coop.glb",
+      "triangles": 536,
+      "dimensions_xyz": [
+        3.41,
+        3.61,
+        2.45
+      ],
+      "max_texture_px": 1024,
+      "pbr_verified": true
+    },
+    {
+      "id": "crop_cabbage",
+      "file": "res://assets/generated/region/farm/crop_cabbage.glb",
+      "triangles": 682,
+      "dimensions_xyz": [
+        4.0,
+        3.65,
+        0.41
+      ],
+      "max_texture_px": 1024,
+      "pbr_verified": true
+    },
+    {
+      "id": "crop_wheat",
+      "file": "res://assets/generated/region/farm/crop_wheat.glb",
+      "triangles": 210,
+      "dimensions_xyz": [
+        4.0,
+        4.05,
+        1.2
+      ],
+      "max_texture_px": 1024,
+      "pbr_verified": true
+    },
+    {
+      "id": "fence_gate",
+      "file": "res://assets/generated/region/farm/fence_gate.glb",
+      "triangles": 128,
+      "dimensions_xyz": [
+        1.8,
+        0.64,
+        1.5
+      ],
+      "max_texture_px": 1024,
+      "pbr_verified": true
+    },
+    {
+      "id": "fence_picket",
+      "file": "res://assets/generated/region/farm/fence_picket.glb",
+      "triangles": 192,
+      "dimensions_xyz": [
+        2.12,
+        0.15,
+        1.25
+      ],
+      "max_texture_px": 512,
+      "pbr_verified": true
+    },
+    {
+      "id": "fence_rail",
+      "file": "res://assets/generated/region/farm/fence_rail.glb",
+      "triangles": 72,
+      "dimensions_xyz": [
+        3.24,
+        0.22,
+        1.25
+      ],
+      "max_texture_px": 1024,
+      "pbr_verified": true
+    },
+    {
+      "id": "granary",
+      "file": "res://assets/generated/region/farm/granary.glb",
+      "triangles": 1000,
+      "dimensions_xyz": [
+        5.0,
+        4.97,
+        5.63
+      ],
+      "max_texture_px": 512,
+      "pbr_verified": true
+    },
+    {
+      "id": "hay_wagon",
+      "file": "res://assets/generated/region/farm/hay_wagon.glb",
+      "triangles": 1772,
+      "dimensions_xyz": [
+        5.59,
+        2.04,
+        2.28
+      ],
+      "max_texture_px": 512,
+      "pbr_verified": true
+    },
+    {
+      "id": "pig_sty",
+      "file": "res://assets/generated/region/farm/pig_sty.glb",
+      "triangles": 308,
+      "dimensions_xyz": [
+        5.0,
+        4.02,
+        2.5
+      ],
+      "max_texture_px": 512,
+      "pbr_verified": true
+    },
+    {
+      "id": "scarecrow",
+      "file": "res://assets/generated/region/farm/scarecrow.glb",
+      "triangles": 384,
+      "dimensions_xyz": [
+        1.87,
+        0.72,
+        2.42
+      ],
+      "max_texture_px": 1024,
+      "pbr_verified": true
+    },
+    {
+      "id": "windmill",
+      "file": "res://assets/generated/region/farm/windmill.glb",
+      "triangles": 1272,
+      "dimensions_xyz": [
+        6.6,
+        7.0,
+        12.9
+      ],
+      "max_texture_px": 512,
+      "pbr_verified": true
+    },
+    {
+      "id": "windmill_sails",
+      "file": "res://assets/generated/region/farm/windmill_sails.glb",
+      "triangles": 668,
+      "dimensions_xyz": [
+        14.57,
+        0.55,
+        14.57
+      ],
+      "max_texture_px": 512,
+      "pbr_verified": true
+    },
+    {
+      "id": "miners_hut",
+      "file": "res://assets/generated/region/mine/miners_hut.glb",
+      "triangles": 1464,
+      "dimensions_xyz": [
+        5.85,
+        5.04,
+        4.9
+      ],
+      "max_texture_px": 1024,
+      "pbr_verified": true
+    },
+    {
+      "id": "mine_cart",
+      "file": "res://assets/generated/region/mine/mine_cart.glb",
+      "triangles": 452,
+      "dimensions_xyz": [
+        0.99,
+        1.62,
+        1.02
+      ],
+      "max_texture_px": 512,
+      "pbr_verified": true
+    },
+    {
+      "id": "mine_entrance",
+      "file": "res://assets/generated/region/mine/mine_entrance.glb",
+      "triangles": 2868,
+      "dimensions_xyz": [
+        14.43,
+        10.41,
+        10.82
+      ],
+      "max_texture_px": 512,
+      "pbr_verified": true
+    },
+    {
+      "id": "mine_props",
+      "file": "res://assets/generated/region/mine/mine_props.glb",
+      "triangles": 868,
+      "dimensions_xyz": [
+        3.21,
+        2.61,
+        1.32
+      ],
+      "max_texture_px": 512,
+      "pbr_verified": true
+    },
+    {
+      "id": "mine_winch",
+      "file": "res://assets/generated/region/mine/mine_winch.glb",
+      "triangles": 944,
+      "dimensions_xyz": [
+        4.34,
+        6.21,
+        6.45
+      ],
+      "max_texture_px": 1024,
+      "pbr_verified": true
+    },
+    {
+      "id": "ore_pile_coal",
+      "file": "res://assets/generated/region/mine/ore_pile_coal.glb",
+      "triangles": 544,
+      "dimensions_xyz": [
+        2.57,
+        2.15,
+        1.2
+      ],
+      "max_texture_px": 512,
+      "pbr_verified": true
+    },
+    {
+      "id": "ore_pile_copper",
+      "file": "res://assets/generated/region/mine/ore_pile_copper.glb",
+      "triangles": 544,
+      "dimensions_xyz": [
+        2.52,
+        2.33,
+        1.2
+      ],
+      "max_texture_px": 512,
+      "pbr_verified": true
+    },
+    {
+      "id": "ore_pile_iron",
+      "file": "res://assets/generated/region/mine/ore_pile_iron.glb",
+      "triangles": 544,
+      "dimensions_xyz": [
+        2.62,
+        2.37,
+        1.2
+      ],
+      "max_texture_px": 512,
+      "pbr_verified": true
+    },
+    {
+      "id": "rail_curve",
+      "file": "res://assets/generated/region/mine/rail_curve.glb",
+      "triangles": 240,
+      "dimensions_xyz": [
+        2.87,
+        4.62,
+        0.22
+      ],
+      "max_texture_px": 512,
+      "pbr_verified": true
+    },
+    {
+      "id": "rail_end",
+      "file": "res://assets/generated/region/mine/rail_end.glb",
+      "triangles": 200,
+      "dimensions_xyz": [
+        2.59,
+        3.84,
+        0.96
+      ],
+      "max_texture_px": 512,
+      "pbr_verified": true
+    },
+    {
+      "id": "rail_straight",
+      "file": "res://assets/generated/region/mine/rail_straight.glb",
+      "triangles": 108,
+      "dimensions_xyz": [
+        1.4,
+        4.0,
+        0.22
+      ],
+      "max_texture_px": 512,
+      "pbr_verified": true
+    },
+    {
+      "id": "tunnel_support",
+      "file": "res://assets/generated/region/mine/tunnel_support.glb",
+      "triangles": 132,
+      "dimensions_xyz": [
+        3.2,
+        1.75,
+        3.23
+      ],
+      "max_texture_px": 512,
+      "pbr_verified": true
+    },
+    {
+      "id": "beech_a",
+      "file": "res://assets/generated/region/nature/beech_a.glb",
+      "triangles": 1332,
+      "dimensions_xyz": [
+        8.0,
+        6.95,
+        10.25
+      ],
+      "max_texture_px": 1024,
+      "pbr_verified": true
+    },
+    {
+      "id": "beech_b",
+      "file": "res://assets/generated/region/nature/beech_b.glb",
+      "triangles": 1058,
+      "dimensions_xyz": [
+        6.04,
+        6.5,
+        8.49
+      ],
+      "max_texture_px": 1024,
+      "pbr_verified": true
+    },
+    {
+      "id": "boulder_large",
+      "file": "res://assets/generated/region/nature/boulder_large.glb",
+      "triangles": 1280,
+      "dimensions_xyz": [
+        2.24,
+        1.46,
+        1.93
+      ],
+      "max_texture_px": 512,
+      "pbr_verified": true
+    },
+    {
+      "id": "bush_berry",
+      "file": "res://assets/generated/region/nature/bush_berry.glb",
+      "triangles": 316,
+      "dimensions_xyz": [
+        2.06,
+        1.81,
+        1.64
+      ],
+      "max_texture_px": 1024,
+      "pbr_verified": true
+    },
+    {
+      "id": "bush_dark",
+      "file": "res://assets/generated/region/nature/bush_dark.glb",
+      "triangles": 316,
+      "dimensions_xyz": [
+        2.25,
+        2.18,
+        1.8
+      ],
+      "max_texture_px": 1024,
+      "pbr_verified": true
+    },
+    {
+      "id": "bush_hazel",
+      "file": "res://assets/generated/region/nature/bush_hazel.glb",
+      "triangles": 356,
+      "dimensions_xyz": [
+        2.99,
+        3.11,
+        2.34
+      ],
+      "max_texture_px": 1024,
+      "pbr_verified": true
+    },
+    {
+      "id": "bush_round",
+      "file": "res://assets/generated/region/nature/bush_round.glb",
+      "triangles": 316,
+      "dimensions_xyz": [
+        2.23,
+        2.4,
+        1.7
+      ],
+      "max_texture_px": 1024,
+      "pbr_verified": true
+    },
+    {
+      "id": "dark_oak",
+      "file": "res://assets/generated/region/nature/dark_oak.glb",
+      "triangles": 727,
+      "dimensions_xyz": [
+        7.98,
+        7.04,
+        7.66
+      ],
+      "max_texture_px": 1024,
+      "pbr_verified": true
+    },
+    {
+      "id": "dead_snag",
+      "file": "res://assets/generated/region/nature/dead_snag.glb",
+      "triangles": 894,
+      "dimensions_xyz": [
+        8.54,
+        6.83,
+        8.56
+      ],
+      "max_texture_px": 1024,
+      "pbr_verified": true
+    },
+    {
+      "id": "fern_a",
+      "file": "res://assets/generated/region/nature/fern_a.glb",
+      "triangles": 54,
+      "dimensions_xyz": [
+        1.93,
+        1.9,
+        0.59
+      ],
+      "max_texture_px": 1024,
+      "pbr_verified": true
+    },
+    {
+      "id": "fern_b",
+      "file": "res://assets/generated/region/nature/fern_b.glb",
+      "triangles": 42,
+      "dimensions_xyz": [
+        1.04,
+        0.91,
+        0.49
+      ],
+      "max_texture_px": 1024,
+      "pbr_verified": true
+    },
+    {
+      "id": "flowers_cool",
+      "file": "res://assets/generated/region/nature/flowers_cool.glb",
+      "triangles": 36,
+      "dimensions_xyz": [
+        0.83,
+        0.84,
+        0.6
+      ],
+      "max_texture_px": 1024,
+      "pbr_verified": true
+    },
+    {
+      "id": "flowers_warm",
+      "file": "res://assets/generated/region/nature/flowers_warm.glb",
+      "triangles": 36,
+      "dimensions_xyz": [
+        0.96,
+        0.84,
+        0.63
+      ],
+      "max_texture_px": 1024,
+      "pbr_verified": true
+    },
+    {
+      "id": "grass_a",
+      "file": "res://assets/generated/region/nature/grass_a.glb",
+      "triangles": 40,
+      "dimensions_xyz": [
+        0.81,
+        0.85,
+        0.62
+      ],
+      "max_texture_px": 1024,
+      "pbr_verified": true
+    },
+    {
+      "id": "grass_tall",
+      "file": "res://assets/generated/region/nature/grass_tall.glb",
+      "triangles": 40,
+      "dimensions_xyz": [
+        1.2,
+        1.06,
+        1.08
+      ],
+      "max_texture_px": 1024,
+      "pbr_verified": true
+    },
+    {
+      "id": "log_branchy",
+      "file": "res://assets/generated/region/nature/log_branchy.glb",
+      "triangles": 190,
+      "dimensions_xyz": [
+        3.24,
+        1.15,
+        0.86
+      ],
+      "max_texture_px": 1024,
+      "pbr_verified": true
+    },
+    {
+      "id": "log_mossy",
+      "file": "res://assets/generated/region/nature/log_mossy.glb",
+      "triangles": 136,
+      "dimensions_xyz": [
+        4.24,
+        0.72,
+        0.68
+      ],
+      "max_texture_px": 1024,
+      "pbr_verified": true
+    },
+    {
+      "id": "oak_a",
+      "file": "res://assets/generated/region/nature/oak_a.glb",
+      "triangles": 1606,
+      "dimensions_xyz": [
+        9.38,
+        8.05,
+        8.58
+      ],
+      "max_texture_px": 1024,
+      "pbr_verified": true
+    },
+    {
+      "id": "oak_b",
+      "file": "res://assets/generated/region/nature/oak_b.glb",
+      "triangles": 1280,
+      "dimensions_xyz": [
+        7.56,
+        8.61,
+        7.92
+      ],
+      "max_texture_px": 1024,
+      "pbr_verified": true
+    },
+    {
+      "id": "pine_scots",
+      "file": "res://assets/generated/region/nature/pine_scots.glb",
+      "triangles": 1202,
+      "dimensions_xyz": [
+        8.04,
+        9.15,
+        11.29
+      ],
+      "max_texture_px": 1024,
+      "pbr_verified": true
+    },
+    {
+      "id": "rock_cluster",
+      "file": "res://assets/generated/region/nature/rock_cluster.glb",
+      "triangles": 960,
+      "dimensions_xyz": [
+        2.43,
+        1.71,
+        1.49
+      ],
+      "max_texture_px": 512,
+      "pbr_verified": true
+    },
+    {
+      "id": "rock_medium",
+      "file": "res://assets/generated/region/nature/rock_medium.glb",
+      "triangles": 320,
+      "dimensions_xyz": [
+        1.37,
+        0.96,
+        0.93
+      ],
+      "max_texture_px": 512,
+      "pbr_verified": true
+    },
+    {
+      "id": "rock_slab",
+      "file": "res://assets/generated/region/nature/rock_slab.glb",
+      "triangles": 320,
+      "dimensions_xyz": [
+        1.77,
+        1.34,
+        0.84
+      ],
+      "max_texture_px": 512,
+      "pbr_verified": true
+    },
+    {
+      "id": "spruce_a",
+      "file": "res://assets/generated/region/nature/spruce_a.glb",
+      "triangles": 1493,
+      "dimensions_xyz": [
+        7.73,
+        7.73,
+        15.03
+      ],
+      "max_texture_px": 1024,
+      "pbr_verified": true
+    },
+    {
+      "id": "spruce_b",
+      "file": "res://assets/generated/region/nature/spruce_b.glb",
+      "triangles": 1277,
+      "dimensions_xyz": [
+        5.71,
+        5.99,
+        10.4
+      ],
+      "max_texture_px": 1024,
+      "pbr_verified": true
+    },
+    {
+      "id": "stump_broken",
+      "file": "res://assets/generated/region/nature/stump_broken.glb",
+      "triangles": 164,
+      "dimensions_xyz": [
+        1.2,
+        1.16,
+        1.57
+      ],
+      "max_texture_px": 1024,
+      "pbr_verified": true
+    },
+    {
+      "id": "stump_mossy",
+      "file": "res://assets/generated/region/nature/stump_mossy.glb",
+      "triangles": 142,
+      "dimensions_xyz": [
+        1.43,
+        1.41,
+        0.73
+      ],
+      "max_texture_px": 1024,
+      "pbr_verified": true
+    },
+    {
+      "id": "young_oak",
+      "file": "res://assets/generated/region/nature/young_oak.glb",
+      "triangles": 656,
+      "dimensions_xyz": [
+        4.17,
+        4.43,
+        4.97
+      ],
+      "max_texture_px": 1024,
+      "pbr_verified": true
+    },
+    {
+      "id": "bridge_stone",
+      "file": "res://assets/generated/region/road/bridge_stone.glb",
+      "triangles": 310,
+      "dimensions_xyz": [
+        3.7,
+        12.56,
+        3.96
+      ],
+      "max_texture_px": 512,
+      "pbr_verified": true
+    },
+    {
+      "id": "bridge_wood",
+      "file": "res://assets/generated/region/road/bridge_wood.glb",
+      "triangles": 856,
+      "dimensions_xyz": [
+        3.2,
+        14.06,
+        3.8
+      ],
+      "max_texture_px": 1024,
+      "pbr_verified": true
+    },
+    {
+      "id": "caravan_wagon",
+      "file": "res://assets/generated/region/road/caravan_wagon.glb",
+      "triangles": 2304,
+      "dimensions_xyz": [
+        6.18,
+        2.16,
+        2.58
+      ],
+      "max_texture_px": 512,
+      "pbr_verified": true
+    },
+    {
+      "id": "checkpoint_barrier",
+      "file": "res://assets/generated/region/road/checkpoint_barrier.glb",
+      "triangles": 196,
+      "dimensions_xyz": [
+        5.22,
+        0.42,
+        1.35
+      ],
+      "max_texture_px": 1024,
+      "pbr_verified": true
+    },
+    {
+      "id": "checkpoint_boom",
+      "file": "res://assets/generated/region/road/checkpoint_boom.glb",
+      "triangles": 128,
+      "dimensions_xyz": [
+        5.17,
+        0.4,
+        0.4
+      ],
+      "max_texture_px": 512,
+      "pbr_verified": true
+    },
+    {
+      "id": "milestone",
+      "file": "res://assets/generated/region/road/milestone.glb",
+      "triangles": 108,
+      "dimensions_xyz": [
+        0.7,
+        0.5,
+        1.33
+      ],
+      "max_texture_px": 512,
+      "pbr_verified": true
+    },
+    {
+      "id": "roadside_inn",
+      "file": "res://assets/generated/region/road/roadside_inn.glb",
+      "triangles": 2320,
+      "dimensions_xyz": [
+        13.07,
+        8.5,
+        10.29
+      ],
+      "max_texture_px": 512,
+      "pbr_verified": true
+    },
+    {
+      "id": "toll_booth",
+      "file": "res://assets/generated/region/road/toll_booth.glb",
+      "triangles": 700,
+      "dimensions_xyz": [
+        3.64,
+        3.2,
+        3.7
+      ],
+      "max_texture_px": 1024,
+      "pbr_verified": true
+    },
+    {
+      "id": "wayshrine",
+      "file": "res://assets/generated/region/road/wayshrine.glb",
+      "triangles": 254,
+      "dimensions_xyz": [
+        1.6,
+        1.85,
+        2.68
+      ],
+      "max_texture_px": 1024,
+      "pbr_verified": true
+    },
+    {
+      "id": "bandit_lean_to",
+      "file": "res://assets/generated/region/ruins/bandit_lean_to.glb",
+      "triangles": 256,
+      "dimensions_xyz": [
+        3.6,
+        2.89,
+        2.0
+      ],
+      "max_texture_px": 1024,
+      "pbr_verified": true
+    },
+    {
+      "id": "bandit_palisade",
+      "file": "res://assets/generated/region/ruins/bandit_palisade.glb",
+      "triangles": 274,
+      "dimensions_xyz": [
+        4.1,
+        0.4,
+        3.33
+      ],
+      "max_texture_px": 1024,
+      "pbr_verified": true
+    },
+    {
+      "id": "bandit_stash",
+      "file": "res://assets/generated/region/ruins/bandit_stash.glb",
+      "triangles": 740,
+      "dimensions_xyz": [
+        3.75,
+        2.78,
+        2.15
+      ],
+      "max_texture_px": 512,
+      "pbr_verified": true
+    },
+    {
+      "id": "bandit_tent",
+      "file": "res://assets/generated/region/ruins/bandit_tent.glb",
+      "triangles": 334,
+      "dimensions_xyz": [
+        4.42,
+        4.02,
+        2.45
+      ],
+      "max_texture_px": 1024,
+      "pbr_verified": true
+    },
+    {
+      "id": "campfire",
+      "file": "res://assets/generated/region/ruins/campfire.glb",
+      "triangles": 448,
+      "dimensions_xyz": [
+        3.6,
+        1.84,
+        1.19
+      ],
+      "max_texture_px": 1024,
+      "pbr_verified": true
+    },
+    {
+      "id": "collapsed_tower",
+      "file": "res://assets/generated/region/ruins/collapsed_tower.glb",
+      "triangles": 618,
+      "dimensions_xyz": [
+        11.49,
+        9.02,
+        10.53
+      ],
+      "max_texture_px": 1024,
+      "pbr_verified": true
+    },
+    {
+      "id": "goblin_totem_a",
+      "file": "res://assets/generated/region/ruins/goblin_totem_a.glb",
+      "triangles": 470,
+      "dimensions_xyz": [
+        1.45,
+        1.04,
+        3.92
+      ],
+      "max_texture_px": 1024,
+      "pbr_verified": true
+    },
+    {
+      "id": "goblin_totem_b",
+      "file": "res://assets/generated/region/ruins/goblin_totem_b.glb",
+      "triangles": 734,
+      "dimensions_xyz": [
+        2.62,
+        0.32,
+        3.26
+      ],
+      "max_texture_px": 1024,
+      "pbr_verified": true
+    },
+    {
+      "id": "overgrown_shrine",
+      "file": "res://assets/generated/region/ruins/overgrown_shrine.glb",
+      "triangles": 676,
+      "dimensions_xyz": [
+        6.81,
+        7.92,
+        5.6
+      ],
+      "max_texture_px": 1024,
+      "pbr_verified": true
+    },
+    {
+      "id": "g6_f_blacksmith_apron",
+      "file": "res://assets/incoming/characters/g6-ual/g6_f_blacksmith_apron.glb",
+      "triangles": 3156,
+      "dimensions_xyz": [
+        1.9,
+        2.0,
+        2.77
+      ],
+      "max_texture_px": 1024,
+      "pbr_verified": true
+    },
+    {
+      "id": "g6_f_hunter_leather",
+      "file": "res://assets/incoming/characters/g6-ual/g6_f_hunter_leather.glb",
+      "triangles": 3596,
+      "dimensions_xyz": [
+        1.9,
+        2.0,
+        2.77
+      ],
+      "max_texture_px": 1024,
+      "pbr_verified": true
+    },
+    {
+      "id": "g6_f_modular_all",
+      "file": "res://assets/incoming/characters/g6-ual/g6_f_modular_all.glb",
+      "triangles": 14052,
+      "dimensions_xyz": [
+        1.9,
+        2.0,
+        2.83
+      ],
+      "max_texture_px": 1024,
+      "pbr_verified": true
+    },
+    {
+      "id": "g6_f_villager_tunic",
+      "file": "res://assets/incoming/characters/g6-ual/g6_f_villager_tunic.glb",
+      "triangles": 2880,
+      "dimensions_xyz": [
+        1.9,
+        2.0,
+        2.77
+      ],
+      "max_texture_px": 1024,
+      "pbr_verified": true
+    },
+    {
+      "id": "g6_f_worker_apron",
+      "file": "res://assets/incoming/characters/g6-ual/g6_f_worker_apron.glb",
+      "triangles": 3212,
+      "dimensions_xyz": [
+        1.9,
+        2.0,
+        2.77
+      ],
+      "max_texture_px": 1024,
+      "pbr_verified": true
+    },
+    {
+      "id": "g6_m_blacksmith_apron",
+      "file": "res://assets/incoming/characters/g6-ual/g6_m_blacksmith_apron.glb",
+      "triangles": 3034,
+      "dimensions_xyz": [
+        1.9,
+        2.0,
+        2.86
+      ],
+      "max_texture_px": 1024,
+      "pbr_verified": true
+    },
+    {
+      "id": "g6_m_hunter_leather",
+      "file": "res://assets/incoming/characters/g6-ual/g6_m_hunter_leather.glb",
+      "triangles": 3348,
+      "dimensions_xyz": [
+        1.9,
+        2.0,
+        2.86
+      ],
+      "max_texture_px": 1024,
+      "pbr_verified": true
+    },
+    {
+      "id": "g6_m_modular_all",
+      "file": "res://assets/incoming/characters/g6-ual/g6_m_modular_all.glb",
+      "triangles": 15474,
+      "dimensions_xyz": [
+        1.9,
+        2.0,
+        2.93
+      ],
+      "max_texture_px": 1024,
+      "pbr_verified": true
+    },
+    {
+      "id": "g6_m_villager_tunic",
+      "file": "res://assets/incoming/characters/g6-ual/g6_m_villager_tunic.glb",
+      "triangles": 2874,
+      "dimensions_xyz": [
+        1.9,
+        2.0,
+        2.86
+      ],
+      "max_texture_px": 1024,
+      "pbr_verified": true
+    },
+    {
+      "id": "g6_m_worker_apron",
+      "file": "res://assets/incoming/characters/g6-ual/g6_m_worker_apron.glb",
+      "triangles": 2978,
+      "dimensions_xyz": [
+        1.9,
+        2.0,
+        2.86
+      ],
+      "max_texture_px": 1024,
+      "pbr_verified": true
+    },
+    {
+      "id": "bandit",
+      "file": "res://assets/incoming/ai3d/meshy/armored/bandit.glb",
+      "triangles": 11925,
+      "dimensions_xyz": [
+        1.9,
+        2.0,
+        2.94
+      ],
+      "max_texture_px": 1024,
+      "pbr_verified": true
+    },
+    {
+      "id": "guard",
+      "file": "res://assets/incoming/ai3d/meshy/armored/guard.glb",
+      "triangles": 11968,
+      "dimensions_xyz": [
+        2.02,
+        2.0,
+        2.91
+      ],
+      "max_texture_px": 1024,
+      "pbr_verified": true
+    },
+    {
+      "id": "knight",
+      "file": "res://assets/incoming/ai3d/meshy/armored/knight.glb",
+      "triangles": 11891,
+      "dimensions_xyz": [
+        1.9,
+        2.0,
+        2.85
+      ],
+      "max_texture_px": 1024,
+      "pbr_verified": true
+    },
+    {
+      "id": "mercenary",
+      "file": "res://assets/incoming/ai3d/meshy/armored/mercenary.glb",
+      "triangles": 11966,
+      "dimensions_xyz": [
+        2.28,
+        2.0,
+        2.9
+      ],
+      "max_texture_px": 1024,
+      "pbr_verified": true
+    },
+    {
+      "id": "noble",
+      "file": "res://assets/incoming/ai3d/meshy/armored/noble.glb",
+      "triangles": 11815,
+      "dimensions_xyz": [
+        1.9,
+        2.0,
+        2.77
+      ],
+      "max_texture_px": 1024,
+      "pbr_verified": true
+    },
+    {
+      "id": "orc_warchief",
+      "file": "res://assets/incoming/ai3d/meshy/armored/orc_warchief.glb",
+      "triangles": 12045,
+      "dimensions_xyz": [
+        2.27,
+        2.0,
+        2.97
+      ],
+      "max_texture_px": 1024,
+      "pbr_verified": true
+    }
+  ],
+  "summary": {
+    "total_hero_assets_audited": 106,
+    "total_polygon_tris": 744653,
+    "pc_streaming_compliant": true
+  }
+}

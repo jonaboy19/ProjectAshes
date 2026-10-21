@@ -57,12 +57,12 @@ const TIERS := [
 		"lod_threshold": 1.0, "range": 1.0, "scatter": 1.0, "particles": 1.0, "aniso": 2,
 		"msaa": 0, "fxaa": true, "npc_full": 12, "rig_budget": 6, "npc_sprites": 32, "view_radius": 4, "light_fade": 80.0, "town_far": 0.0,
 	},
-	{   # ULTRA: desktop GPUs; the full Forward+ look the game was lit for
+	{   # ULTRA: desktop GPUs / PC Master tier; the full Forward+ look the game was lit for (8GB+ RAM PCs)
 		"max_3d_height": 0, "scaling": "bilinear", "fps": 0,
-		"shadow": 4, "shadow_size": 4096, "shadow_dist": 140.0, "soft_shadow": 3, "omni_shadows": true,
-		"ssao": true, "ssil": true, "sdfgi": true, "glow": true, "vol_fog": true, "ssr": false,
-		"lod_threshold": 1.0, "range": 1.0, "scatter": 1.0, "particles": 1.0, "aniso": 3,
-		"msaa": 2, "fxaa": true, "npc_full": 16, "rig_budget": 10, "npc_sprites": 45, "view_radius": 5, "light_fade": 0.0, "town_far": 0.0,
+		"shadow": 4, "shadow_size": 4096, "shadow_dist": 380.0, "soft_shadow": 3, "omni_shadows": true,
+		"ssao": true, "ssil": true, "sdfgi": true, "glow": true, "vol_fog": true, "ssr": true,
+		"lod_threshold": 0.5, "range": 2.0, "scatter": 1.0, "particles": 1.0, "aniso": 4,
+		"msaa": 3, "fxaa": true, "npc_full": 36, "rig_budget": 24, "npc_sprites": 120, "view_radius": 8, "light_fade": 160.0, "town_far": 0.0,
 	},
 ]
 
@@ -215,15 +215,15 @@ func detect_tier() -> int:
 		if cores > 0 and cores <= 4:
 			t = mini(t, LOW)
 	else:
-		# Desktop: discrete GPU -> ULTRA, integrated -> MEDIUM (adaptation refines it).
+		# Desktop: discrete GPU or >= 6GB RAM PC -> ULTRA, otherwise HIGH / MEDIUM.
 		var type := RenderingServer.get_video_adapter_type()
 		var g := gpu.to_lower()
-		if type == RenderingDevice.DEVICE_TYPE_DISCRETE_GPU or g.contains("rtx") or g.contains("radeon rx") or g.contains("arc a"):
+		if type == RenderingDevice.DEVICE_TYPE_DISCRETE_GPU or g.contains("rtx") or g.contains("radeon rx") or g.contains("arc a") or ram_gb >= 6.0:
 			t = ULTRA
 		elif type == RenderingDevice.DEVICE_TYPE_INTEGRATED_GPU:
-			t = MEDIUM
+			t = HIGH if ram_gb >= 6.0 else MEDIUM
 		else:
-			t = HIGH if ram_gb >= 8.0 else MEDIUM
+			t = HIGH if ram_gb >= 6.0 else MEDIUM
 	if renderer() == "gl_compatibility":
 		# The fallback renderer: an old phone GPU/driver, or a desktop without Vulkan.
 		t = LOW if _is_mobile() else mini(t, MEDIUM)

@@ -303,7 +303,7 @@ func _process(delta: float) -> void:
 	noble_courts.focus = focus
 	camps.focus = focus
 	ambient.focus = focus
-	terrain.view_radius = mini(5 if player.view == Player.View.COMMAND else 4, Quality.view_radius)
+	terrain.view_radius = Quality.view_radius if player.view != Player.View.COMMAND else mini(Quality.view_radius + 2, 12)
 	_update_daylight()
 	_status_timer -= delta
 	if _status_timer <= 0.0:
