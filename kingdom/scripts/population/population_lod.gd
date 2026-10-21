@@ -17,6 +17,7 @@ const StreetGraph := preload("res://scripts/population/street_graph.gd")
 const DailyRhythm := preload("res://scripts/population/daily_rhythm.gd")
 const MicroEvents := preload("res://scripts/population/micro_events.gd")
 const NpcWorld := preload("res://scripts/population/npc_world.gd")
+const PresenceLive := preload("res://scripts/population/presence_live.gd")
 const AlertGlyphs := preload("res://scripts/ui/alert_glyphs.gd")
 const Takedown := preload("res://scripts/combat/takedown.gd")
 const Probe := preload("res://scripts/core/perf_probe.gd")
@@ -103,6 +104,8 @@ var _query_r := 0.0             # adaptive people_near radius (see refresh)
 const VAT_RANGE := 120.0
 var _vat: VatResidents
 var _anim_lod: CrowdAnimLOD
+var _presence := PresenceLive.new()      # Reactive Presence for the FULL tier (~10 Hz, observers staggered)
+var _player_node: Node3D
 
 
 func setup(baker: ImpostorBaker) -> void:
@@ -140,6 +143,7 @@ func _process(delta: float) -> void:
 	_drain_spawns()
 	if _anim_lod.camera == null or not is_instance_valid(_anim_lod.camera):
 		_anim_lod.camera = get_viewport().get_camera_3d()
+	_tick_presence(delta)
 	_timer -= delta
 	_refresh_elapsed += delta
 	if _timer <= 0.0:
@@ -153,6 +157,16 @@ func _process(delta: float) -> void:
 			NpcWorld.prof_lod_calls += 1
 		else:
 			refresh(step)
+
+
+func _tick_presence(delta: float) -> void:
+	if _villagers.is_empty() and _presence.registered_count() == 0:
+		return
+	if _player_node == null or not is_instance_valid(_player_node):
+		_player_node = get_tree().get_first_node_in_group("player") as Node3D
+	var _pp := Probe.t()
+	_presence.tick(delta, Time.get_ticks_msec(), _villagers, _player_node)
+	Probe.add("pop.presence", _pp)
 
 
 ## Builds the next queued body (at most MAX_SPAWNS_PER_FRAME per call). A queued person who is no longer wanted by the last

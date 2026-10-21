@@ -376,8 +376,8 @@ func _eval_observer(o: int, now: int, dt: float) -> void:
 	var cand2_w := 0.0
 	var po := pos[o]
 	var a0 := o * ATT
-	for s: int in _idx.values():
-		if s == o:
+	for s in MAX_BODIES:
+		if used[s] == 0 or s == o:
 			continue
 		var off := pos[s] - po
 		var d2 := off.length_squared()

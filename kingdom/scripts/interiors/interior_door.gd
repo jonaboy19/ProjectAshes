@@ -357,6 +357,8 @@ func _enter_finish(player: Node3D, env: Environment) -> void:
 	_pf = Probe.t()
 	interior.global_transform = Transform3D(Basis.IDENTITY, global_position + interior_offset)
 	active = self
+	if has_meta("private_home"):
+		(load("res://scripts/population/presence_live.gd") as GDScript).call("report_player", 7, 1.0, 12.0)   # Stim.TRESPASS
 	set_physics_process(camera_collision)
 	if hide_exterior:
 		for c in host.get_children():

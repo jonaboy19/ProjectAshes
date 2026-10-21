@@ -1627,6 +1627,7 @@ func _give(info: Dictionary, item: String) -> String:
 	if r.get("ok", false):
 		Life.take(item)
 		Life.record("gave_gift", 0.5)
+		(load("res://scripts/population/presence_live.gd") as GDScript).call("report_player", 11, 0.8, 8.0)   # Stim.KINDNESS
 	_back_to_talk(info)
 	_talk["line"] = "%s\n(%s)" % [r["text"], ("opinion %+d" % int(r["delta"])) if r.get("ok", false) else "no gift given"]
 	return ""

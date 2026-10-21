@@ -1,6 +1,8 @@
 class_name Villager
 extends CharacterBody3D
 const Probe := preload("res://scripts/core/perf_probe.gd")
+const ReactionRequest := preload("res://scripts/population/reaction_request.gd")
+const PresenceLive := preload("res://scripts/population/presence_live.gd")
 const ContactBlobS := preload("res://scripts/actors/contact_blob.gd")
 const SettingsStoreS := preload("res://scripts/ui/frontend/settings_store.gd")
 ## The embodied form of one WorldSim person near the player.
@@ -172,6 +174,9 @@ var person := -1
 ## Set by PopulationLOD for the single nearest villager.
 var show_tag := false
 var _dev_overlay := false
+var _react_look_until := 0      # Reactive Presence: head follows the player until (ms)
+var _react_away_until := 0      # ... or deliberately does not
+var last_reaction := ""         # last presence reaction (debug)
 ## Villagers PopulationLOD currently embodies (for spacing). Shared array.
 var neighbours: Array = []
 var _file := ""
@@ -403,6 +408,8 @@ func _ready() -> void:
 	add_child(_tag)
 	_tag.text = WorldSim.person_name(person)
 	_dev_overlay = bool(SettingsStoreS.get_value("dev_sim_overlay"))
+	if _dev_overlay:
+		PresenceLive.debug = true       # dev overlay also prints each NPC's presence stage + reason
 	ContactBlobS.attach(self, 0.32 if _child else 0.42)
 	_brain = _make_brain()
 	_acuity = 1.3 if WorldSim.job[person] == 3 else (0.8 if _child else 1.0)
@@ -1528,7 +1535,12 @@ func _update_head_look(delta: float) -> void:
 	_look_timer = 0.12
 	var forward := Vector3(sin(rotation.y), 0.0, cos(rotation.y))
 	var target := global_position + Vector3(0, 1.45, 0) + forward * 3.0
-	if _player and is_instance_valid(_player) and (_talk.active or global_position.distance_squared_to(_player.global_position) < 25.0):
+	var react_now := Time.get_ticks_msec()
+	if react_now < _react_away_until:
+		pass     # Presence LOOK_AWAY: eyes off the player, keep the forward target
+	elif _player and is_instance_valid(_player) and react_now < _react_look_until:
+		target = _player.global_position + Vector3(0, 1.45, 0)     # Presence GLANCE / attentive reactions
+	elif _player and is_instance_valid(_player) and (_talk.active or global_position.distance_squared_to(_player.global_position) < 25.0):
 		target = _player.global_position + Vector3(0, 1.45, 0)
 	elif _arrived and _partner_node and is_instance_valid(_partner_node):
 		target = _partner_node.global_position + Vector3(0, 1.45, 0)
@@ -2351,3 +2363,80 @@ func _pick_clip(names: Array, salt: int) -> String:
 	if avail.is_empty():
 		return ""
 	return avail[absi(person * 31 + salt) % avail.size()]
+
+
+# ---------------------------------------------------------------- Reactive Presence (presence_live.gd)
+## What Reactive Presence needs to know about this body (FULL tier only; empty = do not register, e.g. lying on the ground).
+func presence_sample() -> Dictionary:
+	if person < 0 or is_down():
+		return {}
+	var guard: bool = WorldSim.job[person] == 3
+	var fl := 0
+	if _talk.active or (_act == Act.SOCIAL and _arrived and _partner_node != null):
+		fl |= 256     # Presence.F_TALKING
+	var busy := 0.15
+	if _talk.active or fl != 0:
+		busy = 0.7
+	elif _act == Act.WORK and _arrived:
+		busy = 0.5
+	elif _act == Act.FLEE or _act == Act.HIDE or _act == Act.ALARM:
+		busy = 0.95
+	var f := perception_facing()
+	return {"id": person, "pos": Vector2(global_position.x, global_position.z), "facing": f, "vel": f * _move_speed, "flags": fl,
+		"busy": busy, "guard": guard,
+		"opts": {"status": 0.55 if guard else 0.2, "acuity": _acuity,
+			"persona": {"courage": 0.75 if guard else 0.25 + float(person % 7) * 0.09, "pious": float(person % 5) * 0.2,
+				"sociable": 0.3 + float(person % 6) * 0.12}}}
+
+
+## Abstract reaction from Reactive Presence. Keeps the current activity unless the reaction escalates (flee / call_guard / confront).
+func presence_react(kind: int, target: int, _info: Dictionary) -> void:
+	var now := Time.get_ticks_msec()
+	var K := ReactionRequest.Kind
+	last_reaction = "%s@%d" % [ReactionRequest.name_of(kind), now]
+	var here := Vector2(global_position.x, global_position.z)
+	var from := Vector2.INF
+	if _player != null and is_instance_valid(_player) and target == PresenceLive.PLAYER_ID:
+		from = Vector2(_player.global_position.x, _player.global_position.z)
+	match kind:
+		K.GLANCE, K.WAVE, K.BOW:
+			_react_look_until = now + 1500
+			_react_away_until = 0
+			if kind == K.WAVE:
+				_begin_oneshot(["Life_Social_Wave_Greet", "Life_Social_Nod"], 1.5)
+			elif kind == K.BOW:
+				_begin_oneshot(["Life_Social_Bow", "Life_Social_Nod"], 1.4)
+		K.LOOK_AWAY:
+			_react_away_until = now + 1800
+			_react_look_until = 0
+		K.FLINCH:
+			_begin_oneshot(["Idle_Hurt", "Hit_Light"], 0.6)
+		K.STEP_BACK, K.STEP_ASIDE:
+			if from != Vector2.INF and _yield_time <= 0.0:
+				var away := (here - from).normalized() if here != from else Vector2(0, 1)
+				var dir := away if kind == K.STEP_BACK else Vector2(-away.y, away.x)
+				_react_look_until = now + 1200
+				_begin_sidestep(here, dir, 0.9, true)
+				_yield_cooldown = _yield_time + 1.5
+				_interrupt_activity()
+		K.CONFRONT, K.WARN:
+			_react_look_until = now + 2500
+			if from != Vector2.INF:
+				Perception.set_class_at_least(_slot, Perception.Cls.SUSPICIOUS, from, now)
+				_say("Hey! What are you after?" if kind == K.CONFRONT else "Mind yourself.", 2.6)
+		K.CALL_GUARD:
+			if from != Vector2.INF:
+				witness(from, "presence", true, true)
+		K.FLEE:
+			if from != Vector2.INF:
+				Perception.set_class_at_least(_slot, Perception.Cls.ALARMED, from, now)
+				_decide = 0.0
+		K.RETURN_TO_WORK:
+			_react_look_until = 0
+			_react_away_until = 0
+
+
+## Debug: "stage: reason" this NPC is in right now (also printed each second while PresenceLive.debug is on).
+func presence_debug() -> String:
+	var cur: RefCounted = PresenceLive.current
+	return (cur.describe(person) if cur != null else "no presence") + " | last " + last_reaction
