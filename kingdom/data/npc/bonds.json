@@ -1,0 +1,35 @@
+{
+  "_doc": "NI-5 relationship events (realm/bonds.gd). axes: trust affection respect fear resentment rivalry attraction obligation. 'self' = how the FIRST person's view of the second moves, 'other' = how the second's view of the first moves (asymmetric on purpose: a helper gains less than the helped). 'scale' = persona terms that make the same event land differently on different holders: axis -> [persona field, strength, sign it applies to: 1 gains, -1 losses, 0 both]; multiplier = clamp(1 + strength * (2 * trait - 1), 0.4, 1.7).",
+  "scale": {
+    "trust": ["honesty", 0.55, -1],
+    "affection": ["warmth", 0.4, 1],
+    "respect": ["pride", -0.3, 1],
+    "fear": ["boldness", -0.5, 1],
+    "resentment": ["mercy", -0.45, 1],
+    "rivalry": ["ambition", 0.5, 1],
+    "attraction": ["warmth", 0.25, 1],
+    "obligation": ["loyalty", 0.5, 1]
+  },
+  "events": {
+    "chat":          {"self": {"trust": 1, "affection": 1.5}, "other": {"trust": 1, "affection": 1.5}},
+    "work_together": {"self": {"trust": 2.5, "respect": 2, "affection": 1}, "other": {"trust": 2.5, "respect": 2, "affection": 1}},
+    "family":        {"self": {"affection": 3, "obligation": 2, "trust": 1}, "other": {"affection": 3, "obligation": 2, "trust": 1}},
+    "court":         {"self": {"attraction": 7, "affection": 3}, "other": {"attraction": 5, "affection": 3, "trust": 1}},
+    "marriage":      {"self": {"affection": 28, "trust": 22, "attraction": 20, "obligation": 18, "respect": 6}, "other": {"affection": 28, "trust": 22, "attraction": 20, "obligation": 18, "respect": 6}},
+    "inlaw":         {"self": {"trust": 4, "obligation": 4, "respect": 2}, "other": {"trust": 4, "obligation": 4, "respect": 2}},
+    "help":          {"self": {"affection": 3, "respect": 1}, "other": {"affection": 9, "trust": 8, "obligation": 10, "respect": 5}},
+    "protect":       {"self": {"affection": 2}, "other": {"respect": 9, "trust": 6, "obligation": 9, "affection": 4}},
+    "rescue":        {"self": {"affection": 5}, "other": {"affection": 24, "trust": 20, "obligation": 30, "respect": 10}},
+    "teach":         {"self": {"affection": 4, "respect": 1, "trust": 2}, "other": {"respect": 10, "affection": 5, "obligation": 6, "trust": 4}},
+    "outshine":      {"self": {"rivalry": 18, "respect": 8, "resentment": 5}, "other": {"respect": 6, "obligation": 4, "affection": 2}},
+    "feud":          {"self": {"resentment": 25, "rivalry": 10, "trust": -18, "affection": -10}, "other": {"resentment": 25, "rivalry": 10, "trust": -18, "affection": -10}},
+    "spat":          {"self": {"resentment": 8, "trust": -4, "affection": -3}, "other": {"resentment": 8, "trust": -4, "affection": -3}},
+    "crime_witnessed": {"self": {"trust": -26, "fear": 14, "respect": -10}, "other": {"fear": 2}},
+    "betrayal":      {"self": {"obligation": -6}, "other": {"trust": -40, "resentment": 26, "respect": -15, "affection": -14}},
+    "threat":        {"self": {"fear": 0, "resentment": 2}, "other": {"fear": 24, "resentment": 12, "trust": -10}},
+    "debt":          {"self": {"trust": 2, "respect": 1}, "other": {"obligation": 22, "trust": 4}},
+    "debt_repaid":   {"self": {"trust": 6, "respect": 3, "obligation": 0}, "other": {"obligation": -30, "trust": 5, "respect": 3}},
+    "gift":          {"self": {"affection": 2}, "other": {"affection": 8, "obligation": 6, "trust": 3}},
+    "reconcile":     {"self": {"resentment": -22, "trust": 6, "rivalry": -6}, "other": {"resentment": -22, "trust": 6, "rivalry": -6}}
+  }
+}

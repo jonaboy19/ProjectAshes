@@ -57,7 +57,7 @@ const BYTE := 1.0 / 255.0
 ## every _choose: nothing is allocated per decision.
 enum I { MONEY, WORK, WORK0, BELONG, TIED, AMB, AGE, AGE21, NOSPOUSE, FAILS, HAS_EMP, OWNS, SEATED, HOLDS_LAND, CASH, FARMER, AMB_FOUND, OPEN,
 	WED_TIER, PUSH, PULL, MOVES_OK, MOVE_GATE, GRIEF, PETITION_SCOPE, ARMS, WORK_OR_POOR, FEAR, NOISE,
-	BOLD, WARM, DISC, HON, LOY, PRI, STRESS_D, FEAR_D, ANGER_D, GRIEF_D, CONF_D, SCAR, COUNT }
+	BOLD, WARM, DISC, HON, LOY, PRI, STRESS_D, FEAR_D, ANGER_D, GRIEF_D, CONF_D, SCAR, FRIEND, GRUDGE, AVOID, COUNT }
 const TOP_UP_PER_DAY := 6
 const SEED_PER_DAY := 40             # a new world's first characters come in batches this big, one batch a day
 const MOVES_PER_DAY := 2             # households that set out in one day, realm-wide (roads and the Rift do not empty a town in a night)
@@ -95,6 +95,7 @@ var _trace: Dictionary = {}          # near-tier ch -> ring of [day, goal, Packe
 var _pe: Variant = null              # persona module (cached)
 var _rm: Variant = null              # rumours module (cached)
 var _ps: Variant = null              # psyche module (cached)
+var _bo: Variant = null              # bonds module (cached; NI-5 ties between people)
 var _pl := ""                        # the player's character id
 var _pl_day := -1
 static var _gdef: Array = []         # compiled goals.json: [goal index, base, gates, terms] per goal, in evaluation order
@@ -194,6 +195,16 @@ func children_of(ch: String) -> Array:
 func house_members(nm: String) -> Array:
 	var dn: Variant = _mod("dynasties")
 	return dn.members_of(nm) if dn != null else []
+
+
+## Settlements that have characters, ascending (the bonds round walks them a slice a day).
+func towns() -> Array:
+	var out: Array = []
+	for k: Variant in _town.keys():
+		if not (_town[k] as Array).is_empty():
+			out.append(int(k))
+	out.sort()
+	return out
 
 
 func in_town(sid: int) -> Array:
@@ -602,6 +613,9 @@ func die(ch: String, cause := "age") -> bool:
 	var rm: Variant = _mod("rumours")
 	if rm != null:
 		rm.drop_character(ch)
+	var bd: Variant = _mod("bonds")
+	if bd != null:
+		bd.forget(ch)
 	var fa: Variant = _mod("faith")
 	if fa != null:
 		fa.drop_character(ch)
@@ -819,6 +833,19 @@ func _choose(ch: String, rec: Dictionary, c: Dictionary, age: int, day: int, tie
 	if _ps != null:
 		mv = _ps.devs(ch, day)
 		fear = minf(1.0, fear + 0.6 * maxf(mv[1], 0.0) + 0.3 * mv[5])
+	# 7. ties (NI-5): a friend already seated in an organisation, a grudge, someone to keep away from; bounded 0..1 inputs with small weights
+	if _bo == null:
+		_bo = _mod("bonds")
+	var friend_pull := 0.0
+	var grudge := 0.0
+	var avoid := 0.0
+	if _bo != null and age >= ADULT:
+		avoid = _bo.avoidance(ch)
+		var fo: Dictionary = _bo.foe(ch, 30.0)
+		grudge = clampf(float(fo.get("v", 0.0)) / 100.0, 0.0, 1.0)
+		if not seated:
+			var om2: Variant = _om()
+			friend_pull = _bo.friend_pull(ch, func(f: String) -> bool: return not (om2.memberships(f) as Array).is_empty())
 	var need_safe := maxf(maxf(float(facts["danger"]), float(facts["fever"])), fear * 0.8)
 	# 2. responsibilities raise the price of leaving
 	var tied := (0.15 if deps > 0 else 0.0) + (0.3 if owns else 0.0) + (0.1 if has_emp else 0.0) + (0.1 if seated else 0.0)
@@ -830,6 +857,7 @@ func _choose(ch: String, rec: Dictionary, c: Dictionary, age: int, day: int, tie
 	var unrest := float(facts["unrest"])
 	# 5. the known world decides about leaving: bad conditions at home against a boom whose news has arrived
 	var push := maxf(maxf(hunger, need_safe), float(int(rec["f"])) / 4.0 if need_work > 0.0 else 0.0)
+	push = maxf(push, avoid * 0.6)                          # someone feared or hated in the same town is a reason to leave
 	var pull := clampf(float(facts["boom"]) / 3.0, 0.0, 1.0) if int(facts["boom_sid"]) >= 0 else 0.0
 	# A far boom only tempts the unsettled: the jobless, the poor, the young and ambitious. Settled people leave only when pushed.
 	var restless: bool = need_work > 0.0 or need_money > 0.5 or (ambition > 0.7 and age < 35)
@@ -875,6 +903,9 @@ func _choose(ch: String, rec: Dictionary, c: Dictionary, age: int, day: int, tie
 	_in[I.PRI] = float(pb[po + Persona.O_PRI]) * BYTE
 	for k in 6:
 		_in[I.STRESS_D + k] = mv[k] if mv.size() == 6 else 0.0
+	_in[I.FRIEND] = friend_pull
+	_in[I.GRUDGE] = grudge
+	_in[I.AVOID] = avoid
 	# 3. goals by age and need: the highest score above the threshold, file order breaking ties
 	var best := 0
 	if _gfast != null:
@@ -1008,8 +1039,16 @@ func _a_wed(ch: String, rec: Dictionary, c: Dictionary, age: int, day: int) -> b
 	var bscore := -1.0e9
 	var my_house: String = dn.house_of(ch) if dn != null else ""
 	var start := _h("wed", day, ch)
+	var bo: Variant = _mod("bonds")
+	# the people the character already has feelings for are considered first, then a hashed handful of the town
+	var pool: Array = []
+	if bo != null:
+		for sx: Variant in bo.suitors(ch, 3):
+			if lst.has(sx):
+				pool.append(String(sx))
 	for i in mini(8, lst.size()):
-		var o: String = lst[(start + i) % lst.size()]
+		pool.append(lst[(start + i) % lst.size()])
+	for o: String in pool:
 		if o == ch or not _m.has(o):
 			continue
 		var orec: Dictionary = _m[o]
@@ -1025,6 +1064,11 @@ func _a_wed(ch: String, rec: Dictionary, c: Dictionary, age: int, day: int) -> b
 		var op: float = rm.opinion(o, ch, sid) if rm != null else 0.0
 		var oc: Dictionary = _om().char_rec(o)
 		var sc := -absf(float(oage - age)) * 0.4 + op * 0.05 + float(mini(int(oc["cash"]), 400)) / 200.0 + _roll("wedc", day, o) * 2.0
+		if bo != null:                                         # NI-5: love and trust, bounded at +-2; mutual hatred rules a match out
+			var ms: float = bo.match_score(ch, o, day)
+			if ms <= -35.0:
+				continue
+			sc += clampf(ms * 0.03, -2.0, 2.0)
 		if sc > bscore:
 			bscore = sc
 			best = o
@@ -1104,6 +1148,8 @@ func _a_join(ch: String, c: Dictionary, _day2: int) -> bool:
 		if not (prof in (D.TYPES[String(om.org(oid)["type"])]["prof"] as Array)):
 			continue
 		var sc := float(om.offer_score(oid, ch))
+		if _bo != null:                                        # NI-5: friends already in it count, a little
+			sc += 0.1 * float(mini(2, _bo.friends(ch, 20.0, 4).filter(func(f: Variant) -> bool: return om.is_member(oid, String(f))).size()))
 		if sc > bs and om.join_conflict(oid, ch) == "":
 			bs = sc
 			best = oid

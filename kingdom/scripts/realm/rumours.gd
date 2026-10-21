@@ -48,7 +48,13 @@ var _next := 1
 var _day := 0
 var _last_ev := 0
 var _tmp := {}
-var stats := {"claims": 0, "arrived": 0, "adopted": 0, "wrong": 0, "investigated": 0, "corrected": 0, "forgotten": 0, "witnessed": 0}
+## NI-5 word of mouth: a story told along trusted ties arrives the next day and is believed more. day -> [[listener, teller, claim id, depth, magnitude, trust]]
+var _tells: Dictionary = {}
+var _tell_depth := 0
+const TELL_MAX_DEPTH := 2
+const TELLS_PER_MEMORY := 3
+const TELL_PER_DAY := 24
+var stats := {"tells": 0, "claims": 0, "arrived": 0, "adopted": 0, "wrong": 0, "investigated": 0, "corrected": 0, "forgotten": 0, "witnessed": 0}
 
 
 func _now() -> int:
@@ -242,6 +248,49 @@ func _remember(ch: String, subject: String, kind: String, mag: float, conf: int,
 	var ps: Variant = _mod("psyche")
 	if ps != null:                                 # NI-4: the same memory moves this person's mood, weighted by who they are
 		ps.on_memory(ch, kind, mag, conf, (_hold.get(cid, []) as Array).size() if cid > 0 else 1)
+	if cid > 0 and conf >= 45 and _tell_depth < TELL_MAX_DEPTH:
+		_spread(ch, cid, mag)
+
+
+## NI-5: `ch` now holds a story; the people who trust `ch` hear it from them tomorrow (the road carries it at 45 units a day), up to
+## TELLS_PER_MEMORY of them, two hops at most. Deterministic: a hash decides who is told.
+func _spread(ch: String, cid: int, mag: float) -> void:
+	var bo: Variant = _mod("bonds")
+	if bo == null:
+		return
+	var due := _now() + 1
+	var n := 0
+	for t: Array in bo.listeners(ch, TELLS_PER_MEMORY):
+		if (_hold.get(cid, []) as Array).has(String(t[0])) or absi(hash([WorldSim.SEED, "tl", cid, ch, String(t[0])])) % 100 >= 75:
+			continue
+		var row: Array = _tells.get(due, [])
+		if row.is_empty():
+			_tells[due] = row
+		row.append([String(t[0]), ch, cid, _tell_depth + 1, snappedf(mag, 0.1), int(t[1])])
+		n += 1
+
+
+func _hear_tells(day: int) -> void:
+	var done := 0
+	for d: Variant in _tells.keys():
+		if int(d) > day:
+			continue
+		for e: Array in _tells[d]:
+			if done >= TELL_PER_DAY:
+				break
+			var c: Dictionary = _claims.get(int(e[2]), {})
+			var who := String(e[0])
+			var mn: Variant = _mod("minds")
+			if c.is_empty() or mn == null or not mn.is_mind(who) or (_hold.get(int(e[2]), []) as Array).has(who):
+				continue
+			# trust in the teller lends belief: 45 as for any rumour, up to 85 for someone they trust completely
+			var conf := clampi(45 + int(float(e[5]) * 0.4), 45, 85)
+			_tell_depth = int(e[3])
+			_remember(who, String(c["s"]), String(c["k"]), float(e[4]), conf, int(e[2]))
+			_tell_depth = 0
+			stats["tells"] = int(stats["tells"]) + 1
+			done += 1
+		_tells.erase(d)
 
 
 ## First-hand: `ch` saw it. The memory is certain and the story starts to travel.
@@ -439,6 +488,7 @@ func tick_day(day: int, _ctx: Dictionary) -> Array:
 	_day = day
 	_scan_events()
 	_arrivals(day)
+	_hear_tells(day)
 	# Forget what is old and was never checked.
 	if day % 30 == 0:
 		for cid: Variant in _claims.keys():
@@ -516,7 +566,10 @@ func serialize() -> Dictionary:
 	var due: Dictionary = {}
 	for d: Variant in _due:
 		due[str(d)] = _due[d]
-	return {"cl": cl, "tw": tw, "mem": _mem.duplicate(true), "hold": _hold.duplicate(true), "due": due, "n": _next, "day": _day, "le": _last_ev, "st": stats.duplicate()}
+	var tl: Dictionary = {}
+	for d2: Variant in _tells:
+		tl[str(d2)] = _tells[d2]
+	return {"tl": tl, "cl": cl, "tw": tw, "mem": _mem.duplicate(true), "hold": _hold.duplicate(true), "due": due, "n": _next, "day": _day, "le": _last_ev, "st": stats.duplicate()}
 
 
 func deserialize(d: Dictionary) -> void:
@@ -555,6 +608,14 @@ func deserialize(d: Dictionary) -> void:
 		for p: Variant in due[k]:
 			rows2.append([int((p as Array)[0]), int((p as Array)[1])])
 		_due[int(k)] = rows2
+	_tells = {}
+	for k: Variant in (d.get("tl", {}) as Dictionary):
+		var tr: Array = []
+		for e2: Variant in d["tl"][k]:
+			var a3: Array = e2
+			if a3.size() == 6:
+				tr.append([String(a3[0]), String(a3[1]), int(a3[2]), int(a3[3]), float(a3[4]), int(a3[5])])
+		_tells[int(k)] = tr
 	_next = int(d.get("n", 1))
 	_day = int(d.get("day", 0))
 	_last_ev = int(d.get("le", 0))

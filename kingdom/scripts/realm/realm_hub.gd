@@ -63,16 +63,19 @@ const MODULES := {
 	"persona": preload("res://scripts/realm/persona.gd"),       # NI-2: packed person record (origin, culture, values, intelligence), the source of truth for traits
 	"minds": preload("res://scripts/realm/minds.gd"),           # LW Stage 8: five-layer decisions for upgraded Characters, aggregate households
 	"rumours": preload("res://scripts/realm/rumours.gd"),       # LW Stage 8: memory and rumour, wrong stories, investigation
+	"bonds": preload("res://scripts/realm/bonds.gd"),           # NI-5: NPC-to-NPC relationship axes (adapter over sim/npc_social_graph.gd), life stories
 	"psyche": preload("res://scripts/realm/psyche.gd"),         # NI-4/MW-2: memory with emotional weight, per-person mood, appraisal, trait drift
 	"districts": preload("res://scripts/realm/district_values.gd"),  # MW-10/11: hidden per-quarter values, winners and losers
 	"founding": preload("res://scripts/realm/founding.gd"),     # LW Stage 5: site evaluation, legal land, illegal-build escalation, founding stages, scale classes, hidden valley, NPC founders
 }
 ## Order matters within a tier: land before factions before campaign.
-const ORDER := ["registry", "events", "settlements", "land", "camps", "civilization", "migration", "followers", "recruitment", "will", "factions", "strongholds", "campaign", "city_life", "society", "governance", "notables", "news", "exploration", "power_paths", "education", "cultivation", "household", "callups", "work", "scribe", "soldier", "trades", "enterprise", "construction", "towers", "ecology", "farming", "organizations", "businesses", "ledger", "build_kit", "founding", "stewardship", "reputation", "audiences", "territory", "diplomacy", "courts", "succession", "armies", "war_intel", "emergence", "faith", "dynasties", "homes", "persona", "minds", "rumours", "psyche", "districts"]
+const ORDER := ["registry", "events", "settlements", "land", "camps", "civilization", "migration", "followers", "recruitment", "will", "factions", "strongholds", "campaign", "city_life", "society", "governance", "notables", "news", "exploration", "power_paths", "education", "cultivation", "household", "callups", "work", "scribe", "soldier", "trades", "enterprise", "construction", "towers", "ecology", "farming", "organizations", "businesses", "ledger", "build_kit", "founding", "stewardship", "reputation", "audiences", "territory", "diplomacy", "courts", "succession", "armies", "war_intel", "emergence", "faith", "dynasties", "homes", "persona", "minds", "rumours", "psyche", "bonds", "districts"]
 ## Max microseconds of realm work per frame (mobile: ~0.6 ms of a 16.6 ms frame).
 const PUMP_BUDGET_USEC := 600
 
 var mods := {}
+## Life's npc_social_graph (NI-5 keeps its relationship axes there); null: bonds.gd makes a private one (tests, tools).
+var social_graph: RefCounted = null
 var _queue: Array = []   # [module_name, method, arg, ctx]  or  ["", Callable, null, null] (a day-tick chunk)
 
 

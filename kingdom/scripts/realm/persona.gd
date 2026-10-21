@@ -327,6 +327,24 @@ func experience(ch: String, goal: String, ok: bool, day: int) -> void:
 			nudge(ch, int(FIELD[pair[0]]), int(pair[1]), day)
 
 
+## Skill bytes (0 craft, 1 trade, 2 arms, 3 lore): learned from a master (realm/bonds.gd). -1 when the character has no record.
+func skill_of(ch: String, idx: int) -> int:
+	var o := off(ch)
+	return int(_buf[o + O_SKILL + clampi(idx, 0, 3)]) if o >= 0 else -1
+
+
+## Raises a skill by `delta` byte points (never above `cap`, never past 255). Returns the points gained.
+func skill_gain(ch: String, idx: int, delta: int, cap := 255) -> int:
+	var o := off(ch)
+	if o < 0 or delta <= 0:
+		return 0
+	var k := o + O_SKILL + clampi(idx, 0, 3)
+	var nv := mini(mini(255, cap), int(_buf[k]) + delta)
+	var gained := maxi(0, nv - int(_buf[k]))
+	_buf[k] = int(_buf[k]) + gained
+	return gained
+
+
 # ------------------------------------------------------------------ save
 
 func serialize() -> Dictionary:
