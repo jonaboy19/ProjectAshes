@@ -1,0 +1,10 @@
+{
+  "_doc": "NI-2 cultures. Bias is in byte points (0..255 scale) added to the seeded draw of a person born in a town with this culture tag; it shifts the mean, never fixes a value (a draw spans the whole range). Language is the bit the culture adds to the language mask (bit 0 is the common tongue everyone has).",
+  "list": [
+    {"id": "caldric",  "language": 1, "bias": {"discipline": 10, "pride": 6, "loyalty": 4}},
+    {"id": "urrokai",  "language": 2, "bias": {"piety": 14, "loyalty": 10, "warmth": 6, "ambition": -6}},
+    {"id": "veyl",     "language": 3, "bias": {"ambition": 12, "boldness": -4, "honesty": -6, "intelligence": 4}},
+    {"id": "frontier", "language": 4, "bias": {"boldness": 14, "discipline": -6, "loyalty": -4, "mercy": -4}}
+  ],
+  "languages": ["common", "caldric", "urrokai", "veyl", "frontier"]
+}

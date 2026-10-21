@@ -185,6 +185,14 @@ func character(pid: String) -> Dictionary:
 	return _chars.get(pid, {})
 
 
+## The two hidden trait words of a character: the persona record's when it has one (it is the source of truth), else the stored pair.
+func traits_of(pid: String) -> Array:
+	var pe: Variant = hub.mod("persona") if hub != null else null
+	if pe != null and pe.has(pid):
+		return pe.traits(pid)
+	return (_chars.get(pid, {}) as Dictionary).get("t", [])
+
+
 func is_upgraded(pid: String) -> bool:
 	return _chars.has(pid)
 

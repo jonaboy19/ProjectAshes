@@ -254,6 +254,27 @@ func witness(ch: String, kind: String, subject: String, mag: float, sid: int, op
 	return cid
 
 
+## What `ch` itself remembers, in one allocation-free pass (the decision layers call this every decision):
+## Vector3(personal opinion of `subject` -100..100, 1 when it remembers anything about `subject` else 0, dread 0..1 = how much bad news of any
+## subject it holds, weighted by confidence and fading with age).
+func felt(ch: String, subject: String) -> Vector3:
+	var m: Variant = _mem.get(ch)
+	if m == null:
+		return Vector3.ZERO
+	var now := _now()
+	var s := 0.0
+	var w := 0.0
+	var bad := 0.0
+	for r: Array in m:
+		var wt := float(r[4]) / 100.0 / (1.0 + float(now - int(r[0])) / 120.0)
+		if String(r[1]) == subject:
+			s += float(r[3]) * wt
+			w += wt
+		if float(r[3]) < 0.0:
+			bad -= float(r[3]) * wt
+	return Vector3(clampf(s / (w + 0.25), -100.0, 100.0) if w > 0.0 else 0.0, 1.0 if w > 0.0 else 0.0, clampf(bad / 100.0, 0.0, 1.0))
+
+
 ## A decision-maker's opinion of `subject`: what it remembers (weighted by confidence and fading with age) plus what its town says.
 func opinion(ch: String, subject: String, sid := -1) -> float:
 	var s := 0.0

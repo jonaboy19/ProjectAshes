@@ -169,8 +169,8 @@ func test_a_player_crime_in_town_leaves_different_memories_and_opinions_in_its_w
 	assert_int(changed_opinion).is_greater_equal(1)
 
 
-func test_pending_ni3_a_player_crime_changes_at_least_three_npc_goals(do_skip := true, skip_reason := "PENDING NI-3: measured 0 of 360 goals changed by one player crime (witnesses do remember and change opinion); minds._choose has hard-coded goal weights and reads rumour opinion only for marriage, so the shared scorer must read memories and opinions first") -> void:
-	# Enable when NI-3 lands (minds._choose becomes data-driven and scores opinion and memory). Kept live here so it can be run by hand.
+func test_a_player_crime_changes_at_least_three_npc_goals() -> void:
+	# NI-3: minds._choose scores the town's view of the player and the bad news a character remembers (fear), through data/npc/goals.json.
 	var perturb := func(h: RefCounted) -> void:
 		var mn: RefCounted = h.mod("minds")
 		var sid: int = _busiest_town(mn)
@@ -211,21 +211,46 @@ func test_utility_brain_different_personalities_choose_different_acts_in_the_sam
 
 # --- pending: hooks that do not exist yet ----------------------------------------------
 
-func test_pending_ni2_person_record_has_birth_culture_and_intelligence(do_skip := true, skip_reason := "PENDING NI-2: no person record fields (birth_sid, culture, intelligence, values) exist yet; this assertion is written in NI-2 terms once they do") -> void:
-	# Written against the planned API. Enable when NI-2 lands; do not fake a pass before then.
+func test_person_record_has_birth_culture_and_intelligence() -> void:
+	# NI-2: realm/persona.gd holds the record (the registry keeps only the id and the saved trait words, persona is the source of truth).
 	var h := _hub()
 	var ch: String = h.mod("minds").ensure_row(5)
-	var person: Dictionary = h.mod("registry").character(ch)
+	assert_str(ch).is_not_empty()
+	var person: Dictionary = h.mod("persona").view(ch)
 	assert_bool(person.has("birth_sid")).is_true()
 	assert_bool(person.has("culture")).is_true()
 	assert_bool(person.has("intelligence")).is_true()
+	assert_int(int(person["birth_sid"])).is_greater_equal(0)
+	assert_str(String(person["culture"])).is_not_empty()
+	assert_array(h.mod("registry").traits_of(ch)).is_equal(person["traits"])
 
 
-func test_pending_ni3_decision_trace_names_the_inputs_of_each_goal(do_skip := true, skip_reason := "PENDING NI-3: no decision trace exists (planned new test_npc_decision_trace.gd); minds.intent() gives only the chosen goal") -> void:
-	# Written against the planned API: every goal choice should list the weighted inputs that produced it.
-	var h := _run(20, 2)
+func test_decision_trace_names_the_inputs_of_each_goal() -> void:
+	# NI-3: the near tier (the town the player is in) keeps its last decisions with the candidates and the input that drove each score.
+	var h := _hub()
 	var mn: RefCounted = h.mod("minds")
-	var ch: String = mn.ids()[0]
-	assert_bool(mn.has_method("trace")).is_true()
-	var trace: Array = mn.trace(ch)
-	assert_int(trace.size()).is_greater(0)
+	mn.seed_minds(20)
+	var sid: int = _busiest_town(mn)
+	mn.set_focus(sid)
+	for i in 4:
+		_live_day(h, START + 1 + i)
+	var near: Array = mn.in_town(sid)
+	assert_int(near.size()).is_greater(0)
+	var traced := 0
+	for ch: String in near:
+		var trace: Array = mn.trace(ch)
+		if trace.is_empty():
+			continue
+		traced += 1
+		assert_int(trace.size()).is_less_equal(3)
+		var last: Dictionary = trace[0]
+		assert_bool(last.has("goal") and last.has("scores") and last.has("day")).is_true()
+		for row: Dictionary in last["scores"]:
+			assert_str(String(row["why"])).is_not_empty()
+			assert_bool(row.has("goal") and row.has("score")).is_true()
+	assert_int(traced).is_greater(0)
+	# far characters keep no trace
+	mn.set_focus(-1)
+	for ch: String in mn.ids():
+		if mn.town_of(ch) != sid:
+			assert_array(mn.trace(ch)).is_empty()

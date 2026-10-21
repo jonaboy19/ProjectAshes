@@ -31,6 +31,8 @@ const Events := preload("res://scripts/realm/events.gd")
 const D := preload("res://scripts/realm/organizations_data.gd")
 const BZ := preload("res://scripts/realm/businesses.gd")
 const Registry := preload("res://scripts/realm/registry.gd")
+const Persona := preload("res://scripts/realm/persona.gd")
+const Core := preload("res://scripts/sim/utility_core.gd")
 
 const YEAR := 360
 const CHUNK := 5
@@ -48,6 +50,14 @@ const SEX := ["m", "f"]
 const BOOM_KINDS := ["mine", "recognition"]
 ## Days before the same character tries the same kind of thing again: [after success, after failure], by goal index.
 const GOAL_WAIT := [[0, 0], [0, 0], [0, 0], [0, 0], [120, 30], [20, 12], [240, 60], [180, 20], [14, 14], [60, 60], [90, 30], [0, 0]]
+const GOALS_FILE := "res://data/npc/goals.json"
+const TRACE_K := 3                   # decisions kept per near-tier character (NI-3 decision trace)
+const BYTE := 1.0 / 255.0
+## The input vector a goal's gates and terms read (data/npc/goals.json spells these lowercase). One flat PackedFloat32Array reused by
+## every _choose: nothing is allocated per decision.
+enum I { MONEY, WORK, WORK0, BELONG, TIED, AMB, AGE, AGE21, NOSPOUSE, FAILS, HAS_EMP, OWNS, SEATED, HOLDS_LAND, CASH, FARMER, AMB_FOUND, OPEN,
+	WED_TIER, PUSH, PULL, MOVES_OK, MOVE_GATE, GRIEF, PETITION_SCOPE, ARMS, WORK_OR_POOR, FEAR, NOISE,
+	BOLD, WARM, DISC, HON, LOY, PRI, COUNT }
 const TOP_UP_PER_DAY := 6
 const SEED_PER_DAY := 40             # a new world's first characters come in batches this big, one batch a day
 const MOVES_PER_DAY := 2             # households that set out in one day, realm-wide (roads and the Rift do not empty a town in a night)
@@ -79,6 +89,17 @@ var _land_idx: Dictionary = {}
 var _org_day := -1
 var _org_idx: Dictionary = {}
 var profile := false
+var trace_on := true                 # decision traces for near-tier characters (off: nothing recorded)
+var _in := PackedFloat32Array()      # the reused input vector (enum I)
+var _trace: Dictionary = {}          # near-tier ch -> ring of [day, goal, PackedFloat32Array of (goal, score, top input) triples]
+var _pe: Variant = null              # persona module (cached)
+var _rm: Variant = null              # rumours module (cached)
+var _pl := ""                        # the player's character id
+var _pl_day := -1
+static var _gdef: Array = []         # compiled goals.json: [goal index, base, gates, terms] per goal, in evaluation order
+static var _gthr := 0.22
+static var _gfast: Object = null     # goals.json compiled by utility_core.compile (null: interpret with Core.evaluate)
+static var _inp_names: PackedStringArray = PackedStringArray()
 var _cost := 0
 var _phase := 0                      # 1 seeding characters, 2 pairing them into households (not saved: a load resumes with the slow top-up)
 var _couple_q: Array = []
@@ -320,7 +341,7 @@ func ensure_row(row: int) -> String:
 		dn.set_house(ch, nm, sid)
 	var fa: Variant = _mod("faith")
 	if fa != null:
-		fa.seed_belief(ch, sid, reg.character(ch).get("t", []))
+		fa.seed_belief(ch, sid, reg.traits_of(ch))
 	stats["promoted"] = int(stats["promoted"]) + 1
 	return ch
 
@@ -348,7 +369,7 @@ func adopt(ch: String, age := 30, sex := "m", house := "", parent := "") -> bool
 	var fa: Variant = _mod("faith")
 	var reg: Variant = _mod("registry")
 	if fa != null and reg != null:
-		fa.seed_belief(ch, sid, reg.character(ch).get("t", []))
+		fa.seed_belief(ch, sid, reg.traits_of(ch))
 	return true
 
 
@@ -362,6 +383,9 @@ func _sid_of_row(row: int) -> int:
 
 func _register(ch: String, rec: Dictionary, sid: int) -> void:
 	_m[ch] = rec
+	var pe: Variant = _mod("persona")
+	if pe != null:
+		pe.ensure(ch, sid, int(rec["ed"]), String(rec["pa"]), int(rec["r"]))
 	if not _town.has(sid):
 		_town[sid] = []
 	(_town[sid] as Array).append(ch)
@@ -583,6 +607,10 @@ func die(ch: String, cause := "age") -> bool:
 	if _town.has(sid):
 		(_town[sid] as Array).erase(ch)
 	_m.erase(ch)
+	_trace.erase(ch)
+	var pe: Variant = _mod("persona")
+	if pe != null:
+		pe.drop(ch)
 	var reg: Variant = _mod("registry")
 	if reg != null:
 		reg.retire(ch, "d%d died aged %d (%s)" % [_now(), nm_age, cause])
@@ -628,12 +656,17 @@ func _town_facts(sid: int, day: int) -> Dictionary:
 	if _info_day != day:
 		_info = {}
 		_info_day = day
+		var rg: Variant = _mod("registry")
+		_pl = String(rg.lookup("pl:player")) if rg != null else ""
 	var f: Dictionary = _info.get(sid, {})
 	if not f.is_empty():
 		return f
 	var em: Variant = _mod("emergence")
 	var nw: Variant = _mod("news")
-	f = {"hunger": 0.0, "danger": 0.0, "unrest": 0.0, "fever": 0.0, "jobs": 0, "boom_sid": -1, "boom": 0.0, "arms": 0}
+	f = {"hunger": 0.0, "danger": 0.0, "unrest": 0.0, "fever": 0.0, "jobs": 0, "boom_sid": -1, "boom": 0.0, "arms": 0, "view": 0.0}
+	var rmod: Variant = _mod("rumours")
+	if rmod != null and _pl != "":
+		f["view"] = float(rmod.town_view(sid, _pl))      # what the town says of the player (-100..100): the opinion layer of every decision here
 	if em != null:
 		f["hunger"] = clampf((float(em.food_price_mult(sid)) - 1.0) / 0.6, 0.0, 1.0)
 		f["danger"] = clampf(float(em.danger_at(sid)), 0.0, 1.0)
@@ -697,7 +730,45 @@ func _ties(ch: String, rec: Dictionary, c: Dictionary, day: int) -> int:
 	return t
 
 
+## Hub warm-up hook: reads and compiles the goal table behind the loading screen, not in the first pump job of the first day.
+func _ensure() -> void:
+	_load_goals()
+
+
+## Compiles data/npc/goals.json once: gates and terms become flat float arrays over the input vector (enum I) for utility_core.
+static func _load_goals() -> void:
+	if not _gdef.is_empty():
+		return
+	_inp_names = PackedStringArray()
+	for k: String in I.keys():
+		_inp_names.append(k.to_lower())
+	var f := FileAccess.open(GOALS_FILE, FileAccess.READ)
+	var doc: Variant = JSON.parse_string(f.get_as_text()) if f != null else null
+	if not (doc is Dictionary):
+		push_error("minds: %s is missing or invalid" % GOALS_FILE)
+		return
+	_gthr = float((doc as Dictionary).get("threshold", 0.22))
+	for g: Dictionary in (doc as Dictionary).get("goals", []):
+		var gates: Array = []
+		var terms: Array = []
+		var ok := GOALS.has(String(g["id"]))
+		for r: Array in g.get("gates", []):
+			ok = ok and _inp_names.has(String(r[0]))
+			gates.append([_inp_names.find(String(r[0])), int(Core.OPS.get(String(r[1]), 0)), float(r[2])])
+		for r: Array in g.get("terms", []):
+			ok = ok and _inp_names.has(String(r[0]))
+			terms.append([_inp_names.find(String(r[0])), int(Core.RESP_NAMES.get(String(r[1]), Core.Resp.LINEAR)), float(r[2]), float(r[3]), float(r[4])])
+		if not ok:
+			push_error("minds: goal %s in %s names an unknown goal or input; skipped" % [str(g.get("id")), GOALS_FILE])
+			continue
+		_gdef.append([GOALS.find(String(g["id"])), float(g.get("base", 0.0)), Core.pack(gates), Core.pack(terms)])
+	_gfast = Core.compile(_gdef, _gthr)
+
+
 func _choose(ch: String, rec: Dictionary, c: Dictionary, age: int, day: int, tier: int, facts: Dictionary) -> int:
+	_load_goals()
+	if _in.size() != I.COUNT:
+		_in.resize(I.COUNT)
 	var hm: Variant = _mod("homes")
 	var cash := int(c["cash"])
 	var deps: int = hm.dependents(ch) if hm != null else 0
@@ -706,6 +777,22 @@ func _choose(ch: String, rec: Dictionary, c: Dictionary, age: int, day: int, tie
 	var owns: bool = (ties & 1) != 0
 	var seated: bool = (ties & 4) != 0
 	var spouse := String(rec["sp"])
+	var found: bool = String(c["amb"]) == "found"
+	# the person: persona.gd is the one source of temperament and values (made on first use for characters from an old save)
+	if _pe == null:
+		_pe = _mod("persona")
+	var pb: PackedByteArray = Persona.neutral()
+	var po := 0
+	if _pe != null:
+		po = _pe.off(ch)
+		if po < 0:
+			po = _pe.ensure(ch, int(c["sid"]), int(rec["ed"]), String(rec["pa"]), int(rec["r"]))
+		if po >= 0:
+			pb = _pe.buf()
+		else:
+			po = 0
+	var bold := float(pb[po + Persona.O_BOLD]) * BYTE
+	var honest := float(pb[po + Persona.O_HON]) * BYTE
 	# 1. needs
 	var need_money := clampf(1.0 - float(cash) / float(50 + 30 * deps), 0.0, 1.0)
 	# Most people have an ordinary job the simulation does not track; work is a need only after losing one (flag bit 0).
@@ -716,81 +803,116 @@ func _choose(ch: String, rec: Dictionary, c: Dictionary, age: int, day: int, tie
 	rec["j"] = fl
 	var need_work := 1.0 if ((fl & 1) == 1 and not owns and not seated and not has_emp) else 0.0
 	var need_belong := 0.0 if (seated or spouse != "") else 0.5
-	var need_safe := maxf(float(facts["danger"]), float(facts["fever"]))
+	# 4./5. what the character remembers and what the town says: the player's standing and bad news held in memory make it afraid
+	var fear := 0.0
+	if _rm == null:
+		_rm = _mod("rumours")
+	if _rm != null and _pl != "":
+		var felt: Vector3 = _rm.felt(ch, _pl)
+		var op: float = felt.x * 0.7 + float(facts["view"]) * 0.3 if felt.y > 0.0 else float(facts["view"]) * 0.5
+		fear = minf(1.0, maxf(clampf(-op / 70.0, 0.0, 1.0), felt.z * 0.8) * (1.25 - 0.5 * bold))
+	var need_safe := maxf(maxf(float(facts["danger"]), float(facts["fever"])), fear * 0.8)
 	# 2. responsibilities raise the price of leaving
 	var tied := (0.15 if deps > 0 else 0.0) + (0.3 if owns else 0.0) + (0.1 if has_emp else 0.0) + (0.1 if seated else 0.0)
-	var ambition := float(_h("amb", 0, ch) % 100) / 100.0 * (1.3 if String(c["amb"]) == "found" else 0.7)
-	var noise := (_roll("gn", day, ch) - 0.5) * 0.2
-	var best := 0
-	var bs := 0.22
-	var u: float
+	var ambition := float(pb[po + Persona.O_AMB]) * BYTE * (1.3 if found else 0.7)
+	var vol := float(pb[po + Persona.O_VOL]) * BYTE
+	var noise := (_roll("gn", day, ch) - 0.5) * 0.2 * (0.6 + 0.8 * vol)
 	var open: bool = day >= int(rec["cd"])                 # a recent attempt at something big (a move, a founding, a petition) is not repeated at once
-	# 3. goals by age and need
-	if age >= 62:
-		u = 0.45 + noise
-		if has_emp and u > bs:
-			bs = u
-			best = 11
-	if need_work > 0.0 and age < 62:
-		u = 0.55 + 0.3 * need_money + noise
-		if u > bs:
-			bs = u
-			best = 1
-	if age >= 18 and age <= 42 and spouse == "":
-		u = 0.30 + 0.18 * float(age >= 21) + 0.1 * (1.0 - tied) - 0.06 * float(int(rec["f"])) + noise
-		if tier == 1 or age >= 20:
-			if u > bs:
-				bs = u
-				best = 2
-	if String(c["prof"]) == "farmer" and (ties & 2) == 0 and cash >= 90 and age >= 18:
-		u = 0.40 + 0.25 * ambition + noise
-		if u > bs:
-			bs = u
-			best = 3
-	if open and cash >= 450 and not owns and age >= 22 and String(c["amb"]) == "found":
-		u = 0.30 + 0.35 * ambition + noise
-		if u > bs:
-			bs = u
-			best = 4
-	if open and not seated and need_belong > 0.0 and age >= 18:
-		u = 0.28 + 0.2 * need_belong + 0.1 * (1.0 if need_work == 0.0 else 0.0) + noise
-		if u > bs:
-			bs = u
-			best = 5
-	if open and cash >= 260 and ambition > 0.55 and age >= 25 and age <= 58 and String(c["amb"]) == "found":
-		u = 0.26 + 0.25 * ambition + noise
-		if u > bs:
-			bs = u
-			best = 6
+	var hunger := float(facts["hunger"])
+	var unrest := float(facts["unrest"])
 	# 5. the known world decides about leaving: bad conditions at home against a boom whose news has arrived
-	var push := maxf(maxf(float(facts["hunger"]), need_safe), float(int(rec["f"])) / 4.0 if need_work > 0.0 else 0.0)
+	var push := maxf(maxf(hunger, need_safe), float(int(rec["f"])) / 4.0 if need_work > 0.0 else 0.0)
 	var pull := clampf(float(facts["boom"]) / 3.0, 0.0, 1.0) if int(facts["boom_sid"]) >= 0 else 0.0
 	# A far boom only tempts the unsettled: the jobless, the poor, the young and ambitious. Settled people leave only when pushed.
 	var restless: bool = need_work > 0.0 or need_money > 0.5 or (ambition > 0.7 and age < 35)
 	if not restless:
 		pull *= 0.3
-	if open and _moves_today < MOVES_PER_DAY and (push > 0.35 or pull > 0.4) and age >= 17 and age <= 55:
-		u = 0.15 + 0.45 * push + 0.3 * pull - tied * 1.5 + noise
-		if u > bs:
-			bs = u
-			best = 7
-	if open and String(c["prof"]) == "farmer" and (ties & 2) != 0:
-		u = 0.30 + noise
-		if u > bs:
-			bs = u
-			best = 8
-	# Those with something to lose (a family, a farm, a seat) ask the lord for relief; the unattached just leave.
-	if open and tied > 0.0 and (float(facts["hunger"]) > 0.4 or float(facts["unrest"]) > 0.4) and (tier == 1 or maxf(float(facts["hunger"]), float(facts["unrest"])) > 0.55) and age >= 24:
-		u = 0.42 * maxf(float(facts["hunger"]), float(facts["unrest"])) + noise + 0.1
-		if u > bs:
-			bs = u
-			best = 9
-	if age >= 17 and age <= 32 and (need_work > 0.0 or need_money > 0.7) and int(facts["arms"]) > 0:
-		u = 0.30 + 0.2 * need_money + noise
-		if u > bs:
-			bs = u
-			best = 10
+	var grief := maxf(maxf(hunger, unrest), fear * (0.5 + 0.5 * honest))
+	_in[I.MONEY] = need_money
+	_in[I.WORK] = need_work
+	_in[I.WORK0] = 1.0 if need_work == 0.0 else 0.0
+	_in[I.BELONG] = need_belong
+	_in[I.TIED] = tied
+	_in[I.AMB] = ambition
+	_in[I.AGE] = float(age)
+	_in[I.AGE21] = 1.0 if age >= 21 else 0.0
+	_in[I.NOSPOUSE] = 1.0 if spouse == "" else 0.0
+	_in[I.FAILS] = float(int(rec["f"]))
+	_in[I.HAS_EMP] = 1.0 if has_emp else 0.0
+	_in[I.OWNS] = 1.0 if owns else 0.0
+	_in[I.SEATED] = 1.0 if seated else 0.0
+	_in[I.HOLDS_LAND] = 1.0 if (ties & 2) != 0 else 0.0
+	_in[I.CASH] = float(cash)
+	_in[I.FARMER] = 1.0 if String(c["prof"]) == "farmer" else 0.0
+	_in[I.AMB_FOUND] = 1.0 if found else 0.0
+	_in[I.OPEN] = 1.0 if open else 0.0
+	_in[I.WED_TIER] = 1.0 if (tier == 1 or age >= 20) else 0.0
+	_in[I.PUSH] = push
+	_in[I.PULL] = pull
+	_in[I.MOVES_OK] = 1.0 if _moves_today < MOVES_PER_DAY else 0.0
+	_in[I.MOVE_GATE] = 1.0 if (push > 0.35 or pull > 0.4) else 0.0
+	_in[I.GRIEF] = grief
+	_in[I.PETITION_SCOPE] = 1.0 if (tier == 1 or grief > 0.55) else 0.0
+	_in[I.ARMS] = float(int(facts["arms"]))
+	_in[I.WORK_OR_POOR] = 1.0 if (need_work > 0.0 or need_money > 0.7) else 0.0
+	_in[I.FEAR] = fear
+	_in[I.NOISE] = noise
+	_in[I.BOLD] = bold
+	_in[I.WARM] = float(pb[po + Persona.O_WARM]) * BYTE
+	_in[I.DISC] = float(pb[po + Persona.O_DISC]) * BYTE
+	_in[I.HON] = honest
+	_in[I.LOY] = float(pb[po + Persona.O_LOY]) * BYTE
+	_in[I.PRI] = float(pb[po + Persona.O_PRI]) * BYTE
+	# 3. goals by age and need: the highest score above the threshold, file order breaking ties
+	var best := 0
+	if _gfast != null:
+		best = _gfast.pick(_in)
+	else:
+		best = _pick_slow(_in)
+	if tier == 1 and trace_on:
+		# The decision trace keeps the input vector (one small array) and explains it on demand in trace(): nothing is scored twice here.
+		var ring: Array = _trace.get(ch, [])
+		if ring.is_empty():
+			_trace[ch] = ring
+		ring.append([day, best, _in.duplicate()])
+		if ring.size() > TRACE_K:
+			ring.pop_front()
 	return best
+
+
+## The interpreted goal choice (utility_core.evaluate over the tables): the fallback when the compiled one is unavailable, and what
+## trace() uses to show every candidate. Highest score above the threshold, file order breaking ties.
+func _pick_slow(inp: PackedFloat32Array) -> int:
+	var best := 0
+	var bs := _gthr
+	for gd: Array in _gdef:
+		var u: float = Core.evaluate(gd[1], gd[2], gd[3], inp)
+		if u > bs and u > Core.GATE_FAIL:
+			bs = u
+			best = gd[0]
+	return best
+
+
+## The last decisions of a near-tier character, newest first: [{day, goal, scores: [{goal, score, why}]}], best candidate first. `scores`
+## lists every goal whose gates held; `why` is the input that moved that score most (a need, a persona term or fear). Far characters keep
+## no trace (goal_of gives their last choice).
+func trace(ch: String) -> Array:
+	_load_goals()
+	var out: Array = []
+	var ring: Array = _trace.get(ch, [])
+	for i in range(ring.size() - 1, -1, -1):
+		var e: Array = ring[i]
+		var inp: PackedFloat32Array = e[2]
+		var rows: Array = []
+		for gd: Array in _gdef:
+			var u: float = Core.evaluate(gd[1], gd[2], gd[3], inp)
+			if u <= Core.GATE_FAIL:
+				continue
+			var tt: int = Core.top_term(gd[3], inp)
+			rows.append({"goal": GOALS[int(gd[0])], "score": snappedf(u, 0.001), "why": _inp_names[int((gd[3] as PackedFloat32Array)[tt])] if tt >= 0 else "base"})
+		rows.sort_custom(func(a: Dictionary, b: Dictionary) -> bool: return float(a["score"]) > float(b["score"]))
+		out.append({"day": int(e[0]), "goal": GOALS[int(e[1])], "scores": rows, "threshold": _gthr})
+	return out
 
 
 func _holds_land(ch: String) -> bool:
@@ -1239,6 +1361,8 @@ func _decide(ch: String, day: int) -> bool:
 			_prof[gk + "_ok"] = int(_prof.get(gk + "_ok", 0)) + (1 if done else 0)
 			_prof[gk + "_max"] = maxi(int(_prof.get(gk + "_max", 0)), Time.get_ticks_usec() - ta0)
 
+		if _pe != null:
+			_pe.experience(ch, GOALS[goal], done, day)         # what trying (and failing) teaches drifts the person, within a yearly cap
 		var wait: int = int(GOAL_WAIT[goal][0 if done else 1])
 		if wait > 0:
 			rec["cd"] = day + wait
@@ -1299,6 +1423,10 @@ func _demote(ch: String, _rec: Dictionary, c: Dictionary) -> bool:
 		(_town[sid] as Array).erase(ch)
 	om.unemploy(ch)
 	_m.erase(ch)
+	_trace.erase(ch)
+	var pe: Variant = _mod("persona")
+	if pe != null:
+		pe.drop(ch)
 	if reg != null:
 		reg.retire(ch, "d%d folded into %s" % [_now(), PD.sname(sid)])
 	stats["demoted"] = int(stats["demoted"]) + 1

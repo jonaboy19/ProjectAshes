@@ -394,7 +394,7 @@ func test_the_hub_registers_the_stage_8_modules_last_and_saves_them_each_in_its_
 	var h := _hub()
 	var order: Array = Hub.ORDER
 	var tail := order.slice(order.find("armies") + 1)
-	assert_array(tail).is_equal(["emergence", "faith", "dynasties", "homes", "minds", "rumours"])
+	assert_array(tail).is_equal(["emergence", "faith", "dynasties", "homes", "persona", "minds", "rumours"])
 	var mn: RefCounted = h.mod("minds")
 	mn.seed_minds(70)
 	for d in range(601, 631):

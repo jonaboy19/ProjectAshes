@@ -26,6 +26,7 @@ extends RefCounted
 ##
 ## Unembodied residents never create a brain; they keep WorldSim's schedule.
 
+const UtilityCore := preload("res://scripts/sim/utility_core.gd")
 const StreetGraph := preload("res://scripts/population/street_graph.gd")
 const DailyRhythm := preload("res://scripts/population/daily_rhythm.gd")
 const RANeedsScript := preload("res://scripts/sim/needs.gd")
@@ -256,34 +257,25 @@ func _init(p: int = -1, p_job := 4, org_shift := Vector2(-1, -1), p_org := "") -
 	shift = org_shift
 	org_id = p_org
 	traits = personality(p)
+	var pv := persona_traits(p)
+	if not pv.is_empty():
+		traits = pv
 	patrol_i = absi(hash(p * 17 + 5)) % 8
 
 
 # ================================================================ scoring (pure)
 static func curve(kind: int, x: float, a: float, b: float) -> float:
-	var y := 0.0
-	match kind:
-		Resp.BINARY: y = 1.0 if x >= a else b
-		Resp.LINEAR: y = a * x + b
-		Resp.EXP: y = pow(maxf(x, 0.0), a) + b
-		Resp.LOGISTIC: y = 1.0 / (1.0 + exp(-a * (x - b)))
-		Resp.RANGE: y = lerpf(a, b, clampf(x, 0.0, 1.0))
-	return clampf(y, 0.0, 1.0)
+	return UtilityCore.curve(kind, x, a, b)
 
 
-## Utility of `action` for inputs `ctx` (missing inputs read 0).
+## Utility of `action` for inputs `ctx` (missing inputs read 0). The weighted product is the shared scorer (sim/utility_core.gd).
 static func score(action: int, ctx: Dictionary) -> float:
 	var def: Array = ACTIONS[action]
-	var cons: Array = def[1]
-	var total: float = def[0]
-	if cons.is_empty():
-		return total
-	var mod := 1.0 - 1.0 / float(cons.size())
-	for c: Array in cons:
-		var s := curve(c[1], float(ctx.get(c[0], 0.0)), c[2], c[3])
-		if s <= 0.0:
-			return 0.0
-		total *= s + (1.0 - s) * mod * s
+	if (def[1] as Array).is_empty():
+		return def[0]
+	var total := UtilityCore.product(def[0], def[1], ctx)
+	if total <= 0.0:
+		return 0.0
 	# Apply temperament after shared consideration compensation so courage=0.5
 	# leaves the previous FLEE/WATCH scores exactly intact.
 	var courage := clampf(float(ctx.get("courage", 0.5)), 0.0, 1.0)
@@ -316,6 +308,19 @@ static func best(ctx: Dictionary, current := -1, bonus := 1.0) -> int:
 			top = v
 			pick = a
 	return pick
+
+
+## The five floats as a view of the person record (realm/persona.gd, the source of truth) when the WorldSim row `p` is a registry
+## character with one; {} otherwise (nobody else has a record, they keep the seeded values below). Never creates anything.
+static func persona_traits(p: int) -> Dictionary:
+	if p < 0 or Life == null or Life.realm == null:
+		return {}
+	var rg: Variant = Life.realm.mod("registry")
+	var pe: Variant = Life.realm.mod("persona")
+	if rg == null or pe == null or pe.count() == 0:
+		return {}
+	var ch: String = rg.lookup("ws:%d" % p)
+	return pe.personality(ch) if ch != "" else {}
 
 
 ## Seeded personality, stable for life: five traits in 0..1.
