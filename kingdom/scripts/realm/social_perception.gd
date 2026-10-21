@@ -7,7 +7,9 @@ extends RefCounted
 ##  subject:  {id, origin (kingdom of their title), title_rank 0..5, insignia 0..1, gear_value 0..1, outfit {kind,dirty},
 ##             weapons 0..1, companions int, injury 0..1, aura_emit 0..1, aura_suppress 0..1, protection 0..1,
 ##             influence 0..1, disguise {identity {title_rank, origin, gear_value, id}, quality 0..1}, evidence 0..1}
-## ctx: {allied: ["a|b"...] or kingdoms allied with origin, day, hour, reputation (obj with view(subject, observer))}.
+## ctx: {allied: ["a|b"...] or kingdoms allied with origin, day, hour, reputation (obj with view(subject, observer)),
+##        hub: a RealmHub - then a missing observer persona / intelligence comes from persona.view(observer.id) + personality(), legitimacy from
+##        homes.title_recognised (alliances in diplomacy) and rep from the reputation module; explicit dict values always win}.
 ## Aura only shifts scores; it never forces behaviour.
 
 const Faith := preload("res://scripts/realm/faith.gd")
@@ -27,6 +29,11 @@ var hits := 0
 static func legitimacy(origin: String, kingdom: String, ctx: Dictionary = {}) -> float:
 	if kingdom == "" or origin == "" or origin == kingdom:
 		return 1.0
+	var hb: Variant = ctx.get("hub")
+	if hb != null:
+		var hm: Variant = hb.mod("homes")
+		if hm != null and bool(hm.title_recognised(origin, kingdom)):
+			return 1.0
 	var al: Variant = ctx.get("allied", [])
 	if al is Array and (kingdom in al or ("%s|%s" % [origin, kingdom]) in al):
 		return 1.0
@@ -41,6 +48,24 @@ static func _f(d: Dictionary, k: String, dflt := 0.0) -> float:
 
 func _roll(tag: String, o: Dictionary, s: Dictionary, ctx: Dictionary) -> float:
 	return float(absi(hash([seed_value, tag, str(o.get("id", "")), str(s.get("id", "")), int(ctx.get("day", 0))])) % 10000) / 10000.0
+
+
+## Fills what the caller left out of the observer from the hub: persona (courage, pious, greedy, sociable, lazy) and intelligence from
+## persona.gd. Returns a copy; keys the caller set are kept.
+func _observer_from_hub(o: Dictionary, hb: Variant) -> Dictionary:
+	var id := String(o.get("id", ""))
+	if id == "":
+		return o
+	var out := o.duplicate()
+	var pm: Variant = hb.mod("persona")
+	if pm != null:
+		var v: Dictionary = pm.view(id)
+		if not v.is_empty():
+			if not out.has("persona"):
+				out["persona"] = pm.personality(id)
+			if not out.has("intelligence"):
+				out["intelligence"] = clampf(float(v["intelligence"]) / 255.0, 0.0, 1.0)
+	return out
 
 
 ## The identity the observer takes the subject to be, and whether they see through it.
@@ -64,6 +89,8 @@ func identity(o: Dictionary, s: Dictionary, ctx: Dictionary = {}) -> Dictionary:
 ## The seven scores plus identity info. Cached per observer-subject pair for TTL_HOURS of game time.
 func read(o: Dictionary, s: Dictionary, ctx: Dictionary = {}) -> Dictionary:
 	reads += 1
+	if ctx.get("hub") != null:
+		o = _observer_from_hub(o, ctx["hub"])
 	var ck := "%s|%s>%s@%d" % [o.get("kingdom", ""), o.get("id", ""), s.get("id", ""), int(ctx.get("hour", 0)) / TTL_HOURS]
 	if _cache.has(ck):
 		hits += 1
@@ -78,6 +105,8 @@ func read(o: Dictionary, s: Dictionary, ctx: Dictionary = {}) -> Dictionary:
 	var rep := 0.0
 	var rv: Dictionary = o.get("rep", {})
 	var rs: Variant = ctx.get("reputation")
+	if rs == null and ctx.get("hub") != null:
+		rs = ctx["hub"].mod("reputation")
 	if rv.is_empty() and rs != null:
 		rv = rs.view(String(p.get("id", "")), String(o.get("id", "")))
 	if not rv.is_empty():

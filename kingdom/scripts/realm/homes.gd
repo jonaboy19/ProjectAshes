@@ -355,6 +355,17 @@ func _week_homes(week: int) -> void:
 			_ev("emergency", int(h["sid"]), [payer], "condemned", "A house is condemned", 2)
 
 
+## Rent / upkeep paid this week: the ledger's weekly summary and the quarter's payment driver (the payment itself stays here).
+func _note_cost(h: Dictionary, who: String, amt: int, owner_side: bool) -> void:
+	var rent := not owner_side and String(h["tenant"]) == who and String(h["owner"]) != who
+	var lg: Variant = _mod("ledger")
+	if lg != null:
+		lg.note(who, String(h["owner"]) if rent else "tr:%d" % int(h["sid"]), "rent" if rent else "upkeep", amt)
+	var dv: Variant = _mod("districts")
+	if dv != null:
+		dv.on_payment(int(h["sid"]), {"hovel": "poor", "cottage": "poor", "house": "other", "manor": "noble"}.get(String(h["kind"]), "other"), "rent" if rent else "tax", amt)
+
+
 func _occupied(hid: String, h: Dictionary) -> bool:
 	var who := String(h["tenant"]) if String(h["tenant"]) != "" else String(h["owner"])
 	return String(_prim.get(who, "")) == hid
@@ -362,6 +373,7 @@ func _occupied(hid: String, h: Dictionary) -> bool:
 
 func _settle(hid: String, h: Dictionary, who: String, amt: int, owner_side: bool) -> void:
 	if _pay(who, amt):
+		_note_cost(h, who, amt, owner_side)
 		if int(h["arr"]) > 0 and _pay(who, mini(int(h["arr"]), maxi(0, _purse(who) / 2))):
 			h["arr"] = 0
 		h["weeks"] = 0

@@ -336,6 +336,7 @@ func _settle(id: int, upto: int) -> void:
 		_deposit(String(r[PAYEE]), pay, KINDS[int(r[K])], payer)
 		_log_out(payer, KINDS[int(r[K])], pay)
 		stats["paid"] = int(stats["paid"]) + pay
+		_district_pay(payer, String(r[PAYEE]), KINDS[int(r[K])], pay)
 		if is_loan:
 			r[REM] = maxi(0, rem_after) if pay >= due else maxi(0, grown - pay)
 	else:
@@ -353,6 +354,7 @@ func _settle(id: int, upto: int) -> void:
 		r[MISS] = 0
 	else:
 		r[ARR] = due - pay
+		_district_pay(payer, String(r[PAYEE]), KINDS[int(r[K])], -(due - pay))
 		var short_periods := (due - pay + amt - 1) / amt
 		r[MISS] = mini(int(r[MISS]) + maxi(1, mini(n, short_periods)), 9999) if pay < due else 0
 		stats["late"] = int(stats["late"]) + 1
@@ -380,7 +382,7 @@ func _ladder(id: int, day: int) -> void:
 	var payee := String(r[PAYEE])
 	var payer := String(r[PAYER])
 	var kind: String = KINDS[int(r[K])]
-	if _kind(payee) != "ch":
+	if _kind(payee) != "ch" and _kind(payee) != "fo":          # "fo:<fid>" is a follower (recruitment acts on its departures)
 		_warn("short:%d" % id, "%s cannot pay %s %d gold of %s." % [payer, payee, int(r[ARR]), kind])
 		return
 	var t := traits(payee)
@@ -413,10 +415,85 @@ func _ladder(id: int, day: int) -> void:
 
 
 ## Departures since the last call; the owning module (recruitment, armies) acts on them.
-func take_departures() -> Array:
-	var d := _depart
-	_depart = []
-	return d
+## `mine` (optional Callable(dep) -> bool) takes only the departures the caller owns; the others stay queued for their module.
+func take_departures(mine := Callable()) -> Array:
+	if not mine.is_valid():
+		var d := _depart
+		_depart = []
+		return d
+	var got: Array = []
+	var rest: Array = []
+	for dep: Dictionary in _depart:
+		if bool(mine.call(dep)):
+			got.append(dep)
+		else:
+			rest.append(dep)
+	_depart = rest
+	return got
+
+
+## A payer that keeps its own books (recruitment wages) tells the ledger it could not pay: the payee climbs the same shortage ladder
+## as for a posted obligation. Moves no gold. Returns the rung ("wait", "demand", "resign", ...); a departure is queued for take_departures().
+func report_arrears(payer: String, payee: String, kind: String, arrears: int, missed: int, day := -1) -> String:
+	if arrears <= 0 or missed <= 0:
+		return "ok"
+	var d := day if day >= 0 else _day
+	var t := traits(payee)
+	var step := rung(float(t["loyalty"]), float(t["honesty"]), missed, kind, false, false)
+	stats["late"] = int(stats["late"]) + 1
+	match step:
+		"wait":
+			if missed == 1:
+				_warn("late:%s" % payee, "%s is paid late (%d gold owed). They wait." % [payee, arrears])
+		"resign", "desert", "mutiny":
+			var key: String = {"resign": "resigned", "desert": "deserted", "mutiny": "mutiny"}[step]
+			stats[key] = int(stats[key]) + 1
+			_claims[payee] = int(_claims.get(payee, 0)) + arrears
+			if _depart.size() < DEPART_CAP:
+				_depart.append({"id": 0, "payee": payee, "payer": payer, "kind": kind, "why": step, "day": d})
+	return step
+
+
+## Accounts a steward runs.
+func accounts_of(steward: String) -> Array:
+	var out: Array = []
+	for a: String in _stew:
+		if String((_stew[a] as Dictionary)["ch"]) == steward:
+			out.append(a)
+	out.sort()
+	return out
+
+
+## Settlement id behind an account/record id ("tr:3", "ss:3", a business), -1 when none.
+func _sid_of(acct: String) -> int:
+	match _kind(acct):
+		"tr", "ss", "st":
+			return int(acct.get_slice(":", 1))
+		"bz":
+			var bm: Variant = _bm()
+			var b: Dictionary = bm.biz(acct) if bm != null else {}
+			return int(b.get("sid", -1)) if not b.is_empty() else -1
+	return -1
+
+
+## Feeds a payment (or a default, amt < 0) into the hidden district values of the settlement it lands in.
+func _district_pay(payer: String, payee: String, kind: String, amt: int) -> void:
+	if hub == null or kind == "loan":
+		return
+	var dv: Variant = hub.mod("districts")
+	if dv == null:
+		return
+	var sid := _sid_of(payer)
+	if sid < 0:
+		sid = _sid_of(payee)
+	if sid < 0:
+		return
+	var bm: Variant = _bm()
+	var b: Dictionary = bm.biz(payer) if (bm != null and _kind(payer) == "bz") else {}
+	var q := "other"
+	if not b.is_empty():
+		q = String(dv.BIZ_QUARTER.get(String(b["kind"]), "other"))
+	dv.on_payment(sid, q, kind, amt)
 
 
 func claims_of(who: String) -> int:
@@ -474,10 +551,21 @@ func steward_pay(account: String, payee: String, amt: int, kind := "contract") -
 ## The owner pays a small fee and has the books checked: finds what the steward skimmed (or took as arrears), takes back what they can
 ## pay, and removes them. {found, recovered, owed, steward}. Cost AUDIT_FEE gold from `owner`, moved to the treasury of the audit (the
 ## account itself).
-func audit(account: String, owner: String) -> Dictionary:
+func audit(account: String, owner: String, _from_will := false) -> Dictionary:
 	var s: Dictionary = _stew.get(account, {})
 	if s.is_empty():
 		return {"found": 0, "recovered": 0, "owed": 0, "steward": ""}
+	var res := _audit_books(account, owner, s)
+	# A follower steward (id "fo:<fid>"): follower_will reads the same audit, so both modules report one result.
+	var ch := String(res["steward"])
+	if not _from_will and ch.begins_with("fo:") and hub != null:
+		var wm: Variant = hub.mod("will")
+		if wm != null:
+			res["will"] = wm.audit(ch.substr(3), true)
+	return res
+
+
+func _audit_books(account: String, owner: String, s: Dictionary) -> Dictionary:
 	stats["audits"] = int(stats["audits"]) + 1
 	if AUDIT_FEE > 0 and _take(owner, AUDIT_FEE):
 		_give(account, AUDIT_FEE)

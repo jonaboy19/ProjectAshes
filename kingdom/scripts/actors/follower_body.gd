@@ -33,6 +33,8 @@ var fid := ""
 var row := -1
 var order := "follow"
 var order_arg := ""
+## follower_will.will_of(): the answer to the last order. A following body whose will is in Brain.WILL_HOLD holds position.
+var will := ""
 var slot := 0
 var anchor := Vector2.INF          # where work / home is (the manager resolves it)
 var finished := false              # a home walk is done: the manager hands the body back to the village
@@ -233,7 +235,7 @@ func _decide(here: Vector2, dist: float) -> void:
 		if foe and _foe.global_position.distance_to(Vector3(_ctx["pos"].x, _foe.global_position.y, _ctx["pos"].y)) > Brain.LEASH:
 			_foe = null
 			foe = false
-	var m := Brain.decide(order, {"dist": dist, "player_inside": bool(_ctx["inside"]), "jump": 0.0, "fighter": fighter_on, "foe": foe})
+	var m := Brain.decide(order, {"dist": dist, "player_inside": bool(_ctx["inside"]), "jump": 0.0, "fighter": fighter_on, "foe": foe, "will": will})
 	if m != mode:
 		if mode == Brain.Mode.WORK:
 			_so_leave()

@@ -910,7 +910,9 @@ func _chunk_pay(day: int, ctx: Dictionary, part: int) -> Array:
 						g["bud"] = float(g["bud"]) - paid
 			if paid > 0:
 				fol.pay(fid, paid)
+			_ledger_wage(fid, e, paid, owed)
 			e["unp"] = int(e["unp"]) + 1 if int(f["owed"]) >= wage else 0
+			_ledger_short(fid, e, owed - paid, wage)
 		else:
 			e["unp"] = 0
 		# Morale: pay, conditions, danger, trust.
@@ -932,8 +934,55 @@ func _chunk_pay(day: int, ctx: Dictionary, part: int) -> Array:
 	return []
 
 
-func _chunk_agency(day: int) -> Array:
+## Wages stay on recruitment's own path (the purse / group budget pays); the ledger only records the flow in its weekly summary.
+func _ledger_wage(fid: String, e: Dictionary, paid: int, _owed: int) -> void:
+	var lg: Variant = hub.mod("ledger") if hub != null else null
+	if lg == null or paid <= 0:
+		return
+	var payer := "player"
+	match String(e["chain"]):
+		"org":
+			payer = "org:" + String(e.get("org", ""))
+		"personal":
+			payer = "player"
+		_:
+			payer = "gb:" + String(e["g"])
+	lg.note(payer, "fo:" + fid, "wage", paid)
+
+
+## A follower the purse could not pay climbs the ledger's shortage ladder (no gold moves).
+func _ledger_short(fid: String, e: Dictionary, short: int, wage: int) -> void:
+	var lg: Variant = hub.mod("ledger") if hub != null else null
+	if lg == null or short <= 0 or String(e["chain"]) == "org":
+		return
+	lg.report_arrears("player" if String(e["chain"]) == "personal" else "gb:" + String(e["g"]), "fo:" + fid, "wage", short, maxi(1, int(e["unp"])), _day)
+
+
+## Ledger departures whose payee is one of our followers (a posted wage obligation, or the arrears above): they resign here.
+func _ledger_departures() -> Array:
 	var out: Array = []
+	var lg: Variant = hub.mod("ledger") if hub != null else null
+	if lg == null:
+		return out
+	var mine := func(dep: Dictionary) -> bool:
+		var py := String(dep["payee"])
+		return py.begins_with("fo:") and _r.has(py.substr(3))
+	for dep: Dictionary in lg.take_departures(mine):
+		var fid := String(dep["payee"]).substr(3)
+		var c: Dictionary = _c.get(String((_r[fid] as Dictionary).get("c", "")), {})
+		if c.is_empty() or c["st"] != "active":
+			continue
+		var nm := String(_fol().get_follower(fid).get("name", fid))
+		_end(fid, "broken", "%s unpaid" % dep["why"])
+		var w: Variant = hub.mod("will")
+		if w != null:
+			w.on_event(fid, "unpaid", 1.0)
+		out.append("%s %s: unpaid wages." % [nm, "resigns" if dep["why"] == "resign" else "walks out"])
+	return out
+
+
+func _chunk_agency(day: int) -> Array:
+	var out: Array = _ledger_departures()
 	var fol := _fol()
 	for fid: String in _sorted_ids():
 		var e: Dictionary = _r[fid]
@@ -1099,6 +1148,7 @@ func catch_up(days: int, ctx: Dictionary) -> Array:
 					g["bud"] = float(g["bud"]) - paid
 		if paid > 0:
 			fol.pay(fid, paid)
+		_ledger_wage(fid, e, paid, owed)
 		e["unp"] = int(f["owed"]) / wage
 		var end_day := int(c["e"])
 		if int(e["unp"]) >= WAGE_DAYS_DESERT:

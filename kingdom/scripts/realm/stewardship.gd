@@ -327,6 +327,16 @@ func tax_rate(sid: int) -> float:
 	return base * (1.0 - relief(sid))
 
 
+## What the treasury actually gets of the rate in force: a delegated governor (follower_will) multiplies by their output and loses
+## the share they skim. 1:1 with tax_rate when nobody governs.
+func tax_yield(sid: int) -> float:
+	var wm: Variant = _mod("will")
+	if wm == null:
+		return tax_rate(sid)
+	var m: Dictionary = wm.settlement_modifier(sid)
+	return tax_rate(sid) * float(m["output"]) * (1.0 - float(m["leak"]))
+
+
 # ------------------------------------------------------------------ ticks
 
 func tick_week(_week: int, _ctx: Dictionary) -> Array:

@@ -60,6 +60,12 @@ func _recruitment() -> RefCounted:
 	return h.mod("recruitment") if h != null else null
 
 
+func _will_of(fid: String) -> String:
+	var h := _hub()
+	var w: RefCounted = h.mod("will") if h != null else null
+	return String(w.will_of(fid)) if w != null else ""
+
+
 func _followers() -> RefCounted:
 	var h := _hub()
 	return h.mod("followers") if h != null else null
@@ -129,7 +135,8 @@ func refresh() -> void:
 		if ord == "home" and body == null:
 			continue
 		cands.append({"fid": fid, "order": ord, "fighter": Brain.is_fighter(duty, String(f["occupation"])), "d": d})
-		info[fid] = {"row": row, "order": ord, "arg": String(eo["arg"]), "anchor": anchor, "f": f, "duty": duty}
+		var wl := _will_of(fid)
+		info[fid] = {"row": row, "will": wl, "order": ord, "arg": String(eo["arg"]), "anchor": anchor, "f": f, "duty": duty}
 	var cap := Brain.budget(int(Quality.npc_full))
 	var want: Array = Brain.select(cands, cap, _bodies)
 	var want_set := {}
@@ -146,6 +153,7 @@ func refresh() -> void:
 		var b2: Node3D = _bodies.get(fid)
 		if b2 != null:
 			b2.set("anchor", inf["anchor"])
+			b2.set("will", inf["will"])
 			b2.call("set_order", inf["order"], inf["arg"])
 			if inf["order"] == "follow":
 				b2.set("slot", slot_i)
@@ -166,7 +174,8 @@ func refresh() -> void:
 			continue
 		match String(inf2["order"]):
 			"follow":
-				_hold(row2, pp)
+				# a recruit that refused / asked to stay behind (follower_will) holds position instead of trailing the player
+				_hold(row2, Vector2.INF if String(inf2["will"]) in Brain.WILL_HOLD else pp)
 			"work":
 				_hold(row2, inf2["anchor"] if (inf2["anchor"] as Vector2).distance_to(pp) > Brain.LOCAL_RANGE * 1.5 else Vector2.INF)
 			_:
@@ -250,6 +259,7 @@ func _build(fid: String, at: Vector2) -> void:
 	b.call("setup", fid, int(f["person"]), ctx, f, duty)
 	b.set("order", String(eo["order"]))
 	b.set("order_arg", String(eo["arg"]))
+	b.set("will", _will_of(fid))
 	b.set("anchor", _anchor(rc, fid, f, int(f["person"]), String(eo["order"]), String(eo["arg"]), ctx["pos"]))
 	add_child(b)
 	b.call("place_at", at)

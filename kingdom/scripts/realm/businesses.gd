@@ -370,7 +370,32 @@ func found(owner: String, kind: String, sid: int, nm := "", recipe := "", capita
 	_enlist(_b[bid])
 	stats["founded"] = int(stats["founded"]) + 1
 	_ev("founding", sid, [owner, bid], "business", "%s opens" % _b[bid]["name"], 2)
+	_district_opened(bid)
 	return {"ok": true, "bz": bid}
+
+
+## District values: a business opening is an action with winners and losers. Rivals = owners of live businesses of the same trade
+## in the same quarter (districts.act also moves the quarter's business driver and tells its day sync not to count it twice).
+func _district_opened(bid: String) -> void:
+	var dv: Variant = _mod("districts")
+	if dv == null:
+		return
+	var b: Dictionary = _b[bid]
+	var q: String = dv.BIZ_QUARTER.get(String(b["kind"]), "other")
+	var sid := int(b["sid"])
+	if not dv.has_quarter(sid, q):
+		return
+	var rivals: Array = []
+	for k: String in _b:
+		if k == bid:
+			continue
+		var o: Dictionary = _b[k]
+		if int(o["sid"]) == sid and String(o["kind"]) == String(b["kind"]) and String(o["rec"]) == String(b["rec"]) and _live(o) \
+				and String(o["owner"]) != String(b["owner"]) and not (String(o["owner"]) in rivals):
+			rivals.append(String(o["owner"]))
+			if rivals.size() >= 8:
+				break
+	dv.act("workshop_opened", sid, q, String(b["owner"]), 1.0, rivals)
 
 
 func set_route(bid: String, from_sid: int, to_sid: int) -> bool:

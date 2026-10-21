@@ -547,6 +547,9 @@ func _week_church(week: int) -> void:
 		if om != null and got > 0:
 			om.pay_to(oid, got)
 		c["tithe"] = int(c["tithe"]) + got
+		var lg: Variant = _mod("ledger")
+		if lg != null and got > 0:
+			lg.note("hh:%d" % sid, oid, "tax", got)
 		stats["tithes"] = int(stats["tithes"]) + got
 		# What the church does with its money, in order: land, school, shelter.
 		var treasury := int(om.org(oid).get("treasury", 0)) if om != null else 0
@@ -585,6 +588,9 @@ func _festival_day(day: int) -> void:
 			var sid := int(s["id"])
 			if festival_on(doy, sid) != fid:
 				continue
+			var dv: Variant = _mod("districts")
+			if dv != null:
+				dv.act("festival_held", sid, "merchant" if dv.has_quarter(sid, "merchant") else "other", "church", 1.0)
 			if sid % 5 == day / YEAR % 5 and nw != null:
 				nw.post("festival", sid, "%s begins in %s." % [String((FESTIVALS[fid] as Dictionary)["name"]), PD.sname(sid)], 0.6)
 			if mn != null and bool(mn.has_method("believers_at")):

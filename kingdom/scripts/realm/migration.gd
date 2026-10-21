@@ -532,6 +532,9 @@ func _land(civ: RefCounted, w: Dictionary, day: int) -> Array:
 	var got := int(civ.call("add_people", to, take, occ, day)) if take > 0 else 0
 	if got > 0:
 		_absorb(to, String(w["culture"]), got)
+		var dv: RefCounted = _mod("districts")
+		if dv != null:
+			dv.migrants(_hid(to), "poor" if dv.has_quarter(_hid(to), "poor") else "other", got)
 		_stat["moved"] = int(_stat["moved"]) + got
 	if rest > 0:
 		var cd: Dictionary = _cult[to]

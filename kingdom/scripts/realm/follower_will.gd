@@ -56,6 +56,7 @@ const MEM_MAX := 6
 const CHUNK := 16
 const REQ_COOLDOWN := 14
 const LEAVE_GRACE := 7
+const HOLD_DAYS := 3
 const DAILY_REQUESTS := 3        # new requests announced per day at most
 
 var _s: Dictionary = {}            # fid -> state (see ensure)
@@ -120,7 +121,7 @@ func ensure(fid: String) -> Dictionary:
 		m["hid"] = 0.35 + r.randf() * 0.3
 	_s[fid] = {"m": m, "role": _default_role(fid), "agenda": agenda, "g": 0.0, "rank": 0, "life": false, "mem": [], "al": [],
 		"req": "", "req_day": -99, "cool": -99, "plot": "", "plot_day": 0, "leave_day": -1, "held": -1, "wins": 0, "unjust": 0,
-		"known": false, "ov": 0.0, "since": _day}
+		"known": false, "ov": 0.0, "since": _day, "last": "", "last_day": -99}
 	return _s[fid]
 
 
@@ -403,7 +404,29 @@ func respond(fid: String, order: Dictionary, sit: Dictionary = {}, apply := true
 	return out
 
 
+## What a follower is doing about the last order they were given, for the body: "stay_behind", "refuse_moral", "consider_leaving",
+## "organise_resistance" make a following recruit hold position (follower_brain WILL_HOLD). Fades after HOLD_DAYS, "" when nothing.
+func will_of(fid: String) -> String:
+	if not _s.has(fid):
+		return ""
+	var s: Dictionary = _s[fid]
+	if int(s["leave_day"]) >= 0:
+		return "consider_leaving"
+	if _day - int(s.get("last_day", -99)) <= HOLD_DAYS:
+		return String(s.get("last", ""))
+	return ""
+
+
+## Settlements that have a delegated governor.
+func governed() -> Array:
+	var out: Array = _gov.keys()
+	out.sort()
+	return out
+
+
 func _apply_choice(s: Dictionary, a: String, day: int) -> void:
+	s["last"] = a
+	s["last_day"] = day
 	match a:
 		"conceal_resentment":
 			s["g"] = clampf(float(s["g"]) + 0.03, 0.0, 1.0)
@@ -598,13 +621,23 @@ func investigate(fid: String, skill := 0.5, day := -1) -> Dictionary:
 
 
 ## Check the books of a delegate. Reveals what was skimmed, and raises oversight for a while.
-func audit(fid: String) -> Dictionary:
+func audit(fid: String, _from_ledger := false) -> Dictionary:
 	var s: Dictionary = ensure(fid)
 	var found := float(_leak.get(fid, 0.0))
 	_leak[fid] = 0.0
+	# One audit, one result: gold a follower steward really skimmed on a ledger account is found (and taken back) by the same call.
+	var lg: Variant = hub.mod("ledger") if hub != null else null
+	var led: Array = []
+	if lg != null and not _from_ledger:
+		for acct: String in lg.accounts_of("fo:" + fid):
+			var lr: Dictionary = lg.audit(acct, "player", true)
+			led.append(lr)
+			found += float(lr["found"])
 	s["ov"] = 0.7
 	var q := delegate_quality(fid)
 	var res := {"found": found, "honesty": q["honesty"], "competence": q["competence"]}
+	if not led.is_empty():
+		res["ledger"] = led
 	if found >= 1.0:
 		on_event(fid, "punished_just", 1.0)
 		s["known"] = true
@@ -816,7 +849,7 @@ func serialize() -> Dictionary:
 		rows[fid] = [mm, ROLES.find(s["role"]), AGENDAS.find(s["agenda"]), Codec.num(float(s["g"]) * 100.0, 1.0), int(s["rank"]),
 			1 if s["life"] else 0, (s["mem"] as Array).duplicate(true), (s["al"] as Array).duplicate(), REQUESTS.find(s["req"]),
 			int(s["cool"]), String(s["plot"]), int(s["plot_day"]), int(s["leave_day"]), int(s["held"]), int(s["wins"]), int(s["unjust"]),
-			1 if s["known"] else 0, Codec.num(float(s["ov"]), 0.01), int(s["since"]), String(s.get("promise", ""))]
+			1 if s["known"] else 0, Codec.num(float(s["ov"]), 0.01), int(s["since"]), String(s.get("promise", "")), String(s.get("last", "")), int(s.get("last_day", -99))]
 	var lk := {}
 	for fid: String in _leak:
 		if float(_leak[fid]) > 0.0:
@@ -838,6 +871,8 @@ func deserialize(d: Dictionary) -> void:
 			"leave_day": int(a[12]), "held": int(a[13]), "wins": int(a[14]), "unjust": int(a[15]), "known": int(a[16]) == 1, "ov": float(a[17]), "since": int(a[18])}
 		if String(a[19]) != "":
 			st["promise"] = String(a[19])
+		st["last"] = String(a[20]) if a.size() > 21 else ""
+		st["last_day"] = int(a[21]) if a.size() > 21 else -99
 		for e: Array in st["mem"]:
 			e[0] = int(e[0])
 			e[1] = int(e[1])

@@ -710,6 +710,7 @@ func _army_day(aid: String) -> void:
 	if due <= int(a["purse"]):
 		a["purse"] = int(a["purse"]) - due
 		led["wages"] = int(led["wages"]) + due
+		_note_upkeep(aid, a, due)
 		if int(a["unpaid"]) > 0:
 			a["unpaid"] = 0
 		else:
@@ -722,6 +723,13 @@ func _army_day(aid: String) -> void:
 	if String(a["state"]) == "marching":
 		for u2: Dictionary in a["units"]:
 			u2["eq"] = clampf(float(u2["eq"]) - 0.003, 0.0, 1.0)
+
+
+## The army pays from its own purse (no gold moves here); the ledger records it in the weekly summary of the owner.
+func _note_upkeep(aid: String, a: Dictionary, amt: int) -> void:
+	var lg: Variant = _mod("ledger")
+	if lg != null and amt > 0:
+		lg.note("ar:" + aid, "", "upkeep", amt)
 
 
 func _shift(a: Dictionary, dm: float, dd: float) -> void:
@@ -1163,6 +1171,9 @@ func set_defence(sid: int, opts: Dictionary) -> Dictionary:
 			var g: Dictionary = _ar[String(opts["garrison"])]
 			g["sid"] = sid
 			g["pos"] = _pos_of_sid(sid)
+			var dv: Variant = _mod("districts")
+			if dv != null:
+				dv.act("garrison_posted", sid, "military" if dv.has_quarter(sid, "military") else "merchant", String(g["owner"]), clampf(float(men(String(opts["garrison"]))) / 40.0, 0.3, 2.0))
 	if opts.has("muster"):
 		p["muster"] = [float(opts["muster"][0]), float(opts["muster"][1])]
 	if opts.has("fallback"):
@@ -1808,6 +1819,7 @@ func catch_up(days: int, _ctx: Dictionary) -> Array:
 		var paid_days := mini(days, int(a["purse"]) / maxi(1, int(up["wages"])))
 		a["purse"] = int(a["purse"]) - int(up["wages"]) * paid_days
 		(a["ledger"] as Dictionary)["wages"] = int((a["ledger"] as Dictionary)["wages"]) + int(up["wages"]) * paid_days
+		_note_upkeep(k, a, int(up["wages"]) * paid_days)
 		if paid_days < days:
 			a["unpaid"] = int(a["unpaid"]) + (days - paid_days)
 			_desert(k, minf(0.9, 0.04 * float(maxi(0, int(a["unpaid"]) - D.DESERT_GRACE)) * 0.5 * float(days - paid_days)), "unpaid")

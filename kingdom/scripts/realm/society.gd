@@ -1036,6 +1036,10 @@ func commit_crime(kind: String, sid: int, witnesses_near: Variant = 0, opts: Dic
 			investigations.pop_front()
 		add_rumour("crime", sid, float(maxi(1, noticed)), "player" if identified > 0 else "unknown", -1.0, kind)
 	Events.log_to(hub, "crime", "ss:%d" % sid, ["pl:player"], kind, "%s (%d noticed, %d reported)" % [kind, noticed, reported], 5 if kind == "murder" else 2)
+	if hub != null:
+		var dv: RefCounted = hub.mod("districts")
+		if dv != null:
+			dv.on_crime(sid, "poor" if dv.has_quarter(sid, "poor") else "other", float(def["sev"]) * 0.5)
 	var city := _city()
 	if city != null and city.has_method("note_activity"):
 		city.note_activity("crime_" + kind, sid, 1.0)

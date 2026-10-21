@@ -224,6 +224,8 @@ func act(kind: String, sid: int, q: String, actor: String, magnitude := 1.0, riv
 	match kind:
 		"workshop_opened":
 			on_business(sid, q, true)
+			if _biz.has(_key(sid, q)):
+				_biz[_key(sid, q)] = int(_biz[_key(sid, q)]) + 1      # the day sync must not count the same opening again
 			fx.append(_fx(actor, "owner", "prosperity", 0.02 * m))
 			fx.append(_fx("", "residents", "unemployment", -0.03 * m))
 			for r: String in rivals:
@@ -394,8 +396,27 @@ func _sync_biz(sid: int) -> void:
 		_biz[k] = now
 
 
+## A delegated governor (follower_will) shapes the quarters they rule: output moves payments, a skimming one raises corruption,
+## unrest raises tension. Also read by stewardship.tax_yield().
+func _sync_governor(sid: int) -> void:
+	var wm: RefCounted = _mod("will")
+	if wm == null:
+		return
+	var m: Dictionary = wm.settlement_modifier(sid)
+	if String(m["governor"]) == "":
+		return
+	for q: String in quarters_of(sid):
+		_push(sid, q, D_PAY, (float(m["output"]) - 1.0) * 0.1)
+		_nudge(sid, q, F_CORR, float(m["leak"]) * 0.04)
+		_nudge(sid, q, F_TENS, float(m["unrest"]) * 0.04)
+
+
 func tick_day_chunks(_day: int, _ctx: Dictionary) -> Array:
 	_ensure()
+	var wm: RefCounted = _mod("will")
+	if wm != null:
+		for gsid: Variant in wm.governed():
+			_sync_governor(int(gsid))
 	var out: Array = []
 	var i := 0
 	while i < _keys.size():
