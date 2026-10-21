@@ -191,6 +191,12 @@ func on_crime(sid: int, q: String, severity := 1.0) -> void:
 	_nudge(sid, q, F_SAFE, -0.03 * severity)
 
 
+## A bench or watch taken by a bribe (courts.gd) raises a quarter's corruption; an exposed one lowers it a little.
+func on_corruption(sid: int, q: String, amt: float) -> void:
+	_ensure()
+	_nudge(sid, q, F_CORR, amt)
+
+
 func garrison(sid: int, q: String, strength: float) -> void:
 	_push(sid, q, D_GARR, strength)
 

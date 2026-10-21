@@ -55,7 +55,10 @@ const CRIMES := {
 	"trespass": {"sev": 1, "report": 0.5, "fine": 12, "evidence": ["witness_statement"], "under": 0.3},
 }
 const EVIDENCE_DECAY := {"blood": 0.03, "footprints": 0.2, "stolen_goods": 0.006, "witness_statement": 0.03, "weapon": 0.01,
-	"forged_document": 0.01, "contraband": 0.01}
+	"forged_document": 0.01, "contraband": 0.01, "letter": 0.008, "ledger_entry": 0.005, "magic_trace": 0.06}
+## MW-22: what sort of proof an item is, so courts weigh it by local culture (a church court trusts testimony and distrusts a magical trace).
+const EVIDENCE_KIND := {"blood": "physical", "footprints": "physical", "stolen_goods": "physical", "weapon": "physical", "contraband": "physical",
+	"witness_statement": "testimony", "forged_document": "document", "letter": "document", "ledger_entry": "document", "magic_trace": "magical"}
 const OUTFITS := {
 	"rags": {"class": 0}, "travel": {"class": 1}, "common": {"class": 1}, "merchant": {"class": 2}, "guild_uniform": {"class": 2},
 	"military": {"class": 2}, "religious": {"class": 2}, "noble": {"class": 3}, "royal": {"class": 4}, "mask": {"class": 1},

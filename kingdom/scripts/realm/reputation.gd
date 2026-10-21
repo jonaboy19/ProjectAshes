@@ -48,6 +48,9 @@ const DEEDS := {
 	"seized": {"strength": 4.0, "cruelty": 4.0, "legitimacy": -9.0},
 	"recognised": {"legitimacy": 10.0, "influence": 4.0},
 	"hoarded": {"wealth": 5.0, "generosity": -5.0},
+	"false_witness": {"reliability": -9.0, "trust": -8.0, "legitimacy": -5.0},
+	"extorted": {"cruelty": 5.0, "legitimacy": -6.0, "trust": -6.0},
+	"oath_kept": {"reliability": 6.0, "trust": 4.0, "legitimacy": 1.0},
 }
 
 var _truth: Dictionary = {}     # subject -> {axis: v}
