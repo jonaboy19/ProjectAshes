@@ -1,6 +1,6 @@
 {
-	"version": 2,
-	"magicule_scale": "0.0 = none, 1.0 = saturated. Affects the naming cost, the spell pool and how fast a body adapts to evolution.",
+	"version": 3,
+	"magicule_scale": "0.0 = none, 1.0 = saturated. Affects naming cost, spell capacity, and physical metamorphosis.",
 	"races": [
 		{
 			"id": "human",
@@ -13,156 +13,15 @@
 			"traits": ["adaptable", "fast_learner", "wide_affinity_spread", "ambitious"],
 			"description": "The most widespread people in Valencious. Diverse cultures, kingdoms, noble houses, faiths, and traditions. Ambitious, adaptable, and resilient.",
 			"homelands": ["caldrenn", "seirune_isles", "ongur_khanate", "solmarch", "shenlu_peaks"],
-			"evolution": [
-				{"from": "human", "to": "human_awakened", "name": "Awakened Human", "requires": {"level": 25, "magicules": 2500, "trial": "soul_resonance"}, "gains": ["mana_veins", "expanded_spirit"]},
-				{"from": "human_awakened", "to": "human_saint", "name": "Human Saint", "requires": {"level": 50, "magicules": 15000, "trial": "domain_breakthrough"}, "gains": ["divine_presence", "lifespan_doubled"]}
-			],
-			"transformation": {
-				"possible": true,
-				"methods": ["totem_adoption", "dragon_blood_replacement", "blood_pact_of_the_tusk", "nether_infusion"],
-				"into": ["beastkin", "drakari", "orc", "tiefling"],
-				"note": "Humans are the primordial clay of Valencious; blood rites can reshape their lineage into nearly any allied or monster form."
-			}
-		},
-		{
-			"id": "elf",
-			"alias": "veyl",
-			"name": "Elf",
-			"subtypes": ["wood_elf", "high_elf"],
-			"plural": "Elves",
-			"civilised": true,
-			"monster": false,
-			"lifespan": {"adult_at": 40, "typical": 450, "max": 900},
-			"magicule_affinity": 0.85,
-			"traits": ["graceful", "long_lived", "nature_communion", "ancient_knowledge", "bow_mastery"],
-			"description": "Graceful and long-lived folk deeply connected to nature, magic, and ancient knowledge. Some live in secluded forest realms; others walk among human kingdoms as scholars and diplomats.",
-			"homelands": ["veylwood", "mistwillow", "silverbough"],
-			"evolution": [
-				{"from": "elf", "to": "high_elf", "name": "High Elf", "requires": {"level": 30, "magicules": 5000, "age": 150}, "gains": ["grove_speech", "spell_resonance", "seasonless"]},
-				{"from": "high_elf", "to": "star_elf", "name": "Star Elf (Aeldir)", "requires": {"level": 60, "magicules": 20000, "trial": "celestial_alignment"}, "gains": ["starlit_body", "ancient_memory", "gravity_lightness"]}
-			],
-			"transformation": {"possible": false, "methods": [], "note": "Elves are born to ancient lineages; half-elves are born, but mortals cannot ascend to pure elven blood."}
-		},
-		{
-			"id": "dark_elf",
-			"alias": "umbral_veyl",
-			"name": "Dark Elf",
-			"plural": "Dark Elves",
-			"civilised": true,
-			"monster": false,
-			"lifespan": {"adult_at": 40, "typical": 450, "max": 900},
-			"magicule_affinity": 0.88,
-			"traits": ["stealth", "shadow_weave", "mysterious", "night_sight_superior", "diplomatic_cunning"],
-			"description": "Mysterious and often misunderstood. Skilled in stealth, shadow magic, and diplomacy. Many live in hidden subterranean or bioluminescent cavern cities; secretive cultures bound by ancient oaths.",
-			"homelands": ["umbral_abyss", "shadow_reaches", "kar_dranath"],
-			"evolution": [
-				{"from": "dark_elf", "to": "shadow_weaver", "name": "Shadow Weaver", "requires": {"level": 30, "magicules": 5500}, "gains": ["shadow_meld", "void_whispers", "poison_immunity"]},
-				{"from": "shadow_weaver", "to": "abyssal_archon", "name": "Abyssal Archon", "requires": {"level": 60, "magicules": 22000, "trial": "eclipse_ascension"}, "gains": ["eclipse_shroud", "phase_walk", "nether_eyes"]}
-			],
-			"transformation": {"possible": true, "methods": ["shadow_well_immersion"], "from": ["elf"], "note": "High elves exposed to deep underground shadow wells may mutate over centuries into Umbral lineages."}
-		},
-		{
-			"id": "dwarf",
-			"alias": "durrow",
-			"name": "Dwarf",
-			"plural": "Dwarves",
-			"civilised": true,
-			"monster": false,
-			"lifespan": {"adult_at": 30, "typical": 240, "max": 350},
-			"magicule_affinity": 0.50,
-			"traits": ["master_craftsman", "stone_sense", "heat_resistant", "iron_will", "unmatched_mechanics"],
-			"description": "Master craftsmen, miners, and engineers known for their unmatched skill with metal, stone, and mechanics. Inhabiting cavernous mountain holds and forge-cities.",
-			"homelands": ["hollowdeep", "karnhollow", "iron_bastion"],
-			"evolution": [
-				{"from": "dwarf", "to": "deepforged_dwarf", "name": "Deepforged Dwarf", "requires": {"level": 30, "magicules": 4500, "masterwork": true}, "gains": ["iron_skin", "forge_breath", "tectonic_strike"]},
-				{"from": "deepforged_dwarf", "to": "rune_titan_dwarf", "name": "Rune Titan Dwarf", "requires": {"level": 60, "magicules": 18000, "trial": "core_forge_awakening"}, "gains": ["adamant_carapace", "mountain_shaker", "living_rune_matrix"]}
-			],
-			"transformation": {"possible": false, "methods": [], "note": "The Durrow say you are born to stone or not at all."}
-		},
-		{
-			"id": "beastkin",
-			"name": "Beastkin",
-			"plural": "Beastkin",
-			"civilised": true,
-			"monster": false,
-			"lifespan": {"adult_at": 14, "typical": 65, "max": 100},
-			"magicule_affinity": 0.40,
-			"traits": ["keen_senses", "clan_totem", "fast", "instinct_arts", "predator_focus"],
-			"lineages": ["lupine", "feline", "ursine", "vulpid", "falconkin"],
-			"description": "Many forms: feline, lupine, ursine, and more. Strong, proud, and deeply connected to ancestral lands and clan chieftains.",
-			"homelands": ["ongur_khanate", "fang_highlands", "beast_savanna"],
-			"evolution": [
-				{"from": "beastkin", "to": "greater_beastkin", "name": "Greater Beastkin", "requires": {"level": 20, "magicules": 1200, "or_named": true}, "gains": ["partial_shift", "totem_voice", "feral_haste"]},
-				{"from": "greater_beastkin", "to": "primal_beastkin", "name": "Primal Beastkin Sovereign", "requires": {"level": 45, "magicules": 7500, "trial": "totem_hunt"}, "gains": ["full_shift", "pack_call", "ancestral_roar"]}
-			],
-			"transformation": {
-				"possible": true,
-				"methods": ["totem_adoption", "bloodline_awakening"],
-				"from": ["human"],
-				"note": "A human adopted by a clan totem may slowly awaken animal traits over seasons."
-			}
-		},
-		{
-			"id": "half_breed",
-			"name": "Half-Breed",
-			"plural": "Half-Breeds",
-			"civilised": true,
-			"monster": false,
-			"lifespan": {"adult_at": 18, "typical": 120, "max": 250},
-			"magicule_affinity": 0.60,
-			"traits": ["hybrid_vigor", "dual_affinity", "unusual_talents", "adaptable_heritage"],
-			"variants": ["half_elf", "half_beastkin", "half_orc", "wyrmvein_human"],
-			"description": "Children of different races. Often bridge cultures but sometimes face prejudice from purists. Their blended blood grants rare and unpredictable talents.",
-			"homelands": ["free_cities", "crossroad_borderlands", "caldrenn"],
-			"evolution": [
-				{"from": "half_breed", "to": "harmonized_hybrid", "name": "Harmonized Ascendant", "requires": {"level": 30, "magicules": 4000}, "gains": ["bloodline_harmony", "dual_cultivation_burst"]}
-			],
-			"transformation": {"possible": false, "methods": [], "note": "Inherited by birth."}
-		},
-		{
-			"id": "aetherborn",
-			"name": "Aetherborn",
-			"plural": "Aetherborn",
-			"civilised": true,
-			"monster": false,
-			"lifespan": {"adult_at": 20, "typical": 200, "max": 500},
-			"magicule_affinity": 0.98,
-			"traits": ["mana_conductive", "luminous_eyes", "crystalline_hair", "raw_magic_touch"],
-			"description": "Humans or beings touched in the womb by pure magical anomalies or Rift rifts. Marked by unique physical traits (floating mana flecks, glowing veins); rare and often feared or revered.",
-			"homelands": ["aether_sites", "leyline_nexuses", "rift_verge"],
-			"evolution": [
-				{"from": "aetherborn", "to": "aether_archon", "name": "Aether Archon", "requires": {"level": 40, "magicules": 10000}, "gains": ["chantless_mastery", "mana_shield_passive", "gravity_levitation"]},
-				{"from": "aether_archon", "to": "cosmic_conduit", "name": "Cosmic Conduit", "requires": {"level": 70, "magicules": 35000, "trial": "star_core_absorption"}, "gains": ["infinite_well", "space_rupture"]}
-			],
-			"transformation": {
-				"possible": true,
-				"methods": ["rift_core_exposure", "leyline_overload"],
-				"from": ["human", "elf"],
-				"note": "Surviving a Rift blast point-blank occasionally crystalizes mortal flesh into an Aetherborn."
-			}
-		},
-		{
-			"id": "draken",
-			"alias": "dragonnewt",
-			"name": "Draken / Dragonnewt",
-			"plural": "Draken",
-			"civilised": true,
-			"monster": false,
-			"lifespan": {"adult_at": 25, "typical": 350, "max": 1500},
-			"magicule_affinity": 0.95,
-			"traits": ["draconic_scales", "draconic_breath", "imposing", "great_power", "aerial_gliding"],
-			"description": "Descendants of dragons or evolved lizardfolk who took draconic names. Imposing, proud, and strong. Some serve as nobles and commanders, others live in secluded dragon peaks. Their blood carries ancient majesty.",
-			"homelands": ["drake_spire", "shenlu_peaks", "wyrm_crags"],
-			"evolution": [
-				{"from": "lizardfolk", "to": "dragonnewt", "name": "Dragonnewt", "requires": {"level": 15, "magicules": 1500, "or_named": true}, "gains": ["humanoid_refinement", "draconic_scales", "flight_wings", "speech"]},
-				{"from": "draken", "to": "wyrmblooded", "name": "Wyrmblooded Champion", "requires": {"level": 35, "magicules": 8000}, "gains": ["dragon_roar", "draconic_aura", "armor_pierce"]},
-				{"from": "wyrmblooded", "to": "dragon_sovereign", "name": "Dragon Sovereign", "requires": {"level": 70, "magicules": 45000, "trial": "sky_tribulation"}, "gains": ["true_dragon_form", "cataclysm_breath", "sovereign_majesty"]}
-			],
-			"transformation": {
-				"possible": true,
-				"methods": ["naming_by_arch_being", "dragon_blood_replacement"],
-				"from": ["lizardfolk", "human"],
-				"note": "Lizardfolk named by high cultivators or sovereigns instantly metamorphose into Dragonnewts."
+			"evolution_trees": {
+				"humanoid_saint": [
+					{"tier": 1, "name": "Awakened Human", "form": "refined_humanoid", "requires": {"level": 25, "magicules": 2500}, "gains": ["mana_veins", "expanded_spirit"]},
+					{"tier": 2, "name": "Human Saint / Martial Sovereign", "form": "refined_humanoid", "requires": {"level": 55, "magicules": 16000}, "gains": ["divine_presence", "lifespan_doubled", "domain_expansion"]}
+				],
+				"ascendant_beast_host": [
+					{"tier": 1, "name": "Blood-Bound Vessel", "form": "chimeric_hybrid", "requires": {"level": 25, "magicules": 3000, "trial": "soulbeast_symbiosis"}, "gains": ["beast_claws", "predator_instinct"]},
+					{"tier": 2, "name": "Primal Chimera Sovereign", "form": "beast_colossus", "requires": {"level": 60, "magicules": 25000}, "gains": ["monstrous_titan_shift", "calamity_roar"]}
+				]
 			}
 		},
 		{
@@ -175,51 +34,93 @@
 			"lifespan": {"adult_at": 12, "typical": 55, "max": 90},
 			"magicule_affinity": 0.35,
 			"traits": ["fierce", "immense_strength", "thick_hide", "hunger_fury", "clan_unity"],
-			"description": "Fierce and strong. Many live in nomad clans and strongholds; some are integrated into human lands as skilled blacksmiths, hunters, and mercenary guards.",
+			"description": "Fierce, tusked warriors. Some embrace bestial savagery, others ascend to noble martial warlords.",
 			"homelands": ["urrokai_clanlands", "grakmoor", "bloodtusk_ridge"],
-			"evolution": [
-				{"from": "ork", "to": "high_ork", "name": "High Ork", "requires": {"level": 15, "magicules": 800, "or_named": true}, "gains": ["keen_mind", "tusk_armour", "martial_posture"]},
-				{"from": "high_ork", "to": "ork_warlord", "name": "Ork Warlord", "requires": {"level": 30, "magicules": 3500, "followers": 50}, "gains": ["war_cry_aura", "iron_bones", "unyielding_grit"]},
-				{"from": "ork_warlord", "to": "ork_sovereign", "name": "Ork Sovereign", "requires": {"level": 55, "magicules": 14000, "clans_united": 3}, "gains": ["devouring_hunger", "sovereign_presence", "quake_slam"]}
-			],
-			"transformation": {
-				"possible": true,
-				"methods": ["blood_pact_of_the_tusk"],
-				"from": ["human", "goblin"],
-				"note": "The Tusk Pact transforms willing warriors under a crimson blood moon."
+			"evolution_trees": {
+				"humanoid_noble": [
+					{"tier": 1, "name": "High Ork (Named)", "form": "refined_humanoid", "requires": {"level": 15, "magicules": 800, "or_named": true}, "gains": ["upright_posture", "keen_mind", "tusk_armour", "martial_grace"]},
+					{"tier": 2, "name": "Kijin-Ork Warlord", "form": "refined_humanoid", "requires": {"level": 35, "magicules": 4500}, "gains": ["noble_aura", "dual_cleave_mastery", "iron_bone_matrix"]},
+					{"tier": 3, "name": "Ork Sovereign of the Ashen Dawn", "form": "refined_humanoid", "requires": {"level": 65, "magicules": 20000}, "gains": ["sovereign_majesty", "war_realm", "unbreakable_will"]}
+				],
+				"beast_juggernaut": [
+					{"tier": 1, "name": "Boar-Rage Berserker", "form": "bestial", "requires": {"level": 15, "magicules": 900}, "gains": ["blood_frenzy", "quadrupedal_charge", "tusk_goring"]},
+					{"tier": 2, "name": "Ironhide Behemoth", "form": "beast_colossus", "requires": {"level": 35, "magicules": 5500}, "gains": ["stagger_immunity", "boulder_shatter", "earth_crush"]},
+					{"tier": 3, "name": "Calamity Boar-Titan", "form": "beast_colossus", "requires": {"level": 65, "magicules": 28000}, "gains": ["mountain_breaker", "cataclysmic_trample", "devouring_maw"]}
+				]
 			}
 		},
 		{
-			"id": "halfling",
-			"name": "Halfling",
-			"plural": "Halflings",
+			"id": "beastkin",
+			"name": "Beastkin",
+			"plural": "Beastkin",
 			"civilised": true,
 			"monster": false,
-			"lifespan": {"adult_at": 20, "typical": 110, "max": 160},
+			"lifespan": {"adult_at": 14, "typical": 65, "max": 100},
 			"magicule_affinity": 0.40,
-			"traits": ["small", "resourceful", "well_travelled", "culinary_genius", "elusive_luck"],
-			"description": "Small, resourceful, and well-travelled. Known for their hospitality, culinary genius, talent with food and trade, and uncanny ability to slip through trouble unharmed.",
-			"homelands": ["green_vales", "river_marches", "caldrenn_hamlets"],
-			"evolution": [
-				{"from": "halfling", "to": "halfling_fortune_seeker", "name": "Fortune Seeker", "requires": {"level": 25, "magicules": 2000}, "gains": ["evasion_mastery", "golden_touch", "silent_step"]}
-			],
-			"transformation": {"possible": false, "methods": [], "note": "Natural folk of the fertile hollows."}
+			"traits": ["keen_senses", "clan_totem", "fast", "instinct_arts"],
+			"lineages": ["lupine", "feline", "ursine", "vulpid", "falconkin"],
+			"description": "Folk carrying ancestral animal spirits. Evolves toward refined celestial humanoids or primal apex beasts.",
+			"homelands": ["ongur_khanate", "fang_highlands", "beast_savanna"],
+			"evolution_trees": {
+				"humanoid_noble": [
+					{"tier": 1, "name": "Greater Beastkin (Named)", "form": "refined_humanoid", "requires": {"level": 18, "magicules": 1200, "or_named": true}, "gains": ["aristocratic_furred_ears", "feral_haste", "totem_voice"]},
+					{"tier": 2, "name": "Celestial Therian Lord", "form": "refined_humanoid", "requires": {"level": 40, "magicules": 6500}, "gains": ["astral_claws", "phantom_stride", "qi_manifestation"]},
+					{"tier": 3, "name": "Primal Beast Sovereign", "form": "refined_humanoid", "requires": {"level": 65, "magicules": 22000}, "gains": ["beast_king_domain", "celestial_roar", "spirit_pack_summon"]}
+				],
+				"beast_primal": [
+					{"tier": 1, "name": "Dire Beast-Shifter", "form": "bestial", "requires": {"level": 18, "magicules": 1400}, "gains": ["quadrupedal_sprint", "alpha_bite", "scent_tracking_mastery"]},
+					{"tier": 2, "name": "Ancient Dire Fiend", "form": "beast_colossus", "requires": {"level": 40, "magicules": 7500}, "gains": ["thick_pelt_armor", "sonic_howl", "pack_frenzy_aura"]},
+					{"tier": 3, "name": "Mythic Fenrir / Behemoth God", "form": "beast_colossus", "requires": {"level": 65, "magicules": 30000}, "gains": ["sky_devourer", "frost_fire_fur", "primal_apotheosis"]}
+				]
+			}
 		},
 		{
-			"id": "gnome",
-			"name": "Gnome",
-			"plural": "Gnomes",
+			"id": "lizardfolk",
+			"name": "Lizardfolk",
+			"plural": "Lizardfolk",
+			"civilised": false,
+			"monster": true,
+			"lifespan": {"adult_at": 10, "typical": 50, "max": 80},
+			"magicule_affinity": 0.30,
+			"traits": ["swamp_swimmer", "thick_scales", "primal_survival"],
+			"description": "Indigenous marsh dwellers. Through Naming and Draconic blood, can ascend into glorious Dragonnewts or titanic Hydras.",
+			"homelands": ["swamps_and_marshes", "dismal_delta"],
+			"evolution_trees": {
+				"humanoid_noble": [
+					{"tier": 1, "name": "Dragonnewt (Named)", "form": "refined_humanoid", "requires": {"level": 15, "magicules": 1200, "or_named": true}, "gains": ["sleek_humanoid_body", "draconic_horns", "flight_wings", "draconic_breath"]},
+					{"tier": 2, "name": "Wyrmblooded Champion", "form": "refined_humanoid", "requires": {"level": 38, "magicules": 7500}, "gains": ["draconic_aura", "armor_pierce", "dragon_spear_art"]},
+					{"tier": 3, "name": "Dragon Sovereign / Drake King", "form": "refined_humanoid", "requires": {"level": 70, "magicules": 45000}, "gains": ["cataclysm_breath", "true_dragon_domain", "sovereign_majesty"]}
+				],
+				"beast_leviathan": [
+					{"tier": 1, "name": "Basilisk Charger", "form": "bestial", "requires": {"level": 15, "magicules": 1300}, "gains": ["petrifying_gaze_short", "tail_sweep", "armored_crest"]},
+					{"tier": 2, "name": "Deep Swamp Leviathan", "form": "beast_colossus", "requires": {"level": 38, "magicules": 8000}, "gains": ["acid_submersion", "poison_geyser", "crushing_coils"]},
+					{"tier": 3, "name": "Nine-Headed Abyssal Hydra", "form": "beast_colossus", "requires": {"level": 70, "magicules": 48000}, "gains": ["endless_regeneration", "nine_elemental_breaths", "marsh_dominion"]}
+				]
+			}
+		},
+		{
+			"id": "undead",
+			"name": "Intelligent Undead",
+			"plural": "Undead",
 			"civilised": true,
-			"monster": false,
-			"lifespan": {"adult_at": 35, "typical": 300, "max": 450},
-			"magicule_affinity": 0.70,
-			"traits": ["inventive", "curious", "machinery_master", "alchemical_mind", "tinkering"],
-			"description": "Inventive and endlessly curious. Skilled in clockwork machinery, alchemy, and esoteric engineering. Found in workshops, subterranean academies, and bustling trade cities.",
-			"homelands": ["gear_canyon", "tinker_halls", "karnhollow_outskirts"],
-			"evolution": [
-				{"from": "gnome", "to": "clockwork_savant", "name": "Clockwork Savant", "requires": {"level": 28, "magicules": 3500}, "gains": ["aether_automaton_summon", "instant_contraption", "overclock_buff"]}
-			],
-			"transformation": {"possible": false, "methods": [], "note": "Lineage of the deep tinkerers."}
+			"monster": true,
+			"lifespan": {"adult_at": 0, "typical": 9999, "max": 9999},
+			"magicule_affinity": 0.80,
+			"traits": ["no_fatigue", "bleed_immune", "poison_immune", "soul_harvest"],
+			"description": "Sentient undead retaining knowledge and will. Branching into martial Death Knights, regal Liches, or skeletal titans.",
+			"homelands": ["ashen_necropolis", "forgotten_battlegrounds"],
+			"evolution_trees": {
+				"humanoid_noble": [
+					{"tier": 1, "name": "Wight / Revenant (Named)", "form": "refined_humanoid", "requires": {"level": 12, "magicules": 1000, "or_named": true}, "gains": ["restored_sentience", "spectral_flesh", "weapon_mastery"]},
+					{"tier": 2, "name": "Death Knight *or* Elder Lich", "form": "refined_humanoid", "requires": {"level": 35, "magicules": 7000}, "gains": ["dread_steed", "phylactery_binding", "chantless_death_magic"]},
+					{"tier": 3, "name": "Nether Sovereign of the Ashen Throne", "form": "refined_humanoid", "requires": {"level": 70, "magicules": 40000}, "gains": ["domain_of_the_dead", "soul_annihilation", "undying_will"]}
+				],
+				"beast_gargoyle": [
+					{"tier": 1, "name": "Bone Abomination", "form": "bestial", "requires": {"level": 12, "magicules": 1100}, "gains": ["multiple_limb_strike", "bone_cage_trap", "shrapnel_burst"]},
+					{"tier": 2, "name": "Dread Skeletal Behemoth", "form": "beast_colossus", "requires": {"level": 35, "magicules": 7500}, "gains": ["colossal_bone_scythes", "unflinching_poise", "marrow_drain"]},
+					{"tier": 3, "name": "Necrotic Colossus of Extinction", "form": "beast_colossus", "requires": {"level": 70, "magicules": 42000}, "gains": ["plague_aura_passive", "continent_crushing_stride", "undead_army_core"]}
+				]
+			}
 		},
 		{
 			"id": "tiefling",
@@ -230,142 +131,18 @@
 			"monster": false,
 			"lifespan": {"adult_at": 18, "typical": 85, "max": 140},
 			"magicule_affinity": 0.75,
-			"traits": ["fiend_blood", "horns_and_tail", "fire_resistance", "thaumic_charm", "darkvision"],
-			"description": "Bearing the blood of ancient otherworldly or abyssal beings. Marked by horns, prehensile tails, or unusual crimson/slate skin. Their heritage grants unique fire resistance and dark magical arts.",
-			"homelands": ["solmarch_borders", "ashen_basin", "crossroads"],
-			"evolution": [
-				{"from": "tiefling", "to": "hellion_blade", "name": "Hellion Blade", "requires": {"level": 30, "magicules": 4500}, "gains": ["hellfire_burst", "nether_step", "fiend_charm"]},
-				{"from": "hellion_blade", "to": "arch_infernal", "name": "Arch-Infernal Sovereign", "requires": {"level": 60, "magicules": 20000, "trial": "brimstone_trial"}, "gains": ["demon_wing_flight", "immolation_aura", "abyssal_dominion"]}
-			],
-			"transformation": {
-				"possible": true,
-				"methods": ["fiendish_blood_rite", "abyssal_rift_pact"],
-				"from": ["human"],
-				"note": "A mortal sealing a pact with a Nether Arch-Demon gradually transforms into a Tiefling lineage."
-			}
-		},
-		{
-			"id": "aasimar",
-			"alias": "celestial_touched",
-			"name": "Aasimar",
-			"plural": "Aasimar",
-			"civilised": true,
-			"monster": false,
-			"lifespan": {"adult_at": 20, "typical": 130, "max": 200},
-			"magicule_affinity": 0.90,
-			"traits": ["celestial_radiance", "halo_flecks", "healing_touch", "natural_leadership", "radiant_aegis"],
-			"description": "Touched by celestial light and higher planes. Recognized by luminous features, golden or iridescent hair, and radiant presence. Often drawn to leadership, paladin orders, healing, and protection of the innocent.",
-			"homelands": ["solmarch_theocracy", "aurelion", "dawn_cathedral"],
-			"evolution": [
-				{"from": "aasimar", "to": "radiant_seraph", "name": "Radiant Seraph", "requires": {"level": 35, "magicules": 7000}, "gains": ["luminous_wings", "sunfire_retribution", "mass_cleanse"]},
-				{"from": "radiant_seraph", "to": "celestial_paragon", "name": "Celestial Paragon", "requires": {"level": 65, "magicules": 30000, "trial": "dawn_apotheosis"}, "gains": ["judgment_ray", "immortal_halo", "holy_aegis_aura"]}
-			],
-			"transformation": {"possible": true, "methods": ["divine_grace_anointing"], "from": ["human"], "note": "Blessed by the Dawnflame deities directly."}
-		},
-		{
-			"id": "lizardfolk",
-			"name": "Lizardfolk",
-			"plural": "Lizardfolk",
-			"civilised": false,
-			"monster": true,
-			"lifespan": {"adult_at": 10, "typical": 50, "max": 80},
-			"magicule_affinity": 0.30,
-			"traits": ["reptilian_hardy", "swamp_swimmer", "thick_scales", "primal_survival"],
-			"description": "Ancient, primal, and hardy. Inhabiting wetlands, delta swamps, and far southern bayous. Valued for their unmatched survival instincts and ancient nature tracking.",
-			"homelands": ["swamps_and_marshes", "dismal_delta", "lake_shallows"],
-			"evolution": [
-				{"from": "lizardfolk", "to": "draken", "name": "Dragonnewt (via Naming)", "requires": {"level": 12, "magicules": 1200, "or_named": true}, "gains": ["humanoid_body", "draconic_breath", "flight_glider", "superior_intellect"]}
-			],
-			"transformation": {"possible": false, "methods": [], "note": "Indigenous marsh dwellers who ascend when granted names."}
-		},
-		{
-			"id": "serpentkin",
-			"name": "Serpentkin",
-			"plural": "Serpentkin",
-			"civilised": true,
-			"monster": false,
-			"lifespan": {"adult_at": 20, "typical": 180, "max": 300},
-			"magicule_affinity": 0.82,
-			"traits": ["elegant", "hypnotic_gaze", "poison_art", "spiritual_depth", "silent_coiling"],
-			"description": "Elegant and mysterious folk from distant jungle islands and sun-drenched valleys. Practicing deep spiritual and esoteric magical traditions with subtle serpent features.",
-			"homelands": ["jade_canopy", "serpent_isles", "seirune_archipelago"],
-			"evolution": [
-				{"from": "serpentkin", "to": "naga_mystic", "name": "Naga Mystic", "requires": {"level": 30, "magicules": 5000}, "gains": ["hypnotic_mist", "venom_transmutation", "water_gliding"]}
-			],
-			"transformation": {"possible": false, "methods": []}
-		},
-		{
-			"id": "avian",
-			"name": "Avian",
-			"plural": "Avians",
-			"civilised": true,
-			"monster": false,
-			"lifespan": {"adult_at": 16, "typical": 70, "max": 120},
-			"magicule_affinity": 0.65,
-			"traits": ["winged_flight", "eagle_vision", "cliff_dwellers", "aerial_dive", "wind_affinity"],
-			"description": "Proud sky-dwelling peoples with magnificent feathered wings and talon reflexes. Inhabiting high mountain cliffs and aeries; renowned for incredible eyesight, speed, and mastery of thermal currents.",
-			"homelands": ["wind_pinnacles", "sky_nest_peaks", "ongur_steppe"],
-			"evolution": [
-				{"from": "avian", "to": "storm_falcon", "name": "Storm Falcon Sovereign", "requires": {"level": 35, "magicules": 6000}, "gains": ["gale_blades", "cloud_dive_supersonic", "tempest_crest"]}
-			],
-			"transformation": {"possible": true, "methods": ["sky_totem_ascension"], "from": ["beastkin"]}
-		},
-		{
-			"id": "spiritkin",
-			"name": "Spiritkin",
-			"plural": "Spiritkin",
-			"civilised": true,
-			"monster": false,
-			"lifespan": {"adult_at": 1, "typical": 600, "max": 9999},
-			"magicule_affinity": 0.99,
-			"traits": ["ethereal_body", "nature_warden", "elemental_form", "physical_damage_resistance"],
-			"description": "Entities born from the spirit world and natural leyline convergences. Manifesting as humanoid dryads, water nymphs, or flame spirits who guard sacred shrines and ancient groves.",
-			"homelands": ["sacred_sanctuaries", "veylwood_heart", "world_tree_roots"],
-			"evolution": [
-				{"from": "spiritkin", "to": "elemental_archon", "name": "Elemental Archon", "requires": {"level": 40, "magicules": 12000}, "gains": ["phase_shift", "nature_regrowth", "elemental_storm"]}
-			],
-			"transformation": {"possible": false, "methods": []}
-		},
-		{
-			"id": "giant",
-			"alias": "titan",
-			"name": "Giant",
-			"plural": "Giants",
-			"civilised": true,
-			"monster": true,
-			"lifespan": {"adult_at": 50, "typical": 600, "max": 1500},
-			"magicule_affinity": 0.70,
-			"traits": ["colossal_size", "mountain_cleaver", "stone_skin", "earth_resonance", "unflinching_poise"],
-			"description": "Rare, towering colossi standing 4 to 7 meters tall. Inhabiting isolated mountain plateaus and glacial peaks beyond the borders of Valencious; possessing strength that shapes terrain.",
-			"homelands": ["frost_spine", "titan_crags", "cloud_boundary"],
-			"evolution": [
-				{"from": "giant", "to": "frost_titan", "name": "Frost / Stone Titan", "requires": {"level": 40, "magicules": 10000}, "gains": ["glacier_armor", "avalanche_fist", "seismic_shockwave"]},
-				{"from": "frost_titan", "to": "mountain_colossus", "name": "Mountain Colossus", "requires": {"level": 70, "magicules": 50000}, "gains": ["tectonic_shifter", "unbreakable_core"]}
-			],
-			"transformation": {"possible": false, "methods": []}
-		},
-		{
-			"id": "undead",
-			"name": "Intelligent Undead",
-			"plural": "Undead",
-			"civilised": true,
-			"monster": true,
-			"lifespan": {"adult_at": 0, "typical": 9999, "max": 9999},
-			"magicule_affinity": 0.80,
-			"traits": ["no_fatigue", "bleed_immune", "poison_immune", "soul_harvest", "chilling_aura"],
-			"description": "Not mindless shamblers, but beings who retain their minds, memories, and wills. Ancient knights who refused to die, liches devoted to timeless research, and ghosts bound to ancient kingdoms.",
-			"homelands": ["ashen_necropolis", "forgotten_battlegrounds", "tomb_cities"],
-			"evolution": [
-				{"from": "skeleton", "to": "wight", "name": "Wight / Revenant (via Naming)", "requires": {"level": 10, "magicules": 1000, "or_named": true}, "gains": ["restored_flesh_or_spectral_sheen", "weapon_mastery", "conscious_speech"]},
-				{"from": "wight", "to": "death_knight", "name": "Death Knight", "requires": {"level": 35, "magicules": 6000, "path": "martial"}, "gains": ["soul_cleave", "death_steed_mount", "dread_presence"]},
-				{"from": "wight", "to": "elder_lich", "name": "Elder Lich", "requires": {"level": 35, "magicules": 9000, "path": "arcane"}, "gains": ["phylactery_binding", "chantless_necromancy", "death_fog"]},
-				{"from": "elder_lich", "to": "nether_sovereign", "name": "Nether Sovereign", "requires": {"level": 70, "magicules": 40000}, "gains": ["domain_of_the_dead", "soul_annihilation"]}
-			],
-			"transformation": {
-				"possible": true,
-				"methods": ["phylactery_ritual", "death_pact_awakening"],
-				"from": ["human", "elf"],
-				"note": "A powerful mage can bind their soul into a phylactery to achieve intelligent lichdom."
+			"traits": ["fiend_blood", "horns_and_tail", "fire_resistance", "thaumic_charm"],
+			"description": "Bearing the blood of otherworldly fiends. Evolves toward aristocratic hellion nobility or colossal demonic titans.",
+			"homelands": ["solmarch_borders", "ashen_basin"],
+			"evolution_trees": {
+				"humanoid_noble": [
+					{"tier": 1, "name": "Hellion Blade (Named)", "form": "refined_humanoid", "requires": {"level": 25, "magicules": 3500, "or_named": true}, "gains": ["obsidian_horns", "nether_step", "fiend_charm", "hellfire_edge"]},
+					{"tier": 2, "name": "Arch-Infernal Monarch", "form": "refined_humanoid", "requires": {"level": 60, "magicules": 22000}, "gains": ["demon_wing_flight", "immolation_aura", "abyssal_dominion", "sovereign_pact"]}
+				],
+				"beast_fiend": [
+					{"tier": 1, "name": "Brimstone Ravager", "form": "bestial", "requires": {"level": 25, "magicules": 4000}, "gains": ["cloven_crush", "magma_blood_splash", "horn_gore"]},
+					{"tier": 2, "name": "Balor / Pit Tyrant Goliath", "form": "beast_colossus", "requires": {"level": 60, "magicules": 26000}, "gains": ["flame_whip_storm", "colossal_nether_wings", "hellfire_meteor_crash"]}
+				]
 			}
 		}
 	]
