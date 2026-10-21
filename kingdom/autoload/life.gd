@@ -125,7 +125,14 @@ const NO_CLOCK := -1.0e9  # `_spoil_abs` before the first day tick
 var _spoil_abs := NO_CLOCK   # absolute in-game hours the pack's food was last aged to
 
 
+## NI-5: the realm's bonds module keeps its relationship axes in the same graph the embodied villagers use (one store, one save).
+func _link_social_graph() -> void:
+	if realm != null and npc_social_graph != null:
+		realm.social_graph = npc_social_graph
+
+
 func _ready() -> void:
+	_link_social_graph()
 	WorldSim.hour_changed.connect(_on_hour)
 	_new_life()
 
@@ -163,6 +170,7 @@ func reset() -> void:
 		inventory.queue_free()
 	for n: String in STATE:
 		set(n, get(n).get_script().new())
+	_link_social_graph()
 	world_events = WorldEventLog.new()
 	action_runtime = ActionRuntime.new()
 	npc_activity_runtime = NpcActivityRuntime.new(action_runtime)
@@ -1120,7 +1128,7 @@ func _on_hour(hour: int) -> void:
 	if cam.has_method("set_player_rank"):
 		cam.set_player_rank(CareerLadders.military_rank_for(career_rank) if career_id == "soldier" else "")
 	# City life and society keep a signed ledger instead of touching the purse.
-	for k: String in ["city_life", "society", "education", "household", "callups", "enterprise", "construction", "scribe", "soldier", "trades", "recruitment", "farming", "organizations"]:
+	for k: String in ["city_life", "society", "education", "household", "callups", "enterprise", "construction", "scribe", "soldier", "trades", "recruitment", "farming", "organizations", "war_intel"]:
 		var m: RefCounted = realm.mod(k)
 		if m != null and m.has_method("take_pending_gold"):
 			var net := int(m.take_pending_gold())
@@ -1626,6 +1634,7 @@ func restore(d: Dictionary) -> void:
 	UtilityBrain.clear_transient_social()
 	# Optional social data must not leak across loading an older/empty save.
 	npc_social_graph = NpcSocialGraph.new()
+	_link_social_graph()
 	# Older saves simply start a fresh journal. Invalid new journal data is isolated
 	# from the rest of the save so existing player state still restores normally.
 	world_events = WorldEventLog.new()

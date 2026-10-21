@@ -47,6 +47,8 @@ var _day := 0
 var _hours := 0
 var _npc_seeded := false
 var _perf := {}
+var _battles: Dictionary = {}     # sid -> battle record for battlefield_snapshot (MW-17)
+var weather := "clear"            # set from the hub ctx each hour (clear, rain, storm, snow, fog)
 var _stance_cache: Dictionary = {}   # "a|b" -> hostile by faction stance; cleared every day (derived, never saved)
 var stats := {"founded": 0, "deserted": 0, "orders": 0, "lost_orders": 0, "raids": 0, "repelled": 0, "fallen": 0, "betrayals": 0, "blockades": 0}
 
@@ -59,6 +61,10 @@ func _mod(n: String) -> Variant:
 
 func _now() -> int:
 	return _day
+
+
+func hours() -> int:
+	return _hours
 
 
 ## Tests and tools: the army clock.
@@ -876,8 +882,51 @@ func _route_danger(aid: String) -> float:
 	return minf(p, 0.8)
 
 
-## Sends an order by courier. It arrives after the ride and is checked unit by unit; the sender hears back one ride later.
-func send_order(aid: String, order: Dictionary) -> Dictionary:
+## Weather slows the ride and widens the chance a rider is caught.
+const WEATHER_RIDE := {"clear": 1.0, "rain": 1.25, "fog": 1.2, "snow": 1.6, "storm": 1.9}
+## Weather on the field: attacker multiplier on assault power (archers and mounted men suffer most), and a march slowdown.
+const WEATHER_FIELD := {"clear": 1.0, "rain": 0.95, "fog": 0.97, "snow": 0.9, "storm": 0.86}
+
+
+## One leg of a message ride between two points for an owner: hours (distance, road and weather) and the chance enemy patrols take the rider.
+func leg(owner: String, from_pos: Array, to_pos: Array) -> Dictionary:
+	var d := _dist(from_pos, to_pos)
+	var hrs := maxf(1.0, ceil(d / D.COURIER_SPEED * float(WEATHER_RIDE.get(weather, 1.0))))
+	var mid := [(float(from_pos[0]) + float(to_pos[0])) * 0.5, (float(from_pos[1]) + float(to_pos[1])) * 0.5]
+	var p := 0.0
+	for k: String in _ar:
+		var b: Dictionary = _ar[k]
+		if is_hostile(owner, String(b["owner"])):
+			if _dist(b["pos"], mid) < 260.0 or _dist(b["pos"], to_pos) < 200.0 or _dist(b["pos"], from_pos) < 200.0:
+				p += 0.3
+	return {"hours": int(hrs), "risk": minf(p, 0.8) * (1.0 + 0.15 * (float(WEATHER_RIDE.get(weather, 1.0)) - 1.0)), "dist": d}
+
+
+## Magical messaging (sending stones, mage-link): only where the lore allows, i.e. the army has a mage unit and the owner a home post. It arrives within the hour,
+## cannot be caught on the road, and storms can scatter it.
+func magic_link(aid: String) -> bool:
+	var a: Dictionary = _ar.get(aid, {})
+	if a.is_empty() or (_hq.get(String(a["owner"]), []) as Array).is_empty():
+		return false
+	for u: Dictionary in a["units"]:
+		if String(u["k"]) == "mage" and int(u["n"]) > 0:
+			return true
+	return false
+
+
+## The interceptor can also forge: a captured rider's order is replaced when an enemy army sits on the road and its owner is cunning enough.
+func _forged_order(aid: String, order: Dictionary) -> Dictionary:
+	var a: Dictionary = _ar[aid]
+	var k := String(order.get("kind", "hold"))
+	if k in ["attack", "move", "defend", "patrol"]:
+		return {"kind": "retreat"}
+	return {"kind": "attack", "x": float(a["pos"][0]) + 400.0, "y": float(a["pos"][1])}
+
+
+## Sends an order by courier. It arrives after the ride (distance, weather) and is checked unit by unit; the sender hears back one ride later.
+## opts: magic (use the mage link when lore allows), forge (0..1 cunning of the enemy on the road, default 0.35). A caught rider either drops the order or
+## has it replaced with a forged one; either way the sender learns nothing until the reply was due.
+func send_order(aid: String, order: Dictionary, opts: Dictionary = {}) -> Dictionary:
 	var a: Dictionary = _ar.get(aid, {})
 	if a.is_empty() or _couriers.size() >= COURIERS_MAX:
 		return {"ok": false}
@@ -885,16 +934,35 @@ func send_order(aid: String, order: Dictionary) -> Dictionary:
 	for k: String in ["target", "x", "y", "sid"]:
 		if order.has(k):
 			o[k] = order[k]
-	var hrs := int(courier_hours(aid))
+	var h: Array = _hq.get(String(a["owner"]), [])
 	var seq := _seq
 	_seq += 1
-	var lost := _h("courier", seq, _num(aid)) < _route_danger(aid)
-	_couriers.append({"c": seq, "aid": aid, "order": o, "sent": _hours, "eta": _hours + hrs, "ack": _hours + hrs * 2, "seq": seq, "lost": lost})
-	_orders.append({"seq": seq, "aid": aid, "kind": o["kind"], "sent": _hours, "arrives": _hours + hrs, "ack": _hours + hrs * 2, "truth": "sent", "obeyed": 0, "men": 0})
+	var hrs := 1
+	var risk := 0.0
+	var magic := bool(opts.get("magic", false)) and magic_link(aid)
+	if not h.is_empty():
+		var lg := leg(String(a["owner"]), h, a["pos"])
+		hrs = int(lg["hours"])
+		risk = float(lg["risk"])
+	if magic:
+		hrs = 1
+		risk = 0.0
+	var fate := "ok"
+	if risk > 0.0 and _h("courier", seq, _num(aid)) < risk:
+		fate = "forged" if _h("forge", seq, _num(aid)) < float(opts.get("forge", 0.35)) else "lost"
+	elif magic and weather == "storm" and _h("scatter", seq, _num(aid)) < 0.3:
+		fate = "lost"
+	var lost := fate == "lost"
+	var sent_order := o
+	if fate == "forged":
+		sent_order = _forged_order(aid, o)
+	_couriers.append({"c": seq, "aid": aid, "order": sent_order, "sent": _hours, "eta": _hours + hrs, "ack": _hours + hrs * 2, "seq": seq, "lost": lost, "fate": fate, "magic": magic})
+	_orders.append({"seq": seq, "aid": aid, "kind": o["kind"], "sent": _hours, "arrives": _hours + hrs, "ack": _hours + hrs * 2, "truth": "sent", "obeyed": 0, "men": 0,
+		"fate": fate, "magic": magic, "pos0": [float(a["pos"][0]), float(a["pos"][1])]})
 	if _orders.size() > ORDERS_KEEP:
 		_orders.pop_front()
 	stats["orders"] = int(stats["orders"]) + 1
-	return {"ok": true, "seq": seq, "eta_hours": hrs}
+	return {"ok": true, "seq": seq, "eta_hours": hrs, "magic": magic}
 
 
 func couriers() -> Array:
@@ -917,7 +985,13 @@ func order_view(seq: int) -> Dictionary:
 	var st := "sent"
 	if known:
 		st = "no_reply" if String(r["truth"]) == "lost" else String(r["truth"])
-	return {"seq": seq, "aid": r["aid"], "kind": r["kind"], "state": st, "known": known, "eta_h": maxi(0, int(r["arrives"]) - _hours)}
+	# A forged order looks like a normal reply to the sender; only the ground truth in order_truth() shows it.
+	return {"seq": seq, "aid": r["aid"], "kind": r["kind"], "state": st, "known": known, "eta_h": maxi(0, int(r["arrives"]) - _hours), "stale_h": maxi(0, _hours - int(r["sent"])) if st == "sent" else 0}
+
+
+## Ground truth for tests and debrief screens: how the order really fared ("ok", "lost", "forged").
+func order_truth(seq: int) -> String:
+	return String(_order_row(seq).get("fate", ""))
 
 
 func _deliver(c: Dictionary) -> void:
@@ -1033,7 +1107,7 @@ func _move_hour(a: Dictionary) -> void:
 	var dest: Array = a["dest"]
 	if dest.is_empty():
 		return
-	var spd := D.ARMY_SPEED * (0.7 if int(a["hungry"]) > 0 else 1.0)
+	var spd := D.ARMY_SPEED * (0.7 if int(a["hungry"]) > 0 else 1.0) * float(WEATHER_FIELD.get(weather, 1.0)) ** 0.5
 	var d := _dist(a["pos"], dest)
 	if d <= spd:
 		a["pos"] = [float(dest[0]), float(dest[1])]
@@ -1414,6 +1488,11 @@ func resolve_attack(att: Dictionary, sid: int, method: String, opts: Dictionary 
 	var gid := String(p["garrison"])
 	var aid := String(att.get("aid", ""))
 	var ap := float(att.get("power", 0.0)) if aid == "" else power(aid)
+	var wf := war_factors(att, sid)
+	ap *= float(wf["mult"])
+	res["factors"] = wf
+	var att0 := men(aid) if aid != "" else int(att.get("men", 20))
+	var def0 := men(gid) + int(p.get("patrols", 0))
 	match method:
 		"bribe_insider":
 			var price := 40.0 + float(men(gid)) * 3.0
@@ -1438,11 +1517,15 @@ func resolve_attack(att: Dictionary, sid: int, method: String, opts: Dictionary 
 			var margin := absf(sc - 0.5)
 			var a_loss := clampf(0.12 + (0.35 - margin) * dr / maxf(ap, 1.0) * 0.6, 0.05, 0.6) if att_wins else clampf(0.28 + margin * 0.9, 0.2, 0.75)
 			var d_loss := clampf(0.28 + margin * 0.9, 0.2, 0.75) if att_wins else clampf(0.12 + (0.35 - margin) * ap / maxf(dr, 1.0) * 0.6, 0.05, 0.6)
+			var a_lost_n := 0
 			if aid != "":
-				hurt(aid, a_loss, 0.2 if not att_wins else -0.05)
+				a_lost_n = hurt(aid, a_loss, 0.2 if not att_wins else -0.05)
+			else:
+				a_lost_n = int(round(float(att0) * a_loss))
 			if gid != "":
 				res["defender_lost"] = hurt(gid, d_loss, 0.1 if not att_wins else 0.3)
 			res["won"] = att_wins
+			_record_battle(sid, aid, owner, att0, a_lost_n, def0, int(res.get("defender_lost", int(round(float(def0) * d_loss)))), att_wins, margin)
 			if att_wins:
 				var sev := clampf(0.4 + margin, 0.2, 1.0) * (1.0 - float((p["evac"] as Dictionary)["frac"]) * 0.6)
 				var stt: Variant = _mod("settlements")
@@ -1479,6 +1562,107 @@ func resolve_attack(att: Dictionary, sid: int, method: String, opts: Dictionary 
 				res["text"] = "%s plundered farms outside %s." % [owner, _sname(sid)]
 			_ev("crime", sid, [gid] if gid != "" else [], "raid", res["text"], 4)
 	return _finish(res, away)
+
+
+## MW-17: what the outcome of an offscreen fight depends on beyond raw power. Supply and morale are already inside power() (hunger, unpaid wages, unit morale);
+## this adds what was missing: weather on the field, a long supply line, a routed army's cohesion and intelligence (scouts, a warned garrison).
+## mult is applied to the attacker's power; every part is reported so the player can be told why.
+func war_factors(att: Dictionary, sid: int) -> Dictionary:
+	var aid := String(att.get("aid", ""))
+	var p: Dictionary = _def.get(sid, {})
+	var wx := float(WEATHER_FIELD.get(weather, 1.0))
+	var line := 1.0
+	var rout := 1.0
+	var intel := 1.0
+	if aid != "" and _ar.has(aid):
+		var a: Dictionary = _ar[aid]
+		var h: Array = _hq.get(String(a["owner"]), [])
+		var n := maxi(1, men(aid))
+		if not h.is_empty() and _dist(h, a["pos"]) > 1500.0 and float(a["food"]) < float(n) * D.RATION * 3.0:
+			line = 0.92
+		if morale(aid) < 0.3:
+			rout = 0.85
+		if not p.is_empty() and _ar.has(String(p["garrison"])):
+			var dow := String((_ar[String(p["garrison"])] as Dictionary)["owner"])
+			var seen: Dictionary = (_sight.get(dow, {}) as Dictionary).get(aid, {})
+			if not seen.is_empty() and _hours - int(seen["seen"]) <= 24:
+				intel *= 0.93   # the garrison saw them coming
+	if bool(att.get("scouts", false)):
+		intel *= 1.05
+	return {"weather": snappedf(wx, 0.001), "line": line, "rout": rout, "intel": snappedf(intel, 0.001), "wx": weather, "mult": snappedf(wx * line * rout * intel, 0.0001)}
+
+
+func _record_battle(sid: int, aid: String, owner: String, att0: int, att_lost: int, def0: int, def_lost: int, won: bool, margin: float) -> void:
+	var p: Dictionary = _def.get(sid, {})
+	var dur := clampi(int(round(3.0 + float(att0 + def0) / 12.0)), 3, 18)
+	var alert := int(p.get("alert", 0))
+	var res_att := int(float(att0) * 0.1)
+	var res_def := int(p.get("per_shift", 0)) + (2 if alert >= 2 else 0)
+	_battles[sid] = {"sid": sid, "aid": aid, "owner": owner, "start": _hours, "dur": dur, "att0": att0, "att_lost": mini(att_lost, att0), "def0": def0,
+		"def_lost": mini(def_lost, def0), "won": won, "margin": snappedf(margin, 0.001), "walls": int(p.get("walls", 0)), "gates": int(p.get("gates", 2)),
+		"att_res": res_att, "att_res_at": 0.55, "def_res": mini(res_def, def0), "def_res_at": 0.35, "wx": weather}
+	if _battles.size() > 12:
+		var oldest := -1
+		var oh := 1 << 60
+		for k: int in _battles:
+			if int((_battles[k] as Dictionary)["start"]) < oh:
+				oh = int((_battles[k] as Dictionary)["start"])
+				oldest = k
+		_battles.erase(oldest)
+
+
+## Data only (the scene is built later): a plausible battlefield for a fight at `sid` as it stands `at_hour` (default now) when the player arrives mid-battle.
+## The fight was resolved when it began; this reconstructs the way there. Everything is monotone and conserved: lost + engaged + waiting = men at the start,
+## the destroyed defences only grow, reserves arrive at their hour, and at the end the figures equal the resolved result.
+func battlefield_snapshot(sid: int, at_hour := -1) -> Dictionary:
+	var b: Dictionary = _battles.get(sid, {})
+	if b.is_empty():
+		return {}
+	var hr := _hours if at_hour < 0 else at_hour
+	var t := clampf(float(hr - int(b["start"])) / float(maxi(1, int(b["dur"]))), 0.0, 1.0)
+	if hr < int(b["start"]):
+		return {"sid": sid, "phase": "not_started", "t": 0.0}
+	var e := t * t * (3.0 - 2.0 * t)   # losses are slow at first, then heavy, then taper
+	var a_lost := int(round(float(b["att_lost"]) * e))
+	var d_lost := int(round(float(b["def_lost"]) * e))
+	var a_wait := int(b["att_res"]) if t < float(b["att_res_at"]) else 0
+	var d_wait := int(b["def_res"]) if t < float(b["def_res_at"]) else 0
+	var a_alive := int(b["att0"]) - a_lost
+	var d_alive := int(b["def0"]) - d_lost
+	a_wait = mini(a_wait, a_alive)
+	d_wait = mini(d_wait, d_alive)
+	var wall_total := 2 + 2 * int(b["walls"])
+	var gate_total := int(b["gates"])
+	var killed_w := int(floor(float(wall_total) * (0.6 if bool(b["won"]) else 0.25) * minf(1.0, e * 1.3)))
+	var killed_g := (int(floor(float(gate_total) * minf(1.0, e * 1.2))) if bool(b["won"]) else 0)
+	var phase := "opening"
+	if t >= 1.0:
+		phase = "ended"
+	elif t >= 0.75:
+		phase = "mopping_up" if bool(b["won"]) else "breaking_off"
+	elif t >= 0.4:
+		phase = "melee"
+	elif t >= 0.15:
+		phase = "assault"
+	var pos := _pos_of_sid(sid)
+	var r_att := lerpf(260.0, 40.0 if bool(b["won"]) else 150.0, e)
+	var squads := clampi(int(ceil(float(maxi(0, a_alive - a_wait)) / 8.0)), 0, 12)
+	var att_pos: Array = []
+	for i in squads:
+		var ang := TAU * (float(i) + 0.5) / float(maxi(squads, 1)) * 0.5 + 0.4 * (_h("snap", sid, i) - 0.5)
+		att_pos.append([snappedf(float(pos[0]) + cos(ang) * r_att, 0.1), snappedf(float(pos[1]) + sin(ang) * r_att, 0.1)])
+	var dsq := clampi(int(ceil(float(maxi(0, d_alive - d_wait)) / 6.0)), 0, 12)
+	var def_pos: Array = []
+	for j in dsq:
+		var ang2 := TAU * (float(j) + 0.5) / float(maxi(dsq, 1)) * 0.5
+		def_pos.append([snappedf(float(pos[0]) + cos(ang2) * 30.0, 0.1), snappedf(float(pos[1]) + sin(ang2) * 30.0, 0.1)])
+	return {"sid": sid, "phase": phase, "t": snappedf(t, 0.001), "hour": hr, "weather": String(b["wx"]), "owner": String(b["owner"]), "aid": String(b["aid"]),
+		"attacker": {"start": int(b["att0"]), "lost": a_lost, "alive": a_alive, "waiting": a_wait, "engaged": a_alive - a_wait, "positions": att_pos, "radius": snappedf(r_att, 0.1)},
+		"defender": {"start": int(b["def0"]), "lost": d_lost, "alive": d_alive, "waiting": d_wait, "engaged": d_alive - d_wait, "positions": def_pos},
+		"destroyed": {"walls": killed_w, "walls_total": wall_total, "gates": killed_g, "gates_total": gate_total},
+		"reinforcements": {"attacker_in": int(b["att_res"]) - (int(b["att_res"]) if t < float(b["att_res_at"]) else 0), "defender_in": int(b["def_res"]) - (int(b["def_res"]) if t < float(b["def_res_at"]) else 0),
+			"attacker_due_h": int(b["start"]) + int(ceil(float(b["att_res_at"]) * float(b["dur"]))), "defender_due_h": int(b["start"]) + int(ceil(float(b["def_res_at"]) * float(b["dur"])))},
+		"outcome": ("attacker_won" if bool(b["won"]) else "repelled") if t >= 1.0 else "undecided"}
 
 
 func _finish(res: Dictionary, away: bool) -> Dictionary:
@@ -1721,6 +1905,8 @@ func _npc_fund(k: String) -> void:
 func tick_hour(_hour: int, _ctx: Dictionary) -> Array:
 	var t0 := Time.get_ticks_usec()
 	_hours += 1
+	if _ctx.has("weather"):
+		weather = String(_ctx["weather"])
 	for c: Dictionary in _couriers:
 		if _hours >= int(c["eta"]) and not bool(c.get("done", false)):
 			c["done"] = true
@@ -1862,7 +2048,7 @@ func serialize() -> Dictionary:
 	return {"ar": _ar.duplicate(true), "u": _next_u, "cou": _couriers.duplicate(true), "ord": _orders.duplicate(true), "tr": _trains.duplicate(true),
 		"sight": _sight.duplicate(true), "host": _hostile.keys(), "def": _def.duplicate(true), "blk": _blk.duplicate(true), "lev": _levied.duplicate(true),
 		"susp": _susp.duplicate(), "ssid": _ssid.duplicate(true), "recog": _recog.keys(), "hq": _hq.duplicate(true), "camp": _camp.duplicate(), "seq": _seq, "nc": _next_c, "on": _own_n,
-		"day": _day, "hours": _hours, "npc": _npc_seeded, "stats": stats.duplicate()}
+		"day": _day, "hours": _hours, "npc": _npc_seeded, "stats": stats.duplicate(), "bat": _battles.duplicate(true), "wx": weather}
 
 
 func deserialize(d: Dictionary) -> void:
@@ -1887,6 +2073,14 @@ func deserialize(d: Dictionary) -> void:
 	_day = int(d.get("day", 0))
 	_hours = int(d.get("hours", 0))
 	_npc_seeded = bool(d.get("npc", false))
+	weather = String(d.get("wx", "clear"))
+	_battles = {}
+	var bt: Dictionary = d.get("bat", {})
+	for kb: String in bt:
+		var bb: Dictionary = (bt[kb] as Dictionary).duplicate(true)
+		for fb: String in ["sid", "start", "dur", "att0", "att_lost", "def0", "def_lost", "walls", "gates", "att_res", "def_res"]:
+			bb[fb] = int(bb[fb])
+		_battles[int(kb)] = bb
 	var ar: Dictionary = d.get("ar", {})
 	for k: String in ar:
 		_ar[k] = _fix_army((ar[k] as Dictionary).duplicate(true))
