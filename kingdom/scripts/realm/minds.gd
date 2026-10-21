@@ -255,9 +255,12 @@ func believers_at(sid: int, n: int, salt: Variant) -> Array:
 	return _pick_town(sid, n, "bel", salt)
 
 
+const _NO_TOWN: Array = []
+
+
 func _pick_town(sid: int, n: int, tag: String, salt: Variant) -> Array:
 	var out: Array = []
-	var lst: Array = _town.get(sid, [])
+	var lst: Array = _town.get(sid, _NO_TOWN)
 	if lst.is_empty():
 		return out
 	var h0 := _h(tag, 0, salt)
@@ -849,12 +852,10 @@ func _choose(ch: String, rec: Dictionary, c: Dictionary, age: int, day: int, tie
 	var grudge := 0.0
 	var avoid := 0.0
 	if _bo != null and age >= ADULT:
-		avoid = _bo.avoidance(ch)
-		var fo: Dictionary = _bo.foe(ch, 30.0)
-		grudge = clampf(float(fo.get("v", 0.0)) / 100.0, 0.0, 1.0)
-		if not seated:
-			var om2: Variant = _om()
-			friend_pull = _bo.friend_pull(ch, func(f: String) -> bool: return not (om2.memberships(f) as Array).is_empty())
+		var ct: PackedFloat32Array = _bo.choice_ties(ch, _om() if not seated else null, seated)   # avoidance, grudge and friend pull in one pass
+		avoid = ct[0]
+		grudge = ct[1]
+		friend_pull = ct[2]
 	var need_safe := maxf(maxf(float(facts["danger"]), float(facts["fever"])), fear * 0.8)
 	# 2. responsibilities raise the price of leaving
 	var tied := (0.15 if deps > 0 else 0.0) + (0.3 if owns else 0.0) + (0.1 if has_emp else 0.0) + (0.1 if seated else 0.0)

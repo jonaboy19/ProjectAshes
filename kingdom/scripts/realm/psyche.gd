@@ -68,6 +68,17 @@ static func data() -> Dictionary:
 		d["tau"] = tau
 	for i in (d["kinds"] as Array).size():
 		(d["index"] as Dictionary)[String(((d["kinds"] as Array)[i] as Dictionary)["id"])] = i
+	# flat per-kind rows for the hot path: m0..m4, tempered, 1 when the four negative-mood terms sum above 0.3 (the "bad" flag)
+	var kf: Array = []
+	for kd2: Dictionary in (d["kinds"] as Array):
+		var m: Array = kd2["m"]
+		kf.append(PackedFloat64Array([float(m[0]), float(m[1]), float(m[2]), float(m[3]), float(m[4]), float(kd2.get("tempered", 0.0)),
+			1.0 if float(m[0]) + float(m[1]) + float(m[2]) + float(m[3]) > 0.3 else 0.0]))
+	d["kf"] = kf
+	var tf := PackedFloat64Array()
+	for t: Variant in (d["tau"] as Array):
+		tf.append(float(t))
+	d["tauf"] = tf
 	_data = d
 	return _data
 
@@ -157,12 +168,25 @@ static func _base(pb: PackedByteArray, po: int, k: int) -> float:
 ## Writes the five decayed mood values (byte points) of the record at `o` for `day` into `out`.
 func _decayed(o: int, pb: PackedByteArray, po: int, day: int, out: PackedFloat32Array) -> void:
 	var dt := float(maxi(0, (day - (int(_buf[o + O_DAY]) | (int(_buf[o + O_DAY + 1]) << 8))) & 0xFFFF))
-	var k := 2.0 - 1.5 * resilience(pb, po)
-	var tau: Array = data()["tau"]
-	for i in 5:
-		var b := _base(pb, po, i)
-		var v := float(_buf[o + i])
-		out[i] = b + (v - b) * exp(-dt / (float(tau[i]) * k)) if dt > 0.0 else v
+	if dt <= 0.0:
+		for i in 5:
+			out[i] = float(_buf[o + i])
+		return
+	var vol := float(pb[po + Persona.O_VOL]) / 255.0
+	var bold := float(pb[po + Persona.O_BOLD]) / 255.0
+	var k := 2.0 - 1.5 * clampf(0.45 * bold + 0.35 * float(pb[po + Persona.O_DISC]) / 255.0 + 0.2 * (1.0 - vol), 0.0, 1.0)   # == resilience(pb, po)
+	var tau: PackedFloat64Array = (_data if not _data.is_empty() else data())["tauf"]
+	# the five baselines of _base(), computed once (same formulas)
+	var b0 := 30.0 + 50.0 * vol
+	var b1 := 8.0 + 20.0 * (1.0 - bold)
+	var b2 := 8.0 + 30.0 * vol
+	var b3 := 0.0
+	var b4 := 90.0 + 80.0 * bold
+	out[0] = b0 + (float(_buf[o]) - b0) * exp(-dt / (tau[0] * k))
+	out[1] = b1 + (float(_buf[o + 1]) - b1) * exp(-dt / (tau[1] * k))
+	out[2] = b2 + (float(_buf[o + 2]) - b2) * exp(-dt / (tau[2] * k))
+	out[3] = b3 + (float(_buf[o + 3]) - b3) * exp(-dt / (tau[3] * k))
+	out[4] = b4 + (float(_buf[o + 4]) - b4) * exp(-dt / (tau[4] * k))
 
 
 ## Mood as 0..1 floats {stress, fear, anger, grief, confidence}; the baseline of a person with no record.
@@ -251,72 +275,104 @@ func appraise(ch: String, kind: String, sev: float, rel := 1.0) -> Dictionary:
 
 
 static func appraise_at(pb: PackedByteArray, po: int, kind: String, sev: float, rel: float) -> Dictionary:
-	var d := data()
+	var r := PackedFloat64Array([0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0])
+	var drift: Array = []
+	var ki := _appraise_core(pb, po, kind, sev, rel, r, drift)
+	if ki < 0:
+		return {}
+	var pts: Array = [r[0], r[1], r[2], r[3], r[4]]
+	return {"mood": pts, "weight": int(r[5]), "bad": r[6] != 0.0, "drift": drift, "k": ki}
+
+
+## The appraisal without allocating a result: mood deltas (byte points) into r[0..4], weight into r[5], bad into r[6] (1/0), drift pairs appended
+## to `drift`. Returns the kind's index or -1 for an unknown kind.
+static func _appraise_core(pb: PackedByteArray, po: int, kind: String, sev: float, rel: float, r: PackedFloat64Array, drift: Array) -> int:
+	var d := _data if not _data.is_empty() else data()
 	var ki: Variant = (d["index"] as Dictionary).get(kind)
 	if ki == null:
-		return {}
-	var kd: Dictionary = (d["kinds"] as Array)[int(ki)]
-	var m: Array = kd["m"]
-	var res := resilience(pb, po)
+		return -1
+	var kf: PackedFloat64Array = (d["kf"] as Array)[int(ki)]
+	var m0 := kf[0]
+	var m1 := kf[1]
+	var m2 := kf[2]
+	var m3 := kf[3]
+	var m4 := kf[4]
 	var vol := float(pb[po + Persona.O_VOL]) / 255.0
-	var pride := float(pb[po + Persona.O_PRI]) / 255.0
-	var mercy := float(pb[po + Persona.O_MER]) / 255.0
+	var bold := float(pb[po + Persona.O_BOLD]) / 255.0
+	var res := clampf(0.45 * bold + 0.35 * float(pb[po + Persona.O_DISC]) / 255.0 + 0.2 * (1.0 - vol), 0.0, 1.0)   # == resilience(pb, po)
 	var warm := float(pb[po + Persona.O_WARM]) / 255.0
-	var loy := float(pb[po + Persona.O_LOY]) / 255.0
 	var w := 0.2 + 0.8 * clampf(rel, 0.0, 1.0)
-	var s := clampf(sev, 0.0, 1.0) * w
+	var csev := clampf(sev, 0.0, 1.0)
+	var s := csev * w
 	var fear_k := 1.5 - 1.2 * res
-	var delta: Array = [
-		float(m[0]) * (1.4 - 0.9 * res) * s,
-		float(m[1]) * fear_k * s,
-		float(m[2]) * (0.5 + 0.6 * vol + 0.4 * pride - 0.3 * mercy) * s,
-		float(m[3]) * (0.6 + 0.5 * warm + 0.4 * loy) * s,
-		(float(m[4]) * (fear_k if float(m[4]) < 0.0 else 0.6 + 0.8 * res) + float(kd.get("tempered", 0.0)) * (res - 0.5) * 2.0) * s]
-	var bad: bool = float(m[0]) + float(m[1]) + float(m[2]) + float(m[3]) > 0.3
-	var weight := clampi(int(clampf(sev, 0.0, 1.0) * 255.0 * (1.2 - 0.5 * res if bad else 0.9 + 0.2 * warm)), 0, 255)
-	var drift: Array = []
+	r[0] = m0 * (1.4 - 0.9 * res) * s * POINTS
+	r[1] = m1 * fear_k * s * POINTS
+	r[2] = m2 * (0.5 + 0.6 * vol + 0.4 * (float(pb[po + Persona.O_PRI]) / 255.0) - 0.3 * (float(pb[po + Persona.O_MER]) / 255.0)) * s * POINTS
+	r[3] = m3 * (0.6 + 0.5 * warm + 0.4 * (float(pb[po + Persona.O_LOY]) / 255.0)) * s * POINTS
+	r[4] = (m4 * (fear_k if m4 < 0.0 else 0.6 + 0.8 * res) + kf[5] * (res - 0.5) * 2.0) * s * POINTS
+	var bad: bool = kf[6] != 0.0
+	var weight := clampi(int(csev * 255.0 * (1.2 - 0.5 * res if bad else 0.9 + 0.2 * warm)), 0, 255)
+	r[5] = float(weight)
+	r[6] = 1.0 if bad else 0.0
 	if weight >= DRIFT_WEIGHT and rel >= 0.5:
 		var step := 2 if weight >= 220 else 1
-		for r: Array in (d["drift"] as Dictionary).get(String(kd.get("theme", "")), []):
-			var field: int = int(Persona.FIELD.get(String(r[0]), -1))
+		var kd: Dictionary = (d["kinds"] as Array)[int(ki)]
+		for dr: Array in (d["drift"] as Dictionary).get(String(kd.get("theme", "")), []):
+			var field: int = int(Persona.FIELD.get(String(dr[0]), -1))
 			if field < 0:
 				continue
 			var hi := int(pb[po + field]) >= 128
-			if (String(r[2]) == "hi") == hi:
-				drift.append([field, int(r[1]) * step])
-	var pts: Array = []
-	for x: float in delta:
-		pts.append(x * POINTS)
-	return {"mood": pts, "weight": weight, "bad": bad, "drift": drift}
+			if (String(dr[2]) == "hi") == hi:
+				drift.append([field, int(dr[1]) * step])
+	return int(ki)
 
 
 ## `ch` lived through (rel 1) or heard of (rel < 1) an event: mood moves, the memory is kept, values may drift. `witnesses` is how many
 ## people saw it. Returns false for an unknown kind, a non-character or a full table.
 func experience(ch: String, kind: String, sev: float, rel := 1.0, witnesses := 1, day := -1) -> bool:
-	var pb := _pbuf(ch)
-	var a := appraise_at(pb[0], pb[1], kind, sev, rel)
-	if a.is_empty():
+	if hub != _mh:
+		_mn_m = _mod("minds")
+		_pe_m = _mod("persona")
+		_mh = hub
+	var pe: Variant = _pe_m if _pe_m != null else _mod("persona")
+	var pbuf: PackedByteArray
+	var po := 0
+	if pe == null:
+		pbuf = Persona.neutral()
+	else:
+		po = pe.off(ch)
+		if po < 0:
+			po = pe.ensure(ch, -1)
+		if po < 0:
+			pbuf = Persona.neutral()
+			po = 0
+		else:
+			pbuf = pe.buf()
+	var drift := _ad   # reused: nothing below re-enters experience()
+	drift.clear()
+	var ar := _ar
+	var kidx := _appraise_core(pbuf, po, kind, sev, rel, ar, drift)
+	if kidx < 0:
 		return false
-	var o := _make(ch)
+	var o := _off(ch)
 	if o < 0:
-		return false
+		o = _make(ch)
+		if o < 0:
+			return false
 	var now := _now() if day < 0 else day
 	if _tmp.size() != 5:
 		_tmp.resize(5)
-	_decayed(o, pb[0], pb[1], now, _tmp)
-	var mp: Array = a["mood"]
+	_decayed(o, pbuf, po, now, _tmp)
 	for i in 5:
-		_buf[o + i] = clampi(int(roundf(_tmp[i] + float(mp[i]))), 0, 255)
+		_buf[o + i] = clampi(int(roundf(_tmp[i] + ar[i])), 0, 255)
 	_buf[o + O_DAY] = now & 255
 	_buf[o + O_DAY + 1] = (now >> 8) & 255
-	stats["events" if rel >= 0.9 else "heard"] = int(stats["events" if rel >= 0.9 else "heard"]) + 1
-	var kidx: int = int((data()["index"] as Dictionary)[kind])
+	stats["events" if rel >= 0.9 else "heard"] += 1
 	# values drift once per heavy memory (a merged or re-told one does not drift twice); far characters keep no tuple, so each hearing counts
-	var drifted: bool = _store(o, now, kidx, a, rel, witnesses) if _near(ch) else not (a["drift"] as Array).is_empty()
+	var drifted: bool = _store(o, now, kidx, int(ar[5]), ar[6] != 0.0, drift, rel, witnesses) if _near(ch) else not drift.is_empty()
 	if drifted:
-		var pe: Variant = _mod("persona")
 		if pe != null:
-			for dr: Array in a["drift"]:
+			for dr: Array in drift:
 				if int(pe.nudge(ch, int(dr[0]), int(dr[1]), now)) != 0:
 					stats["drifted"] = int(stats["drifted"]) + 1
 	return true
@@ -324,16 +380,26 @@ func experience(ch: String, kind: String, sev: float, rel := 1.0, witnesses := 1
 
 ## Near-tier extra detail only: tuples for characters in the focus town (or when there is no minds layer to tell).
 func _near(ch: String) -> bool:
-	var mn: Variant = _mod("minds")
+	var mn: Variant = _mn_m
+	if mn == null:
+		mn = _mod("minds")
+		_mn_m = mn
 	if mn == null or not mn.is_mind(ch):
 		return true
-	return int(mn.tier_of(ch)) == 1 or mn.focus_sid() < 0
+	var f: int = mn.focus_sid()
+	return f < 0 or int(mn.tier_of(ch)) == 1
+
+
+var _mn_m: Variant = null
+var _ad: Array = []
+var _ar := PackedFloat64Array([0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0])
+var _mh: Variant = null
+var _pe_m: Variant = null
 
 
 ## Adds the memory tuple (merging insignificant likes, forgetting the least salient). True when it should drive a value drift.
-func _store(o: int, now: int, kidx: int, a: Dictionary, rel: float, witnesses: int) -> bool:
-	var weight: int = a["weight"]
-	var flag: int = kidx | (BAD_FLAG if a["bad"] else 0)
+func _store(o: int, now: int, kidx: int, weight: int, bad: bool, drift: Array, rel: float, witnesses: int) -> bool:
+	var flag: int = kidx | (BAD_FLAG if bad else 0)
 	var rel_n := clampi(int(roundf(rel * 15.0)), 0, 15)
 	var wit := clampi(witnesses, 0, 15)
 	var n := int(_buf[o + O_N])
@@ -352,7 +418,8 @@ func _store(o: int, now: int, kidx: int, a: Dictionary, rel: float, witnesses: i
 		var worst := 0
 		var ws := 1.0e9
 		for j in n:
-			var sc := _salience(o + O_MEM + j * MEM_W, now)
+			var mm := o + O_MEM + j * MEM_W   # _salience(mm, now), inlined
+			var sc := float(_buf[mm + 3]) / 255.0 * (0.3 + 0.7 * float(int(_buf[mm + 4]) >> 4) / 15.0) / (1.0 + float(maxi(0, (now - (int(_buf[mm]) | (int(_buf[mm + 1]) << 8))) & 0xFFFF)) / HALF)
 			if sc < ws:
 				ws = sc
 				worst = j
@@ -367,10 +434,10 @@ func _store(o: int, now: int, kidx: int, a: Dictionary, rel: float, witnesses: i
 	var m2 := o + O_MEM + at * MEM_W
 	_buf[m2] = now & 255
 	_buf[m2 + 1] = (now >> 8) & 255
-	_buf[m2 + 2] = flag | (DONE_FLAG if not (a["drift"] as Array).is_empty() else 0)
+	_buf[m2 + 2] = flag | (DONE_FLAG if not drift.is_empty() else 0)
 	_buf[m2 + 3] = weight
 	_buf[m2 + 4] = (rel_n << 4) | wit
-	return not (a["drift"] as Array).is_empty()
+	return not drift.is_empty()
 
 
 ## The hook rumours.gd calls for every new memory: `conf` is its 0..100 confidence (100 = saw it), `mag` the -100..100 story size.

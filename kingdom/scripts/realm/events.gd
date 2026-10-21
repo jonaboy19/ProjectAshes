@@ -177,14 +177,21 @@ func recent(limit := 20) -> Array:
 
 
 ## Events written after number `n` (oldest first), the ones a daily reader has not seen yet. Reads only the new tail of the ring.
-func after(n: int) -> Array:
+func after(n: int, min_weight := 0, kinds: Array = []) -> Array:
 	var out: Array = []
 	var i := _ring.size() - 1
 	while i >= 0 and int(_ring[i][0]) > n:
-		out.append(_row(_ring[i]))
+		var r: Array = _ring[i]
+		if (min_weight <= 0 or int(r[7]) >= min_weight) and (kinds.is_empty() or r[2] in kinds):   # filtered before a row is built
+			out.append(_row(r))
 		i -= 1
 	out.reverse()
 	return out
+
+
+## The number of the newest event in the ring (0 when empty).
+func newest() -> int:
+	return int(_ring[_ring.size() - 1][0]) if not _ring.is_empty() else 0
 
 
 ## Events whose actors include `actor` (a persistent id or a legacy key), newest first.

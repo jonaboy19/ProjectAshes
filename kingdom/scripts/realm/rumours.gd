@@ -21,6 +21,8 @@ extends "res://scripts/realm/realm_module.gd"
 const PD := preload("res://scripts/realm/politics_data.gd")
 const Events := preload("res://scripts/realm/events.gd")
 
+const _EMPTY: Array = []
+const _EMPTY_D: Dictionary = {}
 const MEM_MAX := 4
 const CLAIM_MAX := 160
 const TOWN_CLAIMS := 10
@@ -47,6 +49,9 @@ var _due: Dictionary = {}        # day -> [[claim id, sid], ...]
 var _next := 1
 var _day := 0
 var _last_ev := 0
+var _cm_hub: Variant = null
+var _cm_ps: Variant = null
+var _cm_bo: Variant = null
 var _tmp := {}
 ## NI-5 word of mouth: a story told along trusted ties arrives the next day and is believed more. day -> [[listener, teller, claim id, depth, magnitude, trust]]
 var _tells: Dictionary = {}
@@ -220,34 +225,50 @@ func memory_count() -> int:
 
 
 func _remember(ch: String, subject: String, kind: String, mag: float, conf: int, cid: int) -> void:
-	var m: Array = _mem.get(ch, [])
-	if m.is_empty():
+	var m: Array
+	var mv: Variant = _mem.get(ch)
+	if mv == null:
+		m = []
 		_mem[ch] = m
-	for row: Array in m:                          # the same story again strengthens it instead of piling up
-		if int(row[5]) == cid and cid > 0:
-			row[4] = maxi(int(row[4]), conf)
-			return
+	else:
+		m = mv
+	if cid > 0:
+		for row: Array in m:                      # the same story again strengthens it instead of piling up
+			if row[5] == cid:
+				row[4] = maxi(int(row[4]), conf)
+				return
 	m.append([_now(), subject, kind, snappedf(mag, 0.1), conf, cid])
 	if m.size() > MEM_MAX:
 		var worst := 0
 		var ws := 1.0e9
 		for i in m.size():
 			var r: Array = m[i]
-			var sc := absf(float(r[3])) * float(r[4]) / 100.0 + float(int(r[0])) / 100000.0
+			var sc: float = absf(r[3]) * r[4] / 100.0 + r[0] / 100000.0   # rows hold a float magnitude and int confidence/day (see deserialize)
 			if sc < ws:
 				ws = sc
 				worst = i
 		m.remove_at(worst)
 		stats["forgotten"] = int(stats["forgotten"]) + 1
 	if cid > 0:
-		var h: Array = _hold.get(cid, [])
-		if h.is_empty():
+		var h: Array
+		var hv: Variant = _hold.get(cid)
+		if hv == null:
+			h = []
 			_hold[cid] = h
+		else:
+			h = hv
 		if h.size() < HOLDERS_MAX and not h.has(ch):
 			h.append(ch)
-	var ps: Variant = _mod("psyche")
+	if hub != _cm_hub:                             # module references are kept per hub (this runs for every memory)
+		_cm_hub = hub
+		_cm_ps = null
+		_cm_bo = null
+	var ps: Variant = _cm_ps
+	if ps == null:
+		ps = _mod("psyche")
+		_cm_ps = ps
 	if ps != null:                                 # NI-4: the same memory moves this person's mood, weighted by who they are
-		ps.on_memory(ch, kind, mag, conf, (_hold.get(cid, []) as Array).size() if cid > 0 else 1)
+		ps.on_memory(ch, kind, mag, conf, (_hold[cid] as Array).size() if cid > 0 else 1)
 	if cid > 0 and conf >= 45 and _tell_depth < TELL_MAX_DEPTH:
 		_spread(ch, cid, mag)
 
@@ -255,13 +276,17 @@ func _remember(ch: String, subject: String, kind: String, mag: float, conf: int,
 ## NI-5: `ch` now holds a story; the people who trust `ch` hear it from them tomorrow (the road carries it at 45 units a day), up to
 ## TELLS_PER_MEMORY of them, two hops at most. Deterministic: a hash decides who is told.
 func _spread(ch: String, cid: int, mag: float) -> void:
-	var bo: Variant = _mod("bonds")
+	var bo: Variant = _cm_bo
 	if bo == null:
-		return
+		bo = _mod("bonds")
+		_cm_bo = bo
+		if bo == null:
+			return
 	var due := _now() + 1
 	var n := 0
+	var held: Array = _hold.get(cid, _EMPTY)
 	for t: Array in bo.listeners(ch, TELLS_PER_MEMORY):
-		if (_hold.get(cid, []) as Array).has(String(t[0])) or absi(hash([WorldSim.SEED, "tl", cid, ch, String(t[0])])) % 100 >= 75:
+		if held.has(String(t[0])) or absi(hash([WorldSim.SEED, "tl", cid, ch, String(t[0])])) % 100 >= 75:
 			continue
 		var row: Array = _tells.get(due, [])
 		if row.is_empty():
@@ -278,10 +303,10 @@ func _hear_tells(day: int) -> void:
 		for e: Array in _tells[d]:
 			if done >= TELL_PER_DAY:
 				break
-			var c: Dictionary = _claims.get(int(e[2]), {})
+			var c: Dictionary = _claims.get(int(e[2]), _EMPTY_D)
 			var who := String(e[0])
 			var mn: Variant = _mod("minds")
-			if c.is_empty() or mn == null or not mn.is_mind(who) or (_hold.get(int(e[2]), []) as Array).has(who):
+			if c.is_empty() or mn == null or not mn.is_mind(who) or (_hold.get(int(e[2]), _EMPTY) as Array).has(who):
 				continue
 			# trust in the teller lends belief: 45 as for any rumour, up to 85 for someone they trust completely
 			var conf := clampi(45 + int(float(e[5]) * 0.4), 45, 85)
@@ -422,7 +447,8 @@ func _scan_events() -> void:
 	var ev: Variant = _mod("events")
 	if ev == null:
 		return
-	var rows: Array = ev.after(_last_ev)
+	var rows: Array = ev.after(_last_ev, SCAN_MIN_WEIGHT, EVENT_KINDS)
+	_last_ev = maxi(_last_ev, int(ev.newest()))
 	var reg: Variant = _mod("registry")
 	var told: Array = []
 	for r: Dictionary in rows:
@@ -470,7 +496,7 @@ func _arrivals(day: int) -> void:
 	for pair: Array in list:
 		var cid := int(pair[0])
 		var sid := int(pair[1])
-		var c: Dictionary = _claims.get(cid, {})
+		var c: Dictionary = _claims.get(cid, _EMPTY_D)
 		if c.is_empty():
 			continue
 		var m := float(c["m"]) if int(c["c"]) != CORRECTED else float(c["t"])

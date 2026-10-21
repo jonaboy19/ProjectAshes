@@ -308,6 +308,112 @@ func bond_get(owner: String, other: String, day: int) -> PackedFloat32Array:
 	return _bout
 
 
+## The three numbers the decision layer reads from a character's ties, in one allocation-free pass (axes 0,1,3,4,5 only, no sort):
+## out[0] = max over ties of max(axis3 * 0.8, axis4 * 0.7); out[1] = best max(axis4, 0) + 0.5 * max(axis5, 0); out[2] = best (axis0 + axis1) / 2
+## clamped to 0..100 among ties at or above 20 whose other person passes `member_of` (skipped when `seated`).
+func bond_choice_scan(owner: String, day: int, out: PackedFloat32Array, member_of: Variant, seated: bool) -> void:
+	out[0] = 0.0
+	out[1] = 0.0
+	out[2] = 0.0
+	var slot := _bond_slot(person_number(owner), false)
+	if slot < 0:
+		return
+	var base := slot * BSLOT
+	for t in int(_bb[base]):
+		var o := base + 1 + t * BREC
+		var age := float(maxi(0, day - _brec_day(o)))
+		var v0 := float(_bb.decode_s8(o + 3))
+		var v1 := float(_bb.decode_s8(o + 4))
+		var v3 := float(_bb.decode_s8(o + 6))
+		var v4 := float(_bb.decode_s8(o + 7))
+		var v5 := float(_bb.decode_s8(o + 8))
+		if age > 0.0:
+			if v0 != 0.0:
+				v0 *= exp(-age * float(BOND_DECAY[0]))
+			if v1 != 0.0:
+				v1 *= exp(-age * float(BOND_DECAY[1]))
+			if v3 != 0.0:
+				v3 *= exp(-age * float(BOND_DECAY[3]))
+			if v4 != 0.0:
+				v4 *= exp(-age * float(BOND_DECAY[4]))
+			if v5 != 0.0:
+				v5 *= exp(-age * float(BOND_DECAY[5]))
+		out[0] = maxf(out[0], maxf(v3 * 0.8, v4 * 0.7))
+		out[1] = maxf(out[1], maxf(v4, 0.0) + 0.5 * maxf(v5, 0.0))
+		if not seated and member_of != null:
+			var c := clampf((v0 + v1) * 0.5, 0.0, 100.0)
+			if c >= 20.0 and c > out[2] and bool(member_of.call("ch:%d" % _brec_other(o))):
+				out[2] = c
+
+
+# scratch for bond_listeners (BOND_K candidates at most)
+var _bl_id := PackedInt32Array([0, 0, 0, 0, 0, 0, 0, 0])
+var _bl_tr := PackedFloat64Array([0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0])
+var _bl_cl := PackedFloat64Array([0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0])
+
+
+## Who `owner` could tell a story to and who would believe them, without building the whole tie list: [[other id, other's trust in owner], ...]
+## best trust first (ties: the stronger tie of the owner, then the lower number), at most `limit`. A listener needs the owner's friendship
+## (mean of axes 0 and 1) at 15 or more, and in return trust of 12 or more and hostility (axis 4) under 40.
+func bond_listeners(owner: String, day: int, limit: int) -> Array:
+	var out: Array = []
+	var on := person_number(owner)
+	var slot := _bond_slot(on, false)
+	if slot < 0:
+		return out
+	var base := slot * BSLOT
+	var n := 0
+	for t in int(_bb[base]):
+		var o := base + 1 + t * BREC
+		var v0 := float(_bb.decode_s8(o + 3))
+		var v1 := float(_bb.decode_s8(o + 4))
+		if (maxf(v0, 0.0) + maxf(v1, 0.0)) * 0.5 < 15.0:   # decay only shrinks magnitudes, so this bound holds before it too
+			continue
+		var age := float(maxi(0, day - _brec_day(o)))
+		if age > 0.0:
+			if v0 != 0.0:
+				v0 *= exp(-age * float(BOND_DECAY[0]))
+			if v1 != 0.0:
+				v1 *= exp(-age * float(BOND_DECAY[1]))
+		if clampf((v0 + v1) * 0.5, 0.0, 100.0) < 15.0:
+			continue
+		var other := _brec_other(o)
+		var os := _bond_slot(other, false)
+		if os < 0:
+			continue
+		var ob := os * BSLOT
+		for u in int(_bb[ob]):
+			var q := ob + 1 + u * BREC
+			if _brec_other(q) != on:
+				continue
+			var b0 := float(_bb.decode_s8(q + 3))
+			if b0 < 12.0:   # a positive value only shrinks with age, a negative one stays below
+				break
+			var qage := float(maxi(0, day - _brec_day(q)))
+			var b4 := float(_bb.decode_s8(q + 7))
+			if qage > 0.0:
+				b0 *= exp(-qage * float(BOND_DECAY[0]))
+				if b4 >= 40.0:   # below 40 it cannot reach 40 by decaying
+					b4 *= exp(-qage * float(BOND_DECAY[4]))
+			if b0 >= 12.0 and b4 < 40.0:
+				# insertion into the (at most BOND_K) candidates, best trust first, then the stronger tie, then the lower number
+				var cl := v0 + v1
+				var j := n
+				while j > 0 and (b0 > _bl_tr[j - 1] or (b0 == _bl_tr[j - 1] and (cl > _bl_cl[j - 1] or (cl == _bl_cl[j - 1] and other < _bl_id[j - 1])))):
+					_bl_id[j] = _bl_id[j - 1]
+					_bl_tr[j] = _bl_tr[j - 1]
+					_bl_cl[j] = _bl_cl[j - 1]
+					j -= 1
+				_bl_id[j] = other
+				_bl_tr[j] = b0
+				_bl_cl[j] = cl
+				n += 1
+			break
+	for k in mini(n, limit):
+		out.append(["ch:%d" % _bl_id[k], _bl_tr[k]])
+	return out
+
+
 ## Ties of `owner` as [other id, PackedFloat32Array(8)] pairs on `day`, strongest first (at most `limit`).
 func bond_list(owner: String, day: int, limit := BOND_K, sorted := true) -> Array:
 	var out: Array = []

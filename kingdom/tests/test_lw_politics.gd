@@ -15,9 +15,10 @@ static var _world := false
 
 
 func _hub() -> RefCounted:
-	if not _world:
+	if not _world or WorldGen._hills.seed != 2024:   # other suites in the same process may re-seed the world
 		WorldGen.setup(2024)
 		_world = true
+	WorldSim.day = 0   # the politics modules read max(hub day, WorldSim.day); earlier suites leave it far ahead
 	var h: RefCounted = Hub.new()
 	h.mod("organizations").auto_seed = false
 	h.mod("organizations").gold_ref = {"gold": 5000}

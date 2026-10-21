@@ -169,17 +169,7 @@ func suitors(ch: String, limit := 3) -> Array:
 ## Who `ch` would tell a story to and who would believe them: [[listener, trust the listener has in ch], ...] by trust, at most `limit`.
 ## A teller needs to be close to the listener (they chat), the listener needs to trust the teller.
 func listeners(ch: String, limit := 3) -> Array:
-	var out: Array = []
-	var g: Object = graph()
-	var dd := _now()
-	for t: Array in g.bond_list(ch, dd):
-		if _close(t[1]) < 15.0:
-			continue
-		var back: PackedFloat32Array = g.bond_get(String(t[0]), ch, dd)
-		if back[0] >= 12.0 and back[4] < 40.0:
-			out.append([t[0], back[0]])
-	out.sort_custom(func(a: Array, b: Array) -> bool: return float(a[1]) > float(b[1]))
-	return out.slice(0, limit) if out.size() > limit else out
+	return graph().bond_listeners(ch, _now(), limit)
 
 
 ## Friends (closeness at least `min_close`), strongest first.
@@ -221,6 +211,39 @@ func friend_pull(ch: String, member_of: Callable) -> float:
 		if c >= 20.0 and bool(member_of.call(t[0])):
 			best = maxf(best, c)
 	return clampf(best / 80.0, 0.0, 1.0)
+
+
+var _ct := PackedFloat32Array([0.0, 0.0, 0.0])
+
+
+## avoidance(), foe(ch, 30).v / 100 and friend_pull() in one unsorted pass over the ties (the minds' decision reads all three per call; the
+## three max() scans are order independent, so this equals them exactly). Returns [avoidance, grudge 0..1, friend pull 0..1] (reused array).
+## `members` (an organisations module, or null) is asked about a friend only when the character is not yet seated (`seated` false).
+func choice_ties(ch: String, members: Variant, seated: bool) -> PackedFloat32Array:
+	var raw := _ctr
+	if raw.size() != 3:
+		raw.resize(3)
+	var mo: Variant = null
+	if members != null:
+		mo = _member_cb(members)
+	graph().bond_choice_scan(ch, _now(), raw, mo, seated)
+	var g := raw[1]
+	_ct[0] = clampf(raw[0] / 100.0, 0.0, 1.0)
+	_ct[1] = clampf(g / 100.0, 0.0, 1.0) if g > 30.0 else 0.0
+	_ct[2] = clampf(raw[2] / 80.0, 0.0, 1.0)
+	return _ct
+
+
+var _ctr := PackedFloat32Array([0.0, 0.0, 0.0])
+var _mcb: Callable
+var _mcb_src: Variant = null
+
+
+func _member_cb(members: Variant) -> Callable:
+	if _mcb_src != members:
+		_mcb_src = members
+		_mcb = func(f: String) -> bool: return not (members.memberships(f) as Array).is_empty()
+	return _mcb
 
 
 ## Who people in `sid` look up to: {"id", "esteem"} for the current informal leader or {}.
