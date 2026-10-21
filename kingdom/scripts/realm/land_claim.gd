@@ -3,8 +3,10 @@ extends RefCounted
 ## Pure static rules over WorldGen, so the claim flow (C16) and build mode ask the same question:
 ##   LandClaim.block_reason(Vector2(x, z)) -> "" when the ground may be claimed, else the words the player sees.
 ## Implemented now: distance from settlements (350 m villages, 600 m towns and the capital, which also keeps the Crown's
-## ring free), water, and the road centreline. Not yet (need modules that do not exist): Scar cells, monster dens, owner
-## stones, Crownstead, the legal ladder (charter, ward claim); see HOOKS_FOR_CLOUD.md "Cloud status (2026-10-06)".
+## ring free), water, and the road centreline. These are physical rules only. The legal side (private, leased, granted, town, royal
+## domain, religious, disputed, wilderness, frontier, enemy, protected; own / build / govern as separate rights; illegal-build
+## escalation) lives in land_law.gd and founding.gd (LW-5.1), which call this check first. Not yet (need modules that do not exist):
+## Scar cells, monster dens, owner stones, Crownstead; see HOOKS_FOR_CLOUD.md "Cloud status (2026-10-06)".
 
 const VILLAGE_GAP := 350.0
 const TOWN_GAP := 600.0
