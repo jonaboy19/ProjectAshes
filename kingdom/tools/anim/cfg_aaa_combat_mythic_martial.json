@@ -1,0 +1,124 @@
+{
+ "source_type": "bvh",
+ "bvh_dir": "C:/Users/Jonna/.cache/ashes_anim_src/cmu-mocap/data",
+ "ual": "../../assets/incoming/quaternius/universal-animation-library/Unreal-Godot/UAL1_Standard.glb",
+ "out": "../../assets/incoming/animations/aaa/UAL_AAA_Combat_Mythic_Martial.glb",
+ "smooth": 0.012,
+ "fingers": "grip",
+ "finger_poses": {
+  "relaxed": ["Idle_Loop", 0.0],
+  "fist": ["Punch_Jab", 0.4],
+  "open": ["Idle_Loop", 0.0],
+  "grip": ["Sword_Idle", 0.0]
+ },
+ "map": {
+  "pelvis": "Hips",
+  "spine_01": "LowerBack",
+  "spine_02": "Spine",
+  "spine_03": "Spine1",
+  "neck_01": "Neck",
+  "Head": "Head",
+  "clavicle_l": "LeftShoulder",
+  "upperarm_l": "LeftArm",
+  "lowerarm_l": "LeftForeArm",
+  "hand_l": "LeftHand",
+  "clavicle_r": "RightShoulder",
+  "upperarm_r": "RightArm",
+  "lowerarm_r": "RightForeArm",
+  "hand_r": "RightHand",
+  "thigh_l": "LeftUpLeg",
+  "calf_l": "LeftLeg",
+  "foot_l": "LeftFoot",
+  "ball_l": "LeftToeBase",
+  "thigh_r": "RightUpLeg",
+  "calf_r": "RightLeg",
+  "foot_r": "RightFoot",
+  "ball_r": "RightToeBase"
+ },
+ "clips": [
+  {
+   "name": "DualBlade_Scissor_Decapitate",
+   "file": "002/02_07.bvh",
+   "range_s": [4.5, 6.0],
+   "loop": false,
+   "fingers": "grip"
+  },
+  {
+   "name": "DualBlade_Spinning_Cyclone",
+   "file": "078/78_17.bvh",
+   "range_s": [0.5, 1.8],
+   "loop": false,
+   "fingers": "grip"
+  },
+  {
+   "name": "Spear_Vault_Flying_Kick",
+   "file": "088/88_06.bvh",
+   "range_s": [0.4, 1.9],
+   "loop": false,
+   "fingers": "grip"
+  },
+  {
+   "name": "Spear_Rapid_3Thrust_Chain",
+   "file": "002/02_07.bvh",
+   "range_s": [1.5, 3.2],
+   "loop": false,
+   "fingers": "grip"
+  },
+  {
+   "name": "Martial_Spinning_540_Hook_Kick",
+   "file": "088/88_04.bvh",
+   "range_s": [1.8, 3.4],
+   "loop": false,
+   "fingers": "fist"
+  },
+  {
+   "name": "Martial_Handplant_Cartwheel_Strike",
+   "file": "088/88_05.bvh",
+   "range_s": [0.6, 2.2],
+   "loop": false,
+   "fingers": "open"
+  },
+  {
+   "name": "Wuxia_Mountain_Cleaving_Palm",
+   "file": "002/02_05.bvh",
+   "range_s": [0.8, 2.4],
+   "loop": false,
+   "fingers": "open"
+  },
+  {
+   "name": "Wuxia_Soaring_Sky_Dash",
+   "file": "078/78_13.bvh",
+   "range_s": [0.2, 1.4],
+   "loop": false,
+   "fingers": "grip"
+  },
+  {
+   "name": "Titan_Earth_Fist_Slam",
+   "file": "086/86_01.bvh",
+   "range_s": [1.0, 2.6],
+   "loop": false,
+   "fingers": "fist"
+  },
+  {
+   "name": "Counter_Deflect_Disarm_Takedown",
+   "file": "078/78_13.bvh",
+   "range_s": [1.6, 3.0],
+   "loop": false,
+   "fingers": "grip"
+  },
+  {
+   "name": "Greatsword_Ground_Drag_Uppercut",
+   "file": "002/02_08.bvh",
+   "range_s": [2.0, 3.8],
+   "loop": false,
+   "fingers": "grip"
+  },
+  {
+   "name": "Bow_Point_Blank_Arrow_Stab",
+   "file": "086/86_04.bvh",
+   "range_s": [0.5, 2.2],
+   "loop": false,
+   "fingers": "grip"
+  }
+ ]
+}

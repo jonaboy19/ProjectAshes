@@ -1,0 +1,77 @@
+{
+  "horse_draco": {
+    "tris": 2298,
+    "bones": 30,
+    "anims": [
+      "Attack",
+      "Attack_Kick",
+      "Death",
+      "Eat",
+      "Hit",
+      "Hit_Alt",
+      "Idle",
+      "Idle_Alt",
+      "Idle_HeadLow",
+      "Jump",
+      "Jump_Land",
+      "Run",
+      "Walk"
+    ],
+    "size_m": [
+      0.83,
+      2.92,
+      2.79
+    ],
+    "kb": 872
+  },
+  "horse_abyssal": {
+    "tris": 2244,
+    "bones": 30,
+    "anims": [
+      "Attack",
+      "Attack_Kick",
+      "Death",
+      "Eat",
+      "Hit",
+      "Hit_Alt",
+      "Idle",
+      "Idle_Alt",
+      "Idle_HeadLow",
+      "Jump",
+      "Jump_Land",
+      "Run",
+      "Walk"
+    ],
+    "size_m": [
+      0.74,
+      2.84,
+      2.91
+    ],
+    "kb": 866
+  },
+  "horse_armored_destrier": {
+    "tris": 2298,
+    "bones": 30,
+    "anims": [
+      "Attack",
+      "Attack_Kick",
+      "Death",
+      "Eat",
+      "Hit",
+      "Hit_Alt",
+      "Idle",
+      "Idle_Alt",
+      "Idle_HeadLow",
+      "Jump",
+      "Jump_Land",
+      "Run",
+      "Walk"
+    ],
+    "size_m": [
+      0.98,
+      3.1,
+      2.95
+    ],
+    "kb": 872
+  }
+}

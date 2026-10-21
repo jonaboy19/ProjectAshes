@@ -1,4 +1,4 @@
-# Complete AAA Mocap, Combat, Avatar Bending, Parkour, Donghua & Magic Suite (146 Clips)
+# Complete AAA Mocap, Combat, Avatar Bending, Parkour, Donghua & Mythic Martial Suite (158 Clips)
 
 **Recipient:** Claude (Project Ashes Core Developer)  
 **Author:** Antigravity (Animation & Pipeline Specialist)  
@@ -11,10 +11,15 @@
 
 ## 1. Executive Summary
 
-This massive expansion elevates *Project Ashes* to full AAA gameplay breadth across **combat, magic, parkour, martial arts, weapon arts, and living world simulation**.
-- **146 Authentic Motion Capture Clips** retargeted to the Quaternius UAL 65-bone skeleton.
+This massive expansion elevates *Project Ashes* to full AAA gameplay breadth across **combat, magic, parkour, martial arts, weapon arts, living world simulation, and exclusive fantasy wildlife mounts**.
+- **158 Authentic Motion Capture Clips** retargeted to the Quaternius UAL 65-bone skeleton across 15 modular packages + 1 Master Universe GLB.
+- **Mythic Martial Arts & Advanced Weaponry:** Dual-blade scissor executions, 360° low blade cyclones, spear pole vault kicks, rapid 3-thrust spear chains, 540 jump hook kicks, Capoeira handplant strikes, Wuxia mountain-cleaving palms, soaring sky dashes, titan earth fist slams, counter disarms, and greatsword ground drags.
 - **Thousand-Chance Umbrella & Donghua Weapon Arts:** Wuxia/Donghua-inspired multi-form umbrella mechanics (Open Canopy Shield Deflect, Closed Concealed Rapier Lunge, Sweep Hook Takedown, Canopy Aerial Gliding, and Concealed Gun-Cannon Blast).
 - **Anime / Light Novel / Tensura Inspired Powers:** *Gluttony Void Maw* gravitational suction, *Sword Intent Flying Swords* barrage, *Megiddo Solar Pillar* orbital strikes, *Draconic Smash*, and *Brute Force Armored Tackle*.
+- **Exclusive Fantasy Mounts (Built & Rigged):**
+  - **`horse_draco.glb` (Draco-Horse / Ryuma):** Twin curved dragon horns, dorsal neck scales/spines, obsidian & crimson scale palette, 13 animations.
+  - **`horse_abyssal.glb` (Nightshade Equine):** Midnight violet coat, celestial spire horn, ethereal hoof gallop, 13 animations.
+  - **`horse_armored_destrier.glb` (Royal Armored Destrier):** Heavy plate chanfron and barded barding for cavalry charges.
 - **Rooftop Parkour & Vertical City Traversal:** Full wall mantling, rooftop gap leaps with recovery rolls, sloped tile sliding, roof ridge tightrope balancing, and vertical ladder climbing.
 - **Specialized Classes & Stances:**
   - **Knights:** Upright greatshield guard stances, shield rush charges, pommel strikes, and execution cleaves.
@@ -27,7 +32,7 @@ This massive expansion elevates *Project Ashes* to full AAA gameplay breadth acr
 
 ---
 
-## 2. Complete Animation Package Directory (14 GLBs, 146 Clips + 1 Master)
+## 2. Complete Animation Package Directory (15 GLBs, 158 Clips + 1 Master)
 
 ```
 res://assets/incoming/animations/aaa/
@@ -45,8 +50,35 @@ res://assets/incoming/animations/aaa/
 ├── UAL_AAA_Bending_Advanced.glb         (270 KB,  8 clips) - Air Scooter ride, shockwave blast, Earth wave surf, boulder toss, Fire jet dash
 ├── UAL_AAA_Bending_Mastery.glb          (278 KB,  7 clips) - Wing Chun punches, Muay Thai knee, Capoeira sweep, Lightning redirection
 ├── UAL_AAA_Weapons_Umbrella_Donghua.glb (10.7 MB, 10 clips) - Wuxia Umbrella shield/rapier/glide/cannon, Gluttony Void, Flying Swords
+├── UAL_AAA_Combat_Mythic_Martial.glb    (14.9 MB, 12 clips) - Dual blade executions, spear vault kicks, 540 hook kicks, mountain palms
 └── UAL_AAA_Master_Combat_Universe.glb   (11.6 MB, 179 actions) - Single unified master binary combining all animations on one rig
 ```
+
+```
+res://assets/incoming/animals/fantasy/
+├── horse_draco.glb                      (892 KB, 13 anims) - Draco-Horse with twin horns, dorsal ridge scales, dragon gallop
+├── horse_abyssal.glb                    (886 KB, 13 anims) - Nightshade Equine with celestial spire horn & midnight coat
+└── horse_armored_destrier.glb           (893 KB, 13 anims) - Royal Destrier with heavy plate chanfron & barded armor
+```
+
+---
+
+### A. Mythic Martial & Advanced Weapons (`UAL_AAA_Combat_Mythic_Martial.glb` — 12 Clips)
+
+| Clip Name | Weapon / Style | Movement Description | Loop |
+| :--- | :--- | :--- | :---: |
+| `DualBlade_Scissor_Decapitate` | **Dual Daggers** | Synchronized dual-blade cross-scissor execution shearing through enemy guard | No |
+| `DualBlade_Spinning_Cyclone` | **Dual Daggers** | Low 360° spinning laceration cyclone cutting through surrounding enemies | No |
+| `Spear_Vault_Flying_Kick` | **Spear / Polearm** | Plants spear shaft into stone, vaulting upward to deliver a two-footed chest kick | No |
+| `Spear_Rapid_3Thrust_Chain` | **Spear / Polearm** | Lightning-quick 3-hit linear spear thrust sequence targeting vital points | No |
+| `Martial_Spinning_540_Hook_Kick`| **Martial Arts** | Full 540-degree jumping airborne hook kick with centrifugal power | No |
+| `Martial_Handplant_Cartwheel_Strike` | **Capoeira** | Low handplant cartwheel sweeping heavy heel into opponent's jaw | No |
+| `Wuxia_Mountain_Cleaving_Palm` | **Wuxia Qi** | Heavy internal qi palm strike driving concussive shockwave through armor | No |
+| `Wuxia_Soaring_Sky_Dash` | **Wuxia Sky Step** | Instantaneous forward air dash leaving a refractive silhouette trail | No |
+| `Titan_Earth_Fist_Slam` | **Brute Titan** | Leaping dual-fist earth smash detonating fractured stone geysers | No |
+| `Counter_Deflect_Disarm_Takedown` | **Counter-Melee** | Trapping incoming blade wrist, disarming weapon, and executing shoulder throw | No |
+| `Greatsword_Ground_Drag_Uppercut` | **Greatsword** | Dragging 2-handed blade along ground creating spark trails into upward launch | No |
+| `Bow_Point_Blank_Arrow_Stab` | **Combat Archery** | Melee arrow jab into target followed by immediate backflip aerial arrow shot | No |
 
 ---
 

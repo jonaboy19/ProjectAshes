@@ -1,0 +1,230 @@
+[
+ {
+  "name": "DualBlade_Scissor_Decapitate",
+  "loop": false,
+  "seconds": 18.73,
+  "frames": 563,
+  "keys": 8302,
+  "source": "002/02_07.bvh",
+  "range_s": [
+   null,
+   null
+  ],
+  "autotrim": null,
+  "loop_pts": null,
+  "floor_fix_m": 0.001,
+  "contact_lift_m": 0.0,
+  "min_foot_m": -0.01,
+  "travel_m": 0.03,
+  "hip_scale": 0.0515
+ },
+ {
+  "name": "DualBlade_Spinning_Cyclone",
+  "loop": false,
+  "seconds": 1.47,
+  "frames": 45,
+  "keys": 1018,
+  "source": "078/78_17.bvh",
+  "range_s": [
+   null,
+   null
+  ],
+  "autotrim": null,
+  "loop_pts": null,
+  "floor_fix_m": -0.015,
+  "contact_lift_m": 0.117,
+  "min_foot_m": -0.053,
+  "travel_m": 2.99,
+  "hip_scale": 0.0565
+ },
+ {
+  "name": "Spear_Vault_Flying_Kick",
+  "loop": false,
+  "seconds": 1.9,
+  "frames": 58,
+  "keys": 1308,
+  "source": "088/88_06.bvh",
+  "range_s": [
+   null,
+   null
+  ],
+  "autotrim": null,
+  "loop_pts": null,
+  "floor_fix_m": 0.069,
+  "contact_lift_m": 0.026,
+  "min_foot_m": -0.02,
+  "travel_m": 1.8,
+  "hip_scale": 0.0575
+ },
+ {
+  "name": "Spear_Rapid_3Thrust_Chain",
+  "loop": false,
+  "seconds": 18.73,
+  "frames": 563,
+  "keys": 8302,
+  "source": "002/02_07.bvh",
+  "range_s": [
+   null,
+   null
+  ],
+  "autotrim": null,
+  "loop_pts": null,
+  "floor_fix_m": 0.001,
+  "contact_lift_m": 0.0,
+  "min_foot_m": -0.01,
+  "travel_m": 0.03,
+  "hip_scale": 0.0515
+ },
+ {
+  "name": "Martial_Spinning_540_Hook_Kick",
+  "loop": false,
+  "seconds": 10.33,
+  "frames": 311,
+  "keys": 5712,
+  "source": "088/88_04.bvh",
+  "range_s": [
+   null,
+   null
+  ],
+  "autotrim": null,
+  "loop_pts": null,
+  "floor_fix_m": 0.021,
+  "contact_lift_m": 0.27,
+  "min_foot_m": -0.007,
+  "travel_m": 0.8,
+  "hip_scale": 0.0575
+ },
+ {
+  "name": "Martial_Handplant_Cartwheel_Strike",
+  "loop": false,
+  "seconds": 1.23,
+  "frames": 38,
+  "keys": 919,
+  "source": "088/88_05.bvh",
+  "range_s": [
+   null,
+   null
+  ],
+  "autotrim": null,
+  "loop_pts": null,
+  "floor_fix_m": 0.068,
+  "contact_lift_m": 0.264,
+  "min_foot_m": 0.051,
+  "travel_m": 3.8,
+  "hip_scale": 0.0575
+ },
+ {
+  "name": "Wuxia_Mountain_Cleaving_Palm",
+  "loop": false,
+  "seconds": 15.43,
+  "frames": 464,
+  "keys": 6932,
+  "source": "002/02_05.bvh",
+  "range_s": [
+   null,
+   null
+  ],
+  "autotrim": null,
+  "loop_pts": null,
+  "floor_fix_m": -0.018,
+  "contact_lift_m": 0.0,
+  "min_foot_m": -0.016,
+  "travel_m": 0.05,
+  "hip_scale": 0.0515
+ },
+ {
+  "name": "Wuxia_Soaring_Sky_Dash",
+  "loop": false,
+  "seconds": 1.43,
+  "frames": 44,
+  "keys": 998,
+  "source": "078/78_13.bvh",
+  "range_s": [
+   null,
+   null
+  ],
+  "autotrim": null,
+  "loop_pts": null,
+  "floor_fix_m": -0.013,
+  "contact_lift_m": 0.106,
+  "min_foot_m": -0.057,
+  "travel_m": 2.78,
+  "hip_scale": 0.0565
+ },
+ {
+  "name": "Titan_Earth_Fist_Slam",
+  "loop": false,
+  "seconds": 38.13,
+  "frames": 1145,
+  "keys": 12747,
+  "source": "086/86_01.bvh",
+  "range_s": [
+   null,
+   null
+  ],
+  "autotrim": null,
+  "loop_pts": null,
+  "floor_fix_m": 0.039,
+  "contact_lift_m": 0.0,
+  "min_foot_m": -0.038,
+  "travel_m": 0.59,
+  "hip_scale": 0.048
+ },
+ {
+  "name": "Counter_Deflect_Disarm_Takedown",
+  "loop": false,
+  "seconds": 1.43,
+  "frames": 44,
+  "keys": 998,
+  "source": "078/78_13.bvh",
+  "range_s": [
+   null,
+   null
+  ],
+  "autotrim": null,
+  "loop_pts": null,
+  "floor_fix_m": -0.013,
+  "contact_lift_m": 0.106,
+  "min_foot_m": -0.057,
+  "travel_m": 2.78,
+  "hip_scale": 0.0565
+ },
+ {
+  "name": "Greatsword_Ground_Drag_Uppercut",
+  "loop": false,
+  "seconds": 12.5,
+  "frames": 376,
+  "keys": 4595,
+  "source": "002/02_08.bvh",
+  "range_s": [
+   null,
+   null
+  ],
+  "autotrim": null,
+  "loop_pts": null,
+  "floor_fix_m": -0.018,
+  "contact_lift_m": 0.0,
+  "min_foot_m": -0.027,
+  "travel_m": 0.16,
+  "hip_scale": 0.0515
+ },
+ {
+  "name": "Bow_Point_Blank_Arrow_Stab",
+  "loop": false,
+  "seconds": 83.97,
+  "frames": 2520,
+  "keys": 23193,
+  "source": "086/86_04.bvh",
+  "range_s": [
+   null,
+   null
+  ],
+  "autotrim": null,
+  "loop_pts": null,
+  "floor_fix_m": 0.021,
+  "contact_lift_m": 0.01,
+  "min_foot_m": -0.02,
+  "travel_m": 1.13,
+  "hip_scale": 0.048
+ }
+]
