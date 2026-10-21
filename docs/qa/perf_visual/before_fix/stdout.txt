@@ -1,0 +1,22 @@
+Godot Engine v4.6.3.stable.official.7d41c59c4 - https://godotengine.org
+Vulkan 1.4.341 - Forward+ - Using Device #0: NVIDIA - NVIDIA GeForce RTX 4070 Laptop GPU
+
+Quality: High (forced)
+[audio] mood silence -> wilderness (threat 0, hostiles 0, interior )
+[audio] music silence -> wild_c (mood wilderness, intensity 0.00)
+[audio] stinger discovery
+[audio] bed -> village_day (interior=, t=15.0 h)
+[audio] mood wilderness -> town_day (threat 0, hostiles 0, interior )
+[audio] music wild_c -> town_day_b (mood town_day, intensity 0.00)
+[audio] voices 3/12, long streams 2, music town_day/town_day_b threat 0, surface cobble, played { "step_dirt_06": 11, "step_dirt_03": 13, "step_dirt_01": 14, "step_dirt_04": 13, "step_grass_04": 3, "step_dirt_05": 8, "bird_chirp_01": 1, "rooster_02": 1, "step_cobble_03": 17, "step_cobble_02": 28, "step_dirt_02": 7, "step_cobble_01": 15, "step_cobble_04": 21, "step_cobble_05": 20, "step_stone_02": 1, "step_stone_03": 4, "well_bucket_02": 1, "step_cobble_06": 19, "step_grass_05": 1, "step_stone_04": 2, "step_grass_02": 1, "chicken_01": 1, "step_stone_05": 2, "well_bucket_01": 2, "bird_blackbird": 1, "step_stone_01": 1 }
+[audio] voices 1/12, long streams 2, music town_day/town_day_b threat 0, surface cobble, played { "step_cobble_05": 26, "step_cobble_03": 33, "step_cobble_02": 25, "step_cobble_06": 33, "step_cobble_01": 28, "step_dirt_04": 5, "step_cobble_04": 23, "chicken_cluck_02": 1, "chicken_cluck_01": 1, "step_stone_01": 4, "step_stone_02": 2, "step_dirt_06": 4, "step_stone_04": 2, "step_dirt_01": 2, "well_bucket_03": 2, "step_stone_05": 3, "step_stone_03": 3, "step_dirt_05": 3, "dog_distant_01": 1, "step_dirt_02": 3, "chicken_01": 1, "bird_chirp_03": 1 }
+[audio] music town_day_b -> silence (mood town_day, intensity 0.00)
+[audio] voices 3/12, long streams 1, music town_day/silence threat 0, surface cobble, played { "step_cobble_05": 25, "well_bucket_03": 1, "step_cobble_06": 20, "step_cobble_03": 14, "step_cobble_04": 19, "step_stone_03": 5, "chicken_01": 3, "step_cobble_02": 17, "dog_distant_03": 1, "step_stone_01": 1, "step_cobble_01": 23, "step_stone_02": 4, "step_stone_05": 2, "rooster_01": 1, "step_dirt_05": 1, "dog_distant_01": 1, "step_dirt_04": 1 }
+[audio] music silence -> town_day_a (mood town_day, intensity 0.00)
+[audio] voices 1/12, long streams 2, music town_day/town_day_a threat 0, surface cobble, played { "step_cobble_01": 39, "step_cobble_02": 33, "step_cobble_06": 39, "step_cobble_04": 29, "horse_snort": 1, "step_cobble_03": 30, "step_cobble_05": 28, "hammer_distant_01": 1, "bird_blackbird": 1, "step_dirt_06": 1, "step_stone_05": 4, "chicken_01": 1, "step_dirt_04": 1, "step_dirt_01": 1, "well_bucket_03": 1, "step_stone_01": 1, "chicken_cluck_03": 1, "step_stone_02": 1, "chicken_cluck_02": 1, "step_stone_04": 2, "step_stone_03": 2, "bird_chirp_02": 1, "sheep_02": 1, "chicken_cluck_01": 1, "dog_distant_02": 1 }
+PERFVIS quality=High route=village_forest speed=7.0 mode=real-input frames=6339 avg=16.7ms fps=60 p95=16.7 p99=19.9 max=44.4 hitches>33ms=24 anim_bad=118/6566
+ERROR: 68 RID allocations of type 'P11JoltShape3D' were leaked at exit.
+ERROR: 165 RID allocations of type 'N10RendererRD11MeshStorage4MeshE' were leaked at exit.
+ERROR: 264 RID allocations of type 'N10RendererRD15MaterialStorage8MaterialE' were leaked at exit.
+ERROR: 21 RID allocations of type 'N10RendererRD15MaterialStorage6ShaderE' were leaked at exit.
+ERROR: 163 RID allocations of type 'N10RendererRD14TextureStorage7TextureE' were leaked at exit.

@@ -1,0 +1,5 @@
+Godot Engine v4.6.stable.official.89cea1439 - https://godotengine.org
+
+TRIVIAL_BOOT_OK
+Quality: High (auto)
+BISECT_GUIDE_READY_NOOP

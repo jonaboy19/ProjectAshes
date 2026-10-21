@@ -1,0 +1,25 @@
+Godot Engine v4.6.stable.official.89cea1439 - https://godotengine.org
+Vulkan 1.4.341 - Forward+ - Using Device #0: NVIDIA - NVIDIA GeForce RTX 4070 Laptop GPU
+
+Quality: High (auto)
+[audio] mood silence -> wilderness (threat 0, hostiles 0, interior )
+[audio] music silence -> wild_a (mood wilderness, intensity 0.00)
+[audio] stinger discovery
+[audio] mood wilderness -> town_day (threat 0, hostiles 0, interior )
+[audio] music wild_a -> town_day_a (mood town_day, intensity 0.00)
+[audio] bed -> village_day (interior=, t=8.1 h)
+GROUNDING_LOC village_plaza done, samples so far=6650
+GROUNDING_LOC village_edge done, samples so far=13421
+[audio] bed -> forest_day (interior=, t=8.2 h)
+[audio] mood town_day -> wilderness (threat 0, hostiles 0, interior )
+[audio] music town_day_a -> wild_b (mood wilderness, intensity 0.00)
+GROUNDING_LOC forest done, samples so far=19868
+[audio] stinger combat
+[audio] mood wilderness -> combat (threat 18, hostiles 0, interior )
+[audio] music wild_b -> combat (mood combat, intensity 0.03)
+GROUNDING_LOC camp done, samples so far=25413
+[audio] bed -> meadow_day (interior=, t=8.3 h)
+GROUNDING_LOC road_to_capital done, samples so far=30755
+[audio] bed -> village_day (interior=, t=8.3 h)
+GROUNDING_LOC capital_plaza done, samples so far=35679
+GROUNDING samples=35679
