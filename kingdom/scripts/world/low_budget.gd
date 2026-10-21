@@ -44,7 +44,11 @@ static var _tris: Dictionary = {}
 static func low() -> bool:
 	if force_low >= 0:
 		return force_low == 1
-	return enabled and int(Quality.tier) <= Quality.LOW
+	if not enabled:
+		return false
+	# Looked up at runtime: scripts run with -s compile before autoload names exist.
+	var q: Node = (Engine.get_main_loop() as SceneTree).root.get_node_or_null("Quality") if Engine.get_main_loop() is SceneTree else null
+	return q != null and int(q.get("tier")) <= int(q.get("LOW"))
 
 
 static func tris_table() -> Dictionary:
