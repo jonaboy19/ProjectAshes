@@ -239,6 +239,9 @@ func _remember(ch: String, subject: String, kind: String, mag: float, conf: int,
 			_hold[cid] = h
 		if h.size() < HOLDERS_MAX and not h.has(ch):
 			h.append(ch)
+	var ps: Variant = _mod("psyche")
+	if ps != null:                                 # NI-4: the same memory moves this person's mood, weighted by who they are
+		ps.on_memory(ch, kind, mag, conf, (_hold.get(cid, []) as Array).size() if cid > 0 else 1)
 
 
 ## First-hand: `ch` saw it. The memory is certain and the story starts to travel.
@@ -490,6 +493,9 @@ func catch_up(days: int, _ctx: Dictionary) -> Array:
 
 func drop_character(ch: String) -> void:
 	_mem.erase(ch)
+	var ps: Variant = _mod("psyche")
+	if ps != null:
+		ps.drop(ch)
 
 
 # ------------------------------------------------------------------ save

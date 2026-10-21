@@ -57,7 +57,7 @@ const BYTE := 1.0 / 255.0
 ## every _choose: nothing is allocated per decision.
 enum I { MONEY, WORK, WORK0, BELONG, TIED, AMB, AGE, AGE21, NOSPOUSE, FAILS, HAS_EMP, OWNS, SEATED, HOLDS_LAND, CASH, FARMER, AMB_FOUND, OPEN,
 	WED_TIER, PUSH, PULL, MOVES_OK, MOVE_GATE, GRIEF, PETITION_SCOPE, ARMS, WORK_OR_POOR, FEAR, NOISE,
-	BOLD, WARM, DISC, HON, LOY, PRI, COUNT }
+	BOLD, WARM, DISC, HON, LOY, PRI, STRESS_D, FEAR_D, ANGER_D, GRIEF_D, CONF_D, SCAR, COUNT }
 const TOP_UP_PER_DAY := 6
 const SEED_PER_DAY := 40             # a new world's first characters come in batches this big, one batch a day
 const MOVES_PER_DAY := 2             # households that set out in one day, realm-wide (roads and the Rift do not empty a town in a night)
@@ -94,6 +94,7 @@ var _in := PackedFloat32Array()      # the reused input vector (enum I)
 var _trace: Dictionary = {}          # near-tier ch -> ring of [day, goal, PackedFloat32Array of (goal, score, top input) triples]
 var _pe: Variant = null              # persona module (cached)
 var _rm: Variant = null              # rumours module (cached)
+var _ps: Variant = null              # psyche module (cached)
 var _pl := ""                        # the player's character id
 var _pl_day := -1
 static var _gdef: Array = []         # compiled goals.json: [goal index, base, gates, terms] per goal, in evaluation order
@@ -811,6 +812,13 @@ func _choose(ch: String, rec: Dictionary, c: Dictionary, age: int, day: int, tie
 		var felt: Vector3 = _rm.felt(ch, _pl)
 		var op: float = felt.x * 0.7 + float(facts["view"]) * 0.3 if felt.y > 0.0 else float(facts["view"]) * 0.5
 		fear = minf(1.0, maxf(clampf(-op / 70.0, 0.0, 1.0), felt.z * 0.8) * (1.25 - 0.5 * bold))
+	# 6. mood (NI-4): deviations from the person's own baseline, so someone with no history scores exactly as before; bounded additions
+	if _ps == null:
+		_ps = _mod("psyche")
+	var mv := PackedFloat32Array()
+	if _ps != null:
+		mv = _ps.devs(ch, day)
+		fear = minf(1.0, fear + 0.6 * maxf(mv[1], 0.0) + 0.3 * mv[5])
 	var need_safe := maxf(maxf(float(facts["danger"]), float(facts["fever"])), fear * 0.8)
 	# 2. responsibilities raise the price of leaving
 	var tied := (0.15 if deps > 0 else 0.0) + (0.3 if owns else 0.0) + (0.1 if has_emp else 0.0) + (0.1 if seated else 0.0)
@@ -828,6 +836,8 @@ func _choose(ch: String, rec: Dictionary, c: Dictionary, age: int, day: int, tie
 	if not restless:
 		pull *= 0.3
 	var grief := maxf(maxf(hunger, unrest), fear * (0.5 + 0.5 * honest))
+	if mv.size() == 6:
+		grief = maxf(grief, 0.8 * maxf(mv[3], 0.0))
 	_in[I.MONEY] = need_money
 	_in[I.WORK] = need_work
 	_in[I.WORK0] = 1.0 if need_work == 0.0 else 0.0
@@ -863,6 +873,8 @@ func _choose(ch: String, rec: Dictionary, c: Dictionary, age: int, day: int, tie
 	_in[I.HON] = honest
 	_in[I.LOY] = float(pb[po + Persona.O_LOY]) * BYTE
 	_in[I.PRI] = float(pb[po + Persona.O_PRI]) * BYTE
+	for k in 6:
+		_in[I.STRESS_D + k] = mv[k] if mv.size() == 6 else 0.0
 	# 3. goals by age and need: the highest score above the threshold, file order breaking ties
 	var best := 0
 	if _gfast != null:

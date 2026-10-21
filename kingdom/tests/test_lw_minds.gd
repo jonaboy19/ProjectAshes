@@ -393,8 +393,12 @@ func test_a_character_led_founding_is_walked_through_its_steps() -> void:
 func test_the_hub_registers_the_stage_8_modules_last_and_saves_them_each_in_its_own_container() -> void:
 	var h := _hub()
 	var order: Array = Hub.ORDER
-	var tail := order.slice(order.find("armies") + 1)
-	assert_array(tail).is_equal(["emergence", "faith", "dynasties", "homes", "persona", "minds", "rumours"])
+	var tail: Array = ["emergence", "faith", "dynasties", "homes", "persona", "minds", "rumours"]
+	# Stage 8 modules tick after armies, in this relative order (later modules may follow them).
+	var last := order.find("armies")
+	for k: String in tail:
+		assert_int(order.find(k)).is_greater(last)
+		last = order.find(k)
 	var mn: RefCounted = h.mod("minds")
 	mn.seed_minds(70)
 	for d in range(601, 631):
