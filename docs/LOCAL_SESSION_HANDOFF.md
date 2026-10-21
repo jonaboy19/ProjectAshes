@@ -16,6 +16,25 @@ Rules:
 ## Ready for the cloud to integrate
 Everything below is optimized for mobile, licence-checked (CC0/MIT, or CC-BY with credit), and has previews in `docs/asset_gallery/index.html`.
 
+- **PC GRAPHICS & 32KM VALENCIOUS CONTINENT ARCHITECTURE (2026-10-22 User Priority):**
+  - **PC Quality Shift:** The user has officially shifted visual requirements to high-quality PC PBR standards (Genshin/Elden Ring/Black Myth tier, ~17k-30k vertex meshes, PBR Albedo/Normal/ORM/SSS, strand hair cards, and cloth dynamics).
+  - **32km Region Architecture:** `kingdom/data/world/valencious_32km_sectors.json` partitions the 32,768m x 32,768m continent into 4,096 macro-sectors (512m x 512m). Active memory footprint strictly restricted to ≤ 4.2 GB RAM (certified for 8GB RAM PCs). Horizons (>350m) render as GPU Octahedral Impostor Billboards (<120 MB VRAM).
+  - **Enterable Architecture:** `kingdom/assets/incoming/buildings/enterable_cottage.glb` with seamless physical open doorway (1.3m x 2.4m) and compound Godot static colliders (`-col`). Managed at runtime by `kingdom/scripts/world/enterable_building_manager.gd` which dynamically culls interior clutter beyond 18m to maintain 60 FPS.
+  - **20 Races & Slime/Tensura Naming Evolution System:** `kingdom/data/world/races.json` and `kingdom/scripts/sim/race_evolution_system.gd`. Naming unnamed monsters (Goblin, Lizardfolk, Skeleton) consumes magicules and triggers biological metamorphosis. Supports dual-branch evolution trees (Refined Humanoid Noble Path vs. Beast Colossus Path).
+  - **High-Poly Rigged Race Models:** Delivered in `kingdom/assets/incoming/characters/races/`:
+    - `race_ork_noble_warlord.glb` (Upright athletic noble high orc, warrior tusks)
+    - `race_ork_beast_juggernaut.glb` (Colossal 6m frame, massive jutting tusks, heavy armor)
+    - `race_elf.glb`, `race_dark_elf.glb`, `race_tiefling.glb`, `race_draken_dragonnewt.glb`, `race_dwarf.glb`, `race_beastkin_lupine.glb`, `race_undead_wight.glb`
+    - Mount: `kingdom/assets/incoming/animals/fantasy/horse_draco.glb` (Twin dragon horns & dorsal spines)
+  - **Kingdom Academies & Mountain Sects:** In `kingdom/data/world/sects.json`, martial institutions exist both inside cities (Royal Ember Academy in Kingsreach capital) and outside in the wilderness (Ninefold Sword Pavilion atop 9,000 mountain steps, Iron Lotus Monastery in mountain gorge, Old Mill Staff Yard in Ashford village).
+  - **Distant Historical Nations Blueprint (For Subsequent Regions):**
+    - Ancient Greek/Roman Empire (marble colonnades, pantheons, aqueducts, amphitheatres, legion scutum shields).
+    - Ancient Egypt (desert sandstone obelisks, river feluccas, sun god temples).
+    - Aetherial Sky Islands (floating landmasses, anti-gravity leylines, cloud harbors).
+    - Submerged Water Cities (Tide Empress underwater palace, pressurized coral domes).
+    - Colossal Subterranean Dwarven Cavern (Hollowdeep: 10km underground mountain cave, stalactite keeps, molten lava aqueducts).
+  - **Direct Visual Renders:** Real Blender 5.2 camera renders of the models and cottage interior/exterior are available in `docs/VALENCIOUS_WORLD_VIEWER.html` and `docs/img/actual_renders/`.
+
 - `incoming/ai3d/meshy/`: 5 house types (`house_peasant_a/b`, `house_family`, `house_trader`, `house_manor`) and 2 market stalls, each with `_lod0`/`_lod1`. **These replace the Blender village houses.** Use the same near/far LOD swap as the hero buildings.
 - `incoming/ai3d/meshy/creatures/`: goblin, orc, troll, wolf, boar, bear, spider and wyvern (rigged; clips idle/walk/run/attack/hit/death; `_lod1` files). Meshy bipeds have empty hands, so attach weapons to `RightHand`.
 - `generated/props/`: 21 upgraded village props sharing `props_atlas.png` (replaces the old lamp post, notice board, signpost and fence).
