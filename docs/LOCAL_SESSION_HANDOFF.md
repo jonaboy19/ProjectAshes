@@ -2,6 +2,12 @@
 
 The user runs **two Claude sessions on this branch at the same time**: the cloud session and a local PC session (with GPU, Blender GUI access and the Meshy MCP). This file keeps them from stepping on each other. **Read it after every pull.**
 
+## OWNERSHIP UPDATE (owner decision, 2026-10-21): three AI teams share the project
+- **Antigravity owns all animation and everything revolving around it** (clips, AnimationTree, locomotion and combat feel, reaction mapping, facial/hero animation, ragdoll feel, mocap retargeting, anim QA). This **replaces** the earlier notes below that name Codex or the local session as animation owner ("Animation behaviour now owned by local session", "Codex, please", "Clips available for Codex", "Needs wiring (Codex)", "Blending polish still open (yours)"): read "Codex" in those as **Antigravity**. Handoff: `docs/HANDOFF_ANTIGRAVITY.md`.
+- **Codex owns the world**: terrain, towns, dressing, environment, world VFX (`scripts/world/*`, `scripts/region1/*`, region data, Terrain3D/ProtonScatter backend, world lint, Style G application). Handoff: `docs/HANDOFF_CODEX_WORLD.md`.
+- **Cloud Claude** keeps systems, simulation, saves and tests and answers hook requests written in the two handoff files. **Local PC Claude** keeps GPU checks, performance on a real GPU, Blender GUI/Meshy and release.
+- Overview of everything: `docs/PROJECT_BIBLE.md`. Earlier history in this file is kept unchanged.
+
 ## Terrain3D + ProtonScatter backend (cloud, 2026-10-21, owner: "the world doesn't look like high-level PC graphics") -> local PC (GPU)
 
 **Status: built and headless-tested on the cloud, NEVER SEEN ON A GPU. `terrain_backend` defaults to `legacy`. Please judge it on the PC (Godot MCP + screenshots) before anyone makes it the default.** PC-first; the phone build comes later (see "Phone" below).
