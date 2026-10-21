@@ -1,0 +1,147 @@
+[
+ {
+  "name": "Wall_Climb_Mantle",
+  "loop": false,
+  "seconds": 1.5,
+  "frames": 46,
+  "keys": 876,
+  "source": "127/127_25.bvh",
+  "range_s": [
+   0.3,
+   1.8
+  ],
+  "autotrim": null,
+  "loop_pts": null,
+  "floor_fix_m": 0.001,
+  "contact_lift_m": 0.004,
+  "min_foot_m": -0.02,
+  "travel_m": 2.95,
+  "hip_scale": 0.0502
+ },
+ {
+  "name": "Roof_Gap_Leap_Roll",
+  "loop": false,
+  "seconds": 2.0,
+  "frames": 61,
+  "keys": 824,
+  "source": "140/140_01.bvh",
+  "range_s": [
+   1.8,
+   3.8
+  ],
+  "autotrim": null,
+  "loop_pts": null,
+  "floor_fix_m": 0.0,
+  "contact_lift_m": 0.043,
+  "min_foot_m": 0.02,
+  "travel_m": 0.86,
+  "hip_scale": 0.057
+ },
+ {
+  "name": "Roof_Ridge_Balance_Walk",
+  "loop": true,
+  "seconds": 2.47,
+  "frames": 75,
+  "keys": 1102,
+  "source": "104/104_02.bvh",
+  "range_s": [
+   0.8,
+   3.8
+  ],
+  "autotrim": null,
+  "loop_pts": [
+   0.33,
+   2.8,
+   2.26
+  ],
+  "floor_fix_m": 0.003,
+  "contact_lift_m": 0.0,
+  "min_foot_m": -0.001,
+  "travel_m": 2.13,
+  "hip_scale": 0.0535
+ },
+ {
+  "name": "Sloped_Roof_Tile_Slide",
+  "loop": true,
+  "seconds": 1.0,
+  "frames": 31,
+  "keys": 559,
+  "source": "127/127_05.bvh",
+  "range_s": [
+   0.4,
+   1.8
+  ],
+  "autotrim": null,
+  "loop_pts": [
+   0.3,
+   1.3,
+   12.23
+  ],
+  "floor_fix_m": 0.024,
+  "contact_lift_m": 0.0,
+  "min_foot_m": -0.021,
+  "travel_m": 1.19,
+  "hip_scale": 0.0502
+ },
+ {
+  "name": "Ladder_Climb_Down_Loop",
+  "loop": true,
+  "seconds": 1.8,
+  "frames": 55,
+  "keys": 716,
+  "source": "013/13_33.bvh",
+  "range_s": [
+   1.5,
+   4.5
+  ],
+  "autotrim": null,
+  "loop_pts": [
+   0.8,
+   2.6,
+   10.99
+  ],
+  "floor_fix_m": -0.02,
+  "contact_lift_m": 0.0,
+  "min_foot_m": 0.091,
+  "travel_m": 0.14,
+  "hip_scale": 0.0486
+ },
+ {
+  "name": "Ledge_Shimmy_L",
+  "loop": true,
+  "seconds": 1.1,
+  "frames": 34,
+  "keys": 668,
+  "source": "127/127_15.bvh",
+  "range_s": [
+   0.2,
+   1.3
+  ],
+  "autotrim": null,
+  "loop_pts": null,
+  "floor_fix_m": 0.003,
+  "contact_lift_m": 0.0,
+  "min_foot_m": -0.007,
+  "travel_m": 2.45,
+  "hip_scale": 0.0502
+ },
+ {
+  "name": "Ledge_Shimmy_R",
+  "loop": true,
+  "seconds": 1.1,
+  "frames": 34,
+  "keys": 668,
+  "source": "127/127_15.bvh",
+  "range_s": [
+   0.2,
+   1.3
+  ],
+  "autotrim": null,
+  "loop_pts": null,
+  "floor_fix_m": 0.003,
+  "contact_lift_m": 0.0,
+  "min_foot_m": -0.007,
+  "travel_m": 2.45,
+  "hip_scale": 0.0502
+ }
+]

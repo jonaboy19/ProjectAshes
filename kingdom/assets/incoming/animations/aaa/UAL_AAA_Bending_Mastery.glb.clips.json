@@ -1,0 +1,139 @@
+[
+ {
+  "name": "Martial_WingChun_ChainPunch",
+  "loop": false,
+  "seconds": 1.6,
+  "frames": 49,
+  "keys": 796,
+  "source": "015/15_13.bvh",
+  "range_s": [
+   63.9,
+   65.5
+  ],
+  "autotrim": null,
+  "loop_pts": null,
+  "floor_fix_m": -0.01,
+  "contact_lift_m": 0.0,
+  "min_foot_m": -0.0,
+  "travel_m": 0.08,
+  "hip_scale": 0.0505
+ },
+ {
+  "name": "Martial_MuayThai_Knee_Thrust",
+  "loop": false,
+  "seconds": 1.6,
+  "frames": 49,
+  "keys": 844,
+  "source": "143/143_24.bvh",
+  "range_s": [
+   1.9,
+   3.5
+  ],
+  "autotrim": null,
+  "loop_pts": null,
+  "floor_fix_m": -0.019,
+  "contact_lift_m": 0.0,
+  "min_foot_m": -0.002,
+  "travel_m": 0.13,
+  "hip_scale": 0.0592
+ },
+ {
+  "name": "Martial_Capoeira_Sweep_Kick",
+  "loop": false,
+  "seconds": 3.4,
+  "frames": 103,
+  "keys": 1795,
+  "source": "087/87_01.bvh",
+  "range_s": [
+   0.4,
+   3.8
+  ],
+  "autotrim": null,
+  "loop_pts": null,
+  "floor_fix_m": 0.105,
+  "contact_lift_m": 0.035,
+  "min_foot_m": -0.001,
+  "travel_m": 2.09,
+  "hip_scale": 0.0567
+ },
+ {
+  "name": "Bending_Lightning_Redirection",
+  "loop": false,
+  "seconds": 1.13,
+  "frames": 35,
+  "keys": 487,
+  "source": "144/144_07.bvh",
+  "range_s": [
+   0.24,
+   1.4
+  ],
+  "autotrim": null,
+  "loop_pts": null,
+  "floor_fix_m": -0.015,
+  "contact_lift_m": 0.0,
+  "min_foot_m": -0.0,
+  "travel_m": 0.23,
+  "hip_scale": 0.0583
+ },
+ {
+  "name": "Bending_Earth_Metal_Stomp",
+  "loop": false,
+  "seconds": 1.4,
+  "frames": 43,
+  "keys": 594,
+  "source": "140/140_01.bvh",
+  "range_s": [
+   1.8,
+   3.2
+  ],
+  "autotrim": null,
+  "loop_pts": null,
+  "floor_fix_m": 0.0,
+  "contact_lift_m": 0.043,
+  "min_foot_m": 0.02,
+  "travel_m": 0.5,
+  "hip_scale": 0.057
+ },
+ {
+  "name": "Bending_Water_Whip_Flurry",
+  "loop": false,
+  "seconds": 1.9,
+  "frames": 58,
+  "keys": 729,
+  "source": "002/02_07.bvh",
+  "range_s": [
+   1.7,
+   3.6
+  ],
+  "autotrim": null,
+  "loop_pts": null,
+  "floor_fix_m": 0.011,
+  "contact_lift_m": 0.0,
+  "min_foot_m": -0.001,
+  "travel_m": 0.04,
+  "hip_scale": 0.0515
+ },
+ {
+  "name": "Bending_Air_Vortex_Vacuum",
+  "loop": true,
+  "seconds": 1.0,
+  "frames": 31,
+  "keys": 616,
+  "source": "087/87_01.bvh",
+  "range_s": [
+   2.4,
+   4.0
+  ],
+  "autotrim": null,
+  "loop_pts": [
+   0.4,
+   1.4,
+   14.5
+  ],
+  "floor_fix_m": 0.13,
+  "contact_lift_m": 0.0,
+  "min_foot_m": 0.039,
+  "travel_m": 0.99,
+  "hip_scale": 0.0567
+ }
+]
