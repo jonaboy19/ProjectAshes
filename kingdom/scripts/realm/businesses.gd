@@ -671,6 +671,14 @@ func _attract(b: Dictionary) -> float:
 	return (0.5 + float(b["rep"]) / 100.0) * price_f * staff_f
 
 
+## Festival trade over the settled stretch times the culture's price level (faith.gd); 1.0 without a seeded faith module.
+func _town_trade(sid: int, d: int, days: int) -> float:
+	var fa: Variant = _mod("faith")
+	if fa == null or not bool(fa.seeded):
+		return 1.0
+	return float(fa.trade_avg(sid, d, days)) * float(fa.goods_mult(sid))
+
+
 # ------------------------------------------------------------------ the week
 
 ## Resolves `days` days of trading in one closed-form step and closes the books. Normally called by the staggered day tick.
@@ -690,13 +698,14 @@ func settle(bid: String, days := 7, day := -1) -> void:
 	var eff: float = b["ef"]
 	var staff: Array = b["staff"]
 	var restruct: bool = b["st"] == "restructuring"
+	var tm := _town_trade(int(b["sid"]), d, days)               # festivals and the town's culture (faith.gd): 1.0 until that module is seeded
 	var served := 0.0
 	var wanted := 0.0
 	var rev0 := float(b["wi"])
 	if bool(b["dt"]):
 		match String(b["kind"]):
 			"shop":
-				var cust := minf(float(population(int(b["sid"]))) * 0.006 * share * (0.7 + 0.3 * float(b["rep"]) / 100.0), float(1 + staff.size()) * 30.0)
+				var cust := minf(float(population(int(b["sid"]))) * 0.006 * share * (0.7 + 0.3 * float(b["rep"]) / 100.0) * tm, float(1 + staff.size()) * 30.0)
 				var want_items := cust * days * 1.5
 				var per_good := want_items / float(SHOP_GOODS.size())
 				if _attended(b):
@@ -721,7 +730,7 @@ func settle(bid: String, days := 7, day := -1) -> void:
 				var inp := String(rc["in"])
 				var outp := String(rc["out"])
 				var cap_units := float(1 + staff.size()) * 3.0 * days
-				var dem := float(population(int(b["sid"]))) * 0.012 * share * days
+				var dem := float(population(int(b["sid"]))) * 0.012 * share * days * tm
 				if _attended(b):
 					var need2: Dictionary = {inp: cap_units}
 					_pull_farms(b, days, need2)

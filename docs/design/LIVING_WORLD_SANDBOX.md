@@ -75,7 +75,11 @@ Merchant, soldier, smith, builder, miner, hunter, healer, innkeeper, adventurer,
 - **Laws per kingdom**; **investigation and evidence**; **courts**; **inequality and liberation**.
 
 ### 14. Religion and culture
+- **Churches as organizations** that own land, schools and shelters and have influence; **belief intensity** per NPC; **culture tags** that change etiquette, prices and law; **festivals**; a **priest ladder** with two routes; the three eastern church kingdoms (strong church, closed border) against Valencios (weak church). Built in Stage 8 (`faith.gd`).
+
 ### 15. Emergent events
+- **Chains from system state** (mine discovery, noble death, harvest failure, unsafe road, guild collapse, Rift activation, tax rise, army departure, epidemic, recognition), each with knock-on effects on other modules, **delivered as news with a delay**, with loop control. Built in Stage 8 (`emergence.gd`).
+
 ### 16. Example paths A to E (worked player stories; used as acceptance scenarios, see Part D)
 
 ### 17. Godot architecture
@@ -347,6 +351,74 @@ Existing note: `CIVILIZATION.md` set the two-year save at under 1 MB; this doc r
 - No per-tick allocations in the hot paths: shared default arrays/dictionaries instead of `get(x, {})`, packed per-type numbers (`_tk`), a cached distance table, no literal arrays or dictionaries built per call in the settle and hiring paths, an application evaluated once instead of twice.
 
 **Not yet inside budget: the day totals.** Worst jobs are inside the 0.6 ms budget on both modules, saves are far inside theirs, but the day totals are 14 to 20 percent over for orgs and 1.6 to 1.8 times over for businesses on this machine. What is left is the closed-form settle itself: about 40 us a business and 25 us an org, a hundred or so Variant dictionary reads and writes each, which is the floor for per-record dictionaries in a debug GDScript build (a release export on a faster PC should be clearly quicker, but that is not measured here: re-measure there before spending more). The next step if it must come down on this build is to keep the hot numbers of a far body (cash, debt, reputation, counts) in packed arrays beside the record, or to settle a quiet autonomous business every 56 days instead of 28.
+
+### Stage 8 built and measured: smart NPCs, memory and rumour, dynasties, personal life, religion and culture, emergent events (LW-8.1 to 8.3)
+
+Six modules, all in `scripts/realm/`, registered after `armies` in the hub `ORDER` (so they tick last, after everything they read). Nothing here is per frame, nothing uses a global RNG (`hash([WorldSim.SEED, tag, day, id])`), and each saves in its own container.
+
+| Module (hub key) | What it owns | Tests |
+|---|---|---|
+| `minds.gd` (`minds`) | The five decision layers of the registry-upgraded Characters, the actions they take, tiers and due-day buckets, aggregate households per settlement, the life cycle (birthday death check, marriage, children becoming adults), estates on death. | `test_lw_minds` (24) |
+| `rumours.gd` (`rumours`) | Bounded memory per character, claims that travel by road distance and may be wrong, investigation and correction, the tie to `reputation.gd`. | `test_lw_rumours` (13) |
+| `dynasties.gd` (`dynasties`) | Houses as institutions: heads and lines, family reputation (`h:<house>` in `reputation.gd`), specialties, feuds, estates, nobles through `succession.gd`, the player's family through `family.gd`. | `test_lw_dynasties` (9) |
+| `homes.gd` (`homes`) | Homes (rent, buy, several, upkeep), households and children's education ages, relocation inside and between kingdoms, travel parties (`tp:n`) and roads. | `test_lw_personal` (18) |
+| `faith.gd` (`faith`) | Churches as organizations (land, school, shelter, influence), belief per NPC, culture tags (etiquette, prices, law), festivals, the priest ladder, the church kingdoms against Valencios. | `test_lw_faith` (11) |
+| `emergence.gd` (`emergence`) | Ten emergent chains with knock-on effects, delivered as news with a delay, with loop control. | `test_lw_emergence` (18) |
+
+`test_lw_society_soak` runs two game years of the whole hub with no player and checks the points below.
+
+**Small edits to older modules.** `events.gd` `after(n)` (new events since a number, for daily readers); `news.gd` `heard_kinds` (what a town has heard of some kinds, cheap, no text built); `businesses.gd` multiplies a shop's or workshop's custom by `faith.trade_avg x goods_mult` once the faith module is live (1.0 otherwise); `realm_hub.gd` registers the six modules.
+
+**The decision layers (11).** `decide(ch, day)` runs: (1) needs from cash against the household, the jobless flag, belonging, danger and hunger of the town; (2) responsibilities, a ties word refreshed every ten days (a business, land, a seat) plus dependants from `homes`; (3) goals by age: young people look for work, a partner and a move, settled ones for land, a business or an organization, the old retire; (4) relationships, which decide who marries whom (own house excluded, feuding houses excluded, opinion from `rumours`, age and means); (5) the known world, which is only what the town has heard (`news.heard_kinds` by road distance and delay) plus what it feels itself (famine, fever, tax, Rift from `emergence`). The best-scoring goal is attempted through the same API the player uses: `businesses.hire` / `farming.hire_on` / a new trade (change job), `farming.take_tenancy` / `buy_direct` (land), `organizations.apply` / `start_founding` (join, found), `businesses.npc_try_found`, `homes.marry`, `homes.relocate` (move), `farming.accept_contract`, `audiences.file` (petition), `armies.enlist`. A failed attempt backs off (up to 6x the cadence), a big one (move, founding, petition) has a cool-down of 20 to 240 days, and at most two households leave a day realm-wide. Characters of this module are not in `organizations.gd`'s NPC list (its own 96 seeded actors stay as they are); `advance_founding` walks their foundings through the same steps.
+
+**Tiers.** The settlement the player is in (`city_life.near_settlement`) is T-near: every character there is looked at daily. Everyone else is T-mid/far: every third day, jittered by id. Each character has a due day in a bucket queue; `poke` / `poke_town` pull it forward when its world changes. The day tick is returned as chunks (`tick_day_chunks`), 5 characters or 14 work units a chunk, so no pump job passes its budget; the guard counts work units, not a clock, so a run is the same on a slow machine.
+
+**Aggregate households.** `agg_*` keeps wealth and food per settlement (30 rows). A character far from the player (more than 1,400 units), tied to nothing (no seat, employer, business, land, spouse, child, home) and without a success for 30 days folds back into the aggregate (its purse goes to the town, its registry record is freed) and a row becomes a Character again when something references it (`ensure_row`). Off by default in a world with no player (`aggregate_far`), because with no one to be far from, nobody is.
+
+**Memory and rumour (11).** Memory is 4 lines per character, the least striking and the oldest dropped first. A claim has a told magnitude and a true one; each town hears a version garbled by a hash of (claim, distance) (turned round in about 4 to 20 percent of far towns); believers take it into memory at 45 to 60 percent confidence, witnesses at 100. A claim moves the person's axis in `reputation.gd` by the told value, and investigating it (skill and gold) finds the truth, replaces every town's and believer's version, mends the axis by the same measure and costs the liar reliability. Once a week the towns investigate three harmful, probably wrong stories on their own.
+
+**Dynasties (11).** A house's estate on a death goes to the eldest adult child, else the spouse, else an adult of the house in the town, else the Crown's steward (farms) or the sale (business); taxed 25 percent like `family.gd`. Family reputation is a `reputation.gd` subject, specialty is the trade of 40 percent of at least two members (children follow it six times in ten and work 0.1 better in it), feuds heat 0..100 with a weekly decay, flare into violence above 60, end by blood price, marriage or time, and a match between feuding houses (heat 45 or more) is not made. Title holders in `succession.gd` (13 crowns and the lord of the one castle; the long-lived peoples' ages are scaled to a human span) die by a harsher table (`annual_risk`: 1.5 percent at 35 to 11 percent at 60) which runs the succession module's claims, regencies and disputes. `family.gd`'s heir event moves the house to the heir with a third less feud heat and the player's children into the player's household.
+
+**Personal life (12).** Homes: a town has 2 to 6 offers a month (a function of seed, town, month), a deposit of two weeks, weekly rent or upkeep and levy, 4 weeks of arrears evicts a tenant, 8 seizes an owner's house, an empty house loses 1.6 condition a week and is condemned below 25, a let house earns 80 percent of its rent about 85 percent of the weeks. A player keeps at most 6 homes. Children: school at 7, academy at 9 for noble houses, apprenticeship at 12, grown at 16 (`minds.spawn_adult`, with the parent's house and, six times in ten, the house's trade); no school seat or no money for tuition sends a child to work. Relocation: the household moves, the job ends (unless the employer has a branch there), owned houses are let, rented ones given up, farms and businesses stay and are run from afar; the family travels as a party. Between kingdoms: titles are not recognised abroad (`rank_in` is 0) unless the two crowns are allied, trade/arms/build/practice licences are applied for again after 20 to 30 days' residence, the three church kingdoms keep a closed border (a writ of passage: 120 gold, a third for a believer of the Dawn), and `history` keeps every residence. Travel parties (cap 64): provisions in person-days (starvation slows a party and in the end kills), escorts (each cuts the encounter odds, up to 70 percent), a purse; a road is protected (patrolled and calm), ordinary or dangerous (danger from `household.leg_danger`, `emergence` and the patrols of `armies.defence_rating`).
+
+**Religion and culture (14).** Faiths: runes, dawn, wild, folk. Valencios has church power 0.25 (secular law, small keepers of the runestone in 14 towns, a Dawn mission chapel only in the capital); the three eastern kingdoms 0.6 to 0.85 with a closed border and a tithe of 6 to 10 percent. A church is a `religious_order` organization with land, a school (12 seats, added to `homes.school_seats`), a shelter (8 beds, used by `emergence`), and influence; it tithes the town's aggregate households and buys land (400), then a school (250), then a shelter (300). Belief is a faith and an intensity 0..100 per character (devout trait, town church, festivals, emigration). Culture tags (caldric, urrokai, veyl, solenne, frontier) set etiquette (haggle, gift, oath, bribe, insult: -0.5 to 0.5), prices by class of goods and a fine multiplier written into `courts.gd` for the church kingdoms. Six festivals of three days raise a town's trade (8 to 22 percent), mood and belief. The priest has two routes (parish: acolyte, priest, dean, bishop; cloister: novice, monk, prior, abbot), each step needing belief, years and, higher up, the church's weight in the town.
+
+**Emergent events (15).** Ten chains (mine discovery, noble death, harvest failure, unsafe road, guild collapse, Rift activation, tax rise, army departure, epidemic, recognition), started from the event ring (a noble death, a dissolved guild that had a charter, a recognition), from system state (a tax rise in `governance.gd`, a camped army that marches) and from weekly hazards. Stages run from a day queue and change other modules: road danger (`homes`), migrants (`migration`), loyalty (`land`), alerts (`armies`), price, mortality, fertility, rent and trade multipliers (read by `minds`, `homes`, `businesses`), petitions (`audiences`), beds (`faith`), and are announced as news dated a few days ahead and then travelling by road. One chain per (kind, place) per 120 days, a child may not repeat its cause's kind in the same place, depth at most 4, at most 24 live and 2 new a day. A five-year run starts well over 20 chains of at least 5 kinds.
+
+
+**Measured (`test_lw_society_soak`, two game years of the whole hub, no player, 960 Characters over 10,170 aggregate villagers, Godot 4.6.2 editor build on a shared 4-core container).**
+
+| What happened in 720 days | Count |
+|---|---|
+| Decisions taken (79 percent idle) | 120,905 |
+| Organizations founded (all) / by NPCs through `organizations.gd` or `minds` | 125 / 47 + 63 |
+| Businesses opened by NPCs | 114 |
+| Marriages / births / graduates into adulthood | 292 / 193 / 17 |
+| Households that moved by road (`tp:` parties) | 426 moves, 247 parties, 134 robberies, 11 deaths on the road |
+| Deaths with an estate settled | 20 |
+| Noble successions (`succession.gd`) | 4 holders died here, 12 successions and 4 disputes in all |
+| Emergent chains / of them knock-ons / news posts | 105 / 24 / 164 |
+| Stories told / believed / refuted by investigation | 489 / 13,098 memories / 12 |
+| Feuds opened / ended | 15 / 13 |
+| Festivals kept / tithes collected | 12 / 17,540 gold |
+
+| Cost | Budget | Measured |
+|---|---|---|
+| `minds` day, 960 characters (`CHUNK` 5, 14 work units) | jobs 0.6 ms | mean job 0.20 ms, 8.4 ms a day in about 41 jobs, worst job 5 to 8 ms (a founding, a death with an estate, a relocation; 36 ms once in a loaded run) |
+| `homes` day | 0.6 ms | 0.78 ms a day (parties and the monthly household sweep), worst 6 ms |
+| `faith` day / week | 0.6 ms | 0.66 ms / 0.08 ms a day, worst 4 ms (a festival day) |
+| `rumours` day | 0.6 ms | 0.58 ms a day, worst 5 ms |
+| `emergence` day | 0.3 ms | 0.14 ms a day, worst 7 ms (the day a chain makes a wave of migrants) |
+| `dynasties` day / week | 0.3 ms | 0.07 ms / 0.06 ms a day |
+| Full realm save, raw JSON | <= 2.5 MB | 1.90 MB (1.71 MB after the first year), 319 KB zstd (limit 600 KB) |
+| The six new modules, raw / zstd | n/a | 314 KB / 69 KB: rumours 169 KB, minds 66 KB, homes 31 KB, dynasties 27 KB, faith 17 KB, emergence 5 KB |
+| Growth in the second year (new modules) | <= 150 KB | 4 KB (memories, claims and chains are bounded; the older modules' growth is not part of this stage) |
+
+The averages for the older day ticks are unchanged; the slowest single jobs above are one-off spikes (they sit above the 0.6 ms job budget a handful of times in 720 days, and the soak allows 45 ms for a chunk on this container). Not measured here: the same run in a release export on a phone. The first day of a new game seeds characters 40 at a time (`SEED_PER_DAY`) and churches two at a time so no single job founds fifteen churches or pairs three hundred households.
+
+**Determinism.** `test_two_worlds_with_the_same_seed_live_the_same_lives` runs the six modules and the ones they call (organizations, businesses, registry, events, news) twice and compares the saved state byte for byte. Two whole-realm runs in one process are not byte-identical because some older modules (camps, settlements, strongholds) draw from sources that are not seeded; this stage adds none, and its chunk guard counts work units instead of reading a clock for exactly that reason.
+
+**Known limits.** NPCs do not rent or buy homes (their households are records in `homes.gd` without a house; only the player and `homes.rent_home` / `buy_home` callers have dwellings); `enlist` waits for an NPC army in the town with a defence plan (none appears by itself in two years, covered in `test_actions_move_petition_and_enlist`); an NPC "joins" an organization by applying, and the guild's officers decide. The 1,000 Character cap is the registry's, so "1,000 simulated NPCs" here means 960 Characters plus the aggregate villagers behind them. A five-year run of `emergence` alone starts 109 chains of 6 kinds with 48 knock-ons (the natural hazards; noble death, guild collapse, recognition and army departure need the other modules and appear in the full-hub soak).
 
 ---
 

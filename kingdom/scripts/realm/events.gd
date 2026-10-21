@@ -140,6 +140,17 @@ func recent(limit := 20) -> Array:
 	return out
 
 
+## Events written after number `n` (oldest first), the ones a daily reader has not seen yet. Reads only the new tail of the ring.
+func after(n: int) -> Array:
+	var out: Array = []
+	var i := _ring.size() - 1
+	while i >= 0 and int(_ring[i][0]) > n:
+		out.append(_row(_ring[i]))
+		i -= 1
+	out.reverse()
+	return out
+
+
 ## Events whose actors include `actor` (a persistent id or a legacy key), newest first.
 func by_actor(actor: String, limit := 20) -> Array:
 	var reg: RefCounted = hub.mod("registry") if hub != null else null

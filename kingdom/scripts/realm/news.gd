@@ -282,6 +282,25 @@ func items_at(sid: int, day := -1) -> Array:
 	return out
 
 
+## What a listener at `sid` has heard, cheaply, about the given kinds only: [[origin sid, magnitude, detail level 0..3, age in days]], newest first.
+## (items_at builds every line of text; deciders that only need to know where a boom or a danger is use this.)
+func heard_kinds(sid: int, kinds: Array, day := -1, limit := 6) -> Array:
+	_ensure()
+	var dd := _day if day < 0 else day
+	var out: Array = []
+	var i := _items.size() - 1
+	while i >= 0 and out.size() < limit:
+		var it: Dictionary = _items[i]
+		i -= 1
+		if not (String(it["kind"]) in kinds) or dd - int(it["day"]) > ITEM_LIFE:
+			continue
+		var lv := _level(it, sid, dd)
+		if lv < 0:
+			continue
+		out.append([int(it["sid"]), float(it["mag"]), lv, dd - int(it["day"])])
+	return out
+
+
 ## Channels: "tavern" (everything, gossip flavoured), "board" (official notices only), "traveller" (far news that just arrived).
 func news_for(sid: int, channel := "tavern", limit := 4) -> Array:
 	var out: Array = []
