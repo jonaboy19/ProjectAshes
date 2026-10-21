@@ -14,6 +14,7 @@ const MODULES := {
 	"events": preload("res://scripts/realm/events.gd"),       # LW-1.2: EventRecord ring with summarised archive
 	"followers": preload("res://scripts/realm/followers.gd"),
 	"recruitment": preload("res://scripts/realm/recruitment.gd"),   # Living World §2: contracts, notices, chains, managers
+	"will": preload("res://scripts/realm/follower_will.gd"),   # MW-12/13/14: follower motives, roles, order responses, requests, delegation quality, player actions
 	"camps": preload("res://scripts/realm/camps.gd"),
 	"civilization": preload("res://scripts/realm/civilization.gd"),
 	"migration": preload("res://scripts/realm/migration.gd"),
@@ -44,6 +45,7 @@ const MODULES := {
 	"farming": preload("res://scripts/realm/farming.gd"),     # LW Stage 3: land ladder, fields, livestock, farm economy, NPC farmers
 	"organizations": preload("res://scripts/realm/organizations.gd"),   # LW Stage 4: one generic organization record (ranks, rights, succession, branches)
 	"businesses": preload("res://scripts/realm/businesses.gd"),         # LW Stage 4: shops, workshops, inns, caravans with accounts and remote reports
+	"ledger": preload("res://scripts/realm/ledger.gd"),               # MW-19/20/21: scheduled wages, taxes, rent, upkeep, loans, contracts; shortage ladder; delegation and audit
 	"build_kit": preload("res://scripts/realm/build_kit.gd"),   # Build-kit hook: modular piece building (docs/regions/HOOKS_FOR_CLOUD.md)
 	"stewardship": preload("res://scripts/realm/stewardship.gd"),   # LW Stage 6: authority chain per location, running a territory
 	"reputation": preload("res://scripts/realm/reputation.gd"),     # LW Stage 6: multi-axis reputation with travel delay
@@ -53,19 +55,18 @@ const MODULES := {
 	"courts": preload("res://scripts/realm/courts.gd"),             # LW Stage 6: laws per kingdom, cases, trials, appeals
 	"succession": preload("res://scripts/realm/succession.gd"),     # LW Stage 6: claims, regents, local succession rules
 	"armies": preload("res://scripts/realm/armies.gd"),         # LW Stage 7: Army entity (ar:n), force types and legal limits, officers, couriers, fog of war, logistics, settlement defence
-	"ledger": preload("res://scripts/realm/ledger.gd"),               # MW-19/20/21: scheduled wages, taxes, rent, upkeep, loans, contracts; shortage ladder; delegation and audit
-	"will": preload("res://scripts/realm/follower_will.gd"),   # MW-12/13/14: follower motives, roles, order responses, requests, delegation quality, player actions
-	"persona": preload("res://scripts/realm/persona.gd"),       # NI-2: packed person record (origin, culture, values, intelligence), the source of truth for traits
 	"emergence": preload("res://scripts/realm/emergence.gd"),   # LW Stage 8: emergent event chains with knock-on effects, delivered as news
 	"faith": preload("res://scripts/realm/faith.gd"),           # LW Stage 8: churches as organizations, belief, festivals, culture tags
 	"dynasties": preload("res://scripts/realm/dynasties.gd"),   # LW Stage 8: houses, family reputation, specialties, feuds, estates
 	"homes": preload("res://scripts/realm/homes.gd"),           # LW Stage 8: homes, households, education ages, relocation, travel parties
+	"persona": preload("res://scripts/realm/persona.gd"),       # NI-2: packed person record (origin, culture, values, intelligence), the source of truth for traits
 	"minds": preload("res://scripts/realm/minds.gd"),           # LW Stage 8: five-layer decisions for upgraded Characters, aggregate households
 	"rumours": preload("res://scripts/realm/rumours.gd"),       # LW Stage 8: memory and rumour, wrong stories, investigation
+	"districts": preload("res://scripts/realm/district_values.gd"),  # MW-10/11: hidden per-quarter values, winners and losers
 	"founding": preload("res://scripts/realm/founding.gd"),     # LW Stage 5: site evaluation, legal land, illegal-build escalation, founding stages, scale classes, hidden valley, NPC founders
 }
 ## Order matters within a tier: land before factions before campaign.
-const ORDER := ["registry", "events", "settlements", "land", "camps", "civilization", "migration", "followers", "recruitment", "will", "factions", "strongholds", "campaign", "city_life", "society", "governance", "notables", "news", "exploration", "power_paths", "education", "cultivation", "household", "callups", "work", "scribe", "soldier", "trades", "enterprise", "construction", "towers", "ecology", "farming", "organizations", "businesses", "ledger", "build_kit", "founding", "stewardship", "reputation", "audiences", "territory", "diplomacy", "courts", "succession", "armies", "emergence", "faith", "dynasties", "homes", "persona", "minds", "rumours"]
+const ORDER := ["registry", "events", "settlements", "land", "camps", "civilization", "migration", "followers", "recruitment", "will", "factions", "strongholds", "campaign", "city_life", "society", "governance", "notables", "news", "exploration", "power_paths", "education", "cultivation", "household", "callups", "work", "scribe", "soldier", "trades", "enterprise", "construction", "towers", "ecology", "farming", "organizations", "businesses", "ledger", "build_kit", "founding", "stewardship", "reputation", "audiences", "territory", "diplomacy", "courts", "succession", "armies", "emergence", "faith", "dynasties", "homes", "persona", "minds", "rumours", "districts"]
 ## Max microseconds of realm work per frame (mobile: ~0.6 ms of a 16.6 ms frame).
 const PUMP_BUDGET_USEC := 600
 
