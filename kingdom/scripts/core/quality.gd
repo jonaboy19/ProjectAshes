@@ -134,6 +134,15 @@ const PC_TIERS := [
 	},
 ]
 
+## "ram8" memory preset (8 GB RAM PCs): opt-in with `-- --ram8`, or set `Quality.ram8` before the world builds. It is a cap layered on
+## whatever tier is in effect (never raises a value), so every existing preset stays as it is. Stream radius, full-body NPCs
+## (PopulationLOD reads npc_full / npc_sprites), mip bias and GI are cut; textures are only blurrier here (a real texture-size
+## limit is an import setting, see docs), and GI is off (SDFGI / SSIL; VoxelGI is not used by the game).
+const RAM8_CAP := {"view_radius": 3, "npc_full": 10, "npc_sprites": 40, "range": 1.0, "scatter": 0.7, "shadow_dist": 90.0}
+const RAM8_FLOOR := {"tex_bias": 1.0, "lod_threshold": 1.5}
+const RAM8_OFF := ["sdfgi", "ssil"]
+var ram8 := false
+
 ## Saved choice: AUTO or a tier.
 var choice := AUTO
 ## Tier in effect.
@@ -197,6 +206,7 @@ func _ready() -> void:
 		for k: String in GROUPS[g]:
 			_group_of[k] = g
 	profile = _resolve_profile()
+	ram8 = (OS.get_cmdline_user_args() + OS.get_cmdline_args() + qa_file_args()).has("--ram8")
 	_load()
 	var forced := _cmdline_tier()
 	if forced >= 0:
@@ -223,7 +233,15 @@ func value(key: String) -> Variant:
 		var o: int = overrides[_group_of[key]]
 		if o >= 0:
 			t = o
-	return _table()[t][key]
+	var v: Variant = _table()[t][key]
+	if ram8:
+		if RAM8_CAP.has(key):
+			return minf(float(v), float(RAM8_CAP[key])) if v is float else mini(int(v), int(RAM8_CAP[key]))
+		if RAM8_FLOOR.has(key):
+			return maxf(float(v), float(RAM8_FLOOR[key]))
+		if RAM8_OFF.has(key):
+			return false
+	return v
 
 
 func is_pc() -> bool:
