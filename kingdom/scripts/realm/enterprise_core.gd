@@ -889,6 +889,13 @@ func rank_destinations(a: int, opts: Dictionary = {}) -> Array:
 # ---------------------------------------------------------------- the local market day
 
 func _local_day(d: int) -> void:
+	_local_days(d, 1)
+
+
+## `n` consecutive market days in one pass: per (town, good) the constants (target, production, mix) are read once and the n clamped steps run on a
+## local value, with a single stock write at the end. Same result as n calls of the one-day update while populations hold still, which they do
+## inside a catch-up; it makes a long absence cost O(towns x goods x n) arithmetic instead of n full passes through the settlement module.
+func _local_days(_d: int, n: int) -> void:
 	var st := _st()
 	if st == null:
 		return
@@ -918,8 +925,9 @@ func _local_day(d: int) -> void:
 			if g == "rift_crystal":
 				prod = rift_factor(sid) * pop * 0.004
 			var cons := float(gd["cons"]) * pop
-			var delta := prod - cons
-			if g != "rift_crystal":
-				delta += (t - cur) * mix
-			var nxt := clampf(cur + delta, 0.0, t * 6.0)
+			var net := prod - cons
+			var reverts := g != "rift_crystal"
+			var nxt := cur
+			for _i in n:
+				nxt = clampf(nxt + net + ((t - nxt) * mix if reverts else 0.0), 0.0, t * 6.0)
 			st.call("add_stock", sid, g, nxt - cur)

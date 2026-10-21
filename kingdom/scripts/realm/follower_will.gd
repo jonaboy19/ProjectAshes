@@ -25,7 +25,8 @@ const ACTIONS := ["comply", "stay_behind", "refuse_moral", "consider_leaving", "
 const REQUESTS := ["", "assignment", "leave", "better_conditions", "partnership", "reward"]
 const KINDS := ["paid_full", "unpaid", "praised", "rewarded", "promoted", "insulted", "punished_just", "punished_unjust",
 	"ordered_atrocity", "saved_by_player", "victory", "defeat", "family_threatened", "family_helped", "lord_absent",
-	"shared_loot", "betrayed_trust", "audited_clean", "accused_falsely", "imprisoned_unjust", "dismissed_ally", "forgiven"]
+	"shared_loot", "betrayed_trust", "audited_clean", "accused_falsely", "imprisoned_unjust", "dismissed_ally", "forgiven",
+	"aura_awe", "aura_fear", "aura_pride", "aura_leaving"]   # appended: saved memories index KINDS
 ## event kind -> deltas [aff, res, fear, ide, gre, pro, hid, grudge]
 const EVENTS := {
 	"paid_full": [0.02, 0.01, 0, 0, -0.03, 0, 0, -0.01], "unpaid": [-0.04, 0, 0, 0, 0.04, 0, 0, 0.05],
@@ -39,6 +40,9 @@ const EVENTS := {
 	"betrayed_trust": [-0.10, -0.10, 0, 0, 0, 0, 0, 0.15], "audited_clean": [-0.02, 0.02, 0, 0, 0, 0, 0, 0],
 	"accused_falsely": [-0.12, -0.10, 0.03, 0, 0, 0, 0, 0.20], "imprisoned_unjust": [-0.20, -0.15, 0.20, 0, 0, 0, 0, 0.30],
 	"dismissed_ally": [-0.04, 0, 0.03, 0, 0, 0, 0, 0.04], "forgiven": [0.10, 0.06, -0.10, 0, 0, 0, 0, -0.30],
+	# aura events (AURA_RELEASE.md AR-9). Never in UNJUST: an aura alone cannot make a lifelong follower betray.
+	"aura_awe": [0.03, 0.05, 0.02, 0, 0, 0, 0, -0.02], "aura_fear": [-0.06, -0.03, 0.10, 0, 0, 0.03, 0, 0.06],
+	"aura_pride": [0.05, 0.06, 0, 0.02, 0, 0, 0, -0.04], "aura_leaving": [-0.08, -0.05, 0.03, 0, 0, 0.05, 0, 0.12],
 }
 ## Kinds that count as an injustice done to the follower (lifelong loyalty breaks after enough of them).
 const UNJUST := ["punished_unjust", "accused_falsely", "imprisoned_unjust", "betrayed_trust"]
@@ -61,6 +65,7 @@ const DAILY_REQUESTS := 3        # new requests announced per day at most
 
 var _s: Dictionary = {}            # fid -> state (see ensure)
 var _gov: Dictionary = {}          # sid -> fid (delegated governors / stewards)
+var _aura_day: Dictionary = {}     # fid -> day of the last aura reaction (transient)
 var _leak: Dictionary = {}         # fid -> estimated gold skimmed since the last audit
 var _day := 0
 var _msgs_today := 0
@@ -220,6 +225,46 @@ func on_event(fid: String, kind: String, mag := 1.0, day := -1) -> void:
 	mem.append([KINDS.find(kind), day if day >= 0 else _day, int(round(k * 10.0))])
 	if mem.size() > MEM_MAX:
 		mem.pop_front()
+
+
+## A follower witnessed the player's aura (awe and dread 0..100 as the town feels them; `protect` when the release shielded someone).
+## Motives decide the reaction: awe and pride bind, fear and leaving loosen. At most one reaction per follower per day; magnitudes are
+## bounded (<= 1.5), halved for a lifelong follower, so the aura alone never breaks a bond. Returns the event kinds applied.
+func on_aura(fid: String, awe: float, dread: float, protect := false, day := -1) -> Array:
+	var s: Dictionary = ensure(fid)
+	var d := _day if day < 0 else day
+	if int(_aura_day.get(fid, -99)) == d:
+		return []
+	var m: Dictionary = s["m"]
+	var a := clampf(awe / 100.0, 0.0, 1.0)
+	var t := clampf(dread / 100.0, 0.0, 1.0)
+	var out: Array = []
+	if a < 0.1 and t < 0.1:
+		return out
+	_aura_day[fid] = d
+	var soft := 0.5 if bool(s["life"]) else 1.0
+	if protect:
+		on_event(fid, "aura_pride", clampf(0.5 + a, 0.0, 1.5), d)
+		out.append("aura_pride")
+	if a >= 0.1:
+		on_event(fid, "aura_awe", clampf(a * 1.5, 0.0, 1.5), d)
+		out.append("aura_awe")
+	if t >= 0.1:
+		var shaken := clampf(t * (1.3 - float(m["res"]) * 0.5) * (1.2 if float(m["fear"]) > 0.3 else 1.0), 0.0, 1.5) * soft
+		on_event(fid, "aura_fear", shaken, d)
+		out.append("aura_fear")
+		if t >= 0.5 and not protect and float(m["ide"]) >= 0.55 and float(m["aff"]) < 0.8:
+			on_event(fid, "aura_leaving", clampf(t * float(m["ide"]), 0.0, 1.5) * soft, d)
+			out.append("aura_leaving")
+	return out
+
+
+func on_aura_all(awe: float, dread: float, protect := false) -> int:
+	var n := 0
+	for fid: String in _active_ids():
+		if not on_aura(fid, awe, dread, protect).is_empty():
+			n += 1
+	return n
 
 
 ## Broadcast to every active follower except `skip` (a witnessed injustice, a victory, a shared hardship).

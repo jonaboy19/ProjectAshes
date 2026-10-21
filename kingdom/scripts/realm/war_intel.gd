@@ -23,6 +23,7 @@ const Events := preload("res://scripts/realm/events.gd")
 const REPORT_CAP := 60
 const ENVOY_CAP := 24
 const INBOX_CAP := 12
+const POWER_CAP := 12
 const AUDIENCE_DAYS := 10
 const DIGEST_RULER := 6
 const DIGEST_ADV := 3
@@ -34,6 +35,8 @@ const RESPONSES := ["accept", "refuse", "negotiate", "delay", "ask_intel", "medi
 const BANNERS := ["the Crown", "a mercenary band", "the northern lords", "an unknown company", "the border wardens"]
 
 var _scouts: Dictionary = {}     # id -> {skill, integ, fear, loy, bribe, n, right}
+var _power: Array = []           # power reports (AR-9): [id, owner, scout, sid, level 0..100, flags, as_of_h, ready_h, fate]
+var _next_p := 1
 var _reports: Array = []         # delivered or in transit, see scout_report()
 var _next_r := 1
 var _envoys: Array = []
@@ -211,6 +214,58 @@ func scout_report(owner: String, scout_id: String, target_aid: String, opts: Dic
 		_reports.pop_front()
 	stats["reports"] = int(stats["reports"]) + 1
 	return {"ok": true, "id": rid, "ready_h": int(r["ready"]), "fate": fate, "late_h": late}
+
+
+## AR-9: a scout reports a terrifying power (the player's aura, read from aura_fallout) in town `sid`. What is kept is the scout's account: the level is
+## off by the scout's error, a frightened scout inflates it, a poor one under-reports, and the report is late and sometimes lost. Bounded ring (POWER_CAP).
+## Returns {ok, id, ready_h, fate} or {ok:false, reason}.
+func scout_power(owner: String, scout_id: String, sid: int, subject := "i:player", opts: Dictionary = {}) -> Dictionary:
+	var af: Variant = _mod("aura_fallout")
+	if af == null:
+		return {"ok": false, "reason": "no_aura"}
+	var truth: float = maxf(float(af.dread_felt(subject, sid)), float(af.awe(subject, sid)))
+	if truth < 10.0:
+		return {"ok": false, "reason": "nothing_to_report"}
+	var s: Dictionary = _scouts.get(scout_id, {})
+	if s.is_empty():
+		register_scout(scout_id)
+		s = _scouts[scout_id]
+	var pid := _next_p
+	_next_p += 1
+	var skill := float(s["skill"])
+	var fear := float(s["fear"])
+	var err := 0.1 + (1.0 - skill) * 0.5 + fear * 0.2
+	var lvl := truth * (1.0 + (_h("pw", pid, scout_id) - 0.5) * 2.0 * err)
+	var flags: Array = []
+	if fear > 0.55:
+		lvl *= 1.0 + fear * 0.3
+		flags.append("exaggerated")
+	elif skill < 0.3:
+		lvl *= 0.6
+		flags.append("underplayed")
+	var now := _now_h()
+	var late := int(round(fear * 18.0 + (1.0 - skill) * 10.0)) + int(opts.get("hours", 24))
+	var fate := "lost" if _h("plost", pid, scout_id) < float(opts.get("risk", 0.05)) else "ok"
+	if fate == "lost":
+		stats["lost"] = int(stats["lost"]) + 1
+	_power.append([pid, owner, scout_id, sid, int(round(clampf(lvl, 0.0, 100.0))), flags, now, now + late, fate])
+	while _power.size() > POWER_CAP:
+		_power.pop_front()
+	stats["reports"] = int(stats["reports"]) + 1
+	return {"ok": true, "id": pid, "ready_h": now + late, "fate": fate}
+
+
+## Arrived power reports of an owner, newest last: {id, scout, sid, level, word, age_h, tag}. `word` is deliberately vague.
+func power_reports(owner: String) -> Array:
+	var now := _now_h()
+	var out: Array = []
+	for r: Array in _power:
+		if String(r[1]) != owner or String(r[8]) == "lost" or int(r[7]) > now:
+			continue
+		var lv := int(r[4])
+		var word := "a rumour of something strange" if lv < 30 else ("a power that frightens grown men" if lv < 60 else "a terrifying power that empties streets")
+		out.append({"id": int(r[0]), "scout": r[2], "sid": int(r[3]), "level": lv, "word": word, "age_h": now - int(r[6]), "tag": reliability_tag(String(r[2]))})
+	return out
 
 
 ## The reports an owner can read now: delivered ones only (a lost one never shows), with age, the observable tag, and no hint of hidden flags.
@@ -645,6 +700,10 @@ func _intel_lines(since_h: int, ruler: bool) -> Array:
 	var out: Array = []
 	var owner := String(_viewer.get("owner", ""))
 	var now := _now_h()
+	for pr: Array in _power:
+		if String(pr[1]) == owner and String(pr[8]) != "lost" and int(pr[7]) <= now and int(pr[7]) > since_h:
+			var w: String = "a rumour of something strange" if int(pr[4]) < 30 else ("a power that frightens grown men" if int(pr[4]) < 60 else "a terrifying power that empties streets")
+			out.append({"ch": "messenger", "kind": "intel", "text": "A rider speaks of %s, said to walk near the town." % w if ruler else "A rider mutters of %s." % w})
 	for r: Dictionary in _reports:
 		if String(r["owner"]) != owner or String(r["fate"]) == "lost" or int(r["ready"]) > now or int(r["ready"]) <= since_h:
 			continue
@@ -761,7 +820,7 @@ func catch_up(days: int, _ctx: Dictionary) -> Array:
 
 func serialize() -> Dictionary:
 	return {"sc": _scouts.duplicate(true), "rep": _reports.duplicate(true), "nr": _next_r, "env": _envoys.duplicate(true), "ne": _next_e, "view": _viewer.duplicate(true),
-		"in": _inbox.duplicate(true), "nd": _next_d, "lw": _last_week, "ud": _urgent_day.duplicate(), "ul": _urgent_last, "gold": _gold, "stats": stats.duplicate()}
+		"pw": _power.duplicate(true), "np": _next_p, "in": _inbox.duplicate(true), "nd": _next_d, "lw": _last_week, "ud": _urgent_day.duplicate(), "ul": _urgent_last, "gold": _gold, "stats": stats.duplicate()}
 
 
 func deserialize(d: Dictionary) -> void:
@@ -781,6 +840,10 @@ func deserialize(d: Dictionary) -> void:
 			rr[f3] = int(rr[f3])
 		_reports.append(rr)
 	_next_r = int(d.get("nr", 1))
+	_power = []
+	for pr2: Array in d.get("pw", []):
+		_power.append([int(pr2[0]), String(pr2[1]), String(pr2[2]), int(pr2[3]), int(pr2[4]), (pr2[5] as Array).duplicate(), int(pr2[6]), int(pr2[7]), String(pr2[8])])
+	_next_p = int(d.get("np", 1))
 	_envoys = []
 	for e: Dictionary in d.get("env", []):
 		var ee := e.duplicate(true)

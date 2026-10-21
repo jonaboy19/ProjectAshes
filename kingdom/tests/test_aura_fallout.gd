@@ -361,7 +361,8 @@ func test_save_round_trip_and_size() -> void:
 
 
 func test_no_mind_control_in_fallout() -> void:
-	# nothing in the fallout API writes follower will, minds or bonds
+	# the fallout API never writes minds or bonds, and may only feel-react followers (on_aura_all) and witnesses (psyche.experience): it never
+	# assigns roles, answers requests, orders or sets follower state
 	var src := FileAccess.get_file_as_string("res://scripts/realm/aura_fallout.gd")
-	for banned in ["mod(\"will\")", "mod(\"minds\")", "mod(\"bonds\")", "mod(\"psyche\")"]:
+	for banned in ["mod(\"minds\")", "mod(\"bonds\")", "set_state(", "assign_role(", ".respond(", ".answer(", "imprison(", "dismiss("]:
 		assert_bool(src.contains(banned)).is_false()

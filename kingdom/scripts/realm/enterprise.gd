@@ -872,10 +872,17 @@ func catch_up(days: int, ctx: Dictionary) -> Array:
 	var n := mini(days, 30)
 	var d1 := int(float(ctx.get("abs_hours", float(_day) * 24.0)) / 24.0)
 	var d0 := d1 - n
+	invalidate_routes()
+	_local_days(d0 + 1, n)         # the market drift of all n days in one pass (see _local_days)
 	for i in n:
 		var dd := d0 + i + 1
-		for ch: Callable in tick_day_chunks(dd, ctx):
-			ch.call()
+		var chunks: Array = tick_day_chunks(dd, ctx)
+		for k in range(1, chunks.size()):   # chunk 0 is the market day, already done
+			(chunks[k] as Callable).call()
+		_day = dd
+		for k2: String in informants.keys():
+			if int(informants[k2]) >= dd:
+				observe(int(k2), "informant")
 	_day = d1
 	_now = float(d1) * 24.0
 	for id: Variant in caravans.keys():

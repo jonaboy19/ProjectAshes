@@ -18,6 +18,12 @@ const Faith := preload("res://scripts/realm/faith.gd")
 const SUBJECT := "i:player"
 const LEGEND_CAP := 20
 const KEY_CAP := 40
+const WITNESS_CAP := 12          # psyche memories written per incident
+const WITNESS_DAY_CAP := 36      # ... and per day
+const FLEE_FRAC := 0.08          # share of a town's people that flee after a severe event
+const FLEE_MAX := 40
+const FLEE_CALM_DAYS := 14       # dread under 20 for this long and the families come home
+const FLEE_GIVE_UP := 180        # ... or they settle where they fled to
 const OPTIONS := ["suppress", "talk", "intimidate", "bribe", "surrender", "flee", "fight", "fight_lethal", "appeal"]
 
 var _ax: Dictionary = {}        # "subject#sid" -> [dread, awe, day, kingdom_scale 0/1, days_high]
@@ -28,7 +34,11 @@ var _deeds: Dictionary = {}     # "subject|deed" -> count
 var _bills: Dictionary = {}     # "subject#sid" -> gold due
 var _gold := 0
 var _day := 0
-var stats := {"incidents": 0, "deeds": 0, "options": 0, "bills_paid": 0}
+var _away: Dictionary = {}      # sid -> [n, dest_node, day_left, calm_days]: households that fled after a severe event
+var _psy_day := -1
+var _psy_n := 0
+var _scout_day: Dictionary = {} # sid -> day of the last power report
+var stats := {"incidents": 0, "deeds": 0, "options": 0, "bills_paid": 0, "witnessed": 0, "fled": 0, "returned": 0, "scouted": 0}
 
 
 # ------------------------------------------------------------------ helpers
@@ -175,6 +185,9 @@ func on_deed(subject: String, deed: String, sid: int, magnitude := 1.0, opts: Di
 	if nm != null and (absf(dd) + absf(da)) >= 10.0:
 		nm.post("aura_incident", sid, "%s: %s" % [deed.replace("_", " "), "the one they fear" if dd > da else "the one they speak of"], clampf((absf(dd) + absf(da)) / 20.0, 0.5, 4.0))
 	_note_deed(subject, deed, sid)
+	if big:
+		_followers_react(subject, sid, bool(opts.get("protect", false)))
+		_scout_news(subject, sid, _kingdom(sid, opts))
 	var dm: Variant = _mod("districts")
 	if dm != null and dd > 0.0:
 		for q: String in dm.quarters_of(sid):
@@ -379,6 +392,12 @@ func on_incident(subject: String, sid: int, quarter: String, peak: float, harm: 
 		add(subject, sid, 0.0, sev * 6.0, {"kingdom": kingdom})   # a greeting, not a crime
 		return -1
 	add(subject, sid, 12.0 * sev, 0.0, {"kingdom": kingdom})
+	if opts.has("witness_ids"):
+		witness_memories(opts["witness_ids"], peak, "aura_fear")
+	if opts.has("awe_ids"):
+		witness_memories(opts["awe_ids"], peak * 0.6, "aura_awe")
+	if sev >= 0.3:
+		_followers_react(subject, sid, bool(opts.get("protect", false)))
 	var dm: Variant = _mod("districts")
 	if dm != null and quarter != "" and dm.has_quarter(sid, quarter):
 		dm.on_crime(sid, quarter, sev)
@@ -391,6 +410,10 @@ func on_incident(subject: String, sid: int, quarter: String, peak: float, harm: 
 		"noble_killed": bool(opts.get("noble_killed", false)),
 		"demonic_church": bool(opts.get("demonic", false)) and bool(cul.get("inquisitors", false))}
 	var step := step_for(m, dread_felt(subject, sid), int(prev.get("s4", 0)))
+	if step >= 3:
+		_scout_news(subject, sid, kingdom)
+	if step >= 4 or (sev >= 0.8 and step >= 3):
+		_flee(subject, sid)
 	if step >= 0:
 		if prev.is_empty() or step > int(prev["step"]):
 			_set_step(subject, sid, step, "incident")
@@ -530,6 +553,109 @@ func favours(subject: String, sid: int) -> int:
 	return int((_lad.get(key(subject, sid), {}) as Dictionary).get("fav", 0))
 
 
+# ------------------------------------------------------------------ knock-on hooks (AR-9, AR-10)
+
+## Fear / awe memories for witnesses (psyche kinds aura_fear, aura_awe). Bounded: WITNESS_CAP per call, WITNESS_DAY_CAP per day. Severity scales with
+## the peak felt (0..1). Returns the number written.
+func witness_memories(ids: Array, peak: float, kind := "aura_fear") -> int:
+	var ps: Variant = _mod("psyche")
+	if ps == null or ids.is_empty():
+		return 0
+	if _psy_day != _now():
+		_psy_day = _now()
+		_psy_n = 0
+	var n := 0
+	for ch: Variant in ids:
+		if n >= WITNESS_CAP or _psy_n >= WITNESS_DAY_CAP:
+			break
+		if ps.experience(String(ch), kind, clampf(peak, 0.0, 1.0), 1.0, ids.size(), _now()):
+			n += 1
+			_psy_n += 1
+	stats["witnessed"] = int(stats["witnessed"]) + n
+	return n
+
+
+## Followers react by motive (awe, fear, pride, leaving). Never moves a follower or breaks a bond on its own (follower_will rules).
+func _followers_react(subject: String, sid: int, protect := false) -> void:
+	var fw: Variant = _mod("will")
+	if fw != null and fw.has_method("on_aura_all"):
+		fw.on_aura_all(awe(subject, sid), dread_felt(subject, sid), protect)
+
+
+## A scout of the town's kingdom carries word of the power (once per 10 days per town).
+func _scout_news(subject: String, sid: int, kingdom: String) -> void:
+	var wi: Variant = _mod("war_intel")
+	if wi == null or not wi.has_method("scout_power"):
+		return
+	if _now() - int(_scout_day.get(sid, -99)) < 10:
+		return
+	_scout_day[sid] = _now()
+	var r: Dictionary = wi.scout_power("k:" + kingdom, "scout:%d" % sid, sid, subject)
+	if bool(r.get("ok", false)):
+		stats["scouted"] = int(stats["scouted"]) + 1
+
+
+func _node_of(sid: int) -> String:
+	return "s%d" % sid
+
+
+func away(sid: int) -> int:
+	return int((_away.get(sid, [0]) as Array)[0])
+
+
+## Households flee a town after a severe event: a bounded share (FLEE_MAX) goes by road to the nearest other living place. One flight per town at a time.
+func _flee(subject: String, sid: int) -> bool:
+	if _away.has(sid) or dread_felt(subject, sid) < 60.0:
+		return false
+	var mig: Variant = _mod("migration")
+	var civ: Variant = _mod("civilization")
+	if mig == null or civ == null:
+		return false
+	var node := _node_of(sid)
+	if not civ.has_place(node):
+		return false
+	var n := clampi(int(float(civ.population(node)) * FLEE_FRAC), 0, FLEE_MAX)
+	if n < 3:
+		return false
+	var here: Vector2 = civ.pos_of(node)
+	var dest := ""
+	var bd := INF
+	for other: String in civ.place_ids():
+		if other == node or bool((civ.place(other) as Dictionary).get("ruin", false)):
+			continue
+		var d := here.distance_to(civ.pos_of(other))
+		if d < bd:
+			bd = d
+			dest = other
+	if dest == "":
+		return false
+	var w: Dictionary = mig.send_wave(node, dest, n, "refugees", "terror", "refugee", _now())
+	if w.is_empty():
+		return false
+	_away[sid] = [int(w["n"]), dest, _now(), 0]
+	stats["fled"] = int(stats["fled"]) + int(w["n"])
+	return true
+
+
+## Day tick: households come home once the town has been calm for FLEE_CALM_DAYS; after FLEE_GIVE_UP days they stay where they are.
+func _chunk_return(subject: String) -> void:
+	var mig: Variant = _mod("migration")
+	for sid: int in _away.keys():
+		var a: Array = _away[sid]
+		if dread(subject, sid) < 20.0:
+			a[3] = int(a[3]) + 1
+		else:
+			a[3] = 0
+		if _now() - int(a[2]) >= FLEE_GIVE_UP:
+			_away.erase(sid)
+		elif int(a[3]) >= FLEE_CALM_DAYS:
+			if mig != null:
+				var w: Dictionary = mig.send_wave(String(a[1]), _node_of(sid), int(a[0]), "settlers", "coming home", "native", _now())
+				if not w.is_empty():
+					stats["returned"] = int(stats["returned"]) + int(w["n"])
+			_away.erase(sid)
+
+
 # ------------------------------------------------------------------ ticks (chunked)
 
 func tick_day_chunks(day: int, ctx: Dictionary) -> Array:
@@ -556,6 +682,7 @@ func _chunk_decay(day: int) -> Array:
 		r[1] = aw
 		r[2] = _day
 		r[4] = int(r[4]) + 1 if dr >= 60.0 else 0
+	_chunk_return(SUBJECT)
 	# old ladders cool down: a step that has arrived and is not refreshed drops one step per day without new dread
 	for k: String in _lad.keys():
 		var l: Dictionary = _lad[k]
@@ -609,7 +736,7 @@ func serialize() -> Dictionary:
 	for k: String in _lad:
 		var l: Dictionary = _lad[k]
 		lad[k] = [int(l["step"]), int(round(float(l["arrive"]))), int(round(float(l["clock"]))), int(l.get("s4", 0)), int(l.get("fav", 0)), String(l.get("case", ""))]
-	return {"ax": ax, "lad": lad, "inc": _inc.duplicate(true), "lg": _legends.duplicate(true), "dd": _deeds.duplicate(), "bl": _bills.duplicate(), "g": _gold, "d": _day}
+	return {"ax": ax, "lad": lad, "inc": _inc.duplicate(true), "lg": _legends.duplicate(true), "dd": _deeds.duplicate(), "bl": _bills.duplicate(), "g": _gold, "d": _day, "aw": _away.duplicate(true), "sd": _scout_day.duplicate()}
 
 
 func deserialize(d: Dictionary) -> void:
@@ -638,3 +765,10 @@ func deserialize(d: Dictionary) -> void:
 		_bills[k] = int(d["bl"][k])
 	_gold = int(d.get("g", 0))
 	_day = int(d.get("d", 0))
+	_away = {}
+	for k in d.get("aw", {}):
+		var a: Array = d["aw"][k]
+		_away[int(k)] = [int(a[0]), String(a[1]), int(a[2]), int(a[3])]
+	_scout_day = {}
+	for k in d.get("sd", {}):
+		_scout_day[int(k)] = int(d["sd"][k])

@@ -300,3 +300,10 @@ func test_presence_tick_cost_with_48_bodies() -> void:
 		p.tick(n * 250)
 	var per_tick := float(Time.get_ticks_usec() - t0) / 40.0
 	assert_float(per_tick).is_less(8000.0)                         # loose: CI runners are slow (target 0.3 ms)
+
+
+func test_repulsion_cost_scales_with_fear_and_is_bounded() -> void:
+	var lo := AuraField.repulsion_cost(Vector2(5, 0), Vector2.ZERO, 40.0, 0.2)
+	var hi := AuraField.repulsion_cost(Vector2(5, 0), Vector2.ZERO, 40.0, 0.9)
+	assert_float(hi).is_greater(lo)
+	assert_float(AuraField.repulsion_cost(Vector2.ZERO, Vector2.ZERO, 40.0, 5.0)).is_less_equal(6.0)   # fear is clamped
