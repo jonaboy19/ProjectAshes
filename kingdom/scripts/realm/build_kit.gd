@@ -182,6 +182,7 @@ func ensure_grid(world: Vector3, name := "") -> Dictionary:
 		"pieces": {}, "next": 1, "roads": [], "plans": {}}
 	_index[gid] = {}
 	_integ[gid] = {}
+	ScatterExclusion.sync_grids(grids, GRID_RADIUS)   # terrain_backend=terrain3d: no scattered trees inside the new grid
 	return {"ok": true, "gid": gid, "reason": ""}
 
 
@@ -959,5 +960,6 @@ func deserialize(d: Dictionary) -> void:
 		_reindex(gid)
 	_next_grid = int(d.get("next_grid", grids.size() + 1))
 	log_lines = (d.get("log", []) as Array).duplicate()
+	ScatterExclusion.sync_grids(grids, GRID_RADIUS)
 	rev += 1
 	sync_realm()

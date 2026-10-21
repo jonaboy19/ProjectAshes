@@ -51,3 +51,6 @@ texture resolution/filtering (build-kit / Meshy agents).
   ALBEDO = raw sample before tuning (no `return` in fragment()).
 - look_capture pins WorldSim.time_of_day every frame (intro/sleep advance_hours() pushed shots to night).
 - Terrain/grass edits stay on local-wip/env: neutral at best; the COLOR.r mud shoulder draws a hard dark rim on cobbles.
+
+## Terrain3D / ProtonScatter backend (2026-10-21, unjudged on GPU)
+`terrain_backend` = `legacy` (default) | `terrain3d` (`-- --terrain_backend=terrain3d`, env `ASHES_TERRAIN_BACKEND`, or `[world]` in user://settings.cfg). The look recipe above (terrain.gdshader, GrassField match, wetness/seasons) is the LEGACY path; Terrain3D mode has its own texture slots (`Terrain3DBridge.UV_SCALE/SLOT_LOOK`) and does not read the legacy shader globals yet. See docs/LOCAL_SESSION_HANDOFF.md "Terrain3D + ProtonScatter backend" before touching either.

@@ -356,6 +356,7 @@ func begin(pos: Vector2, fname := "", who := "player", founder := "") -> Diction
 	var fo := founder if founder != "" else ("You" if who == "player" else "a band of settlers")
 	_f[id] = _new_record(id, pos, nm, who, fo, ev)
 	stats["begun"] = int(stats["begun"]) + 1
+	ScatterExclusion.sync_founded(_f.values())   # terrain_backend=terrain3d: keep the scatter forest off the new site
 	if who != "player":
 		stats["npc_begun"] = int(stats["npc_begun"]) + 1
 	var f: Dictionary = _f[id]
@@ -1548,6 +1549,7 @@ func tick_day(day: int, ctx: Dictionary) -> Array:
 func tick_day_chunks(day: int, ctx: Dictionary) -> Array:
 	_day = day
 	_war = bool(ctx.get("at_war", false))
+	ScatterExclusion.sync_founded(_f.values())   # abandoned/ended foundings free their ground again
 	var act := ids(true)
 	var out: Array = []
 	var i := 0
@@ -1611,6 +1613,7 @@ func deserialize(d: Dictionary) -> void:
 		_f[int(rec["id"])] = rec
 	_next = int(d.get("next", 1))
 	_zones = (d.get("zones", []) as Array).duplicate(true)
+	ScatterExclusion.sync_founded(_f.values())
 	_corrupt = (d.get("corrupt", {}) as Dictionary).duplicate(true)
 	_day = int(d.get("day", 0))
 	_npc_day = int(d.get("npc_day", -999))

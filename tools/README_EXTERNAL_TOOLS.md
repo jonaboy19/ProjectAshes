@@ -16,7 +16,7 @@ Already evaluated elsewhere, not repeated here: `docs/art/vfx_tools/README.md` (
 | A.N.T.Landscape (extensions.blender.org) | 0.2.0 | GPL-2.0-or-later | mesh terrain from noise, includes an Eroder | `Tools\blender-extensions\user_default\antlandscape` |
 | terrain-erosion-3-ways (dandrino) | master | MIT | hydraulic erosion plus river flow map on heightmaps | `Tools\terrain-erosion-3-ways` (with `venv`) |
 | Azgaar Fantasy Map Generator | 1.153.1 | MIT; the author states maps, images and screenshots are free for any use including commercial | world and region maps, rivers and cells as GeoJSON | `Tools\azgaar` (built to `dist`) |
-| Terrain3D (already in `kingdom/addons`) | repo copy | MIT | runtime terrain, imports r16 heightmaps | `kingdom/addons/terrain_3d` |
+| Terrain3D 1.0.2-stable (in `kingdom/addons`, loaded since 2026-10-21) | repo copy | MIT | runtime terrain for `terrain_backend=terrain3d` (WorldGen bridge), imports r16 heightmaps | `kingdom/addons/terrain_3d`; see docs/LOCAL_SESSION_HANDOFF.md |
 
 Proofs (all headless, reproducible with the commands below):
 - **Rigify horse**: 70-bone horse metarig generates a 454-bone rig; rearing pose made by moving IK controls. `_proof\rigify\horse_both.png`.

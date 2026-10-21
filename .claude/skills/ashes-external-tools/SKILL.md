@@ -17,7 +17,7 @@ Licence rule: the tool's licence must allow commercial use of its OUTPUT; no acc
 | A.N.T.Landscape 0.2.0 | mesh terrain from noise, GLB/r16 export | GPL-2+ | `ant_terrain.py -- out seed grid`: `mesh.landscape_add(refresh=True)` |
 | dandrino terrain-erosion-3-ways | erosion and river flow map on heightmaps | MIT | tool venv python + `tools/external/erode_heightmap.py` |
 | Azgaar Fantasy Map Generator 1.153.1 | world and region maps, rivers, GeoJSON | MIT, maps free for commercial use | `node tools/external/azgaar_export.mjs <seed> <out>` |
-| Terrain3D (in `kingdom/addons`) | runtime terrain, r16 import | MIT | `godot --headless ... -s tools/external/terrain3d_import_r16.gd -- ...` |
+| Terrain3D 1.0.2 + ProtonScatter 4.2.0 (in `kingdom/addons`) | runtime terrain and scatter behind `terrain_backend=terrain3d` (default `legacy`; bridge in `scripts/world/terrain3d_bridge.gd`, `scatter_chunk.gd`, `scatter_exclusion.gd`; handoff in docs/LOCAL_SESSION_HANDOFF.md), r16 import | MIT | `godot --headless ... -s tools/external/terrain3d_import_r16.gd -- ...`; tests `tests/test_terrain3d_bridge.gd` |
 
 Rejected, do not reinstall: Gaea (non-commercial free tier), World Machine, Cascadeur Free (non-commercial, no FBX), Rokoko add-on (login libs), AnimAide (breaks on 5.2), Simplify Curves+ (breaks on 5.2; use `graph.decimate`), Wiggle 2 RTX Edition (unstable headless), Wonderdraft, Inkarnate, Watabou (no formal licence).
 

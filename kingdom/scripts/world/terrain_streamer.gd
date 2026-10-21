@@ -30,6 +30,11 @@ var focus := Vector3.ZERO
 
 var _chunks: Dictionary = {}         # Vector2i -> Node3D
 var _ground_material: ShaderMaterial
+## terrain_backend = terrain3d (TerrainBackend): Terrain3D draws the ground (Terrain3DBridge, fed from WorldGen) and ProtonScatter
+## places the forest (ScatterChunk). Chunks still own collision, grass and the road/floor extras; the legacy ground meshes are skipped.
+## Decided once in _ready so worker threads read a plain bool.
+var _t3d := false
+var _bridge: Terrain3DBridge
 
 ## Threaded streaming: the maths for a chunk (ground grid, collision faces, forest
 ## and grass placement, merged impostor cards) runs on WorkerThreadPool; the main
@@ -80,6 +85,12 @@ const LAYERS := {"grass": "leafy_grass", "forest": "forest_ground_04", "path": "
 
 
 func _ready() -> void:
+	_t3d = TerrainBackend.is_terrain3d()
+	if _t3d:
+		_bridge = Terrain3DBridge.new()
+		_bridge.name = "Terrain3DBridge"
+		_bridge.region_radius = 1 if Quality.tier <= Quality.MEDIUM else 2
+		add_child(_bridge)
 	_ground_material = ShaderMaterial.new()
 	_ground_material.shader = preload("res://shaders/terrain.gdshader")
 	for layer: String in LAYERS:
@@ -138,6 +149,8 @@ func loaded_count() -> int:
 func build_all_now() -> void:
 	while _step(true):
 		pass
+	if _bridge:
+		_bridge.build_all_now(focus)
 
 
 ## Once every chunk around the player is built (and its collision and grass are in),
@@ -147,6 +160,8 @@ var _idle_center := Vector2i(1 << 30, 0)
 
 
 func _process(_delta: float) -> void:
+	if _bridge:
+		_bridge.focus = focus
 	var center := chunk_of(focus)
 	if center == _idle_center:
 		return
@@ -300,7 +315,8 @@ func _plan_chunk(key: Vector2i) -> Dictionary:
 				WorldGen.height(x, z - 1.0) - WorldGen.height(x, z + 1.0)).normalized()
 			verts[vi] = Vector3(x, h, z)
 			normals[vi] = normal
-			colors[vi] = WorldGen.color_at(x, z, h, 1.0 - normal.y)
+			if not _t3d:
+				colors[vi] = WorldGen.color_at(x, z, h, 1.0 - normal.y)    # Terrain3D bakes its own control maps from the same call
 			vi += 1
 	var indices := PackedInt32Array()
 	indices.resize(n * n * 6)
@@ -325,7 +341,7 @@ func _plan_chunk(key: Vector2i) -> Dictionary:
 	arrays[Mesh.ARRAY_INDEX] = indices
 	var forest := _plan_forest(key, origin)
 	return {
-		"ground": arrays, "ground_lod": _lod_arrays(verts, normals, colors, n), "faces": faces, "forest": forest,
+		"ground": arrays, "ground_lod": [] if _t3d else _lod_arrays(verts, normals, colors, n), "faces": faces, "forest": forest,
 		"impostors": _plan_impostors(forest),
 		"grass": GrassField.plan(origin, CHUNK, hash(key) ^ 0x6a55),
 	}
@@ -396,6 +412,8 @@ static func _lod_arrays(verts: PackedVector3Array, normals: PackedVector3Array, 
 func _build_chunk(key: Vector2i, plan: Dictionary) -> Node3D:
 	var chunk := Node3D.new()
 	chunk.name = "Chunk_%d_%d" % [key.x, key.y]
+	if _t3d:
+		return _build_chunk_t3d(key, plan, chunk)
 	var ground := MeshInstance3D.new()
 	ground.name = "Ground"
 	var mesh := ArrayMesh.new()
@@ -434,8 +452,47 @@ func _build_chunk(key: Vector2i, plan: Dictionary) -> Node3D:
 	return chunk
 
 
+## terrain_backend = terrain3d: a chunk is collision (faces, built into a StaticBody3D by _update_collision), grass, the road/floor extras
+## and the ProtonScatter forest. No ground mesh: Terrain3D draws it.
+func _build_chunk_t3d(key: Vector2i, plan: Dictionary, chunk: Node3D) -> Node3D:
+	chunk.set_meta("faces", plan["faces"])
+	var grass_plan: Dictionary = plan["grass"]
+	var any_grass := false
+	for k: String in grass_plan:
+		if not (grass_plan[k] as Array).is_empty():
+			any_grass = true
+	if any_grass:
+		chunk.set_meta("grass_plan", grass_plan)
+	else:
+		chunk.set_meta("no_grass", true)
+	_add_forest(chunk, plan["forest"], plan["impostors"])
+	add_child(chunk)
+	ScatterChunk.attach(chunk, key)
+	return chunk
+
+
+## terrain3d mode: only the planners ProtonScatter does not replace (roadside life, forest-floor cards, hidden-valley lushness), with
+## their output screened by ScatterExclusion so build-kit grids and founded settlements stay clear too.
+func _plan_forest_extras(key: Vector2i, origin: Vector2) -> Dictionary:
+	var buckets := {}
+	_plan_roadside(key, origin, buckets)
+	_plan_floor(key, origin, buckets)
+	preload("res://scripts/world/hidden_valley.gd").plan_extra(key, origin, buckets)
+	for kind: String in buckets.keys():
+		var role := "tree" if (kind.begins_with(REGION) and REGION_TREES.has(kind.trim_prefix(REGION))) \
+			else ("rock" if (kind.contains("rock") or kind.contains("boulder")) else "plant")
+		var kept: Array[Transform3D] = []
+		for t: Transform3D in buckets[kind]:
+			if not ScatterExclusion.blocked(t.origin.x, t.origin.z, role):
+				kept.append(t)
+		buckets[kind] = kept
+	return buckets
+
+
 ## kind -> Array[Transform3D] for the trees, undergrowth and rocks of a chunk.
 func _plan_forest(key: Vector2i, origin: Vector2) -> Dictionary:
+	if _t3d:
+		return _plan_forest_extras(key, origin)
 	var rng := RandomNumberGenerator.new()
 	rng.seed = hash(key) ^ 0x5eed
 	var buckets := {}
