@@ -1,7 +1,13 @@
-"""Comprehensive World, Interiors, Tournament Arenas and Hidden Secrets Viewer Generator for Project Ashes.
-Injects all 10 enterable interiors, the Grand Tournament Colosseum, hidden secret caches,
-races lineup, orc evolution, dark elf hero, ashford village square, 32km regional map,
-and historical kingdoms blueprint into docs/VALENCIOUS_WORLD_VIEWER.html with full Base64 embeds.
+"""Comprehensive World, Interiors, Tournament Arenas, Interactive Map and Hidden Secrets Viewer Generator for Project Ashes.
+Injects:
+- 3D 1080p Cycles PBR Continental Aerial Overview (render_valencious_32km_full_world.png)
+- Interactive 2D HTML5 Canvas Continent Map with pan, zoom, radar pulse markers, and full POI inspection
+- 10 Walk-In Enterable Interiors with PBR renders, vertex lighting, and zero loading screen colliders
+- Grand Tournament Colosseum Arena with 4-tier bracket system & betting mechanics
+- 5 Hidden Wilderness Discoveries (Smuggler Cove, Celestial Runestone, Dwarven Magma Portal, Daoist Hermit, Bandit Vault)
+- 3D Rigged Characters & Ashford Village Square
+- Historical Civilizations & Fantasy Realms Blueprint
+All embedded via Base64 so the HTML file is 100% self-contained with ZERO external missing dependencies.
 """
 import os, sys, base64, shutil
 
@@ -38,7 +44,10 @@ def copy_and_b64(src_path, dst_filename):
     return ""
 
 def main():
-    print("Building Comprehensive Valencious World, Arena & Secrets Showcase HTML...")
+    print("Building Comprehensive Valencious World, Map, Arena & Secrets Showcase HTML...")
+    
+    # 3D World Overview
+    b64_world_3d = copy_and_b64(os.path.join(ACTUAL_DIR, "render_valencious_32km_full_world.png"), "render_valencious_32km_full_world.png")
     
     # Interiors
     b64_manor = copy_and_b64(os.path.join(PREV_DIR, "interior_manor_a.png"), "render_interior_noble_manor.png")
@@ -95,7 +104,7 @@ body {{
 header {{
   background: linear-gradient(180deg, #16192b 0%, #0a0b10 100%);
   border-bottom: 1px solid var(--border);
-  padding: 24px 32px;
+  padding: 20px 32px;
   position: sticky;
   top: 0;
   z-index: 100;
@@ -106,7 +115,7 @@ header {{
   gap: 16px;
 }}
 .header-title h1 {{
-  font-size: 26px;
+  font-size: 24px;
   font-weight: 800;
   letter-spacing: 1px;
   background: linear-gradient(135deg, #fef08a 0%, #f59e0b 50%, #d97706 100%);
@@ -130,15 +139,15 @@ header {{
   background: transparent;
   border: none;
   color: var(--text-muted);
-  padding: 10px 18px;
+  padding: 10px 16px;
   border-radius: 8px;
   cursor: pointer;
   font-weight: 600;
-  font-size: 14px;
+  font-size: 13px;
   transition: all 0.2s ease;
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 6px;
 }}
 .nav-btn:hover {{ color: var(--text-main); background: #1e2337; }}
 .nav-btn.active {{
@@ -149,7 +158,7 @@ header {{
 main {{
   max-width: 1440px;
   margin: 0 auto;
-  padding: 32px 24px;
+  padding: 28px 24px;
 }}
 .tab-content {{ display: none; }}
 .tab-content.active {{ display: block; }}
@@ -159,10 +168,10 @@ main {{
   border: 1px solid #1e3a8a;
   border-radius: 16px;
   padding: 24px 28px;
-  margin-bottom: 32px;
+  margin-bottom: 28px;
 }}
 .section-banner h2 {{ font-size: 22px; color: var(--accent-gold); margin-bottom: 8px; }}
-.section-banner p {{ color: var(--text-muted); font-size: 14px; max-width: 900px; }}
+.section-banner p {{ color: var(--text-muted); font-size: 14px; max-width: 950px; }}
 
 .gallery-grid {{
   display: grid;
@@ -211,8 +220,108 @@ main {{
   border-radius: 8px;
   font-size: 12px;
   font-family: monospace;
+  flex-wrap: wrap;
 }}
 .stats-badge span {{ color: var(--accent-blue); }}
+
+/* Interactive Map Styling */
+.map-container {{
+  position: relative;
+  width: 100%;
+  height: 600px;
+  background: #06080e;
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  overflow: hidden;
+  margin-bottom: 24px;
+}}
+#worldCanvas {{
+  width: 100%;
+  height: 100%;
+  cursor: grab;
+}}
+#worldCanvas:active {{
+  cursor: grabbing;
+}}
+.map-controls {{
+  position: absolute;
+  top: 16px;
+  right: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  z-index: 10;
+}}
+.map-btn {{
+  background: rgba(24, 27, 42, 0.9);
+  border: 1px solid var(--border);
+  color: #fff;
+  width: 36px;
+  height: 36px;
+  border-radius: 8px;
+  font-size: 18px;
+  font-weight: bold;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s;
+}}
+.map-btn:hover {{ background: #2e354f; }}
+.map-filters {{
+  position: absolute;
+  bottom: 16px;
+  left: 16px;
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  z-index: 10;
+  background: rgba(10, 11, 16, 0.85);
+  padding: 8px;
+  border-radius: 12px;
+  border: 1px solid var(--border);
+}}
+.filter-btn {{
+  background: #181b2a;
+  border: 1px solid var(--border);
+  color: var(--text-muted);
+  font-size: 12px;
+  padding: 6px 12px;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.2s;
+}}
+.filter-btn.active {{
+  background: #2563eb;
+  color: #fff;
+  border-color: #3b82f6;
+}}
+.poi-inspector {{
+  position: absolute;
+  top: 16px;
+  left: 16px;
+  max-width: 340px;
+  background: rgba(18, 20, 31, 0.95);
+  border: 1px solid #3b82f6;
+  border-radius: 12px;
+  padding: 16px;
+  box-shadow: 0 12px 32px rgba(0,0,0,0.7);
+  z-index: 15;
+  display: none;
+}}
+.poi-inspector h4 {{ color: var(--accent-gold); font-size: 16px; margin-bottom: 4px; }}
+.poi-inspector p {{ font-size: 12px; color: var(--text-muted); margin-bottom: 8px; }}
+.poi-meta {{ font-size: 11px; font-family: monospace; color: var(--accent-blue); }}
+.close-inspector {{
+  position: absolute;
+  top: 8px;
+  right: 10px;
+  background: none;
+  border: none;
+  color: var(--text-muted);
+  cursor: pointer;
+  font-size: 16px;
+}}
 </style>
 </head>
 <body>
@@ -223,7 +332,8 @@ main {{
     <p>Project Ashes • Blender 5.2 Cycles PBR Renders • Grand Tournament Arenas • 10 Enterable Interiors • Hidden Secrets</p>
   </div>
   <div class="nav-tabs">
-    <button class="nav-btn active" onclick="switchTab('arena')">⚔️ Grand Tournament Arenas</button>
+    <button class="nav-btn active" onclick="switchTab('world')">🗺️ 32km Full World & Map</button>
+    <button class="nav-btn" onclick="switchTab('arena')">⚔️ Grand Tournament Arenas</button>
     <button class="nav-btn" onclick="switchTab('interiors')">🏰 Enterable 3D Interiors</button>
     <button class="nav-btn" onclick="switchTab('secrets')">🗝️ Hidden Secrets & Dungeons</button>
     <button class="nav-btn" onclick="switchTab('actual3d')">📸 Hero Models & Ashford</button>
@@ -233,8 +343,117 @@ main {{
 
 <main>
 
-  <!-- TAB 0: TOURNAMENT ARENAS -->
-  <section id="tab-arena" class="tab-content active">
+  <!-- TAB 0: 32KM FULL WORLD & INTERACTIVE CONTINENT MAP -->
+  <section id="tab-world" class="tab-content active">
+    <div class="section-banner">
+      <h2>🗺️ 32km × 32km Valencious Continent: Metropolises, Monster Strongholds, Sects & Secrets</h2>
+      <p>The entire Valencious realm modeled and placed in Godot engine worldgen (seed 1066) and rendered in Blender 5.2 Cycles AgX. Includes Kingsreach Royal Castle, Ashford Village, Mount Taiyun Daoist Cultivation Peak, Tuskridge Orc Stronghold, Gundarak Dwarven Magma Rift, Aetheria Sky Islands, Grand Tournament Colosseum, and 5 wilderness discoveries.</p>
+    </div>
+
+    <!-- 3D WORLD HERO RENDER -->
+    <div class="gallery-card" style="margin-bottom: 28px;">
+      <img src="data:image/png;base64,{b64_world_3d}" alt="3D Full World Continent Overview" style="height: 520px; object-fit: cover;">
+      <div class="card-content">
+        <span class="card-tag tag-gold">Blender 5.2 Cycles PBR • High Aerial 3/4 Vantage</span>
+        <h3>Valencious Continent 3D Landscape Overview</h3>
+        <p>Comprehensive 3D view of the continent: central fertile Ashford Vale with Ashrun river flowing into Emberglass Mere; Kingsreach walled fortress city; the King's Highway connecting to the Grand Tournament Colosseum; northern Mount Taiyun snow peaks and Daoist Pagodas; western Tuskridge Orc Stronghold; Gundarak volcanic caldera; and suspended Aetheria Sky Islands.</p>
+        <div class="stats-badge">
+          <div>Resolution: <span>1920x1080 Full HD</span></div>
+          <div>Engine: <span>Cycles AgX Punchy</span></div>
+          <div>Biome Coverage: <span>Vale, Mountains, Ocean, Magma Rift, Sky Islands</span></div>
+          <div>World Stream: <span>32km Region • 4km Home Chunks</span></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- INTERACTIVE 2D CANVAS CONTINENT RADAR MAP -->
+    <div class="section-banner" style="padding: 16px 24px; margin-bottom: 16px;">
+      <h3 style="color: var(--accent-blue); font-size: 18px;">📍 Interactive Continent Radar & Settlement Inspector</h3>
+      <p style="font-size: 13px;">Drag to pan, use scroll wheel or +/- buttons to zoom. Click any settlement or landmark pin to view full lore, coordinates, and enterable interiors.</p>
+    </div>
+
+    <div class="map-container">
+      <canvas id="worldCanvas"></canvas>
+      <div class="map-controls">
+        <button class="map-btn" onclick="zoomMap(1.2)">+</button>
+        <button class="map-btn" onclick="zoomMap(0.8)">-</button>
+        <button class="map-btn" onclick="resetMap()" title="Reset View">⟲</button>
+      </div>
+      <div class="map-filters">
+        <button class="filter-btn active" onclick="filterMap('all')">All Sites</button>
+        <button class="filter-btn" onclick="filterMap('settlement')">Capitals & Towns</button>
+        <button class="filter-btn" onclick="filterMap('arena')">Tournament Arenas</button>
+        <button class="filter-btn" onclick="filterMap('monster')">Monster Strongholds</button>
+        <button class="filter-btn" onclick="filterMap('sect')">Sects & Academies</button>
+        <button class="filter-btn" onclick="filterMap('secret')">Hidden Secrets</button>
+      </div>
+      <div id="poiInspector" class="poi-inspector">
+        <button class="close-inspector" onclick="closeInspector()">✕</button>
+        <h4 id="poiName">Settlement</h4>
+        <span id="poiTag" class="card-tag tag-gold" style="margin: 6px 0;">Capital</span>
+        <p id="poiDesc">Description</p>
+        <div id="poiStats" class="poi-meta">Coords: [0, 0] • Radius: 60m</div>
+      </div>
+    </div>
+
+    <!-- SUMMARY GRID OF WORLD ZONES -->
+    <div class="gallery-grid">
+      <div class="gallery-card">
+        <div class="card-content">
+          <span class="card-tag tag-gold">Royal Capital</span>
+          <h3>Kingsreach Fortress City</h3>
+          <p>The fortified crown seat of Caldrenn. Enclosed by massive stone curtain walls, double gatehouses, high royal keep, bustling merchant district, the Grand Colosseum, and the Royal Arcana Academy.</p>
+          <div class="stats-badge">
+            <div>Coords: <span>(560, -420)</span></div>
+            <div>Pop: <span>1,850</span></div>
+            <div>Interiors: <span>Manor, Guild, Academy, Colosseum</span></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="gallery-card">
+        <div class="card-content">
+          <span class="card-tag tag-emerald">Starting Hub</span>
+          <h3>Ashford Vale & River Village</h3>
+          <p>Home village situated on the fertile banks of the Ashrun. Features timber and thatch cottages, water mill, active smithy, lively tavern inn, trading post, and guardian runestone perimeter.</p>
+          <div class="stats-badge">
+            <div>Coords: <span>(0, 0)</span></div>
+            <div>Pop: <span>120</span></div>
+            <div>Interiors: <span>Inn, Blacksmith, Trader, Peasant Cottages</span></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="gallery-card">
+        <div class="card-content">
+          <span class="card-tag tag-red">Monster Stronghold</span>
+          <h3>Tuskridge Hold & Orc Bastion</h3>
+          <p>A formidable hilltop bastion enclosed by sharpened spiked palisades, earthworks, and watchtowers. Inhabited by the Tuskridge Orc clan under Chief Harrok Ashmaw.</p>
+          <div class="stats-badge">
+            <div>Coords: <span>(300, 930)</span></div>
+            <div>Pop: <span>140 Orcs</span></div>
+            <div>Interiors: <span>Chieftain Longhouse, Training Yard</span></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="gallery-card">
+        <div class="card-content">
+          <span class="card-tag tag-blue">Wuxia Cultivation</span>
+          <h3>Mount Taiyun & Heavenly Mist Sect</h3>
+          <p>Towering snowy mountain peaks crowned with tiered Daoist pagodas, mist-shrouded meditation platforms, and spiritual qi springs where martial cultivators practice sword intent.</p>
+          <div class="stats-badge">
+            <div>Coords: <span>(0, -1400)</span></div>
+            <div>Affiliation: <span>Heavenly Mist Sect</span></div>
+            <div>Interiors: <span>Sect Meditation Hall, Hermit Sanctuary</span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- TAB 1: TOURNAMENT ARENAS -->
+  <section id="tab-arena" class="tab-content">
     <div class="section-banner">
       <h2>⚔️ Valencious Grand Tournament Colosseum & Arenas</h2>
       <p>Built with procedural ashlar masonry in Blender 5.2. Integrated into Kingsreach Royal Capital and regional tournament grounds along the King's Highway. Features sand dueling pit, spectator amphitheatre tiers, the Royal Box with crimson velvet canopy, dual iron-portcullis gladiator gates, and weapon armory.</p>
@@ -247,7 +466,7 @@ main {{
         <div class="card-content">
           <span class="card-tag tag-red">Major World Landmark • Tournament Grounds</span>
           <h3>Valencious Grand Colosseum & Combat Amphitheatre</h3>
-          <p>The centerpiece of military prowess and martial tournaments in Valencious. Host to the Novice Trials, Knight's Joust, Champions' Clash, and Clash of the Immortals. Features a 18m diameter sand duel ring, 4-tier spectator bleachers, royal viewing box with gold thrones, 4 perimeter battle turrets, and gladiator staging tunnels.</p>
+          <p>The centerpiece of military prowess and martial tournaments in Valencious. Host to the Novice Trials, Knight's Joust, Champions' Clash, and Clash of the Immortals. Features an 18m diameter sand duel ring, 4-tier spectator bleachers, royal viewing box with gold thrones, 4 perimeter battle turrets, and gladiator staging tunnels.</p>
           <div class="stats-badge">
             <div>Footprint: <span>30.8m x 30.8m</span></div>
             <div>Height: <span>20.1m</span></div>
@@ -289,7 +508,7 @@ main {{
     </div>
   </section>
 
-  <!-- TAB 1: ENTERABLE 3D INTERIORS -->
+  <!-- TAB 2: ENTERABLE 3D INTERIORS -->
   <section id="tab-interiors" class="tab-content">
     <div class="section-banner">
       <h2>🏰 100% Walk-In Enterable Interiors (PC Master Tier)</h2>
@@ -449,7 +668,7 @@ main {{
     </div>
   </section>
 
-  <!-- TAB 2: HIDDEN SECRETS & DUNGEONS -->
+  <!-- TAB 3: HIDDEN SECRETS & DUNGEONS -->
   <section id="tab-secrets" class="tab-content">
     <div class="section-banner">
       <h2>🗝️ Hidden Secrets, Caches & Subterranean Dungeons</h2>
@@ -494,7 +713,7 @@ main {{
     </div>
   </section>
 
-  <!-- TAB 3: HERO MODELS & ASHFORD -->
+  <!-- TAB 4: HERO MODELS & ASHFORD -->
   <section id="tab-actual3d" class="tab-content">
     <div class="gallery-grid">
       <div class="gallery-card">
@@ -553,7 +772,7 @@ main {{
     </div>
   </section>
 
-  <!-- TAB 4: DISTANT HISTORICAL NATIONS -->
+  <!-- TAB 5: DISTANT HISTORICAL NATIONS -->
   <section id="tab-future" class="tab-content">
     <div class="section-banner">
       <h2>🏛️ Blueprint: Distant Civilizations & Fantasy Realms</h2>
@@ -608,8 +827,233 @@ function switchTab(tabId) {{
   const target = document.getElementById('tab-' + tabId);
   if (target) target.classList.add('active');
   
-  event.currentTarget.classList.add('active');
+  const btn = Array.from(document.querySelectorAll('.nav-btn')).find(b => b.getAttribute('onclick').includes(tabId));
+  if (btn) btn.classList.add('active');
+
+  if (tabId === 'world') {{
+    setTimeout(initMap, 50);
+  }}
 }}
+
+// ============================================================================
+// INTERACTIVE CONTINENT MAP
+// ============================================================================
+const POIS = [
+  {{ id: 'kingsreach', name: 'Kingsreach Royal Capital', kind: 'settlement', tag: 'Royal Castle-City', x: 560, z: -420, r: 175, desc: 'Fortified seat of Caldrenn. Triple stone walls, Royal Arcana Academy, Grand Colosseum, and High Council Keep.', color: '#fbbf24' }},
+  {{ id: 'ashford', name: 'Ashford Village', kind: 'settlement', tag: 'River Valley Hub', x: 0, z: 0, r: 60, desc: 'Central starting village on the Ashrun. River water mill, timber houses, tavern inn, blacksmith forge, and frontier trader.', color: '#34d399' }},
+  {{ id: 'arena', name: 'Valencious Grand Colosseum', kind: 'arena', tag: 'Tournament Grounds', x: 280, z: -210, r: 40, desc: 'Grand tournament amphitheatre along the King\\'s Ember Road. Host to 4-tier championship combats and royal betting.', color: '#ef4444' }},
+  {{ id: 'emberglass', name: 'Emberglass Mere', kind: 'water', tag: 'Deep Lake', x: -420, z: 300, r: 90, desc: 'Still, deep glacial lake fed by snowmelt rivers. At sunset the surface turns into liquid amber fire.', color: '#38bdf8' }},
+  {{ id: 'tuskridge', name: 'Tuskridge Hold', kind: 'monster', tag: 'Orc Stronghold', x: 300, z: 930, r: 50, desc: 'Sharpened log bastion and chieftain longhouse of the exiled Tuskridge clan under Chief Harrok Ashmaw.', color: '#f87171' }},
+  {{ id: 'mossfang', name: 'Mossfang Warren', kind: 'monster', tag: 'Goblin Tunnels', x: 560, z: 250, r: 35, desc: 'Subterranean burrow labyrinth under Duskbriar forest roots filled with snares, scavenged loot, and goblin scouts.', color: '#fb923c' }},
+  {{ id: 'taiyun', name: 'Mount Taiyun Cultivation Peak', kind: 'sect', tag: 'Daoist Sect', x: 0, z: -1400, r: 80, desc: 'Snowy alpine monastery with curved pagoda roofs, qi cultivation terraces, meditation halls, and sword training yards.', color: '#c084fc' }},
+  {{ id: 'academy', name: 'Royal Academy of Arcana', kind: 'sect', tag: 'Kingdom Magic School', x: 850, z: -650, r: 65, desc: 'High spires of magical study, alchemy demonstration laboratories, runic archives, and spellblade training amphitheatre.', color: '#a855f7' }},
+  {{ id: 'gundarak', name: 'Gundarak Magma Cavern', kind: 'secret', tag: 'Dwarven Portal', x: -1100, z: -1350, r: 55, desc: 'Carved basalt gateway leading to the deep volcanic magma caverns and legendary dwarven blacksmith halls.', color: '#f97316' }},
+  {{ id: 'aetheria', name: 'Aetheria Sky Islands', kind: 'sect', tag: 'Floating Islands', x: 1300, z: -1100, r: 70, desc: 'Suspended celestial sky landmasses floating above the clouds, anchored by ancient crystal leylines.', color: '#60a5fa' }},
+  {{ id: 'cove', name: 'Smuggler\\'s Hidden Cove', kind: 'secret', tag: 'Hidden Water Cache', x: -460, z: 340, r: 25, desc: 'Secret cavern behind the Emberglass waterfall concealing contraband gems, stolen manifests, and escape boat.', color: '#10b981' }},
+  {{ id: 'runestone', name: 'Celestial Runestone Grove', kind: 'secret', tag: 'Ancient Ward', x: 410, z: 520, r: 25, desc: 'Glowing ancient monolith inside Duskbriar Wood radiating mystical qi and surrounded by luminous spirit flora.', color: '#818cf8' }},
+  {{ id: 'hermit', name: 'Daoist Hermit Sanctuary', kind: 'secret', tag: 'Cultivation Cache', x: -50, z: -1650, r: 20, desc: 'Secluded pinnacle terrace above the cloudline where an ancient master left legendary cultivation manuals.', color: '#e879f9' }},
+  {{ id: 'strongbox', name: 'Bandit Lord Strongbox', kind: 'secret', tag: 'Buried Vault', x: 720, z: 110, r: 20, desc: 'Stone trapdoor hidden under watchtower rubble leading to a cellar with weapons, gold bars, and regional charts.', color: '#facc15' }},
+  {{ id: 'cinderpost', name: 'Cinderpost Waystation', kind: 'settlement', tag: 'Highway Waystation', x: 288, z: -199, r: 25, desc: 'Walled halfway outpost with horse stables, bunkhouse, and royal bulletin board on the King\\'s Ember Road.', color: '#94a3b8' }}
+];
+
+let canvas, ctx;
+let mapScale = 0.16;
+let mapOffsetX = 0;
+let mapOffsetY = 0;
+let isDragging = false;
+let startX, startY;
+let activeFilter = 'all';
+
+function initMap() {{
+  canvas = document.getElementById('worldCanvas');
+  if (!canvas) return;
+  const rect = canvas.parentElement.getBoundingClientRect();
+  canvas.width = rect.width;
+  canvas.height = rect.height;
+  ctx = canvas.getContext('2d');
+  
+  mapOffsetX = canvas.width / 2;
+  mapOffsetY = canvas.height / 2 + 50;
+  
+  canvas.onmousedown = (e) => {{
+    isDragging = true;
+    startX = e.clientX - mapOffsetX;
+    startY = e.clientY - mapOffsetY;
+  }};
+  window.onmousemove = (e) => {{
+    if (!isDragging) return;
+    mapOffsetX = e.clientX - startX;
+    mapOffsetY = e.clientY - startY;
+    drawMap();
+  }};
+  window.onmouseup = () => {{ isDragging = false; }};
+  canvas.onwheel = (e) => {{
+    e.preventDefault();
+    const factor = e.deltaY < 0 ? 1.15 : 0.85;
+    mapScale = Math.max(0.04, Math.min(1.2, mapScale * factor));
+    drawMap();
+  }};
+  canvas.onclick = handleMapClick;
+  
+  drawMap();
+}}
+
+function drawMap() {{
+  if (!ctx) return;
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+  
+  // Background ocean / continent tone
+  ctx.fillStyle = '#080a14';
+  ctx.fillRect(0, 0, canvas.width, canvas.height);
+  
+  // Draw continent base polygon / circle
+  ctx.save();
+  ctx.translate(mapOffsetX, mapOffsetY);
+  ctx.scale(mapScale, mapScale);
+  
+  // Continent Landmass
+  ctx.fillStyle = '#141c2b';
+  ctx.strokeStyle = '#1e2e4a';
+  ctx.lineWidth = 4 / mapScale;
+  ctx.beginPath();
+  ctx.ellipse(0, -200, 1800, 1600, 0, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.stroke();
+  
+  // High Mountain Ridge at North
+  ctx.fillStyle = '#1e2638';
+  ctx.beginPath();
+  ctx.ellipse(0, -1200, 1300, 450, 0, 0, Math.PI * 2);
+  ctx.fill();
+  
+  // Roads (King's Ember Road & Valley Roads)
+  ctx.strokeStyle = '#64748b';
+  ctx.lineWidth = 6;
+  ctx.setLineDash([8, 6]);
+  ctx.beginPath();
+  ctx.moveTo(0, 0); // Ashford
+  ctx.lineTo(288, -199); // Cinderpost & Arena
+  ctx.lineTo(560, -420); // Kingsreach
+  ctx.stroke();
+  
+  // Taiyun Pilgrim Path
+  ctx.strokeStyle = '#93c5fd';
+  ctx.lineWidth = 4;
+  ctx.setLineDash([6, 6]);
+  ctx.beginPath();
+  ctx.moveTo(0, 0);
+  ctx.lineTo(0, -1400);
+  ctx.stroke();
+  ctx.setLineDash([]);
+  
+  // Ashrun River
+  ctx.strokeStyle = '#0284c7';
+  ctx.lineWidth = 14;
+  ctx.beginPath();
+  ctx.moveTo(-150, -900);
+  ctx.bezierCurveTo(-250, -400, -330, -150, -400, 220);
+  ctx.lineTo(-420, 300);
+  ctx.bezierCurveTo(-600, 500, -1000, 800, -1500, 1200);
+  ctx.stroke();
+  
+  // Emberglass Mere Lake
+  ctx.fillStyle = '#0369a1';
+  ctx.beginPath();
+  ctx.arc(-420, 300, 95, 0, Math.PI * 2);
+  ctx.fill();
+  
+  // POI Markers
+  const filtered = POIS.filter(p => activeFilter === 'all' || p.kind === activeFilter);
+  
+  filtered.forEach(p => {{
+    // Radar ring
+    ctx.strokeStyle = p.color;
+    ctx.lineWidth = 2 / mapScale;
+    ctx.beginPath();
+    ctx.arc(p.x, p.z, p.r * 0.8, 0, Math.PI * 2);
+    ctx.stroke();
+    
+    // Core dot
+    ctx.fillStyle = p.color;
+    ctx.beginPath();
+    ctx.arc(p.x, p.z, Math.max(8, p.r * 0.25), 0, Math.PI * 2);
+    ctx.fill();
+    
+    // Label
+    ctx.fillStyle = '#f1f5f9';
+    ctx.font = `bold ${{Math.max(12, 14 / mapScale)}}px 'Segoe UI', sans-serif`;
+    ctx.textAlign = 'center';
+    ctx.fillText(p.name, p.x, p.z - (p.r * 0.8 + 8 / mapScale));
+  }});
+  
+  ctx.restore();
+}}
+
+function zoomMap(factor) {{
+  mapScale = Math.max(0.04, Math.min(1.2, mapScale * factor));
+  drawMap();
+}}
+
+function resetMap() {{
+  mapScale = 0.16;
+  mapOffsetX = canvas.width / 2;
+  mapOffsetY = canvas.height / 2 + 50;
+  drawMap();
+}}
+
+function filterMap(category) {{
+  activeFilter = category;
+  document.querySelectorAll('.filter-btn').forEach(btn => btn.classList.remove('active'));
+  event.currentTarget.classList.add('active');
+  drawMap();
+}}
+
+function handleMapClick(e) {{
+  const rect = canvas.getBoundingClientRect();
+  const mouseX = e.clientX - rect.left;
+  const mouseY = e.clientY - rect.top;
+  
+  // Convert mouse back to world coords
+  const worldX = (mouseX - mapOffsetX) / mapScale;
+  const worldZ = (mouseY - mapOffsetY) / mapScale;
+  
+  let closest = null;
+  let minDist = 40 / mapScale;
+  
+  POIS.forEach(p => {{
+    const dist = Math.hypot(p.x - worldX, p.z - worldZ);
+    if (dist < minDist) {{
+      minDist = dist;
+      closest = p;
+    }}
+  }});
+  
+  if (closest) {{
+    showInspector(closest);
+  }} else {{
+    closeInspector();
+  }}
+}}
+
+function showInspector(poi) {{
+  const inspector = document.getElementById('poiInspector');
+  document.getElementById('poiName').innerText = poi.name;
+  document.getElementById('poiTag').innerText = poi.tag;
+  document.getElementById('poiDesc').innerText = poi.desc;
+  document.getElementById('poiStats').innerText = `World Coords: [${{poi.x.toFixed(0)}}, ${{poi.z.toFixed(0)}}] • Radius: ${{poi.r}}m`;
+  inspector.style.display = 'block';
+}}
+
+function closeInspector() {{
+  document.getElementById('poiInspector').style.display = 'none';
+}}
+
+window.addEventListener('load', () => {{
+  initMap();
+}});
+window.addEventListener('resize', () => {{
+  if (canvas) initMap();
+}});
 </script>
 
 </body>
