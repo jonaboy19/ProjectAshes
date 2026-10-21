@@ -408,10 +408,18 @@ func merchant_menu() -> Dictionary:
 	opts.append(ShopScreen.menu_option(hud, "general_store", Life.market, 1, "Browse the general store", "General Store"))
 	opts.append(ShopScreen.menu_option(hud, "grocer", Life.market, 1, "Browse the grocer's stall", "Grocer"))
 	opts.append(["Trade routes & caravans", TradeScreen.open_for.bind(hud), true])
+	opts.append(_board_option("market"))
 	opts.append(_talk_option("trader"))
 	return {"title": "Market Trader",
 		"body": "\"Fresh from the farms. Pelts wanted: the tanner's short.\"\nYou carry %d gold. Trader's purse: %d gold." % [Game.gold, m.purse],
 		"options": opts}
+
+
+## The hiring board of this settlement's inn / market / guild hall (Living World §2: post a vacancy, read applicants).
+func _board_option(kind: String) -> Array:
+	return ["Hiring board  (post a vacancy, read applicants)", func() -> String:
+		hud.show_menu(RecruitmentUI.board_menu.bind(0, kind, hud, 0.0, clampf(30.0 + Game.merit * 0.5, 0.0, 100.0)))
+		return ""]
 
 
 func inn_menu() -> Dictionary:
@@ -777,6 +785,7 @@ func guild_menu() -> Dictionary:
 		opts.append(["Local contracts%s" % (("  (%d to report)" % reports) if reports > 0 else ""), func() -> String:
 			hud.show_menu(_quest_menu.bind(_keeper_info("receptionist")))
 			return ""])
+	opts.append(_board_option("guild"))
 	opts.append(_talk_option("receptionist"))
 	return {"title": "Adventurer Guild", "body": body, "options": opts}
 

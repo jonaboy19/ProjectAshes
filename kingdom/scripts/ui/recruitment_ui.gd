@@ -29,6 +29,7 @@ static func add_options(opts: Array, info: Dictionary, hud: Node, back: Callable
 	if m == null or row < 0 or not bool(m.call("_alive", row)):
 		return
 	if bool(m.call("is_recruited", row)):
+		add_follower_options(opts, info, hud, back)
 		return
 	opts.append(["Offer work", _open.bind(info, hud, back, trust, rep)])
 
@@ -124,6 +125,144 @@ static func _leave(hud: Node, back: Callable) -> String:
 		return String(back.call())
 	hud.call("close_menu")
 	return ""
+
+
+# --- your followers: orders, raise, contract, dismiss ------------------------------
+
+const ORDER_LABEL := {"follow": "following you", "wait": "waiting", "home": "at home", "work": "working"}
+
+
+## The talk-menu entries for someone who is already in your service (info.person is their row).
+static func add_follower_options(opts: Array, info: Dictionary, hud: Node, back: Callable) -> void:
+	var m := rc()
+	if m == null:
+		return
+	var fid := String(m.call("fid_of", int(info.get("person", -1))))
+	if fid == "" or m.call("get_entry", fid).is_empty():
+		return
+	opts.append(["Give an order", _show.bind(_orders_menu.bind(fid, info, hud, back), hud)])
+	opts.append(["Pay a raise", _show.bind(_raise_menu.bind(fid, info, hud, back), hud)])
+	opts.append(["View contract", _show.bind(_contract_menu.bind(fid, info, hud, back), hud)])
+	opts.append(["Dismiss", _show.bind(_dismiss_menu.bind(fid, info, hud, back), hud)])
+
+
+static func _show(menu: Callable, hud: Node) -> String:
+	hud.call("show_menu", menu)
+	return ""
+
+
+static func _fol() -> RefCounted:
+	var hub: Variant = Life.get("realm") if Life != null else null
+	return hub.mod("followers") if hub != null else null
+
+
+static func _name(fid: String) -> String:
+	var f: Dictionary = _fol().get_follower(fid)
+	return String(f.get("name", "They"))
+
+
+## The orders a follower can be given right now: [label, order, arg]. Work lists every group you run.
+static func order_choices(fid: String) -> Array:
+	var m := rc()
+	var out: Array = [["Follow me", "follow", ""], ["Wait here", "wait", ""], ["Go home", "home", ""]]
+	if m != null:
+		var n := 0
+		for g: Dictionary in m.call("groups"):
+			out.append(["Work at %s" % String(g["name"]), "work", String(g["id"])])
+			n += 1
+			if n >= 5:
+				break
+	return out
+
+
+static func _orders_menu(fid: String, info: Dictionary, hud: Node, back: Callable) -> Dictionary:
+	var m := rc()
+	var opts: Array = []
+	var cur: Dictionary = m.call("effective_order", fid)
+	for ch: Array in order_choices(fid):
+		var is_cur: bool = ch[1] == cur["order"] and (ch[1] != "work" or ch[2] == cur["arg"])
+		opts.append([("%s  (now)" % ch[0]) if is_cur else ch[0], _order.bind(fid, ch[1], ch[2])])
+	opts.append(["Back", _leave.bind(hud, back)])
+	var o := String(cur["order"])
+	var what := String(ORDER_LABEL.get(o, o))
+	if o == "work":
+		what = "working at %s" % String((m.call("group", cur["arg"]) as Dictionary).get("name", "their post"))
+	return {"title": "Orders for %s" % _name(fid), "body": "%s is %s." % [_name(fid), what], "options": opts}
+
+
+static func _order(fid: String, order: String, arg: String) -> String:
+	var res: Dictionary = rc().call("set_order", fid, order, arg)
+	return String(res.get("line", ""))
+
+
+static func raise_target(fid: String) -> int:
+	var m := rc()
+	var e: Dictionary = m.call("get_entry", fid)
+	var c: Dictionary = m.call("contract_of", fid)
+	if e.is_empty() or c.is_empty():
+		return 0
+	return int(e["dm"]) if int(e["dm"]) > 0 else int(c["t"]["w"]) + 1
+
+
+static func _raise_menu(fid: String, info: Dictionary, hud: Node, back: Callable) -> Dictionary:
+	var m := rc()
+	var c: Dictionary = m.call("contract_of", fid)
+	var e: Dictionary = m.call("get_entry", fid)
+	var asked := int(e.get("dm", 0)) > 0
+	var opts: Array = [
+		["Raise to %dg a day%s" % [raise_target(fid), "  (what they asked)" if asked else ""], _raise.bind(fid)],
+		["Back", _leave.bind(hud, back)],
+	]
+	var body := "%s is paid %dg a day." % [_name(fid), int(c["t"]["w"])]
+	if asked:
+		body += " They have asked for %dg." % int(e["dm"])
+	return {"title": "Pay a raise", "body": body, "options": opts}
+
+
+static func _raise(fid: String) -> String:
+	return String(rc().call("offer_raise", fid, 1).get("line", ""))
+
+
+static func contract_text(fid: String) -> String:
+	var m := rc()
+	var c: Dictionary = m.call("contract_of", fid)
+	var e: Dictionary = m.call("get_entry", fid)
+	if c.is_empty():
+		return "No contract."
+	var f: Dictionary = _fol().get_follower(fid)
+	var t: Dictionary = c["t"]
+	var lines := PackedStringArray()
+	lines.append("%s, %s" % [f.get("name", ""), String(f.get("occupation", ""))])
+	lines.append("Work: %s. Wage: %dg a day%s." % [Rec.DUTIES[t["d"]]["label"], int(t["w"]), ", a bed provided" if int(t["h"]) == 1 else ""])
+	lines.append("Term: %s." % ("open-ended" if int(t["n"]) == 0 else "%d days" % int(t["n"])))
+	lines.append("Owed: %dg. Morale %d%%, trust %d." % [int(f.get("owed", 0)), int(round(float(e.get("m", 0.0)) * 100.0)), int(e.get("tr", 0.0))])
+	var o: Dictionary = m.call("effective_order", fid)
+	lines.append("Now: %s." % String(ORDER_LABEL.get(o["order"], o["order"])))
+	var hist: Array = c.get("h", [])
+	if not hist.is_empty():
+		var bits := PackedStringArray()
+		for h: Array in hist:
+			bits.append("day %d %s" % [int(h[0]), String(h[1])])
+		lines.append("Record: " + ", ".join(bits) + ".")
+	return "\n".join(lines)
+
+
+static func _contract_menu(fid: String, info: Dictionary, hud: Node, back: Callable) -> Dictionary:
+	return {"title": "Contract", "body": contract_text(fid), "options": [["Back", _leave.bind(hud, back)]]}
+
+
+static func _dismiss_menu(fid: String, info: Dictionary, hud: Node, back: Callable) -> Dictionary:
+	var f: Dictionary = _fol().get_follower(fid)
+	var owed := int(f.get("owed", 0))
+	return {"title": "Dismiss %s?" % _name(fid),
+		"body": "They will leave your service.%s" % ((" Back pay owed: %dg (settled now if you can)." % owed) if owed > 0 else ""),
+		"options": [["Yes, dismiss", _dismiss.bind(fid, hud)], ["No", _leave.bind(hud, back)]]}
+
+
+static func _dismiss(fid: String, hud: Node) -> String:
+	var res: Dictionary = rc().call("dismiss", fid, int(Game.gold))
+	hud.call("close_menu")
+	return String(res.get("line", ""))
 
 
 # --- notice board -----------------------------------------------------------------

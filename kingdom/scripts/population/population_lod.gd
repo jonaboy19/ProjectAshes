@@ -38,6 +38,8 @@ const SPRITE_MIN_DIST := 20.0
 const SPRITE_MIN_DIST_RELEASE := 26.0
 const MAX_FULL := 24
 const TownRoster := preload("res://scripts/world/town_kit/town_roster.gd")
+## Recruits with a body of their own (stage 3, scripts/actors/follower_manager.gd): their rows are never drawn here.
+const FollowerManager := preload("res://scripts/actors/follower_manager.gd")
 ## Ceiling on total sprites drawn (all job looks combined; see `refresh()`), not
 ## per look. Quality.npc_sprites narrows this further per tier.
 const MAX_SPRITES := 140
@@ -131,6 +133,7 @@ func setup(baker: ImpostorBaker) -> void:
 	micro = MicroEvents.new()
 	add_child(micro)
 	add_child(AlertGlyphs.new())        # ?/! above the heads of the few who are watching the player
+	FollowerManager.attach(self)        # recruits that follow, wait and work get their own bodies, inside a budget
 
 
 func _process(delta: float) -> void:
@@ -181,6 +184,19 @@ func flush_spawns() -> void:
 	full_count = _full.size()
 
 
+## A recruit just got a body of their own: drop the villager body (or queued one) they had here.
+func evict_person(id: int) -> void:
+	_spawn_queued.erase(id)
+	_spawn_queue.erase(id)
+	if not _full.has(id):
+		return
+	var v := _full[id] as Villager
+	_anim_lod.unregister(id)
+	_villagers.erase(v)
+	v.queue_free()
+	_full.erase(id)
+
+
 func queued_spawns() -> int:
 	return _spawn_queue.size()
 
@@ -224,6 +240,8 @@ func refresh(step_delta := 0.25) -> void:
 	for i in ids:
 		if WorldSim.is_indoors(i) or (morning and DailyRhythm.still_home(i)):
 			continue
+		if FollowerManager.owns(i):
+			continue            # a recruit: the follower manager owns this row and gives it its own body
 		if Takedown.is_down(i):
 			continue            # a body on the ground (KO'd / dead): no sprite, no respawn; the node keeps lying below
 		var d2: float = WorldSim.pos[i].distance_squared_to(p2)
@@ -256,7 +274,7 @@ func refresh(step_delta := 0.25) -> void:
 		if v.is_down() and v.global_position.distance_squared_to(focus) < 90.0 * 90.0:
 			continue
 		# Someone standing against the player keeps their body until they step away.
-		if not WorldSim.is_indoors(id) and v.global_position.distance_squared_to(focus) < CONTACT_KEEP * CONTACT_KEEP:
+		if not FollowerManager.owns(id) and not WorldSim.is_indoors(id) and v.global_position.distance_squared_to(focus) < CONTACT_KEEP * CONTACT_KEEP:
 			want_full[id] = true
 			continue
 		_anim_lod.unregister(id)

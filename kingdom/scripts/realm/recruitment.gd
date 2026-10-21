@@ -21,6 +21,7 @@ extends "res://scripts/realm/realm_module.gd"
 ## take_pending_gold() (autoload/life.gd ledger list). Wages are the "owed" followers.gd accrues each day.
 
 const Fol := preload("res://scripts/realm/followers.gd")
+const Events := preload("res://scripts/realm/events.gd")
 
 const WAGE_DAYS_DESERT := 3
 const THRESHOLD := 50.0
@@ -42,6 +43,9 @@ const DUTIES := {
 }
 const INDEP_AMBITIONS := ["earn a captaincy", "win renown", "save for a farm"]
 const MODES := ["manual", "delegated", "autonomous"]
+## Orders a recruit takes (stage 3 bodies: scripts/actors/follower_manager.gd). Stored on the follower
+## (followers.gd "order" / "order_arg"; "" = the default for their duty, see effective_order).
+const ORDERS := ["follow", "wait", "home", "work"]
 
 var _c: Dictionary = {}          # contract id -> contract
 var _r: Dictionary = {}          # fid -> roster entry
@@ -298,6 +302,7 @@ func engage(row: int, terms: Dictionary, chain := "personal", org := "", env := 
 	_r[fid] = {"c": cid, "chain": chain, "org": org, "tr": clampf(50.0 + float(env.get("trust", 0.0)) * 0.3, 0.0, 100.0),
 		"ol": 55.0 if chain == "org" else 0.0, "m": 0.7, "unp": 0, "low": 0, "dm": 0, "rn": 0, "g": "", "rf": 0, "hb": 0.0, "mgr": ""}
 	_by_row[row] = fid
+	Events.log_to(hub, "contract", "ss:%d" % int(p["home"]), ["ws:%d" % row, "rc:" + cid], "engage_" + chain, "%s signed on (%dg, %s)" % [p["name"], int(t["w"]), t["d"]], 2)
 	return {"ok": true, "cid": cid, "fid": fid, "line": "%s joins you." % p["name"]}
 
 
@@ -336,6 +341,7 @@ func _end(fid: String, st: String, ev: String) -> void:
 	var c: Dictionary = _c[e["c"]]
 	c["st"] = st
 	_hist(c, ev)
+	Events.log_to(hub, "contract", "", ["fo:" + fid, "rc:" + String(c["id"])], st, "contract " + st, 2)
 	var f: Dictionary = _fol().get_follower(fid)
 	if not f.is_empty():
 		f["status"] = "left"
@@ -432,6 +438,90 @@ func give_order(fid: String, kind: String) -> Dictionary:
 	return {"obeys": false, "line": "%s: %s" % [f["name"], line]}
 
 
+# --------------------------------------------------------------- orders (follow / wait / home / work)
+
+func groups() -> Array:
+	var out: Array = []
+	var ids := _g.keys()
+	ids.sort_custom(func(a: String, b: String) -> bool: return int(a.substr(1)) < int(b.substr(1)))
+	for gid: String in ids:
+		out.append({"id": gid, "name": _g[gid]["name"], "kind": _g[gid]["kind"], "ref": _g[gid]["ref"]})
+	return out
+
+
+## What `fid` is doing now: their standing order, or the default for their post. Property employees and
+## labourers go to work (at their group) or home; guards, escorts, scouts and campaigners follow the player.
+func effective_order(fid: String) -> Dictionary:
+	var e: Dictionary = _r.get(fid, {})
+	var f: Dictionary = _fol().get_follower(fid) if not e.is_empty() else {}
+	if e.is_empty() or f.is_empty():
+		return {"order": "home", "arg": ""}
+	var o := String(f.get("order", ""))
+	if o != "":
+		var arg := String(f.get("order_arg", ""))
+		if o == "work" and arg == "":
+			arg = String(e["g"])
+		return {"order": o, "arg": arg}
+	var duty := String(_c[e["c"]]["t"]["d"])
+	if e["chain"] == "personal" and duty in ["guard", "escort", "scout", "campaign"]:
+		return {"order": "follow", "arg": ""}
+	if String(e["g"]) != "":
+		return {"order": "work", "arg": String(e["g"])}
+	return {"order": "home", "arg": ""}
+
+
+## Give a standing order. "work" needs a group (property or squad) to work at: `arg` is its id, or the group they
+## are assigned to. Returns {ok, line}; a worker may refuse a second post, and an unhappy one a long march.
+func set_order(fid: String, order: String, arg := "") -> Dictionary:
+	var e: Dictionary = _r.get(fid, {})
+	var f: Dictionary = _fol().get_follower(fid) if not e.is_empty() else {}
+	if e.is_empty() or f.is_empty() or not _active(fid):
+		return {"ok": false, "line": ""}
+	if order not in ORDERS:
+		return {"ok": false, "line": ""}
+	var nm: String = f["name"]
+	if order == "follow" and e["chain"] == "property":
+		return {"ok": false, "line": "%s: \"I work for the %s, not for you on the road.\"" % [nm, "estate"]}
+	if order == "work":
+		var gid := arg if arg != "" else String(e["g"])
+		if gid == "" or not _g.has(gid):
+			return {"ok": false, "line": "%s: \"Work where? Give me a post first.\"" % nm}
+		arg = gid
+		_r[fid]["g"] = gid
+	else:
+		arg = ""
+	var ob := give_order(fid, "dangerous" if order == "follow" and String(_c[e["c"]]["t"]["d"]) == "campaign" else "normal")
+	if not bool(ob["obeys"]):
+		return {"ok": false, "line": String(ob["line"])}
+	f["order"] = order
+	f["order_arg"] = arg
+	var says := {"follow": "I am right behind you.", "wait": "I will hold here.", "home": "I will see to things at home.",
+		"work": "I will get to work at %s." % String(_g.get(arg, {}).get("name", "the post"))}
+	return {"ok": true, "line": "%s: \"%s\"" % [nm, says[order]]}
+
+
+## Drops the contracts, roster entries and links of followers that followers.gd pruned (old "left" records).
+func _forget_gone() -> void:
+	var fol := _fol()
+	if fol == null or _r.is_empty():
+		return
+	var dead: Array = []
+	for fid: String in _r:
+		if fol.get_follower(fid).is_empty():
+			dead.append(fid)
+	for fid: String in dead:
+		var cid: String = _r[fid]["c"]
+		_c.erase(cid)
+		_r.erase(fid)
+		for row: int in _by_row.keys():
+			if _by_row[row] == fid:
+				_by_row.erase(row)
+		for gid: String in _g:
+			if _g[gid]["mgr"] == fid:
+				_g[gid]["mgr"] = ""
+	_ids = []
+
+
 # --------------------------------------------------------------- raises, renewals
 
 func grant_raise(fid: String) -> bool:
@@ -446,6 +536,51 @@ func grant_raise(fid: String) -> bool:
 	e["tr"] = minf(100.0, float(e["tr"]) + 4.0)
 	e["m"] = minf(1.0, float(e["m"]) + 0.15)
 	return true
+
+
+## A raise you offer unasked (or the one they demanded when `dm` is set). Returns {ok, wage, line}.
+func offer_raise(fid: String, by := 1) -> Dictionary:
+	var e: Dictionary = _r.get(fid, {})
+	if e.is_empty() or not _active(fid):
+		return {"ok": false, "wage": 0, "line": ""}
+	if int(e["dm"]) > 0 and grant_raise(fid):
+		return {"ok": true, "wage": int(_c[e["c"]]["t"]["w"]), "line": "%s accepts the raise." % _fol().get_follower(fid)["name"]}
+	var c: Dictionary = _c[e["c"]]
+	c["t"]["w"] = int(c["t"]["w"]) + maxi(1, by)
+	_fol().get_follower(fid)["salary"] = int(c["t"]["w"])
+	_hist(c, "raise")
+	e["tr"] = minf(100.0, float(e["tr"]) + 2.0)
+	e["m"] = minf(1.0, float(e["m"]) + 0.08)
+	return {"ok": true, "wage": int(c["t"]["w"]), "line": "%s: \"That is generous.\" (%dg a day now)" % [_fol().get_follower(fid)["name"], int(c["t"]["w"])]}
+
+
+## Let someone go. Their unpaid wages are settled from `gold` first (through the ledger); a dismissal with wages
+## owed and not paid costs trust with the rest. Returns {ok, paid, line}.
+func dismiss(fid: String, gold := 0) -> Dictionary:
+	var e: Dictionary = _r.get(fid, {})
+	if e.is_empty() or not _active(fid):
+		return {"ok": false, "paid": 0, "line": ""}
+	var fol := _fol()
+	var f: Dictionary = fol.get_follower(fid)
+	var owed := int(f["owed"])
+	var paid := mini(owed, maxi(0, gold))
+	if paid > 0:
+		_pending -= paid
+		fol.pay(fid, paid)
+	var short := owed - paid
+	_end(fid, "ended", "dismissed")
+	_set_lost_order(f)
+	var line := "%s takes the news with a nod and goes." % f["name"]
+	if paid > 0:
+		line += " (%dg of back pay settled)" % paid
+	if short > 0:
+		line += " They are owed %dg." % short
+	return {"ok": true, "paid": paid, "line": line}
+
+
+func _set_lost_order(f: Dictionary) -> void:
+	f["order"] = ""
+	f["order_arg"] = ""
 
 
 func refuse_raise(fid: String) -> void:
@@ -745,6 +880,7 @@ func _chunk_pay(day: int, ctx: Dictionary, part: int) -> Array:
 	_day = day
 	var fol := _fol()
 	if part == 0:
+		_forget_gone()
 		_avail = int(ctx.get("gold", 0)) + _pending
 	var avail := _avail
 	var ids := active_ids()
@@ -935,6 +1071,7 @@ func catch_up(days: int, ctx: Dictionary) -> Array:
 	if days < 1:
 		return out
 	_day += days
+	_forget_gone()
 	var fol := _fol()
 	var avail: int = int(ctx.get("gold", 0)) + _pending
 	var deserted := 0

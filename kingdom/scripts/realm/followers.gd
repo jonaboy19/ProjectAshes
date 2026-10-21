@@ -32,6 +32,10 @@ const ORIGINS := ["Ashford farmstead", "Kingsreach barracks", "the Millbrook mil
 const AMBITIONS := ["earn a captaincy", "save for a farm", "avenge a burned home", "see the Rift", "find a wife", "win renown", "repay a debt"]
 const MEMBER_STATES := ["present", "traveling"]
 const DISPUTE_MAX := 6
+## Old "left" records (R§1): the newest LEFT_KEEP stay as full records, older ones are dropped and leave one summary
+## line (at most LOG_MAX lines, then only the count), so a long game's save does not grow with every hire.
+const LEFT_KEEP := 8
+const LOG_MAX := 24
 const DECISION_MAX := 40
 
 ## Species -> taming method. accept: action -> trust gain (negative hurts).
@@ -60,6 +64,8 @@ var _disputes: Array = []      # [{a, b, kind, day}]
 var _creatures: Dictionary = {}
 var _temps: Array = []         # ids of temporary companions
 var _day := 0
+var _left_log: Array = []      # one summary line per pruned follower, oldest first
+var _left_pruned := 0          # how many records were pruned in all (the log keeps only the last LOG_MAX)
 
 
 func _rng(tag: String, day: int, id: Variant) -> RandomNumberGenerator:
@@ -500,6 +506,7 @@ func tick_day(day: int, _ctx: Dictionary) -> Array:
 				a["flags"]["feud_" + d["b"]] = true
 				out.append("%s and %s are at each other's throats over %s." % [a["name"], b["name"], d["kind"]])
 		k -= 1
+	prune_left()
 	_apply_roles(1.0)
 	for cid in _creatures:
 		var c: Dictionary = _creatures[cid]
@@ -611,6 +618,7 @@ func catch_up(days: int, _ctx: Dictionary) -> Array:
 		if f3["status"] == "left":
 			gone += 1
 		wages += int(f3["owed"])
+	prune_left()
 	_apply_roles(float(days))
 	_disputes.clear()
 	if arrived > 0:
@@ -622,17 +630,57 @@ func catch_up(days: int, _ctx: Dictionary) -> Array:
 	return out
 
 
+# --------------------------------------------------------------- pruning
+
+## Drops all but the newest LEFT_KEEP "left" followers, keeping a one-line summary of each. Returns the ids dropped
+## (recruitment.gd forgets the contracts and roster entries of the same people). Candidates are never touched.
+func prune_left() -> Array:
+	var gone: Array = []
+	var left: Array = []
+	for id: String in _f:
+		if _f[id]["status"] == "left":
+			left.append(id)
+	if left.size() <= LEFT_KEEP:
+		return gone
+	left.sort_custom(func(a: String, b: String) -> bool: return int(a.substr(1)) < int(b.substr(1)))
+	for i in left.size() - LEFT_KEEP:
+		var id: String = left[i]
+		var f: Dictionary = _f[id]
+		_left_log.append("%s, %s: served from day %d, gone by day %d." % [f["name"], f["occupation"], int(f["joined_day"]), _day])
+		while _left_log.size() > LOG_MAX:
+			_left_log.pop_front()
+		_left_pruned += 1
+		_f.erase(id)
+		_temps.erase(id)
+		gone.append(id)
+	return gone
+
+
+## The summary lines of pruned followers (newest last) and how many there were in all.
+func left_summary() -> Array:
+	return _left_log.duplicate()
+
+
+func left_pruned() -> int:
+	return _left_pruned
+
+
 # --------------------------------------------------------------- save
 
 func serialize() -> Dictionary:
-	return {"f": _compact_all(), "next": _next_f, "summons": _summons.duplicate(true),
+	var out := {"f": _compact_all(), "next": _next_f, "summons": _summons.duplicate(true),
 		"arrived": _arrived.duplicate(true), "decisions": _decisions.duplicate(true),
 		"disputes": _disputes.duplicate(true), "creatures": _creatures.duplicate(true), "day": _day}
+	if _left_pruned > 0:
+		out["lg"] = _left_log.duplicate()
+		out["lp"] = _left_pruned
+	return out
 
 
 ## Save size: the axes are derived from the traits and empty/default fields are implied, so a follower
 ## costs ~330 B instead of ~600 B in the save (50 followers: 16 KB).
-const _DEFAULTS := {"opinions": {}, "relations": {}, "flags": {}, "post": "", "until_hours": 0, "unhappy_days": 0}
+const _DEFAULTS := {"opinions": {}, "relations": {}, "flags": {}, "post": "", "until_hours": 0, "unhappy_days": 0,
+	"order": "", "order_arg": ""}
 
 
 func _compact_all() -> Dictionary:
@@ -672,6 +720,8 @@ func deserialize(d: Dictionary) -> void:
 	_disputes = (d.get("disputes", []) as Array).duplicate(true)
 	_creatures = (d.get("creatures", {}) as Dictionary).duplicate(true)
 	_day = int(d.get("day", 0))
+	_left_log = (d.get("lg", []) as Array).duplicate()
+	_left_pruned = int(d.get("lp", 0))
 	_temps = []
 	for id in _f:
 		var f: Dictionary = _f[id]
