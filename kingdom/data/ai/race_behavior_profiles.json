@@ -1,0 +1,176 @@
+{
+	"version": 1,
+	"profiles": {
+		"human": {
+			"schedule": "diurnal",
+			"active_hours": [6, 22],
+			"combat_doctrine": "adaptive_balanced",
+			"preferred_hangouts": ["inn", "market_stall", "barracks", "chapel"],
+			"bravery": 0.65,
+			"social_affinity": ["human", "half_breed", "halfling", "elf", "dwarf"],
+			"flee_health_threshold": 0.20
+		},
+		"elf": {
+			"schedule": "twilight_extended",
+			"active_hours": [5, 23],
+			"combat_doctrine": "ranged_kiting_and_roots",
+			"preferred_hangouts": ["sanctuary", "ancient_grove", "library", "elven_spire"],
+			"bravery": 0.75,
+			"social_affinity": ["elf", "dark_elf", "spiritkin", "beastkin"],
+			"flee_health_threshold": 0.25
+		},
+		"dark_elf": {
+			"schedule": "nocturnal",
+			"active_hours": [18, 7],
+			"combat_doctrine": "stealth_ambush_and_shadowstep",
+			"preferred_hangouts": ["shadow_den", "apothecary", "underground_bazaar"],
+			"bravery": 0.80,
+			"social_affinity": ["dark_elf", "tiefling", "undead"],
+			"flee_health_threshold": 0.15
+		},
+		"dwarf": {
+			"schedule": "subterranean_continuous",
+			"active_hours": [7, 24],
+			"combat_doctrine": "unyielding_phalanx_and_hammer_quake",
+			"preferred_hangouts": ["blacksmith", "forge_hall", "tavern", "mine_depths"],
+			"bravery": 0.95,
+			"social_affinity": ["dwarf", "gnome", "human"],
+			"flee_health_threshold": 0.05
+		},
+		"beastkin": {
+			"schedule": "crepuscular",
+			"active_hours": [4, 11, 16, 23],
+			"combat_doctrine": "feral_pounce_and_flank",
+			"preferred_hangouts": ["camp_fire", "butcher", "training_ring", "wild_verge"],
+			"bravery": 0.85,
+			"social_affinity": ["beastkin", "avian", "human"],
+			"flee_health_threshold": 0.18
+		},
+		"half_breed": {
+			"schedule": "diurnal",
+			"active_hours": [6, 22],
+			"combat_doctrine": "hybrid_versatility",
+			"preferred_hangouts": ["tavern", "adventurer_guild", "crossroad_inn"],
+			"bravery": 0.70,
+			"social_affinity": ["all"],
+			"flee_health_threshold": 0.20
+		},
+		"aetherborn": {
+			"schedule": "celestial_cycle",
+			"active_hours": [0, 24],
+			"combat_doctrine": "chantless_artillery_and_blink",
+			"preferred_hangouts": ["aether_nexus", "observatory", "arcane_library"],
+			"bravery": 0.70,
+			"social_affinity": ["aetherborn", "spiritkin", "elf"],
+			"flee_health_threshold": 0.25
+		},
+		"draken": {
+			"schedule": "apex_predator",
+			"active_hours": [8, 20],
+			"combat_doctrine": "aerial_dive_and_dragon_breath",
+			"preferred_hangouts": ["high_perch", "commander_keep", "crag_roost"],
+			"bravery": 0.98,
+			"social_affinity": ["draken", "lizardfolk", "giant"],
+			"flee_health_threshold": 0.05
+		},
+		"ork": {
+			"schedule": "diurnal_and_raid_nights",
+			"active_hours": [6, 24],
+			"combat_doctrine": "berserk_charge_and_grapple",
+			"preferred_hangouts": ["war_tent", "roast_pit", "arena", "armory"],
+			"bravery": 0.95,
+			"social_affinity": ["ork", "goblin"],
+			"flee_health_threshold": 0.02
+		},
+		"halfling": {
+			"schedule": "diurnal_comfort",
+			"active_hours": [7, 21],
+			"combat_doctrine": "skirmish_slingshot_and_hide",
+			"preferred_hangouts": ["bakery", "tavern_hearth", "pantry", "orchard"],
+			"bravery": 0.40,
+			"social_affinity": ["halfling", "human", "gnome"],
+			"flee_health_threshold": 0.40
+		},
+		"gnome": {
+			"schedule": "obsessive_irregular",
+			"active_hours": [9, 3],
+			"combat_doctrine": "automaton_turret_and_alchemical_bombs",
+			"preferred_hangouts": ["clockwork_lab", "alchemy_bench", "scrap_heap"],
+			"bravery": 0.55,
+			"social_affinity": ["gnome", "dwarf", "human"],
+			"flee_health_threshold": 0.30
+		},
+		"tiefling": {
+			"schedule": "nocturnal_preferred",
+			"active_hours": [14, 4],
+			"combat_doctrine": "hellfire_burst_and_curse_rapier",
+			"preferred_hangouts": ["shady_alcove", "gambling_parlor", "ruined_shrine"],
+			"bravery": 0.85,
+			"social_affinity": ["tiefling", "dark_elf", "half_breed"],
+			"flee_health_threshold": 0.15
+		},
+		"aasimar": {
+			"schedule": "dawn_worship",
+			"active_hours": [5, 21],
+			"combat_doctrine": "radiant_aegis_and_smite",
+			"preferred_hangouts": ["cathedral", "infirmary", "monastery_plaza"],
+			"bravery": 0.92,
+			"social_affinity": ["aasimar", "human", "spiritkin"],
+			"flee_health_threshold": 0.10
+		},
+		"lizardfolk": {
+			"schedule": "basking_midday",
+			"active_hours": [10, 19],
+			"combat_doctrine": "submerged_ambush_and_spear_drag",
+			"preferred_hangouts": ["swamp_bank", "fishing_pier", "mud_hut"],
+			"bravery": 0.75,
+			"social_affinity": ["lizardfolk", "draken", "serpentkin"],
+			"flee_health_threshold": 0.20
+		},
+		"serpentkin": {
+			"schedule": "warmth_seeking",
+			"active_hours": [11, 23],
+			"combat_doctrine": "poison_mist_and_hypnotic_deflection",
+			"preferred_hangouts": ["thermal_bath", "spice_market", "silk_lounge"],
+			"bravery": 0.70,
+			"social_affinity": ["serpentkin", "lizardfolk", "dark_elf"],
+			"flee_health_threshold": 0.25
+		},
+		"avian": {
+			"schedule": "sun_tracker",
+			"active_hours": [5, 19],
+			"combat_doctrine": "aerial_strafe_and_wind_slashes",
+			"preferred_hangouts": ["watchtower_roof", "cliff_perch", "bell_tower"],
+			"bravery": 0.80,
+			"social_affinity": ["avian", "beastkin"],
+			"flee_health_threshold": 0.20
+		},
+		"spiritkin": {
+			"schedule": "leyline_pulse",
+			"active_hours": [0, 24],
+			"combat_doctrine": "intangible_phase_and_elemental_wrath",
+			"preferred_hangouts": ["waterfall_pool", "spirit_tree", "runestone_altar"],
+			"bravery": 0.90,
+			"social_affinity": ["spiritkin", "elf", "aetherborn"],
+			"flee_health_threshold": 0.05
+		},
+		"giant": {
+			"schedule": "sluggish_diurnal",
+			"active_hours": [8, 18],
+			"combat_doctrine": "boulder_throw_and_shockwave_stomp",
+			"preferred_hangouts": ["crag_cave", "megalith_circle", "mountain_ridge"],
+			"bravery": 0.99,
+			"social_affinity": ["giant", "dwarf"],
+			"flee_health_threshold": 0.05
+		},
+		"undead": {
+			"schedule": "eternal_nocturnal",
+			"active_hours": [20, 5],
+			"combat_doctrine": "fearless_attrition_and_soul_drain",
+			"preferred_hangouts": ["crypt_sanctum", "mausoleum", "ruined_graveyard"],
+			"bravery": 1.00,
+			"social_affinity": ["undead", "dark_elf"],
+			"flee_health_threshold": 0.00
+		}
+	}
+}
