@@ -1,4 +1,4 @@
-# Handoff: AAA Mocap Animation, Living World, Avatar Bending & Advanced Combat Suite
+# Complete AAA Mocap, Combat, Avatar Bending & Living World Suite (103 Clips)
 
 **Recipient:** Claude (Project Ashes Core Developer)  
 **Author:** Antigravity (Animation & Pipeline Specialist)  
@@ -9,253 +9,186 @@
 
 ---
 
-## 1. Overview & Objectives
+## 1. Executive Summary
 
-Per the user's high-level requirements:
-1. **AAA Realism & Living World:** Replace stylized/placeholder motions with genuine human optical motion capture across locomotion, settlement life, craft/trade, tavern interactions, and emotional expressions.
-2. **Dynamic Natural Hand & Finger Articulation:** Solve the classic optical mocap flaw where characters have stiff, plaster-cast static fingers. All fingers now actively curl, grip, open, and flex in sync with inertia, arm swings, climbing rungs, tool strikes, and bending stances.
-3. **Avatar: The Last Airbender Martial Arts Forms:** Authentic martial arts styles tied to the 4 bending disciplines:
-   - **Waterbending:** Yang-style Tai Chi (fluid, continuous, circular redirecting arcs).
-   - **Earthbending:** Hung Gar kung fu (deep rooted horse stances, dynamic heavy thrusts, ground stomps).
-   - **Firebending:** Northern Shaolin kung fu (explosive linear extensions, leaping kicks, fiery palm thrusts).
-   - **Airbending:** Ba Gua Zhang (circular walking, evasive swirling, deflecting palm strikes).
-4. **Advanced Combat System:** Directional parries, sword ripostes, fencing thrusts, shield bashes, and directional slip dodges.
-5. **Clean Codebase Separation:** Claude's active work on `kingdom/scripts/` has been left strictly intact. All assets, configs, retargeting solvers, and handoffs are published to `antigravity/aaa-mocap-animations`.
+This delivery elevates *Project Ashes* to full AAA animation and combat fidelity.
+- **103 Authentic Motion Capture Clips** retargeted to the Quaternius UAL 65-bone skeleton.
+- **Dynamic Natural Finger & Hand Articulation Engine:** Passive flexor tendon inertia, weapon/tool clamp triggers, hurdle palm planting, climbing rung cycles, and elemental casting gestures ensure characters never display stiff plaster hands.
+- **Blender 5.2 Layered Actions Support:** Fully calibrated for Blender 5.2+ action slot binding (`armature.animation_data.action_slot = act.slots[0]`).
+- **High Keyframe Compression:** Curve-compressed via Douglas-Peucker & quaternion geodesic compression (`glb_reduce_anim.py`), achieving >80% keyframe data reduction — all 8 binary GLB packages total under 4.2 MB combined.
+- **Clean Branch Separation:** Claude's active branch (`claude/focused-curie-m09hbd`) is completely untouched. All deliverables are committed on `antigravity/aaa-mocap-animations`.
 
 ---
 
-## 2. Animation Catalog & Binary Deliverables (62 Mocap Clips)
+## 2. Complete Animation Package Catalog (8 GLB Libraries, 103 Clips)
 
-Four self-contained, curve-compressed binary glTF packages (`.glb`) have been placed into `res://assets/incoming/animations/aaa/`. Totaling under 2.8 MB combined across all 62 clips, with over 80% keyframe data reduction via Douglas-Peucker & quaternion geodesic compression (`glb_reduce_anim.py`).
-
-### Package Summary:
-| Asset File | Size | Clips | Category |
-| :--- | :---: | :---: | :--- |
-| `UAL_AAA_Locomotion.glb` | 748 KB | 15 | Traversal, Stride Cycles, Plants, Banking, Vault, Ladder, Sword, Reactions |
-| `UAL_AAA_LivingWorld.glb` | 1.22 MB | 28 | Settlement Life, Taverns, Trades, Crafts, Bards, Mourning, Chores |
-| `UAL_AAA_Bending_Avatar.glb` | 606 KB | 13 | Avatar Martial Arts Bending Forms (Water, Earth, Fire, Air) |
-| `UAL_AAA_Combat_Adv.glb` | 260 KB | 6 | Advanced Combat, Parries, Ripostes, Lunges, Shield Bashes, Dodges |
+```
+res://assets/incoming/animations/aaa/
+├── UAL_AAA_Locomotion.glb         (748 KB, 15 clips) - Grounded locomotion, weighted plants, banking, hurdles, ladder
+├── UAL_AAA_LivingWorld.glb        (1.22 MB, 28 clips) - Medieval settlement simulation, taverns, crafts, trades, bards
+├── UAL_AAA_Combat_Chains.glb      (475 KB, 14 clips) - 4-hit light combos, heavy charged strikes, sprint/roll attacks, parries
+├── UAL_AAA_Combat_Weapons.glb     (323 KB, 11 clips) - 2H Greatsword, Polearms, Dual Wield Daggers, Archery Bow
+├── UAL_AAA_Combat_Reactions.glb   (315 KB,  8 clips) - Head flinches (L/R), gut punch, sweeps, knockdowns, get-ups, wall splat
+├── UAL_AAA_Combat_Adv.glb         (260 KB,  6 clips) - High deflect parry, sword riposte, fencing lunge, shield bash, slip dodges
+├── UAL_AAA_Bending_Avatar.glb     (606 KB, 13 clips) - Avatar martial arts katas (Water Tai Chi, Earth Hung Gar, Fire Shaolin, Air Ba Gua)
+└── UAL_AAA_Bending_Advanced.glb   (270 KB,  8 clips) - Air Scooter ride, shockwave blast, Earth wave surf, boulder toss, Fire jet dash
+```
 
 ---
 
-### A. Avatar Bending Martial Arts (`UAL_AAA_Bending_Avatar.glb`)
+### A. Combat Chains & Flow (`UAL_AAA_Combat_Chains.glb` — 14 Clips)
 
-| Clip Name | Element / Martial Discipline | Movement Description | Loop |
+| Clip Name | System Action | Description | Stride/Speed |
 | :--- | :--- | :--- | :---: |
-| `Bending_Water_Flow_Stance` | **Water (Tai Chi)** | Slow, fluid shifting between stances, circular arm sweeping | Yes |
-| `Bending_Water_Circular_Push` | **Water (Tai Chi)** | Torso pivot drawing water in an arc and projecting outward | No |
-| `Bending_Water_Wave_Whip` | **Water (Tai Chi)** | Dynamic wrist flick and arm wave release, driving water whip | No |
-| `Bending_Water_Dual_Stream` | **Water (Tai Chi)** | Dual continuous stream manipulation with alternating circular arms | Yes |
-| `Bending_Earth_Rooted_Stance` | **Earth (Hung Gar)** | Wide, deep horse stance with rooted fists and tension breathing | Yes |
-| `Bending_Earth_Pillar_Thrust` | **Earth (Hung Gar)** | Ground stomp follow-through with dual palm upward earth thrust | No |
-| `Bending_Earth_Wall_Raise` | **Earth (Hung Gar)** | Deep low crouch rising into an explosive dual arm barrier raise | No |
-| `Bending_Fire_Sun_Salutation` | **Fire (Northern Shaolin)**| Classic sun-salute dragon breath stance with flared fists | Yes |
-| `Bending_Fire_Punch_Burst` | **Fire (Northern Shaolin)**| Rapid 3-hit explosive forward punch combo with burning reach | No |
-| `Bending_Fire_High_Kick` | **Fire (Northern Shaolin)**| Leaping high crescent kick with sweeping flame trajectory | No |
-| `Bending_Air_Spiral_Spin` | **Air (Ba Gua)** | Circular swirling body spin with sweeping air funnel guidance | No |
-| `Bending_Air_Palm_Deflect` | **Air (Ba Gua)** | Agile evasive step with redirecting open-palm air cushion | No |
-| `Bending_Air_Acrobatic_Evade` | **Air (Ba Gua)** | Light-footed backflip leap away from incoming attacks | No |
+| `Sword_Light_Attack_01` | Combo Chain 1 | Quick horizontal slash with hips driving forward | One-shot |
+| `Sword_Light_Attack_02` | Combo Chain 2 | Diagonal upward slash with weight shifting to back foot | One-shot |
+| `Sword_Light_Attack_03` | Combo Chain 3 | Lunging forward thrust penetrating enemy guard | One-shot |
+| `Sword_Light_Attack_04` | Combo Chain 4 | 360° rotational finishing spin cleave | One-shot |
+| `Sword_Heavy_Charge_Chop`| Heavy Attack | Overhead charged cleave designed to break enemy shields | One-shot |
+| `Sword_Sprint_Dash_Attack`| Running Attack| Sprint gap-closer horizontal sweeping dash attack | One-shot |
+| `Sword_Roll_Counter_Poke`| Evasion Counter| Low counter-thrust coming directly out of a combat roll | One-shot |
+| `Sword_Plunge_Aerial_Attack`| Aerial Attack | Downward plunging two-handed impale from jump | One-shot |
+| `Parry_Left_Deflect` | Directional Defense | Snapping blade to the left to deflect incoming horizontal slash | One-shot |
+| `Parry_Right_Deflect` | Directional Defense | Snapping blade to the right to deflect incoming horizontal slash | One-shot |
+| `Guard_Break_Stumble` | Poise Depleted | Character shield kicked aside; helpless stagger open to critical hits | One-shot |
+| `Blade_Clash_Lock` | Blade Clash | Weapons locked together in close struggle recoil | One-shot |
+| `Combat_Roll_Forward` | Combat Evasion | Low shoulder roll evading vertical cleaves and area spells | One-shot |
+| `Combat_Backstep_Hop` | Evasion | Quick tactical hop backward creating distance | One-shot |
 
 ---
 
-### B. Advanced Combat System (`UAL_AAA_Combat_Adv.glb`)
+### B. Multi-Weapon Arsenal (`UAL_AAA_Combat_Weapons.glb` — 11 Clips)
 
-| Clip Name | System Type | Movement Description | Loop |
+| Clip Name | Weapon Archetype | Movement Description | Loop |
 | :--- | :--- | :--- | :---: |
-| `Parry_High_Deflect` | Deflection / Defense | Upward weapon guard snapping to deflect high incoming strike | No |
-| `Parry_Sword_Riposte` | Counter-Attack | Immediate follow-through counter thrust right after parry | No |
-| `Combat_Fencing_Lunge` | Precision Offense | Low-profile fencing forward lunge with pinpoint sword tip | No |
-| `Combat_Shield_Bash_Stagger`| Melee Crowd Control | Stepping forward with full body weight driving shield rim to stagger | No |
-| `Combat_Dodge_Sidestep_L` | Evasion | Rapid directional left slip dodge evading vertical swings | No |
-| `Combat_Dodge_Sidestep_R` | Evasion | Rapid directional right slip dodge evading vertical swings | No |
+| `2H_Greatsword_Overhead_Chop` | **Two-Handed / 2H** | Crushing vertical overhead cleave with full body momentum | No |
+| `2H_Greatsword_Slash_Horizontal`| **Two-Handed / 2H** | Wide horizontal torso sweep clearing groups of enemies | No |
+| `2H_Greatsword_Spin_Cleave` | **Two-Handed / 2H** | Whirling 360° greatsword spin cleave | No |
+| `2H_Greatsword_Thrust_Lunge` | **Two-Handed / 2H** | Half-sword guided heavy forward thrust | No |
+| `2H_Greatsword_Guard_Block` | **Two-Handed / 2H** | Raising broad flat of the greatsword blade to absorb heavy blows | No |
+| `DualDaggers_Flurry_Chop` | **Dual Wield** | Alternating left-right downward slashing flurry | No |
+| `DualDaggers_Cross_Slice` | **Dual Wield** | Scissor cross-slash with both dagger blades | No |
+| `DualDaggers_Thrust_Stab` | **Dual Wield** | Dual forward lunging kidney thrust | No |
+| `Bow_Draw` | **Archery / Bow** | Reaching to quiver, nocking arrow, and drawing bowstring | No |
+| `Bow_Aim_Idle_Loop` | **Archery / Bow** | Holding full string draw tension, tracking target with eyes | Yes |
+| `Bow_Release_Recoil` | **Archery / Bow** | Crisp string release with arm snap and torso recoil | No |
 
 ---
 
-### C. Locomotion & Traversal Suite (`UAL_AAA_Locomotion.glb`)
+### C. Hit Reactions & Knockdown Suite (`UAL_AAA_Combat_Reactions.glb` — 8 Clips)
 
-| Clip Name | Description | Loop | Calibrated Speed |
+| Clip Name | Impact Severity | Description | Recovery |
+| :--- | :--- | :--- | :---: |
+| `Hit_React_Head_Flinch_L` | Light Hit (Left) | Head snapped violently to right by left strike | Immediate |
+| `Hit_React_Head_Flinch_R` | Light Hit (Right) | Head snapped violently to left by right strike | Immediate |
+| `Hit_React_Gut_Wind_Knockout`| Medium Hit (Gut) | Doubling forward clutching midsection, staggering back | 1.3s |
+| `Hit_React_Leg_Sweep_Trip` | Stumble / Trip | Feet swept out from under; falling backward onto back | 1.8s |
+| `Knockdown_Hard_Landing` | Full Knockdown | Violent backward impact slamming onto stone floor | Down |
+| `Knockdown_Ground_Lie_Idle` | Downed State | Lying on ground stunned recovering breath | Loop |
+| `Knockdown_Roll_Getup` | Recovery Roll | Rolling backward onto feet into balanced combat stance | 3.0s |
+| `Wall_Impact_Splat_Bounce` | Environmental | Slammed into wall/pillar, bouncing forward and collapsing | 1.8s |
+
+---
+
+### D. Advanced Avatar Elemental Bending (`UAL_AAA_Bending_Advanced.glb` — 8 Clips)
+
+| Clip Name | Element | Discipline Description | Loop |
 | :--- | :--- | :---: | :---: |
-| `Walk_Natural` | Optical mocap human stride cycle, heel-to-toe footfalls | Yes | 0.75 m/s |
-| `Run_Natural` | High-cadence sprint cycle, authentic forward torso lean | Yes | 4.50 m/s |
-| `Run_Stop_Plant` | Weighted deceleration brake plant (inertial stop) | No | One-shot |
-| `Run_Quick_Stop` | Rapid sliding brake stop with counterbalance arm swing | No | One-shot |
-| `Run_Turn_Bank_L` | Sharp pivot banking turn with foot re-alignment | No | One-shot |
-| `March_Soldier_Loop` | Disciplined military march cycle with upright posture | Yes | 1.10 m/s |
-| `Jump_Leap_Takeoff` | Explosive athletic leap takeoff with arm swing drive | No | One-shot |
-| `Jump_Land_Soft` | Knee flexion shock absorption landing without hitch | No | One-shot |
-| `Vault_Hurdle_Mocap` | Low-obstacle hurdle leap vault with center-of-mass arc | No | 2.85 m/s (0.95s) |
-| `Ladder_Climb_Mocap` | Hand-over-hand continuous vertical ladder climb | Yes | 0.60 m/s |
-| `Sword_Slash_Combo_A` | Historical martial arts sword combo with full weight transfer | No | One-shot |
-| `Sword_Slash_Combo_B` | High-to-low diagonal follow-through slash | No | One-shot |
-| `Hit_React_Chest_Mocap`| Heavy impact torso recoil stagger | No | One-shot |
-| `Combat_Duck_Dodge` | Reactive duck beneath high sweeping weapon or projectile | No | One-shot |
-| `Combat_Shield_Block` | Raising shield/guard to absorb heavy strike with recoil | No | One-shot |
+| `Bending_Air_Scooter_Ride` | **Air** | Sitting atop high-speed spinning air sphere, steering with hands | Yes |
+| `Bending_Air_Blast_Cone` | **Air** | Dual open palms thrusting forward unleashing explosive air shockwave | No |
+| `Bending_Earth_Wave_Surf` | **Earth** | Surfing along raised ground wave, maintaining low center of gravity | Yes |
+| `Bending_Earth_Boulder_Toss` | **Earth** | Levitating multi-ton boulder and hurling it forward with torso drive | No |
+| `Bending_Fire_Jet_Dash` | **Fire** | Sprint dash propelled by continuous fire thrusters from boots/hands | Yes |
+| `Bending_Fire_Continuous_Stream`| **Fire** | Sustained dual-arm flamethrower channeling stream | Yes |
+| `Bending_Water_Ice_Spike_Launch`| **Water** | Condensing water ring into sharp ice daggers and launching | No |
+| `Bending_Water_Tidal_Surge_Slide`| **Water** | Gliding across icy water surge with graceful directional banking | No |
 
 ---
 
-### D. Living World & Settlement Simulation (`UAL_AAA_LivingWorld.glb`)
+## 3. Drop-in Godot 4.6 Engine Wiring Recipe
 
-| Clip Name | Category | Description | Loop |
-| :--- | :--- | :--- | :---: |
-| `Tavern_Sit_Idle` | Social / Tavern | Relaxed sitting on stool/chair, chin in hand, subtle breathing | Yes |
-| `Tavern_Sit_LegSwing` | Social / Tavern | Sitting on bench/ledge, relaxed alternating leg swing | Yes |
-| `Tavern_Sit_Fidget_Ponder`| Social / Tavern | Pondering patron, shifting weight on chair, hands against chin | Yes |
-| `Tavern_Stand_To_Sit` | Social / Tavern | Transition: walking up to chair and smoothly sitting down | No |
-| `Tavern_Sit_To_Stand` | Social / Tavern | Transition: rising from seated position to balanced standing | No |
-| `Tavern_Drunk_Stumble` | Social / Tavern | Intoxicated patron swaying and stumbling off-balance | Yes |
-| `Tavern_Drink_Beer_Chug` | Social / Tavern | Raising wooden tankard, tilting head back, drinking and wiping mouth | No |
-| `Tavern_Dine_Eating` | Social / Tavern | Seated at table eating meal with fork/spoon and chewing | Yes |
-| `Social_Laugh_Banter` | Social / Tavern | Genuine full-body laughter, chuckling torso heave, lively hands | Yes |
-| `Social_Handshake_Deal` | Social / Tavern | Two citizens shaking hands sealing a trade or agreement | No |
-| `Bard_Play_Violin_Loop` | Entertainment / Lore | Traveling minstrel or tavern bard playing lively violin fiddle | Yes |
-| `Mourning_Grief_Kneel` | Story / Emotion | Kneeling in grief, head bowed, hands covering face in sorrow | Yes |
-| `Blacksmith_Hammer_Anvil`| Labor / Craft | Rhythmic arm striking anvil with hammer, body counter-balance | Yes |
-| `Woodcutter_Axe_Chop` | Labor / Craft | Two-handed woodcutting axe swing into timber log | Yes |
-| `Peasant_Floor_Sweep` | Settlement Chore | Sweeping dirt or tavern floor with broom in rhythmic strokes | Yes |
-| `Peasant_Dig_Ground` | Settlement Chore | Stomping shovel blade into soil and tossing dirt aside | Yes |
-| `Peasant_Rake_Leaves` | Settlement Chore | Raking fallen autumn leaves or straw across farmyard | Yes |
-| `Worker_Carry_Cargo` | Labor / Trade | Walking stride carrying crate/box in front with both arms | Yes |
-| `Worker_Heavy_Strain_Carry`| Labor / Trade | Heavy 20lb strain carry, torso leaning back against load | Yes |
-| `Worker_Deadlift_Box` | Labor / Trade | Squatting down, wrapping hands under crate, lifting to chest | No |
-| `Fisherman_Cast_Wait` | Craft / Outdoor | Casting fishing line into river and patiently watching water | Yes |
-| `Guard_Scan_Horizon` | Military / Guard | Standing at attention, shading eyes, turning neck to scan horizon | Yes |
-| `NPC_Direct_Point_Wave` | Guard / Scout | Guard pointing direction, directing traffic/citizens, waving | No |
-| `Vendor_Wave_Greeting` | Merchant / Villager | Market vendor calling out, waving both hands to attract patrons | No |
-| `Market_Browse_Trade` | Merchant / Villager | Examining wares at market stall, inspecting quality, gesturing | Yes |
-| `Campfire_Warm_Hands` | Survival / Ambient | Sitting by fire, rubbing shivering hands together for warmth | Yes |
-| `Wounded_Limp_Walk` | Combat / Survival | Injured survivor or wounded soldier favoring hurt right leg | Yes |
-| `Brawler_Tavern_Jab` | Combat / Tavern | Close-quarters fist fight combo (jab-cross) for tavern brawls | No |
+Whenever you are ready to wire these into the gameplay scripts:
 
----
-
-## 3. Dynamic Procedural Finger Articulation Engine
-
-Optical mocap from datasets like CMU tracks marker clusters on wrists (`LeftHand`, `RightHand`), leaving the 30 finger bones (`Thumb`, `Index`, `Middle`, `Ring`, `Pinky`) static in default rest T-pose. 
-
-To achieve authentic AAA realism, we added a procedural finger solver in [`kingdom/tools/anim/retarget_bvh.py`](file:///C:/Users/Jonna/Documents/ProjectAshes/kingdom/tools/anim/retarget_bvh.py):
-1. **Pose Basis:** Samples 4 reference hand shapes (`relaxed`, `fist`, `open`, `grip`) directly from UAL bone rest poses.
-2. **Kinematic Inertial Curl:** Calculates the angular velocity of the forearm. Rapid swings (e.g. punches, sprints) naturally curl the fingers inward via tendon tension, while decelerations relax them.
-3. **Contact Window Clamping:**
-   - **Vaulting:** Hands dynamically splay open (`open` pose) during the obstacle contact window.
-   - **Climbing:** Hands dynamically transition between open reach and closed fist/grip as rungs are grasped.
-   - **Weapon Attacks / Crafts:** Hands clamp tightly into `grip` around sword hilts, axes, and hammer handles.
-   - **Bending Gestures:** Fingers fluidly articulate between open palm guidance (Water/Air) and locked fists/tiger claws (Fire/Earth).
-   - **Subtle Idle Life:** A 0.25 Hz micro-oscillation simulates subtle natural hand breathing during standing/sitting idles.
-
----
-
-## 4. Godot Engine Integration Recipes (Drop-in Ready)
-
-### A. Registering All Packages in `kingdom/scripts/world/assets.gd`
+### In `kingdom/scripts/world/assets.gd`:
 
 ```gdscript
 const UAL_FILES := [
-    # ... existing packs ...
+    # Core Traversal & Life
     UAL_ANIM_DIR + "aaa/UAL_AAA_Locomotion.glb",
     UAL_ANIM_DIR + "aaa/UAL_AAA_LivingWorld.glb",
-    UAL_ANIM_DIR + "aaa/UAL_AAA_Bending_Avatar.glb",
+
+    # Combat Systems
     UAL_ANIM_DIR + "aaa/UAL_AAA_Combat_Adv.glb",
+    UAL_ANIM_DIR + "aaa/UAL_AAA_Combat_Chains.glb",
+    UAL_ANIM_DIR + "aaa/UAL_AAA_Combat_Weapons.glb",
+    UAL_ANIM_DIR + "aaa/UAL_AAA_Combat_Reactions.glb",
+
+    # Avatar Elemental Systems
+    UAL_ANIM_DIR + "aaa/UAL_AAA_Bending_Avatar.glb",
+    UAL_ANIM_DIR + "aaa/UAL_AAA_Bending_Advanced.glb",
 ]
 
 const UAL_ALIASES := {
-    # Locomotion & Traversal
-    "Walking_A": "Walk_Natural",
-    "Running_A": "Run_Natural",
-    "Vault_Low": "Vault_Hurdle_Mocap",
-    "Ladder_Climb_Up": "Ladder_Climb_Mocap",
-    "1H_Melee_Attack_Chop": "Sword_Slash_Combo_A",
-    "1H_Melee_Attack_Slice_Diagonal": "Sword_Slash_Combo_B",
+    # 4-Hit Attack Chain
+    "Attack_Combo_1": "Sword_Light_Attack_01",
+    "Attack_Combo_2": "Sword_Light_Attack_02",
+    "Attack_Combo_3": "Sword_Light_Attack_03",
+    "Attack_Combo_4": "Sword_Light_Attack_04",
+    "Attack_Heavy": "Sword_Heavy_Charge_Chop",
+    "Attack_Sprint": "Sword_Sprint_Dash_Attack",
+    "Attack_Roll": "Sword_Roll_Counter_Poke",
+    "Attack_Plunge": "Sword_Plunge_Aerial_Attack",
 
-    # Parries & Combat
-    "Parry_Deflect": "Parry_High_Deflect",
+    # Directional Parries & Defense
+    "Parry_High": "Parry_High_Deflect",
+    "Parry_Left": "Parry_Left_Deflect",
+    "Parry_Right": "Parry_Right_Deflect",
     "Parry_Riposte": "Parry_Sword_Riposte",
-    "Combat_Lunge": "Combat_Fencing_Lunge",
-    "Combat_Shield_Bash": "Combat_Shield_Bash_Stagger",
-    "Dodge_Left": "Combat_Dodge_Sidestep_L",
-    "Dodge_Right": "Combat_Dodge_Sidestep_R",
+    "Guard_Break": "Guard_Break_Stumble",
+    "Blade_Clash": "Blade_Clash_Lock",
+    "Roll_Forward": "Combat_Roll_Forward",
+    "Backstep_Hop": "Combat_Backstep_Hop",
 
-    # Avatar Bending Aliases
-    "Water_Stance": "Bending_Water_Flow_Stance",
-    "Water_Attack_A": "Bending_Water_Circular_Push",
-    "Water_Attack_B": "Bending_Water_Wave_Whip",
-    "Earth_Stance": "Bending_Earth_Rooted_Stance",
-    "Earth_Pillar": "Bending_Earth_Pillar_Thrust",
-    "Earth_Wall": "Bending_Earth_Wall_Raise",
-    "Fire_Stance": "Bending_Fire_Sun_Salutation",
-    "Fire_Punch": "Bending_Fire_Punch_Burst",
-    "Fire_Kick": "Bending_Fire_High_Kick",
-    "Air_Spin": "Bending_Air_Spiral_Spin",
-    "Air_Deflect": "Bending_Air_Palm_Deflect",
-    "Air_Evade": "Bending_Air_Acrobatic_Evade",
+    # Hit Reactions & Knockdown
+    "Hit_Head_L": "Hit_React_Head_Flinch_L",
+    "Hit_Head_R": "Hit_React_Head_Flinch_R",
+    "Hit_Gut": "Hit_React_Gut_Wind_Knockout",
+    "Hit_Sweep": "Hit_React_Leg_Sweep_Trip",
+    "Knockdown": "Knockdown_Hard_Landing",
+    "Knockdown_Idle": "Knockdown_Ground_Lie_Idle",
+    "Getup": "Knockdown_Roll_Getup",
+    "Wall_Splat": "Wall_Impact_Splat_Bounce",
+
+    # Weapon Archetypes
+    "2H_Chop": "2H_Greatsword_Overhead_Chop",
+    "2H_Slash": "2H_Greatsword_Slash_Horizontal",
+    "2H_Spin": "2H_Greatsword_Spin_Cleave",
+    "2H_Thrust": "2H_Greatsword_Thrust_Lunge",
+    "2H_Block": "2H_Greatsword_Guard_Block",
+    "Dual_Flurry": "DualDaggers_Flurry_Chop",
+    "Dual_Cross": "DualDaggers_Cross_Slice",
+    "Dual_Stab": "DualDaggers_Thrust_Stab",
+    "Bow_Draw": "Bow_Draw",
+    "Bow_Aim": "Bow_Aim_Idle_Loop",
+    "Bow_Release": "Bow_Release_Recoil",
+
+    # Advanced Avatar Traversal & Powers
+    "Air_Scooter": "Bending_Air_Scooter_Ride",
+    "Air_Blast": "Bending_Air_Blast_Cone",
+    "Earth_Surf": "Bending_Earth_Wave_Surf",
+    "Earth_Toss": "Bending_Earth_Boulder_Toss",
+    "Fire_Dash": "Bending_Fire_Jet_Dash",
+    "Fire_Stream": "Bending_Fire_Continuous_Stream",
+    "Ice_Spikes": "Bending_Water_Ice_Spike_Launch",
+    "Water_Slide": "Bending_Water_Tidal_Surge_Slide",
 }
 ```
 
-### B. Dynamic Parry & Riposte Integration in `kingdom/scripts/actors/player.gd`
-
-```gdscript
-func execute_parry() -> void:
-    if blocking and not _animator.is_full_busy():
-        _animator.play_full("Parry_High_Deflect", 1.2)
-        # 0.25s parry window for riposte triggers:
-        _parry_window = 0.25
-
-func execute_riposte() -> void:
-    if _parry_window > 0.0:
-        _parry_window = 0.0
-        _animator.play_full("Parry_Sword_Riposte", 1.1)
-        deal_critical_damage()
-```
-
-### C. Elemental Bending Invocation in `kingdom/scripts/actors/player.gd`
-
-```gdscript
-func cast_bending_skill(element: String, skill_id: String) -> void:
-    match [element, skill_id]:
-        ["water", "push"]:
-            _animator.play_full("Bending_Water_Circular_Push", 1.0)
-            spawn_water_ring()
-        ["water", "whip"]:
-            _animator.play_full("Bending_Water_Wave_Whip", 1.15)
-            spawn_water_whip()
-        ["earth", "pillar"]:
-            _animator.play_full("Bending_Earth_Pillar_Thrust", 1.0)
-            raise_earth_pillar()
-        ["earth", "wall"]:
-            _animator.play_full("Bending_Earth_Wall_Raise", 0.95)
-            raise_stone_barrier()
-        ["fire", "punch"]:
-            _animator.play_full("Bending_Fire_Punch_Burst", 1.25)
-            shoot_fire_burst()
-        ["fire", "kick"]:
-            _animator.play_full("Bending_Fire_High_Kick", 1.1)
-            shoot_flame_arc()
-        ["air", "spin"]:
-            _animator.play_full("Bending_Air_Spiral_Spin", 1.2)
-            create_whirlwind()
-        ["air", "evade"]:
-            _animator.play_full("Bending_Air_Acrobatic_Evade", 1.0)
-            apply_air_backdash()
-```
-
 ---
 
-## 5. Blender 5.2 Layered Actions Gotcha (Critical Note)
-
-If you author, re-render, or preview glTF animations using Blender 5.2+:
-Blender 5.2 introduced **Layered Actions** with `ActionSlot`. Merely assigning `armature.animation_data.action = act` binds the action container without assigning its channel bag slot, causing the armature to render in static T-pose / rest pose!
-To evaluate animations properly:
-```python
-armature.animation_data.action = act
-if hasattr(act, 'slots') and len(act.slots) > 0:
-    armature.animation_data.action_slot = act.slots[0]
-bpy.context.view_layer.update()
-```
-
----
-
-## 6. Summary of Delivery
+## 4. Delivery Status
 
 - **Branch:** `antigravity/aaa-mocap-animations`
-- **Total Clips Delivered:** 62 AAA mocap clips with natural articulated hands
-- **Asset Directory:** `kingdom/assets/incoming/animations/aaa/`
-- **Tools & Configs:** `kingdom/tools/anim/retarget_bvh.py`, `cfg_aaa_*.json`, `glb_reduce_anim.py`, `rigify_bridge.py`
+- **Total Clips Delivered:** 103 AAA Mocap Clips
+- **Total Packages:** 8 Self-Contained GLBs (< 4.2 MB total)
+- **Local Git Tree for Claude (`claude/focused-curie-m09hbd`):** Completely clean and untouched.

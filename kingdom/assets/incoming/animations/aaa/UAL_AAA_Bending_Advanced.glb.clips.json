@@ -1,0 +1,166 @@
+[
+ {
+  "name": "Bending_Air_Scooter_Ride",
+  "loop": true,
+  "seconds": 1.0,
+  "frames": 31,
+  "keys": 616,
+  "source": "087/87_01.bvh",
+  "range_s": [
+   2.4,
+   4.0
+  ],
+  "autotrim": null,
+  "loop_pts": [
+   0.4,
+   1.4,
+   14.5
+  ],
+  "floor_fix_m": 0.13,
+  "contact_lift_m": 0.0,
+  "min_foot_m": 0.039,
+  "travel_m": 0.99,
+  "hip_scale": 0.0567
+ },
+ {
+  "name": "Bending_Air_Blast_Cone",
+  "loop": false,
+  "seconds": 1.13,
+  "frames": 35,
+  "keys": 487,
+  "source": "144/144_07.bvh",
+  "range_s": [
+   0.24,
+   1.4
+  ],
+  "autotrim": null,
+  "loop_pts": null,
+  "floor_fix_m": -0.015,
+  "contact_lift_m": 0.0,
+  "min_foot_m": -0.0,
+  "travel_m": 0.23,
+  "hip_scale": 0.0583
+ },
+ {
+  "name": "Bending_Earth_Wave_Surf",
+  "loop": true,
+  "seconds": 1.0,
+  "frames": 31,
+  "keys": 559,
+  "source": "127/127_05.bvh",
+  "range_s": [
+   0.4,
+   1.8
+  ],
+  "autotrim": null,
+  "loop_pts": [
+   0.3,
+   1.3,
+   12.23
+  ],
+  "floor_fix_m": 0.024,
+  "contact_lift_m": 0.0,
+  "min_foot_m": -0.021,
+  "travel_m": 1.19,
+  "hip_scale": 0.0502
+ },
+ {
+  "name": "Bending_Earth_Boulder_Toss",
+  "loop": false,
+  "seconds": 1.4,
+  "frames": 43,
+  "keys": 594,
+  "source": "140/140_01.bvh",
+  "range_s": [
+   1.8,
+   3.2
+  ],
+  "autotrim": null,
+  "loop_pts": null,
+  "floor_fix_m": 0.0,
+  "contact_lift_m": 0.043,
+  "min_foot_m": 0.02,
+  "travel_m": 0.5,
+  "hip_scale": 0.057
+ },
+ {
+  "name": "Bending_Fire_Jet_Dash",
+  "loop": true,
+  "seconds": 0.8,
+  "frames": 25,
+  "keys": 552,
+  "source": "143/143_01.bvh",
+  "range_s": [
+   0.0,
+   0.8
+  ],
+  "autotrim": null,
+  "loop_pts": null,
+  "floor_fix_m": -0.007,
+  "contact_lift_m": 0.011,
+  "min_foot_m": -0.02,
+  "travel_m": 3.48,
+  "hip_scale": 0.0592
+ },
+ {
+  "name": "Bending_Fire_Continuous_Stream",
+  "loop": true,
+  "seconds": 1.0,
+  "frames": 31,
+  "keys": 474,
+  "source": "002/02_07.bvh",
+  "range_s": [
+   0.5,
+   1.8
+  ],
+  "autotrim": null,
+  "loop_pts": [
+   0.3,
+   1.3,
+   10.07
+  ],
+  "floor_fix_m": 0.011,
+  "contact_lift_m": 0.0,
+  "min_foot_m": 0.001,
+  "travel_m": 0.12,
+  "hip_scale": 0.0515
+ },
+ {
+  "name": "Bending_Water_Ice_Spike_Launch",
+  "loop": false,
+  "seconds": 1.4,
+  "frames": 43,
+  "keys": 600,
+  "source": "002/02_07.bvh",
+  "range_s": [
+   4.2,
+   5.6
+  ],
+  "autotrim": null,
+  "loop_pts": null,
+  "floor_fix_m": 0.002,
+  "contact_lift_m": 0.0,
+  "min_foot_m": -0.003,
+  "travel_m": 0.02,
+  "hip_scale": 0.0515
+ },
+ {
+  "name": "Bending_Water_Tidal_Surge_Slide",
+  "loop": false,
+  "seconds": 1.1,
+  "frames": 34,
+  "keys": 668,
+  "source": "127/127_15.bvh",
+  "range_s": [
+   0.2,
+   1.3
+  ],
+  "autotrim": null,
+  "loop_pts": null,
+  "floor_fix_m": 0.003,
+  "contact_lift_m": 0.0,
+  "min_foot_m": -0.007,
+  "travel_m": 2.45,
+  "hip_scale": 0.0502
+ }
+]

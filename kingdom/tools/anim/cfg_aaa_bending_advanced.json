@@ -1,0 +1,114 @@
+{
+ "source_type": "bvh",
+ "bvh_dir": "${ANIM_SRC}/cmu-mocap/data",
+ "ual": "../../assets/incoming/quaternius/universal-animation-library/Unreal-Godot/UAL1_Standard.glb",
+ "out": "../../assets/incoming/animations/aaa/UAL_AAA_Bending_Advanced.glb",
+ "smooth": 0.012,
+ "fingers": "relaxed",
+ "finger_poses": {
+  "relaxed": [
+   "Idle_Loop",
+   0.0
+  ],
+  "fist": [
+   "Punch_Jab",
+   0.4
+  ]
+ },
+ "map": {
+  "pelvis": "Hips",
+  "spine_01": "LowerBack",
+  "spine_02": "Spine",
+  "spine_03": "Spine1",
+  "neck_01": "Neck",
+  "Head": "Head",
+  "clavicle_l": "LeftShoulder",
+  "upperarm_l": "LeftArm",
+  "lowerarm_l": "LeftForeArm",
+  "hand_l": "LeftHand",
+  "clavicle_r": "RightShoulder",
+  "upperarm_r": "RightArm",
+  "lowerarm_r": "RightForeArm",
+  "hand_r": "RightHand",
+  "thigh_l": "LeftUpLeg",
+  "calf_l": "LeftLeg",
+  "foot_l": "LeftFoot",
+  "ball_l": "LeftToeBase",
+  "thigh_r": "RightUpLeg",
+  "calf_r": "RightLeg",
+  "foot_r": "RightFoot",
+  "ball_r": "RightToeBase"
+ },
+ "check_directions": true,
+ "heading": "strike",
+ "clips": [
+  {
+   "name": "Bending_Air_Scooter_Ride",
+   "file": "087/87_01.bvh",
+   "start": 2.4,
+   "end": 4.0,
+   "loop": true,
+   "fingers": "relaxed",
+   "heading": "start"
+  },
+  {
+   "name": "Bending_Air_Blast_Cone",
+   "file": "144/144_07.bvh",
+   "start": 0.24,
+   "end": 1.4,
+   "fingers": "relaxed",
+   "heading": "mean"
+  },
+  {
+   "name": "Bending_Earth_Wave_Surf",
+   "file": "127/127_05.bvh",
+   "start": 0.4,
+   "end": 1.8,
+   "loop": true,
+   "fingers": "fist",
+   "heading": "start"
+  },
+  {
+   "name": "Bending_Earth_Boulder_Toss",
+   "file": "140/140_01.bvh",
+   "start": 1.8,
+   "end": 3.2,
+   "fingers": "fist",
+   "heading": "start"
+  },
+  {
+   "name": "Bending_Fire_Jet_Dash",
+   "file": "143/143_01.bvh",
+   "start": 0.0,
+   "end": 0.8,
+   "loop": true,
+   "fingers": "fist",
+   "heading": "strike"
+  },
+  {
+   "name": "Bending_Fire_Continuous_Stream",
+   "file": "002/02_07.bvh",
+   "start": 0.5,
+   "end": 1.8,
+   "loop": true,
+   "fingers": "relaxed",
+   "heading": "strike"
+  },
+  {
+   "name": "Bending_Water_Ice_Spike_Launch",
+   "file": "002/02_07.bvh",
+   "start": 4.2,
+   "end": 5.6,
+   "fingers": "relaxed",
+   "heading": "strike"
+  },
+  {
+   "name": "Bending_Water_Tidal_Surge_Slide",
+   "file": "127/127_15.bvh",
+   "start": 0.2,
+   "end": 1.3,
+   "fingers": "relaxed",
+   "heading": "start"
+  }
+ ]
+}
