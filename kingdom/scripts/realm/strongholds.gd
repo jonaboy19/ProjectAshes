@@ -143,6 +143,23 @@ func strongholds() -> Array:
 	return _sh.duplicate(true)
 
 
+## Farm supply contracts (realm/farming.gd): the garrisons that can be sold to, without copying the whole table.
+func supply_buyers() -> Array:
+	_ensure()
+	var out: Array = []
+	for s: Dictionary in _sh:
+		if int(s["garrison"]) > 0:
+			out.append({"id": int(s["id"]), "garrison": int(s["garrison"]), "supply": int(s["supply"])})
+	return out
+
+
+## Goods delivered to a stronghold top up its supply (it refills its garrison from supply).
+func add_supply(id: int, n: int) -> void:
+	_ensure()
+	if id >= 0 and id < _sh.size() and n > 0:
+		_sh[id]["supply"] = int(_sh[id]["supply"]) + n
+
+
 func stronghold(id: int) -> Dictionary:
 	_ensure()
 	return (_sh[id] as Dictionary).duplicate(true) if id >= 0 and id < _sh.size() else {}

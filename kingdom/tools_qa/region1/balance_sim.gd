@@ -33,8 +33,9 @@ const CSV_HEADER := "day,gold,career,career_rank,career_rank_name,soul_tier,soul
 ## activities below, the rest is walking, menus, sleeping through the night.
 const DAY_SECONDS := 540.0
 const START_AGE := 16
-const LEDGER_MODULES := ["city_life", "society", "education", "household", "callups", "enterprise", "construction", "scribe", "soldier", "trades"]
+const LEDGER_MODULES := ["city_life", "society", "education", "household", "callups", "enterprise", "construction", "scribe", "soldier", "trades", "farming"]
 const SKILL := 0.7                       # 0..1: mini-game quality and arena skill of the simulated player
+const Seasons_ref := preload("res://scripts/sim/seasons.gd")
 const GOLD_RESERVE := 30                 # never spend below this on gear / assets
 const TRADE_RESERVE := 160               # the merchant keeps this much out of the stock it carries (house, gear, shop)
 const WALK_SPEED := 5.5                  # m/s on roads
@@ -652,6 +653,7 @@ func _farmer(d: int) -> void:
 			break
 	_farm_work_spot(d)
 	_tend_plot(d)
+	_land_ladder(d)
 	_farmer_assets(d)
 	_sell_loot()
 
@@ -675,6 +677,53 @@ func _farm_work_spot(d: int) -> void:
 		Life.record("farmed", 1.0)
 		if cw == null and n >= 12:
 			break          # no cap in the game: a human gets bored after a dozen holds, the exploit probe shows the rest
+
+
+## Living World Stage 3 (scripts/realm/farming.gd): a hand's wage at an NPC farmer's farm until the landlords trust the player, then a rented
+## farm worked by the book (harvest, sow by the rotation, treat, sell the grain at the market). The same calls a player makes.
+func _land_ladder(d: int) -> void:
+	var fm: Variant = Life.realm.mod("farming")
+	if fm == null:
+		return
+	fm.set_day(d)
+	var r: String = fm.rung()
+	if r == "":
+		var jobs: Array = fm.jobs(_pos_sid)
+		if not jobs.is_empty():
+			fm.hire_on(jobs[0])
+		r = fm.rung()
+	if r == "farmhand":
+		var rent_ids: Array = fm.for_rent()
+		if fm.experience() >= 6 and Game.gold >= 80 + GOLD_RESERVE:
+			for pid: String in rent_ids:
+				if int(fm.parcel(pid)["sid"]) == _pos_sid and fm.is_vacant(pid):
+					fm.quit_job()
+					if fm.take_tenancy(pid, "rent") == "":
+						events.append("day %d: rented a farm (%s)" % [d, pid])
+						first_day["farm_tenancy"] = d
+					break
+		elif _use_time("task", 2.0):
+			var res: Dictionary = fm.farmhand_work(fm.job_parcel(), d)
+			if bool(res.get("ok", false)):
+				Life.record("farmed", 1.0)
+		return
+	if r != "tenant" and r != "sharecropper":
+		return
+	var season: int = Seasons_ref.season_of(d)
+	for pid2: String in fm.rented_by("player"):
+		for i in fm.fields_count(pid2):
+			var F: Dictionary = fm.field(pid2, i)
+			if fm.FF.is_ready(F) and _use_time("plot", 0.6):
+				fm.do_task(pid2, i, "harvest")
+			if String(F["c"]) == "" and _use_time("plot", 0.6):
+				fm.do_task(pid2, i, "sow", fm.FF.rotation_pick(F, season, fm.parcel(pid2)["plan"]))
+			if float(F["p"]) > 0.15 and _use_time("plot", 0.5):
+				fm.do_task(pid2, i, "treat")
+		if d % 5 == 0 and _use_time("market"):
+			var st: Dictionary = fm.parcel(pid2)["store"]
+			for k: String in st.keys():
+				if not k.begins_with("seed_") and k != "manure" and int(st[k]) > 0:
+					fm.sell_goods(pid2, k, int(st[k]), 0.0)
 
 
 func _tend_plot(_d: int) -> void:
