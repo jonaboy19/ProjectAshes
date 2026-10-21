@@ -45,10 +45,17 @@ const MODULES := {
 	"organizations": preload("res://scripts/realm/organizations.gd"),   # LW Stage 4: one generic organization record (ranks, rights, succession, branches)
 	"businesses": preload("res://scripts/realm/businesses.gd"),         # LW Stage 4: shops, workshops, inns, caravans with accounts and remote reports
 	"build_kit": preload("res://scripts/realm/build_kit.gd"),   # Build-kit hook: modular piece building (docs/regions/HOOKS_FOR_CLOUD.md)
+	"stewardship": preload("res://scripts/realm/stewardship.gd"),   # LW Stage 6: authority chain per location, running a territory
+	"reputation": preload("res://scripts/realm/reputation.gd"),     # LW Stage 6: multi-axis reputation with travel delay
+	"audiences": preload("res://scripts/realm/audiences.gd"),       # LW Stage 6: petitions in 8 steps, documents, disputes, reviews
+	"territory": preload("res://scripts/realm/territory.gd"),       # LW Stage 6: ten territory layers; capture is not lordship
+	"diplomacy": preload("res://scripts/realm/diplomacy.gd"),       # LW Stage 6: pacts, breaches, reactions to independent factions
+	"courts": preload("res://scripts/realm/courts.gd"),             # LW Stage 6: laws per kingdom, cases, trials, appeals
+	"succession": preload("res://scripts/realm/succession.gd"),     # LW Stage 6: claims, regents, local succession rules
 	"founding": preload("res://scripts/realm/founding.gd"),     # LW Stage 5: site evaluation, legal land, illegal-build escalation, founding stages, scale classes, hidden valley, NPC founders
 }
 ## Order matters within a tier: land before factions before campaign.
-const ORDER := ["registry", "events", "settlements", "land", "camps", "civilization", "migration", "followers", "recruitment", "factions", "strongholds", "campaign", "city_life", "society", "governance", "notables", "news", "exploration", "power_paths", "education", "cultivation", "household", "callups", "work", "scribe", "soldier", "trades", "enterprise", "construction", "towers", "ecology", "farming", "organizations", "businesses", "build_kit", "founding"]
+const ORDER := ["registry", "events", "settlements", "land", "camps", "civilization", "migration", "followers", "recruitment", "factions", "strongholds", "campaign", "city_life", "society", "governance", "notables", "news", "exploration", "power_paths", "education", "cultivation", "household", "callups", "work", "scribe", "soldier", "trades", "enterprise", "construction", "towers", "ecology", "farming", "organizations", "businesses", "build_kit", "founding", "stewardship", "reputation", "audiences", "territory", "diplomacy", "courts", "succession"]
 ## Max microseconds of realm work per frame (mobile: ~0.6 ms of a 16.6 ms frame).
 const PUMP_BUDGET_USEC := 600
 
