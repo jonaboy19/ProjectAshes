@@ -15,7 +15,7 @@ const AbilityDef := preload("res://scripts/abilities/ability_def.gd")
 const MAX_WEDGES := 8
 const DEADZONE := 0.3            # of the ring's reach: inside the hub nothing is hovered
 const DEFAULT_COLOR := Color("f5b841")
-const RESOURCE_NAMES := {"stamina": "stamina", "qi": "qi", "magicules": "magicules", "bending": "focus", "beast": "instinct"}
+const RESOURCE_NAMES := {"stamina": "stamina", "qi": "qi", "magicules": "embers", "bending": "focus", "beast": "instinct"}
 
 
 ## Angle (rad, 0 = up, clockwise) at the centre of wedge i of n.
@@ -105,7 +105,7 @@ static func entry(id: String, skills: RefCounted, pools: Dictionary = {}, left_o
 		"cooldown": cd, "left": left, "ready": reason == "", "reason": reason, "tier": int(d.get("tier", 1))}
 
 
-## Hub text for an entry: {name, cost, state}. `cost` is "14 magicules" / "Free"; `state` is "Ready", "2.3s" or why not.
+## Hub text for an entry: {name, cost, state}. `cost` is "14 embers" / "Free"; `state` is "Ready", "2.3s" or why not.
 static func hub_lines(e: Dictionary) -> Dictionary:
 	if e.is_empty():
 		return {"name": "Techniques", "cost": "", "state": "Choose one"}

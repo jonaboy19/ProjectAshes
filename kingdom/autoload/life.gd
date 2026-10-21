@@ -190,6 +190,7 @@ func reset() -> void:
 ## Wires the state objects together and begins the first life (boot, and again after reset()).
 func _new_life() -> void:
 	_spoil_abs = _abs_hours()
+	realm.mod("monster_bonds").share_naming(naming)   # MN: one naming ledger for the UI and the bond module
 	equipment.clock = _abs_hours
 	if not crafting.station_invalidated.is_connected(_on_craft_station_invalidated):
 		crafting.station_invalidated.connect(_on_craft_station_invalidated)
@@ -915,7 +916,10 @@ func award_progress(activity: String, ctx: Dictionary = {}) -> void:
 
 ## Name a yielded monster: pays magicules, may cost levels or cause injuries.
 func name_monster(m: CampMonster, given: String, klass: String) -> String:
-	var r := naming.name_monster(magicules, injuries, player_level(), m.species, m.level, given, klass, WorldSim.day)
+	# MN-1: the realm bond module adds exhaustion tiers, hollowing, refusals and the bond tracks on top of RANaming.
+	var r: Dictionary = realm.mod("monster_bonds").name_creature(magicules, injuries, player_level(),
+		{"species": m.species, "level": m.level, "name": given, "key": "camp:%d" % m.get_instance_id()}, given,
+		{"klass": klass, "grade": "lesser", "tier": maxi(soul.tier(), 3), "day": WorldSim.day, "namer": "player"})
 	if not r.get("ok", false):
 		return String(r.get("text", "The name does not take."))
 	m.become_named(given, klass)

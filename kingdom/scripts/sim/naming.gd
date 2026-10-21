@@ -5,7 +5,7 @@ extends RefCounted
 ## and takes a class chosen from what its species can become (warrior, scout,
 ## mage, guardian, artisan, hunter, healer).
 ##
-## A name is paid in magicules: cost grows with the target's level and its
+## A name is paid in embers of the soul reserve: cost grows with the target's level and its
 ## species' power. Naming with too few magicules (overdrawing) or naming
 ## something far above you is dangerous: the caster may temporarily lose levels,
 ## suffer Soul Fatigue (a temporary injury), or take a permanent injury such as
@@ -38,7 +38,7 @@ const SPECIES := {
 		"hint": "Keen-nosed miners; Greater Kobolds learn to smell ore veins.",
 		"classes": ["artisan", "scout", "guardian"]},
 	"slime": {"power": 0.6, "evolves_to": "Spirit Slime",
-		"hint": "Its core clears like glass; Spirit Slimes can absorb and mimic what they eat.",
+		"hint": "Its core clears like glass; Spirit Slimes filter water and mend rot.",
 		"classes": ["healer", "mage", "artisan"]},
 	"lizardfolk": {"power": 1.6, "evolves_to": "Drakeblood Lizardfolk",
 		"hint": "Scales harden to plates; Drakeblood warriors carry a trace of dragon fire.",
@@ -47,7 +47,7 @@ const SPECIES := {
 		"hint": "The hunger quiets; High Orcs build and keep their word.",
 		"classes": ["warrior", "guardian", "artisan"]},
 	"spider": {"power": 1.4, "evolves_to": "Veil Weaver",
-		"hint": "Its silk shimmers; Veil Weavers spin threads that bind magicules.",
+		"hint": "Its silk shimmers; Veil Weavers spin threads that bind the soul reserve.",
 		"classes": ["scout", "artisan", "mage"]},
 	"ogre": {"power": 2.5, "evolves_to": "Ashborn Ogre",
 		"hint": "Horns darken to ember; Ashborn Ogres fight with martial discipline.",
@@ -201,7 +201,7 @@ func name_monster(caster: RAMagicules, injuries: RAInjuries, caster_level: int, 
 		return out
 	var c: int = out["cost"]
 	if float(c) > caster.spendable():
-		out["text"] = "The name will not hold: it needs %d magicules and you can give at most %d." % [
+		out["text"] = "The name will not hold: it needs %d embers and you can give at most %d." % [
 			c, int(floor(caster.spendable()))]
 		return out
 	var r := risk(caster, injuries, caster_level, species, level)

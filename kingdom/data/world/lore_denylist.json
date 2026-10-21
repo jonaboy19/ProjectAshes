@@ -1,0 +1,7 @@
+{
+	"_doc": "MN-0. Proper nouns and vocabulary of the series that inspired the naming mechanic. None may appear in shipped data or script text. See docs/design/MONSTER_NAMING_AND_STATUS.md section 0.",
+	"proper_nouns": ["tensura", "rimuru", "veldora", "benimaru", "shuna", "shion", "souei", "hakurou", "gobta", "gabiru", "milim", "ranga", "ciel", "clayman", "ramiris", "hinata", "treyni", "tempest", "great sage", "demon lord", "octagram", "jura forest", "harvest festival of"],
+	"player_text_terms": ["magicule", "magicules"],
+	"allow_files": ["data/world/lore_denylist.json", "scripts/sim/lore_terms.gd"],
+	"_note": "player_text_terms may remain as internal identifiers and save keys (lowercase tokens), but never inside prose a player reads. Use soul reserve / ember."
+}

@@ -1,0 +1,20 @@
+{
+	"_doc": "Per-species ceilings for the four bond tracks (form, mind, speech, ability; 0..4), plus the ethos, ambition odds and animation clip names Antigravity must supply (AnimationLibrary names).",
+	"species": {
+		"slime":      {"ceil": [3, 4, 3, 3], "kind": "monster", "power": 0.6, "ethos": "calm",   "ambitions": {"none": 70, "learn": 30}, "clips": ["name_evolve", "dormant", "emote_ripple"]},
+		"goblin":     {"ceil": [3, 3, 3, 3], "kind": "monster", "power": 1.0, "ethos": "clan",   "ambitions": {"greed": 40, "power": 35, "found_tribe": 15, "none": 10}, "clips": ["name_evolve", "dormant", "speak_pidgin", "work_hammer", "work_ledger", "disguise_hood"]},
+		"kobold":     {"ceil": [3, 3, 3, 3], "kind": "monster", "power": 0.9, "ethos": "clan",   "ambitions": {"greed": 30, "safe_home": 40, "none": 30}, "clips": ["name_evolve", "dormant", "work_mine"]},
+		"wolf":       {"ceil": [3, 2, 2, 4], "kind": "beast",   "power": 1.3, "ethos": "pack",   "ambitions": {"none": 90, "found_tribe": 10}, "clips": ["name_evolve", "dormant", "speak_bark_short", "gate_wait", "mourn"]},
+		"bear":       {"ceil": [4, 2, 3, 4], "kind": "beast",   "power": 1.8, "ethos": "solitary", "ambitions": {"none": 90, "territory": 10}, "clips": ["name_evolve", "dormant", "winter_sleep"]},
+		"troll":      {"ceil": [4, 2, 3, 4], "kind": "monster", "power": 2.2, "ethos": "stone",  "ambitions": {"territory": 40, "none": 60}, "clips": ["name_evolve", "dormant", "hold_chokepoint"]},
+		"ogre":       {"ceil": [4, 2, 3, 4], "kind": "monster", "power": 2.5, "ethos": "labour", "ambitions": {"power": 30, "territory": 30, "none": 40}, "clips": ["name_evolve", "dormant", "work_haul", "gate_wait"]},
+		"spider":     {"ceil": [3, 4, 2, 4], "kind": "monster", "power": 1.4, "ethos": "web",    "ambitions": {"learn": 30, "none": 70}, "clips": ["name_evolve", "dormant", "web_sign"]},
+		"orc":        {"ceil": [4, 3, 4, 4], "kind": "monster", "power": 1.8, "ethos": "oath",   "ambitions": {"ideals": 45, "found_tribe": 25, "council_seat": 20, "none": 10}, "clips": ["name_evolve", "dormant", "speak_fluent", "oath_swear", "salute"]},
+		"lizardfolk": {"ceil": [4, 4, 4, 4], "kind": "monster", "power": 1.6, "ethos": "law",    "ambitions": {"ideals": 40, "learn": 30, "council_seat": 25, "none": 5}, "clips": ["name_evolve", "dormant", "speak_eloquent", "petition", "disguise_robe"]},
+		"undead":     {"ceil": [0, 0, 0, 0], "kind": "undead",  "power": 1.5, "ethos": "dead",   "forbidden": true, "ambitions": {"none": 100}, "clips": []}
+	},
+	"band_cap_by_tier": [[3, 2], [5, 3], [7, 4]],
+	"depth_thresholds": [30, 55, 80],
+	"lesser_cap": 2,
+	"dormancy_days": 3
+}

@@ -1,6 +1,6 @@
 class_name RAMagicules
 extends RefCounted
-## A magicule pool (the ambient power that fuels naming, techniques and magic).
+## A soul-reserve pool (one unit = one ember; class name kept for saves) (the ambient power that fuels naming, techniques and magic).
 ## It regenerates per in-game hour. You may overdraw below zero, down to
 ## -OVERDRAW_LIMIT of the pool, but overdrawing piles on exhaustion (slower
 ## regeneration, weaker stamina) and may tear the body: a damage roll that grows
@@ -54,7 +54,7 @@ func overdraw_capacity() -> float:
 	return effective_max() * OVERDRAW_LIMIT
 
 
-## Magicules that can still be spent, counting the overdraw margin.
+## Embers that can still be spent, counting the overdraw margin.
 func spendable() -> float:
 	return current + overdraw_capacity()
 
@@ -81,7 +81,7 @@ func stamina_factor() -> float:
 func spend(amount: float) -> Dictionary:
 	if amount > spendable():
 		return {"ok": false, "spent": 0.0, "overdraw": 0.0, "depth": 0.0, "exhaustion": exhaustion, "damage": 0,
-			"text": "Not enough magicules (%d needed, %d at most)." % [int(ceil(amount)), int(floor(spendable()))]}
+			"text": "Not enough embers of soul reserve (%d needed, %d at most)." % [int(ceil(amount)), int(floor(spendable()))]}
 	var before_debt := maxf(0.0, -current)
 	current -= amount
 	var overdraw := maxf(0.0, -current) - before_debt
@@ -92,7 +92,7 @@ func spend(amount: float) -> Dictionary:
 		exhaustion = clampf(exhaustion + overdraw / effective_max() * EXHAUSTION_PER_POOL, 0.0, 1.0)
 		if _rng.randf() < depth * DAMAGE_CHANCE:
 			damage = maxi(1, int(round(depth * DAMAGE_AT_FULL)))
-		text = "You draw on magicules you do not have. Exhaustion floods you."
+		text = "You draw on soul reserve you do not have. Exhaustion floods you."
 		if damage > 0:
 			text += " Something tears inside (-%d health)." % damage
 	return {"ok": true, "spent": amount, "overdraw": overdraw, "depth": depth, "exhaustion": exhaustion,

@@ -3,7 +3,7 @@ extends CharacterBody3D
 ## Humanoid monster (goblins, orcs, the odd troll) living in a camp. Wanders its
 ## camp, turns on intruders who come close, and yields (kneels) when beaten
 ## instead of dying, unless finished off. A yielded monster can be named
-## (Tensura-style) through Life.name_monster: it evolves into its greater form,
+## through Life.name_monster: it evolves into its greater form,
 ## takes a class and follows the player as a subordinate that fights the
 ## player's enemies.
 ## Uses close-range collision with the player and world; distant monsters keep
@@ -62,7 +62,7 @@ const SPECIES := {
 ## "brief" wards may sit inside strong coverage this long before the ward
 ## logic below sends them home regardless of what they were doing.
 const WARD_BRIEF_LINGER := 22.0
-const NAMES := ["Gobta", "Rigur", "Kurra", "Snag", "Brek", "Mossa", "Tuk", "Hesk", "Grom", "Varka",
+const NAMES := ["Gorrow", "Rigur", "Kurra", "Snag", "Brek", "Mossa", "Tuk", "Hesk", "Grom", "Varka",
 	"Orrin", "Dazh", "Ruuk", "Pell", "Zagra", "Hollo", "Krith", "Ushna", "Bram", "Tessik"]
 enum State { WANDER, ALERT, ATTACK, YIELD, FOLLOW }
 

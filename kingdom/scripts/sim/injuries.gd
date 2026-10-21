@@ -31,7 +31,7 @@ const TYPES := {
 		"recovery_days": 3, "treat_cost": 3, "treat_hours": 1},
 	"deep_cut": {"name": "Deep Cut", "severity": 1, "effects": {"max_health": -0.1},
 		"recovery_days": 4, "treat_cost": 5, "treat_hours": 2},
-	"magicule_burn": {"name": "Magicule Burn", "severity": 1, "effects": {"magicule_regen": -0.3},
+	"magicule_burn": {"name": "Ember Burn", "severity": 1, "effects": {"magicule_regen": -0.3},
 		"recovery_days": 2, "treat_cost": 6, "treat_hours": 2},
 	"wolf_bite": {"name": "Festering Wolf Bite", "severity": 2, "effects": {"stamina": -0.2, "max_health": -0.1},
 		"recovery_days": 6, "treat_cost": 12, "treat_hours": 4},

@@ -1,0 +1,10 @@
+{
+	"_doc": "MN owner open questions (docs/design/MONSTER_NAMING_AND_STATUS.md section 13). Conservative defaults until the owner decides. Code must read these flags, never hard-code the answer.",
+	"undead_naming_forbidden": true,
+	"undead_sealed_servants_only": true,
+	"intermarriage": "story_only",
+	"monsters_can_vote": false,
+	"dragonkin_mode": "late_lizardfolk_form",
+	"dragonkin_recruitable": false,
+	"free_dragons": false
+}

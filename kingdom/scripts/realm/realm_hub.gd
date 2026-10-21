@@ -68,10 +68,12 @@ const MODULES := {
 	"secrets": preload("res://scripts/realm/secrets.gd"),       # NI-8: packed per-character secrets (affairs, debts, crimes, hidden agendas), discovery, leverage (secrets_of)
 	"districts": preload("res://scripts/realm/district_values.gd"),  # MW-10/11: hidden per-quarter values, winners and losers
 	"aura_fallout": preload("res://scripts/realm/aura_fallout.gd"),   # AR-6/7/8/11: dread/awe axes, recognition, escalation ladder 0..5, options, legends
+	"monster_bonds": preload("res://scripts/realm/monster_bonds.gd"),     # MN-1..5: naming bond tracks, tribes, monster followers
+	"monster_society": preload("res://scripts/realm/monster_society.gd"), # MN-6..11: fame/infamy, gates, prejudice, settlement reactions
 	"founding": preload("res://scripts/realm/founding.gd"),     # LW Stage 5: site evaluation, legal land, illegal-build escalation, founding stages, scale classes, hidden valley, NPC founders
 }
 ## Order matters within a tier: land before factions before campaign.
-const ORDER := ["registry", "events", "settlements", "land", "camps", "civilization", "migration", "followers", "recruitment", "will", "factions", "strongholds", "campaign", "city_life", "society", "governance", "notables", "news", "exploration", "power_paths", "education", "cultivation", "household", "callups", "work", "scribe", "soldier", "trades", "enterprise", "construction", "towers", "ecology", "farming", "organizations", "businesses", "ledger", "build_kit", "founding", "stewardship", "reputation", "audiences", "territory", "diplomacy", "courts", "succession", "armies", "war_intel", "emergence", "faith", "dynasties", "homes", "persona", "minds", "rumours", "psyche", "bonds", "secrets", "districts", "aura_fallout"]
+const ORDER := ["registry", "events", "settlements", "land", "camps", "civilization", "migration", "followers", "recruitment", "will", "factions", "strongholds", "campaign", "city_life", "society", "governance", "notables", "news", "exploration", "power_paths", "education", "cultivation", "household", "callups", "work", "scribe", "soldier", "trades", "enterprise", "construction", "towers", "ecology", "farming", "organizations", "businesses", "ledger", "build_kit", "founding", "stewardship", "reputation", "audiences", "territory", "diplomacy", "courts", "succession", "armies", "war_intel", "emergence", "faith", "dynasties", "homes", "persona", "minds", "rumours", "psyche", "bonds", "secrets", "districts", "aura_fallout", "monster_bonds", "monster_society"]
 ## Max microseconds of realm work per frame (mobile: ~0.6 ms of a 16.6 ms frame).
 const PUMP_BUDGET_USEC := 600
 

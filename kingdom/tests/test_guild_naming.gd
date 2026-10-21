@@ -349,7 +349,7 @@ func _risky(seed_value: int) -> Dictionary:
 	var m := RAMagicules.new(100.0, 2.0, seed_value)
 	m.current = 30.0
 	var inj := RAInjuries.new()
-	var r := n.name_monster(m, inj, 3, "wolf", 5, "Ranga", "scout", 10)
+	var r := n.name_monster(m, inj, 3, "wolf", 5, "Ashfang", "scout", 10)
 	return {"r": r, "naming": n, "injuries": inj, "magicules": m}
 
 
@@ -417,7 +417,7 @@ func test_naming_roundtrip() -> void:
 	var d := RANaming.new()
 	d.deserialize(JSON.parse_string(JSON.stringify(n.serialize())))
 	assert_int(d.roster.size()).is_equal(1)
-	assert_str(d.roster[0]["name"]).is_equal("Ranga")
+	assert_str(d.roster[0]["name"]).is_equal("Ashfang")
 	assert_int(typeof(d.roster[0]["level"])).is_equal(TYPE_INT)
 	assert_int(d.level_penalty(10)).is_equal(n.level_penalty(10))
 	# RNG state carried over: both roll identically from here.

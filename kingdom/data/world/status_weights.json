@@ -1,0 +1,11 @@
+{
+	"_doc": "MN-6 Status weights. base = title*w + wealth*w + trust_mix*w + faith*w + guild*w + fame*w - infamy*w ; status = clamp(base + company). Bands are upper bounds.",
+	"weights": {"title": 0.20, "wealth": 0.15, "trust": 0.25, "faith": 0.15, "guild": 0.10, "fame": 0.10, "infamy": 0.20},
+	"company_clamp": 0.25,
+	"company_scale": 0.06,
+	"bands": [["outcast", 0.15], ["low", 0.35], ["common", 0.55], ["respected", 0.75], ["noble", 0.90], ["exalted", 1.01]],
+	"monster_town_unnamed_penalty": 0.10,
+	"church_seal_flip": 1,
+	"named_monster_faith_penalty": 0.2,
+	"named_monster_faith_penalty_max": 0.6
+}

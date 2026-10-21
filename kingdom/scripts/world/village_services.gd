@@ -694,7 +694,7 @@ func pack_menu() -> Dictionary:
 		inj.append(Life.injuries.label(i))
 	if not inj.is_empty():
 		lines.append("Injuries: " + ", ".join(inj))
-	lines.append("Magicules %d / %d" % [int(Life.magicules.current), int(Life.magicules.effective_max())])
+	lines.append("Soul reserve %d / %d" % [int(Life.magicules.current), int(Life.magicules.effective_max())])
 	var jl: PackedStringArray = radiant().journal_lines()
 	if not jl.is_empty():
 		lines.append("Quests:\n  " + "\n  ".join(jl))
@@ -826,7 +826,7 @@ func naming_menu(m: CampMonster) -> Dictionary:
 	var given: String = m.get_meta("given")
 	var risk := float(pv["risk"])
 	var body := "A %s (level %d) kneels before you. Name it, and it becomes a %s bound to you.\n" % [m.species, m.level, pv["form"]]
-	body += "Cost %d magicules (you have %d / %d)  ·  risk %d%%" % [pv["cost"], int(Life.magicules.current),
+	body += "Cost %d embers (you have %d / %d)  ·  risk %d%%" % [pv["cost"], int(Life.magicules.current),
 		int(Life.magicules.effective_max()), int(risk * 100)]
 	if risk > 0.3:
 		body += "\nNaming beyond your strength can cost levels or crack your soul-core; only a healer mends that."
