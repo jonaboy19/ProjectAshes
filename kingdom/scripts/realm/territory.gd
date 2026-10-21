@@ -280,6 +280,21 @@ func confirm_pos(p: Vector2, who: String, doc: String, cells: int) -> void:
 
 # ------------------------------------------------------------------ ticks
 
+## Stage 7 (armies.gd): armed men over the legal limit make the ground around a settlement uneasy. Derived state: armies.gd re-pushes it after a load.
+var _susp: Dictionary = {}      # sid -> 0..1
+
+
+func note_suspicion(sid: int, value: float) -> void:
+	if value <= 0.0:
+		_susp.erase(sid)
+	else:
+		_susp[sid] = clampf(value, 0.0, 1.0)
+
+
+func suspicion_at(sid: int) -> float:
+	return float(_susp.get(sid, 0.0))
+
+
 func tick_week(_week: int, _ctx: Dictionary) -> Array:
 	_day = maxi(_day, PD.today())
 	var ld: Variant = _mod("land")
@@ -321,6 +336,7 @@ func deserialize(d: Dictionary) -> void:
 	_grown = (d.get("grown", {}) as Dictionary).duplicate()
 	for k: String in _grown:
 		_grown[k] = int(_grown[k])
+	_susp = {}
 	_day = int(d.get("day", 0))
 	var st: Dictionary = d.get("stats", {})
 	for k: String in stats:

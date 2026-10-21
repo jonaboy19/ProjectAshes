@@ -38,6 +38,7 @@ var _mem: Array = []            # [victim, actor, type, day]  broken agreements 
 var _owed: Dictionary = {}      # agreement id -> weeks of unpaid tribute
 var _react: Dictionary = {}     # "kingdom|faction" -> {r, since}
 var _hostile: Dictionary = {}   # "faction|kingdom" -> [count, last_day]
+var _susp: Dictionary = {}      # faction -> suspicion from armed men over the legal limit (armies.gd), 0..1
 var _next := 1
 var _day := 0
 var stats := {"signed": 0, "refused": 0, "breaches": 0, "defaults": 0, "reactions": 0}
@@ -281,6 +282,18 @@ func set_profile(faction: String, vis: float, conduct: float) -> void:
 	_react["profile|" + faction] = {"v": clampf(vis, 0.0, 1.0), "c": clampf(conduct, -1.0, 1.0)}
 
 
+## Armies over their legal size make a faction visible and distrusted (armies.gd calls this; it decays in armies.tick_week).
+func note_force_suspicion(faction: String, value: float) -> void:
+	if value <= 0.0:
+		_susp.erase(faction)
+	else:
+		_susp[faction] = clampf(value, 0.0, 1.0)
+
+
+func force_suspicion(faction: String) -> float:
+	return float(_susp.get(faction, 0.0))
+
+
 func visibility_of(faction: String) -> float:
 	var prof: Dictionary = _react.get("profile|" + faction, {})
 	if not prof.is_empty():
@@ -295,6 +308,7 @@ func visibility_of(faction: String) -> float:
 	var tr: Variant = _mod("territory")
 	if tr != null:
 		v = clampf(v * 0.7 + float(tr.claimed_cells(faction)) / 30.0, 0.0, 1.0)
+	v = clampf(v + force_suspicion(faction) * 0.5, 0.0, 1.0)
 	if faction == "player":
 		var soc: Variant = _mod("society")
 		if soc != null:
@@ -313,6 +327,7 @@ func conduct_of(faction: String, kingdom: String) -> float:
 		if not v.is_empty():
 			c += (float(v["legitimacy"]) + float(v["trust"]) + float(v["reliability"])) / 300.0 * 0.9
 	c -= float(breaches_by(faction, kingdom)) * 0.25
+	c -= force_suspicion(faction) * 0.5
 	var hk: Array = _hostile.get("%s|%s" % [faction, kingdom], [0, 0])
 	if _now() - int(hk[1]) < 180:
 		c -= 0.2 * float(mini(int(hk[0]), 3))
@@ -467,6 +482,7 @@ func deserialize(d: Dictionary) -> void:
 	for k: String in _react:
 		if (_react[k] as Dictionary).has("since"):
 			_react[k]["since"] = int(_react[k]["since"])
+	_susp = {}
 	_hostile = (d.get("hostile", {}) as Dictionary).duplicate(true)
 	for k: String in _hostile:
 		_hostile[k] = [int(_hostile[k][0]), int(_hostile[k][1])]

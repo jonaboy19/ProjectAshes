@@ -1139,10 +1139,30 @@ func appoint_steward(pid: String, fid: String) -> Dictionary:
 
 func _labour_units(P: Dictionary) -> float:
 	var op := operator(P)
+	var lv := 1.0 - levy_fraction(int(P["sid"]))
 	if _f.has(op):
-		return NPC_LABOUR + float(P["hands"]) * HAND_LABOUR
+		return (NPC_LABOUR + float(P["hands"]) * HAND_LABOUR) * lv
 	var n := workers_of(String(P["id"])).size()
-	return float(n) * HAND_LABOUR
+	return float(n) * HAND_LABOUR * lv
+
+
+## Stage 7 (armies.gd): the share of a village's hands called up as levy. Less labour means fewer tasks done in the harvest weeks.
+var _levy: Dictionary = {}     # sid -> fraction 0..0.8 (derived from armies.gd; re-pushed after a load)
+
+
+func set_levy(sid: int, fraction: float) -> void:
+	if fraction <= 0.0:
+		_levy.erase(sid)
+	else:
+		_levy[sid] = clampf(fraction, 0.0, 0.8)
+
+
+func levy_fraction(sid: int) -> float:
+	return float(_levy.get(sid, 0.0))
+
+
+func clear_levy() -> void:
+	_levy.clear()
 
 
 # ------------------------------------------------------------------ livestock

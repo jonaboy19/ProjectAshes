@@ -323,6 +323,24 @@ func couriers() -> Array:
 	return _couriers.duplicate(true)
 
 
+## Stage 7 (armies.gd): an order whose courier ride was already paid for by the Army entity takes effect now.
+func apply_order_now(army_id: int, order: Dictionary) -> bool:
+	var a := _army(army_id)
+	if a.is_empty():
+		return false
+	_execute(a, order)
+	return true
+
+
+## Stage 7: the few facts armies.gd needs to keep an Army entity in step with its campaign piece. {} when the piece is gone.
+func army_info(army_id: int) -> Dictionary:
+	var a := _army(army_id)
+	if a.is_empty():
+		return {}
+	var p := army_pos(a)
+	return {"strength": int(a["strength"]), "morale": float(a["morale"]), "pos": [p.x, p.y], "node": int(a["node"]), "faction": String(a["faction"])}
+
+
 func _courier_step(ctx: Dictionary, out: Array) -> void:
 	var keep: Array = []
 	for c: Dictionary in _couriers:
@@ -921,6 +939,18 @@ func pending_live_battle() -> Dictionary:
 	return _pending_live.duplicate(true)
 
 
+## Stage 7: training, equipment, officers, wages and rations of the Army entity bound to this piece (1.0 when none).
+func _army_mult(id: int) -> float:
+	var am: Variant = hub.mod("armies") if hub != null else null
+	return float(am.power_mult(id)) if am != null else 1.0
+
+
+func _army_hook(att: Array, deff: Array, outcome: String, where: String, weight: int) -> void:
+	var am: Variant = hub.mod("armies") if hub != null else null
+	if am != null:
+		am.on_battle(att, deff, outcome, where, weight)
+
+
 func _side_power(ids: Array, defending: bool, node: int) -> float:
 	var total := 0.0
 	for id: int in ids:
@@ -937,7 +967,7 @@ func _side_power(ids: Array, defending: bool, node: int) -> float:
 		var ambush := 0.75 if int(a["ambush_until"]) > _hours else 1.0
 		var misled := 0.85 if int(a["misled_until"]) > _hours else 1.0
 		var lead := 1.0 + 0.06 * float(a["commander"]["skill"])
-		total += float(a["strength"]) * (0.5 + float(a["morale"])) * supply_f * terr * float(f["def"] if defending else f["atk"]) * ambush * misled * lead
+		total += float(a["strength"]) * (0.5 + float(a["morale"])) * supply_f * terr * float(f["def"] if defending else f["atk"]) * ambush * misled * lead * _army_mult(id)
 	return total
 
 
@@ -1048,12 +1078,17 @@ func _resolve(node: int, att: Array, deff: Array, live: bool, forced: Dictionary
 		"winner": fname, "winner_faction": winner_faction, "live": live, "casualties": losses, "retreat": retreat}
 	_next_id += 1
 	_battles.append(rec)
-	var bact: Array = []
-	if not att.is_empty():
-		bact.append("ar:%d" % int(att[0]))
-	if not deff.is_empty():
-		bact.append("ar:%d" % int(deff[0]))
-	Events.log_to(hub, "battle", "", bact, "live" if live else "field", "%s: %s win (lost %d vs %d)" % [_nname(node), fname, int(losses["player"]), int(losses["enemy"])], 6 if (_side_has_player(att) or _side_has_player(deff)) else 4)
+	var wt := 6 if (_side_has_player(att) or _side_has_player(deff)) else 4
+	var bound := false
+	var am: Variant = hub.mod("armies") if hub != null else null
+	if am != null:
+		for cid: int in att + deff:
+			bound = bound or am.pid_of_campaign(cid) != ""
+	var res_line := "%s win (lost %d vs %d)" % [fname, int(losses["player"]), int(losses["enemy"])]
+	if bound:
+		_army_hook(att, deff, res_line, _nname(node), wt)
+	else:
+		Events.log_to(hub, "battle", "", [], "live" if live else "field", "%s: %s" % [_nname(node), res_line], wt)
 	if _battles.size() > BATTLES_MAX:
 		_battles.pop_front()
 	var player_won := winner_faction == PLAYER
@@ -3105,6 +3140,8 @@ func _end_engagement(e: Dictionary, winner: String, why: String, out: Array) -> 
 	for aid: int in seen:
 		_prune(_army(aid))
 	_armies = _armies.filter(func(x: Dictionary) -> bool: return int(x["strength"]) > 0)
+	if not seen.is_empty():
+		_army_hook(seen.keys(), [], "%s (%s)" % [why, "decisive" if winner != "" else "stalemate"], String(e["name"]), 5)
 	# record for the strategic battle list
 	var wf := ""
 	if winner != "":
