@@ -625,13 +625,46 @@ func catch_up(days: int, _ctx: Dictionary) -> Array:
 # --------------------------------------------------------------- save
 
 func serialize() -> Dictionary:
-	return {"f": _f.duplicate(true), "next": _next_f, "summons": _summons.duplicate(true),
+	return {"f": _compact_all(), "next": _next_f, "summons": _summons.duplicate(true),
 		"arrived": _arrived.duplicate(true), "decisions": _decisions.duplicate(true),
 		"disputes": _disputes.duplicate(true), "creatures": _creatures.duplicate(true), "day": _day}
 
 
+## Save size: the axes are derived from the traits and empty/default fields are implied, so a follower
+## costs ~330 B instead of ~600 B in the save (50 followers: 16 KB).
+const _DEFAULTS := {"opinions": {}, "relations": {}, "flags": {}, "post": "", "until_hours": 0, "unhappy_days": 0}
+
+
+func _compact_all() -> Dictionary:
+	var out := {}
+	for id in _f:
+		var c: Dictionary = (_f[id] as Dictionary).duplicate(true)
+		c.erase("values")
+		for k in _DEFAULTS:
+			if c.get(k) == _DEFAULTS[k]:
+				c.erase(k)
+		out[id] = c
+	return out
+
+
+func _expand(f: Dictionary) -> void:
+	for k in _DEFAULTS:
+		if not f.has(k):
+			f[k] = (_DEFAULTS[k] as Variant).duplicate() if _DEFAULTS[k] is Dictionary else _DEFAULTS[k]
+	if not f.has("values"):
+		var values := {}
+		for a in AXES:
+			values[a] = 0.0
+		for t in f.get("traits", []):
+			for a in TRAIT_VALUES.get(t, {}):
+				values[a] = clampf(values[a] + TRAIT_VALUES[t][a], -1.0, 1.0)
+		f["values"] = values
+
+
 func deserialize(d: Dictionary) -> void:
 	_f = (d.get("f", {}) as Dictionary).duplicate(true)
+	for id in _f:
+		_expand(_f[id])
 	_next_f = int(d.get("next", 1))
 	_summons = (d.get("summons", []) as Array).duplicate(true)
 	_arrived = (d.get("arrived", []) as Array).duplicate(true)

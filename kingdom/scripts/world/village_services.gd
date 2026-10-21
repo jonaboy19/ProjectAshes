@@ -41,6 +41,7 @@ const Theft := preload("res://scripts/sim/theft.gd")
 const TownRoster := preload("res://scripts/world/town_kit/town_roster.gd")
 const TownTalk := preload("res://scripts/world/town_kit/town_talk.gd")
 const WardwrightUI := preload("res://scripts/ui/wardwright_ui.gd")
+const RecruitmentUI := preload("res://scripts/ui/recruitment_ui.gd")   # Living World §2: "Offer work" and the hiring board
 ## NPC marker role -> ShopHours kind (the service shuts outside these hours; the inn never does).
 const ROLE_HOURS := {"blacksmith": "blacksmith", "healer": "healer", "receptionist": "guild"}
 const SOCIAL_TICK := 0.5
@@ -425,6 +426,9 @@ func inn_menu() -> Dictionary:
 	var server := Life.careers.seat("inn", "Server")
 	if not Life.careers.is_employed() and Life.careers.open_count(server) > 0:
 		opts.append(["Ask for work as a Server (%dg/day)" % server["wage"], _apply.bind("inn", "Server")])
+	opts.append(["Hiring board  (post a vacancy, read applicants)", func() -> String:
+		hud.show_menu(RecruitmentUI.board_menu.bind(0, "inn", hud, 0.0, clampf(30.0 + Game.merit * 0.5, 0.0, 100.0)))
+		return ""])
 	opts.append(ShopScreen.menu_option(hud, "tavern", Life.market, 1, "Order from the kitchen", "Tavern"))
 	opts.append(CraftingScreen.menu_option(hud, ["hearth"], "Cook at the hearth", "Inn Hearth"))
 	opts.append(_talk_option("innkeeper"))
@@ -1440,6 +1444,7 @@ func _talk_page_inner() -> Dictionary:
 	preload("res://scripts/quests/quest_talk.gd").add_options(opts, info, hud)   # library quests (F7)
 	TownTalk.add_options(opts, info)      # F8: hand over goods (Deliver) to the miller and friends
 	WardwrightUI.add_options(opts, info)  # Region 1: the Runeward Legion's recruiter enlists Wardwrights
+	RecruitmentUI.add_options(opts, info, hud, _back_to_talk.bind(info), float(rel.opinion(info["id"], now)), clampf(30.0 + Game.merit * 0.5, 0.0, 100.0))   # Living World §2: offer work
 	if Life.soul.tier() >= RANaming.MIN_SOUL_TIER and String(info.get("id", "")) != "" \
 			and rel.opinion(info["id"], now) >= RANaming.PERSON_TRUST_MIN \
 			and Life.naming.soul_bonds.size() < RANaming.bond_limit(Life.soul.tier()):

@@ -11,6 +11,7 @@ extends RefCounted
 
 const MODULES := {
 	"followers": preload("res://scripts/realm/followers.gd"),
+	"recruitment": preload("res://scripts/realm/recruitment.gd"),   # Living World §2: contracts, notices, chains, managers
 	"camps": preload("res://scripts/realm/camps.gd"),
 	"civilization": preload("res://scripts/realm/civilization.gd"),
 	"migration": preload("res://scripts/realm/migration.gd"),
@@ -41,7 +42,7 @@ const MODULES := {
 	"build_kit": preload("res://scripts/realm/build_kit.gd"),   # Build-kit hook: modular piece building (docs/regions/HOOKS_FOR_CLOUD.md)
 }
 ## Order matters within a tier: land before factions before campaign.
-const ORDER := ["settlements", "land", "camps", "civilization", "migration", "followers", "factions", "strongholds", "campaign", "city_life", "society", "governance", "notables", "news", "exploration", "power_paths", "education", "cultivation", "household", "callups", "work", "scribe", "soldier", "trades", "enterprise", "construction", "towers", "ecology", "build_kit"]
+const ORDER := ["settlements", "land", "camps", "civilization", "migration", "followers", "recruitment", "factions", "strongholds", "campaign", "city_life", "society", "governance", "notables", "news", "exploration", "power_paths", "education", "cultivation", "household", "callups", "work", "scribe", "soldier", "trades", "enterprise", "construction", "towers", "ecology", "build_kit"]
 ## Max microseconds of realm work per frame (mobile: ~0.6 ms of a 16.6 ms frame).
 const PUMP_BUDGET_USEC := 600
 
