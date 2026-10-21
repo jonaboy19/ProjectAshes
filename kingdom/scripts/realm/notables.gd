@@ -12,6 +12,7 @@ extends "res://scripts/realm/realm_module.gd"
 ## Other modules read news_events() (cursor on "seq"); notables feed fame and nicknames to news.gd.
 
 const Soc := preload("res://scripts/realm/society.gd")
+const Events := preload("res://scripts/realm/events.gd")
 const SAVE_VERSION := 1
 const YEAR := 360
 const TARGET := 60
@@ -526,6 +527,7 @@ func _die(nid: String, why: String, msgs: Array) -> void:
 	if (n["feats"] as Array).size() > 0:
 		line += " " + "; ".join(n["feats"]) + "."
 	_hist_add(line)
+	Events.log_to(hub, "death", "ss:%d" % int(n["sid"]), ["nt:" + nid], why.substr(0, 28), "%s %s" % [n["n"], why], 4 if float(n["renown"]) >= 25.0 else 2)
 	var notable_leader := float(n["renown"]) >= 25.0 or String(n["org"]) != ""
 	if notable_leader:
 		_emit("notable_gone", int(n["sid"]), "%s has %s." % [n["n"], why], 1.0, line, false)
@@ -549,6 +551,7 @@ func _die(nid: String, why: String, msgs: Array) -> void:
 		fam["head"] = heir
 		var biz: Dictionary = fam["biz"]
 		_emit("inherit", int(biz["sid"]), "%s takes over the %s." % [hn["n"], biz["name"]], 0.8, "", false)
+		Events.log_to(hub, "succession", "ss:%d" % int(biz["sid"]), ["nt:" + nid, "nt:" + heir], "head_died", "%s takes over the %s" % [hn["n"], biz["name"]], 4)
 	if oid != "" and _orgs.has(oid):
 		var o: Dictionary = _orgs[oid]
 		if String(o["kind"]) in ["company", "band", "settlement"]:

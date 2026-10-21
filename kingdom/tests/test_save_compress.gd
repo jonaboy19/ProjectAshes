@@ -77,7 +77,7 @@ func test_a_small_save_stays_plain_json() -> void:
 	var text := _file_text(id)
 	assert_bool(text.contains('"enc"')).is_false()
 	var parsed: Variant = JSON.parse_string(text)
-	assert_int(int(parsed["schema"])).is_equal(3)
+	assert_int(int(parsed["schema"])).is_equal(SaveManager.SCHEMA_VERSION)
 	assert_int(int((parsed["data"] as Dictionary)["world"]["day"])).is_equal(1)
 
 

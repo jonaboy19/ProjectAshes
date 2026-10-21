@@ -15,6 +15,7 @@ extends "res://scripts/realm/realm_module.gd"
 ## Cross-module (guarded): city_life.note_activity / on_fact, factions.on_marriage,
 ## life.relationships.reputation (mirrored read-only into "faction:<id>").
 
+const Events := preload("res://scripts/realm/events.gd")
 const NPC_COUNT := 200
 const TIER_NAMES := ["commoner", "trained", "veteran", "elite", "master", "grandmaster", "champion", "legend"]
 const REP_TIERS := [[-60.0, "Reviled"], [-30.0, "Distrusted"], [-10.0, "Suspect"], [10.0, "Unknown"], [30.0, "Known"],
@@ -783,6 +784,7 @@ func propose(npc_id: String) -> Dictionary:
 	marriage = {"spouse": npc_id, "day": _day, "happiness": 75.0, "problems": [], "status": "married", "children": 0,
 		"last_together": _day, "home": "", "jealous_events": 0, "career_continues": true}
 	c["stage"] = "married"
+	Events.log_to(hub, "marriage", "ss:%d" % int(n.get("sid", 0)), ["pl:player", "sn:" + npc_id], "wedding", "%s weds the player" % n.get("name", "someone"), 5)
 	# Family: in-laws warm to you, family enemies become yours.
 	for m: String in family_of(npc_id):
 		var rr: Dictionary = npcs[m]["rel"]
@@ -1033,6 +1035,7 @@ func commit_crime(kind: String, sid: int, witnesses_near: Variant = 0, opts: Dic
 		if investigations.size() > 40:
 			investigations.pop_front()
 		add_rumour("crime", sid, float(maxi(1, noticed)), "player" if identified > 0 else "unknown", -1.0, kind)
+	Events.log_to(hub, "crime", "ss:%d" % sid, ["pl:player"], kind, "%s (%d noticed, %d reported)" % [kind, noticed, reported], 5 if kind == "murder" else 2)
 	var city := _city()
 	if city != null and city.has_method("note_activity"):
 		city.note_activity("crime_" + kind, sid, 1.0)

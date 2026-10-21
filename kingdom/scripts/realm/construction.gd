@@ -10,6 +10,7 @@ extends "res://scripts/realm/realm_module.gd"
 ## crew_output() so both crews share one labour model. Pure data, JSON-safe save.
 
 const D := preload("res://scripts/realm/construction_data.gd")
+const Events := preload("res://scripts/realm/events.gd")
 const Nav := preload("res://scripts/realm/construction_nav.gd")
 const SettlementsScript := preload("res://scripts/realm/settlements.gd")
 
@@ -1179,6 +1180,7 @@ func _complete(s: Dictionary) -> Array:
 	s["state"] = "done"
 	s["progress"] = float(s["total"])
 	s["done_day"] = _day
+	Events.log_to(hub, "build", "hd:%d" % int(s["holding"]), ["cn:%d" % int(s["id"])], "construction", "%s finished: %s" % [_hname(int(s["holding"])), d["name"]], 3)
 	for wid: String in (s["workers"] as Array).duplicate():
 		unassign(wid)
 	s["workers"] = []

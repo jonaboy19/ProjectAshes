@@ -13,6 +13,7 @@ extends "res://scripts/realm/realm_module.gd"
 ## change_relation) and "strongholds" (nearest, begin_siege).
 
 const WarUnits := preload("res://scripts/realm/war_units.gd")
+const Events := preload("res://scripts/realm/events.gd")
 const Tactical := preload("res://scripts/realm/tactical.gd")
 const Siege := preload("res://scripts/realm/siege.gd")
 const WarAdvisors := preload("res://scripts/realm/war_advisors.gd")
@@ -1047,6 +1048,12 @@ func _resolve(node: int, att: Array, deff: Array, live: bool, forced: Dictionary
 		"winner": fname, "winner_faction": winner_faction, "live": live, "casualties": losses, "retreat": retreat}
 	_next_id += 1
 	_battles.append(rec)
+	var bact: Array = []
+	if not att.is_empty():
+		bact.append("ar:%d" % int(att[0]))
+	if not deff.is_empty():
+		bact.append("ar:%d" % int(deff[0]))
+	Events.log_to(hub, "battle", "", bact, "live" if live else "field", "%s: %s win (lost %d vs %d)" % [_nname(node), fname, int(losses["player"]), int(losses["enemy"])], 6 if (_side_has_player(att) or _side_has_player(deff)) else 4)
 	if _battles.size() > BATTLES_MAX:
 		_battles.pop_front()
 	var player_won := winner_faction == PLAYER

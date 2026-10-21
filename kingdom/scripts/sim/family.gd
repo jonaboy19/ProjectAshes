@@ -283,6 +283,7 @@ func marry(npc_id: String) -> String:
 	courtships.erase(npc_id)
 	Life.life_path.set_flag("married")
 	Life.biography.add_highlight("Married %s" % String(spouse["name"]), WorldSim.day)
+	preload("res://scripts/realm/events.gd").emit("marriage", "", ["pl:player", "sn:" + npc_id], "wedding", "The player marries %s" % String(spouse["name"]), 5)
 	return "You marry %s." % String(spouse["name"])
 
 
@@ -565,6 +566,7 @@ func succeed_to(heir_id: Variant) -> Dictionary:
 	# Region1 hook (docs/regions/REGION_1_PLAN.md) H7: file the ember of the outgoing life
 	R1EmberLegacy.emit_life_ended(Life.biography, Life.echoes, old_name, old_age, family_name, WorldSim.day,
 		{"place": String(WorldGen.settlements[home_settlement]["name"]) if home_settlement >= 0 and home_settlement < WorldGen.settlements.size() else "", "mastery": Life.mastery.xp, "tendencies": Life.tendencies.values})
+	preload("res://scripts/realm/events.gd").emit("succession", "", ["pl:player"], "heir", "%s passes the line to an heir" % old_name, 7)
 	# Archive the outgoing life before anything else changes.
 	chronicles.append({"name": old_name, "family_name": family_name,
 		"summary": Life.biography.summary(WorldSim.day), "day": WorldSim.day})

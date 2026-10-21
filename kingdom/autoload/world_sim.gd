@@ -177,6 +177,7 @@ func kill_person(i: int, at := Vector2.INF) -> int:
 		money[heir] += money[i]
 		money[i] = 0
 	_mark_dead(i)
+	preload("res://scripts/realm/events.gd").emit("death", "", ["ws:%d" % i], "killed", "%s was killed" % person_name(i), 3)
 	TownRoster.on_died(i)       # F8: the quest bus hears `died {actor}`
 	if at != Vector2.INF:
 		pos[i] = at

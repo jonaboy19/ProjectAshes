@@ -7,11 +7,11 @@ extends Node
 ## only then is the temp file renamed into place. A crash at any point leaves
 ## either the old save, the backup, or the new save intact, never half a file.
 ##
-## File envelope (schema 3; schema 2 files are the same without `enc`, schema 1 was the bare snapshot):
-##   {"schema": 3, "meta": {...}, "checksum": "<md5 of the data text>", "data": {...}}
+## File envelope (schema 4 = schema 3 plus the realm registry/events blocks; schema 2 files are the same without `enc`, schema 1 was the bare snapshot):
+##   {"schema": 4, "meta": {...}, "checksum": "<md5 of the data text>", "data": {...}}
 ## A save whose data text is COMPRESS_MIN bytes or more is stored compressed (CPU/memory/save pass 2026-10-06: a 2-year save
 ## is about 1.6 MB of JSON and 0.2 MB as zstd): the data text is zstd-compressed and base64-coded into a string,
-##   {"schema": 3, "meta": {...}, "checksum": "<md5 of that base64 text>", "enc": "zstd", "raw": <bytes of the data text>,
+##   {"schema": 4, "meta": {...}, "checksum": "<md5 of that base64 text>", "enc": "zstd", "raw": <bytes of the data text>,
 ##    "data": "<base64>"}
 ## Small saves (and every test fixture) stay plain JSON. Both read back through `_read_valid`.
 ## `meta` (character name, age, title, day, time, location, playtime, game
@@ -46,7 +46,7 @@ signal loaded(slot_id: String, ok: bool)
 signal problem(text: String)
 
 const Probe := preload("res://scripts/core/perf_probe.gd")
-const SCHEMA_VERSION := 3
+const SCHEMA_VERSION := 4
 ## Data texts at least this long are stored compressed (see the envelope notes above).
 const COMPRESS_MIN := 65536
 const MANUAL_SLOTS := 3
@@ -80,6 +80,7 @@ const SETTLEMENT_EXIT_FACTOR := 1.25
 const MIGRATIONS := {
 	1: "_migrate_1_to_2",
 	2: "_migrate_2_to_3",
+	3: "_migrate_3_to_4",
 }
 
 var root_dir := "user://saves/"
@@ -708,6 +709,26 @@ func _migrate_2_to_3(env: Dictionary) -> Dictionary:
 	var meta: Dictionary = (env.get("meta", {}) as Dictionary).duplicate() if env.get("meta") is Dictionary else {}
 	meta["schema"] = 3
 	return {"schema": 3, "meta": meta, "checksum": env.get("checksum", ""), "data": env.get("data")}
+
+
+## v3 -> v4 (Living World LW-1.1/1.2): adds the empty `realm.registry` and `realm.events` blocks (persistent ids, alias map,
+## EventRecord ring). Every existing block is untouched; a missing block would also load (the hub skips absent modules), the
+## explicit empty blocks just make a migrated save look like a fresh v4 one. The checksum covered the v3 text and is dropped
+## when the data text changes shape, so a re-saved v4 file carries a new one.
+func _migrate_3_to_4(env: Dictionary) -> Dictionary:
+	var data: Variant = env.get("data")
+	if not data is Dictionary:
+		return {}
+	var d: Dictionary = data
+	var realm: Dictionary = d["realm"] if d.get("realm") is Dictionary else {}
+	if not realm.has("registry"):
+		realm["registry"] = {"ids": {}, "alias": {}, "chars": {}, "hist": [], "day": 0}
+	if not realm.has("events"):
+		realm["events"] = {"ring": [], "counts": {}, "tot": {}, "hist": [], "own": 0, "drop": 0}
+	d["realm"] = realm
+	var meta: Dictionary = (env.get("meta", {}) as Dictionary).duplicate() if env.get("meta") is Dictionary else {}
+	meta["schema"] = 4
+	return {"schema": 4, "meta": meta, "data": d}
 
 
 ## base64 + zstd text -> the parsed data dictionary (null, with the reason in `why`, when it is damaged or unknown).

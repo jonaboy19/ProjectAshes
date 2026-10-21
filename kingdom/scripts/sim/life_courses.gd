@@ -608,6 +608,7 @@ func kill(pid: int, day: int, cause: String, ctx: Dictionary = {}, careers: Obje
 	p["cause_of_death"] = cause
 	var phrase: String = String(CAUSE_TEXT.get(cause, cause))
 	_event(p, day, "%s died %s." % [p["name"], phrase])
+	preload("res://scripts/realm/events.gd").emit("death", "", ["lc:%d" % pid], cause, "%s died %s" % [p["name"], phrase], 2)
 	_transfer_business(p, day)
 	if careers == null:
 		careers = Life.get("careers") if Life != null else null

@@ -10,6 +10,8 @@ extends RefCounted
 ## Messages from ticks are returned by pump() for Life to Game.say().
 
 const MODULES := {
+	"registry": preload("res://scripts/realm/registry.gd"),   # LW-1.1: persistent ids + legacy alias map
+	"events": preload("res://scripts/realm/events.gd"),       # LW-1.2: EventRecord ring with summarised archive
 	"followers": preload("res://scripts/realm/followers.gd"),
 	"recruitment": preload("res://scripts/realm/recruitment.gd"),   # Living World §2: contracts, notices, chains, managers
 	"camps": preload("res://scripts/realm/camps.gd"),
@@ -39,10 +41,11 @@ const MODULES := {
 	"construction": preload("res://scripts/realm/construction.gd"),
 	"towers": preload("res://scripts/realm/towers.gd"),
 	"ecology": preload("res://scripts/realm/ecology.gd"),
+	"farming": preload("res://scripts/realm/farming.gd"),     # LW Stage 3: land ladder, fields, livestock, farm economy, NPC farmers
 	"build_kit": preload("res://scripts/realm/build_kit.gd"),   # Build-kit hook: modular piece building (docs/regions/HOOKS_FOR_CLOUD.md)
 }
 ## Order matters within a tier: land before factions before campaign.
-const ORDER := ["settlements", "land", "camps", "civilization", "migration", "followers", "recruitment", "factions", "strongholds", "campaign", "city_life", "society", "governance", "notables", "news", "exploration", "power_paths", "education", "cultivation", "household", "callups", "work", "scribe", "soldier", "trades", "enterprise", "construction", "towers", "ecology", "build_kit"]
+const ORDER := ["registry", "events", "settlements", "land", "camps", "civilization", "migration", "followers", "recruitment", "factions", "strongholds", "campaign", "city_life", "society", "governance", "notables", "news", "exploration", "power_paths", "education", "cultivation", "household", "callups", "work", "scribe", "soldier", "trades", "enterprise", "construction", "towers", "ecology", "farming", "build_kit"]
 ## Max microseconds of realm work per frame (mobile: ~0.6 ms of a 16.6 ms frame).
 const PUMP_BUDGET_USEC := 600
 

@@ -529,6 +529,7 @@ func _resolve_battle() -> String:
 	front_list[idx] = f
 	var text := "Battle at %s: %d Caldrenn dead, %d of %s fall." % [String(f["name"]), caldrenn_losses, enemy_losses, display_name(enemy_id())]
 	_news(text)
+	preload("res://scripts/realm/events.gd").emit("battle", "", [], "front", text, 4)
 	return text
 
 
