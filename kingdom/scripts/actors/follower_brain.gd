@@ -32,6 +32,8 @@ const STRIKE_RANGE := 2.4
 const LOCAL_RANGE := 45.0
 const KEEP_NEAR := 25.0            # an embodied waiter / worker this close to the player always keeps its body
 const LOCAL_KEEP := 1.25           # hysteresis: an embodied one is kept to LOCAL_RANGE * LOCAL_KEEP
+## follower_will.gd actions that keep a follower standing where they are instead of following.
+const WILL_HOLD := ["stay_behind", "refuse_moral", "consider_leaving", "organise_resistance"]
 const FIGHT_DUTIES := ["guard", "escort", "campaign"]
 const FIGHT_OCC := ["knight", "mercenary", "cavalry"]
 ## followers.gd occupation -> PopulationLOD look id (JOB_LOOK / LOOK_MODEL) and SmartObjects job index.
@@ -83,6 +85,9 @@ static func follow_speed(gap: float, player_speed: float, dist: float) -> float:
 ## The mode of one embodied recruit. ctx: dist (to the player), player_inside (an interior is open), jump (the
 ## player's move last frame), fighter, foe (a foe is near the player and inside the leash), was_standing.
 static func decide(order: String, ctx: Dictionary) -> int:
+	# follower_will.gd respond(): someone who asked to stay behind, refused, or is weighing leaving does not march
+	if order == "follow" and String(ctx.get("will", "")) in WILL_HOLD:
+		return Mode.WAIT
 	match order:
 		"wait":
 			return Mode.WAIT

@@ -54,6 +54,7 @@ const MODULES := {
 	"succession": preload("res://scripts/realm/succession.gd"),     # LW Stage 6: claims, regents, local succession rules
 	"armies": preload("res://scripts/realm/armies.gd"),         # LW Stage 7: Army entity (ar:n), force types and legal limits, officers, couriers, fog of war, logistics, settlement defence
 	"ledger": preload("res://scripts/realm/ledger.gd"),               # MW-19/20/21: scheduled wages, taxes, rent, upkeep, loans, contracts; shortage ladder; delegation and audit
+	"will": preload("res://scripts/realm/follower_will.gd"),   # MW-12/13/14: follower motives, roles, order responses, requests, delegation quality, player actions
 	"emergence": preload("res://scripts/realm/emergence.gd"),   # LW Stage 8: emergent event chains with knock-on effects, delivered as news
 	"faith": preload("res://scripts/realm/faith.gd"),           # LW Stage 8: churches as organizations, belief, festivals, culture tags
 	"dynasties": preload("res://scripts/realm/dynasties.gd"),   # LW Stage 8: houses, family reputation, specialties, feuds, estates
@@ -63,7 +64,7 @@ const MODULES := {
 	"founding": preload("res://scripts/realm/founding.gd"),     # LW Stage 5: site evaluation, legal land, illegal-build escalation, founding stages, scale classes, hidden valley, NPC founders
 }
 ## Order matters within a tier: land before factions before campaign.
-const ORDER := ["registry", "events", "settlements", "land", "camps", "civilization", "migration", "followers", "recruitment", "factions", "strongholds", "campaign", "city_life", "society", "governance", "notables", "news", "exploration", "power_paths", "education", "cultivation", "household", "callups", "work", "scribe", "soldier", "trades", "enterprise", "construction", "towers", "ecology", "farming", "organizations", "businesses", "ledger", "build_kit", "founding", "stewardship", "reputation", "audiences", "territory", "diplomacy", "courts", "succession", "armies", "emergence", "faith", "dynasties", "homes", "minds", "rumours"]
+const ORDER := ["registry", "events", "settlements", "land", "camps", "civilization", "migration", "followers", "recruitment", "will", "factions", "strongholds", "campaign", "city_life", "society", "governance", "notables", "news", "exploration", "power_paths", "education", "cultivation", "household", "callups", "work", "scribe", "soldier", "trades", "enterprise", "construction", "towers", "ecology", "farming", "organizations", "businesses", "ledger", "build_kit", "founding", "stewardship", "reputation", "audiences", "territory", "diplomacy", "courts", "succession", "armies", "emergence", "faith", "dynasties", "homes", "minds", "rumours"]
 ## Max microseconds of realm work per frame (mobile: ~0.6 ms of a 16.6 ms frame).
 const PUMP_BUDGET_USEC := 600
 
