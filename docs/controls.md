@@ -35,6 +35,7 @@ No two world actions share a key, and "Reset controls" in Settings re-creates ev
 | Esc | pause menu | pause button / Android back |
 | F5 / F9 | quick save / quick load | pause menu |
 | F3 | performance overlay | - |
+| F6 / F7 / F8 / F10 | Affairs desk: Treasury / Followers (will) / Court / Letters (rebindable: `menu_treasury`, `menu_followers`, `menu_court`, `menu_letters`) | Pack menu, Affairs tab |
 
 C, J, K and L used to be both combat keys and menu-tab keys (and K opened a second, older skills
 screen). Now **J, K, L and C are only ever combat keys**; F2 opens the Skills tab.

@@ -1,6 +1,11 @@
 class_name HUD
 extends CanvasLayer
 const GameMenu := preload("res://scripts/ui/gamemenu/game_menu.gd")
+const TabAffairs := preload("res://scripts/ui/gamemenu/tab_affairs.gd")
+const AffairsHooks := preload("res://scripts/ui/affairs/affairs_hooks.gd")
+const EnvoyDialog := preload("res://scripts/ui/affairs/envoy_dialog.gd")
+const GatePrompt := preload("res://scripts/ui/affairs/gate_prompt.gd")
+const AuraParley := preload("res://scripts/ui/affairs/aura_parley_dialog.gd")
 const Nameplates := preload("res://scripts/core/nameplates.gd")
 const Probe := preload("res://scripts/core/perf_probe.gd")
 ## Full-resolution UI drawn over the low-resolution pixel render, in the user's
@@ -1220,6 +1225,10 @@ func _build_navigation(root: Control) -> void:
 	compass.tapped.connect(toggle_map)
 	_chrome.add_child(compass)
 	banner = DiscoveryBanner.new()
+	var affairs_hooks := AffairsHooks.new()
+	affairs_hooks.name = "AffairsHooks"
+	affairs_hooks.hud = self
+	add_child(affairs_hooks)
 	root.add_child(banner)
 	add_action_button("map", "Map", "world_map", "glyph:map", UITheme.ACTION_TALK.darkened(0.15))
 	# Photo mode, inventory, crafting and the arts live in the Pack menu (the dock stays
@@ -1322,6 +1331,11 @@ func _unhandled_input(event: InputEvent) -> void:
 		GameMenu.toggle(self, "skills")
 		get_viewport().set_input_as_handled()
 		return
+	for pair: Array in AFFAIRS_KEYS:
+		if event.is_action_pressed(String(pair[0])) and not (event is InputEventKey and event.echo):
+			TabAffairs.open_view(self, String(pair[1]))
+			get_viewport().set_input_as_handled()
+			return
 	if event.is_action_pressed("world_map"):
 		toggle_map()
 		get_viewport().set_input_as_handled()
@@ -1345,6 +1359,26 @@ func open_pause() -> void:
 		return
 	close_menu()
 	PauseMenu.open(self, open_photo_mode)
+
+
+## Affairs desk keys: rebindable InputMap action -> sub-view of the Affairs tab (Game.KEYS has the defaults).
+const AFFAIRS_KEYS := [["menu_treasury", "treasury"], ["menu_followers", "followers"], ["menu_court", "court"], ["menu_letters", "letters"]]
+
+
+## An envoy waits for an audience (nine answers). Returns the dialog, or null when nobody waits.
+func show_envoy_dialog() -> Control:
+	return EnvoyDialog.open(self)
+
+
+## An officer comes to parley after an aura release (escalation ladder). Returns the dialog, or null when nothing is on the ladder.
+func show_aura_parley(subject := "player", sid := -1, ctx := {}) -> Control:
+	return AuraParley.open(self, subject, sid if sid >= 0 else AffairsHooks.Base.player_sid(), null, ctx)
+
+
+## The player reached a town gate with `party` ([{species, kind, speech, civility, power, named, bond_id}]) and the town dict
+## ({sid, name, culture, kingdom, corruption}). Returns the prompt, or null when nothing blocks the party.
+func show_gate_prompt(party: Array, town: Dictionary, extra := {}) -> Control:
+	return GatePrompt.open(self, party, town, int(WorldSim.time_of_day), int(WorldSim.day), extra)
 
 
 func toggle_map() -> void:

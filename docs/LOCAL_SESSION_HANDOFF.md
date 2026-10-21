@@ -736,3 +736,12 @@ resolution, draw distances, foliage density, crowd counts or animation quality; 
   `TIME_PHYSICS_PROCESS` are the max of the last second, not a mean.
 - **Still the biggest CPU left** (not touched, gameplay-visible): the 30 Hz physics tick (villager, critter, soldier, player scripts: 3.5 ms per tick, the p95 / p99
   frames) and `PopulationLOD` spawns (3.7-6 ms each). On the S22 these need a visual check of any rate change.
+
+
+## 2026-10-21 Affairs UI panels (cloud session): functional, needs visual polish and screenshots
+
+New PC panels (Treasury F6, Followers/will F7, Court F8, Letters F10, envoy audience, officer parley, town-gate prompt, Standing block on the Character sheet) are built and tested headless (`tests/test_ui_new_panels.gd`) but have **never been looked at on a GPU**. Please, on the PC:
+- Open each (Pack menu > Affairs tab, or the keys) and the three dialogs (`hud.show_envoy_dialog()`, `hud.show_aura_parley("player", sid)` after `aura_fallout.on_incident`, `hud.show_gate_prompt(party, town)`), take screenshots at 1080p and 1440p and judge them against Style G and the `ashes-aaa-camera-hud` rules (contextual, no clutter).
+- Polish only: spacing, type sizes, grouping, icons, colour of warnings, controller focus order, the unread badge on the Affairs tab. Do not move logic into the UI; the modules own every rule (`docs/PROJECT_BIBLE.md` section 3.10 lists files and APIs).
+- Shared files edited (dated line per ownership rules): `ui/hud.gd` (Affairs key handling, `AffairsHooks` child, `show_*` dialog entry points), `ui/gamemenu/game_menu.gd` (new `affairs` tab and badge), `ui/gamemenu/tab_character.gd` (Standing block), `autoload/game.gd` (4 new KEYS), `ui/frontend/settings_store.gd` (rebind rows), `docs/controls.md`.
+- Open items for the world side: nothing calls `hud.show_gate_prompt` yet (gates have no trigger in the world), and `hud.show_aura_parley` opens by itself only through the hooks timer polling `aura_fallout.ladder` for the settlement nearest the player.

@@ -10,13 +10,14 @@ extends Control
 ##
 ## Open it from the HUD (no class_name, so it also works before a class-cache rescan):
 ##   const GameMenu := preload("res://scripts/ui/gamemenu/game_menu.gd")
-##   GameMenu.open(self, "inventory")      # "character" "skills" "quests" "map" "journal" "realm"
+##   GameMenu.open(self, "inventory")      # "character" "skills" "quests" "map" "journal" "realm" "affairs"
 ##   GameMenu.toggle(self, "map")
 
 signal closed
 
 const AF := preload("res://scripts/ui/ashes_frame.gd")
 const Kit := preload("res://scripts/ui/gamemenu/gm_kit.gd")
+const Hooks := preload("res://scripts/ui/affairs/affairs_hooks.gd")
 const SELF_PATH := "res://scripts/ui/gamemenu/game_menu.gd"
 const DIR := "res://scripts/ui/gamemenu/"
 ## id, label, jump key, page script.
@@ -29,6 +30,7 @@ const TABS := [
 	["map", "Map", KEY_M, "tab_map.gd"],
 	["journal", "Journal", KEY_NONE, "tab_journal.gd"],
 	["realm", "Realm", KEY_NONE, "tab_realm.gd"],
+	["affairs", "Affairs", KEY_NONE, "tab_affairs.gd"],
 ]
 
 ## The HUD CanvasLayer this menu lives on (its world_map is hosted by the Map tab).
@@ -188,6 +190,8 @@ func _style_tabs() -> void:
 	for id: String in _tab_buttons:
 		var b: Button = _tab_buttons[id]
 		var on := id == tab
+		if id == "affairs":
+			b.text = "Affairs (%d)" % Hooks.unread if Hooks.unread > 0 else "Affairs"
 		b.add_theme_stylebox_override("normal", AF.row(on, false) if on else Kit.box(Color(0.03, 0.028, 0.025, 0.5), Color(AF.GOLD_DIM, 0.4), 3, 6))
 		b.add_theme_stylebox_override("hover", AF.row(on, true))
 		b.add_theme_stylebox_override("pressed", AF.row(true, false))

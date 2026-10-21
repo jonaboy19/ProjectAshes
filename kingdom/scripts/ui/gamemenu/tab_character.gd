@@ -3,6 +3,8 @@ extends "res://scripts/ui/gamemenu/gm_tab.gd"
 ## player with the Life.equipment slots around it, and the skills summary.
 
 const Cult := preload("res://scripts/realm/cultivation.gd")
+const StatusView := preload("res://scripts/ui/affairs/status_view.gd")
+const AffairsBase := preload("res://scripts/ui/affairs/affairs_base.gd")
 const MODEL_PROPS := {"main_hand": "1H_Sword", "off_hand": "Round_Shield"}
 
 var _level_num: Label
@@ -17,6 +19,7 @@ var _caption: Label
 var _take_off: Button
 var _skills_box: VBoxContainer
 var _stats_box: VBoxContainer
+var _standing_box: VBoxContainer
 var _preview: Preview
 var _sel_slot := ""
 var _props_key := ""
@@ -196,6 +199,10 @@ func build() -> void:
 	_stats_box = VBoxContainer.new()
 	_stats_box.add_theme_constant_override("separation", 1)
 	right.add_child(_stats_box)
+	right.add_child(Kit.section("Standing", 16))
+	_standing_box = VBoxContainer.new()
+	_standing_box.add_theme_constant_override("separation", 1)
+	right.add_child(_standing_box)
 	right.add_child(Kit.hspacer())
 	var vb := Kit.button("View Skill Tree", false, 48, 16)
 	vb.pressed.connect(func() -> void: menu.call("open_tab", "skills"))
@@ -287,6 +294,8 @@ func refresh() -> void:
 		h.add_child(Kit.hspacer())
 		h.add_child(Kit.lbl(String(pair[2]), 17, AF.TEXT, false, "title"))
 		_stats_box.add_child(h)
+	if not StatusView.fill(_standing_box, Life.get("realm"), AffairsBase.player_sid()):
+		_standing_box.add_child(Kit.lbl("Known by few.", 15, AF.TEXT_DIM, false, "italic"))
 	_rebuild_model()
 	hints_changed()
 

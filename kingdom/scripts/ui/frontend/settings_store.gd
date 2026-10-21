@@ -42,6 +42,7 @@ const ACTIONS := [
 	["journal", "Menu / Journal"], ["world_map", "World Map"], ["photo_mode", "Photo Mode"],
 	["quick_save", "Quick Save"], ["quick_load", "Quick Load"], ["lock_on", "Lock On"], ["crouch", "Crouch / Sneak"],
 	["ability_dash", "Shadow Dash"], ["menu_inventory", "Inventory"], ["menu_skills", "Skills"],
+	["menu_treasury", "Treasury"], ["menu_followers", "Followers"], ["menu_court", "Court"], ["menu_letters", "Letters"],
 ]
 
 

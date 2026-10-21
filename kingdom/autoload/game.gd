@@ -82,6 +82,7 @@ const KEYS := {
 	"view_cycle": [KEY_V], "zoom_in": [KEY_EQUAL], "zoom_out": [KEY_MINUS],
 	"jump": [KEY_SPACE], "dodge": [KEY_K], "eat": [KEY_F], "quick_save": [KEY_F5], "quick_load": [KEY_F9],
 	"journal": [KEY_TAB], "menu_inventory": [KEY_I], "menu_skills": [KEY_F2],
+	"menu_treasury": [KEY_F6], "menu_followers": [KEY_F7], "menu_court": [KEY_F8], "menu_letters": [KEY_F10],
 	"world_map": [KEY_M], "photo_mode": [KEY_P],
 	"lock_on": [KEY_Q], "crouch": [KEY_C], "ability_dash": [KEY_R],
 	"order_follow": [KEY_1], "order_hold": [KEY_2], "order_charge": [KEY_3],

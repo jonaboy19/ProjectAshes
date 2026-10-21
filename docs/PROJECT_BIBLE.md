@@ -42,6 +42,7 @@ Every module extends `scripts/realm/realm_module.gd` and is registered in `realm
 - **Building.** `build_kit.gd` (Palworld-style snapping grid, at most 3 player grids), `construction*.gd` (survival construction, builders' routes).
 - **People you lead and become.** `followers.gd`, `recruitment.gd`, `follower_will.gd`, `power_paths.gd`, `cultivation.gd`.
 - **Districts.** `district_values.gd`: hidden per-quarter values (prosperity, safety, corruption, tension and seven more) that relax toward causes. Read API in `docs/HANDOFF_CODEX_WORLD.md`.
+- **Gap closure (2026-10).** `PD.kingdom_of(sid | Vector2)` resolves the real kingdom (settlement `kingdom` field, else position: inside the +-6144 m first region is `caldrenn`, beyond it the border exit's neighbour). `Life._realm_ctx()` feeds the live weather node (or a seasonal roll) into `ctx.weather`, which armies and campaign read hourly. `Theft.steal` reports `Stim.TAKE_OBJECT` to `PresenceLive`. `migration` consumes `monster_society.take_departures()` as refugee waves (cause "monsters"); `homes.rent_den()` lets a monster den (rent scales with prejudice) and opens a `monster` quarter in `district_values` (`open_monster_quarter`). `social_perception.read` adds aura awe (pious observers, up to +0.25) and dread (timid, up to -0.15) to legitimacy. `barks_status.json` has 131 lines. Recruitment, armies, homes and faith payers still only `ledger.note()`; the 180-day integration test confirms gold is conserved. Tests: `tests/test_gap_closure.gd`.
 
 ### 3.2 Player-life simulation (`scripts/sim/*`)
 The player's own life and shared rules: `save_manager.gd` + `save_containers.gd` (saves), `progression.gd` (level 1 to 500), `skills.gd`, `mastery.gd`, `soul.gd`, `naming.gd`, `magicules.gd`, `equipment.gd`, `items_db.gd` (1,200 items, see skill `ashes-items`), `crafting.gd`, `economy.gd` + `market.gd`, `careers.gd` + `career_ladders.gd` (real vacancies), `life_path.gd` + `life_courses.gd` + `childhood_events.gd` + `awakening.gd` + `tendencies.gd` (birth to adulthood), `family.gd`, `lordship.gd`, `property.gd`, `homestead.gd`, crime (`theft.gd`, `pickpocket.gd`, `arrest.gd`, `ownership.gd`), `injuries.gd`, `needs.gd`, `seasons.gd` (4 x 28 days), `radiant_quests.gd`, `dialogue_runner.gd`, `utility_core.gd` (shared utility scorer), `trace.gd` (decision inspector data), `threat_map.gd`, `runestone_network.gd`, `monster_ecology.gd`, `war_sim.gd`, `world_lore.gd`.
@@ -70,6 +71,22 @@ A library of data-driven objectives (`objective.gd`, `quest_objectives.gd`, JSON
 
 ### 3.9 Other folders
 `scripts/ui/` (HUD, menus, war map), `scripts/vfx/`, `scripts/audio/`, `scripts/build/` (build mode), `scripts/living_world/` (life clips, smart objects, VAT crowds), `scripts/horses/`, `scripts/abilities/`, `scripts/army/`, `scripts/cinematic/`, `scripts/boot/`, `scripts/style_lab/`, `scripts/style_g.gd`.
+
+### 3.10 Affairs panels (`scripts/ui/affairs/*`, `scripts/ui/gamemenu/tab_affairs.gd`)
+PC panels that drive the Living World money, will, justice, war-intel and aura systems through their **public APIs only** (no realm logic in UI; they read getters, call the player's own actions, never tick). Functional and themed with `ashes_frame` + `gm_kit`; visual polish is owed by the local PC session. Test: `tests/test_ui_new_panels.gd`.
+
+| Panel | Keys / entry | File | Module API |
+|---|---|---|---|
+| Treasury (weekly lines, scheduled payments, warnings, steward budget/limit, audit) | **F6** `menu_treasury` | `treasury_panel.gd` | `ledger.summary / delegate / relieve / audit / cancel` |
+| Followers (will): motives in words, requests with answers, orders with a hint, reward / promote / dismiss / forgive / imprison / investigate / audit | **F7** `menu_followers` | `followers_will_panel.gd` | `follower_will.*` |
+| Court (cases, evidence reliability, file, press, appeal, persuade / intimidate / blackmail / patronage) | **F8** `menu_court` | `court_panel.gd` | `courts.*` |
+| Letters (weekly digest + steward report + urgent word, unread badge, envoys at the door) | **F10** `menu_letters` | `letters_panel.gd` | `war_intel.inbox / envoys` |
+| Envoy audience (nine responses) | Letters panel, or `hud.show_envoy_dialog()` | `envoy_dialog.gd` | `war_intel.envoys / respond` |
+| Officer parley (suppress, talk, intimidate, bribe, surrender, flee, fight) | opens by itself when the aura ladder reaches an arrived officer (step 2+); `hud.show_aura_parley(subject, sid)` | `aura_parley_dialog.gd` | `aura_fallout.ladder / resolve` |
+| Gate prompt (permit, bribe, sponsor, disguise, argue, rite, leave the monster outside) | world calls `hud.show_gate_prompt(party, town, extra)` | `gate_prompt.gd` | `monster_society.gate / take_option` (over `entry_law`) |
+| Status breakdown in the Character sheet ("Standing") | Character tab | `status_view.gd` | `monster_society.status_of` |
+
+The four desks live in one Pack-menu tab, **Affairs** (`tab_affairs.gd`, shows "Affairs (n)" with unread letters); `TabAffairs.open_view(hud, "court")` opens one. Keys are `Game.KEYS` defaults, listed in the rebind screen (`settings_store.gd` ACTIONS). `affairs_hooks.gd` is one 2 s timer owned by the HUD: tells `war_intel` who reads (`set_viewer`), counts unread letters / waiting envoys, one toast per game day, and opens the parley. Read-letter ids persist in `Life.life_path.flags["letters_read"]`. Shared base classes: `affairs_base.gd` (panels), `affairs_modal.gd` (dialogs). Rule kept: numbers become words (`AffairsBase.fuzzy`), hidden state (agendas, forged evidence, envoy intent) is never shown unless the module reports it as known.
 
 ## 4. How the realm hub, tick and save work
 
