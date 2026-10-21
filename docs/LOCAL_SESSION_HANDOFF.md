@@ -59,6 +59,63 @@ All are **in place** (no baked root travel — same convention as the other `_li
 - Done: armored characters (`incoming/ai3d/meshy/armored/`; the cloud has already wired them) and interiors (above). **Cloud: please wire the door triggers** with `interior_door.gd` on the inn, blacksmith, guild, healer and the 5 house types (see `kingdom/scenes/interiors/README.md`), and call `InteriorDoor.active.leave()` on player death.
 - **NOW (2026-09-28, user priority): the local side owns FRAME RATE / LAG.** The goal is the highest fps and no hitches on every tier. The local side profiles on the real GPU and changes whatever costs frames (CPU scripts, streaming, rendering, assets) in small commits merged from origin first. Cloud and Codex: keep building features, but if you touch `population_lod.gd`, `terrain_streamer.gd`, `settlement_builder.gd`, `region_dressing.gd`, `assets.gd`, `quality.gd` or `world_sim.gd`, fetch first and keep changes small. **Avoid per-frame work in `_process` / `_physics_process`: prefer timers or slices, and cache node lookups.** Results go into `docs/qa/PERFORMANCE.md`.
 
+---
+
+## 2026-10-22: Valencious 32km Continent, Existing World Integration & AAA Asset Handoff (For Claude & Codex)
+
+### 1. Existing World Deep Inspection & 32km Upgrade
+Per the user's directive, we thoroughly inspected the existing world architecture in `kingdom/scripts/world/world_gen.gd`, `kingdom/data/world/first_region.json`, `kingdom/scripts/world/building_profiles.gd`, and `kingdom/scenes/interiors/*.tscn`. 
+- **Ashford Home Village (0, 0):** Centered on `landmark_runestone_lod0.glb`, surrounded by Adventurer's Guild (`guild_lod0.glb`, 16.0m), Inn & Tavern (`inn_lod0.glb`, 13.5m), Blacksmith (`blacksmith_lod0.glb`, 11.0m), Healer's House (`healer_lod0.glb`, 9.5m), Peasant Houses (`house_family_lod0.glb`, `house_peasant_a_lod0.glb`), and Market Stalls (`stall_produce_lod0.glb`, `stall_cloth_lod0.glb`).
+- **Ashford Vale Geography:**
+  - River Ashrun: runs through `ashrun_bridge` (-318, -214) with `bridge_stone.glb` into `emberglass_mere` (-420, 300).
+  - Kingsreach Royal Castle-City: (560, -420) perched on limestone bluffs with `landmark_watchfort_lod0.glb`.
+  - Tuskridge Hold (Orc Village): (300, 930) on hilltop beyond Duskbriar Wood with palisades and log longhouses.
+  - Cinderpost Waystation: (288, -199) with stables and caravan wagons.
+- **The 32km Continent Grid:**
+  - Authored `kingdom/data/world/valencious_32km_sectors.json`: 64 × 64 sector grid (4,096 sectors of 500m × 500m each) seamlessly anchoring the existing 4km × 4km Ashford Vale at sectors `[28..35, 28..35]`.
+  - All streaming runs via 64m chunks on background worker threads, capped at 4.2 GB engine RAM envelope for 8GB RAM PCs.
+
+### 2. Enterable Interiors & Zero-Hitch Door Trigger Pipeline
+All 5 interior models in `kingdom/assets/generated/interiors/` are fully inspected and rendered:
+1. `interior_inn.glb` (6.2 MB) - Grand stone hearth with burning ember fire, polished oak bar, kegs, banquet dining tables, candle chandeliers, upper mezzanine.
+2. `interior_blacksmith.glb` (5.9 MB) - Roaring stone furnace with hot coals, hardened steel anvil on oak stump, quench trough, weapon barrels.
+3. `interior_guild.glb` (5.2 MB) - Hunter commission notice board, beast skull trophies, heraldic shields, meeting tables.
+4. `interior_healer.glb` (4.0 MB) - Apothecary drying herbs, potion flask racks, mortar and pestle, recovery cot.
+5. `interior_house.glb` (2.4 MB) - Peasant cottage hearth, timber roof joists, dining bench, curtained bed.
+- **Wired Trigger System:** Cloud/Codex should ensure `kingdom/scripts/world/enterable_building_manager.gd` interacts with `kingdom/scripts/interiors/interior_door.gd`. When crossing the threshold (1.30m × 2.40m door opening), camera position and lightmap seamlessly transition without scene reloads.
+
+### 3. Actual 1080p Blender 5.2 Renders (Zero Gray Cylinders)
+All renders are generated in Blender 5.2 using EEVEE PBR lighting and are permanently embedded as Base64 Data URIs in `docs/VALENCIOUS_WORLD_VIEWER.html` and `docs/img/actual_renders/`:
+- `render_ashford_village_square.png` (2.15 MB): High-detail plaza shot with runestones, guild hall, tavern, forge, guards, and cobblestones.
+- `render_ashford_vale_regional_map.png` (2.85 MB): Wide bird's eye panoramic showing Ashrun river, stone bridge, farm windmill, barn, and Kingsreach citadel.
+- `render_interior_inn_tavern.png` (2.87 MB): Interior view of the Ashford Inn hearth and bar.
+- `render_interior_blacksmith_forge.png` (2.72 MB): Interior view of the glowing forge and anvil.
+- `render_interior_guild_hall.png` (0.48 MB): Interior view of the guild notice board and banquet hall.
+- `render_dark_elf_aaa_hero.png` (1.26 MB): Authentic AAA Dark Elf Shadowblade (dusky obsidian skin, silver braids, amethyst eyes, midnight runic plate) alongside High Elf Sorcerer and Orc Warchief.
+- `render_orc_evolution_lineup.png` (899 KB): Common Orc vs. Noble High Ork Warlord vs. Beast Titan Juggernaut.
+- `render_enterable_cottage_exterior.png` (913 KB): Peasant cottage walk-in doorway.
+- `render_enterable_cottage_interior.png` (855 KB): Domestic hearth interior.
+- `render_races_lineup.png` (971 KB): Dwarf, High Elf, Human, Tiefling, Draken, Wight height lineup.
+- `render_draco_horse.png` (925 KB): Scaled Draco-Horse mount.
+
+### 4. Race Evolution & Naming System (Tensura Style)
+Delivered `kingdom/scripts/sim/race_evolution_system.gd` and `kingdom/data/world/races.json` (v3):
+- Dual-Branch Path:
+  - **Branch A (Humanoid / Noble):** Higher intelligence, refined speech, magic affinity, tactical warfare.
+  - **Branch B (Beast / Titan):** Quadrupled mass, natural chitin/armor hide, berserk frenzy, primal dominance.
+- Triggers: Sovereign Naming Rite (costs 450 MP), Battle Transmutation, Dragon Blood Draught.
+
+### 5. Distant Historical Kingdoms Blueprint (For Future Regions)
+Documented and architected in the viewer for future world expansions:
+1. **Olympian & Imperial Roman Marble City:** Colosseums, amphitheaters, aqueducts, sun forums.
+2. **Kemetic Sun Delta Empire:** Stepped ziggurats, lotus sandstone pylons, obelisks, papyrus river barges.
+3. **Donghua & Wuxia Karst Peaks:** Hanging iron suspension bridges, cloud sea meditation grottos, nine-tier lacquer pagodas.
+4. **Feudal Japanese Shinto Citadels:** Curved hip-and-gable roofs, stone tenshudai bases, vermilion torii water gates.
+5. **Celestial Floating Sky Islands:** Inverted gravity aether crystals, sky-galleon docks, colossal mooring chains.
+6. **Subterranean Dwarven Megacity:** 10km deep cavern carved around molten magma sluices, steam elevators, and colossal ancestor statues.
+7. **Martial & Magic Academies:** Royal War Academy (Kingsreach), Heavenly Mist Sword Sect (Mount Taiyun), High Aetherium Magic University (Silverwood), Ironforge College (Gundarak).
+
+
 - **2026-09-28 (user request to the cloud session): the cloud is editing animation-adjacent code right now.** That covers foot IK and spring bones (new `scripts/actors/procedural_rig.gd`, hooks in `player.gd` / `character_animator.gd`), ragdolls (new `scripts/actors/ragdoll.gd`, hooks in `monster.gd`, `wolf.gd`, `army/soldier.gd`, plus Jolt in `project.godot [physics]`), and new free animation clips retargeted to UAL (`assets/incoming/animations/`, the `Assets.UAL_FILES` section). Codex: please fetch before touching those files. Clip choice and locomotion tuning stay with Codex.
 
 ## Merge etiquette (learned 2026-09-27)
