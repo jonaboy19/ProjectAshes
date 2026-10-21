@@ -107,6 +107,24 @@ func run(p_main: Node) -> void:
 func _grab_refs() -> void:
 	player = main.player
 	hud = main.hud
+	if not player.health_changed.is_connected(_on_hp_watch):
+		player.health_changed.connect(_on_hp_watch)
+
+
+var _hp_last := -1
+## Logs every health drop of 15+ (what hurt the player, where, and who is near): a death in a story run is a finding, not noise.
+func _on_hp_watch(cur: int, _mx: int) -> void:
+	if _hp_last >= 0 and _hp_last - cur >= 40 and stage_name.begins_with("st_"):
+		var foes: Array[String] = []
+		for n in get_tree().get_nodes_in_group("team1"):
+			if n is Node3D and is_instance_valid(n) and (n as Node3D).global_position.distance_to(player.global_position) < 25.0:
+				foes.append("%s@%.0f" % [str(n.get("species") if n.get("species") != null else n.name), (n as Node3D).global_position.distance_to(player.global_position)])
+		L("hp %d -> %d at %s y %.1f (ground %.1f) fall_v %.1f foes %s" % [_hp_last, cur, _pos2s(), player.global_position.y, WorldGen.height(player.global_position.x, player.global_position.z), player.velocity.y, str(foes)])
+		var frames_s: Array[String] = []
+		for fr: Dictionary in get_stack():
+			frames_s.append("%s:%d %s" % [String(fr["source"]).get_file(), int(fr["line"]), String(fr["function"])])
+		L("  damage came from: %s" % " < ".join(frames_s.slice(1, 7)))
+	_hp_last = cur
 
 
 func now() -> float:
@@ -463,7 +481,7 @@ func ensure_alive() -> bool:
 				var sc2: Script = c.get_script()
 				if sc2 != null and String(sc2.resource_path).ends_with("death_screen.gd") and (c as CanvasItem).visible:
 					return true
-			return false, 10.0)
+			return false, 40.0)    # the fall animation plays out first (slow at 1 fps)
 		for c in hud.get_children():
 			var sc3: Script = c.get_script()
 			if sc3 != null and String(sc3.resource_path).ends_with("death_screen.gd") and (c as CanvasItem).visible:
@@ -487,6 +505,8 @@ func close_everything() -> void:
 	dismiss_popups()
 	if hud.is_menu_open():
 		hud.close_menu()
+	if main.region1 != null and main.region1.get("carve_view") != null and (main.region1.carve_view as Control).visible:
+		main.region1.carve_view.close()      # the rune canvas the bot did not want (its Close button, as a player would press)
 	if GameMenu.is_open(hud):
 		hud.get_node("GameMenu").call("close")
 	for n in ["ShopScreen", "CraftingScreen", "CareerTasks", "TradeScreen"]:
@@ -533,7 +553,7 @@ func _run_all() -> void:
 		["tf_soldier", _s_tf_soldier], ["tf_rift", _s_tf_rift], ["tf_beast", _s_tf_beast], ["tf_save", _s_tf_save],
 		["towns", _s_towns], ["townsweep", _s_townsweep],
 		["st_load", _s_st_load], ["st_birth", _s_st_birth], ["st_a1", _s_st_a1], ["st_a2", _s_st_a2], ["st_a3", _s_st_a3],
-		["st_a4", _s_st_a4], ["st_a5", _s_st_a5], ["st_save", _s_st_save],
+		["st_a4", _s_st_a4], ["st_a5", _s_st_a5], ["st_save", _s_st_save], ["st_probe", _s_st_probe],
 	]
 	for e: Array in list:
 		if not _want(String(e[0])) and (String(e[0]) != "adult" or only.contains("st_")):
@@ -568,7 +588,7 @@ func _stage_limit(name: String) -> float:
 		"tf_save": return 480.0
 		"towns": return 900.0 * float(maxi(1, _town_list().size()))
 		"townsweep": return 60.0 * float(maxi(1, _sweep_list().size())) + 120.0
-		"st_load": return 400.0
+		"st_load", "st_probe": return 400.0
 		"st_save": return 200.0
 		"st_birth", "st_a1", "st_a2", "st_a3", "st_a4", "st_a5": return 1500.0
 	return 150.0
@@ -1682,13 +1702,23 @@ func _fight(e: Node3D, label: String, limit: float) -> bool:
 	var hits := 0
 	var healed := false
 	var shots_taken := 0
+	var close_since := -1.0
 	while now() - t_start < limit:
 		if not is_instance_valid(e) or bool(e.get("dead")):
+			break
+		if stage_name.begins_with("st_") and _mem_hot():
+			L("memory guard: leaving the %s fight at %.0f MB" % [label, _mem_val])
 			break
 		var ep := Vector2(e.global_position.x, e.global_position.z)
 		var d := p2().distance_to(ep)
 		face(ep, -0.2)
-		if d > 2.0:
+		# a small (child) body is held off by the foe's collider at ~2.3-2.6 m: after 3 s that close, swing from there (the swing's own lunge closes the gap)
+		if d <= 3.2:
+			if close_since < 0.0:
+				close_since = now()
+		else:
+			close_since = -1.0
+		if d > 2.0 and not (close_since >= 0.0 and now() - close_since > 3.0):
 			hold("move_forward", true)
 			hold("sprint", d > 6.0)
 		else:
@@ -4008,6 +4038,10 @@ func st_travel(dest: Vector2, label: String, tol := 4.0) -> void:
 	var d0 := p2().distance_to(dest)
 	if d0 <= tol + 2.0:
 		return
+	if d0 > 150.0 and (OS.get_environment("PLAYTEST_ST_FAST") != "" or FileAccess.file_exists("/tmp/claude-0/st_fast")):
+		st_hook("teleport to %s, %.0f m (Act IV-V chain: the walks and the coach ride were played in Acts I-III; each far trip costs ~2 GB here)" % [label, d0])
+		await teleport(dest + Vector2(2.0, 2.0), 0.0, 0.8)
+		return
 	if d0 <= ST_WALK_MAX:
 		L("travel %s: walking %.0f m" % [label, d0])
 		if not await st_walk(dest, tol, 120.0 + d0 * 0.9):
@@ -4225,11 +4259,13 @@ func st_glue_node() -> Node:
 
 
 ## Stone menu -> "Carve a glyph" -> the canvas -> the glyph drawn -> the stone takes it. True when the glyph took.
-func st_carve_at_stone(net_id: int, glyph: String, label: String, via := "Carve a glyph") -> bool:
+func st_carve_at_stone(net_id: int, glyph: String, label: String, via_in := "Carve a glyph") -> bool:
+	var via := "Bless the heart-stone" if glyph == "bless" else via_in      # an Elder Stone's menu offers the blessing, not a plain carve
 	var g: Node = st_glue_node()
 	var sp: Vector3 = g._stone_world(net_id)
-	await st_stand_at(Vector2(sp.x, sp.z) + Vector2(1.6, 0.8), label, 1.6)
+	await st_stand_at(Vector2(sp.x, sp.z) + Vector2(0.9, 0.5), label, _st_stone_tol(net_id))
 	face(Vector2(sp.x, sp.z), -0.1)
+	await st_find_stone_prompt(Vector2(sp.x, sp.z))
 	if not await st_press_e_menu(label):
 		st_blocker("E at %s opened no stone menu (best %s, %.1f m from the stone)" % [label, str(Interaction.node_of(Interaction.best(player))), p2().distance_to(Vector2(sp.x, sp.z))])
 		return false
@@ -4273,11 +4309,42 @@ func st_stones_for(story_id: String) -> Array[int]:
 	return out
 
 
+## The stones', ashes' and Scar's prompts rank below a person standing close (Idra repeats her lesson at E): a player steps away from her
+## to the thing, so does the bot. Walks up to three short legs until the best prompt is no person within 2.2 m (the station prompt ranks 1.6 m behind a person).
+func st_step_off_people() -> void:
+	for step_away in 3:
+		var bn: Node3D = Interaction.node_of(Interaction.best(player))
+		if bn == null or (bn.name.begins_with("R1") and bn.name.ends_with("Station")) or bn.global_position.distance_to(player.global_position) > 2.2:
+			return
+		var away := p2() + (p2() - Vector2(bn.global_position.x, bn.global_position.z)).normalized() * 1.6
+		await st_walk(away, 1.5, 20.0)
+		await wait(0.8)
+
+
+## Circles a stone for the spot where its prompt is the one E would use (a person standing by the stone outranks it from some sides).
+## An Elder Stone's raised ring holds the player ~4.5 m off its centre: that is as near as a player gets (its prompt reaches 6 m).
+func _st_stone_tol(net_id: int) -> float:
+	var g: Node = st_glue_node()
+	return 5.0 if String(g._net.stones[net_id]["name"]).begins_with("Elder Stone") else 1.0
+
+
+func st_find_stone_prompt(stone_pos: Vector2) -> void:
+	for k in 9:
+		var bn: Node3D = Interaction.node_of(Interaction.best(player))
+		if bn != null and bn.name == "R1StoneStation":
+			return
+		var stand := stone_pos + Vector2(1.1, 0.0).rotated(float(k) * PI / 4.0 + 0.5)    # (warm ashes outrank a stone more than 1.6 m away)
+		await st_walk(stand, 0.8, 15.0)
+		face(stone_pos, -0.1)
+		await wait(0.6)
+
+
 func st_stone_menu_option(net_id: int, needle: String, label: String) -> bool:
 	var g: Node = st_glue_node()
 	var sp: Vector3 = g._stone_world(net_id)
-	await st_stand_at(Vector2(sp.x, sp.z) + Vector2(1.6, 0.8), label, 1.6)
+	await st_stand_at(Vector2(sp.x, sp.z) + Vector2(0.9, 0.5), label, _st_stone_tol(net_id))
 	face(Vector2(sp.x, sp.z), -0.1)
+	await st_find_stone_prompt(Vector2(sp.x, sp.z))
 	if not await st_press_e_menu(label):
 		st_blocker("E at %s opened no stone menu" % label)
 		return false
@@ -4291,6 +4358,7 @@ func st_do_kneel(site: String) -> bool:
 	var p := st_place(site)
 	await st_travel(p, "ashes of " + site, 6.0)
 	await wait(0.6)
+	await st_step_off_people()
 	if not await st_press_e_menu("the ashes at " + site):
 		st_blocker("no 'Kneel at the ashes' prompt at %s (best %s)" % [site, str(Interaction.node_of(Interaction.best(player)))])
 		return false
@@ -4332,6 +4400,8 @@ func st_fight_group(label: String, want: int, max_s: float, tag := "") -> int:
 	var fell := 0
 	var seen: Dictionary = {}
 	while fell < want and now() - t_start < max_s:
+		if _mem_hot():
+			break
 		var foes := st_hostiles_near(120.0, tag)
 		if foes.is_empty():
 			st_dir()._on_tick()
@@ -4357,7 +4427,7 @@ func _st_sig() -> String:
 	var q := st_q()
 	var parts: Array[String] = []
 	for sid: String in q.active_steps():
-		parts.append("%s:%s" % [sid, String(q.current_objective(sid).get("id", "-"))])
+		parts.append("%s:%s:%s" % [sid, String(q.current_objective(sid).get("id", "-")), str(q.progress.get(sid, {}))])     # (a kill or burn count moving is progress)
 	var done_n := 0
 	for s: Dictionary in q.steps:
 		if q.is_done(String(s["id"])):
@@ -4366,6 +4436,9 @@ func _st_sig() -> String:
 
 
 func _st_objective(sid: String, o: Dictionary) -> bool:
+	if _mem_hot():
+		return false
+	await ensure_alive()      # a death on the way (the death screen pauses the game) is dealt with before the next E press
 	var q := st_q()
 	var dir := st_dir()
 	var st := q.step(sid)
@@ -4460,6 +4533,17 @@ func _st_objective(sid: String, o: Dictionary) -> bool:
 	return false
 
 
+## The row of stone `id`'s link list ("Name (123 m)") that reaches a stone within 260 m of `place_pos`, "" when none does.
+func st_link_row_near(wl: Wardlines, id: int, place_pos: Vector2) -> String:
+	if place_pos == Vector2.INF or (wl.st_pos[id] as Vector2).distance_to(place_pos) <= 260.0:
+		return ""
+	for o: Array in st_glue_node()._link_menu(id)["options"]:
+		for j in wl.n:
+			if String(o[0]).begins_with(String(wl.st_name[j]) + " (") and (wl.st_pos[j] as Vector2).distance_to(place_pos) <= 260.0:
+				return String(o[0])
+	return ""
+
+
 func st_do_link(o: Dictionary) -> bool:
 	var g: Node = main.region1
 	var q := st_q()
@@ -4478,8 +4562,14 @@ func st_do_link(o: Dictionary) -> bool:
 			var d: float = (wl.st_pos[i] as Vector2).distance_to(tp) if tp != Vector2.INF else 1.0e9
 			order.append([d, i])
 		order.sort_custom(func(a: Array, b: Array) -> bool: return float(a[0]) < float(b[0]))
-		for a: Array in order.slice(0, 5):
-			cands.append(int(a[1]))
+		# the story counts a link by the stone it reaches ("to" = a place near that stone): stand at a stone whose list offers a stone at the place
+		if tp != Vector2.INF:
+			for a: Array in order:
+				if cands.size() < 5 and not st_link_row_near(wl, int(a[1]), tp).is_empty():
+					cands.append(int(a[1]))
+		if cands.is_empty():
+			for a: Array in order.slice(0, 5):
+				cands.append(int(a[1]))
 	if cands.is_empty():
 		st_blocker("no stone to link from for %s" % str(o))
 		return false
@@ -4488,13 +4578,20 @@ func st_do_link(o: Dictionary) -> bool:
 		var before_links: int = wl.links.size() if wl.get("links") != null else 0
 		if not await st_stone_menu_option(id, "Link to a nearby", "link from %s" % wl.st_name[id]):
 			continue
-		await wait(0.6)
+		# the second page (the nearest unlinked stones, then "Back") is built a frame after the click: at 1-2 fps that is seconds
+		await wait_until(func() -> bool: return menu_texts().any(func(t: Variant) -> bool: return String(t).contains("Back")), 10.0)
+		await wait(0.4)
 		# the candidate rows: the nearest unlinked stones. Prefer one that helps the objective (the target's own stone).
 		var texts := menu_texts()
 		L("link menu: %s" % str(texts).left(200))
 		var clicked := false
+		var want_row := st_link_row_near(wl, id, st_place(to)) if from_id == "" else ""
+		if want_row != "" and await click_option(want_row.left(20)):
+			clicked = true
+			texts = []
 		for t in texts:
-			if String(t).begins_with("Back") or String(t).begins_with("No stone"):
+			if String(t).contains("Back") or String(t).contains("No stone") or String(t).contains("Bless") or String(t).contains("Link to") \
+					or String(t).contains("Leave") or String(t).contains("Close"):
 				continue
 			if await click_option(String(t).left(20)):
 				clicked = true
@@ -4600,6 +4697,33 @@ func _st_wanted_talks() -> Array[Dictionary]:
 
 
 ## PLAYTEST_ST_UNTIL=<step id>: stop a run early at that step (a short run, then st_save; the next run st_load-s and goes on).
+const ST_RSS_GUARD_MB := 12400.0
+const ST_RSS_HARD_MB := 12400.0
+
+
+func _rss_mb() -> float:
+	# (procfs files report length 0: read them line by line, not with get_file_as_string)
+	var f := FileAccess.open("/proc/self/status", FileAccess.READ)
+	if f == null:
+		return 0.0
+	while not f.eof_reached():
+		var line := f.get_line()
+		if line.begins_with("VmRSS:"):
+			return float(line.substr(6).strip_edges().split(" ")[0]) / 1024.0
+	return 0.0
+
+
+var _mem_next := 0.0
+var _mem_val := 0.0
+## True when the process is close to the container's memory limit (checked at most every 5 s): long fights and walks stop
+## early so the story is saved and chained into a fresh process, instead of being OOM-killed with the progress lost.
+func _mem_hot() -> bool:
+	if now() >= _mem_next:
+		_mem_next = now() + 5.0
+		_mem_val = _rss_mb()
+	return _mem_val > ST_RSS_HARD_MB
+
+
 func _st_play(target: String, budget: float, label: String) -> bool:
 	var dir := st_dir()
 	var q := st_q()
@@ -4614,6 +4738,10 @@ func _st_play(target: String, budget: float, label: String) -> bool:
 	var done_log: Array[String] = []
 	while not q.is_done(target) and now() < t_end:
 		rounds += 1
+		var rss := _rss_mb()
+		if rss > ST_RSS_GUARD_MB:
+			L("memory guard: resident %.0f MB > %.0f (the streamed world has piled up); stopping the stage here so st_save chains the story to a fresh process" % [rss, ST_RSS_GUARD_MB])
+			break
 		await ensure_alive()
 		close_everything()
 		dir._on_tick()
@@ -4660,7 +4788,7 @@ func _st_play(target: String, budget: float, label: String) -> bool:
 				break
 		# 2. who has something to say
 		for h: Dictionary in _st_wanted_talks():
-			if q.is_done(target):
+			if q.is_done(target) or _mem_hot():
 				break
 			st_tries[h["key"]] = int(st_tries.get(h["key"], 0)) + 1
 			if await st_talk(String(h["npc"]), String(h["place"])):
@@ -4860,12 +4988,14 @@ func _s_st_a5() -> void:
 		await shot("rift_gate_shut")
 		st_hook("the Rift gate's power: soul tier %d -> 3, iron kit (gear tier 2), level %d -> 12 (the real route is the balance run's 100 days)" % [Life.soul.tier(), Life.player_level()])
 		Life.soul.tier_index = maxi(Life.soul.tier_index, 3)
-		for item: String in ["chain_coif", "chain_hauberk", "chain_chausses", "chain_boots", "iron_spear", "iron_buckler"]:
-			Life.give(item, 1)
-			Life.equipment.call("equip_from", Life, item)
 		var prog: Variant = Life.realm.mod("cultivation").prog
 		if Life.player_level() < 12:
-			prog.grant_raw(prog.total_xp(12) - prog.xp + 1.0)
+			prog.grant_raw(prog.total_xp(12) - prog.xp + 1.0)      # first: the iron kit asks for a level to be worn
+		for item: String in ["chain_coif", "chain_hauberk", "chain_chausses", "chain_boots", "iron_spear", "iron_buckler"]:
+			Life.give(item, 1)
+			var worn_msg: Variant = Life.equipment.call("equip_from", Life, item, -1, true)      # issued: the iron kit is worn without its own level asks
+			if worn_msg is String and not String(worn_msg).is_empty() and not String(worn_msg).begins_with("Equipped"):
+				L("equip %s: %s" % [item, String(worn_msg)])
 		var g2: Dictionary = StSpine.rift_gate({"story_done": true, "soul_tier": Life.soul.tier(), "gear_tier": StSpine.player_gear_tier(Life.equipment), "level": Life.player_level()})
 		check("Act V: the Rift gate opens once the power is there", bool(g2["open"]), JSON.stringify(g2))
 	var ok := await _st_play("a5_homecoming", 1500.0, "act V")
@@ -4874,6 +5004,85 @@ func _s_st_a5() -> void:
 	st_act_result("Act V", "a5_homecoming", "complete %s, flag %s" % [str(q.is_complete()), str(q.has_flag("r1.complete"))])
 	check("the story is complete and the 'Region 1 complete' flag is set", q.is_complete() and q.has_flag("r1.complete"))
 
+
+func _s_st_probe() -> void:
+	# diagnostic: stand on a story place and log what the player and the prompt see (not part of a story run)
+	await _st_ready()
+	if OS.get_environment("PROBE_STONE") != "":
+		await _st_probe_stone(OS.get_environment("PROBE_STONE"))
+		return
+	var pid := OS.get_environment("PROBE_PLACE") if OS.get_environment("PROBE_PLACE") != "" else "silverford_market"
+	var at := st_place(pid)
+	await teleport(at, 0.0, 2.0)
+	for i in 6:
+		st_dir()._on_tick()
+		var near: Array[String] = []
+		for n in get_tree().get_nodes_in_group("interactable"):
+			if n is Node3D and (n as Node3D).global_position.distance_to(player.global_position) < 12.0:
+				near.append("%s@%.1f" % [n.name, (n as Node3D).global_position.distance_to(player.global_position)])
+		L("probe %s: pos %s y %.2f ground %.2f hp %d dead %s floor %s swim %s vel %s npcs %s near %s" % [pid, _pos2s(), player.global_position.y, WorldGen.height(player.global_position.x, player.global_position.z), player.health, str(player.get("dead")), str(player.is_on_floor()), str(player.get("swimming")), str(player.velocity), str(st_dir()._npcs.keys()), str(near)])
+		await wait(2.0)
+	await shot("probe_" + pid)
+
+
+## diagnostic: walks up to a named runestone and logs what stops the player short of it (colliders ringed round the stone, the prompt)
+func _st_probe_stone(needle: String) -> void:
+	var g: Node = st_glue_node()
+	if needle == "LINKTEST":
+		var tp2 := st_place("rifts_edge_camp")
+		var a := -1
+		var b := -1
+		for i in g.wl.n:
+			if String(g.wl.st_name[i]) == "Millbrook Road Stone 4":
+				a = i
+			if String(g.wl.st_name[i]) == "Rift's Edge Stone East":
+				b = i
+		for i in [130, 131, 132, 21, 22]:
+			var ls: Array[String] = []
+			for lk: Dictionary in g.wl.links:
+				if int(lk["a"]) == i or int(lk["b"]) == i:
+					ls.append("%s-%s %s%s %.0f m" % [g.wl.st_name[lk["a"]], g.wl.st_name[lk["b"]], str(lk["kind"]), " CUT" if bool(lk["cut"]) else "", float(lk["len"])])
+			L("probe stone %d %s degree %d: %s" % [i, g.wl.st_name[i], g.wl.degree(i), str(ls)])
+		L("probe linktest a %d b %d degree a %d b %d: %s" % [a, b, g.wl.degree(a), g.wl.degree(b), str(g.wl.add_link(a, b))])
+		return
+	if needle == "LINKS":
+		var tp := st_place("rifts_edge_camp")
+		L("probe links: camp at %s, link max_len %s" % [str(tp), str(g.wl._cf("links", "max_len"))])
+		for i in g.wl.n:
+			var dd: float = (g.wl.st_pos[i] as Vector2).distance_to(tp)
+			if dd < 900.0:
+				var rows: Array[String] = []
+				for o: Array in g._link_menu(i)["options"]:
+					rows.append(String(o[0]))
+				L("probe stone %d %s at %.0f m from the camp (elder %s): %s" % [i, g.wl.st_name[i], dd, str(g.wl.elder_of[i] >= 0), str(rows)])
+		return
+	var sp := Vector2.INF
+	for sd: Dictionary in g._net.stones:
+		if String(sd["name"]).contains(needle):
+			sp = sd["pos"]
+	L("probe stone %s at %s ground %.2f" % [needle, str(sp), WorldGen.height(sp.x, sp.y)])
+	await teleport(sp + Vector2(9.0, 0.0), 0.0, 3.0)
+	var space := player.get_world_3d().direct_space_state
+	for k in 8:
+		var a := Vector2(1.0, 0.0).rotated(float(k) * PI / 4.0)
+		for r in [1.0, 2.5, 4.0]:
+			var q := sp + a * float(r)
+			var rq := PhysicsRayQueryParameters3D.create(Vector3(q.x, WorldGen.height(q.x, q.y) + 30.0, q.y), Vector3(q.x, WorldGen.height(q.x, q.y) - 5.0, q.y))
+			var hit := space.intersect_ray(rq)
+			L("  ring k%d r%.1f: ground %.2f hit %s" % [k, r, WorldGen.height(q.x, q.y), ("%s y %.2f" % [str(hit["collider"].name), hit["position"].y]) if not hit.is_empty() else "none"])
+	var ok := await st_walk(sp, 1.0, 40.0)
+	L("probe walk ok %s pos %s dist %.2f y %.2f best %s" % [str(ok), _pos2s(), p2().distance_to(sp), player.global_position.y, str(Interaction.node_of(Interaction.best(player)))])
+	await shot("probe_stone")
+	if OS.get_environment("PROBE_LINK") != "":
+		await st_find_stone_prompt(sp)
+		var opened := await st_press_e_menu("probe")
+		L("probe menu opened %s: %s" % [str(opened), str(menu_texts())])
+		var clicked := await click_option("Link to a nearby")
+		L("probe click %s" % str(clicked))
+		for i in 6:
+			L("probe menu after %d: %s" % [i, str(menu_texts())])
+			await wait(2.0)
+		await shot("probe_link_menu")
 
 func st_digest() -> Dictionary:
 	var q := st_q()

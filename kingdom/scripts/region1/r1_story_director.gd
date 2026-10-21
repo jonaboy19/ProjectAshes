@@ -216,6 +216,7 @@ func _on_tick() -> void:
 	_handle(story.refresh(ctx()))
 	_area_events()
 	_manage_npcs()
+	_refill_fights()
 	_process_pending_spawns()
 	_tick_staging()
 	var sig := _signature()
@@ -456,6 +457,50 @@ func _process_pending_spawns() -> void:
 			continue          # the creature waits for the player to come by: nothing is forced on a far traveller
 		_pending_spawns.erase(sp)
 		_spawn(String(sp["target"]), r["pos"], int(sp["n"]), String(sp["place"]))
+
+
+## A save keeps a fight's kill count but not its live creatures: reloaded mid-fight (or after the foes were lost another way), the
+## open kill objective would wait for creatures that no longer exist and the step could never finish. When it is open, nothing of
+## that kind is alive or on its way, the rest of them are queued again (they appear once the player is by the place).
+func _refill_fights() -> void:
+	if story == null:
+		return
+	for sid: String in story.active_steps():
+		var o: Dictionary = story.current_objective(sid)
+		if String(o.get("type", "")) != "kill":
+			continue
+		var target := String(o.get("target", ""))
+		var alive := _fight_alive(target)
+		if alive < 0:
+			continue
+		var key := String(o.get("id", ""))
+		var left: int = int(o.get("count", 1)) - int((story.progress.get(sid, {}) as Dictionary).get(key, 0))
+		if left - alive <= 0:
+			continue
+		var queued := false
+		for sp: Dictionary in _pending_spawns:
+			if String(sp["target"]) == target:
+				queued = true
+		if queued:
+			continue
+		var place := String(o.get("place", story.step(sid).get("place", "")))
+		_pending_spawns.append({"target": target, "place": place, "n": left - alive, "step": sid})
+
+
+## How many of a quest-spawned creature kind are alive now; -1 for a kind this does not re-create.
+func _fight_alive(target: String) -> int:
+	match target:
+		"rift_wolf":
+			var n := 0
+			for w: Node in get_tree().get_nodes_in_group("team1"):
+				if w.has_meta("rift") and w.get("dead") != true:
+					n += 1
+			return n
+		"wolf":
+			return 1 if is_instance_valid(_wolf) and _wolf.get("dead") != true else 0
+		"scarbound_troll":
+			return 1 if is_instance_valid(_boss) else 0
+	return -1
 
 
 func _spawn(target: String, at: Vector2, n: int, place: String) -> void:

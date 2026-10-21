@@ -26,6 +26,8 @@ const HUM_PATH := "res://assets/audio/region1/ambience/sfx_r1_rune_hum_loop.ogg"
 const ELDER_IDS := ["elder_glade", "elder_greyseam", "elder_highwatch", "elder_crownstead", "elder_elden"]
 const ELDER_PREFIX := "Elder Stone ("
 const STONE_REACH := 3.0
+## An Elder Stone stands on a raised ring that keeps the player ~4.5 m from its centre, so its reach is wider (found by the story playtest, Act IV).
+const ELDER_REACH := 6.0
 const FESTIVAL_MAP := {"planting": "planting", "midsummer": "midsummer_fair", "harvest": "harvest",
 	"solstice": "winter_solstice", "kindling_night": "kindling_night"}
 ## Burning the Scar back needs one Sunstone Oil, or this much firewood.
@@ -269,10 +271,11 @@ func _stone_finder(pp: Vector2) -> Dictionary:
 	if wl == null or _net == null:
 		return {}
 	var best := -1
-	var best_d := STONE_REACH
+	var best_d := ELDER_REACH
 	for s: Dictionary in _net.stones:
 		var d: float = pp.distance_to(s["pos"])
-		if d < best_d:
+		var reach := ELDER_REACH if String(s["name"]).begins_with(ELDER_PREFIX) else STONE_REACH
+		if d < reach and d < best_d:
 			best_d = d
 			best = int(s["id"])
 	if best < 0:
@@ -281,7 +284,10 @@ func _stone_finder(pp: Vector2) -> Dictionary:
 	var ancestor := el != null and el.is_ancestor_stone(best)
 	var elder := String(st["name"]).begins_with(ELDER_PREFIX)
 	var verb := "Speak to the stone" if ancestor else ("Read the Elder Stone" if elder else "Read the stone")
-	return {"pos": st["pos"], "verb": verb, "title": String(st["name"]), "menu": Callable(self, "stone_menu").bind(best)}
+	var at: Vector2 = st["pos"]
+	if elder and pp.distance_to(at) > 2.0:
+		at = pp + (at - pp).normalized() * 1.5    # the prompt sits between the player and the stone, inside the picker's own range
+	return {"pos": at, "verb": verb, "title": String(st["name"]), "menu": Callable(self, "stone_menu").bind(best)}
 
 
 func stone_menu(id: int) -> Dictionary:
@@ -306,16 +312,20 @@ func stone_menu(id: int) -> Dictionary:
 	if not elder:
 		opts.append(["Carve a glyph", Callable(self, "_open_carve").bind(id)])
 		opts.append(["Mend the stone", Callable(self, "_mend").bind(id)])
-		opts.append(["Link to a nearby stone", Callable(self, "_link_menu").bind(id)])
+		opts.append(["Link to a nearby stone", Callable(self, "_open_link_menu").bind(id)])
 	else:
 		if _elder_needs_relight(id):
 			opts.append(["Relight the Elder Stone", Callable(self, "_relight").bind(id)])
 		opts.append(["Bless the heart-stone (draw a bless glyph)", Callable(self, "_open_carve_bless").bind(id)])
-		opts.append(["Link to a nearby stone", Callable(self, "_link_menu").bind(id)])
+		opts.append(["Link to a nearby stone", Callable(self, "_open_link_menu").bind(id)])
 	if el != null and not el.embers.is_empty() and not el.is_ancestor_stone(id):
 		opts.append(["Lay an ember to rest here", Callable(self, "_ember_stone_here").bind(int(el.embers[0]["id"]), id)])
 	if page_head.has("speaker"):
 		opts.append(["Who were you?", Callable(self, "_ancestor_card").bind(id)])
+	if mem != null and ash != null:
+		var warm: Array[int] = mem.incidents_near(Vector2(float(s["pos"].x), float(s["pos"].y)), 40.0)
+		if not warm.is_empty():
+			opts.append(["Kneel and read the ashes", Callable(self, "_kneel").bind(warm[0])])
 	opts.append(["Leave", Callable(self, "_close_menu")])
 	if page_head.has("speaker"):
 		var page: Dictionary = page_head.duplicate()
@@ -477,12 +487,22 @@ func _relight(id: int) -> String:
 	return "Blue light runs out along the ward-lines, stone to stone."
 
 
+## The menu row's action: a row only reports a message, so the second page is opened here (the way "Back" reopens the first).
+func _open_link_menu(id: int) -> String:
+	if hud != null:
+		hud.show_menu(Callable(self, "_link_menu").bind(id))
+	return ""
+
+
 func _link_menu(id: int) -> Dictionary:
 	# A second-level menu: the three nearest stones this one is not linked to yet.
 	var cand: Array = []
+	var max_degree := int(wl._cd("links", "max_degree", 4))
 	for i in wl.n:
 		if i == id or wl._find_link(id, i) >= 0:
 			continue
+		if wl.degree(i) >= max_degree or wl.degree(id) >= max_degree:
+			continue      # a full stone cannot take another wardline: offering it only ended in "the link will not hold"
 		var d: float = wl.st_pos[id].distance_to(wl.st_pos[i])
 		if d <= float(wl._cf("links", "max_len")):
 			cand.append([d, i])
@@ -615,10 +635,14 @@ func _places_near(pos: Vector2, pad: float) -> Array[String]:
 	return out
 
 
+## How near the player must be to a Scar front for "Face the Scar" (and for the ashes prompt to give way to it).
+const SCAR_REACH := 16.0
+
+
 func _scar_finder(pp: Vector2) -> Dictionary:
 	if scar == null:
 		return {}
-	var f: Vector2 = scar.nearest_front(pp, 16.0)
+	var f: Vector2 = scar.nearest_front(pp, SCAR_REACH)
 	if f == Vector2.INF:
 		return {}
 	return {"pos": pp, "at_player_height": true, "verb": "Face the Scar", "title": "", "menu": Callable(self, "scar_menu").bind(f)}
@@ -912,7 +936,15 @@ func _flag_sites() -> void:
 func _ash_finder(pp: Vector2) -> Dictionary:
 	if mem == null or ash == null:
 		return {}
+	# Both prompts sit on the player and tie in the picker (a tie goes to the station name, "R1Ash..." before "R1Scar..."). Burning the Scar
+	# back leaves warm ashes at its edge, which then hid "Face the Scar": a second burn or the harvest could never be started there.
+	if scar != null and scar.nearest_front(pp, SCAR_REACH) != Vector2.INF:
+		return {}
 	var ids: Array[int] = mem.incidents_near(pp, 40.0)
+	# The same on-player tie hides a stone within reach: warm ashes lie near stones (a burnt-back Scar, an old fire), and the Elder Stone's
+	# "Relight" menu could not be opened. The stone's own menu offers the kneel (see stone_menu) unless the story asks for these ashes here.
+	if not ids.is_empty() and not _stone_finder(pp).is_empty() and _story_ash_site(pp) == "":
+		return {}
 	if not ids.is_empty():
 		return {"pos": pp, "at_player_height": true, "verb": "Kneel at the ashes", "title": "", "menu": Callable(self, "_ash_menu").bind(ids[0])}
 	# A story site that wants its memory: kneeling stages one there (first Ashsight, Act II).

@@ -204,3 +204,53 @@ func test_kill_events_reach_the_quest_with_their_place() -> void:
 	var ring: Vector2 = Places.position_of("ashford_ring")
 	Life.region1_kill.emit("wolf", Vector3(ring.x + 10.0, 0, ring.y))
 	assert_bool(dir.story.objective_done("a1_wolf_at_dusk", "wolf")).is_true()
+
+
+## A spawn hook that records only the rift wolves ([target, n]); the other steps the stub world opens spawn their own things.
+func _rift_catcher(into: Array) -> Callable:
+	return func(target: String, _at: Vector2, n: int, _place: String) -> void:
+		if target == "rift_wolf":
+			into.append([target, n])
+			for i in n:       # the real spawn stands n live rift wolves in the world
+				var w := Node3D.new()
+				w.add_to_group("team1")
+				w.set_meta("rift", true)
+				add_child(auto_free(w))
+
+
+func test_a_fight_reloaded_without_its_creatures_is_refilled() -> void:
+	# A save keeps the kill count, not the live wolves: reloaded mid-fight, Act III's ring fight must bring back the rest.
+	var counts: Array = []
+	dir.spawn_override = _rift_catcher(counts)
+	dir.story.status["a3_ring_falls"] = "active"
+	dir.story.progress["a3_ring_falls"] = {"_done_dark": true, "wolves": 2}
+	dir._pending_spawns.clear()
+	_goto("ashford_ring")
+	dir._on_tick()
+	dir._on_tick()
+	assert_int(counts.size()).is_equal(1)
+	assert_str(String(counts[0][0])).is_equal("rift_wolf")
+	assert_int(int(counts[0][1])).is_equal(3)      # 5 to kill, 2 already fell
+	# Once queued (or spawned) it is not queued twice.
+	dir._on_tick()
+	assert_int(counts.size()).is_equal(1)
+
+
+func test_a_fight_is_not_refilled_while_its_creatures_live_or_the_player_is_away() -> void:
+	var counts: Array = []
+	dir.spawn_override = _rift_catcher(counts)
+	dir.story.status["a3_ring_falls"] = "active"
+	dir.story.progress["a3_ring_falls"] = {"_done_dark": true}
+	dir._pending_spawns.clear()
+	player.global_position = Vector3(-3000, 0, 0)
+	dir._on_tick()
+	assert_int(counts.size()).is_equal(0)          # a far traveller: nothing is forced
+	for i in 5:
+		var w := Node3D.new()
+		w.add_to_group("team1")
+		w.set_meta("rift", true)
+		add_child(auto_free(w))
+	dir._pending_spawns.clear()
+	_goto("ashford_ring")
+	dir._on_tick()
+	assert_int(counts.size()).is_equal(0)          # five rift wolves are already out

@@ -1870,6 +1870,18 @@ func _cancel_pivot() -> void:
 	_animator.finish_air()
 
 
+## A teleport is not a fall: forget the apex and the airborne state of wherever the player was. A stale apex (a jump or a fall left
+## unfinished 100 m up at Highwatch) read as a 100 m drop on the first landing at the destination, and the fall damage killed the player.
+func teleported() -> void:
+	_fall_apex_y = global_position.y
+	_air_time = 0.0
+	_air_visual = false
+	_jump_active = false
+	_jump_starting = false
+	_jump_left_floor = false
+	_jump_falling = false
+
+
 func _land_jump(impact_speed: float, dir: Vector3) -> void:
 	var fall_height := maxf(_fall_apex_y - global_position.y, 0.0)
 	var forward_input := dir.length() > 0.1 and facing().dot(dir.normalized()) > 0.25

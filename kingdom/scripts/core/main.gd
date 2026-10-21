@@ -624,6 +624,7 @@ func _teleport(p: Vector2, yaw: float) -> void:
 	var pos := Vector3(p.x, WorldGen.height(p.x, p.y) + 0.3, p.y)
 	player.global_position = pos
 	player.velocity = Vector3.ZERO
+	player.teleported()
 	player.set_camera(yaw, -0.28)
 	# With physics/common/physics_interpolation on, a teleport would otherwise
 	# smear the camera across the screen for one frame as it interpolates from
