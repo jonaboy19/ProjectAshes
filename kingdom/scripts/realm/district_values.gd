@@ -29,12 +29,12 @@ const D_FEST := 4
 const D_MIGR := 5
 const D_PAY := 6      # steady payments (wages, rent paid, tax) minus defaults
 const DECAY := [0.97, 0.985, 0.95, 0.98, 0.9, 0.97, 0.96]
-const QUARTERS := ["noble", "poor", "merchant", "military", "other"]
+const QUARTERS := ["noble", "poor", "merchant", "military", "other", "monster"]   # "monster" is opened on demand (open_monster_quarter), never by kind
 const QUARTERS_BY_KIND := {
 	"village": ["merchant", "other"], "frontier_town": ["merchant", "other", "poor", "military"],
 	"town": ["merchant", "other", "poor", "military"], "castle": ["merchant", "other", "poor", "military", "noble"],
 }
-const BASE_WEALTH := {"noble": 0.85, "merchant": 0.65, "other": 0.45, "poor": 0.2, "military": 0.4}
+const BASE_WEALTH := {"noble": 0.85, "merchant": 0.65, "other": 0.45, "poor": 0.2, "military": 0.4, "monster": 0.15}
 const BIZ_QUARTER := {"shop": "merchant", "inn": "merchant", "caravan": "merchant", "workshop": "other"}
 const RATE := 0.08          # fraction of the gap to target closed per day
 const CHUNK := 6
@@ -63,7 +63,23 @@ func quarters_of(sid: int) -> Array:
 	var k := "village"
 	if sid >= 0 and sid < WorldGen.settlements.size():
 		k = String(WorldGen.settlements[sid].get("kind", "village"))
-	return (QUARTERS_BY_KIND.get(k, ["merchant", "other"]) as Array).duplicate()
+	var out: Array = (QUARTERS_BY_KIND.get(k, ["merchant", "other"]) as Array).duplicate()
+	if _v.has(_key(sid, "monster")):
+		out.append("monster")
+	return out
+
+
+## Monsters who live among people (dens let by homes.rent_den) form a quarter of their own in that settlement. Idempotent.
+func open_monster_quarter(sid: int) -> bool:
+	_ensure()
+	if sid < 0 or sid >= WorldGen.settlements.size() or has_quarter(sid, "monster"):
+		return false
+	_seed(sid, "monster")
+	var k := _key(sid, "monster")
+	(_v[k] as Array)[F_CULT] = 0.75
+	(_v[k] as Array)[F_TENS] = 0.35
+	_reindex()
+	return true
 
 
 func _key(sid: int, q: String) -> String:

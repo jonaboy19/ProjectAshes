@@ -54,6 +54,7 @@ const HOME_KINDS := {
 	"cottage": {"rent": 14, "price": 800, "up": 3, "rooms": 2},
 	"house": {"rent": 34, "price": 2100, "up": 8, "rooms": 4},
 	"manor": {"rent": 110, "price": 7600, "up": 30, "rooms": 9},
+	"den": {"rent": 6, "price": 300, "up": 1, "rooms": 1},   # a monster dwelling (rent_den); never in listings(), so KIND_ORDER omits it
 }
 const KIND_ORDER := ["hovel", "cottage", "house", "manor"]
 ## Settlement kind -> price multiplier.
@@ -217,6 +218,31 @@ func rent_home(who: String, sid: int, kind := "cottage", listing_id := "") -> Di
 	return {"ok": true, "home": r["id"], "rent": int(pick["rent"]), "kind": pick["kind"], "deposit": deposit}
 
 
+## A monster household lets a den. Landlords charge more where the town's prejudice against the species runs high
+## (monster_society.prejudice); the den lies in the settlement's "monster" quarter, which this opens.
+func rent_den(who: String, sid: int, species := "", culture := "native") -> Dictionary:
+	if _home.size() >= HOME_MAX:
+		return {"ok": false, "reason": "The town has no more houses on offer."}
+	var ms: Variant = _mod("monster_society")
+	var prej := float(ms.prejudice(sid, culture, species)) if ms != null else 0.0
+	var def: Dictionary = HOME_KINDS["den"]
+	var rent := maxi(1, int(round(float(def["rent"]) * _kind_mult(sid) * (1.0 + 0.8 * prej))))
+	var deposit := rent * 2
+	if not _pay(who, deposit):
+		return {"ok": false, "reason": "A deposit of %d gold is asked." % deposit}
+	var r := _new_home(who, sid, "den", false, rent, int(def["price"]))
+	(_home[r["id"]] as Dictionary)["dep"] = deposit
+	stats["rented"] = int(stats["rented"]) + 1
+	if not _prim.has(who):
+		_prim[who] = r["id"]
+		_sync_household(who, String(r["id"]))
+	var dv: Variant = _mod("districts")
+	if dv != null:
+		dv.open_monster_quarter(sid)
+	_ev("trade", sid, [who], "rent_den", "A den is let", 1)
+	return {"ok": true, "home": r["id"], "rent": rent, "kind": "den", "deposit": deposit, "prejudice": prej}
+
+
 func buy_home(who: String, sid: int, kind := "house", listing_id := "") -> Dictionary:
 	if _home.size() >= HOME_MAX:
 		return {"ok": false, "reason": "The town has no more houses on offer."}
@@ -363,7 +389,7 @@ func _note_cost(h: Dictionary, who: String, amt: int, owner_side: bool) -> void:
 		lg.note(who, String(h["owner"]) if rent else "tr:%d" % int(h["sid"]), "rent" if rent else "upkeep", amt)
 	var dv: Variant = _mod("districts")
 	if dv != null:
-		dv.on_payment(int(h["sid"]), {"hovel": "poor", "cottage": "poor", "house": "other", "manor": "noble"}.get(String(h["kind"]), "other"), "rent" if rent else "tax", amt)
+		dv.on_payment(int(h["sid"]), {"hovel": "poor", "cottage": "poor", "house": "other", "manor": "noble", "den": "monster"}.get(String(h["kind"]), "other"), "rent" if rent else "tax", amt)
 
 
 func _occupied(hid: String, h: Dictionary) -> bool:

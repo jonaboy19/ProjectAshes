@@ -91,9 +91,34 @@ static func kingdom_name(id: String) -> String:
 	return id.replace("_", " ").capitalize()
 
 
-static func kingdom_of(_sid: int) -> String:
-	## Every settlement WorldGen builds lies in the first region (the Kingdom of Valencious).
-	return HOME
+## The kingdom a settlement (int id) or ground position (Vector2, x/z metres) lies in. A settlement may carry its own "kingdom" (or "nation")
+## field; otherwise its position decides: the +-REGION_HALF square is the Kingdom of Valencious (HOME), beyond it the border exit of that
+## side leads to the neighbour (north frostcrown_holds, south solkar_dominion, west veylwood, east solmarch; regions.json "exits").
+## Unknown ids and everything inside the first region resolve to HOME.
+const REGION_HALF := 6144.0
+const BEYOND := {"north": "frostcrown_holds", "south": "solkar_dominion", "west": "veylwood", "east": "solmarch"}
+
+static func kingdom_of(where: Variant) -> String:
+	if where is Vector2:
+		return kingdom_at(where)
+	var s := settlement(int(where))
+	if s.is_empty():
+		return HOME
+	var k := String(s.get("kingdom", s.get("nation", "")))
+	if k != "" and is_kingdom(k):
+		return k
+	var pos: Variant = s.get("pos", null)
+	return kingdom_at(pos) if pos is Vector2 else HOME
+
+
+static func kingdom_at(p: Vector2) -> String:
+	var ax := absf(p.x)
+	var az := absf(p.y)
+	if ax <= REGION_HALF and az <= REGION_HALF:
+		return HOME
+	if az >= ax:
+		return String(BEYOND["north" if p.y < 0.0 else "south"])
+	return String(BEYOND["east" if p.x > 0.0 else "west"])
 
 
 ## A cheap deterministic generator: hash([SEED, tag, day, id]).

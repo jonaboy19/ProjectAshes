@@ -791,7 +791,46 @@ func _day_core(day: int) -> Array:
 	_day = maxi(_day, day)
 	var out := _arrivals(day)
 	out.append_array(_specialists_day(day))
+	out.append_array(_monster_departures(day))
 	return out
+
+
+const HOUSEHOLD_SIZE := 4
+
+## Households that left a town because of monsters (monster_society.take_departures) become small refugee waves
+## towards the most attractive other place.
+func _monster_departures(day: int) -> Array:
+	var ms := _mod("monster_society")
+	var civ := _civ()
+	if ms == null or civ == null or not ms.has_method("take_departures"):
+		return []
+	var out: Array = []
+	for dep: Dictionary in ms.call("take_departures"):
+		var from := "s%d" % int(dep.get("sid", -1))
+		if not bool(civ.call("has_place", from)):
+			continue
+		var to := _flee_dest(civ, from)
+		if to == "":
+			continue
+		var w := send_wave(from, to, maxi(1, int(dep.get("n", 1))) * HOUSEHOLD_SIZE, "refugees", "monsters", "refugee", day)
+		if not w.is_empty():
+			out.append(w)
+	return out
+
+
+func _flee_dest(civ: RefCounted, from: String) -> String:
+	var at: Vector2 = civ.call("pos_of", from)
+	var best := ""
+	var bs := -INF
+	for node in civ.call("place_ids"):
+		var nd := String(node)
+		if nd == from or bool((civ.call("place", nd) as Dictionary)["ruin"]):
+			continue
+		var sc := float((civ.call("place", nd) as Dictionary)["pull"]) - 0.00007 * at.distance_to(civ.call("pos_of", nd))
+		if sc > bs:
+			bs = sc
+			best = nd
+	return best
 
 
 var _news0 := 0

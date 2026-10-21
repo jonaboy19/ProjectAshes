@@ -14,6 +14,8 @@ extends RefCounted
 
 const Faith := preload("res://scripts/realm/faith.gd")
 const HOME := "caldrenn"
+const AWE_LEGIT := 0.25       # most legitimacy awe of a strong aura can add
+const DREAD_LEGIT := 0.15     # most dread can take away
 const TTL_HOURS := 1
 const CACHE_MAX := 512
 const REACTIONS := ["ignore", "apologise", "bow", "insult", "demand_apology", "flee", "exploit"]
@@ -100,7 +102,12 @@ func read(o: Dictionary, s: Dictionary, ctx: Dictionary = {}) -> Dictionary:
 	var kingdom := String(o.get("kingdom", HOME))
 	var outfit: Dictionary = p.get("outfit", {})
 	var wealth := clampf(maxf(_f(p, "gear_value", -1.0) if p.has("gear_value") else float(OUTFIT_WEALTH.get(String(outfit.get("kind", "")), 0.2)), 0.0) - (0.1 if outfit.get("dirty", false) else 0.0), 0.0, 1.0)
-	var leg := legitimacy(String(p.get("origin", kingdom)), kingdom, ctx)
+	var mp := magic_pressure(o, s, ctx)
+	var leg_base := legitimacy(String(p.get("origin", kingdom)), kingdom, ctx)
+	var pe0: Dictionary = o.get("persona", {})
+	var awe := mp * _f(pe0, "pious", 0.3)
+	var dread := mp * (1.0 - _f(pe0, "courage", 0.5)) * (1.0 - _f(pe0, "pious", 0.3))
+	var leg := leg_base if leg_base <= 0.0 else clampf(leg_base + clampf(AWE_LEGIT * awe - DREAD_LEGIT * dread, -DREAD_LEGIT, AWE_LEGIT), 0.0, 1.0)   # bounded: an aura sways a title, never makes one; a title the law refuses stays refused
 	var authority := clampf(float(p.get("title_rank", 0)) / 5.0 * (0.4 + 0.6 * _f(p, "insignia", 0.5)) * leg, 0.0, 1.0)
 	var rep := 0.0
 	var rv: Dictionary = o.get("rep", {})
@@ -113,7 +120,7 @@ func read(o: Dictionary, s: Dictionary, ctx: Dictionary = {}) -> Dictionary:
 		rep = clampf((float(rv.get("trust", 0.0)) + float(rv.get("reliability", 0.0)) + float(rv.get("generosity", 0.0)) - float(rv.get("cruelty", 0.0))) / 200.0, -1.0, 1.0)
 	var threat := clampf(_f(p, "weapons") * 0.6 + minf(float(p.get("companions", 0)), 4.0) * 0.1 + _f(p, "strength") * 0.3 - _f(p, "injury") * 0.4, 0.0, 1.0)
 	var out := {"wealth": wealth, "authority": authority, "legitimacy": leg, "reputation": rep, "threat": threat,
-		"magic_pressure": magic_pressure(o, s, ctx), "protection": clampf(_f(p, "protection") + minf(float(p.get("companions", 0)), 4.0) * 0.05, 0.0, 1.0),
+		"magic_pressure": mp, "awe": awe, "dread": dread, "protection": clampf(_f(p, "protection") + minf(float(p.get("companions", 0)), 4.0) * 0.05, 0.0, 1.0),
 		"local_influence": _f(p, "influence"), "disguised": idn["disguised"], "exposed": idn["exposed"], "expose_chance": idn["chance"],
 		"perceived_id": String(p.get("id", "")), "true_id": String(s.get("id", ""))}
 	if _cache.size() >= CACHE_MAX:

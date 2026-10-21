@@ -78,6 +78,8 @@ static func steal(tree: SceneTree, owner: String, item: String, qty: int, source
 		victim_sid = sid
 	_give(item, qty, true, victim_sid)
 	out["stolen"] = true
+	# Reactive Presence: bodies in sight react to the grab (TAKE_OBJECT = stim 8); no-op when no live presence exists.
+	out["presence"] = int((load("res://scripts/population/presence_live.gd") as GDScript).call("report_player", 8, clampf(0.5 + float(a["value"]) / 200.0, 0.5, 1.0), 12.0))
 	if sid >= 0 or tree != null:
 		var res := report(tree, String(a["kind"]), at, sid)
 		out["seen_by"] = int(res.get("seen_by", 0))

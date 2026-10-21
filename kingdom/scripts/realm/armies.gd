@@ -1900,6 +1900,26 @@ func _npc_fund(k: String) -> void:
 			a["food"] = float(a["food"]) + qty
 
 
+## The world's weather states (world/weather.gd) mapped to the field vocabulary of WEATHER_FIELD / WEATHER_RIDE.
+const WEATHER_MAP := {"clear": "clear", "cloudy": "clear", "overcast": "clear", "rain": "rain", "storm": "storm", "fog": "fog", "snow": "snow"}
+
+static func field_weather(state: String) -> String:
+	return String(WEATHER_MAP.get(state, "clear"))
+
+
+## Weather for a day when no weather node is alive (headless sim, catch-up): a deterministic roll shaped by the season.
+static func season_weather(season: String, day: int, hour := 12) -> String:
+	var r := float(absi(hash([WorldSim.SEED, "armywx", day, hour / 6])) % 1000) / 1000.0
+	match season:
+		"winter":
+			return "snow" if r < 0.25 else ("fog" if r < 0.35 else "clear")
+		"autumn":
+			return "storm" if r < 0.06 else ("rain" if r < 0.3 else ("fog" if r < 0.4 else "clear"))
+		"spring":
+			return "storm" if r < 0.04 else ("rain" if r < 0.28 else "clear")
+	return "storm" if r < 0.05 else ("rain" if r < 0.12 else "clear")
+
+
 # ------------------------------------------------------------------ hub hooks
 
 func tick_hour(_hour: int, _ctx: Dictionary) -> Array:

@@ -1,537 +1,922 @@
 {
-"_doc": "MN-11 status-aware lines. b=band of the SUBJECT's status as the speaker reads it, s=situation (greet|gossip|gate|companion), c=culture or *, sp=species or *. Original text.",
-"lines": [
-{
-"b": "outcast",
-"s": "greet",
-"c": "*",
-"sp": "*",
-"t": "Keep walking. Nobody here owes you a bench."
-},
-{
-"b": "outcast",
-"s": "greet",
-"c": "*",
-"sp": "*",
-"t": "I have seen kinder faces on a gallows."
-},
-{
-"b": "outcast",
-"s": "greet",
-"c": "*",
-"sp": "*",
-"t": "Mind the dog, not the stranger. You smell of trouble."
-},
-{
-"b": "outcast",
-"s": "greet",
-"c": "*",
-"sp": "*",
-"t": "Your name came ahead of you, and it came limping."
-},
-{
-"b": "outcast",
-"s": "greet",
-"c": "*",
-"sp": "*",
-"t": "We do not serve your sort. Try the road."
-},
-{
-"b": "outcast",
-"s": "gossip",
-"c": "*",
-"sp": "*",
-"t": "They say the one with the beast was run out of two towns."
-},
-{
-"b": "outcast",
-"s": "gossip",
-"c": "*",
-"sp": "*",
-"t": "Heard that one is wanted. Heard worse, too."
-},
-{
-"b": "outcast",
-"s": "gate",
-"c": "*",
-"sp": "*",
-"t": "Not a coin, not a word, not a step."
-},
-{
-"b": "outcast",
-"s": "companion",
-"c": "*",
-"sp": "*",
-"t": "That thing eats more than my whole house."
-},
-{
-"b": "outcast",
-"s": "companion",
-"c": "monster_town",
-"sp": "*",
-"t": "A walker with no name walks alone."
-},
-{
-"b": "outcast",
-"s": "greet",
-"c": "solenne",
-"sp": "*",
-"t": "Unclean. Turn back."
-},
-{
-"b": "outcast",
-"s": "greet",
-"c": "solenne",
-"sp": "*",
-"t": "Be cleansed or be elsewhere."
-},
-{
-"b": "low",
-"s": "greet",
-"c": "*",
-"sp": "*",
-"t": "Morning. Do not linger by the stalls, friend."
-},
-{
-"b": "low",
-"s": "greet",
-"c": "*",
-"sp": "*",
-"t": "Lord's own hound? Mind your feet."
-},
-{
-"b": "low",
-"s": "greet",
-"c": "*",
-"sp": "*",
-"t": "Do I know you? No. Good."
-},
-{
-"b": "low",
-"s": "greet",
-"c": "*",
-"sp": "*",
-"t": "Wipe your boots, and take that lead up short."
-},
-{
-"b": "low",
-"s": "greet",
-"c": "*",
-"sp": "*",
-"t": "You are new here. New folk pay first."
-},
-{
-"b": "low",
-"s": "gossip",
-"c": "*",
-"sp": "*",
-"t": "Someone said a traveller came through with a tamed wolf. Might be you."
-},
-{
-"b": "low",
-"s": "gossip",
-"c": "*",
-"sp": "*",
-"t": "They say you spoke it a name. What is it like, to be answered?"
-},
-{
-"b": "low",
-"s": "gate",
-"c": "*",
-"sp": "*",
-"t": "Papers, then the fee, then the lead. In that order."
-},
-{
-"b": "low",
-"s": "gate",
-"c": "caldric",
-"sp": "*",
-"t": "Registry is at the red door. Collar is three marks, tags are free."
-},
-{
-"b": "low",
-"s": "gate",
-"c": "solenne",
-"sp": "*",
-"t": "That one stays outside. Camp by the hitching rail."
-},
-{
-"b": "low",
-"s": "companion",
-"c": "*",
-"sp": "*",
-"t": "Fine beast. Keep it where I can see it."
-},
-{
-"b": "low",
-"s": "companion",
-"c": "monster_town",
-"sp": "*",
-"t": "Name-bearer. The ash-poles do not know your face yet."
-},
-{
-"b": "low",
-"s": "greet",
-"c": "solenne",
-"sp": "*",
-"t": "The Throne counts souls. Yours is on loan to that creature."
-},
-{
-"b": "common",
-"s": "greet",
-"c": "*",
-"sp": "*",
-"t": "Fair day to you. Mind the cart ruts by the well."
-},
-{
-"b": "common",
-"s": "greet",
-"c": "*",
-"sp": "*",
-"t": "Traveller. Bread is fresh if you have coin."
-},
-{
-"b": "common",
-"s": "greet",
-"c": "*",
-"sp": "*",
-"t": "You have the look of someone who pays on time."
-},
-{
-"b": "common",
-"s": "greet",
-"c": "*",
-"sp": "*",
-"t": "Evening, neighbour. Quiet streets tonight."
-},
-{
-"b": "common",
-"s": "greet",
-"c": "*",
-"sp": "*",
-"t": "Stable's out back if you need a stall."
-},
-{
-"b": "common",
-"s": "gossip",
-"c": "*",
-"sp": "*",
-"t": "The knight with the ogre? He pays for his own broken doors."
-},
-{
-"b": "common",
-"s": "gossip",
-"c": "*",
-"sp": "*",
-"t": "Heard she named a whole pack. Hair went white that night."
-},
-{
-"b": "common",
-"s": "gossip",
-"c": "*",
-"sp": "*",
-"t": "They say the goblin does the books better than my nephew. Do not tell him."
-},
-{
-"b": "common",
-"s": "gate",
-"c": "*",
-"sp": "*",
-"t": "Fee is two marks a head. Smile for the clerk."
-},
-{
-"b": "common",
-"s": "gate",
-"c": "caldric",
-"sp": "goblin",
-"t": "Your goblin did my accounts better than my nephew. Do not tell him."
-},
-{
-"b": "common",
-"s": "companion",
-"c": "*",
-"sp": "lizardfolk",
-"t": "Does the lizard bite? No? Then it can have the bench."
-},
-{
-"b": "common",
-"s": "companion",
-"c": "frontier",
-"sp": "kobold",
-"t": "Kobold miners are welcome at the shaft head."
-},
-{
-"b": "common",
-"s": "companion",
-"c": "frontier",
-"sp": "wolf",
-"t": "Wolf of the hills! Hunters will stand it a round."
-},
-{
-"b": "common",
-"s": "companion",
-"c": "urrokai",
-"sp": "*",
-"t": "Beasts are kin-spirits. Walk with it kindly."
-},
-{
-"b": "respected",
-"s": "greet",
-"c": "*",
-"sp": "*",
-"t": "Good day to you. The council spoke well of your last favour."
-},
-{
-"b": "respected",
-"s": "greet",
-"c": "*",
-"sp": "*",
-"t": "Come by the hall; there is a stool kept for you."
-},
-{
-"b": "respected",
-"s": "greet",
-"c": "*",
-"sp": "*",
-"t": "Your name carries in the market. Keep it clean."
-},
-{
-"b": "respected",
-"s": "greet",
-"c": "*",
-"sp": "*",
-"t": "Ah, you. The baker saved the good loaf."
-},
-{
-"b": "respected",
-"s": "greet",
-"c": "*",
-"sp": "*",
-"t": "Folk speak well of you in the guild row."
-},
-{
-"b": "respected",
-"s": "gossip",
-"c": "*",
-"sp": "*",
-"t": "Her wolf spoke, you know. Cold. Rain. Stay. Three words and the priest was fetched."
-},
-{
-"b": "respected",
-"s": "gossip",
-"c": "*",
-"sp": "*",
-"t": "He keeps his word to the beast and to the bank. Rare."
-},
-{
-"b": "respected",
-"s": "gossip",
-"c": "*",
-"sp": "*",
-"t": "They say the charter held in two towns already."
-},
-{
-"b": "respected",
-"s": "gate",
-"c": "*",
-"sp": "*",
-"t": "Sponsored? Then pass, and take the hitching rail on the house."
-},
-{
-"b": "respected",
-"s": "gate",
-"c": "monster_town",
-"sp": "*",
-"t": "Pass, name-bearer. The ash-poles know your face."
-},
-{
-"b": "respected",
-"s": "companion",
-"c": "*",
-"sp": "*",
-"t": "A named beast. Is it papers it carries, or only a tooth for show?"
-},
-{
-"b": "respected",
-"s": "companion",
-"c": "*",
-"sp": "*",
-"t": "A baker leaves bread at the gate for your ogre now. Do not ask."
-},
-{
-"b": "respected",
-"s": "companion",
-"c": "solenne",
-"sp": "*",
-"t": "The Throne forgives much for a seal and a tithe."
-},
-{
-"b": "noble",
-"s": "greet",
-"c": "*",
-"sp": "*",
-"t": "My lord, my lady. The hall is yours."
-},
-{
-"b": "noble",
-"s": "greet",
-"c": "*",
-"sp": "*",
-"t": "Rare to see a house keep such company with such grace."
-},
-{
-"b": "noble",
-"s": "greet",
-"c": "*",
-"sp": "*",
-"t": "The steward will clear the east stable for your companions."
-},
-{
-"b": "noble",
-"s": "greet",
-"c": "*",
-"sp": "*",
-"t": "Your charter is read aloud at our gate. Pass freely."
-},
-{
-"b": "noble",
-"s": "greet",
-"c": "*",
-"sp": "*",
-"t": "They say the Crown listens when you ask."
-},
-{
-"b": "noble",
-"s": "gossip",
-"c": "*",
-"sp": "*",
-"t": "The envoy who walks with the lizardfolk argues better than my own chancellor."
-},
-{
-"b": "noble",
-"s": "gossip",
-"c": "*",
-"sp": "*",
-"t": "It was your word that opened the ban for a season. We remember."
-},
-{
-"b": "noble",
-"s": "gate",
-"c": "*",
-"sp": "*",
-"t": "No fee for the charter-holder. Bows all round."
-},
-{
-"b": "noble",
-"s": "companion",
-"c": "*",
-"sp": "*",
-"t": "Come back with a charter and I will hear you."
-},
-{
-"b": "noble",
-"s": "companion",
-"c": "monster_town",
-"sp": "*",
-"t": "The elders will hear you, name-bearer. Sit."
-},
-{
-"b": "noble",
-"s": "companion",
-"c": "caldric",
-"sp": "*",
-"t": "A beast at table is a beast with manners. Pour it water."
-},
-{
-"b": "exalted",
-"s": "greet",
-"c": "*",
-"sp": "*",
-"t": "Hail. The lamps are lit for you tonight."
-},
-{
-"b": "exalted",
-"s": "greet",
-"c": "*",
-"sp": "*",
-"t": "History sits with you at this table."
-},
-{
-"b": "exalted",
-"s": "greet",
-"c": "*",
-"sp": "*",
-"t": "You need no papers. You are the paper."
-},
-{
-"b": "exalted",
-"s": "greet",
-"c": "*",
-"sp": "*",
-"t": "Children chalk your sigil on the lintels."
-},
-{
-"b": "exalted",
-"s": "greet",
-"c": "*",
-"sp": "*",
-"t": "Even the Throne's clerks lower their eyes."
-},
-{
-"b": "exalted",
-"s": "gossip",
-"c": "*",
-"sp": "*",
-"t": "They sing of the name-giver in three kingdoms, and each version has a different dragon."
-},
-{
-"b": "exalted",
-"s": "gossip",
-"c": "*",
-"sp": "*",
-"t": "They say she named a dragon. She says it was a lizard. They say you cannot tell the difference at that size."
-},
-{
-"b": "exalted",
-"s": "gate",
-"c": "*",
-"sp": "*",
-"t": "Open the main gate! The whole company, and no questions."
-},
-{
-"b": "exalted",
-"s": "companion",
-"c": "*",
-"sp": "*",
-"t": "Let the beast lead. It has earned the first step."
-},
-{
-"b": "exalted",
-"s": "companion",
-"c": "monster_town",
-"sp": "*",
-"t": "The ash-poles bow to you, first of the name-bearers."
-},
-{
-"b": "outcast",
-"s": "gossip",
-"c": "*",
-"sp": "*",
-"t": "I heard he named a demon and it named him back."
-},
-{
-"b": "low",
-"s": "gossip",
-"c": "*",
-"sp": "*",
-"t": "Heard she was named by the monster. Could be true."
-},
-{
-"b": "common",
-"s": "gossip",
-"c": "*",
-"sp": "*",
-"t": "Someone swears it was a dragon. A big one. At the pass."
-}
-]
+ "_doc": "MN-11 status-aware lines. b=band of the SUBJECT's status as the speaker reads it, s=situation (greet|gossip|gate|companion), c=culture or *, sp=species or *. Original text.",
+ "lines": [
+  {
+   "b": "outcast",
+   "s": "greet",
+   "c": "*",
+   "sp": "*",
+   "t": "Keep walking. Nobody here owes you a bench."
+  },
+  {
+   "b": "outcast",
+   "s": "greet",
+   "c": "*",
+   "sp": "*",
+   "t": "I have seen kinder faces on a gallows."
+  },
+  {
+   "b": "outcast",
+   "s": "greet",
+   "c": "*",
+   "sp": "*",
+   "t": "Mind the dog, not the stranger. You smell of trouble."
+  },
+  {
+   "b": "outcast",
+   "s": "greet",
+   "c": "*",
+   "sp": "*",
+   "t": "Your name came ahead of you, and it came limping."
+  },
+  {
+   "b": "outcast",
+   "s": "greet",
+   "c": "*",
+   "sp": "*",
+   "t": "We do not serve your sort. Try the road."
+  },
+  {
+   "b": "outcast",
+   "s": "gossip",
+   "c": "*",
+   "sp": "*",
+   "t": "They say the one with the beast was run out of two towns."
+  },
+  {
+   "b": "outcast",
+   "s": "gossip",
+   "c": "*",
+   "sp": "*",
+   "t": "Heard that one is wanted. Heard worse, too."
+  },
+  {
+   "b": "outcast",
+   "s": "gate",
+   "c": "*",
+   "sp": "*",
+   "t": "Not a coin, not a word, not a step."
+  },
+  {
+   "b": "outcast",
+   "s": "companion",
+   "c": "*",
+   "sp": "*",
+   "t": "That thing eats more than my whole house."
+  },
+  {
+   "b": "outcast",
+   "s": "companion",
+   "c": "monster_town",
+   "sp": "*",
+   "t": "A walker with no name walks alone."
+  },
+  {
+   "b": "outcast",
+   "s": "greet",
+   "c": "solenne",
+   "sp": "*",
+   "t": "Unclean. Turn back."
+  },
+  {
+   "b": "outcast",
+   "s": "greet",
+   "c": "solenne",
+   "sp": "*",
+   "t": "Be cleansed or be elsewhere."
+  },
+  {
+   "b": "low",
+   "s": "greet",
+   "c": "*",
+   "sp": "*",
+   "t": "Morning. Do not linger by the stalls, friend."
+  },
+  {
+   "b": "low",
+   "s": "greet",
+   "c": "*",
+   "sp": "*",
+   "t": "Lord's own hound? Mind your feet."
+  },
+  {
+   "b": "low",
+   "s": "greet",
+   "c": "*",
+   "sp": "*",
+   "t": "Do I know you? No. Good."
+  },
+  {
+   "b": "low",
+   "s": "greet",
+   "c": "*",
+   "sp": "*",
+   "t": "Wipe your boots, and take that lead up short."
+  },
+  {
+   "b": "low",
+   "s": "greet",
+   "c": "*",
+   "sp": "*",
+   "t": "You are new here. New folk pay first."
+  },
+  {
+   "b": "low",
+   "s": "gossip",
+   "c": "*",
+   "sp": "*",
+   "t": "Someone said a traveller came through with a tamed wolf. Might be you."
+  },
+  {
+   "b": "low",
+   "s": "gossip",
+   "c": "*",
+   "sp": "*",
+   "t": "They say you spoke it a name. What is it like, to be answered?"
+  },
+  {
+   "b": "low",
+   "s": "gate",
+   "c": "*",
+   "sp": "*",
+   "t": "Papers, then the fee, then the lead. In that order."
+  },
+  {
+   "b": "low",
+   "s": "gate",
+   "c": "caldric",
+   "sp": "*",
+   "t": "Registry is at the red door. Collar is three marks, tags are free."
+  },
+  {
+   "b": "low",
+   "s": "gate",
+   "c": "solenne",
+   "sp": "*",
+   "t": "That one stays outside. Camp by the hitching rail."
+  },
+  {
+   "b": "low",
+   "s": "companion",
+   "c": "*",
+   "sp": "*",
+   "t": "Fine beast. Keep it where I can see it."
+  },
+  {
+   "b": "low",
+   "s": "companion",
+   "c": "monster_town",
+   "sp": "*",
+   "t": "Name-bearer. The ash-poles do not know your face yet."
+  },
+  {
+   "b": "low",
+   "s": "greet",
+   "c": "solenne",
+   "sp": "*",
+   "t": "The Throne counts souls. Yours is on loan to that creature."
+  },
+  {
+   "b": "common",
+   "s": "greet",
+   "c": "*",
+   "sp": "*",
+   "t": "Fair day to you. Mind the cart ruts by the well."
+  },
+  {
+   "b": "common",
+   "s": "greet",
+   "c": "*",
+   "sp": "*",
+   "t": "Traveller. Bread is fresh if you have coin."
+  },
+  {
+   "b": "common",
+   "s": "greet",
+   "c": "*",
+   "sp": "*",
+   "t": "You have the look of someone who pays on time."
+  },
+  {
+   "b": "common",
+   "s": "greet",
+   "c": "*",
+   "sp": "*",
+   "t": "Evening, neighbour. Quiet streets tonight."
+  },
+  {
+   "b": "common",
+   "s": "greet",
+   "c": "*",
+   "sp": "*",
+   "t": "Stable's out back if you need a stall."
+  },
+  {
+   "b": "common",
+   "s": "gossip",
+   "c": "*",
+   "sp": "*",
+   "t": "The knight with the ogre? He pays for his own broken doors."
+  },
+  {
+   "b": "common",
+   "s": "gossip",
+   "c": "*",
+   "sp": "*",
+   "t": "Heard she named a whole pack. Hair went white that night."
+  },
+  {
+   "b": "common",
+   "s": "gossip",
+   "c": "*",
+   "sp": "*",
+   "t": "They say the goblin does the books better than my nephew. Do not tell him."
+  },
+  {
+   "b": "common",
+   "s": "gate",
+   "c": "*",
+   "sp": "*",
+   "t": "Fee is two marks a head. Smile for the clerk."
+  },
+  {
+   "b": "common",
+   "s": "gate",
+   "c": "caldric",
+   "sp": "goblin",
+   "t": "Your goblin did my accounts better than my nephew. Do not tell him."
+  },
+  {
+   "b": "common",
+   "s": "companion",
+   "c": "*",
+   "sp": "lizardfolk",
+   "t": "Does the lizard bite? No? Then it can have the bench."
+  },
+  {
+   "b": "common",
+   "s": "companion",
+   "c": "frontier",
+   "sp": "kobold",
+   "t": "Kobold miners are welcome at the shaft head."
+  },
+  {
+   "b": "common",
+   "s": "companion",
+   "c": "frontier",
+   "sp": "wolf",
+   "t": "Wolf of the hills! Hunters will stand it a round."
+  },
+  {
+   "b": "common",
+   "s": "companion",
+   "c": "urrokai",
+   "sp": "*",
+   "t": "Beasts are kin-spirits. Walk with it kindly."
+  },
+  {
+   "b": "respected",
+   "s": "greet",
+   "c": "*",
+   "sp": "*",
+   "t": "Good day to you. The council spoke well of your last favour."
+  },
+  {
+   "b": "respected",
+   "s": "greet",
+   "c": "*",
+   "sp": "*",
+   "t": "Come by the hall; there is a stool kept for you."
+  },
+  {
+   "b": "respected",
+   "s": "greet",
+   "c": "*",
+   "sp": "*",
+   "t": "Your name carries in the market. Keep it clean."
+  },
+  {
+   "b": "respected",
+   "s": "greet",
+   "c": "*",
+   "sp": "*",
+   "t": "Ah, you. The baker saved the good loaf."
+  },
+  {
+   "b": "respected",
+   "s": "greet",
+   "c": "*",
+   "sp": "*",
+   "t": "Folk speak well of you in the guild row."
+  },
+  {
+   "b": "respected",
+   "s": "gossip",
+   "c": "*",
+   "sp": "*",
+   "t": "Her wolf spoke, you know. Cold. Rain. Stay. Three words and the priest was fetched."
+  },
+  {
+   "b": "respected",
+   "s": "gossip",
+   "c": "*",
+   "sp": "*",
+   "t": "He keeps his word to the beast and to the bank. Rare."
+  },
+  {
+   "b": "respected",
+   "s": "gossip",
+   "c": "*",
+   "sp": "*",
+   "t": "They say the charter held in two towns already."
+  },
+  {
+   "b": "respected",
+   "s": "gate",
+   "c": "*",
+   "sp": "*",
+   "t": "Sponsored? Then pass, and take the hitching rail on the house."
+  },
+  {
+   "b": "respected",
+   "s": "gate",
+   "c": "monster_town",
+   "sp": "*",
+   "t": "Pass, name-bearer. The ash-poles know your face."
+  },
+  {
+   "b": "respected",
+   "s": "companion",
+   "c": "*",
+   "sp": "*",
+   "t": "A named beast. Is it papers it carries, or only a tooth for show?"
+  },
+  {
+   "b": "respected",
+   "s": "companion",
+   "c": "*",
+   "sp": "*",
+   "t": "A baker leaves bread at the gate for your ogre now. Do not ask."
+  },
+  {
+   "b": "respected",
+   "s": "companion",
+   "c": "solenne",
+   "sp": "*",
+   "t": "The Throne forgives much for a seal and a tithe."
+  },
+  {
+   "b": "noble",
+   "s": "greet",
+   "c": "*",
+   "sp": "*",
+   "t": "My lord, my lady. The hall is yours."
+  },
+  {
+   "b": "noble",
+   "s": "greet",
+   "c": "*",
+   "sp": "*",
+   "t": "Rare to see a house keep such company with such grace."
+  },
+  {
+   "b": "noble",
+   "s": "greet",
+   "c": "*",
+   "sp": "*",
+   "t": "The steward will clear the east stable for your companions."
+  },
+  {
+   "b": "noble",
+   "s": "greet",
+   "c": "*",
+   "sp": "*",
+   "t": "Your charter is read aloud at our gate. Pass freely."
+  },
+  {
+   "b": "noble",
+   "s": "greet",
+   "c": "*",
+   "sp": "*",
+   "t": "They say the Crown listens when you ask."
+  },
+  {
+   "b": "noble",
+   "s": "gossip",
+   "c": "*",
+   "sp": "*",
+   "t": "The envoy who walks with the lizardfolk argues better than my own chancellor."
+  },
+  {
+   "b": "noble",
+   "s": "gossip",
+   "c": "*",
+   "sp": "*",
+   "t": "It was your word that opened the ban for a season. We remember."
+  },
+  {
+   "b": "noble",
+   "s": "gate",
+   "c": "*",
+   "sp": "*",
+   "t": "No fee for the charter-holder. Bows all round."
+  },
+  {
+   "b": "noble",
+   "s": "companion",
+   "c": "*",
+   "sp": "*",
+   "t": "Come back with a charter and I will hear you."
+  },
+  {
+   "b": "noble",
+   "s": "companion",
+   "c": "monster_town",
+   "sp": "*",
+   "t": "The elders will hear you, name-bearer. Sit."
+  },
+  {
+   "b": "noble",
+   "s": "companion",
+   "c": "caldric",
+   "sp": "*",
+   "t": "A beast at table is a beast with manners. Pour it water."
+  },
+  {
+   "b": "exalted",
+   "s": "greet",
+   "c": "*",
+   "sp": "*",
+   "t": "Hail. The lamps are lit for you tonight."
+  },
+  {
+   "b": "exalted",
+   "s": "greet",
+   "c": "*",
+   "sp": "*",
+   "t": "History sits with you at this table."
+  },
+  {
+   "b": "exalted",
+   "s": "greet",
+   "c": "*",
+   "sp": "*",
+   "t": "You need no papers. You are the paper."
+  },
+  {
+   "b": "exalted",
+   "s": "greet",
+   "c": "*",
+   "sp": "*",
+   "t": "Children chalk your sigil on the lintels."
+  },
+  {
+   "b": "exalted",
+   "s": "greet",
+   "c": "*",
+   "sp": "*",
+   "t": "Even the Throne's clerks lower their eyes."
+  },
+  {
+   "b": "exalted",
+   "s": "gossip",
+   "c": "*",
+   "sp": "*",
+   "t": "They sing of the name-giver in three kingdoms, and each version has a different dragon."
+  },
+  {
+   "b": "exalted",
+   "s": "gossip",
+   "c": "*",
+   "sp": "*",
+   "t": "They say she named a dragon. She says it was a lizard. They say you cannot tell the difference at that size."
+  },
+  {
+   "b": "exalted",
+   "s": "gate",
+   "c": "*",
+   "sp": "*",
+   "t": "Open the main gate! The whole company, and no questions."
+  },
+  {
+   "b": "exalted",
+   "s": "companion",
+   "c": "*",
+   "sp": "*",
+   "t": "Let the beast lead. It has earned the first step."
+  },
+  {
+   "b": "exalted",
+   "s": "companion",
+   "c": "monster_town",
+   "sp": "*",
+   "t": "The ash-poles bow to you, first of the name-bearers."
+  },
+  {
+   "b": "outcast",
+   "s": "gossip",
+   "c": "*",
+   "sp": "*",
+   "t": "I heard he named a demon and it named him back."
+  },
+  {
+   "b": "low",
+   "s": "gossip",
+   "c": "*",
+   "sp": "*",
+   "t": "Heard she was named by the monster. Could be true."
+  },
+  {
+   "b": "common",
+   "s": "gossip",
+   "c": "*",
+   "sp": "*",
+   "t": "Someone swears it was a dragon. A big one. At the pass."
+  },
+  {
+   "b": "outcast",
+   "s": "gossip",
+   "c": "*",
+   "sp": "*",
+   "t": "Folk say the stranger sleeps in ditches and still wakes before the dogs."
+  },
+  {
+   "b": "outcast",
+   "s": "gossip",
+   "c": "caldric",
+   "sp": "*",
+   "t": "The reeve has a warrant folded in his boot. He thinks nobody saw."
+  },
+  {
+   "b": "outcast",
+   "s": "gossip",
+   "c": "solenne",
+   "sp": "*",
+   "t": "They say the cleansing bell rang twice the day that one came through."
+  },
+  {
+   "b": "outcast",
+   "s": "gate",
+   "c": "caldric",
+   "sp": "*",
+   "t": "Papers, or the road. You have neither."
+  },
+  {
+   "b": "outcast",
+   "s": "gate",
+   "c": "solenne",
+   "sp": "*",
+   "t": "The warden counts your sins on his fingers and runs out of fingers."
+  },
+  {
+   "b": "outcast",
+   "s": "greet",
+   "c": "urrokai",
+   "sp": "*",
+   "t": "No hearth-right for you. Walk on past the stones."
+  },
+  {
+   "b": "outcast",
+   "s": "greet",
+   "c": "monster_town",
+   "sp": "*",
+   "t": "Even we have rules, friend, and you broke most of them."
+  },
+  {
+   "b": "outcast",
+   "s": "companion",
+   "c": "urrokai",
+   "sp": "*",
+   "t": "Your beast is welcome. You are a puzzle."
+  },
+  {
+   "b": "outcast",
+   "s": "companion",
+   "c": "caldric",
+   "sp": "*",
+   "t": "Leash it tight. Constables watch for creatures with sad masters."
+  },
+  {
+   "b": "low",
+   "s": "gossip",
+   "c": "caldric",
+   "sp": "*",
+   "t": "A hedge-knight, maybe. The boots are good, the manners are not."
+  },
+  {
+   "b": "low",
+   "s": "gossip",
+   "c": "solenne",
+   "sp": "*",
+   "t": "Prays in the back and pays in copper. We keep an eye."
+  },
+  {
+   "b": "low",
+   "s": "gossip",
+   "c": "urrokai",
+   "sp": "*",
+   "t": "Not of the clan, not of the river. Still, the stranger split wood fairly."
+  },
+  {
+   "b": "low",
+   "s": "greet",
+   "c": "caldric",
+   "sp": "*",
+   "t": "Mind the puddle and the mud on my step, traveller."
+  },
+  {
+   "b": "low",
+   "s": "greet",
+   "c": "urrokai",
+   "sp": "*",
+   "t": "Sit if you must, but the good bench is for kin."
+  },
+  {
+   "b": "low",
+   "s": "greet",
+   "c": "monster_town",
+   "sp": "*",
+   "t": "Another new face. Try not to scare the hatchlings."
+  },
+  {
+   "b": "low",
+   "s": "gate",
+   "c": "urrokai",
+   "sp": "*",
+   "t": "Leave the blade at the standing stone and we will talk."
+  },
+  {
+   "b": "low",
+   "s": "gate",
+   "c": "monster_town",
+   "sp": "*",
+   "t": "State your business, name your kin, and wipe your feet."
+  },
+  {
+   "b": "common",
+   "s": "gossip",
+   "c": "caldric",
+   "sp": "*",
+   "t": "The miller says wheat is dear and the new face is no help."
+  },
+  {
+   "b": "common",
+   "s": "gossip",
+   "c": "solenne",
+   "sp": "*",
+   "t": "Seen at vespers twice now. Quiet, which counts for something."
+  },
+  {
+   "b": "common",
+   "s": "gossip",
+   "c": "urrokai",
+   "sp": "*",
+   "t": "Brought a fat goose to the moot and asked nothing. Strange kind of stranger."
+  },
+  {
+   "b": "common",
+   "s": "gossip",
+   "c": "frontier",
+   "sp": "*",
+   "t": "Palisade needs hands. That one carried timber all morning."
+  },
+  {
+   "b": "common",
+   "s": "greet",
+   "c": "caldric",
+   "sp": "*",
+   "t": "Fair weather, friend. The well is round the corner."
+  },
+  {
+   "b": "common",
+   "s": "greet",
+   "c": "frontier",
+   "sp": "*",
+   "t": "Out past the wall again? Take a torch and a second pair of boots."
+  },
+  {
+   "b": "common",
+   "s": "gate",
+   "c": "solenne",
+   "sp": "*",
+   "t": "Pass, and keep your voice low inside the cloister walls."
+  },
+  {
+   "b": "common",
+   "s": "gate",
+   "c": "monster_town",
+   "sp": "*",
+   "t": "Go in. Eyes up, claws down, and say hello to the gatekeeper."
+  },
+  {
+   "b": "common",
+   "s": "companion",
+   "c": "caldric",
+   "sp": "*",
+   "t": "Nice beast. Does it bite, or only judge?"
+  },
+  {
+   "b": "common",
+   "s": "companion",
+   "c": "solenne",
+   "sp": "*",
+   "t": "The creature may wait outside the chapel. It has been blessed with patience."
+  },
+  {
+   "b": "respected",
+   "s": "gossip",
+   "c": "caldric",
+   "sp": "*",
+   "t": "Word is the market guild would hold a seat for that one."
+  },
+  {
+   "b": "respected",
+   "s": "gossip",
+   "c": "solenne",
+   "sp": "*",
+   "t": "They say the elders named a candle after that traveller. Small honour, quiet pride."
+  },
+  {
+   "b": "respected",
+   "s": "gossip",
+   "c": "urrokai",
+   "sp": "*",
+   "t": "The river-mothers speak well of them, and the river-mothers do not flatter."
+  },
+  {
+   "b": "respected",
+   "s": "gossip",
+   "c": "frontier",
+   "sp": "*",
+   "t": "They held the east gate through the long night. We have not forgotten."
+  },
+  {
+   "b": "respected",
+   "s": "greet",
+   "c": "caldric",
+   "sp": "*",
+   "t": "Well met. My cousin swears you mended his cart for nothing."
+  },
+  {
+   "b": "respected",
+   "s": "greet",
+   "c": "urrokai",
+   "sp": "*",
+   "t": "Warm seat by the fire, friend. The stew is yours."
+  },
+  {
+   "b": "respected",
+   "s": "greet",
+   "c": "solenne",
+   "sp": "*",
+   "t": "Peace on your road. The sisters spoke of you at supper."
+  },
+  {
+   "b": "respected",
+   "s": "gate",
+   "c": "caldric",
+   "sp": "*",
+   "t": "Go through, no search. We know your name here."
+  },
+  {
+   "b": "respected",
+   "s": "gate",
+   "c": "urrokai",
+   "sp": "*",
+   "t": "The stones know you. Walk in beside us."
+  },
+  {
+   "b": "respected",
+   "s": "companion",
+   "c": "caldric",
+   "sp": "*",
+   "t": "A fine companion. Mind the children do not follow it home."
+  },
+  {
+   "b": "respected",
+   "s": "companion",
+   "c": "frontier",
+   "sp": "*",
+   "t": "Bring your beast to the forge, I will shoe it for free."
+  },
+  {
+   "b": "noble",
+   "s": "gossip",
+   "c": "caldric",
+   "sp": "*",
+   "t": "Seven stewards stood when that name was read out. Seven."
+  },
+  {
+   "b": "noble",
+   "s": "gossip",
+   "c": "solenne",
+   "sp": "*",
+   "t": "Even the abbot straightens his collar when that name is spoken."
+  },
+  {
+   "b": "noble",
+   "s": "gossip",
+   "c": "urrokai",
+   "sp": "*",
+   "t": "The clan-heads gave the stranger the long cup. That has not happened in a generation."
+  },
+  {
+   "b": "noble",
+   "s": "gossip",
+   "c": "frontier",
+   "sp": "*",
+   "t": "Their banner on the road means grain trains run on time."
+  },
+  {
+   "b": "noble",
+   "s": "greet",
+   "c": "caldric",
+   "sp": "*",
+   "t": "My lord, my lady, the gates are yours. The cellar even more so."
+  },
+  {
+   "b": "noble",
+   "s": "greet",
+   "c": "solenne",
+   "sp": "*",
+   "t": "Blessed day. The choir saved the high seat for you."
+  },
+  {
+   "b": "noble",
+   "s": "greet",
+   "c": "urrokai",
+   "sp": "*",
+   "t": "Honoured guest, the horns were blown for you at dawn."
+  },
+  {
+   "b": "noble",
+   "s": "gate",
+   "c": "solenne",
+   "sp": "*",
+   "t": "The doors are opened wide. Forgive the dust."
+  },
+  {
+   "b": "noble",
+   "s": "gate",
+   "c": "monster_town",
+   "sp": "*",
+   "t": "Hail. We have swept every stair from here to the hall."
+  },
+  {
+   "b": "exalted",
+   "s": "gossip",
+   "c": "caldric",
+   "sp": "*",
+   "t": "Children draw their sign in the dirt and play at being them."
+  },
+  {
+   "b": "exalted",
+   "s": "gossip",
+   "c": "solenne",
+   "sp": "*",
+   "t": "They say the bells ring a little warmer when that one passes."
+  },
+  {
+   "b": "exalted",
+   "s": "gossip",
+   "c": "urrokai",
+   "sp": "*",
+   "t": "Songs are already made about that one. Bad ones, by the singers who never met them."
+  },
+  {
+   "b": "exalted",
+   "s": "greet",
+   "c": "urrokai",
+   "sp": "*",
+   "t": "The whole valley heard you were coming. Even the goats stood still."
+  },
+  {
+   "b": "exalted",
+   "s": "gate",
+   "c": "caldric",
+   "sp": "*",
+   "t": "Gates stand open, banners are up. Say the word and we will sound the horns."
+  },
+  {
+   "b": "exalted",
+   "s": "gate",
+   "c": "solenne",
+   "sp": "*",
+   "t": "No warden will ask a name from you. We would rather keep our eyes down."
+  },
+  {
+   "b": "exalted",
+   "s": "companion",
+   "c": "caldric",
+   "sp": "*",
+   "t": "A legend and its beast. Please, take the front table."
+  },
+  {
+   "b": "exalted",
+   "s": "companion",
+   "c": "urrokai",
+   "sp": "*",
+   "t": "Your beast eats from my hand now. That is the highest praise I know."
+  }
+ ]
 }

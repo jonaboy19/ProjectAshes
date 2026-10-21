@@ -1119,7 +1119,16 @@ func _realm_ctx() -> Dictionary:
 	if player and is_instance_valid(player):
 		pp = Vector2(player.global_position.x, player.global_position.z)
 	return {"player_pos": pp, "season": WorldSim.season, "at_war": war.is_at_war(),
-		"abs_hours": _abs_hours(), "gold": Game.gold, "life": self}
+		"abs_hours": _abs_hours(), "gold": Game.gold, "life": self, "weather": _army_weather()}
+
+
+## The live weather node's state (or a seasonal roll with no node) in the armies' vocabulary; feeds armies.weather and campaign every hour.
+func _army_weather() -> String:
+	const Armies := preload("res://scripts/realm/armies.gd")
+	var w: Node = get_tree().get_first_node_in_group("weather") if is_inside_tree() else null
+	if w != null and w.has_method("current_name"):
+		return Armies.field_weather(String(w.call("current_name")))
+	return Armies.season_weather(WorldSim.season, WorldSim.day, int(WorldSim.time_of_day))
 
 
 func _on_hour(hour: int) -> void:
