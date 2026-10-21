@@ -1,0 +1,110 @@
+{
+ "source_type": "bvh",
+ "bvh_dir": "C:/Users/Jonna/.cache/ashes_anim_src/cmu-mocap/data",
+ "ual": "../../assets/incoming/quaternius/universal-animation-library/Unreal-Godot/UAL1_Standard.glb",
+ "out": "../../assets/incoming/animations/aaa/UAL_AAA_Weapons_Umbrella_Donghua.glb",
+ "smooth": 0.012,
+ "fingers": "grip",
+ "finger_poses": {
+  "relaxed": ["Idle_Loop", 0.0],
+  "fist": ["Punch_Jab", 0.4],
+  "open": ["Idle_Loop", 0.0],
+  "grip": ["Sword_Idle", 0.0]
+ },
+ "map": {
+  "pelvis": "Hips",
+  "spine_01": "LowerBack",
+  "spine_02": "Spine",
+  "spine_03": "Spine1",
+  "neck_01": "Neck",
+  "Head": "Head",
+  "clavicle_l": "LeftShoulder",
+  "upperarm_l": "LeftArm",
+  "lowerarm_l": "LeftForeArm",
+  "hand_l": "LeftHand",
+  "clavicle_r": "RightShoulder",
+  "upperarm_r": "RightArm",
+  "lowerarm_r": "RightForeArm",
+  "hand_r": "RightHand",
+  "thigh_l": "LeftUpLeg",
+  "calf_l": "LeftLeg",
+  "foot_l": "LeftFoot",
+  "ball_l": "LeftToeBase",
+  "thigh_r": "RightUpLeg",
+  "calf_r": "RightLeg",
+  "foot_r": "RightFoot",
+  "ball_r": "RightToeBase"
+ },
+ "clips": [
+  {
+   "name": "Umbrella_Open_Shield_Deflect",
+   "file": "078/78_24.bvh",
+   "range_s": [0.8, 2.2],
+   "loop": false,
+   "fingers": "grip"
+  },
+  {
+   "name": "Umbrella_Closed_Rapier_Lunge",
+   "file": "002/02_07.bvh",
+   "range_s": [3.2, 4.4],
+   "loop": false,
+   "fingers": "grip"
+  },
+  {
+   "name": "Umbrella_Sweep_Hook_Takedown",
+   "file": "078/78_13.bvh",
+   "range_s": [0.6, 2.0],
+   "loop": false,
+   "fingers": "grip"
+  },
+  {
+   "name": "Umbrella_Canopy_Aerial_Glide",
+   "file": "088/88_01.bvh",
+   "range_s": [0.5, 2.0],
+   "loop": true,
+   "fingers": "grip"
+  },
+  {
+   "name": "Umbrella_Gun_Cannon_Blast",
+   "file": "002/02_05.bvh",
+   "range_s": [1.0, 2.2],
+   "loop": false,
+   "fingers": "grip"
+  },
+  {
+   "name": "Donghua_Sword_Intent_Summon",
+   "file": "002/02_07.bvh",
+   "range_s": [6.0, 7.5],
+   "loop": false,
+   "fingers": "open"
+  },
+  {
+   "name": "Slime_Gluttony_Void_Maw",
+   "file": "002/02_05.bvh",
+   "range_s": [2.8, 4.2],
+   "loop": false,
+   "fingers": "open"
+  },
+  {
+   "name": "Tensura_Megiddo_Solar_Pillar",
+   "file": "013/13_17.bvh",
+   "range_s": [0.6, 2.0],
+   "loop": false,
+   "fingers": "open"
+  },
+  {
+   "name": "Dragonewt_Draconic_Smash",
+   "file": "086/86_01.bvh",
+   "range_s": [2.2, 3.6],
+   "loop": false,
+   "fingers": "fist"
+  },
+  {
+   "name": "Martial_Brute_Force_Tackle",
+   "file": "078/78_28.bvh",
+   "range_s": [1.0, 2.4],
+   "loop": false,
+   "fingers": "fist"
+  }
+ ]
+}

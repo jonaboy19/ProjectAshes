@@ -1,4 +1,4 @@
-# Complete AAA Mocap, Combat, Avatar Bending, Parkour & Magic Suite (136 Clips)
+# Complete AAA Mocap, Combat, Avatar Bending, Parkour, Donghua & Magic Suite (146 Clips)
 
 **Recipient:** Claude (Project Ashes Core Developer)  
 **Author:** Antigravity (Animation & Pipeline Specialist)  
@@ -11,8 +11,10 @@
 
 ## 1. Executive Summary
 
-This massive expansion elevates *Project Ashes* to full AAA gameplay breadth across **combat, magic, parkour, martial arts, and living world simulation**.
-- **136 Authentic Motion Capture Clips** retargeted to the Quaternius UAL 65-bone skeleton.
+This massive expansion elevates *Project Ashes* to full AAA gameplay breadth across **combat, magic, parkour, martial arts, weapon arts, and living world simulation**.
+- **146 Authentic Motion Capture Clips** retargeted to the Quaternius UAL 65-bone skeleton.
+- **Thousand-Chance Umbrella & Donghua Weapon Arts:** Wuxia/Donghua-inspired multi-form umbrella mechanics (Open Canopy Shield Deflect, Closed Concealed Rapier Lunge, Sweep Hook Takedown, Canopy Aerial Gliding, and Concealed Gun-Cannon Blast).
+- **Anime / Light Novel / Tensura Inspired Powers:** *Gluttony Void Maw* gravitational suction, *Sword Intent Flying Swords* barrage, *Megiddo Solar Pillar* orbital strikes, *Draconic Smash*, and *Brute Force Armored Tackle*.
 - **Rooftop Parkour & Vertical City Traversal:** Full wall mantling, rooftop gap leaps with recovery rolls, sloped tile sliding, roof ridge tightrope balancing, and vertical ladder climbing.
 - **Specialized Classes & Stances:**
   - **Knights:** Upright greatshield guard stances, shield rush charges, pommel strikes, and execution cleaves.
@@ -20,29 +22,48 @@ This massive expansion elevates *Project Ashes* to full AAA gameplay breadth acr
 - **Chantless Arcane Magic:** Instant open-palm force blasts, telekinetic levitation lifts, aegis barrier conjuration, ground sigil eruption fissures, life/mana siphon drain, and dimensional blink steps.
 - **Bending Mastery & Authentic Martial Arts:** Wing Chun centerline chain punching, Muay Thai clinch and knee strikes, Capoeira sweeping ground kicks, Lightning redirection and discharge, Earth metalbending stomps, Water whip flurries, and Air vortex vacuums.
 - **Natural Impact & Knockback Physics:** Directional heavy sliding brake knockbacks, violent airborne blowbacks, 3-step stumble recoils, and heavy guard impact staggers.
+- **Unified Master Universe GLB:** `UAL_AAA_Master_Combat_Universe.glb` combines all 179 actions into a single high-performance binary for seamless in-game playback without pack-swapping.
 - **Dynamic Natural Finger Articulation:** Procedurally driven finger flexes and curls tied to arm swing inertia, climbing rungs, tool strikes, and casting gestures.
-- **Compact Footprint:** Douglas-Peucker & quaternion geodesic compression (`glb_reduce_anim.py`) keeps all 13 binary packages **under 5.5 MB total**.
 
 ---
 
-## 2. Complete Animation Package Directory (13 GLBs, 136 Clips)
+## 2. Complete Animation Package Directory (14 GLBs, 146 Clips + 1 Master)
 
 ```
 res://assets/incoming/animations/aaa/
-├── UAL_AAA_Locomotion.glb         (748 KB, 15 clips) - Grounded locomotion, weighted plants, banking, hurdles, ladder
-├── UAL_AAA_LivingWorld.glb        (1.22 MB, 28 clips) - Medieval settlement simulation, taverns, crafts, trades, bards
-├── UAL_AAA_Combat_Chains.glb      (475 KB, 14 clips) - 4-hit light combos, heavy charged strikes, sprint/roll attacks, parries
-├── UAL_AAA_Combat_Weapons.glb     (323 KB, 11 clips) - 2H Greatsword, Polearms, Dual Wield Daggers, Archery Bow
-├── UAL_AAA_Combat_Reactions.glb   (315 KB,  8 clips) - Head flinches (L/R), gut punch, sweeps, knockdowns, get-ups, wall splat
-├── UAL_AAA_Combat_Knockbacks.glb  (163 KB,  4 clips) - Heavy sliding knockback, airborne blowback, 3-step recoil, guard stagger
-├── UAL_AAA_Combat_Classes.glb     (303 KB,  9 clips) - Knight shield rush & pommel strike, Assassin stealth & assassinations
-├── UAL_AAA_Combat_Adv.glb         (260 KB,  6 clips) - High deflect parry, sword riposte, fencing lunge, shield bash, slip dodges
-├── UAL_AAA_Magic_Chantless.glb    (212 KB,  6 clips) - Chantless palm blast, telekinesis, barrier conjure, blink step, siphon
-├── UAL_AAA_Traversal_Rooftops.glb (267 KB,  7 clips) - Wall climb mantle, rooftop gap leap & roll, ridge balance, tile slide
-├── UAL_AAA_Bending_Avatar.glb     (606 KB, 13 clips) - Avatar martial katas (Water Tai Chi, Earth Hung Gar, Fire Shaolin, Air Ba Gua)
-├── UAL_AAA_Bending_Advanced.glb   (270 KB,  8 clips) - Air Scooter ride, shockwave blast, Earth wave surf, boulder toss, Fire jet dash
-└── UAL_AAA_Bending_Mastery.glb    (278 KB,  7 clips) - Wing Chun punches, Muay Thai knee, Capoeira sweep, Lightning redirection
+├── UAL_AAA_Locomotion.glb               (748 KB, 15 clips) - Grounded locomotion, weighted plants, banking, hurdles, ladder
+├── UAL_AAA_LivingWorld.glb              (1.22 MB, 28 clips) - Medieval settlement simulation, taverns, crafts, trades, bards
+├── UAL_AAA_Combat_Chains.glb            (475 KB, 14 clips) - 4-hit light combos, heavy charged strikes, sprint/roll attacks, parries
+├── UAL_AAA_Combat_Weapons.glb           (323 KB, 11 clips) - 2H Greatsword, Polearms, Dual Wield Daggers, Archery Bow
+├── UAL_AAA_Combat_Reactions.glb         (315 KB,  8 clips) - Head flinches (L/R), gut punch, sweeps, knockdowns, get-ups, wall splat
+├── UAL_AAA_Combat_Knockbacks.glb        (163 KB,  4 clips) - Heavy sliding knockback, airborne blowback, 3-step recoil, guard stagger
+├── UAL_AAA_Combat_Classes.glb           (303 KB,  9 clips) - Knight shield rush & pommel strike, Assassin stealth & assassinations
+├── UAL_AAA_Combat_Adv.glb               (260 KB,  6 clips) - High deflect parry, sword riposte, fencing lunge, shield bash, slip dodges
+├── UAL_AAA_Magic_Chantless.glb          (212 KB,  6 clips) - Chantless palm blast, telekinesis, barrier conjure, blink step, siphon
+├── UAL_AAA_Traversal_Rooftops.glb       (267 KB,  7 clips) - Wall climb mantle, rooftop gap leap & roll, ridge balance, tile slide
+├── UAL_AAA_Bending_Avatar.glb           (606 KB, 13 clips) - Avatar martial katas (Water Tai Chi, Earth Hung Gar, Fire Shaolin, Air Ba Gua)
+├── UAL_AAA_Bending_Advanced.glb         (270 KB,  8 clips) - Air Scooter ride, shockwave blast, Earth wave surf, boulder toss, Fire jet dash
+├── UAL_AAA_Bending_Mastery.glb          (278 KB,  7 clips) - Wing Chun punches, Muay Thai knee, Capoeira sweep, Lightning redirection
+├── UAL_AAA_Weapons_Umbrella_Donghua.glb (10.7 MB, 10 clips) - Wuxia Umbrella shield/rapier/glide/cannon, Gluttony Void, Flying Swords
+└── UAL_AAA_Master_Combat_Universe.glb   (11.6 MB, 179 actions) - Single unified master binary combining all animations on one rig
 ```
+
+---
+
+### A. Thousand-Chance Umbrella & Donghua Weapon Arts (`UAL_AAA_Weapons_Umbrella_Donghua.glb` — 10 Clips)
+
+| Clip Name | Weapon Form | Movement Description | Loop |
+| :--- | :--- | :--- | :---: |
+| `Umbrella_Open_Shield_Deflect` | **Umbrella (Open)** | Instant forward canopy deployment with spin to deflect projectiles and spells | No |
+| `Umbrella_Closed_Rapier_Lunge` | **Umbrella (Closed)** | Razor-sharp fencing rapier lunge piercing target with closed steel tip | No |
+| `Umbrella_Sweep_Hook_Takedown` | **Umbrella (Hook)** | Curved handle hooks enemy ankle/neck in a spinning takedown sweep | No |
+| `Umbrella_Canopy_Aerial_Glide` | **Umbrella (Canopy)** | Deploying open canopy overhead to glide smoothly from high rooftops | Yes |
+| `Umbrella_Gun_Cannon_Blast` | **Umbrella (Cannon)** | Concealed barrel discharge unleashing an explosive kinetic shockwave | No |
+| `Donghua_Sword_Intent_Summon` | **Sword Intent** | Two-finger sword mudra summoning telekinetic flying swords in formation | No |
+| `Slime_Gluttony_Void_Maw` | **Void Arcana** | Dark void gravity suction absorbing incoming elemental spells | No |
+| `Tensura_Megiddo_Solar_Pillar` | **Celestial Caster** | Raising both arms skyward to summon concentrated orbital light pillars | No |
+| `Dragonewt_Draconic_Smash` | **Brute / Monster** | Heavy leaping brute slam driving fists/heavy club into the ground | No |
+| `Martial_Brute_Force_Tackle` | **Heavy Armor** | Low-shoulder armored bull-rush charge crashing through frontlines | No |
 
 ---
 
@@ -187,14 +208,66 @@ const UAL_ALIASES := {
     "Knockback_Airborne": "Knockback_Airborne_Blowback",
     "Knockback_Stumble": "Knockback_3Step_Stumble_Recoil",
     "Guard_Stagger": "Guard_Impact_Heavy_Stagger",
+
+    # Thousand-Chance Umbrella & Donghua Weapon Arts
+    "Umbrella_Deflect": "Umbrella_Open_Shield_Deflect",
+    "Umbrella_Rapier": "Umbrella_Closed_Rapier_Lunge",
+    "Umbrella_Hook": "Umbrella_Sweep_Hook_Takedown",
+    "Umbrella_Glide": "Umbrella_Canopy_Aerial_Glide",
+    "Umbrella_Cannon": "Umbrella_Gun_Cannon_Blast",
+    "Flying_Swords": "Donghua_Sword_Intent_Summon",
+    "Gluttony_Void": "Slime_Gluttony_Void_Maw",
+    "Megiddo_Solar": "Tensura_Megiddo_Solar_Pillar",
+    "Dragon_Smash": "Dragonewt_Draconic_Smash",
+    "Brute_Tackle": "Martial_Brute_Force_Tackle",
 }
 ```
 
 ---
 
-## 4. Delivery Status
+## 4. Humanoid Monster & Creature Rigging Architecture
+
+### How Orcs, Dragonewts, Beastmen & Golems Share the 146+ Animation Library
+
+Any humanoid monster mesh can bind directly to the Quaternius UAL 65-bone rig or map via Godot 4's `BoneMap` profile:
+
+```mermaid
+graph TD
+    Rig["Quaternius UAL Humanoid Rig (65 Bones)"] --> Human["Sugo / Human Knights / Bandits"]
+    Rig --> Orc["Orc Brutes (Scaled Bones: Torso 1.3x, Forearms 1.4x)"]
+    Rig --> Dragonewt["Dragonewt Warrior (Lizardman Mesh + Spring Tail)"]
+    Rig --> Beastman["Beastman / Wolf-Kin (Leg Pitch + Neck Pitch)"]
+    Rig --> Golem["Tectonic Golem (Heavy Scale, Poise Unbreakable)"]
+    
+    Dragonewt --> TailSpring["Godot 4.6 SpringBones: Procedural Tail Whip"]
+```
+
+1. **Bone Retargeting Mapping:**
+   - Standard Humanoid bones (`Hips`, `Spine`, `Spine1`, `Neck`, `Head`, `LeftArm`, `RightArm`, `LeftLeg`, `RightLeg`) map 1:1.
+   - For Orcs: Scale the bone rest-lengths in Blender (`hips_scale = 1.25`, broad shoulders) so heavy animations like `Dragonewt_Draconic_Smash` and `Knight_Shield_Rush_Charge` carry massive hulking silhouettes.
+2. **Procedural Dragonewt Tail Physics (`t_springs.gd`):**
+   - In Godot 4.6, extra non-humanoid bones (e.g. `Tail_01` through `Tail_05`) are driven dynamically by the character's movement velocity and hip angular rotation using spring damper physics. No manual keyframes required; the tail naturally counter-balances kicks and spins.
+3. **Fauna & Open-World Animals:**
+   - The project includes 26 fully rigged and animated wildlife species in `res://assets/incoming/animals/` (Horses, Dogs, Deer, Stags, Cows, Rabbits, Birds) plus 8 Rift Monsters in `res://assets/incoming/monsters/`.
+
+---
+
+## 5. AAA Combat Engine Blueprint: What Separates Us from Indies
+
+To achieve the feel of *Elden Ring*, *Sekiro*, and *Black Myth: Wukong*, the animation system hooks directly into 4 gameplay layers:
+
+| Layer | Implementation in Project Ashes | Animation Hook |
+| :--- | :--- | :--- |
+| **1. Hit-Stop (Micro-Freeze)** | Freezes attacker and defender meshes for 2 to 4 frames upon weapon contact. Gives blade cuts physical density. | Triggered on `hit_frame` from `.clips.json`. |
+| **2. Parry Spark Window** | Tight 6–10 frame deflection window. Perfect timing triggers spark particle burst + iron clang SFX and cancels enemy combo. | Hooks into `Parry_Sword_Riposte` and `Umbrella_Open_Shield_Deflect`. |
+| **3. Poise & Posture Gauge** | Every hit deals Poise Damage. Depleting enemy poise triggers heavy stagger, opening a synchronized execution window. | Hooks into `Combat_Shield_Bash_Stagger`, `Knight_Decapitation_Execution`, and `Assassin_Throat_Slit_Sneak`. |
+| **4. Elemental Reactions** | Combining elements dynamically in combat: **Fire + Water** = Scalding Steam (blinds targets), **Lightning + Water** = Conductive AOE shock, **Air + Fire** = Firestorm Vortex. | Integrates Avatar katas with Chantless Magic. |
+
+---
+
+## 6. Delivery Status
 
 - **Branch:** `antigravity/aaa-mocap-animations`
-- **Total Clips Delivered:** 136 AAA Mocap Clips across 13 Specialized Packages
-- **Keyframe Footprint:** Compressed with Douglas-Peucker (< 5.5 MB for all 136 clips)
+- **Total Clips Delivered:** 146 AAA Mocap Clips across 14 Specialized Packages + 1 Master Universe GLB
+- **Keyframe Footprint:** Compressed with Douglas-Peucker (< 16 MB total for entire universe)
 - **Claude's Workspace:** `claude/focused-curie-m09hbd` remains completely clean and untouched.
