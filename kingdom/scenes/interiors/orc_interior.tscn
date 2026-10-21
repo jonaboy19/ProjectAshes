@@ -1,0 +1,186 @@
+[gd_scene load_steps=22 format=3]
+
+[ext_resource type="PackedScene" path="res://assets/generated/interiors/interior_orc.glb" id="1_room"]
+[ext_resource type="Script" path="res://scripts/interiors/interior_door.gd" id="2_door"]
+[ext_resource type="Script" path="res://scripts/interiors/interior_room.gd" id="3_room"]
+
+[sub_resource type="Environment" id="Environment_room"]
+background_mode = 1
+background_color = Color(0.035, 0.028, 0.022, 1)
+ambient_light_source = 2
+ambient_light_color = Color(1, 0.9, 0.78, 1)
+ambient_light_energy = 0.85
+reflected_light_source = 1
+tonemap_mode = 4
+tonemap_exposure = 1.0
+tonemap_white = 6.0
+glow_enabled = true
+glow_intensity = 0.7
+glow_bloom = 0.08
+glow_hdr_threshold = 0.95
+adjustment_enabled = true
+adjustment_saturation = 1.15
+adjustment_contrast = 1.05
+
+[sub_resource type="BoxShape3D" id="Box_0"]
+size = Vector3(9.8, 3.8, 0.3)
+
+[sub_resource type="BoxShape3D" id="Box_1"]
+size = Vector3(7.8, 3.8, 0.3)
+
+[sub_resource type="BoxShape3D" id="Box_2"]
+size = Vector3(9.8, 3.8, 0.3)
+
+[sub_resource type="BoxShape3D" id="Box_3"]
+size = Vector3(7.8, 3.8, 0.3)
+
+[sub_resource type="BoxShape3D" id="Box_4"]
+size = Vector3(9.5, 0.5, 7.5)
+
+[sub_resource type="BoxShape3D" id="Box_5"]
+size = Vector3(9.5, 0.4, 7.5)
+
+[sub_resource type="BoxShape3D" id="Box_6"]
+size = Vector3(1.088, 0.8971, 1.038)
+
+[sub_resource type="BoxShape3D" id="Box_7"]
+size = Vector3(0.8127, 1.573, 0.7685)
+
+[sub_resource type="BoxShape3D" id="Box_8"]
+size = Vector3(3.418, 0.9761, 1.316)
+
+[sub_resource type="BoxShape3D" id="Box_9"]
+size = Vector3(3.332, 0.6399, 0.6411)
+
+[sub_resource type="BoxShape3D" id="Box_10"]
+size = Vector3(3.332, 0.6399, 0.6411)
+
+[sub_resource type="BoxShape3D" id="Box_11"]
+size = Vector3(1.663, 1.331, 1.18)
+
+[sub_resource type="BoxShape3D" id="Box_12"]
+size = Vector3(1.663, 1.331, 1.18)
+
+[sub_resource type="BoxShape3D" id="Box_13"]
+size = Vector3(0.8376, 1.078, 0.8376)
+
+[sub_resource type="BoxShape3D" id="Box_14"]
+size = Vector3(0.7678, 0.9878, 0.7678)
+
+[sub_resource type="BoxShape3D" id="Box_15"]
+size = Vector3(0.9265, 1.024, 0.9991)
+
+[sub_resource type="BoxShape3D" id="Box_exit"]
+size = Vector3(1.8, 2.6, 1)
+
+[node name="OrcInterior" type="Node3D"]
+script = ExtResource("3_room")
+metadata/title = "Tuskridge Chieftain Longhouse"
+
+[node name="Room" parent="." instance=ExtResource("1_room")]
+
+[node name="Colliders" type="StaticBody3D" parent="."]
+
+[node name="C0" type="CollisionShape3D" parent="Colliders"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.9, -3.88)
+shape = SubResource("Box_0")
+
+[node name="C1" type="CollisionShape3D" parent="Colliders"]
+transform = Transform3D(-4.3711e-08, 0, -1, 0, 1, 0, 1, 0, -4.3711e-08, 4.88, 1.9, 5.6825e-09)
+shape = SubResource("Box_1")
+
+[node name="C2" type="CollisionShape3D" parent="Colliders"]
+transform = Transform3D(-1, 0, -8.7423e-08, 0, 1, 0, 8.7423e-08, 0, -1, 1.1365e-08, 1.9, 3.88)
+shape = SubResource("Box_2")
+
+[node name="C3" type="CollisionShape3D" parent="Colliders"]
+transform = Transform3D(-4.3711e-08, 0, 1, 0, 1, 0, -1, 0, -4.3711e-08, -4.88, 1.9, 5.6825e-09)
+shape = SubResource("Box_3")
+
+[node name="C4" type="CollisionShape3D" parent="Colliders"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.25, 0)
+shape = SubResource("Box_4")
+
+[node name="C5" type="CollisionShape3D" parent="Colliders"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 4.05, 0)
+shape = SubResource("Box_5")
+
+[node name="C6" type="CollisionShape3D" parent="Colliders"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -3.2783e-08, 0.64543, -4.9174e-08)
+shape = SubResource("Box_6")
+
+[node name="C7" type="CollisionShape3D" parent="Colliders"]
+transform = Transform3D(-1, 0, -8.7423e-08, 0, 1, 0, 8.7423e-08, 0, -1, 2.0902e-09, 0.78251, -2.9761)
+shape = SubResource("Box_7")
+
+[node name="C8" type="CollisionShape3D" parent="Colliders"]
+transform = Transform3D(-4.3711e-08, 0, 1, 0, 1, 0, -1, 0, -4.3711e-08, 2.4076, 0.48958, 0.6)
+shape = SubResource("Box_8")
+
+[node name="C9" type="CollisionShape3D" parent="Colliders"]
+transform = Transform3D(-4.3711e-08, 0, 1, 0, 1, 0, -1, 0, -4.3711e-08, 1.706, 0.31121, 0.6)
+shape = SubResource("Box_9")
+
+[node name="C10" type="CollisionShape3D" parent="Colliders"]
+transform = Transform3D(-4.3711e-08, 0, 1, 0, 1, 0, -1, 0, -4.3711e-08, 3.106, 0.31121, 0.6)
+shape = SubResource("Box_10")
+
+[node name="C11" type="CollisionShape3D" parent="Colliders"]
+transform = Transform3D(-4.3711e-08, 0, 1, 0, 1, 0, -1, 0, -4.3711e-08, -4.3038, 0.66154, -1.2)
+shape = SubResource("Box_11")
+
+[node name="C12" type="CollisionShape3D" parent="Colliders"]
+transform = Transform3D(-4.3711e-08, 0, 1, 0, 1, 0, -1, 0, -4.3711e-08, -4.3038, 0.66154, 0.6)
+shape = SubResource("Box_12")
+
+[node name="C13" type="CollisionShape3D" parent="Colliders"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -4.05, 0.5429, 2)
+shape = SubResource("Box_13")
+
+[node name="C14" type="CollisionShape3D" parent="Colliders"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -3.35, 0.49766, 2.1)
+shape = SubResource("Box_14")
+
+[node name="C15" type="CollisionShape3D" parent="Colliders"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -3.9552, 0.45434, -2.4)
+shape = SubResource("Box_15")
+
+[node name="PlayerSpawn" type="Marker3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.05, 2.25)
+
+[node name="ExitDoor" type="Area3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 3.3)
+script = ExtResource("2_door")
+is_exit = true
+prompt_text = "Leave"
+
+[node name="Shape" type="CollisionShape3D" parent="ExitDoor"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.3, 0)
+shape = SubResource("Box_exit")
+
+[node name="NPCs" type="Node3D" parent="."]
+
+[node name="NPC_Chieftain_Gromkar" type="Marker3D" parent="NPCs"]
+transform = Transform3D(-1, 0, 0, 0, 1, 0, 0, 0, -1, 0, 0, -2.55)
+metadata/look = "Orc_Warrior"
+metadata/height = 1.75
+metadata/anim = "Idle"
+metadata/role = "orc_chieftain"
+
+[node name="OrcRoaringFire" type="OmniLight3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.6, 0)
+light_color = Color(1, 0.5, 0.15, 1)
+light_energy = 3.0
+light_specular = 0.3
+shadow_enabled = false
+omni_range = 9.0
+omni_attenuation = 1.4
+metadata/flicker = true
+
+[node name="WorldEnvironment" type="WorldEnvironment" parent="."]
+environment = SubResource("Environment_room")
+
+[node name="PreviewCamera" type="Camera3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 0.98387, 0.17889, 0, -0.17889, 0.98387, 0, 1.8, 3.2)
+current = true
+fov = 53.7

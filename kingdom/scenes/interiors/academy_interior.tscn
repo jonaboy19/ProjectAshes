@@ -1,0 +1,221 @@
+[gd_scene load_steps=27 format=3]
+
+[ext_resource type="PackedScene" path="res://assets/generated/interiors/interior_academy.glb" id="1_room"]
+[ext_resource type="Script" path="res://scripts/interiors/interior_door.gd" id="2_door"]
+[ext_resource type="Script" path="res://scripts/interiors/interior_room.gd" id="3_room"]
+
+[sub_resource type="Environment" id="Environment_room"]
+background_mode = 1
+background_color = Color(0.035, 0.028, 0.022, 1)
+ambient_light_source = 2
+ambient_light_color = Color(1, 0.9, 0.78, 1)
+ambient_light_energy = 1.1
+reflected_light_source = 1
+tonemap_mode = 4
+tonemap_exposure = 1.05
+tonemap_white = 6.0
+glow_enabled = true
+glow_intensity = 0.7
+glow_bloom = 0.08
+glow_hdr_threshold = 0.95
+adjustment_enabled = true
+adjustment_saturation = 1.15
+adjustment_contrast = 1.05
+
+[sub_resource type="BoxShape3D" id="Box_0"]
+size = Vector3(9.3, 3.6, 0.3)
+
+[sub_resource type="BoxShape3D" id="Box_1"]
+size = Vector3(7.8, 3.6, 0.3)
+
+[sub_resource type="BoxShape3D" id="Box_2"]
+size = Vector3(9.3, 3.6, 0.3)
+
+[sub_resource type="BoxShape3D" id="Box_3"]
+size = Vector3(7.8, 3.6, 0.3)
+
+[sub_resource type="BoxShape3D" id="Box_4"]
+size = Vector3(9, 0.5, 7.5)
+
+[sub_resource type="BoxShape3D" id="Box_5"]
+size = Vector3(9, 0.4, 7.5)
+
+[sub_resource type="BoxShape3D" id="Box_6"]
+size = Vector3(0.4866, 0.2787, 0.3439)
+
+[sub_resource type="BoxShape3D" id="Box_7"]
+size = Vector3(2.322, 1.029, 1.178)
+
+[sub_resource type="BoxShape3D" id="Box_8"]
+size = Vector3(2.848, 0.8134, 1.097)
+
+[sub_resource type="BoxShape3D" id="Box_9"]
+size = Vector3(2.848, 0.8134, 1.097)
+
+[sub_resource type="BoxShape3D" id="Box_10"]
+size = Vector3(2.777, 0.5332, 0.5343)
+
+[sub_resource type="BoxShape3D" id="Box_11"]
+size = Vector3(2.777, 0.5332, 0.5343)
+
+[sub_resource type="BoxShape3D" id="Box_12"]
+size = Vector3(2.848, 0.8134, 1.097)
+
+[sub_resource type="BoxShape3D" id="Box_13"]
+size = Vector3(2.848, 0.8134, 1.097)
+
+[sub_resource type="BoxShape3D" id="Box_14"]
+size = Vector3(2.777, 0.5332, 0.5343)
+
+[sub_resource type="BoxShape3D" id="Box_15"]
+size = Vector3(2.777, 0.5332, 0.5343)
+
+[sub_resource type="BoxShape3D" id="Box_16"]
+size = Vector3(1.607, 2.799, 0.4719)
+
+[sub_resource type="BoxShape3D" id="Box_17"]
+size = Vector3(1.607, 2.799, 0.4719)
+
+[sub_resource type="BoxShape3D" id="Box_18"]
+size = Vector3(1.607, 2.799, 0.4719)
+
+[sub_resource type="BoxShape3D" id="Box_19"]
+size = Vector3(1.607, 2.799, 0.4719)
+
+[sub_resource type="BoxShape3D" id="Box_20"]
+size = Vector3(1.607, 2.799, 0.4719)
+
+[sub_resource type="BoxShape3D" id="Box_exit"]
+size = Vector3(1.6, 2.4, 1)
+
+[node name="AcademyInterior" type="Node3D"]
+script = ExtResource("3_room")
+metadata/title = "Valencious Royal Academy Laboratory"
+
+[node name="Room" parent="." instance=ExtResource("1_room")]
+
+[node name="Colliders" type="StaticBody3D" parent="."]
+
+[node name="C0" type="CollisionShape3D" parent="Colliders"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.8, -3.88)
+shape = SubResource("Box_0")
+
+[node name="C1" type="CollisionShape3D" parent="Colliders"]
+transform = Transform3D(-4.3711e-08, 0, -1, 0, 1, 0, 1, 0, -4.3711e-08, 4.63, 1.8, 5.6825e-09)
+shape = SubResource("Box_1")
+
+[node name="C2" type="CollisionShape3D" parent="Colliders"]
+transform = Transform3D(-1, 0, -8.7423e-08, 0, 1, 0, 8.7423e-08, 0, -1, 1.1365e-08, 1.8, 3.88)
+shape = SubResource("Box_2")
+
+[node name="C3" type="CollisionShape3D" parent="Colliders"]
+transform = Transform3D(-4.3711e-08, 0, 1, 0, 1, 0, -1, 0, -4.3711e-08, -4.63, 1.8, 5.6825e-09)
+shape = SubResource("Box_3")
+
+[node name="C4" type="CollisionShape3D" parent="Colliders"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.25, 0)
+shape = SubResource("Box_4")
+
+[node name="C5" type="CollisionShape3D" parent="Colliders"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 3.85, 0)
+shape = SubResource("Box_5")
+
+[node name="C6" type="CollisionShape3D" parent="Colliders"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.20665, 1.1561, -1.8973)
+shape = SubResource("Box_6")
+
+[node name="C7" type="CollisionShape3D" parent="Colliders"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.8, 0.51462, -1.5031)
+shape = SubResource("Box_7")
+
+[node name="C8" type="CollisionShape3D" parent="Colliders"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -1.6, 0.40799, 0.20635)
+shape = SubResource("Box_8")
+
+[node name="C9" type="CollisionShape3D" parent="Colliders"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1.6, 0.40799, 0.20635)
+shape = SubResource("Box_9")
+
+[node name="C10" type="CollisionShape3D" parent="Colliders"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -1.6, 0.25934, 0.85501)
+shape = SubResource("Box_10")
+
+[node name="C11" type="CollisionShape3D" parent="Colliders"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1.6, 0.25934, 0.85501)
+shape = SubResource("Box_11")
+
+[node name="C12" type="CollisionShape3D" parent="Colliders"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -1.6, 0.40799, 1.4063)
+shape = SubResource("Box_12")
+
+[node name="C13" type="CollisionShape3D" parent="Colliders"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1.6, 0.40799, 1.4063)
+shape = SubResource("Box_13")
+
+[node name="C14" type="CollisionShape3D" parent="Colliders"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -1.6, 0.25934, 2.055)
+shape = SubResource("Box_14")
+
+[node name="C15" type="CollisionShape3D" parent="Colliders"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1.6, 0.25934, 2.055)
+shape = SubResource("Box_15")
+
+[node name="C16" type="CollisionShape3D" parent="Colliders"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -2.8, 1.3805, -3.4)
+shape = SubResource("Box_16")
+
+[node name="C17" type="CollisionShape3D" parent="Colliders"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.3805, -3.4)
+shape = SubResource("Box_17")
+
+[node name="C18" type="CollisionShape3D" parent="Colliders"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2.8, 1.3805, -3.4)
+shape = SubResource("Box_18")
+
+[node name="C19" type="CollisionShape3D" parent="Colliders"]
+transform = Transform3D(-4.3711e-08, 0, 1, 0, 1, 0, -1, 0, -4.3711e-08, -4.15, 1.3805, -1.2)
+shape = SubResource("Box_19")
+
+[node name="C20" type="CollisionShape3D" parent="Colliders"]
+transform = Transform3D(-4.3711e-08, 0, -1, 0, 1, 0, 1, 0, -4.3711e-08, 4.15, 1.3805, -1.2)
+shape = SubResource("Box_20")
+
+[node name="PlayerSpawn" type="Marker3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.05, 2.35)
+
+[node name="ExitDoor" type="Area3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 3.3)
+script = ExtResource("2_door")
+is_exit = true
+prompt_text = "Leave"
+
+[node name="Shape" type="CollisionShape3D" parent="ExitDoor"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.2, 0)
+shape = SubResource("Box_exit")
+
+[node name="NPCs" type="Node3D" parent="."]
+
+[node name="NPC_Archmage_Vaelin" type="Marker3D" parent="NPCs"]
+transform = Transform3D(-1, 0, 0, 0, 1, 0, 0, 0, -1, 0, 0, -2.2)
+metadata/look = "Mage_Male"
+metadata/height = 1.75
+metadata/anim = "Idle"
+metadata/role = "academy_dean"
+
+[node name="AlchemyBrewGlow" type="OmniLight3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.15, -1.5)
+light_color = Color(0.35, 0.85, 1, 1)
+light_energy = 1.5
+light_specular = 0.3
+shadow_enabled = false
+omni_range = 5.0
+omni_attenuation = 1.4
+metadata/flicker = true
+
+[node name="WorldEnvironment" type="WorldEnvironment" parent="."]
+environment = SubResource("Environment_room")
+
+[node name="PreviewCamera" type="Camera3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 0.97718, 0.21243, 0, -0.21243, 0.97718, 0, 2, 3.2)
+current = true
+fov = 53.7

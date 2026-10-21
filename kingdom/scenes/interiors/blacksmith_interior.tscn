@@ -223,6 +223,6 @@ metadata/flicker = true
 environment = SubResource("Environment_room")
 
 [node name="PreviewCamera" type="Camera3D" parent="."]
-transform = Transform3D(0.78087, 0.12735, -0.61158, 1.0977e-08, 0.979, 0.20386, 0.6247, -0.15919, 0.76447, -3.6, 2.5, 3.2)
+transform = Transform3D(0.78087, 0.12735, -0.61158, 3.9837e-09, 0.979, 0.20386, 0.6247, -0.15919, 0.76447, -3.6, 2.5, 3.2)
 current = true
 fov = 58.7

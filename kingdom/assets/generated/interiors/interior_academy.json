@@ -1,0 +1,49 @@
+{
+ "name": "academy",
+ "stats": {
+  "room_tris": 54654,
+  "prop_tris": 0,
+  "total": 54654,
+  "materials": [
+   "RA_Wood_hp",
+   "RA_Plaster",
+   "RA_Ember"
+  ],
+  "size_mb": 7.175492
+ },
+ "markers": [
+  [
+   "NPC_Archmage_Vaelin",
+   [
+    0.0,
+    0,
+    -2.2
+   ],
+   -3.141592653589793,
+   {
+    "look": "Mage_Male",
+    "height": 1.75,
+    "anim": "Idle",
+    "role": "academy_dean"
+   }
+  ]
+ ],
+ "spawn": [
+  [
+   0.0,
+   0.05,
+   2.35
+  ],
+  0.0
+ ],
+ "lights": [
+  [
+   "AlchemyBrewGlow",
+   [
+    0.0,
+    1.15,
+    -1.5
+   ]
+  ]
+ ]
+}

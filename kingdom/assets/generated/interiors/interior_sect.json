@@ -1,0 +1,49 @@
+{
+ "name": "sect",
+ "stats": {
+  "room_tris": 42686,
+  "prop_tris": 0,
+  "total": 42686,
+  "materials": [
+   "RA_Wood_hp",
+   "RA_Plaster",
+   "RA_Ember"
+  ],
+  "size_mb": 5.40992
+ },
+ "markers": [
+  [
+   "NPC_Elder_Taiyun",
+   [
+    0.0,
+    0.02,
+    -0.5
+   ],
+   -3.141592653589793,
+   {
+    "look": "Mage_Male",
+    "height": 1.75,
+    "anim": "Idle",
+    "role": "sect_elder"
+   }
+  ]
+ ],
+ "spawn": [
+  [
+   0.0,
+   0.05,
+   2.85
+  ],
+  0.0
+ ],
+ "lights": [
+  [
+   "QiMistGlow",
+   [
+    0.0,
+    0.4,
+    -0.0
+   ]
+  ]
+ ]
+}

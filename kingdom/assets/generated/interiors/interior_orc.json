@@ -1,0 +1,49 @@
+{
+ "name": "orc",
+ "stats": {
+  "room_tris": 32258,
+  "prop_tris": 0,
+  "total": 32258,
+  "materials": [
+   "RA_Wood_hp",
+   "RA_Plaster",
+   "RA_Ember"
+  ],
+  "size_mb": 3.978348
+ },
+ "markers": [
+  [
+   "NPC_Chieftain_Gromkar",
+   [
+    0.0,
+    0,
+    -2.55
+   ],
+   -3.141592653589793,
+   {
+    "look": "Orc_Warrior",
+    "height": 1.75,
+    "anim": "Idle",
+    "role": "orc_chieftain"
+   }
+  ]
+ ],
+ "spawn": [
+  [
+   0.0,
+   0.05,
+   2.25
+  ],
+  0.0
+ ],
+ "lights": [
+  [
+   "OrcRoaringFire",
+   [
+    0.0,
+    0.6,
+    -0.0
+   ]
+  ]
+ ]
+}

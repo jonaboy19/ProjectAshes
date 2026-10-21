@@ -49,10 +49,30 @@ const INTERIORS := {
 	"blacksmith": "res://scenes/interiors/blacksmith_interior.tscn",
 	"adventurer_guild": "res://scenes/interiors/guild_interior.tscn",
 	"healer_house": "res://scenes/interiors/healer_interior.tscn",
+	"mhouse_manor": "res://scenes/interiors/manor_interior.tscn",
+	"mhouse_trader": "res://scenes/interiors/trader_interior.tscn",
+	"sect_hall": "res://scenes/interiors/sect_interior.tscn",
+	"shrine": "res://scenes/interiors/sect_interior.tscn",
+	"orc_longhouse": "res://scenes/interiors/orc_interior.tscn",
+	"orc_stronghold": "res://scenes/interiors/orc_interior.tscn",
+	"academy": "res://scenes/interiors/academy_interior.tscn",
+	"magic_school": "res://scenes/interiors/academy_interior.tscn",
 }
 const HOUSE_INTERIOR := "res://scenes/interiors/house_interior.tscn"
-const PROMPTS := {"inn": "Enter the inn", "blacksmith": "Enter the smithy",
-	"adventurer_guild": "Enter the guild hall", "healer_house": "Enter the healer's house"}
+const PROMPTS := {
+	"inn": "Enter the inn",
+	"blacksmith": "Enter the smithy",
+	"adventurer_guild": "Enter the guild hall",
+	"healer_house": "Enter the healer's house",
+	"mhouse_manor": "Enter the noble manor",
+	"mhouse_trader": "Enter the trader's shop",
+	"sect_hall": "Enter the cultivation hall",
+	"shrine": "Enter the meditation shrine",
+	"orc_longhouse": "Enter the chieftain longhouse",
+	"orc_stronghold": "Enter the orc stronghold",
+	"academy": "Enter the Royal Academy",
+	"magic_school": "Enter the Academy laboratory",
+}
 
 ## Walls stop this far inside the fitted AABB (eaves, trim and props overhang).
 const HERO_WALL := 0.46
