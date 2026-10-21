@@ -140,6 +140,10 @@ func _feed_player(pl: Node3D, now_ms: int) -> void:
 	presence.set_body(PLAYER_ID, p, face, _player_vel, head, fl)
 	if pl.has_meta("insignia"):
 		presence.describe_subject(PLAYER_ID, {"insignia": float(pl.get_meta("insignia"))})
+	if pl.has_meta("aura_view"):
+		presence.describe_subject(PLAYER_ID, pl.get_meta("aura_view"))   # AR-3: aura_emit / reach_m / signature -> Stim.AURA
+	elif not pl.has_node("AuraDriver") and pl.is_inside_tree():
+		(load("res://scripts/actors/aura_driver.gd") as GDScript).call("attach", pl)
 	# Walking into someone is a bump (rate limited).
 	if now_ms >= _bump_cd and _player_vel.length() > 1.5:
 		for id: int in _bodies:

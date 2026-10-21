@@ -381,6 +381,8 @@ func _after_commit(id: String, r: Dictionary, target: Node3D) -> void:
 	if String((r["ability"] as Dictionary).get("source", "")) == "legacy":
 		_train(def)
 	cast.emit(id, def)
+	if player != null and player.has_node("AuraDriver"):
+		player.get_node("AuraDriver").flare(clampf(float(def.get("power", def.get("cost", 10.0))) / 60.0, 0.1, 1.0))   # AR-1: a big spell is loud
 	if player != null and player == Life.player:
 		Life.on_technique_cast(id, def, target != null)
 

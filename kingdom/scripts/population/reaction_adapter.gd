@@ -20,6 +20,11 @@ const INFO := {
 	RR.Kind.CALL_GUARD: {"clip_hint": "react_call_guard", "look": true, "speak": true},
 	RR.Kind.FLEE: {"clip_hint": "react_flee", "look": false},
 	RR.Kind.RETURN_TO_WORK: {"clip_hint": "react_resume", "look": false},
+	# AR-5 aura kinds: no clips yet (Antigravity). `fallback` is the pre-aura kind a body plays until a real mapping exists.
+	RR.Kind.KNEEL: {"clip_hint": "react_kneel", "look": false, "fallback": RR.Kind.BOW},
+	RR.Kind.FAINT: {"clip_hint": "react_faint", "look": false, "fallback": RR.Kind.FLINCH},
+	RR.Kind.HIDE: {"clip_hint": "react_hide", "look": false, "fallback": RR.Kind.STEP_BACK},
+	RR.Kind.FLEE_WITH_CHILD: {"clip_hint": "react_flee_with_child", "look": false, "carry": true, "fallback": RR.Kind.FLEE},
 }
 var delivered := 0
 
@@ -29,6 +34,7 @@ static func describe(kind: int) -> Dictionary:
 	var d: Dictionary = (INFO.get(kind, {}) as Dictionary).duplicate()
 	d["kind"] = kind
 	d["name"] = RR.name_of(kind)
+	d["fallback_kind"] = RR.fallback_of(kind)
 	d["layer"] = RR.LAYER_OF[kind] if kind > 0 and kind < RR.NAMES.size() else 0
 	d["priority"] = RR.PRIORITY[kind] if kind > 0 and kind < RR.NAMES.size() else 0
 	d["keeps_activity"] = RR.KEEPS_ACTIVITY[kind] if kind > 0 and kind < RR.NAMES.size() else true

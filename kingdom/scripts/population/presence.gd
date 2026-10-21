@@ -12,15 +12,16 @@ extends RefCounted
 const Perception := preload("res://scripts/population/perception.gd")
 const SP := preload("res://scripts/realm/social_perception.gd")
 const RR := preload("res://scripts/population/reaction_request.gd")
+const AuraField := preload("res://scripts/population/aura_field.gd")
 
-enum Stim { NONE, STARE, FOLLOW, BLOCK_DOOR, BUMP, RUN_CROWD, DRAWN_WEAPON, TRESPASS, TAKE_OBJECT, EAVESDROP, PUBLIC_MAGIC, KINDNESS, INSIGNIA, INJURED, REPEAT_VISIT }
-const STIM_NAMES := ["none", "stare", "follow", "block_door", "bump", "run_crowd", "drawn_weapon", "trespass", "take_object", "eavesdrop", "public_magic", "kindness", "insignia", "injured", "repeat_visit"]
+enum Stim { NONE, STARE, FOLLOW, BLOCK_DOOR, BUMP, RUN_CROWD, DRAWN_WEAPON, TRESPASS, TAKE_OBJECT, EAVESDROP, PUBLIC_MAGIC, KINDNESS, INSIGNIA, INJURED, REPEAT_VISIT, AURA }
+const STIM_NAMES := ["none", "stare", "follow", "block_door", "bump", "run_crowd", "drawn_weapon", "trespass", "take_object", "eavesdrop", "public_magic", "kindness", "insignia", "injured", "repeat_visit", "aura"]
 ## Seconds of full-intensity stimulus to reach "decide" for a tolerance-1.0 observer.
-const BASE_S := [0.0, 10.0, 12.0, 5.0, 1.0, 3.0, 2.5, 4.0, 1.5, 6.0, 4.0, 3.0, 5.0, 4.0, 3.0]
+const BASE_S := [0.0, 10.0, 12.0, 5.0, 1.0, 3.0, 2.5, 4.0, 1.5, 6.0, 4.0, 3.0, 5.0, 4.0, 3.0, 2.0]   # AURA appended (AR-3)
 ## How much the stimulus matters for ranking attention and for breaking through a busy mind.
-const SEV := [0.0, 0.3, 0.6, 0.35, 0.8, 0.45, 1.0, 0.6, 0.7, 0.4, 0.6, 0.3, 0.5, 0.35, 0.3]
-const POSITIVE := [false, false, false, false, false, false, false, false, false, false, false, true, false, true, true]
-const URGENT := [false, false, false, false, true, false, true, false, true, false, false, false, false, false, false]
+const SEV := [0.0, 0.3, 0.6, 0.35, 0.8, 0.45, 1.0, 0.6, 0.7, 0.4, 0.6, 0.3, 0.5, 0.35, 0.3, 0.9]
+const POSITIVE := [false, false, false, false, false, false, false, false, false, false, false, true, false, true, true, false]
+const URGENT := [false, false, false, false, true, false, true, false, true, false, false, false, false, false, false, false]
 
 const F_RUNNING := 1
 const F_DRAWN := 2
@@ -55,6 +56,7 @@ var light := 1.0
 var los_fn: Callable
 var requests: RefCounted = RR.new()
 var sp: RefCounted = SP.new()
+var aura: RefCounted = AuraField.new()   # AR-3: felt / tier / reaction table for Stim.AURA
 var record := false
 var log: Array = []
 var evals := 0
@@ -186,6 +188,7 @@ func make_observer(id: int, opts := {}) -> void:
 	if opts.has("tolerance"):
 		tol[i] = lerpf(0.5, 1.8, clampf(float(opts["tolerance"]), 0.0, 1.0))
 	var d: Dictionary = data[i]
+	d["aura_id"] = id
 	for k: String in opts:
 		if k != "busy" and k != "acuity" and k != "tolerance":
 			d[k] = opts[k]
@@ -381,7 +384,7 @@ func _eval_observer(o: int, now: int, dt: float) -> void:
 			continue
 		var off := pos[s] - po
 		var d2 := off.length_squared()
-		if d2 > RANGE_M * RANGE_M:
+		if d2 > RANGE_M * RANGE_M and not _aura_reaches(s, d2):
 			continue
 		pair_checks += 1
 		_assess(o, s, off, d2, now)
@@ -432,6 +435,16 @@ func _assess(o: int, s: int, off: Vector2, d2: float, now: int) -> void:
 	_sees_v = -1.0
 	_hears_v = -1.0
 	var dd: Dictionary = data[s]
+	# --- aura (AR-3): felt through walls and out of sight, up to the aura's reach (can exceed RANGE_M)
+	var ae := float(dd.get("aura_emit", 0.0))
+	if ae > 0.02:
+		var od0: Dictionary = data[o] if data[o] != null else {}
+		var fv: float = aura.felt(od0, dd, d, float(od0.get("wall", 1.0)))
+		var fear: float = AuraField.fear_of(od0, fv)
+		if AuraField.tier_of(fear) >= 1:
+			_consider(Stim.AURA, clampf(fear, 0.0, 1.0))
+	if d2 > RANGE_M * RANGE_M:
+		return
 	# --- stare: the subject's HEAD points at the observer, observer can see them, LOS if a callable is set
 	if d <= STARE_M and d > 0.3 and head[s].dot(-off / d) >= STARE_COS:
 		var sees := _sees(o, s, off, d)
@@ -481,6 +494,14 @@ func _assess(o: int, s: int, off: Vector2, d2: float, now: int) -> void:
 
 var _sees_v := -1.0
 var _hears_v := -1.0
+
+
+func _aura_reaches(s: int, d2: float) -> bool:
+	var dd: Variant = data[s]
+	if dd == null:
+		return false
+	var r := float((dd as Dictionary).get("reach_m", 0.0))
+	return float((dd as Dictionary).get("aura_emit", 0.0)) > 0.02 and d2 <= r * r
 
 
 func _sees(o: int, s: int, off: Vector2, d: float) -> float:
@@ -588,7 +609,7 @@ func _advance(o: int, s: int, a: int, now: int, jump: bool) -> void:
 
 const STAGE_REACT := [
 	[0, 0, 0], [1, 1, 2], [1, 1, 4], [1, 1, 3], [6, 6, 3], [1, 6, 4], [6, 3, 3], [1, 1, 1], [1, 1, 3], [1, 2, 1],
-	[6, 3, 3], [1, 0, 0], [1, 1, 4], [1, 1, 1], [1, 0, 0]]
+	[6, 3, 3], [1, 0, 0], [1, 1, 4], [1, 1, 1], [1, 0, 0], [1, 6, 3]]   # last: AURA (glance, flinch, step back)
 # kinds: NONE | GLANCE=1 LOOK_AWAY=2 STEP_BACK=3 STEP_ASIDE=4 BOW=5 FLINCH=6 ... (order = Stim enum)
 
 
@@ -746,4 +767,13 @@ func _decide(o: int, s: int, kind: int) -> int:
 			return K.WAVE if sociable >= 0.4 else K.LOOK_AWAY
 		Stim.REPEAT_VISIT:
 			return K.WAVE if sociable >= 0.3 else K.GLANCE
+		Stim.AURA:
+			var oc := od.duplicate()
+			oc["guard"] = guard
+			oc["guard_near"] = gnear
+			oc["id_n"] = id_of[o]
+			oc["day"] = hour
+			var fv: float = aura.felt(od, sd, pos[o].distance_to(pos[s]), float(od.get("wall", 1.0)))
+			var tier: int = AuraField.tier_of(AuraField.fear_of(od, fv))
+			return AuraField.reaction_for(tier, oc, String(sd.get("signature", "warm_gold")))
 	return K.GLANCE

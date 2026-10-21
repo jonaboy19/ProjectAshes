@@ -2398,6 +2398,8 @@ func presence_react(kind: int, target: int, _info: Dictionary) -> void:
 	var from := Vector2.INF
 	if _player != null and is_instance_valid(_player) and target == PresenceLive.PLAYER_ID:
 		from = Vector2(_player.global_position.x, _player.global_position.z)
+	if kind in ReactionRequest.AURA_KINDS:
+		kind = ReactionRequest.fallback_of(kind)   # AR-5: until Antigravity maps real kneel/faint/hide/carry clips (reaction_adapter.gd)
 	match kind:
 		K.GLANCE, K.WAVE, K.BOW:
 			_react_look_until = now + 1500

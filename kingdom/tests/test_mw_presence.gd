@@ -217,7 +217,7 @@ func test_discrete_events_and_visits() -> void:
 	assert_int(p.visits(1, 0)).is_equal(4)
 
 func test_reaction_contract_and_adapter() -> void:
-	assert_int(RR.NAMES.size()).is_equal(13)
+	assert_int(RR.NAMES.size()).is_greater_equal(13)   # additive: aura kinds appended after RETURN_TO_WORK
 	assert_int(RR.Kind.RETURN_TO_WORK).is_equal(12)           # enum frozen
 	assert_bool(RR.can_preempt(RR.Kind.GLANCE, 1000, RR.Kind.LOOK_AWAY, 500)).is_false()   # equal priority waits
 	assert_bool(RR.can_preempt(RR.Kind.GLANCE, 1000, RR.Kind.FLINCH, 500)).is_true()

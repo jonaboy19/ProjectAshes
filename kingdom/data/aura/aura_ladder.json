@@ -1,0 +1,34 @@
+{
+	"version": 1,
+	"steps": [
+		{"id": "watch", "who": "watchmen", "delay_s": [0, 15], "min_t1": 1},
+		{"id": "patrol", "who": "two-man patrol", "delay_s": [20, 45], "min_t2": 3, "or_t3": 1},
+		{"id": "officer_parley", "who": "sergeant or officer with a guard shadowing", "delay_s": [45, 90], "sustained_s": 10, "or_t4": 1, "or_dread": 50},
+		{"id": "captain_mages", "who": "captain, 4 to 8 guards, one or two guild mages", "delay_s": [120, 240], "or_damage": 1, "or_t4": 5},
+		{"id": "knights_inquisitors", "who": "knight squad, or inquisition with sanctified wards", "delay_s": [600, 1800], "dread": 70, "or_death": 1, "or_demonic_church": 1},
+		{"id": "royal_response", "who": "bounty, army units, crown champion, siege of refuges", "delay_s": [3600, 86400], "dread": 85, "or_noble_killed": 1, "or_repeat_step4": 2}
+	],
+	"options": ["suppress", "talk", "intimidate", "bribe", "surrender", "flee", "fight", "fight_lethal", "appeal"],
+	"dread_half_life_days": 90,
+	"dread_half_life_legend_days": 240,
+	"awe_half_life_days": 150,
+	"kin_half_life_days": 180,
+	"cascade": [30, 50, 70, 85],
+	"price_max": 0.4,
+	"spread_cap": 0.3,
+	"incident_ring": 64,
+	"town_cap": 16,
+	"deeds": {
+		"street_slaughter": {"dread": 35, "awe": -5},
+		"landmark_destroyed": {"dread": 25, "awe": -10},
+		"monster_defeated": {"dread": 5, "awe": 30},
+		"survived_execution": {"dread": 10, "awe": 15},
+		"spared_enemy": {"dread": -5, "awe": 15},
+		"noble_assassinated": {"dread": 30, "awe": -15},
+		"bandit_camp_cleared": {"dread": 5, "awe": 25},
+		"siege_broken": {"dread": 40, "awe": 10},
+		"breakthrough_seen": {"dread": 15, "awe": 20},
+		"riot_ended": {"dread": 3, "awe": 20},
+		"public_release": {"dread": 4, "awe": 0}
+	}
+}

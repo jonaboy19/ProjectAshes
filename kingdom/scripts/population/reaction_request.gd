@@ -9,15 +9,22 @@ extends RefCounted
 ##  - keeps_activity == true: the animation layer adapts OVER the current activity (additive / short displacement) and the
 ##    activity resumes by itself. false (confront, warn, call_guard, flee): the activity is paused; RETURN_TO_WORK resumes it.
 
-enum Kind { NONE, GLANCE, LOOK_AWAY, STEP_BACK, STEP_ASIDE, BOW, FLINCH, CONFRONT, WAVE, WARN, CALL_GUARD, FLEE, RETURN_TO_WORK }
+enum Kind { NONE, GLANCE, LOOK_AWAY, STEP_BACK, STEP_ASIDE, BOW, FLINCH, CONFRONT, WAVE, WARN, CALL_GUARD, FLEE, RETURN_TO_WORK, KNEEL, FAINT, HIDE, FLEE_WITH_CHILD }
 enum Layer { HEAD, UPPER, LOCO, BODY }
 
-const NAMES := ["none", "glance", "look_away", "step_back", "step_aside", "bow", "flinch", "confront", "wave", "warn", "call_guard", "flee", "return_to_work"]
-const PRIORITY := [0, 1, 1, 3, 3, 2, 4, 5, 2, 5, 6, 7, 1]
-const DURATION_MS := [0, 1200, 1500, 900, 1100, 1400, 600, 3000, 1500, 2500, 3500, 6000, 800]
-const LAYER_OF := [0, 0, 0, 2, 2, 1, 1, 3, 1, 3, 3, 2, 2]
-const KEEPS_ACTIVITY := [true, true, true, true, true, true, true, false, true, false, false, false, true]
+const NAMES := ["none", "glance", "look_away", "step_back", "step_aside", "bow", "flinch", "confront", "wave", "warn", "call_guard", "flee", "return_to_work", "kneel", "faint", "hide", "flee_with_child"]
+const PRIORITY := [0, 1, 1, 3, 3, 2, 4, 5, 2, 5, 6, 7, 1, 4, 8, 6, 7]
+const DURATION_MS := [0, 1200, 1500, 900, 1100, 1400, 600, 3000, 1500, 2500, 3500, 6000, 800, 5000, 12000, 6000, 6000]
+const LAYER_OF := [0, 0, 0, 2, 2, 1, 1, 3, 1, 3, 3, 2, 2, 3, 3, 2, 2]
+const KEEPS_ACTIVITY := [true, true, true, true, true, true, true, false, true, false, false, false, true, false, false, false, false]
 const EXCLUSIVE_KIND := 11
+## AR-5 (additive, 2026-10-21): aura kinds appended after RETURN_TO_WORK; values 0..12 never move.
+## KNEEL: BODY, prio 4, 5 s, pauses activity (knees give / devotee kneels). FAINT: BODY, prio 8 (outranks the exclusive flee: legs give
+## way), 12 s, lies on the ground. HIDE: LOCO, prio 6, 6 s, duck behind cover or into a doorway. FLEE_WITH_CHILD: LOCO, prio 7, 6 s,
+## exclusive like FLEE; target = the child's body id when known. Adapters without a mapping fall back via fallback_of().
+const AURA_KINDS := [13, 14, 15, 16]
+## Nearest pre-aura kind, for adapters/clip sets that have no mapping yet (never leave a body in a T-pose).
+const FALLBACK_OF := {13: 5, 14: 6, 15: 3, 16: 11}
 const PER_SLOT := 4          # one current request per layer
 const PENDING := 6           # ring of unconsumed requests per slot
 const MAX_SLOTS := 64
@@ -46,6 +53,14 @@ static func name_of(kind: int) -> String:
 	return NAMES[kind] if kind >= 0 and kind < NAMES.size() else "none"
 
 
+static func is_exclusive(kind: int) -> bool:
+	return kind == EXCLUSIVE_KIND or kind == Kind.FLEE_WITH_CHILD
+
+
+static func fallback_of(kind: int) -> int:
+	return int(FALLBACK_OF.get(kind, kind))
+
+
 static func kind_from_name(n: String) -> int:
 	return NAMES.find(n) if NAMES.has(n) else 0
 
@@ -63,7 +78,7 @@ func request(slot: int, kind: int, target: int, now: int, priority_boost := 0) -
 	# exclusive flee blocks everything on every layer except a higher priority
 	for l in PER_SLOT:
 		var i := slot * PER_SLOT + l
-		if cur_kind[i] == EXCLUSIVE_KIND and now < cur_until[i] and PRIORITY[kind] + priority_boost <= PRIORITY[EXCLUSIVE_KIND]:
+		if is_exclusive(cur_kind[i]) and now < cur_until[i] and PRIORITY[kind] + priority_boost <= PRIORITY[EXCLUSIVE_KIND]:
 			rejected += 1
 			return false
 	var idx := slot * PER_SLOT + int(LAYER_OF[kind])

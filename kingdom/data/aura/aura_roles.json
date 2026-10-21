@@ -1,0 +1,14 @@
+{
+	"version": 1,
+	"tiers": [0.12, 0.30, 0.55, 0.80, 1.0],
+	"hysteresis": 0.03,
+	"tier_names": ["nothing", "unease", "fear", "panic", "collapse", "overwhelm"],
+	"courage_bias": 1.2,
+	"child_courage": 0.9,
+	"child_age": 6,
+	"elder_age": 65,
+	"frail_collapse": 0.8,
+	"roles": ["clearer", "parent", "elder", "beggar", "merchant", "looter", "devotee", "fanatic", "rival_mage", "child", "guard", "drunk", "healer", "gawker"],
+	"chaos": {"stall": 0.1, "unguarded": 0.2, "collapsed": 0.1, "guard": 0.3, "looters_at": 0.6},
+	"max_bodies": 48
+}
