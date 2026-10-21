@@ -1,18 +1,16 @@
-"""Comprehensive World, Interiors, Tournament Arenas, Interactive Map and Hidden Secrets Viewer Generator for Project Ashes.
+"""Comprehensive World Locations, Biomes, Cities, Arenas, and Walk-In Interiors Showcase for Project Ashes.
 Injects:
-- 3D 1080p Cycles PBR Continental Aerial Overview (render_valencious_32km_full_world.png)
-- Interactive 2D HTML5 Canvas Continent Map with pan, zoom, radar pulse markers, and full POI inspection
-- 10 Walk-In Enterable Interiors with PBR renders, vertex lighting, and zero loading screen colliders
-- Grand Tournament Colosseum Arena with 4-tier bracket system & betting mechanics
-- 5 Hidden Wilderness Discoveries (Smuggler Cove, Celestial Runestone, Dwarven Magma Portal, Daoist Hermit, Bandit Vault)
-- 3D Rigged Characters & Ashford Village Square
-- Historical Civilizations & Fantasy Realms Blueprint
-All embedded via Base64 so the HTML file is 100% self-contained with ZERO external missing dependencies.
+- Valencious 15-Region World Atlas & AAA Panoramas (valencious_world_atlas_all_regions.jpg, ashford_vale_golden_hour_river_panorama.jpg, mount_taiyun_cultivation_cloud_citadel.jpg, duskbriar_sacred_forest_river_shrine.jpg)
+- 3D PBR City & Settlement Renders (Kingsreach Keep & Gate, Ashford Square & Street, Forest Cottage, Orc Hut, Colosseum Arena)
+- Regional World Dressing (Farmsteads, Mines, King's Highway Roads, Ancient Ruins)
+- 10 Walk-In Enterable Interiors with PBR renders & zero-loading colliders
+- Interactive 2D HTML5 Canvas Continent Radar Map
+- 20 Races & Slime Evolution
+All embedded via Base64 into docs/VALENCIOUS_WORLD_VIEWER.html.
 """
 import os, sys, base64, shutil
 
 ROOT = r"C:\Users\Jonna\Documents\ProjectAshes"
-PREV_DIR = os.path.join(ROOT, "docs", "kingdom", "blender_previews")
 ACTUAL_DIR = os.path.join(ROOT, "docs", "img", "actual_renders")
 BRAIN_IMG_DIR = r"C:\Users\Jonna\.gemini\antigravity\brain\3da776b7-bb83-47d1-9df4-df5aec1eeb7f\img\actual_renders"
 OUT_HTML = os.path.join(ROOT, "docs", "VALENCIOUS_WORLD_VIEWER.html")
@@ -44,55 +42,67 @@ def copy_and_b64(src_path, dst_filename):
     return ""
 
 def main():
-    print("Building Comprehensive Valencious World, Map, Arena & Secrets Showcase HTML...")
-    
-    # 3D World Overview
-    b64_world_3d = copy_and_b64(os.path.join(ACTUAL_DIR, "render_valencious_32km_full_world.png"), "render_valencious_32km_full_world.png")
-    
-    # Interiors
-    b64_manor = copy_and_b64(os.path.join(PREV_DIR, "interior_manor_a.png"), "render_interior_noble_manor.png")
-    b64_trader = copy_and_b64(os.path.join(PREV_DIR, "interior_trader_a.png"), "render_interior_trader_shop.png")
-    b64_sect = copy_and_b64(os.path.join(PREV_DIR, "interior_sect_a.png"), "render_interior_wuxia_sect.png")
-    b64_orc = copy_and_b64(os.path.join(PREV_DIR, "interior_orc_a.png"), "render_interior_orc_longhouse.png")
-    b64_academy = copy_and_b64(os.path.join(PREV_DIR, "interior_academy_a.png"), "render_interior_academy_lab.png")
-    
-    b64_inn = copy_and_b64(os.path.join(PREV_DIR, "interior_inn_a.png"), "render_interior_inn_tavern.png")
-    b64_smith = copy_and_b64(os.path.join(PREV_DIR, "interior_blacksmith_a.png"), "render_interior_blacksmith_forge.png")
-    b64_guild = copy_and_b64(os.path.join(PREV_DIR, "interior_guild_a.png"), "render_interior_guild_hall.png")
-    b64_healer = copy_and_b64(os.path.join(PREV_DIR, "interior_healer_a.png"), "render_interior_healer_house.png")
-    b64_house = copy_and_b64(os.path.join(PREV_DIR, "interior_house_a.png"), "render_enterable_cottage_interior.png")
-    
-    # Arena & Landmarks
-    b64_arena = copy_and_b64(os.path.join(PREV_DIR, "arena_colosseum_a.png"), "render_valencious_tournament_arena.png")
-    
-    # Heroes & World
+    print("Compiling Master Valencious World, Cities, Biomes, Arenas & Interiors Viewer...")
+
+    # AAA World Panoramas & Atlas
+    b64_atlas = copy_and_b64(os.path.join(ACTUAL_DIR, "valencious_world_atlas_all_regions.jpg"), "valencious_world_atlas_all_regions.jpg")
+    b64_ashford_pano = copy_and_b64(os.path.join(ACTUAL_DIR, "ashford_vale_golden_hour_river_panorama.jpg"), "ashford_vale_golden_hour_river_panorama.jpg")
+    b64_taiyun_pano = copy_and_b64(os.path.join(ACTUAL_DIR, "mount_taiyun_cultivation_cloud_citadel.jpg"), "mount_taiyun_cultivation_cloud_citadel.jpg")
+    b64_duskbriar_pano = copy_and_b64(os.path.join(ACTUAL_DIR, "duskbriar_sacred_forest_river_shrine.jpg"), "duskbriar_sacred_forest_river_shrine.jpg")
+
+    # Real 3D City & Settlement Models
+    b64_kingsreach_keep = copy_and_b64(os.path.join(ACTUAL_DIR, "render_kingsreach_castle_keep.png"), "render_kingsreach_castle_keep.png")
+    b64_kingsreach_gate = copy_and_b64(os.path.join(ACTUAL_DIR, "render_kingsreach_town_gate.png"), "render_kingsreach_town_gate.png")
+    b64_ashford_sq = copy_and_b64(os.path.join(ACTUAL_DIR, "render_ashford_village_square_pbr.png"), "render_ashford_village_square_pbr.png")
+    b64_ashford_st = copy_and_b64(os.path.join(ACTUAL_DIR, "render_ashford_village_street.png"), "render_ashford_village_street.png")
+    b64_forest_cottage = copy_and_b64(os.path.join(ACTUAL_DIR, "render_region_forest_cottage.png"), "render_region_forest_cottage.png")
+    b64_orc_hut = copy_and_b64(os.path.join(ACTUAL_DIR, "render_tuskridge_orc_hut.png"), "render_tuskridge_orc_hut.png")
+    b64_arena = copy_and_b64(os.path.join(ACTUAL_DIR, "render_valencious_tournament_arena.png"), "render_valencious_tournament_arena.png")
+
+    # Regional Sheet Sets
+    b64_farm_sheet = copy_and_b64(os.path.join(ACTUAL_DIR, "render_region_farm_sheet.png"), "render_region_farm_sheet.png")
+    b64_mine_sheet = copy_and_b64(os.path.join(ACTUAL_DIR, "render_region_mine_sheet.png"), "render_region_mine_sheet.png")
+    b64_road_sheet = copy_and_b64(os.path.join(ACTUAL_DIR, "render_region_road_sheet.png"), "render_region_road_sheet.png")
+    b64_ruins_sheet = copy_and_b64(os.path.join(ACTUAL_DIR, "render_region_ruins_sheet.png"), "render_region_ruins_sheet.png")
+
+    # 10 Walk-In Interiors
+    b64_manor = copy_and_b64(os.path.join(ACTUAL_DIR, "render_interior_noble_manor.png"), "render_interior_noble_manor.png")
+    b64_trader = copy_and_b64(os.path.join(ACTUAL_DIR, "render_interior_trader_shop.png"), "render_interior_trader_shop.png")
+    b64_sect = copy_and_b64(os.path.join(ACTUAL_DIR, "render_interior_wuxia_sect.png"), "render_interior_wuxia_sect.png")
+    b64_orc = copy_and_b64(os.path.join(ACTUAL_DIR, "render_interior_orc_longhouse.png"), "render_interior_orc_longhouse.png")
+    b64_academy = copy_and_b64(os.path.join(ACTUAL_DIR, "render_interior_academy_lab.png"), "render_interior_academy_lab.png")
+    b64_inn = copy_and_b64(os.path.join(ACTUAL_DIR, "render_interior_inn_tavern.png"), "render_interior_inn_tavern.png")
+    b64_smith = copy_and_b64(os.path.join(ACTUAL_DIR, "render_interior_blacksmith_forge.png"), "render_interior_blacksmith_forge.png")
+    b64_guild = copy_and_b64(os.path.join(ACTUAL_DIR, "render_interior_guild_hall.png"), "render_interior_guild_hall.png")
+    b64_healer = copy_and_b64(os.path.join(ACTUAL_DIR, "render_interior_healer_house.png"), "render_interior_healer_house.png")
+    b64_house = copy_and_b64(os.path.join(ACTUAL_DIR, "render_enterable_cottage_interior.png"), "render_enterable_cottage_interior.png")
+
+    # Characters & Races
     b64_darkelf = copy_and_b64(os.path.join(ACTUAL_DIR, "render_dark_elf_aaa_hero.png"), "render_dark_elf_aaa_hero.png")
-    b64_races = copy_and_b64(os.path.join(ACTUAL_DIR, "render_races_lineup.png"), "render_races_lineup.png")
-    b64_orcs = copy_and_b64(os.path.join(ACTUAL_DIR, "render_orc_evolution_lineup.png"), "render_orc_evolution_lineup.png")
+    b64_races_board = copy_and_b64(os.path.join(ACTUAL_DIR, "races_and_civilizations_of_valencious.jpg"), "races_and_civilizations_of_valencious.jpg")
+    b64_races_3d = copy_and_b64(os.path.join(ACTUAL_DIR, "render_races_lineup.png"), "render_races_lineup.png")
+    b64_orcs_3d = copy_and_b64(os.path.join(ACTUAL_DIR, "render_orc_evolution_lineup.png"), "render_orc_evolution_lineup.png")
     b64_horse = copy_and_b64(os.path.join(ACTUAL_DIR, "render_draco_horse.png"), "render_draco_horse.png")
-    b64_square = copy_and_b64(os.path.join(ACTUAL_DIR, "render_ashford_village_square.png"), "render_ashford_village_square.png")
-    b64_map = copy_and_b64(os.path.join(ACTUAL_DIR, "render_ashford_vale_regional_map.png"), "render_ashford_vale_regional_map.png")
-    b64_cottage_ext = copy_and_b64(os.path.join(ACTUAL_DIR, "render_enterable_cottage_exterior.png"), "render_enterable_cottage_exterior.png")
 
     html = f"""<!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Valencious 32km World, Arenas & AAA 3D Interiors</title>
+<title>Valencious World Locations, Cities, Arenas & 10 Walk-In Interiors</title>
 <style>
 :root {{
   --bg-primary: #0a0b10;
   --bg-secondary: #12141f;
-  --bg-card: #181b2a;
+  --bg-card: #161927;
   --accent-gold: #f59e0b;
   --accent-blue: #38bdf8;
   --accent-purple: #a855f7;
   --accent-emerald: #10b981;
   --accent-red: #ef4444;
-  --text-main: #f1f5f9;
+  --text-main: #f8fafc;
   --text-muted: #94a3b8;
-  --border: #2e354f;
+  --border: #282f45;
 }}
 * {{ box-sizing: border-box; margin: 0; padding: 0; }}
 body {{
@@ -102,7 +112,7 @@ body {{
   line-height: 1.6;
 }}
 header {{
-  background: linear-gradient(180deg, #16192b 0%, #0a0b10 100%);
+  background: linear-gradient(180deg, #181c2e 0%, #0a0b10 100%);
   border-bottom: 1px solid var(--border);
   padding: 20px 32px;
   position: sticky;
@@ -151,9 +161,9 @@ header {{
 }}
 .nav-btn:hover {{ color: var(--text-main); background: #1e2337; }}
 .nav-btn.active {{
-  background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
+  background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
   color: #fff;
-  box-shadow: 0 4px 12px rgba(37, 99, 235, 0.35);
+  box-shadow: 0 4px 12px rgba(37, 99, 235, 0.4);
 }}
 main {{
   max-width: 1440px;
@@ -164,7 +174,7 @@ main {{
 .tab-content.active {{ display: block; }}
 
 .section-banner {{
-  background: linear-gradient(135deg, rgba(30, 58, 138, 0.4) 0%, rgba(15, 23, 42, 0.8) 100%);
+  background: linear-gradient(135deg, rgba(30, 58, 138, 0.35) 0%, rgba(15, 23, 42, 0.8) 100%);
   border: 1px solid #1e3a8a;
   border-radius: 16px;
   padding: 24px 28px;
@@ -194,6 +204,7 @@ main {{
   object-fit: cover;
   display: block;
   border-bottom: 1px solid var(--border);
+  background: #0f121d;
 }}
 .card-content {{ padding: 22px; flex-grow: 1; }}
 .card-tag {{
@@ -216,7 +227,7 @@ main {{
   gap: 12px;
   margin: 12px 0;
   padding: 8px 12px;
-  background: #0f121d;
+  background: #0e111a;
   border-radius: 8px;
   font-size: 12px;
   font-family: monospace;
@@ -328,190 +339,259 @@ main {{
 
 <header>
   <div class="header-title">
-    <h1>VALENCIOUS 32KM WORLD, ARENAS & AAA INTERIORS</h1>
-    <p>Project Ashes • Blender 5.2 Cycles PBR Renders • Grand Tournament Arenas • 10 Enterable Interiors • Hidden Secrets</p>
+    <h1>VALENCIOUS WORLD LOCATIONS, CITIES & AAA INTERIORS</h1>
+    <p>Project Ashes • 15 Regional Biomes • Real 3D PBR Renders • 10 Enterable Interiors • Grand Tournament Arenas</p>
   </div>
   <div class="nav-tabs">
-    <button class="nav-btn active" onclick="switchTab('world')">🗺️ 32km Full World & Map</button>
+    <button class="nav-btn active" onclick="switchTab('locations')">🌄 World Locations & Biomes</button>
+    <button class="nav-btn" onclick="switchTab('cities3d')">🏰 3D Cities & Settlements</button>
+    <button class="nav-btn" onclick="switchTab('interiors')">🚪 10 Enterable Interiors</button>
     <button class="nav-btn" onclick="switchTab('arena')">⚔️ Grand Tournament Arenas</button>
-    <button class="nav-btn" onclick="switchTab('interiors')">🏰 Enterable 3D Interiors</button>
-    <button class="nav-btn" onclick="switchTab('secrets')">🗝️ Hidden Secrets & Dungeons</button>
-    <button class="nav-btn" onclick="switchTab('actual3d')">📸 Hero Models & Ashford</button>
+    <button class="nav-btn" onclick="switchTab('map')">🗺️ Interactive 2D Radar Map</button>
+    <button class="nav-btn" onclick="switchTab('races')">🧝 20 Races & Characters</button>
     <button class="nav-btn" onclick="switchTab('future')">🏛️ Distant Historical Nations</button>
   </div>
 </header>
 
 <main>
 
-  <!-- TAB 0: 32KM FULL WORLD & INTERACTIVE CONTINENT MAP -->
-  <section id="tab-world" class="tab-content active">
+  <!-- TAB 0: WORLD LOCATIONS & REGIONAL BIOMES -->
+  <section id="tab-locations" class="tab-content active">
     <div class="section-banner">
-      <h2>🗺️ 32km × 32km Valencious Continent: Metropolises, Monster Strongholds, Sects & Secrets</h2>
-      <p>The entire Valencious realm modeled and placed in Godot engine worldgen (seed 1066) and rendered in Blender 5.2 Cycles AgX. Includes Kingsreach Royal Castle, Ashford Village, Mount Taiyun Daoist Cultivation Peak, Tuskridge Orc Stronghold, Gundarak Dwarven Magma Rift, Aetheria Sky Islands, Grand Tournament Colosseum, and 5 wilderness discoveries.</p>
+      <h2>🌄 Valencious Continent: 15 Regional Biomes & World Landmarks</h2>
+      <p>The true AAA artistic standard for the 32km Valencious continent: rolling fertile plains, meandering rivers, misty redwood forests, snowy cultivation pinnacles, bustling market squares, and fortified mountain holds.</p>
     </div>
 
-    <!-- 3D WORLD HERO RENDER -->
+    <!-- MASTER ATLAS HERO -->
     <div class="gallery-card" style="margin-bottom: 28px;">
-      <img src="data:image/png;base64,{b64_world_3d}" alt="3D Full World Continent Overview" style="height: 520px; object-fit: cover;">
+      <img src="data:image/jpeg;base64,{b64_atlas}" alt="Valencious 15-Region Comprehensive Geographic Atlas" style="height: 580px; object-fit: contain; background: #060810;">
       <div class="card-content">
-        <span class="card-tag tag-gold">Blender 5.2 Cycles PBR • High Aerial 3/4 Vantage</span>
-        <h3>Valencious Continent 3D Landscape Overview</h3>
-        <p>Comprehensive 3D view of the continent: central fertile Ashford Vale with Ashrun river flowing into Emberglass Mere; Kingsreach walled fortress city; the King's Highway connecting to the Grand Tournament Colosseum; northern Mount Taiyun snow peaks and Daoist Pagodas; western Tuskridge Orc Stronghold; Gundarak volcanic caldera; and suspended Aetheria Sky Islands.</p>
+        <span class="card-tag tag-gold">Continental Geographic Master Atlas • 15 Distinct Biomes</span>
+        <h3>Valencious Continent: Comprehensive Regional Map & Visual Panoramas</h3>
+        <p>The full cartographic and photographic breakdown of the Valencious continent: <strong>Plains & Farmlands</strong>, <strong>Forests</strong>, <strong>Hills & Countryside</strong>, <strong>Northern Mountains</strong>, <strong>Rivers & Lakes</strong>, <strong>Coastal Regions</strong>, <strong>Towns & Cities</strong>, <strong>Ruins & Ancient Sites</strong>, <strong>Rift Zones</strong>, and <strong>Borderlands</strong>.</p>
         <div class="stats-badge">
-          <div>Resolution: <span>1920x1080 Full HD</span></div>
-          <div>Engine: <span>Cycles AgX Punchy</span></div>
-          <div>Biome Coverage: <span>Vale, Mountains, Ocean, Magma Rift, Sky Islands</span></div>
-          <div>World Stream: <span>32km Region • 4km Home Chunks</span></div>
+          <div>Scale: <span>32,768m x 32,768m</span></div>
+          <div>Macro-Sectors: <span>4,096 (512m cells)</span></div>
+          <div>Biome Count: <span>15 Biomes</span></div>
+          <div>Active Memory: <span>&le; 4.2 GB RAM (PC Master Spec)</span></div>
         </div>
       </div>
     </div>
 
-    <!-- INTERACTIVE 2D CANVAS CONTINENT RADAR MAP -->
-    <div class="section-banner" style="padding: 16px 24px; margin-bottom: 16px;">
-      <h3 style="color: var(--accent-blue); font-size: 18px;">📍 Interactive Continent Radar & Settlement Inspector</h3>
-      <p style="font-size: 13px;">Drag to pan, use scroll wheel or +/- buttons to zoom. Click any settlement or landmark pin to view full lore, coordinates, and enterable interiors.</p>
-    </div>
-
-    <div class="map-container">
-      <canvas id="worldCanvas"></canvas>
-      <div class="map-controls">
-        <button class="map-btn" onclick="zoomMap(1.2)">+</button>
-        <button class="map-btn" onclick="zoomMap(0.8)">-</button>
-        <button class="map-btn" onclick="resetMap()" title="Reset View">⟲</button>
-      </div>
-      <div class="map-filters">
-        <button class="filter-btn active" onclick="filterMap('all')">All Sites</button>
-        <button class="filter-btn" onclick="filterMap('settlement')">Capitals & Towns</button>
-        <button class="filter-btn" onclick="filterMap('arena')">Tournament Arenas</button>
-        <button class="filter-btn" onclick="filterMap('monster')">Monster Strongholds</button>
-        <button class="filter-btn" onclick="filterMap('sect')">Sects & Academies</button>
-        <button class="filter-btn" onclick="filterMap('secret')">Hidden Secrets</button>
-      </div>
-      <div id="poiInspector" class="poi-inspector">
-        <button class="close-inspector" onclick="closeInspector()">✕</button>
-        <h4 id="poiName">Settlement</h4>
-        <span id="poiTag" class="card-tag tag-gold" style="margin: 6px 0;">Capital</span>
-        <p id="poiDesc">Description</p>
-        <div id="poiStats" class="poi-meta">Coords: [0, 0] • Radius: 60m</div>
-      </div>
-    </div>
-
-    <!-- SUMMARY GRID OF WORLD ZONES -->
     <div class="gallery-grid">
+      <!-- 1. ASHFORD VALE & RIVERWAY -->
       <div class="gallery-card">
+        <img src="data:image/jpeg;base64,{b64_ashford_pano}" alt="Ashford Vale Golden Hour River Panorama">
         <div class="card-content">
-          <span class="card-tag tag-gold">Royal Capital</span>
-          <h3>Kingsreach Fortress City</h3>
-          <p>The fortified crown seat of Caldrenn. Enclosed by massive stone curtain walls, double gatehouses, high royal keep, bustling merchant district, the Grand Colosseum, and the Royal Arcana Academy.</p>
-          <div class="stats-badge">
-            <div>Coords: <span>(560, -420)</span></div>
-            <div>Pop: <span>1,850</span></div>
-            <div>Interiors: <span>Manor, Guild, Academy, Colosseum</span></div>
-          </div>
-        </div>
-      </div>
-
-      <div class="gallery-card">
-        <div class="card-content">
-          <span class="card-tag tag-emerald">Starting Hub</span>
-          <h3>Ashford Vale & River Village</h3>
-          <p>Home village situated on the fertile banks of the Ashrun. Features timber and thatch cottages, water mill, active smithy, lively tavern inn, trading post, and guardian runestone perimeter.</p>
+          <span class="card-tag tag-emerald">Central River Valley • Starting Hub</span>
+          <h3>Ashford Vale & Ashrun Riverway</h3>
+          <p>Lush golden hour sunlight over rolling wheat fields, water wheels turning in the snowmelt river, stone bridges crossing the Ashrun, rustic roadside taverns with red banner poles, and distant snow peaks framed in cloud mist.</p>
           <div class="stats-badge">
             <div>Coords: <span>(0, 0)</span></div>
-            <div>Pop: <span>120</span></div>
-            <div>Interiors: <span>Inn, Blacksmith, Trader, Peasant Cottages</span></div>
+            <div>River: <span>The Ashrun (9m width)</span></div>
+            <div>Lake: <span>Emberglass Mere</span></div>
+            <div>Factions: <span>Caldrenn Folk & Free Farmers</span></div>
           </div>
         </div>
       </div>
 
+      <!-- 2. MOUNT TAIYUN CULTIVATION PEAK -->
       <div class="gallery-card">
+        <img src="data:image/jpeg;base64,{b64_taiyun_pano}" alt="Mount Taiyun Cultivation Cloud Citadel">
         <div class="card-content">
-          <span class="card-tag tag-red">Monster Stronghold</span>
-          <h3>Tuskridge Hold & Orc Bastion</h3>
-          <p>A formidable hilltop bastion enclosed by sharpened spiked palisades, earthworks, and watchtowers. Inhabited by the Tuskridge Orc clan under Chief Harrok Ashmaw.</p>
-          <div class="stats-badge">
-            <div>Coords: <span>(300, 930)</span></div>
-            <div>Pop: <span>140 Orcs</span></div>
-            <div>Interiors: <span>Chieftain Longhouse, Training Yard</span></div>
-          </div>
-        </div>
-      </div>
-
-      <div class="gallery-card">
-        <div class="card-content">
-          <span class="card-tag tag-blue">Wuxia Cultivation</span>
+          <span class="card-tag tag-blue">Wuxia / Cultivation • Northern Mountains</span>
           <h3>Mount Taiyun & Heavenly Mist Sect</h3>
-          <p>Towering snowy mountain peaks crowned with tiered Daoist pagodas, mist-shrouded meditation platforms, and spiritual qi springs where martial cultivators practice sword intent.</p>
+          <p>Towering snowy alpine spires crowned with curved pagoda monasteries, cascading mountain waterfalls, hanging suspension rope bridges, and high contemplation terraces where Daoist disciples cultivate sword intent.</p>
           <div class="stats-badge">
             <div>Coords: <span>(0, -1400)</span></div>
-            <div>Affiliation: <span>Heavenly Mist Sect</span></div>
-            <div>Interiors: <span>Sect Meditation Hall, Hermit Sanctuary</span></div>
+            <div>Altitude: <span>2,400m+</span></div>
+            <div>Institution: <span>Heavenly Mist Daoist Sect</span></div>
+            <div>Interiors: <span>Sect Meditation Hall, Hermit Cave</span></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 3. DUSKBRIAR SACRED REDWOOD FOREST -->
+      <div class="gallery-card">
+        <img src="data:image/jpeg;base64,{b64_duskbriar_pano}" alt="Duskbriar Sacred Forest River Shrine">
+        <div class="card-content">
+          <span class="card-tag tag-purple">Deep Redwood Wilderness • Ancient Mystery</span>
+          <h3>Duskbriar Wood & Sacred River Shrine</h3>
+          <p>Giant ancient moss-covered redwoods draped with shimenawa ropes and wind chimes, cascading crystal mountain brooks, stone lantern waymarkers, rustic timber lodges, and the hidden Celestial Runestone grove.</p>
+          <div class="stats-badge">
+            <div>Coords: <span>(380, 480)</span></div>
+            <div>Flora: <span>Centennial Redwoods & Spirit Moss</span></div>
+            <div>Danger: <span>Moderate (Wolves, Goblins, Spirits)</span></div>
+            <div>Secrets: <span>Ancient Celestial Runestone</span></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 4. GUNDARAK DWARVEN MAGMA RIFT -->
+      <div class="gallery-card">
+        <div class="card-content" style="padding-top: 28px;">
+          <span class="card-tag tag-red">Subterranean Deep Realm • Volcanic Rift</span>
+          <h3>Gundarak Magma Cavern & Dwarven Holds</h3>
+          <p>A colossal 10km subterranean cave network beneath Mount Taiyun's basalt crust. Lit by roaring rivers of molten magma, massive steam-powered hydraulic forge hammers, stalactite fortress bastions, and runic dwarven vault doors.</p>
+          <div class="stats-badge">
+            <div>Coords: <span>(-1100, -1350)</span></div>
+            <div>Depth: <span>-850m Subterranean</span></div>
+            <div>Faction: <span>Gundarak Deep Iron Clan</span></div>
+            <div>Features: <span>Magma Forges, Obsidian Armory</span></div>
           </div>
         </div>
       </div>
     </div>
   </section>
 
-  <!-- TAB 1: TOURNAMENT ARENAS -->
-  <section id="tab-arena" class="tab-content">
+  <!-- TAB 1: 3D CITIES & SETTLEMENTS -->
+  <section id="tab-cities3d" class="tab-content">
     <div class="section-banner">
-      <h2>⚔️ Valencious Grand Tournament Colosseum & Arenas</h2>
-      <p>Built with procedural ashlar masonry in Blender 5.2. Integrated into Kingsreach Royal Capital and regional tournament grounds along the King's Highway. Features sand dueling pit, spectator amphitheatre tiers, the Royal Box with crimson velvet canopy, dual iron-portcullis gladiator gates, and weapon armory.</p>
+      <h2>🏰 Real 3D Settlements & Architectural Models (Cycles PBR)</h2>
+      <p>Actual 3D models placed across the 32km continent: Kingsreach Royal Fortress Keep and Gatehouse, Ashford Village Square, Medieval Market Street, Forest Enterable Cottages, and Tuskridge Orc Bastion.</p>
     </div>
 
     <div class="gallery-grid">
-      <!-- ARENA HERO -->
-      <div class="gallery-card" style="grid-column: 1 / -1;">
-        <img src="data:image/png;base64,{b64_arena}" alt="Valencious Grand Tournament Colosseum" style="height: 480px;">
+      <!-- 1. KINGSREACH KEEP -->
+      <div class="gallery-card">
+        <img src="data:image/png;base64,{b64_kingsreach_keep}" alt="Kingsreach Royal Castle Keep">
         <div class="card-content">
-          <span class="card-tag tag-red">Major World Landmark • Tournament Grounds</span>
-          <h3>Valencious Grand Colosseum & Combat Amphitheatre</h3>
-          <p>The centerpiece of military prowess and martial tournaments in Valencious. Host to the Novice Trials, Knight's Joust, Champions' Clash, and Clash of the Immortals. Features an 18m diameter sand duel ring, 4-tier spectator bleachers, royal viewing box with gold thrones, 4 perimeter battle turrets, and gladiator staging tunnels.</p>
+          <span class="card-tag tag-gold">Royal Capital • High Keep</span>
+          <h3>Kingsreach Royal Fortress Keep</h3>
+          <p>The central stronghold of Caldrenn. Ashlar stone masonry, 4 corner defense towers with blue conical slate roofs, royal heraldic flags, crenellated battlements, and arched portcullis entrance.</p>
           <div class="stats-badge">
-            <div>Footprint: <span>30.8m x 30.8m</span></div>
-            <div>Height: <span>20.1m</span></div>
-            <div>Mesh: <span>8,575 tris</span></div>
-            <div>Asset: <span>arena_colosseum.glb</span></div>
-            <div>Cities: <span>Kingsreach Capital, Ashford Regional Grounds</span></div>
+            <div>Asset: <span>castle_keep.glb</span></div>
+            <div>Location: <span>Kingsreach Capital (560, -420)</span></div>
+            <div>Interiors: <span>Lord Aethelgard's Manor Hall</span></div>
           </div>
         </div>
       </div>
 
-      <!-- FIGHTERS & BRACKETS -->
+      <!-- 2. KINGSREACH GATE -->
       <div class="gallery-card">
+        <img src="data:image/png;base64,{b64_kingsreach_gate}" alt="Kingsreach Town Gate">
         <div class="card-content">
-          <span class="card-tag tag-gold">Tournament Contenders</span>
-          <h3>Ranked Arena Champions</h3>
-          <ul style="margin-left: 20px; color: var(--text-muted); font-size: 14px; margin-top: 10px;">
-            <li><strong>Sir Gareth the Iron Wall:</strong> Royal Paladin, sword & heavy shield, 850 HP.</li>
-            <li><strong>Sylas Obsidian Fang:</strong> Dark Elf Shadowblade, dual venom daggers, 680 HP.</li>
-            <li><strong>Gromkar Bonecleaver:</strong> Tuskridge Orc Warlord, two-handed battle axe, 1200 HP.</li>
-            <li><strong>Elder Li Tian:</strong> Heavenly Mist Cultivator, flowing jian sword, 750 HP.</li>
-            <li><strong>Lady Elowen:</strong> Royal Academy Spellblade, enchanted rapier, 920 HP.</li>
-            <li><strong>Drogath Stonefist:</strong> Gundarak Dwarven Magma Smith, magma warhammer, 1050 HP.</li>
-          </ul>
+          <span class="card-tag tag-gold">Capital Fortifications • Gatehouse</span>
+          <h3>Kingsreach Fortress Gate & Curtain Wall</h3>
+          <p>Twin fortified defense bastions flanking an iron-banded timber portcullis gate, arrow loops, royal heraldic banners, and high patrol walkway connecting to the city curtain wall.</p>
+          <div class="stats-badge">
+            <div>Asset: <span>town_gate.glb</span></div>
+            <div>Clearance: <span>8.0m Wagon Archway</span></div>
+            <div>Guard: <span>Caldric Royal Sentinels</span></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 3. ASHFORD VILLAGE SQUARE -->
+      <div class="gallery-card">
+        <img src="data:image/png;base64,{b64_ashford_sq}" alt="Ashford Village Square PBR">
+        <div class="card-content">
+          <span class="card-tag tag-emerald">Village Core • Active Hub</span>
+          <h3>Ashford Village Square</h3>
+          <p>Cobblestone marketplace surrounded by half-timbered merchant houses, stone bell tower chapel, central village stone water well, street lanterns, and produce stalls with striped awnings.</p>
+          <div class="stats-badge">
+            <div>Asset: <span>village_square.glb / village_well.glb</span></div>
+            <div>Location: <span>Ashford Center (0, 0)</span></div>
+            <div>Services: <span>Inn, Blacksmith, Trader, Bulletin</span></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 4. ASHFORD STREET -->
+      <div class="gallery-card">
+        <img src="data:image/png;base64,{b64_ashford_st}" alt="Ashford Village Street">
+        <div class="card-content">
+          <span class="card-tag tag-emerald">Market Street • 6 Distinct Buildings</span>
+          <h3>Ashford Main Market Street</h3>
+          <p>Six distinct architectural house variants lining the thoroughfare: slate roofs, thatch roofs, wood dormers, timber framing, flower planters, side lean-to sheds, and customer benches.</p>
+          <div class="stats-badge">
+            <div>Assets: <span>village_house_a/b/c/d.glb</span></div>
+            <div>Interiors: <span>100% Walk-in Accessible</span></div>
+            <div>LODs: <span>LOD0 & LOD1 swap at 24m</span></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 5. FOREST COTTAGE -->
+      <div class="gallery-card">
+        <img src="data:image/png;base64,{b64_forest_cottage}" alt="Forest Cottage & Environment">
+        <div class="card-content">
+          <span class="card-tag tag-purple">Rural Countryside • Enterable Cottage</span>
+          <h3>Woodland Peasant Homestead</h3>
+          <p>Rural slate-roof cottage situated in dense woodland of painterly oaks, Scots pines, berry bushes, mossy boulders, fallen logs, and dirt footpaths. Features enterable doorway without loading screens.</p>
+          <div class="stats-badge">
+            <div>Asset: <span>enterable_cottage.glb</span></div>
+            <div>Foliage: <span>oak_a, pine_scots, bush_berry</span></div>
+            <div>Doorway: <span>1.3m x 2.4m Open Portal</span></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 6. ORC BASTION HUT -->
+      <div class="gallery-card">
+        <img src="data:image/png;base64,{b64_orc_hut}" alt="Tuskridge Orc Bastion Hut">
+        <div class="card-content">
+          <span class="card-tag tag-red">Monster Stronghold • Tuskridge</span>
+          <h3>Tuskridge Clan War Hut & Palisade</h3>
+          <p>Log stockade hut with hide-covered conical timber roof, mammoth tusk doorway arch, clan war banners, bone totems, and sharpened perimeter log palisade walls.</p>
+          <div class="stats-badge">
+            <div>Asset: <span>orc_hut.glb / orc_palisade.glb</span></div>
+            <div>Location: <span>Tuskridge Hold (300, 930)</span></div>
+            <div>Interiors: <span>Tuskridge Chieftain Longhouse</span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- REGIONAL DRESSING SHEETS -->
+    <div class="section-banner" style="margin-top: 32px;">
+      <h2>🌾 Regional Infrastructure Sets: Farms, Mines, Roads & Ruins</h2>
+      <p>Modular environmental kits placed across the 32km landscape by RegionSites.plan() to populate the wilderness between cities.</p>
+    </div>
+
+    <div class="gallery-grid">
+      <div class="gallery-card">
+        <img src="data:image/png;base64,{b64_farm_sheet}" alt="Farmsteads Kit">
+        <div class="card-content">
+          <span class="card-tag tag-gold">Agriculture Kit</span>
+          <h3>Farms & Windmills Set</h3>
+          <p>Working agricultural structures: rotating windmill, timber barn, granary, chicken coop, pig sty, scarecrow, hay wagon, wheat and cabbage crop rows, and rail fencing.</p>
         </div>
       </div>
 
       <div class="gallery-card">
+        <img src="data:image/png;base64,{b64_mine_sheet}" alt="Mining Kit">
         <div class="card-content">
-          <span class="card-tag tag-purple">Tournament Rules & Stakes</span>
-          <h3>4-Tier Championship Progression</h3>
-          <ul style="margin-left: 20px; color: var(--text-muted); font-size: 14px; margin-top: 10px;">
-            <li><strong>Bronze Tier (Novice Trial):</strong> 25 gold entry • 250 gold purse • Title "Arena Challenger"</li>
-            <li><strong>Silver Tier (Knight's Joust):</strong> 100 gold entry • 1,000 gold purse • Full Caldric Knight Plate</li>
-            <li><strong>Gold Tier (Champions' Clash):</strong> 500 gold entry • 5,000 gold purse • Obsidian Sunblade</li>
-            <li><strong>Mythic Tier (Clash of Immortals):</strong> 2,500 gold entry • 25,000 gold purse • Title "Blade of Valencious" + Crown Dragon Relic</li>
-          </ul>
+          <span class="card-tag tag-blue">Industry Kit</span>
+          <h3>Northern Mines & Rails Set</h3>
+          <p>Hillside mine entrance with heavy timber bracing, mine carts on iron rails, ore piles (iron, copper, coal), head-frame winch, and miner's log hut.</p>
+        </div>
+      </div>
+
+      <div class="gallery-card">
+        <img src="data:image/png;base64,{b64_road_sheet}" alt="Road Infrastructure Kit">
+        <div class="card-content">
+          <span class="card-tag tag-emerald">Travel Kit</span>
+          <h3>King's Highway Roads & Bridges</h3>
+          <p>Arched stone bridges, timber trestle bridges, roadside inns, toll booths, checkpoint boom barriers, waystone shrines, and covered merchant caravan wagons.</p>
+        </div>
+      </div>
+
+      <div class="gallery-card">
+        <img src="data:image/png;base64,{b64_ruins_sheet}" alt="Ruins & Bandit Camps Kit">
+        <div class="card-content">
+          <span class="card-tag tag-red">Adventure Kit</span>
+          <h3>Ancient Ruins & Wilderness Camps</h3>
+          <p>Collapsed stone watchtowers, overgrown ancient shrines, bandit canvas tents, lean-tos, roaring campfires, stolen loot stashes, and goblin shaman totems.</p>
         </div>
       </div>
     </div>
   </section>
 
-  <!-- TAB 2: ENTERABLE 3D INTERIORS -->
+  <!-- TAB 2: 10 ENTERABLE INTERIORS -->
   <section id="tab-interiors" class="tab-content">
     <div class="section-banner">
-      <h2>🏰 100% Walk-In Enterable Interiors (PC Master Tier)</h2>
+      <h2>🚪 100% Walk-In Enterable Interiors (PC Master Tier)</h2>
       <p>Every building features custom timber/stone architecture, baked ray-cast vertex lighting, physical box colliders, walk-in doorway triggers (no loading screens), and NPC markers. Rendered with Blender 5.2 Cycles AgX Punchy.</p>
     </div>
 
@@ -668,53 +748,110 @@ main {{
     </div>
   </section>
 
-  <!-- TAB 3: HIDDEN SECRETS & DUNGEONS -->
-  <section id="tab-secrets" class="tab-content">
+  <!-- TAB 3: GRAND TOURNAMENT ARENAS -->
+  <section id="tab-arena" class="tab-content">
     <div class="section-banner">
-      <h2>🗝️ Hidden Secrets, Caches & Subterranean Dungeons</h2>
-      <p>Hidden throughout the 32x32km Valencious wilderness for players to discover through exploration, quest rumors, and environmental clues.</p>
+      <h2>⚔️ Valencious Grand Tournament Colosseum & Arenas</h2>
+      <p>Built with procedural ashlar masonry in Blender 5.2. Integrated into Kingsreach Royal Capital and regional tournament grounds along the King's Highway. Features sand dueling pit, spectator amphitheatre tiers, the Royal Box with crimson velvet canopy, dual iron-portcullis gladiator gates, and weapon armory.</p>
     </div>
+
     <div class="gallery-grid">
-      <div class="gallery-card">
+      <!-- ARENA HERO -->
+      <div class="gallery-card" style="grid-column: 1 / -1;">
+        <img src="data:image/png;base64,{b64_arena}" alt="Valencious Grand Tournament Colosseum" style="height: 480px;">
         <div class="card-content">
-          <span class="card-tag tag-emerald">Water Secret • Hidden Cove</span>
-          <h3>Smuggler's Cove & Waterfall Cache</h3>
-          <p>Concealed behind the roaring waterfall cascade on Emberglass Mere. Contains waterlogged iron-banded chests with illicit smuggled gemstones, stolen Caldric customs manifests, and a rowboat dock.</p>
+          <span class="card-tag tag-red">Major World Landmark • Tournament Grounds</span>
+          <h3>Valencious Grand Colosseum & Combat Amphitheatre</h3>
+          <p>The centerpiece of military prowess and martial tournaments in Valencious. Host to the Novice Trials, Knight's Joust, Champions' Clash, and Clash of the Immortals. Features an 18m diameter sand duel ring, 4-tier spectator bleachers, royal viewing box with gold thrones, 4 perimeter battle turrets, and gladiator staging tunnels.</p>
+          <div class="stats-badge">
+            <div>Footprint: <span>30.8m x 30.8m</span></div>
+            <div>Height: <span>20.1m</span></div>
+            <div>Mesh: <span>8,575 tris</span></div>
+            <div>Asset: <span>arena_colosseum.glb</span></div>
+            <div>Cities: <span>Kingsreach Capital, Ashford Regional Grounds</span></div>
+          </div>
         </div>
       </div>
+
+      <!-- FIGHTERS & BRACKETS -->
       <div class="gallery-card">
         <div class="card-content">
-          <span class="card-tag tag-blue">Arcane Mystery • Deep Woods</span>
-          <h3>Ancient Celestial Runestone Grove</h3>
-          <p>Hidden deep within the heart of Duskbriar Wood where the forest canopy blocks the sun. A glowing cyan runestone pulsating with celestial mana, surrounded by rare spirit herbs and glowing butterflies.</p>
+          <span class="card-tag tag-gold">Tournament Contenders</span>
+          <h3>Ranked Arena Champions</h3>
+          <ul style="margin-left: 20px; color: var(--text-muted); font-size: 14px; margin-top: 10px;">
+            <li><strong>Sir Gareth the Iron Wall:</strong> Royal Paladin, sword & heavy shield, 850 HP.</li>
+            <li><strong>Sylas Obsidian Fang:</strong> Dark Elf Shadowblade, dual venom daggers, 680 HP.</li>
+            <li><strong>Gromkar Bonecleaver:</strong> Tuskridge Orc Warlord, two-handed battle axe, 1200 HP.</li>
+            <li><strong>Elder Li Tian:</strong> Heavenly Mist Cultivator, flowing jian sword, 750 HP.</li>
+            <li><strong>Lady Elowen:</strong> Royal Academy Spellblade, enchanted rapier, 920 HP.</li>
+            <li><strong>Drogath Stonefist:</strong> Gundarak Dwarven Magma Smith, magma warhammer, 1050 HP.</li>
+          </ul>
         </div>
       </div>
+
       <div class="gallery-card">
         <div class="card-content">
-          <span class="card-tag tag-red">Subterranean Dungeon • Northern Crags</span>
-          <h3>Gundarak Dwarven Magma Portal</h3>
-          <p>Carved directly into the volcanic basalt cliff-face of Mount Taiyun. An ancient stone gate surrounded by runic ward stones, leading down into the subterranean magma forges and deep dwarven realm.</p>
-        </div>
-      </div>
-      <div class="gallery-card">
-        <div class="card-content">
-          <span class="card-tag tag-purple">Wuxia Cultivation • Mountain Peak</span>
-          <h3>Hermit Daoist Cultivation Sanctuary</h3>
-          <p>A secluded stone terrace perched on an inaccessible pinnacle above the cloud line. Features an ancient stone meditation slab, cedar tea table, and scrolls containing forgotten martial arts cultivation manuals.</p>
-        </div>
-      </div>
-      <div class="gallery-card">
-        <div class="card-content">
-          <span class="card-tag tag-gold">Ruins Cache • Watchtower Vault</span>
-          <h3>Buried Bandit Lord Strongbox</h3>
-          <p>Underneath the rubble and timber debris of the Old Watchtower knoll lies a hidden stone trapdoor into an underground smuggler cellar with weapons, gold bars, and regional map markings.</p>
+          <span class="card-tag tag-purple">Tournament Rules & Stakes</span>
+          <h3>4-Tier Championship Progression</h3>
+          <ul style="margin-left: 20px; color: var(--text-muted); font-size: 14px; margin-top: 10px;">
+            <li><strong>Bronze Tier (Novice Trial):</strong> 25 gold entry • 250 gold purse • Title "Arena Challenger"</li>
+            <li><strong>Silver Tier (Knight's Joust):</strong> 100 gold entry • 1,000 gold purse • Full Caldric Knight Plate</li>
+            <li><strong>Gold Tier (Champions' Clash):</strong> 500 gold entry • 5,000 gold purse • Obsidian Sunblade</li>
+            <li><strong>Mythic Tier (Clash of Immortals):</strong> 2,500 gold entry • 25,000 gold purse • Title "Blade of Valencious" + Crown Dragon Relic</li>
+          </ul>
         </div>
       </div>
     </div>
   </section>
 
-  <!-- TAB 4: HERO MODELS & ASHFORD -->
-  <section id="tab-actual3d" class="tab-content">
+  <!-- TAB 4: INTERACTIVE 2D RADAR MAP -->
+  <section id="tab-map" class="tab-content">
+    <div class="section-banner">
+      <h2>🗺️ Interactive 32km Continent Radar Map & Inspector</h2>
+      <p>Pan, zoom and click on any settlement, stronghold, sect, arena, or secret cache across the 32x32km region.</p>
+    </div>
+
+    <div class="map-container">
+      <canvas id="worldCanvas"></canvas>
+      <div class="map-controls">
+        <button class="map-btn" onclick="zoomMap(1.2)">+</button>
+        <button class="map-btn" onclick="zoomMap(0.8)">-</button>
+        <button class="map-btn" onclick="resetMap()" title="Reset View">⟲</button>
+      </div>
+      <div class="map-filters">
+        <button class="filter-btn active" onclick="filterMap('all')">All Sites</button>
+        <button class="filter-btn" onclick="filterMap('settlement')">Capitals & Towns</button>
+        <button class="filter-btn" onclick="filterMap('arena')">Tournament Arenas</button>
+        <button class="filter-btn" onclick="filterMap('monster')">Monster Strongholds</button>
+        <button class="filter-btn" onclick="filterMap('sect')">Sects & Academies</button>
+        <button class="filter-btn" onclick="filterMap('secret')">Hidden Secrets</button>
+      </div>
+      <div id="poiInspector" class="poi-inspector">
+        <button class="close-inspector" onclick="closeInspector()">✕</button>
+        <h4 id="poiName">Settlement</h4>
+        <span id="poiTag" class="card-tag tag-gold" style="margin: 6px 0;">Capital</span>
+        <p id="poiDesc">Description</p>
+        <div id="poiStats" class="poi-meta">Coords: [0, 0] • Radius: 60m</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- TAB 5: 20 RACES & CHARACTERS -->
+  <section id="tab-races" class="tab-content">
+    <div class="section-banner">
+      <h2>🧝 Races, Factions & Evolution Systems of Valencious</h2>
+      <p>Comprehensive 20-race roster, branching slime/tensura naming evolution, and 3D humanoid rigs.</p>
+    </div>
+
+    <div class="gallery-card" style="margin-bottom: 28px;">
+      <img src="data:image/jpeg;base64,{b64_races_board}" alt="Races of Valencious Chart" style="height: 520px; object-fit: contain; background: #060810;">
+      <div class="card-content">
+        <span class="card-tag tag-gold">20 Playable & NPC Races • Complete Lore</span>
+        <h3>Races of Valencious and the Wider World</h3>
+        <p>Humans, Elves, Dark Elves, Dwarves, Beastkin, Half-Breeds, Aetherborn, Draken Dragonkin, Orcs, Halflings, Gnomes, Tieflings, Aasimar, Lizardfolk, Serpentkin, Avian, Spiritkin, Giants, and Undead.</p>
+      </div>
+    </div>
+
     <div class="gallery-grid">
       <div class="gallery-card">
         <img src="data:image/png;base64,{b64_darkelf}" alt="AAA Dark Elf Hero">
@@ -726,38 +863,20 @@ main {{
       </div>
 
       <div class="gallery-card">
-        <img src="data:image/png;base64,{b64_races}" alt="20 Races Lineup">
+        <img src="data:image/png;base64,{b64_races_3d}" alt="3D Humanoid Lineup">
         <div class="card-content">
-          <span class="card-tag tag-gold">20 Playable & NPC Races</span>
-          <h3>Comprehensive Races Lineup</h3>
-          <p>Full 3D rigged humanoid lineup across Humans, High Elves, Dark Elves, Orcs, Dwarves, Beastkin, and Dragonkin.</p>
+          <span class="card-tag tag-blue">3D Humanoid Lineup</span>
+          <h3>Rigged Playable Races (3D Renders)</h3>
+          <p>Human paladins, high elves, dark elf rogues, orc warriors, and mountain dwarves on the UAL rig.</p>
         </div>
       </div>
 
       <div class="gallery-card">
-        <img src="data:image/png;base64,{b64_orcs}" alt="Orc Evolution Lineup">
+        <img src="data:image/png;base64,{b64_orcs_3d}" alt="Branching Orc Evolution">
         <div class="card-content">
           <span class="card-tag tag-red">Branching Evolution</span>
           <h3>Orc Evolution Lineup (Dual-Path)</h3>
           <p>From Goblin Forager to Brutal Warlord or Shamanic Mystic with custom bone armor and tusks.</p>
-        </div>
-      </div>
-
-      <div class="gallery-card">
-        <img src="data:image/png;base64,{b64_square}" alt="Ashford Village Square">
-        <div class="card-content">
-          <span class="card-tag tag-emerald">World Hub • Ashford</span>
-          <h3>Ashford Village Square (PBR Ground View)</h3>
-          <p>Active settlement with stone well, marketplace stalls, timber houses, and perimeter palisade walls.</p>
-        </div>
-      </div>
-
-      <div class="gallery-card">
-        <img src="data:image/png;base64,{b64_map}" alt="Valencious Regional Map">
-        <div class="card-content">
-          <span class="card-tag tag-blue">32km Continent</span>
-          <h3>Ashford Vale & 32km Regional Map</h3>
-          <p>High-altitude cartographic render of the 32x32km Valencious continent showing rivers, valleys, roads and biomes.</p>
         </div>
       </div>
 
@@ -772,7 +891,7 @@ main {{
     </div>
   </section>
 
-  <!-- TAB 5: DISTANT HISTORICAL NATIONS -->
+  <!-- TAB 6: DISTANT HISTORICAL NATIONS -->
   <section id="tab-future" class="tab-content">
     <div class="section-banner">
       <h2>🏛️ Blueprint: Distant Civilizations & Fantasy Realms</h2>
@@ -830,7 +949,7 @@ function switchTab(tabId) {{
   const btn = Array.from(document.querySelectorAll('.nav-btn')).find(b => b.getAttribute('onclick').includes(tabId));
   if (btn) btn.classList.add('active');
 
-  if (tabId === 'world') {{
+  if (tabId === 'map') {{
     setTimeout(initMap, 50);
   }}
 }}
@@ -902,11 +1021,9 @@ function drawMap() {{
   if (!ctx) return;
   ctx.clearRect(0, 0, canvas.width, canvas.height);
   
-  // Background ocean / continent tone
   ctx.fillStyle = '#080a14';
   ctx.fillRect(0, 0, canvas.width, canvas.height);
   
-  // Draw continent base polygon / circle
   ctx.save();
   ctx.translate(mapOffsetX, mapOffsetY);
   ctx.scale(mapScale, mapScale);
@@ -920,35 +1037,26 @@ function drawMap() {{
   ctx.fill();
   ctx.stroke();
   
-  // High Mountain Ridge at North
+  // Mountains
   ctx.fillStyle = '#1e2638';
   ctx.beginPath();
   ctx.ellipse(0, -1200, 1300, 450, 0, 0, Math.PI * 2);
   ctx.fill();
   
-  // Roads (King's Ember Road & Valley Roads)
+  // Roads
   ctx.strokeStyle = '#64748b';
   ctx.lineWidth = 6;
   ctx.setLineDash([8, 6]);
   ctx.beginPath();
-  ctx.moveTo(0, 0); // Ashford
-  ctx.lineTo(288, -199); // Cinderpost & Arena
-  ctx.lineTo(560, -420); // Kingsreach
-  ctx.stroke();
-  
-  // Taiyun Pilgrim Path
-  ctx.strokeStyle = '#93c5fd';
-  ctx.lineWidth = 4;
-  ctx.setLineDash([6, 6]);
-  ctx.beginPath();
   ctx.moveTo(0, 0);
-  ctx.lineTo(0, -1400);
+  ctx.lineTo(288, -199);
+  ctx.lineTo(560, -420);
   ctx.stroke();
-  ctx.setLineDash([]);
   
-  // Ashrun River
+  // River
   ctx.strokeStyle = '#0284c7';
   ctx.lineWidth = 14;
+  ctx.setLineDash([]);
   ctx.beginPath();
   ctx.moveTo(-150, -900);
   ctx.bezierCurveTo(-250, -400, -330, -150, -400, 220);
@@ -956,30 +1064,27 @@ function drawMap() {{
   ctx.bezierCurveTo(-600, 500, -1000, 800, -1500, 1200);
   ctx.stroke();
   
-  // Emberglass Mere Lake
+  // Lake
   ctx.fillStyle = '#0369a1';
   ctx.beginPath();
   ctx.arc(-420, 300, 95, 0, Math.PI * 2);
   ctx.fill();
   
-  // POI Markers
+  // POIs
   const filtered = POIS.filter(p => activeFilter === 'all' || p.kind === activeFilter);
   
   filtered.forEach(p => {{
-    // Radar ring
     ctx.strokeStyle = p.color;
     ctx.lineWidth = 2 / mapScale;
     ctx.beginPath();
     ctx.arc(p.x, p.z, p.r * 0.8, 0, Math.PI * 2);
     ctx.stroke();
     
-    // Core dot
     ctx.fillStyle = p.color;
     ctx.beginPath();
     ctx.arc(p.x, p.z, Math.max(8, p.r * 0.25), 0, Math.PI * 2);
     ctx.fill();
     
-    // Label
     ctx.fillStyle = '#f1f5f9';
     ctx.font = `bold ${{Math.max(12, 14 / mapScale)}}px 'Segoe UI', sans-serif`;
     ctx.textAlign = 'center';
@@ -1013,7 +1118,6 @@ function handleMapClick(e) {{
   const mouseX = e.clientX - rect.left;
   const mouseY = e.clientY - rect.top;
   
-  // Convert mouse back to world coords
   const worldX = (mouseX - mapOffsetX) / mapScale;
   const worldZ = (mouseY - mapOffsetY) / mapScale;
   
