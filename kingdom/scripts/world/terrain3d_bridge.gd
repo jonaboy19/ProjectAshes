@@ -52,7 +52,6 @@ func _ready() -> void:
 	terrain.region_size = REGION_SIZE
 	terrain.collision_mode = 0                # DISABLED: TerrainStreamer's trimesh bodies (same WorldGen.height) stay the physics ground
 	terrain.render_layers = 1 | TownDecals.GROUND_LAYER      # ground decals (ruts, puddles) project onto it, as onto the legacy chunks
-	terrain.assets = _make_assets()
 
 
 func _configure_material() -> void:
@@ -262,6 +261,7 @@ func _add_region(loc: Vector2i, maps: Array) -> void:
 	r.calc_height_range()
 	if terrain.get_parent() == null:
 		add_child(terrain)
+		terrain.assets = _make_assets()      # after entering the tree: Terrain3D resets `assets` on initialize
 		_configure_material()
 	terrain.data.add_region(r, true)
 	_regions[loc] = r
