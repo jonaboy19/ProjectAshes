@@ -1,0 +1,82 @@
+{
+ "source_type": "bvh",
+ "bvh_dir": "${ANIM_SRC}/cmu-mocap/data",
+ "ual": "../../assets/incoming/quaternius/universal-animation-library/Unreal-Godot/UAL1_Standard.glb",
+ "out": "../../assets/incoming/animations/aaa/UAL_AAA_Combat_Adv.glb",
+ "smooth": 0.015,
+ "fingers": "fist",
+ "finger_poses": {
+  "relaxed": ["Idle_Loop", 0.0],
+  "fist": ["Punch_Jab", 0.4],
+  "open": ["Spell_Simple_Idle_Loop", 0.5],
+  "grip": ["Sword_Idle", 0.0]
+ },
+ "map": {
+  "pelvis": "Hips",
+  "spine_01": "LowerBack",
+  "spine_02": "Spine",
+  "spine_03": "Spine1",
+  "neck_01": "Neck",
+  "Head": "Head",
+  "clavicle_l": "LeftShoulder",
+  "upperarm_l": "LeftArm",
+  "lowerarm_l": "LeftForeArm",
+  "hand_l": "LeftHand",
+  "clavicle_r": "RightShoulder",
+  "upperarm_r": "RightArm",
+  "lowerarm_r": "RightForeArm",
+  "hand_r": "RightHand",
+  "thigh_l": "LeftUpLeg",
+  "calf_l": "LeftLeg",
+  "foot_l": "LeftFoot",
+  "ball_l": "LeftToeBase",
+  "thigh_r": "RightUpLeg",
+  "calf_r": "RightLeg",
+  "foot_r": "RightFoot",
+  "ball_r": "RightToeBase"
+ },
+ "clips": [
+  {
+   "name": "Parry_High_Deflect",
+   "file": "002/02_08.bvh",
+   "start": 0.5,
+   "end": 3.5,
+   "loop": false
+  },
+  {
+   "name": "Parry_Sword_Riposte",
+   "file": "002/02_08.bvh",
+   "start": 4.0,
+   "end": 7.5,
+   "loop": false
+  },
+  {
+   "name": "Combat_Fencing_Lunge",
+   "file": "002/02_08.bvh",
+   "start": 8.0,
+   "end": 11.5,
+   "loop": false
+  },
+  {
+   "name": "Combat_Shield_Bash_Stagger",
+   "file": "144/144_07.bvh",
+   "start": 0.5,
+   "end": 3.0,
+   "loop": false
+  },
+  {
+   "name": "Combat_Dodge_Sidestep_L",
+   "file": "144/144_11.bvh",
+   "start": 20.0,
+   "end": 22.5,
+   "loop": false
+  },
+  {
+   "name": "Combat_Dodge_Sidestep_R",
+   "file": "144/144_11.bvh",
+   "start": 23.0,
+   "end": 25.5,
+   "loop": false
+  }
+ ]
+}

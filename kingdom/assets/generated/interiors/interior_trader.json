@@ -1,0 +1,40 @@
+{
+ "name": "trader",
+ "stats": {
+  "room_tris": 57632,
+  "prop_tris": 0,
+  "total": 57632,
+  "materials": [
+   "RA_Wood_hp",
+   "RA_Plaster",
+   "RA_Ember"
+  ],
+  "size_mb": 7.813040
+ },
+ "markers": [
+  [
+   "NPC_Shopkeeper",
+   [
+    0.0,
+    0,
+    -0.5
+   ],
+   -3.141592653589793,
+   {
+    "look": "Merchant_Male",
+    "height": 1.75,
+    "anim": "Idle",
+    "role": "shopkeeper"
+   }
+  ]
+ ],
+ "spawn": [
+  [
+   0.0,
+   0.05,
+   2.05
+  ],
+  0.0
+ ],
+ "lights": []
+}
