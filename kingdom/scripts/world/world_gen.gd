@@ -77,6 +77,9 @@ static var _river_grid: Dictionary = {}           # Vector2i -> PackedInt32Array
 
 
 static func setup(seed_value: int) -> void:
+	var macro_on := WorldMacro.prepare()   # Valencious macro hook (scripts/world/world_macro.gd): load once, main thread
+	if macro_on:
+		WorldMacro.suspend()   # settlements, camps and sites are planned on the legacy noise so no id/position can move; re-based below
 	Region1Terrain.setup()   # Region1 look hook: terrain stamps + trails as data (docs/regions/LOOK_R1.md)
 	_hills.seed = seed_value
 	_hills.frequency = 0.0022
@@ -108,6 +111,20 @@ static func setup(seed_value: int) -> void:
 			var c: Vector2 = site["pos"]
 			clearings.append({"pos": c, "radius": float(site["clear"]), "flatten": bool(site["flatten"]),
 				"base_h": _raw_height(c.x, c.y)})
+	_build_indexes()
+	if macro_on:
+		WorldMacro.resume()
+		_rebase_to_macro(seed_value)
+
+
+## Valencious macro hook: positions are final, so re-seat everything that follows the ground on the macro terrain.
+static func _rebase_to_macro(seed_value: int) -> void:
+	for st in settlements:
+		st["base_h"] = _raw_height(st["pos"].x, st["pos"].y)
+	_place_water(seed_value, false)    # lake level, rivers and their levels follow the macro ground (the hidden vale's stream is kept)
+	_place_camp_grounds()
+	for c in clearings:
+		c["base_h"] = _raw_height(c["pos"].x, c["pos"].y)
 	_build_indexes()
 
 
@@ -210,6 +227,8 @@ static func _lore_camp_positions() -> Array:
 
 
 static func _raw_height(x: float, z: float) -> float:
+	if WorldMacro.active:   # Valencious macro hook: the sampled macro heightmap replaces the noise hills/ridges/rim
+		return preload("res://scripts/world/hidden_valley.gd").shape(x, z, WorldMacro.sample(x, z) + _detail.get_noise_2d(x, z) * 0.6)
 	var hills := (_hills.get_noise_2d(x, z) * 0.5 + 0.5) * 38.0
 	var ridge := maxf(_ridges.get_noise_2d(x, z), 0.0)
 	# Mountains rise away from the home valley so they frame the horizon.
@@ -398,7 +417,7 @@ static func _river_query(p: Vector2, ids: PackedInt32Array) -> Dictionary:
 		"dir": Vector2(_seg[k + 2] - _seg[k], _seg[k + 3] - _seg[k + 1]).normalized()}
 
 
-static func _place_water(seed_value: int) -> void:
+static func _place_water(seed_value: int, with_vale := true) -> void:
 	_place_home_water(seed_value)
 	# The Silverrun, through the new land: control points run on straight out to the world edge.
 	var ctrl := PackedVector2Array(RIVER2_CTRL)
@@ -406,7 +425,8 @@ static func _place_water(seed_value: int) -> void:
 	var out_dir := (tail - ctrl[ctrl.size() - 2]).normalized()
 	ctrl.append(tail + out_dir * _edge_distance(tail, out_dir))
 	_add_river(_polyline(ctrl, 5.0, 40.0), false, true)
-	preload("res://scripts/world/hidden_valley.gd").add_water()   # Hidden valley hook: stream + pond (not in `rivers`, so not on the map)
+	if with_vale:
+		preload("res://scripts/world/hidden_valley.gd").add_water()   # Hidden valley hook: stream + pond (not in `rivers`, so not on the map)
 
 
 static func _place_home_water(seed_value: int) -> void:

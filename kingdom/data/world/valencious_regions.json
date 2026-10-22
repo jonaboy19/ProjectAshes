@@ -424,35 +424,31 @@
   {
    "id": "grimfen_spine",
    "note": "main WSW-ENE range through Grimfen Pass (notch)",
-   "half_width_m": 750,
+   "half_width_m": 650,
    "pts": [
     [
-     -3200,
-     -2900
+     -3500,
+     -3800
     ],
     [
-     -1600,
-     -3250
+     -1800,
+     -3750
     ],
     [
-     -300,
-     -3500
+     -600,
+     -3680
     ],
     [
      559,
      -3597
     ],
     [
-     1500,
-     -3850
+     1800,
+     -3500
     ],
     [
-     3000,
-     -4150
-    ],
-    [
-     4800,
-     -4300
+     3200,
+     -3300
     ]
    ],
    "notch": {
@@ -463,6 +459,46 @@
     "radius_m": 420,
     "cut": 0.7
    }
+  },
+  {
+   "id": "spur_west",
+   "note": "spur south toward Highwatch",
+   "half_width_m": 320,
+   "pts": [
+    [
+     -700,
+     -3650
+    ],
+    [
+     -500,
+     -2800
+    ],
+    [
+     -300,
+     -2100
+    ]
+   ],
+   "scale": 0.75
+  },
+  {
+   "id": "spur_east",
+   "note": "spur south toward Redwater",
+   "half_width_m": 320,
+   "pts": [
+    [
+     1500,
+     -3500
+    ],
+    [
+     1400,
+     -2700
+    ],
+    [
+     1100,
+     -2000
+    ]
+   ],
+   "scale": 0.75
   },
   {
    "id": "highwatch_ridge",

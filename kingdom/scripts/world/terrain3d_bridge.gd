@@ -19,12 +19,15 @@ const FIRST_LOC := -16
 const LAST_LOC := 15
 
 ## Texture slot ids; packed textures come from tools_qa/terrain3d/pack_ground_textures.gd (existing Poly Haven CC0 PBR sets).
-const SLOTS := ["grass", "forest", "path", "rock", "cobble"]
+## Slots 0-4 are the legacy ground; 5-9 (W1d) are painted only with the Valencious macro (biome_ids/splat_weights): meadow, farmland,
+## marsh mud, rift ash (violet-black), snow/scree. Packed by tools_qa/terrain3d/pack_ground_textures.gd.
+const SLOTS := ["grass", "forest", "path", "rock", "cobble", "meadow", "farmland", "marsh", "rift", "snow"]
+const SNOW_LINE := 180.0
 const TEX_DIR := "res://assets/terrain3d/ground/"
 ## Texture repeat per metre (legacy terrain.gdshader tile_size = 4 m -> 0.25), per slot. TUNE on the GPU.
-const UV_SCALE := {"grass": 0.25, "forest": 0.22, "path": 0.25, "rock": 0.2, "cobble": 0.3}
+const UV_SCALE := {"grass": 0.25, "forest": 0.22, "path": 0.25, "rock": 0.2, "cobble": 0.3, "meadow": 0.25, "farmland": 0.2, "marsh": 0.22, "rift": 0.2, "snow": 0.18}
 ## Per slot: [normal_depth, ao_strength, roughness_offset]. TUNE on the GPU.
-const SLOT_LOOK := {"grass": [0.9, 0.6, 0.0], "forest": [1.0, 0.7, 0.0], "path": [0.8, 0.5, 0.0], "rock": [1.2, 0.8, 0.0], "cobble": [0.9, 0.6, 0.0]}
+const SLOT_LOOK := {"grass": [0.9, 0.6, 0.0], "forest": [1.0, 0.7, 0.0], "path": [0.8, 0.5, 0.0], "rock": [1.2, 0.8, 0.0], "cobble": [0.9, 0.6, 0.0], "meadow": [0.8, 0.6, 0.0], "farmland": [0.9, 0.7, 0.0], "marsh": [0.9, 0.6, 0.0], "rift": [1.2, 0.8, 0.0], "snow": [0.7, 0.4, 0.0]}
 const GRASS_TINT := Color(0.88, 1.0, 0.76)     # legacy grass_tint (0.85, 1.0, 0.7) softened: the colour map multiplies albedo
 
 ## Regions kept around the focus (Chebyshev, in regions): 1 -> 3x3 (1.15 km span), 2 -> 5x5. Quality scales it.
@@ -43,12 +46,16 @@ var _regions: Dictionary = {}        # Vector2i -> Terrain3DRegion currently add
 func _ready() -> void:
 	terrain = Terrain3D.new()
 	terrain.name = "Terrain3D"
-	add_child(terrain)
+	# Not added to the tree until the first region exists: a Terrain3D with zero regions builds zero-sized texture arrays on the GPU
+	# ("Width must be equal or greater than 1 for all textures", then a crash: seen on the RTX 4070 Laptop, W1 captures).
 	terrain.vertex_spacing = SPACING
 	terrain.region_size = REGION_SIZE
 	terrain.collision_mode = 0                # DISABLED: TerrainStreamer's trimesh bodies (same WorldGen.height) stay the physics ground
 	terrain.render_layers = 1 | TownDecals.GROUND_LAYER      # ground decals (ruts, puddles) project onto it, as onto the legacy chunks
 	terrain.assets = _make_assets()
+
+
+func _configure_material() -> void:
 	var mat := terrain.material
 	if mat:
 		mat.world_background = 0               # NONE beyond the streamed regions
@@ -56,6 +63,8 @@ func _ready() -> void:
 
 
 func _exit_tree() -> void:
+	if terrain != null and terrain.get_parent() == null:
+		terrain.free()
 	for key: Vector2i in _tasks:
 		WorkerThreadPool.wait_for_task_completion(_tasks[key])
 	_tasks.clear()
@@ -98,14 +107,16 @@ static func in_world(loc: Vector2i) -> bool:
 
 
 ## The control-map word for material weights (Terrain3D layout: base <<27, overlay <<22, blend <<14).
-static func control_word(w: Color) -> int:
-	var wt := [maxf(0.0, 1.0 - clampf(w.a + w.r + w.g + w.b, 0.0, 1.0)), w.a, w.r, w.g, w.b]   # grass, forest, path, rock, cobble
+static func control_word(w: Color, ex: Array = []) -> int:
+	var wt := [maxf(0.0, 1.0 - clampf(w.a + w.r + w.g + w.b + _sum(ex), 0.0, 1.0)), w.a, w.r, w.g, w.b]   # grass, forest, path, rock, cobble
+	wt.append_array(ex)                                  # meadow, farmland, marsh, rift, snow (macro only)
+	var n := wt.size()
 	var a := 0
-	for i in 5:
+	for i in n:
 		if wt[i] > wt[a]:
 			a = i
 	var b := 0 if a != 0 else 1
-	for i in 5:
+	for i in n:
 		if i != a and wt[i] > wt[b]:
 			b = i
 	var wa: float = wt[a]
@@ -115,6 +126,21 @@ static func control_word(w: Color) -> int:
 	# Terrain3D blends base -> overlay by `blend` (0 = all base, 255 = all overlay): base = the lighter material, overlay = the heavier.
 	var blend := int(roundf(255.0 * wa / (wa + wb)))
 	return (b << 27) | (a << 22) | (blend << 14)
+
+
+static func _sum(ex: Array) -> float:
+	var t := 0.0
+	for v in ex:
+		t += float(v)
+	return t
+
+
+## Macro biome extras for a ground sample: [meadow, farmland, marsh, rift ash, snow] (empty without the macro, so legacy words are unchanged).
+static func macro_extras(x: float, z: float, h: float, slope: float, w: Color) -> Array:
+	var sp := WorldMacro.splat_at(x, z)
+	var free := clampf(1.0 - w.r - w.b - w.g, 0.0, 1.0)      # roads, cobble and rock faces keep priority
+	var snow := smoothstep(SNOW_LINE - 6.0, SNOW_LINE + 10.0, h) * (1.0 - smoothstep(0.55, 0.85, slope))
+	return [sp.r * free, sp.g * free, sp.b * free, sp.a * free, snow * free]
 
 
 ## [height, control, colour] images of region `loc`. Pixel (i, j) sits at world origin + (i, j) * SPACING exactly.
@@ -137,8 +163,15 @@ static func build_maps(loc: Vector2i) -> Array[Image]:
 			var h := hb[c]
 			hbytes.encode_float((j * n + i) * 4, h)
 			var normal_y := 2.0 * SPACING / Vector3(hb[c - 1] - hb[c + 1], 2.0 * SPACING, hb[c - stride] - hb[c + stride]).length()
-			var w := WorldGen.color_at(o.x + i * SPACING, o.y + j * SPACING, h, 1.0 - normal_y)
-			cbytes.encode_u32((j * n + i) * 4, control_word(w))
+			var wx := o.x + i * SPACING
+			var wz := o.y + j * SPACING
+			var w := WorldGen.color_at(wx, wz, h, 1.0 - normal_y)
+			var ex: Array = []
+			if WorldMacro.active:
+				ex = macro_extras(wx, wz, h, 1.0 - normal_y, w)
+				if WorldMacro.biome_at(wx, wz) != 1:
+					w.a *= 0.5                           # forest floor only where the biome is forest
+			cbytes.encode_u32((j * n + i) * 4, control_word(w, ex))
 	var himg := Image.create_from_data(n, n, false, Image.FORMAT_RF, hbytes)
 	var cimg := Image.create_from_data(n, n, false, Image.FORMAT_RF, cbytes)
 	var col := Image.create_empty(n, n, false, Image.FORMAT_RGBA8)
@@ -227,6 +260,9 @@ func _add_region(loc: Vector2i, maps: Array) -> void:
 	r.control_map = maps[1]
 	r.color_map = maps[2]
 	r.calc_height_range()
+	if terrain.get_parent() == null:
+		add_child(terrain)
+		_configure_material()
 	terrain.data.add_region(r, true)
 	_regions[loc] = r
 

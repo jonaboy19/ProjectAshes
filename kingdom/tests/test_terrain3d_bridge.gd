@@ -198,8 +198,8 @@ func test_town_plaza_is_painted_cobble() -> void:
 
 func test_texture_slots_use_the_existing_ground_sets() -> void:
 	var b := _bridge_at(Vector3(0, 0, 0))
-	assert_int(b.terrain.assets.get_texture_count()).is_equal(5)
-	for i in 5:
+	assert_int(b.terrain.assets.get_texture_count()).is_equal(Terrain3DBridge.SLOTS.size())   # 10 since W1d (5 legacy + meadow, farmland, marsh, rift, snow)
+	for i in Terrain3DBridge.SLOTS.size():
 		var ta: Terrain3DTextureAsset = b.terrain.assets.get_texture(i)
 		assert_str(ta.name).is_equal(Terrain3DBridge.SLOTS[i])
 		assert_object(ta.albedo_texture).is_not_null()

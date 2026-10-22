@@ -127,7 +127,7 @@ def generate():
     # coherent ranges: spines (distance falloff x ridged noise), a plateau, broken mesas
     spines = {sp["id"]: sp for sp in regs["spines"]}
     S_main = np.zeros(X.shape, np.float32)
-    for sid in ("grimfen_spine", "highwatch_ridge"):
+    for sid in ("grimfen_spine", "spur_west", "spur_east", "highwatch_ridge"):
         sp = spines[sid]
         dd = dist_to_polyline(X, Z, sp["pts"])
         crest = np.exp(-np.power(dd / sp["half_width_m"], 2.2)) * (0.62 + 0.38 * rid) * sp.get("scale", 1.0)
@@ -150,8 +150,7 @@ def generate():
     for i, r in enumerate(regions):
         st = r.get("style")
         shape += W[i] * {"spine": spine_shape, "plateau": plateau_shape, "mesa": mesa_shape}.get(st, generic)
-    nr_i = [i for i, r in enumerate(regions) if r.get("style") == "spine"][0]
-    shape = np.clip(shape + 0.75 * S_main * ridn * (1.0 - W[nr_i]) * (1.0 - smoothstep(2200.0, 3200.0, Z * -1.0 - 1500.0 + 4000.0 * 0)), 0.0, 1.0)   # the range continues west and east beyond the region lobes
+    shape = np.maximum(shape, spine_shape * smoothstep(0.08, 0.5, S_main))   # the range is continuous across region borders
     H = hmin + (hmax - hmin) * shape
 
     # ---- scarred / broken ground ----------------------------------------------------------------
@@ -244,10 +243,11 @@ def generate():
         v1 = ndimage.map_coordinates(arr, [gz, gx], order=1, mode="nearest")
         v2 = ndimage.map_coordinates(arr_s, [gz, gx], order=1, mode="nearest")
         r = np.hypot(X - cx, Z - cz)
-        band = smoothstep(600.0, 1300.0, r)
+        rs = 300.0 if w["name"] == "ashford" else 350.0   # strict hold radius (tutorial/stamps live there)
+        band = smoothstep(rs, rs + 500.0, r)
         vals = v1 * (1.0 - band) + v2 * band
-        vals = H + (vals - H) * (1.0 - 0.6 * smoothstep(600.0, 1000.0, r))   # damp the raw relief in the band so no rim forms
-        hw = 1.0 - smoothstep(600.0, 1600.0, r)
+        vals = H + (vals - H) * (1.0 - 0.6 * smoothstep(rs, rs + 400.0, r))   # damp the raw relief in the band so no rim forms
+        hw = 1.0 - smoothstep(rs, 1600.0, r)
         H = H + (vals - H) * hw
 
     # ---- edge rim (as WorldGen._raw_height) -----------------------------------------------------
@@ -265,7 +265,7 @@ def generate():
     holdc = np.zeros_like(amp_c)
     for w in raw["windows"]:
         r = np.hypot(X - w["cx"], Z - w["cz"])
-        holdc = np.maximum(holdc, 1.0 - smoothstep(600.0, 1600.0, r))
+        holdc = np.maximum(holdc, 1.0 - smoothstep(300.0, 1600.0, r))
     vald = 1.0 - 0.7 * (1.0 - smoothstep(0.0, 200.0, valley_d))
     amp_c = amp_c * (1.0 - holdc) * vald
     amp_f = ndimage.map_coordinates(amp_c.astype(np.float32), [cj_, ci_], order=1, mode="nearest").astype(np.float32)
@@ -341,9 +341,24 @@ def to_u16(Hf):
     return np.clip(v, 0, 65535).astype(np.uint16)
 
 
+def png16_bytes(arr):
+    """16-bit grayscale PNG with filter type 0 on every row (so the game can decode it without unfiltering: see world_macro.gd)."""
+    import struct
+    import zlib
+    h, w = arr.shape
+    rows = np.zeros((h, 1 + 2 * w), np.uint8)
+    rows[:, 1:] = arr.astype(">u2").view(np.uint8).reshape(h, 2 * w)
+
+    def chunk(t, d):
+        c = struct.pack(">I", len(d)) + t + d
+        return c + struct.pack(">I", zlib.crc32(t + d) & 0xFFFFFFFF)
+    return (bytes([137, 80, 78, 71, 13, 10, 26, 10]) + chunk(b"IHDR", struct.pack(">IIBBBBB", w, h, 16, 0, 0, 0, 0)) +
+            chunk(b"IDAT", zlib.compress(rows.tobytes(), 9)) + chunk(b"IEND", b""))
+
+
 def png_bytes(arr, mode=None):
     bio = io.BytesIO()
-    im = Image.fromarray(arr, mode) if mode else Image.fromarray(arr)
+    im = Image.fromarray(arr)
     im.save(bio, "PNG", compress_level=9, optimize=False)
     return bio.getvalue()
 
@@ -403,7 +418,7 @@ def write_all(out_dir):
     W, idx, mere_pen = aux
     h16 = to_u16(Hf)
     files = {}
-    files["height_16.png"] = png_bytes(h16, "I;16")
+    files["height_16.png"] = png16_bytes(h16)
     files["biome_ids.png"] = png_bytes(ids)
     files["splat_weights.png"] = png_bytes(splat, "RGBA")
     pv, Hs = preview(Hf, places, regs, mere_pen)

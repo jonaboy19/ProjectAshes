@@ -14,7 +14,28 @@ const PH := "res://assets/incoming/polyhaven/textures/%s/%s_%s_2k.jpg"
 const LAYERS := {
 	"grass": ["leafy_grass", "disp"], "forest": ["forest_ground_04", "disp"], "path": ["grass_path_2", "disp"],
 	"rock": ["rocky_terrain_02", "disp"],
+	# W1d (Valencious macro biomes): existing Poly Haven sets only, graded to Style G (warm, painterly)
+	"meadow": ["sparse_grass", "disp"], "farmland": ["dirt", "disp"], "marsh": ["brown_mud_02", "disp"],
+	"rift": ["rocky_terrain_02", "disp"], "snow": ["rocky_terrain_02", "disp"],
 }
+const GRADE := ["meadow", "farmland", "marsh", "rift", "snow"]
+
+
+## Offline grade (no new downloads): warm the meadow, make farmland a tilled brown, marsh a dark green-brown mud, the Rift a violet-black ash,
+## snow a blue-white keeping the rock's detail.
+func _grade(layer: String, im: Image) -> void:
+	for y in im.get_height():
+		for x in im.get_width():
+			var c := im.get_pixel(x, y)
+			var l := c.get_luminance()
+			var o := c
+			match layer:
+				"meadow": o = Color(c.r * 1.06, c.g * 1.02, c.b * 0.80)
+				"farmland": o = Color(l * 0.95 + 0.10, l * 0.70 + 0.06, l * 0.45 + 0.03)
+				"marsh": o = Color(c.r * 0.70, c.g * 0.78, c.b * 0.52)
+				"rift": o = Color(l * 0.50 + 0.05, l * 0.32 + 0.03, l * 0.62 + 0.09)
+				"snow": o = Color(0.78 + l * 0.20, 0.82 + l * 0.17, 0.90 + l * 0.10)
+			im.set_pixel(x, y, Color(clampf(o.r, 0, 1), clampf(o.g, 0, 1), clampf(o.b, 0, 1), c.a))
 
 
 func _init() -> void:
@@ -42,7 +63,10 @@ func run() -> void:
 	DirAccess.make_dir_recursive_absolute(ProjectSettings.globalize_path(OUT))
 	for layer: String in LAYERS:
 		var set: String = LAYERS[layer][0]
-		_pack(layer, _img(PH % [set, set, "diff"]), _img(PH % [set, set, "nor_gl"]), _img(PH % [set, set, "arm"]), _img(PH % [set, set, "disp"]))
+		var alb := _img(PH % [set, set, "diff"])
+		if GRADE.has(layer):
+			_grade(layer, alb)
+		_pack(layer, alb, _img(PH % [set, set, "nor_gl"]), _img(PH % [set, set, "arm"]), _img(PH % [set, set, "disp"]))
 	var cs := "res://assets/incoming/polyhaven/textures/cobblestone_floor_01/cobblestone_floor_01_%s_2k.jpg"
 	_pack("cobble", _img("res://assets/art/textures/cobblestone.png"), _img("res://assets/art/textures/cobblestone_normal.png"),
 		_img("res://assets/art/textures/cobblestone_arm.png"), _img(cs % "disp"))
