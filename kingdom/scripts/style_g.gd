@@ -105,7 +105,7 @@ static func apply_environment(env: Environment, tier := "high", game := false) -
 	env.glow_hdr_threshold = 1.0
 	env.glow_blend_mode = Environment.GLOW_BLEND_MODE_SOFTLIGHT
 	env.fog_enabled = true
-	env.fog_light_color = Color("e2dccc")            # slightly warm haze (was cool d9e3f2)
+	env.fog_light_color = Color("cdd7f0")            # W5: light blue-violet aerial perspective (was warm beige e2dccc: read as dust from the air)
 	env.fog_density = 0.0030
 	env.fog_aerial_perspective = 0.5
 	env.fog_sky_affect = 0.0
@@ -166,11 +166,11 @@ const DAY_KEYS := [
 	[0.0, "7f98e8", 0.40, "3a4a9a", 0.34, "1a2142", "060b22", "141c44", "0a0f22", "6f7fb0", "232d5a", 0.0, 0.45, 0.0, 0.62],
 	[4.8, "7f98e8", 0.34, "3e4e9c", 0.34, "202850", "0a1236", "27305e", "10152c", "7a86b8", "2a3466", 0.0, 0.50, 0.0, 0.50],
 	[5.8, "ff9a5a", 0.75, "7d78b8", 0.45, "e0a07a", "34408a", "f0a070", "4a4a52", "ffb890", "7a6ca8", 0.08, 0.90, 0.9, 0.10],
-	[7.0, "ffb878", 1.9, "98a2dc", 0.56, "f2c898", "2c58c8", "f4d0a8", "7a8a60", "fff0e0", "b0b8e0", 0.20, 1.0, 0.7, 0.30],
-	[9.5, "ffcf94", 2.5, "a2b2e8", 0.62, "f0d6a8", "2461d4", "dee4f8", "88985f", "ffffff", "b2c2e8", 0.26, 1.0, 0.55, 0.62],
-	[12.0, "ffd89c", 2.8, "a8b8ee", 0.64, "eedcb4", "2563d8", "d8e6ff", "8a9a6a", "ffffff", "b4c4e8", 0.28, 1.0, 0.5, 0.82],
-	[15.0, SUN_COLOR, SUN_ENERGY, AMBIENT_HEX, 0.56, FOG_HEX, "2563d8", "d8e6ff", "8a9a6a", "ffffff", "b4c4e8", 0.30, 1.0, 0.5, 0.70],
-	[17.0, "ffb064", 2.3, "b0a8e0", 0.58, "f4cc90", "2c58cc", "f8d4a0", "8a9060", "fff0dc", "c0b4dc", 0.30, 1.0, 0.7, 0.42],
+	[7.0, "ffb878", 1.9, "98a2dc", 0.56, "e8d0d8", "2c58c8", "f4d0a8", "7a8a60", "fff0e0", "b0b8e0", 0.20, 1.0, 0.7, 0.30],
+	[9.5, "ffcf94", 2.5, "a2b2e8", 0.62, "d4d8f0", "2461d4", "dee4f8", "88985f", "ffffff", "b2c2e8", 0.26, 1.0, 0.55, 0.62],
+	[12.0, "ffd89c", 2.8, "a8b8ee", 0.64, "c8d6f4", "2563d8", "d8e6ff", "8a9a6a", "ffffff", "b4c4e8", 0.28, 1.0, 0.5, 0.82],
+	[15.0, SUN_COLOR, SUN_ENERGY, AMBIENT_HEX, 0.56, "ccd6f2", "2563d8", "d8e6ff", "8a9a6a", "ffffff", "b4c4e8", 0.30, 1.0, 0.5, 0.70],
+	[17.0, "ffb064", 2.3, "b0a8e0", 0.58, "eccfd6", "2c58cc", "f8d4a0", "8a9060", "fff0dc", "c0b4dc", 0.30, 1.0, 0.7, 0.42],
 	[18.0, "ff8c48", 1.2, "9a8cd0", 0.50, "f0a070", "35459a", "ff9a60", "6a5a4a", "ffb488", "8a6ca4", 0.18, 0.95, 1.0, 0.14],
 	[18.8, "ff6a40", 0.45, "5e5aa8", 0.40, "b4688a", "1e2868", "d0627a", "3a3446", "e08a8a", "4e4488", 0.08, 0.80, 0.8, 0.07],
 	[19.8, "8fa4ff", 0.42, "3e4e9c", 0.34, "26305a", "0a1238", "2a346a", "10152c", "7a86b8", "2a3466", 0.0, 0.55, 0.0, 0.40],

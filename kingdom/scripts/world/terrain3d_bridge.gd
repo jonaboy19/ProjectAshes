@@ -201,7 +201,18 @@ func _process(_delta: float) -> void:
 	if _assets_frame >= 0 and Engine.get_process_frames() >= _assets_frame and terrain.data != null and terrain.data.get_region_count() > 0:
 		terrain.assets = _make_assets()
 		_assets_frame = -1
+	_track_camera()
 	update_streaming()
+
+
+## Terrain3D positions its clip-map (LOD rings, geomorph distance, tile culling) around the camera it holds. It grabs one once and then keeps
+## it: after a camera switch (player camera -> cutscene / free / capture camera) it stayed on the old or a null camera, so the near LOD0
+## tiles sat around the wrong point and the ground next to the real camera vanished (W5: the Rift Marches ground view, a tilted plane over
+## fog). Always follow the viewport's current camera.
+func _track_camera() -> void:
+	var cam := get_viewport().get_camera_3d() if is_inside_tree() else null
+	if cam != null and terrain != null and terrain.get_camera() != cam:
+		terrain.set_camera(cam)
 
 
 ## Frees far regions, queues missing ones on workers, adds at most one finished region. Returns true while work remains.
