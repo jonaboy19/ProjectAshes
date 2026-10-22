@@ -1,0 +1,15 @@
+Godot Engine v4.6.3.stable.official.7d41c59c4 - https://godotengine.org
+Vulkan 1.4.341 - Forward+ - Using Device #0: NVIDIA - NVIDIA GeForce RTX 4070 Laptop GPU
+
+ERROR: This function should never be used outside the editor, it can severely damage performance.
+   at: global_shader_parameter_get_list (servers/rendering/renderer_rd/storage_rd/material_storage.cpp:1665)
+   GDScript backtrace (most recent call first):
+       [0] ensure_globals (res://scripts/sim/seasons.gd:100)
+       [1] _static_init (res://scripts/sim/seasons.gd:85)
+       [2] @static_initializer (res://scripts/sim/seasons.gd:1)
+Quality: High (auto)
+AUTOPLAY [   0.01] Rising Ashes autoplay playtest  2026-09-28T18:01:08
+AUTOPLAY [   0.01] GPU: NVIDIA GeForce RTX 4070 Laptop GPU | 1.4.341 | renderer forward_plus | Godot 4.6.3-stable (official)
+AUTOPLAY [   1.97] === STEP 01_boot ===
+[audio] mood silence -> wilderness (threat 0, hostiles 0, interior )
+[audio] music silence -> wild_a (mood wilderness, intensity 0.00)

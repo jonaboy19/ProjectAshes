@@ -1,0 +1,65 @@
+ERROR: This function should never be used outside the editor, it can severely damage performance.
+   at: global_shader_parameter_get_list (servers/rendering/renderer_rd/storage_rd/material_storage.cpp:1665)
+   GDScript backtrace (most recent call first):
+       [0] ensure_globals (res://scripts/sim/seasons.gd:100)
+       [1] _static_init (res://scripts/sim/seasons.gd:85)
+       [2] @static_initializer (res://scripts/sim/seasons.gd:1)
+SCRIPT ERROR: Out of bounds get index '6' (on base: 'Array')
+   at: _process (C:/Users/Jonna/Documents/ProjectAshes/tools/qa/grounding/grounding_check.gd:103)
+   GDScript backtrace (most recent call first):
+       [0] _process (C:/Users/Jonna/Documents/ProjectAshes/tools/qa/grounding/grounding_check.gd:103)
+SCRIPT ERROR: Out of bounds get index '6' (on base: 'Array')
+   at: _process (C:/Users/Jonna/Documents/ProjectAshes/tools/qa/grounding/grounding_check.gd:103)
+   GDScript backtrace (most recent call first):
+       [0] _process (C:/Users/Jonna/Documents/ProjectAshes/tools/qa/grounding/grounding_check.gd:103)
+SCRIPT ERROR: Out of bounds get index '6' (on base: 'Array')
+   at: _process (C:/Users/Jonna/Documents/ProjectAshes/tools/qa/grounding/grounding_check.gd:103)
+   GDScript backtrace (most recent call first):
+       [0] _process (C:/Users/Jonna/Documents/ProjectAshes/tools/qa/grounding/grounding_check.gd:103)
+SCRIPT ERROR: Out of bounds get index '6' (on base: 'Array')
+   at: _process (C:/Users/Jonna/Documents/ProjectAshes/tools/qa/grounding/grounding_check.gd:103)
+   GDScript backtrace (most recent call first):
+       [0] _process (C:/Users/Jonna/Documents/ProjectAshes/tools/qa/grounding/grounding_check.gd:103)
+SCRIPT ERROR: Out of bounds get index '6' (on base: 'Array')
+   at: _process (C:/Users/Jonna/Documents/ProjectAshes/tools/qa/grounding/grounding_check.gd:103)
+   GDScript backtrace (most recent call first):
+       [0] _process (C:/Users/Jonna/Documents/ProjectAshes/tools/qa/grounding/grounding_check.gd:103)
+SCRIPT ERROR: Out of bounds get index '6' (on base: 'Array')
+   at: _process (C:/Users/Jonna/Documents/ProjectAshes/tools/qa/grounding/grounding_check.gd:103)
+   GDScript backtrace (most recent call first):
+       [0] _process (C:/Users/Jonna/Documents/ProjectAshes/tools/qa/grounding/grounding_check.gd:103)
+SCRIPT ERROR: Out of bounds get index '6' (on base: 'Array')
+   at: _process (C:/Users/Jonna/Documents/ProjectAshes/tools/qa/grounding/grounding_check.gd:103)
+   GDScript backtrace (most recent call first):
+       [0] _process (C:/Users/Jonna/Documents/ProjectAshes/tools/qa/grounding/grounding_check.gd:103)
+SCRIPT ERROR: Out of bounds get index '6' (on base: 'Array')
+   at: _process (C:/Users/Jonna/Documents/ProjectAshes/tools/qa/grounding/grounding_check.gd:103)
+   GDScript backtrace (most recent call first):
+       [0] _process (C:/Users/Jonna/Documents/ProjectAshes/tools/qa/grounding/grounding_check.gd:103)
+SCRIPT ERROR: Out of bounds get index '6' (on base: 'Array')
+   at: _process (C:/Users/Jonna/Documents/ProjectAshes/tools/qa/grounding/grounding_check.gd:103)
+   GDScript backtrace (most recent call first):
+       [0] _process (C:/Users/Jonna/Documents/ProjectAshes/tools/qa/grounding/grounding_check.gd:103)
+ERROR: 68 RID allocations of type 'P11JoltShape3D' were leaked at exit.
+ERROR: 21 shaders of type SceneForwardClusteredShaderRD were never freed
+   at: ~ShaderRD (servers/rendering/renderer_rd/shader_rd.cpp:1056)
+ERROR: 165 RID allocations of type 'N10RendererRD11MeshStorage4MeshE' were leaked at exit.
+ERROR: 264 RID allocations of type 'N10RendererRD15MaterialStorage8MaterialE' were leaked at exit.
+ERROR: 21 RID allocations of type 'N10RendererRD15MaterialStorage6ShaderE' were leaked at exit.
+ERROR: 158 RID allocations of type 'N10RendererRD14TextureStorage7TextureE' were leaked at exit.
+WARNING: 264 RIDs of type "UniformBuffer" were leaked.
+   at: _free_rids (servers/rendering/rendering_device.cpp:7295)
+WARNING: 1143 RIDs of type "IndexArray" were leaked.
+   at: _free_rids (servers/rendering/rendering_device.cpp:7295)
+WARNING: 1143 RIDs of type "IndexBuffer" were leaked.
+   at: _free_rids (servers/rendering/rendering_device.cpp:7295)
+WARNING: 679 RIDs of type "VertexArray" were leaked.
+   at: _free_rids (servers/rendering/rendering_device.cpp:7295)
+WARNING: 1035 RIDs of type "VertexBuffer" were leaked.
+   at: _free_rids (servers/rendering/rendering_device.cpp:7295)
+WARNING: 282 RIDs of type "Texture" were leaked.
+   at: finalize (servers/rendering/rendering_device.cpp:7505)
+WARNING: ObjectDB instances leaked at exit (run with --verbose for details).
+   at: cleanup (core/object/object.cpp:2641)
+ERROR: 469 resources still in use at exit (run with --verbose for details).
+   at: clear (core/io/resource.cpp:810)
