@@ -62,7 +62,7 @@ func _ready() -> void:
 	v.add_theme_constant_override("separation", 8)
 	_panel.add_child(v)
 	var t := Label.new()
-	t.text = "PAUSED"
+	t.text = tr("PAUSE_TITLE").to_upper()
 	t.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	t.add_theme_font_override("font", AF.wfont(700))
 	t.add_theme_font_size_override("font_size", 30)
@@ -72,14 +72,14 @@ func _ready() -> void:
 	_menu = VBoxContainer.new()
 	_menu.add_theme_constant_override("separation", 2)
 	v.add_child(_menu)
-	_menu.add_child(FE.menu_row("Resume Game", resume, 20, 50))
-	_menu.add_child(FE.menu_row("Save Game", func() -> void: SlotScreen.open(self, "save", Callable(), true), 20, 50))
-	_menu.add_child(FE.menu_row("Load Game", _load, 20, 50))
-	_menu.add_child(FE.menu_row("Settings", func() -> void: SettingsScreen.open(self, true), 20, 50))
+	_menu.add_child(FE.menu_row(tr("PAUSE_RESUME"), resume, 20, 50))
+	_menu.add_child(FE.menu_row(tr("PAUSE_SAVE"), func() -> void: SlotScreen.open(self, "save", Callable(), true), 20, 50))
+	_menu.add_child(FE.menu_row(tr("PAUSE_LOAD"), _load, 20, 50))
+	_menu.add_child(FE.menu_row(tr("PAUSE_SETTINGS"), func() -> void: SettingsScreen.open(self, true), 20, 50))
 	var photo := FE.menu_row("Photo Mode", _photo, 20, 50)
 	photo.disabled = not (_photo_cb.is_valid() or (host and host.has_method("open_photo_mode")))
 	_menu.add_child(photo)
-	_menu.add_child(FE.menu_row("Exit to Main Menu", _exit, 20, 50))
+	_menu.add_child(FE.menu_row(tr("PAUSE_MENU"), _exit, 20, 50))
 	_panel.position.x = 0
 	FE.fade_in(self, 0.18)
 	(_menu.get_child(0) as Control).call_deferred("grab_focus")

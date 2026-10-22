@@ -51,6 +51,8 @@ shader_parameter/tail_len = null
 shader_parameter/pulse = null
 shader_parameter/pulse_speed = null
 shader_parameter/heat_scale = 0.55
+shader_parameter/soft_edge = null
+shader_parameter/ring_soft = null
 
 [sub_resource type="CylinderMesh" id="CylinderMesh_cpd80"]
 top_radius = 0.0
@@ -102,6 +104,8 @@ shader_parameter/tail_len = null
 shader_parameter/pulse = null
 shader_parameter/pulse_speed = null
 shader_parameter/heat_scale = 0.55
+shader_parameter/soft_edge = null
+shader_parameter/ring_soft = null
 
 [sub_resource type="CylinderMesh" id="CylinderMesh_o25y8"]
 top_radius = 0.0
@@ -153,6 +157,8 @@ shader_parameter/tail_len = null
 shader_parameter/pulse = null
 shader_parameter/pulse_speed = null
 shader_parameter/heat_scale = 0.55
+shader_parameter/soft_edge = null
+shader_parameter/ring_soft = null
 
 [sub_resource type="CylinderMesh" id="CylinderMesh_d334j"]
 top_radius = 0.0
@@ -204,6 +210,8 @@ shader_parameter/tail_len = null
 shader_parameter/pulse = null
 shader_parameter/pulse_speed = null
 shader_parameter/heat_scale = 1.0
+shader_parameter/soft_edge = 0.85
+shader_parameter/ring_soft = null
 
 [sub_resource type="CylinderMesh" id="CylinderMesh_43mk3"]
 top_radius = 0.0
@@ -292,14 +300,14 @@ color_ramp = SubResource("GradientTexture1D_j2n6q")
 material = ExtResource("7_ic81p")
 size = Vector2(0.84210527, 0.78527606)
 
-[node name="Ice_Projectile" type="Node3D" unique_id=226205498]
+[node name="Ice_Projectile" type="Node3D" unique_id=1318783345]
 script = ExtResource("1_yhax0")
 duration = 0.0
 fade_out = 0.15
 kind = &"projectile"
 element = &"ice"
 
-[node name="Lance" type="MeshInstance3D" parent="." unique_id=758181238]
+[node name="Lance" type="MeshInstance3D" parent="." unique_id=1503242647]
 transform = Transform3D(1, 0, 0, 0, -4.371139e-08, 1, 0, -1, -4.371139e-08, 0, 0, -0.1)
 material_override = SubResource("ShaderMaterial_2b5vl")
 cast_shadow = 0
@@ -307,7 +315,7 @@ extra_cull_margin = 2.0
 gi_mode = 0
 mesh = SubResource("CylinderMesh_cpd80")
 
-[node name="Side0" type="MeshInstance3D" parent="." unique_id=259791513]
+[node name="Side0" type="MeshInstance3D" parent="." unique_id=1762044327]
 transform = Transform3D(0.9396926, -0.34202012, 0, -1.4950174e-08, -4.1075268e-08, 1, -0.34202012, -0.9396926, -4.371139e-08, 0.09, 0, 0.25)
 material_override = SubResource("ShaderMaterial_spy1v")
 cast_shadow = 0
@@ -315,7 +323,7 @@ extra_cull_margin = 2.0
 gi_mode = 0
 mesh = SubResource("CylinderMesh_o25y8")
 
-[node name="Side1" type="MeshInstance3D" parent="." unique_id=1950323896]
+[node name="Side1" type="MeshInstance3D" parent="." unique_id=1745236932]
 transform = Transform3D(0.9396926, 0.34202012, 0, 1.4950174e-08, -4.1075268e-08, 1, 0.34202012, -0.9396926, -4.371139e-08, -0.09, 0, 0.25)
 material_override = SubResource("ShaderMaterial_h7qo7")
 cast_shadow = 0
@@ -323,7 +331,7 @@ extra_cull_margin = 2.0
 gi_mode = 0
 mesh = SubResource("CylinderMesh_d334j")
 
-[node name="Frost" type="MeshInstance3D" parent="." unique_id=2107672215]
+[node name="Frost" type="MeshInstance3D" parent="." unique_id=2125399753]
 transform = Transform3D(1, 0, 0, 0, -4.371139e-08, -1, 0, 1, -4.371139e-08, 0, 0, 0.9)
 material_override = SubResource("ShaderMaterial_nc06w")
 cast_shadow = 0
@@ -331,14 +339,14 @@ extra_cull_margin = 2.0
 gi_mode = 0
 mesh = SubResource("CylinderMesh_43mk3")
 
-[node name="Glow" type="MeshInstance3D" parent="." unique_id=1336184173]
+[node name="Glow" type="MeshInstance3D" parent="." unique_id=1242454127]
 material_override = SubResource("ShaderMaterial_gnhoj")
 cast_shadow = 0
 extra_cull_margin = 2.0
 gi_mode = 0
 mesh = SubResource("QuadMesh_2uh1c")
 
-[node name="Glints" type="GPUParticles3D" parent="." unique_id=1975997657]
+[node name="Glints" type="GPUParticles3D" parent="." unique_id=1969433673]
 cast_shadow = 0
 gi_mode = 0
 emitting = false
@@ -350,7 +358,7 @@ transform_align = 1
 process_material = SubResource("ParticleProcessMaterial_rq7q8")
 draw_pass_1 = SubResource("QuadMesh_jl5ky")
 
-[node name="Mist" type="GPUParticles3D" parent="." unique_id=885955234]
+[node name="Mist" type="GPUParticles3D" parent="." unique_id=1097288862]
 cast_shadow = 0
 gi_mode = 0
 emitting = false

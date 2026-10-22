@@ -1,0 +1,67 @@
+{
+ "id": "westfen_a_table_for_dalla",
+ "title": "A Table for Dalla",
+ "summary": "Helm Vesper says Dalla Brook is going short. 4 bundles of flax and a visit would help, before the vigil.",
+ "giver": {
+  "npc": "helm_vesper",
+  "name": "Helm Vesper",
+  "place": "westfen"
+ },
+ "offer_text": "\"Dalla Brook will not ask, so I am asking for them. Go and see what is wanted, and bring bundles of flax before the vigil. The stock at the herb walk is the town's, and this is what it is for.\"",
+ "turn_in_text": "\"Thank you. It is the small things that keep a town.\"",
+ "stages": [
+  {
+   "id": "ask",
+   "title": "Look after Dalla",
+   "mode": "all",
+   "objectives": [
+    {
+     "id": "visit",
+     "type": "talk_to",
+     "npc": "dalla_brook",
+     "text": "Visit Dalla Brook and ask what is wanted"
+    },
+    {
+     "id": "gather",
+     "type": "collect",
+     "item": "flax",
+     "count": 4,
+     "text": "Take 4 bundles of flax from the herb walk"
+    }
+   ]
+  },
+  {
+   "id": "bring",
+   "title": "Bring it",
+   "mode": "all",
+   "objectives": [
+    {
+     "id": "bring",
+     "type": "deliver",
+     "item": "flax",
+     "count": 4,
+     "to": "dalla_brook",
+     "text": "Hand the bundles of flax to Dalla Brook"
+    }
+   ],
+   "end": true
+  }
+ ],
+ "rewards": {
+  "gold": 12,
+  "rep": {
+   "westfen": 5
+  },
+  "relationship": [
+   {
+    "npc": "helm_vesper",
+    "label": "Looked after the old folk",
+    "value": 14,
+    "days": 90
+   }
+  ],
+  "items": {
+   "candle": 2
+  }
+ }
+}

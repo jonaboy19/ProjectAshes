@@ -1,0 +1,77 @@
+{
+ "id": "duskwater_glass_blanks_for_the_glasswright",
+ "title": "Glass Blanks for the Glasswright",
+ "summary": "Letty Lantern wants 3 glass blanks from the lamp pier taken to Wystan Sheaf before the Academy's visitor arrives, and then a word.",
+ "giver": {
+  "npc": "letty_lantern",
+  "name": "Letty Lantern",
+  "place": "duskwater"
+ },
+ "offer_text": "\"We need glass blanks, and what is stacked at the lamp pier is the town's to take. Carry it to Wystan Sheaf before the Academy's visitor arrives, then come and tell me.\"",
+ "turn_in_text": "\"Good. That is one thing in Duskwater that goes right.\"",
+ "stages": [
+  {
+   "id": "fetch",
+   "title": "Fetch the stock",
+   "mode": "sequence",
+   "objectives": [
+    {
+     "id": "reach",
+     "type": "goto",
+     "place": "duskwater_works",
+     "text": "Go to the lamp pier"
+    },
+    {
+     "id": "gather",
+     "type": "collect",
+     "item": "glass",
+     "count": 3,
+     "text": "Take 3 glass blanks from the pile"
+    }
+   ]
+  },
+  {
+   "id": "deliver",
+   "title": "Take it to Wystan Sheaf",
+   "mode": "all",
+   "objectives": [
+    {
+     "id": "hand_over",
+     "type": "deliver",
+     "item": "glass",
+     "count": 3,
+     "to": "wystan_sheaf",
+     "text": "Hand the glass blanks to Wystan Sheaf"
+    }
+   ]
+  },
+  {
+   "id": "report",
+   "title": "Tell Letty",
+   "mode": "all",
+   "objectives": [
+    {
+     "id": "report",
+     "type": "talk_to",
+     "npc": "letty_lantern",
+     "text": "Tell Letty Lantern it is done"
+    }
+   ],
+   "end": true
+  }
+ ],
+ "rewards": {
+  "gold": 14,
+  "rep": {
+   "duskwater": 3
+  },
+  "relationship": [
+   {
+    "npc": "letty_lantern",
+    "label": "Ran an errand for the town",
+    "value": 8,
+    "days": 45
+   }
+  ]
+ }
+}

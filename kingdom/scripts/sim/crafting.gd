@@ -17,9 +17,14 @@ extends RefCounted
 ## inn, woodcutters in RACareers) or carrying the skill's tool speeds learning.
 
 signal crafted(result: Dictionary)
+## A tense craft went wrong (ctx.tension): materials partly lost. Not "crafted": nothing was made.
+signal craft_failed(result: Dictionary)
 signal skill_up(skill: String, level: int)
+signal station_invalidated(ref: String, generation: int)
 
 const Gathering := preload("res://scripts/sim/gathering_items.gd")
+const ItemsDB := preload("res://scripts/sim/items_db.gd")
+const StationIdentity := preload("res://scripts/systems/station_identity.gd")
 const RECIPES_PATH := "res://data/recipes.json"
 const ITEMS_PATH := "res://data/items.json"
 
@@ -58,6 +63,8 @@ var rng := RandomNumberGenerator.new()
 var recipes: Array[Dictionary] = []
 var skills: Dictionary = {}
 var station_kinds: Dictionary = {}
+var station_identity := StationIdentity.new()
+var _adhoc_station_slot := 0
 var _by_id: Dictionary = {}
 ## [{kind, name, pos: Vector3 (y = NAN: any height), radius, owner: instance id or 0}]
 var _stations: Array[Dictionary] = []
@@ -75,6 +82,7 @@ func _init(seed_value := 4242) -> void:
 	for r: Dictionary in data.get("recipes", []):
 		recipes.append(r)
 		_by_id[String(r["id"])] = r
+	station_identity.descriptor_invalidated.connect(_on_station_invalidated)
 
 
 # --- data ------------------------------------------------------------------------
@@ -83,7 +91,41 @@ static func recipe_data() -> Dictionary:
 	if _recipe_data.is_empty():
 		var d: Variant = JSON.parse_string(FileAccess.get_file_as_string(RECIPES_PATH))
 		_recipe_data = d if d is Dictionary else {}
+		_merge_recipe_extras(_recipe_data)
 	return _recipe_data
+
+
+## data/recipes/*.json: new skills, stations and recipes are added to data/recipes.json's (old ids win).
+static func _merge_recipe_extras(data: Dictionary) -> void:
+	var ex: Dictionary = ItemsDB.recipe_extras()
+	if ex.is_empty():
+		return
+	var skills: Dictionary = data.get("skills", {})
+	for k: String in ex.get("skills", {}):
+		if not skills.has(k):
+			skills[k] = ex["skills"][k]
+	data["skills"] = skills
+	var stations: Dictionary = data.get("stations", {})
+	for k: String in ex.get("stations", {}):
+		if not stations.has(k):
+			stations[k] = (ex["stations"][k] as Dictionary).duplicate(true)
+	for k: String in ex.get("station_skill_adds", {}):
+		if stations.has(k):
+			var list: Array = stations[k].get("skills", [])
+			for sk: String in ex["station_skill_adds"][k]:
+				if not list.has(sk):
+					list.append(sk)
+			stations[k]["skills"] = list
+	data["stations"] = stations
+	var recipes: Array = data.get("recipes", [])
+	var have := {}
+	for r: Dictionary in recipes:
+		have[String(r["id"])] = true
+	for r: Dictionary in ex.get("recipes", []):
+		if not have.has(String(r["id"])):
+			recipes.append(r)
+			have[String(r["id"])] = true
+	data["recipes"] = recipes
 
 
 ## Every item prototype with inheritance resolved: data/items.json plus the
@@ -98,6 +140,7 @@ static func item_db() -> Dictionary:
 	for id: String in Gathering.ITEMS:
 		if not raw.has(id):
 			raw[id] = (Gathering.ITEMS[id] as Dictionary).duplicate()
+	ItemsDB.merge_into(raw)        # data/items/*.json: the Region 1 set (old ids keep working)
 	for id: String in raw:
 		_item_db[id] = _resolve(raw, id, 0)
 	return _item_db
@@ -295,6 +338,45 @@ func roll_quality(lvl: int, recipe_level := 1) -> int:
 	return quality_for_roll(lvl, recipe_level, rng.randf())
 
 
+## Chance a craft succeeds when tension is on: 0.55 + 0.04 per skill level over the recipe, plus a small tool
+## bonus (`tool_mult` is tool_bonus(), 1.0 without a tool), clamped to [0.35, 0.98].
+static func success_chance(lvl: int, recipe_level: int, tool_mult := 1.0) -> float:
+	return clampf(0.55 + 0.04 * float(lvl - recipe_level) + (tool_mult - 1.0) * 0.2, 0.35, 0.98)
+
+
+## Chance a successful craft is a critical success (a quality tier up, or a bonus unit): 3% at the recipe's
+## level, +1.5% per level above (nothing below the recipe's level), max 20%.
+static func crit_chance(lvl: int, recipe_level: int) -> float:
+	var margin := lvl - recipe_level
+	return clampf(0.03 + 0.015 * float(margin), 0.0, 0.20) if margin >= 0 else 0.0
+
+
+## Shifts a quality roll by the mean input grade (0..100, 50 = neutral): up to -/+ MAX_INPUT_SHIFT of the roll
+## range, so rich inputs make better tiers likelier and poor ones worse. Low rolls are the good ones.
+const MAX_INPUT_SHIFT := 0.20
+static func shifted_roll(roll: float, input_grade: float) -> float:
+	var shift := clampf((input_grade - 50.0) / 50.0, -1.0, 1.0) * MAX_INPUT_SHIFT
+	return clampf(roll - shift, 0.0, 0.999999)
+
+
+## Mean grade (0..100) of the inputs `r` would consume from `inv`, or -1 when the inventory does not track
+## quality (then no shift). Inventories may offer quality_of(item) -> tier 0..2 or -1.
+func input_grade(r: Dictionary, inv: Object) -> float:
+	if inv == null or not inv.has_method("quality_of"):
+		return -1.0
+	var sum := 0.0
+	var n := 0
+	for inp: Dictionary in r.get("inputs", []):
+		for alt in alternatives(String(inp["item"])):
+			if int(inv.call("count", alt)) > 0:
+				var t := int(inv.call("quality_of", alt))
+				if t >= 0:
+					sum += [20.0, 55.0, 90.0][clampi(t, 0, 2)] * float(inp["count"])
+					n += int(inp["count"])
+				break
+	return sum / float(n) if n > 0 else -1.0
+
+
 # --- requirements & crafting ---------------------------------------------------------
 
 ## One row per ingredient: {spec, name, need, have}.
@@ -343,19 +425,54 @@ func craft(id: String, inv: Object, kinds: Variant = null, ctx: Dictionary = {})
 		return {"ok": false, "text": why}
 	var r := recipe(id)
 	var skill := String(r["skill"])
+	var lvl := level(skill)
+	var rlvl := int(r.get("level", 1))
+	var grade: float = float(ctx["input_quality"]) if ctx.has("input_quality") else input_grade(r, inv)
+	var tension := bool(ctx.get("tension", false))
+	var mult := float(ctx.get("xp_mult", 1.0)) * career_xp_mult(skill, String(ctx.get("org", "")))
+	var tmult := tool_bonus(skill, inv, ctx.get("equipment"))
+	mult *= tmult
+	var consumed: Array[Dictionary] = []    # [{item, n}] actually taken, to refund on failure
 	for inp: Dictionary in r.get("inputs", []):
 		var left := int(inp["count"])
 		for alt in alternatives(String(inp["item"])):
 			var n := mini(left, int(inv.call("count", alt)))
 			if n > 0:
 				inv.call("take", alt, n)
+				consumed.append({"item": alt, "n": n})
 				left -= n
 			if left <= 0:
 				break
-	var lvl := level(skill)
+	if tension and not bool(r.get("repair", false)):
+		var sroll: float = float(ctx["success_roll"]) if ctx.has("success_roll") else rng.randf()
+		if sroll >= success_chance(lvl, rlvl, tmult):
+			# Failure: half of each input (rounded down) comes back, half the xp, tools untouched.
+			var back: Array[String] = []
+			for c: Dictionary in consumed:
+				var n := int(c["n"]) / 2
+				if n > 0:
+					inv.call("give", String(c["item"]), n)
+					back.append("%d %s" % [n, item_name(String(c["item"]))])
+			var gained_f := int(round(float(r.get("xp", 5)) * mult * 0.5))
+			var after_f := add_xp(skill, gained_f)
+			var fres := {"ok": true, "failed": true, "quality": 0, "item": "", "count": 0, "xp": gained_f,
+				"level": after_f, "level_up": after_f > lvl, "skill": skill,
+				"tag": String(skills.get(skill, {}).get("tag", "crafted")),
+				"hours": float(r.get("time", 1.5)) * 0.25,
+				"text": "The %s goes wrong.%s" % [recipe_name(r).to_lower(), (" You salvage " + ", ".join(back) + ".") if not back.is_empty() else ""]}
+			craft_failed.emit(fres)
+			return fres
 	var roll: float = float(ctx["roll"]) if ctx.has("roll") else rng.randf()
-	var q := quality_for_roll(lvl, int(r.get("level", 1)), roll)
-	var res := {"ok": true, "quality": q, "item": "", "count": 0}
+	if grade >= 0.0:
+		roll = shifted_roll(roll, grade)
+	var q := quality_for_roll(lvl, rlvl, roll)
+	var crit := false
+	if tension and not bool(r.get("repair", false)):
+		var croll: float = float(ctx["crit_roll"]) if ctx.has("crit_roll") else rng.randf()
+		crit = croll < crit_chance(lvl, rlvl)
+		if crit and q < Quality.MASTERWORK:
+			q += 1
+	var res := {"ok": true, "quality": q, "item": "", "count": 0, "crit": crit}
 	if bool(r.get("repair", false)):
 		var eq: Object = ctx["equipment"]
 		var fixed := int(eq.call("repair_all", [0.6, 1.0, 1.0][q]))
@@ -366,17 +483,13 @@ func craft(id: String, inv: Object, kinds: Variant = null, ctx: Dictionary = {})
 		var item := String(out["item"])
 		var n := int(out["count"])
 		var gear := item_info(item).has("slot")
-		if not gear and q == Quality.MASTERWORK:
-			n += 1                         # a masterwork batch yields one extra
+		if not gear and (q == Quality.MASTERWORK or crit):
+			n += 1                         # a masterwork batch (or a critical success) yields one extra
 		give_item(inv, item, n, q if gear else -1)
 		res["item"] = item
 		res["count"] = n
 		var qtext := (quality_name(q) + " ") if gear else ("Masterwork batch: " if q == Quality.MASTERWORK else "")
 		res["text"] = "%s%s%s." % [qtext, item_name(item), (" ×%d" % n) if n > 1 else ""]
-	var mult := float(ctx.get("xp_mult", 1.0)) * career_xp_mult(skill, String(ctx.get("org", "")))
-	var tool := String(TOOLS.get(skill, ""))
-	if tool != "" and (int(inv.call("count", tool)) > 0 or _wields(ctx.get("equipment"), tool)):
-		mult *= TOOL_XP_MULT
 	var gained := int(round(float(r.get("xp", 5)) * mult))
 	var before := lvl
 	var after := add_xp(skill, gained)
@@ -392,8 +505,81 @@ func craft(id: String, inv: Object, kinds: Variant = null, ctx: Dictionary = {})
 	return res
 
 
+## Skill -> tool property values that speed it up (items with "tool": value; tool_tier raises the bonus).
+const TOOL_KINDS := {"smithing": ["smithing"], "mining": ["mining"], "carpentry": ["carpentry", "woodcutting"], "alchemy": ["alchemy"],
+	"masonry": ["masonry"], "leatherwork": ["skinning"], "fletching": ["carpentry"], "cooking": [], "tailoring": []}
+static var _tools_for: Dictionary = {}
+
+
+## Item ids that count as the tool for a crafting skill (the old TOOLS id plus every item with a matching "tool" property).
+static func tool_ids(skill: String) -> Array:
+	if _tools_for.has(skill):
+		return _tools_for[skill]
+	var out: Array = []
+	if TOOLS.has(skill):
+		out.append(String(TOOLS[skill]))
+	var kinds: Array = TOOL_KINDS.get(skill, [])
+	for id: String in item_db():
+		var t := String(item_db()[id].get("tool", ""))
+		if t != "" and kinds.has(t) and not out.has(id):
+			out.append(id)
+	_tools_for[skill] = out
+	return out
+
+
+## XP multiplier from carrying or wielding a tool for `skill` (1.0 without): TOOL_XP_MULT, +0.05 per tool tier above iron.
+func tool_bonus(skill: String, inv: Object, eq: Variant = null) -> float:
+	var best := 0.0
+	for id: String in tool_ids(skill):
+		if (inv != null and int(inv.call("count", id)) > 0) or _wields(eq, id):
+			var tier := int(item_info(id).get("tool_tier", 2))
+			best = maxf(best, TOOL_XP_MULT + 0.05 * float(maxi(0, tier - 2)))
+	return maxf(1.0, best)
+
+
 static func _wields(eq: Variant, tool: String) -> bool:
 	return eq is Object and (eq as Object).has_method("item_in") and String((eq as Object).call("item_in", "main_hand")) == tool
+
+
+## Why `id` can't be salvaged now ("" when it can): needs the item, the station and the skill level.
+func can_salvage(id: String, inv: Object, kinds: Variant = null) -> String:
+	var sv: Dictionary = ItemsDB.salvage_for(id)
+	if sv.is_empty():
+		return "That can't be broken down."
+	if int(inv.call("count", id)) <= 0:
+		return "You have no %s." % item_name(id)
+	if kinds is Array:
+		var ok := false
+		for k in sv.get("stations", []):
+			if kinds.has(k):
+				ok = true
+		if not ok:
+			var names := PackedStringArray()
+			for k in sv.get("stations", []):
+				names.append(station_name(String(k)).to_lower())
+			return "Needs a %s." % " or ".join(names)
+	if level(String(sv.get("skill", "smithing"))) < int(sv.get("level", 1)):
+		return "Needs %s %d." % [skill_name(String(sv["skill"])), int(sv["level"])]
+	return ""
+
+
+## Breaks one `id` down into materials (about 45% of what it cost) and grants a little xp.
+## Returns {ok, text, yield: [{item, count}], xp}.
+func salvage(id: String, inv: Object, kinds: Variant = null) -> Dictionary:
+	var why := can_salvage(id, inv, kinds)
+	if why != "":
+		return {"ok": false, "text": why}
+	var sv: Dictionary = ItemsDB.salvage_for(id)
+	if not bool(inv.call("take", id, 1)):
+		return {"ok": false, "text": "You have no %s." % item_name(id)}
+	var parts := PackedStringArray()
+	for y: Dictionary in sv["yield"]:
+		give_item(inv, String(y["item"]), int(y["count"]))
+		parts.append("%d %s" % [int(y["count"]), item_name(String(y["item"]))])
+	var skill := String(sv.get("skill", "smithing"))
+	var gained := int(sv.get("xp", 2))
+	add_xp(skill, gained)
+	return {"ok": true, "text": "Salvaged %s: %s." % [item_name(id), ", ".join(parts)], "yield": sv["yield"], "xp": gained, "skill": skill}
 
 
 ## Gives `n` of `item`; with a quality (>= 0) and a GLoot inventory, as separate
@@ -423,14 +609,54 @@ static func give_item(inv: Object, item: String, n: int, quality := -1) -> void:
 
 # --- stations ------------------------------------------------------------------------
 
-func add_station(kind: String, pos: Vector3, label := "", radius := -1.0, owner: Object = null) -> Dictionary:
+func _on_station_invalidated(ref: String, generation: int) -> void:
+	for i in range(_stations.size() - 1, -1, -1):
+		if String(_stations[i].get("ref", "")) == ref \
+				and int(_stations[i].get("generation", -1)) == generation:
+			_stations.remove_at(i)
+	station_invalidated.emit(ref, generation)
+
+
+func add_station(kind: String, pos: Vector3, label := "", radius := -1.0, owner: Object = null,
+		owner_ref := "", slot := -1) -> Dictionary:
+	var actual_slot := slot
+	var actual_owner_ref := owner_ref
+	if owner == null and actual_owner_ref.is_empty():
+		_adhoc_station_slot += 1
+		actual_owner_ref = "adhoc:%d" % _adhoc_station_slot
+	if actual_slot < 0:
+		if owner != null:
+			_adhoc_station_slot += 1
+			actual_slot = _adhoc_station_slot
+		elif actual_owner_ref.begins_with("adhoc:"):
+			actual_slot = 0
+	var identity: Dictionary = station_identity.register_station(owner, actual_owner_ref, kind, actual_slot)
+	if not bool(identity.get("ok", false)):
+		return {}
 	var st := {"kind": kind, "name": label if label != "" else station_name(kind), "pos": pos,
-		"radius": radius if radius > 0.0 else STATION_RADIUS, "owner": owner.get_instance_id() if owner else 0}
+		"radius": radius if radius > 0.0 else STATION_RADIUS, "owner": owner.get_instance_id() if owner else 0,
+		"ref": String(identity["ref"]), "generation": int(identity["generation"])}
+	for i in _stations.size():
+		if String(_stations[i].get("ref", "")) == st["ref"]:
+			_stations[i] = st
+			return st.duplicate(true)
 	_stations.append(st)
-	return st
+	return st.duplicate(true)
+
+
+## Drops every registered station whose ref starts with `prefix` and returns how many went (the build kit re-registers the
+## benches that still stand with refs "kit:<grid>:<piece>:...", see build_kit.sync_realm).
+func remove_stations_by_prefix(prefix: String) -> int:
+	var n := 0
+	for i in range(_stations.size() - 1, -1, -1):
+		if String(_stations[i].get("ref", "")).begins_with(prefix):
+			_stations.remove_at(i)
+			n += 1
+	return n
 
 
 func clear_stations() -> void:
+	station_identity.invalidate_all()
 	_stations.clear()
 	_sites_added = false
 
@@ -443,29 +669,35 @@ func add_world_sites(sites: Array) -> int:
 		var c: Vector2 = site.get("pos", Vector2.ZERO)
 		var basis := Basis(Vector3.UP, float(site.get("yaw", 0.0)))
 		var found := false
-		for part: Array in site.get("parts", []):
+		var parts: Array = site.get("parts", [])
+		for part_index in parts.size():
+			var part: Array = parts[part_index]
 			if String(part[0]).find("campfire") < 0:
 				continue
 			var off: Vector2 = part[1]
 			var w := Vector3(c.x, 0.0, c.y) + basis * Vector3(off.x, 0.0, off.y)
-			add_station("campfire", Vector3(w.x, NAN, w.z), "%s Campfire" % site.get("name", ""), CAMPFIRE_RADIUS)
+			add_station("campfire", Vector3(w.x, NAN, w.z), "%s Campfire" % site.get("name", ""),
+				CAMPFIRE_RADIUS, null, "site:%s" % str(site.get("id", "unknown")), part_index)
 			found = true
 			n += 1
 		if not found and String(site.get("kind", "")) == "bandit_camp":
-			add_station("campfire", Vector3(c.x, NAN, c.y), "Bandit Campfire", CAMPFIRE_RADIUS)
+			add_station("campfire", Vector3(c.x, NAN, c.y), "Bandit Campfire", CAMPFIRE_RADIUS,
+				null, "site:%s" % str(site.get("id", "unknown")), -1)
 			n += 1
 	return n
 
 
 ## Registers the craft stations of a loaded interior room (see INTERIOR_STATIONS)
-## and returns them. They drop out on their own once the room is freed.
-func scan_interior(room: Node) -> Array[Dictionary]:
+## and returns them. They drop out on room exit; without a stable building_ref,
+## identity is explicitly scoped to this room instance.
+func scan_interior(room: Node, building_ref := "") -> Array[Dictionary]:
 	_prune()
 	var out: Array[Dictionary] = []
 	if room == null:
 		return out
 	var defs: Array = INTERIOR_STATIONS.get(String(room.name), [])
-	for d: Array in defs:
+	for slot in defs.size():
+		var d: Array = defs[slot]
 		var at: Node3D = room as Node3D
 		if String(d[1]) != "":
 			at = room.get_node_or_null(NodePath(String(d[1]))) as Node3D
@@ -473,15 +705,24 @@ func scan_interior(room: Node) -> Array[Dictionary]:
 			continue
 		var p := at.global_position
 		var floor_y := (room as Node3D).global_position.y if room is Node3D else p.y
-		out.append(add_station(String(d[0]), Vector3(p.x, floor_y, p.z), String(d[2]), float(d[3]), room))
+		var registered := add_station(String(d[0]), Vector3(p.x, floor_y, p.z),
+			String(d[2]), float(d[3]), room, building_ref, slot)
+		if not registered.is_empty():
+			out.append(registered)
 	return out
 
 
 func _prune() -> void:
-	for i in range(_stations.size() - 1, -1, -1):
-		var o := int(_stations[i]["owner"])
-		if o != 0 and not is_instance_id_valid(o):
-			_stations.remove_at(i)
+	var snapshot: Array = _stations.duplicate(true)
+	for station: Dictionary in snapshot:
+		var ref := String(station.get("ref", ""))
+		var generation := int(station.get("generation", -1))
+		if station_identity.is_live(ref, generation):
+			continue
+		for i in range(_stations.size() - 1, -1, -1):
+			if String(_stations[i].get("ref", "")) == ref \
+					and int(_stations[i].get("generation", -1)) == generation:
+				_stations.remove_at(i)
 
 
 ## Stations within reach of `pos`, nearest first: [{kind, name, pos, radius, distance}].
@@ -497,10 +738,15 @@ func stations_near(pos: Vector3) -> Array[Dictionary]:
 			continue
 		if not is_nan(sp.y) and absf(sp.y - pos.y) > STATION_HEIGHT:
 			continue
-		var e := st.duplicate()
+		var e := st.duplicate(true)
 		e["distance"] = d
 		out.append(e)
-	out.sort_custom(func(a: Dictionary, b: Dictionary) -> bool: return float(a["distance"]) < float(b["distance"]))
+	out.sort_custom(func(a: Dictionary, b: Dictionary) -> bool:
+		var a_distance := float(a["distance"])
+		var b_distance := float(b["distance"])
+		if a_distance == b_distance:
+			return String(a["ref"]) < String(b["ref"])
+		return a_distance < b_distance)
 	return out
 
 
@@ -516,7 +762,39 @@ func kinds_near(pos: Vector3) -> Array:
 ## Every registered station (for maps / debugging).
 func all_stations() -> Array[Dictionary]:
 	_prune()
-	return _stations.duplicate()
+	var out: Array[Dictionary] = []
+	for station: Dictionary in _stations:
+		out.append(station.duplicate(true))
+	return out
+
+
+## Nearest live station that satisfies a recipe, including its exact generation.
+func nearest_station_for_recipe(pos: Vector3, recipe_id: String, requested_kinds: Array = []) -> Dictionary:
+	var r := recipe(recipe_id)
+	if r.is_empty():
+		return {}
+	var required: Array = r.get("stations", [])
+	if required.is_empty():
+		return {}
+	for station: Dictionary in stations_near(pos):
+		if required.has(String(station.get("kind", ""))) \
+				and (requested_kinds.is_empty() or requested_kinds.has(String(station.get("kind", "")))):
+			return station.duplicate(true)
+	return {}
+
+
+## Same descriptor and same generation must still be live and in reach.
+func station_at(ref: String, generation: int, pos: Vector3) -> Dictionary:
+	if not station_identity.is_live(ref, generation):
+		return {}
+	for station: Dictionary in stations_near(pos):
+		if String(station.get("ref", "")) == ref and int(station.get("generation", -1)) == generation:
+			return station.duplicate(true)
+	return {}
+
+
+static func station_resource_key(ref: String, generation: int) -> String:
+	return "station:%s:g%d" % [ref, generation]
 
 
 # --- save ---------------------------------------------------------------------------

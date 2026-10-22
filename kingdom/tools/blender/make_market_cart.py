@@ -92,4 +92,5 @@ k.pop()
 k.sphere(0.12, (-1.95, -0.4, 0.0), MA, vary(hexc("8a857c"), 0.08), scale=(1.2, 1.0, 0.6), subdiv=1, noise_amt=0.02)
 k.sphere(0.12, (-1.95, 0.4, 0.0), MA, vary(hexc("8a857c"), 0.08), scale=(1.2, 1.0, 0.6), subdiv=1, noise_amt=0.02)
 
+k.pbr = dict(size=512, seed=23, ao_dist=0.35, cage=0.03, ray=0.08)   # high-to-low PBR bake (pbr_kit.py)
 k.finish_checked((3.3, 1.8), 3000, cam_dir=(0.8, -1.6, 0.7), fit=0.95)

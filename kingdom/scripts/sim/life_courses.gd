@@ -47,6 +47,10 @@ const NEARBY_DIST := 900.0
 const CAREERS_ID_BASE := -1000000
 const MAX_NEWS := 400
 const MAX_EVENTS_PER_PERSON := 24
+## The people table is a rolling window: once it holds more than MAX_PEOPLE rows, the longest-dead residents
+## nobody has met (and who aren't famous) are forgotten first. It used to keep every birth and death forever
+## (150 -> 780 rows, +350 KB of save in two simulated years). Living people, the met and the famous stay.
+const MAX_PEOPLE := 320
 
 ## id (int) -> {id, name, birth_day, sex, settlement, culture, occupation,
 ##   rank, trade, traits: Array[String], spouse (-1 none), children: Array[int],
@@ -235,7 +239,7 @@ func family_tree(id: int) -> Dictionary:
 
 func _settlement_name(idx: int) -> String:
 	if idx >= 0 and idx < WorldGen.settlements.size():
-		return String(WorldGen.settlements[idx]["name"])
+		return WorldGen.display_name(String(WorldGen.settlements[idx]["name"]))
 	return "the village"
 
 
@@ -351,18 +355,32 @@ func on_vacancy(org: Dictionary, seat: Dictionary, careers: Object = null) -> vo
 func _find_or_create_worker(settlement: int, _title: String) -> int:
 	for id: int in people:
 		var p: Dictionary = people[id]
-		if bool(p["alive"]) and int(p["settlement"]) == settlement and String(p["career_org"]) == "":
+		if bool(p["alive"]) and int(p["settlement"]) == settlement \
+			and String(p["career_org"]) == "" and _age_years(p, WorldSim.day) >= 16:
 			return id
 	var culture := "caldric"
 	var sex := "male" if _rng.randf() < 0.5 else "female"
 	var name := _random_name(culture, sex)
 	var age := _rng.randi_range(18, 40)
-	var birth_day := -age * RALifePath.DAYS_PER_YEAR
+	var birth_day := WorldSim.day - age * RALifePath.DAYS_PER_YEAR
 	var id := _new_person(name, birth_day, sex, settlement, culture, "laborer", "career")
 	return id
 
 
 # --- marriage / children -------------------------------------------------------
+
+## Old saves or externally constructed rows may have a missing or malformed
+## parent array. Only actual nonnegative integer entries represent kinship IDs.
+func _valid_parent_ids(person: Dictionary) -> Array[int]:
+	var raw_parents: Variant = person.get("parents", [])
+	var valid: Array[int] = []
+	if not raw_parents is Array:
+		return valid
+	for parent_id: Variant in raw_parents:
+		if parent_id is int and int(parent_id) >= 0:
+			valid.append(int(parent_id))
+	return valid
+
 
 ## Pairs `pid` with an eligible unmarried adult in the same or a nearby
 ## settlement. Returns the spouse id, or -1 if nobody eligible was found.
@@ -370,18 +388,30 @@ func try_marry(pid: int, day: int) -> int:
 	if not people.has(pid):
 		return -1
 	var p: Dictionary = people[pid]
-	if int(p["spouse"]) >= 0:
+	if not bool(p.get("alive", false)) or int(p.get("spouse", -1)) >= 0 \
+		or _age_years(p, day) < 16:
 		return -1
+	var p_parents := _valid_parent_ids(p)
 	var candidates: Array[int] = []
 	for oid: int in people:
 		if oid == pid:
 			continue
 		var o: Dictionary = people[oid]
-		if not bool(o["alive"]) or int(o["spouse"]) >= 0:
+		if not bool(o.get("alive", false)) or int(o.get("spouse", -1)) >= 0:
 			continue
 		if String(o["sex"]) == String(p["sex"]):
 			continue
 		if _age_years(o, day) < 16:
+			continue
+		var o_parents := _valid_parent_ids(o)
+		if p_parents.has(oid) or o_parents.has(pid):
+			continue
+		var shares_parent := false
+		for parent_id: int in p_parents:
+			if o_parents.has(parent_id):
+				shares_parent = true
+				break
+		if shares_parent:
 			continue
 		if not _settlement_near(int(o["settlement"]), int(p["settlement"])):
 			continue
@@ -578,6 +608,7 @@ func kill(pid: int, day: int, cause: String, ctx: Dictionary = {}, careers: Obje
 	p["cause_of_death"] = cause
 	var phrase: String = String(CAUSE_TEXT.get(cause, cause))
 	_event(p, day, "%s died %s." % [p["name"], phrase])
+	preload("res://scripts/realm/events.gd").emit("death", "", ["lc:%d" % pid], cause, "%s died %s" % [p["name"], phrase], 2)
 	_transfer_business(p, day)
 	if careers == null:
 		careers = Life.get("careers") if Life != null else null
@@ -621,7 +652,24 @@ func tick_day(day: int, ctx: Dictionary = {}) -> Array[String]:
 		var n: Dictionary = _news[i]
 		if bool(people.get(int((n["people"] as Array)[0]), {}).get("famous", false)):
 			out.append(String(n["text"]))
+	_forget_the_dead(day)
 	return out
+
+
+## Trims the table back to MAX_PEOPLE, oldest unmet non-famous dead first. Every lookup here is
+## people.has()-guarded, so dangling parent/child/spouse ids are harmless.
+func _forget_the_dead(_day: int) -> void:
+	if people.size() <= MAX_PEOPLE:
+		return
+	var dead: Array = []
+	for pid: int in people:
+		var p: Dictionary = people[pid]
+		if not bool(p["alive"]) and not bool(p["met"]) and not bool(p["famous"]):
+			dead.append([int(p["death_day"]), pid])
+	dead.sort_custom(func(a: Array, b: Array) -> bool: return int(a[0]) < int(b[0]))
+	var over := people.size() - MAX_PEOPLE
+	for i in mini(over, dead.size()):
+		people.erase(int(dead[i][1]))
 
 
 # --- save ----------------------------------------------------------------------

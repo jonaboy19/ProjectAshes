@@ -3,7 +3,7 @@ extends CharacterBody3D
 ## Humanoid monster (goblins, orcs, the odd troll) living in a camp. Wanders its
 ## camp, turns on intruders who come close, and yields (kneels) when beaten
 ## instead of dying, unless finished off. A yielded monster can be named
-## (Tensura-style) through Life.name_monster: it evolves into its greater form,
+## through Life.name_monster: it evolves into its greater form,
 ## takes a class and follows the player as a subordinate that fights the
 ## player's enemies.
 ## Uses close-range collision with the player and world; distant monsters keep
@@ -11,21 +11,30 @@ extends CharacterBody3D
 ##
 ## A whole warren turns on an intruder together, but only a few hold an attack
 ## token at once (creature_attack_tokens.gd): the rest circle or hold at a ring
-## and take turns. Each swing has a wind-up (stop, a "!" over the head, the
-## attack clip slowed so contact lands at `windup`) and only hurts if the target
-## is still in reach, in front and not behind a wall at the contact frame.
+## and take turns. Each swing has a wind-up (stop, a "!" over the head,
+## anticipation followed by a short authored-speed strike) and only hurts if
+## the target is still in reach, in front and not behind a wall at contact.
 ## Models: Meshy goblin / orc / troll (creature_models.gd); the yield kneel and
 ## stand-up are cut from the orc's charged-chop clip.
 ## Deaths go physical (ragdoll.gd, capped world-wide) and fall back to the death
 ## clip; a heavy hit (knockback >= 6 or a parried swing) knocks a living monster
 ## down for a second, then it gets up through the stand-up clip.
 
+const Nameplates := preload("res://scripts/core/nameplates.gd")
 signal died(monster: CampMonster)
 
 const Models := preload("res://scripts/actors/creature_models.gd")
 const Tokens := preload("res://scripts/actors/creature_attack_tokens.gd")
 const Ragdoll := preload("res://scripts/actors/ragdoll.gd")
+const Fighter := preload("res://scripts/combat/npc_fighter.gd")
+const Telegraph := preload("res://scripts/combat/telegraph.gd")
+const NodePool := preload("res://scripts/core/node_pool.gd")
 const PLAYER_SOLID_RANGE := 16.0
+## Hit knockback plays out as a short slide (time constant KNOCK_TAU, same 0.12 m per
+## unit of knockback as before) instead of an instant teleport (FEEL_AUDIT F5).
+const KNOCK_TAU := 0.1
+const KNOCK_SHARE := 0.12
+const STRIKE_TIME := 0.2
 const WORLD_LAYER := 1
 const ENEMY_LAYER := 4
 ## Player walks at 2.4 m/s and runs at 6.5 m/s (player.gd), so "run" stays below it.
@@ -53,7 +62,7 @@ const SPECIES := {
 ## "brief" wards may sit inside strong coverage this long before the ward
 ## logic below sends them home regardless of what they were doing.
 const WARD_BRIEF_LINGER := 22.0
-const NAMES := ["Gobta", "Rigur", "Kurra", "Snag", "Brek", "Mossa", "Tuk", "Hesk", "Grom", "Varka",
+const NAMES := ["Gorrow", "Rigur", "Kurra", "Snag", "Brek", "Mossa", "Tuk", "Hesk", "Grom", "Varka",
 	"Orrin", "Dazh", "Ruuk", "Pell", "Zagra", "Hollo", "Krith", "Ushna", "Bram", "Tessik"]
 enum State { WANDER, ALERT, ATTACK, YIELD, FOLLOW }
 
@@ -79,12 +88,14 @@ var _think := 0.0
 var _attack_cd := 0.0
 var _busy := 0.0
 var _speed := 0.0
+var _knock := Vector3.ZERO        # sliding knockback velocity (m/s)
 var _foe: Node3D
 var _actor_shape: CollisionShape3D
 var _walk_clip_speed := 0.65
 var _run_clip_speed := 1.7
 var _impact_time := 0.3
 var _winding := 0.0
+var _strike_snap_sent := false
 var _strike_target: Node3D
 var _turn_rest := 0.0
 var _turn_time := 0.0
@@ -100,10 +111,18 @@ var _model: Node3D
 var _hit_push := Vector3.ZERO
 var _hit_from := Vector3.INF
 var _ward_timer := 0.0            # seconds spent inside strong coverage (ward "brief")
+var _fighter: RefCounted          # NpcFighter: move choice from the CombatMoves table (null = SPECIES row only)
+var _cur_move: Resource           # the CombatAction being swung
+var _cur_windup := 0.5
+var _stats := {}                  # CombatStats row for this body (empty = SPECIES numbers)
+var _death_tween: Tween
+var _model_scale0 := Vector3.ONE  # F12 pooling: scale the death squash starts from
 
 
 func _ready() -> void:
 	var sp: Dictionary = SPECIES[species]
+	if Fighter.has_archetype(species):
+		_fighter = Fighter.make(species, randi())
 	collision_layer = ENEMY_LAYER
 	collision_mask = WORLD_LAYER
 	floor_snap_length = 0.25
@@ -129,6 +148,7 @@ func _ready() -> void:
 		model.scale *= float(sp["height"]) / float(Models.info(_kind)["fit_height"])
 	add_child(model)
 	_model = model
+	_model_scale0 = model.scale
 	var tint: Color = sp["tint"]
 	if tint != Color(1, 1, 1) and _kind != String(sp["model"]):
 		_tint(model, tint)    # only the stand-in body needs recolouring
@@ -142,13 +162,14 @@ func _ready() -> void:
 	_impact_time = float(info["impact"])
 	var lv: Array = sp["level"]
 	level = randi_range(int(lv[0]), int(lv[1]))
-	max_health = int(sp["health"]) + level * 4
+	if _fighter != null:
+		_stats = _fighter.apply_level(level)      # data/combat/archetypes.json, scaled by level vs player level
+		max_health = int(_stats["hp"])
+	else:
+		max_health = int(sp["health"]) + level * 4
 	health = max_health
 	_label = Label3D.new()
-	_label.billboard = BaseMaterial3D.BILLBOARD_ENABLED
-	_label.pixel_size = 0.007
-	_label.font_size = 26
-	_label.outline_size = 8
+	Nameplates.style(_label, Color.WHITE, 26, 30.0)
 	_label.position.y = float(sp["height"]) + 0.35
 	add_child(_label)
 	_orbit_dir = 1.0 if randf() < 0.5 else -1.0
@@ -160,6 +181,92 @@ func _ready() -> void:
 
 func _exit_tree() -> void:
 	Tokens.release(self)
+
+
+# --- pooling (F12, scripts/core/node_pool.gd) ------------------------------------------------------------
+
+func on_acquire() -> void:
+	pass
+
+
+func on_release() -> void:
+	Tokens.release(self)
+	Telegraph.end(self)
+	_show_telegraph(false)
+
+
+## A named (evolved, scaled, auraed) monster is never pooled: it leaves the world the old way.
+func recycle() -> void:
+	if named == "":
+		NodePool.recycle(self)
+	else:
+		queue_free()
+
+
+## Back to a freshly spawned body: health, level, state, AI timers, tokens, groups, signals, ragdoll, model.
+func reset() -> void:
+	if _model == null:
+		return
+	if _death_tween != null and _death_tween.is_valid():
+		_death_tween.kill()
+	_death_tween = null
+	for c: Dictionary in died.get_connections():
+		died.disconnect(c["callable"])
+	for m in get_meta_list():
+		if m != &"_npool":
+			remove_meta(m)
+	var sp: Dictionary = SPECIES[species]
+	if Fighter.has_archetype(species):
+		_fighter = Fighter.make(species, randi())
+	var lv: Array = sp["level"]
+	level = randi_range(int(lv[0]), int(lv[1]))
+	if _fighter != null:
+		_stats = _fighter.apply_level(level)
+		max_health = int(_stats["hp"])
+	else:
+		max_health = int(sp["health"]) + level * 4
+	health = max_health
+	dead = false
+	hostile = true
+	named = ""
+	klass = ""
+	state = State.WANDER
+	home = Vector2.ZERO
+	home_radius = 18.0
+	velocity = Vector3.ZERO
+	scale = Vector3.ONE
+	_foe = null
+	_cur_move = null
+	_target = global_position
+	_think = 0.0
+	_attack_cd = 0.0
+	_busy = 0.0
+	_speed = 0.0
+	_knock = Vector3.ZERO
+	_winding = 0.0
+	_strike_snap_sent = false
+	_strike_target = null
+	_turn_rest = 0.0
+	_turn_time = 0.0
+	_strikes_left = randi_range(1, 2)
+	_circling = false
+	_orbit = 0.0
+	_orbit_dir = 1.0 if randf() < 0.5 else -1.0
+	_orbit_flip = 0.0
+	_was_yielded = false
+	_hit_push = Vector3.ZERO
+	_hit_from = Vector3.INF
+	_ward_timer = 0.0
+	_actor_shape.disabled = true
+	_model.scale = _model_scale0
+	if _ragdoll != null:
+		_ragdoll.call("revive")
+		var sk: Variant = _ragdoll.get("skeleton")
+		if sk is Skeleton3D:
+			(sk as Skeleton3D).reset_bone_poses()
+	_set_team(true)
+	_refresh_label()
+	_play("idle", true)
 
 
 func _tint(model: Node, tint: Color) -> void:
@@ -203,9 +310,21 @@ func prompt() -> String:
 	return "Name"
 
 
+## The interact key: the naming menu (main.gd's VillageServices).
+func use() -> void:
+	var hud := Interaction.hud(self)
+	var sv := Interaction.services(self)
+	if hud != null and sv != null:
+		hud.call("show_menu", Callable(sv, "naming_menu").bind(self))
+
+
 func _physics_process(delta: float) -> void:
 	if dead:
 		return
+	if _knock.length_squared() > 0.0004:
+		move_and_collide(_knock * delta)
+		global_position.y = WorldGen.height(global_position.x, global_position.z)
+		_knock *= exp(-delta / KNOCK_TAU)
 	_think -= delta
 	_attack_cd -= delta
 	_busy -= delta
@@ -214,8 +333,14 @@ func _physics_process(delta: float) -> void:
 	var player := get_tree().get_first_node_in_group("player") as Node3D
 	if _winding > 0.0:
 		_winding -= delta
-		if is_instance_valid(_strike_target) and _winding > float(SPECIES[species]["windup"]) * 0.4:
+		if is_instance_valid(_strike_target) and _winding > _cur_windup * 0.4:
 			_face(_strike_target.global_position, delta)   # tracks early, then commits
+		if _winding <= STRIKE_TIME and not _strike_snap_sent:
+			_strike_snap_sent = true
+			if _anim:
+				_anim.speed_scale = 1.0
+			VFX.flash(get_parent(), global_position + Vector3.UP * float(SPECIES[species]["height"]) * 0.8,
+				Color(1.0, 0.55, 0.2), 1.5, 0.08, 3.0)
 		if _winding <= 0.0:
 			_impact()
 	if _was_yielded and state != State.YIELD:
@@ -435,19 +560,42 @@ func _face(at: Vector3, delta: float) -> void:
 		rotation.y = lerp_angle(rotation.y, atan2(to.x, to.z), 8.0 * delta)
 
 
-## Wind-up: stop, flag "!" and play the swing slowed so contact lands at `windup`.
+## Wind-up: stretch the anticipation to its fairness timer, then play the last
+## STRIKE_TIME at the clip's authored rate. The timer and hit frame stay fixed.
 func _strike(foe: Node3D) -> void:
 	var sp: Dictionary = SPECIES[species]
 	var windup := float(sp["windup"])
-	_attack_cd = randf_range(float(sp["cooldown"][0]), float(sp["cooldown"][1]))
+	var total := windup + float(sp["recover"])
+	_cur_move = null
+	if _fighter != null:
+		var dist := global_position.distance_to(foe.global_position)
+		_cur_move = _fighter.choose_move(dist, "blocking" if bool(foe.get("blocking")) else "idle")
+		if _cur_move != null:
+			windup = _cur_move.windup
+			total = _cur_move.total()
+	_cur_windup = windup
+	_attack_cd = randf_range(float(sp["cooldown"][0]), float(sp["cooldown"][1])) * float(_stats.get("cdm", 1.0))
 	_winding = windup
-	_busy = windup + float(sp["recover"])
+	_strike_snap_sent = false
+	_busy = total
 	_strike_target = foe
-	_play("attack", true, clampf(_impact_time / windup, 0.3, 1.6))
+	var pre := maxf(_impact_time - STRIKE_TIME, 0.05)
+	var hold := maxf(windup - STRIKE_TIME, 0.05)
+	_play("attack", true, clampf(pre / hold, 0.25, 2.0))
 	_show_telegraph(true)
+	var reach: float = _cur_move.reach if _cur_move != null else float(sp["reach"])
+	Telegraph.begin(self, _cur_move, reach, windup, float(sp["knock"]) >= 3.0 or bool(sp["poise"]))
 	var voice := String(sp["voice"])
 	if voice != "" and Audio.has_sound(voice):
 		Audio.play_sfx(voice, global_position + Vector3.UP * float(sp["height"]) * 0.8, -5.0, 0.1)
+
+
+## Describes the blow in flight for the defender's HitResolver call (player.take_damage reads it).
+func attack_info() -> Dictionary:
+	if _cur_move == null:
+		return {}
+	return {"poise_damage": _cur_move.poise_damage, "lane": _cur_move.lane, "parryable": _cur_move.parryable,
+		"unblockable": _cur_move.unblockable}
 
 
 func _impact() -> void:
@@ -457,12 +605,20 @@ func _impact() -> void:
 	var foe := _strike_target
 	_strike_target = null
 	var sp: Dictionary = SPECIES[species]
-	if Tokens.can_hit(self, foe, float(sp["reach"]), WORLD_LAYER) and foe.has_method("take_damage"):
-		var dmg := int(sp["damage"]) + level
+	var reach := float(sp["reach"])
+	var base := int(sp["damage"])
+	var knock := float(sp["knock"])
+	if _cur_move != null:
+		reach = _cur_move.reach
+		base = _cur_move.damage
+		knock = _cur_move.knockback
+	if Tokens.can_hit(self, foe, reach, WORLD_LAYER) and foe.has_method("take_damage"):
+		var dmg := int(round(float(base) * float(_stats.get("dmg", 1.0)))) + level
 		var push := foe.global_position - global_position
 		push.y = 0.0
-		foe.take_damage(dmg, self, push.normalized() * float(sp["knock"]))
+		foe.take_damage(dmg, self, push.normalized() * knock)
 		VFX.sparks(get_parent(), foe.global_position + Vector3(0, 0.9, 0), Color(1.0, 0.6, 0.4), 12)
+	_cur_move = null
 	_strikes_left -= 1
 	if _strikes_left <= 0:
 		_end_turn(randf_range(1.2, 2.4))
@@ -491,7 +647,7 @@ func take_damage(amount: int, from: Node = null, knockback := Vector3.ZERO) -> v
 		_die()
 		return
 	health -= amount
-	global_position += knockback * 0.12
+	_knock += Vector3(knockback.x, 0.0, knockback.z) * (KNOCK_SHARE / KNOCK_TAU)
 	if health <= 0:
 		if named == "" and hostile and randf() < 0.75:
 			_yield()
@@ -501,17 +657,24 @@ func take_damage(amount: int, from: Node = null, knockback := Vector3.ZERO) -> v
 	if from is Node3D and state != State.ATTACK:
 		_foe = from
 		state = State.ATTACK
+	# Hyper-armour: a blow below the poise break (parries and clashes send amount 0 and always stagger)
+	# does not interrupt the swing; a break staggers and grants 1.6 s of immunity (npc_fighter.absorb).
+	if _fighter != null and _winding > 0.0 and amount > 0 and not _fighter.absorb(float(amount), Time.get_ticks_msec() * 0.001):
+		return
 	if bool(SPECIES[species]["poise"]) and _winding > 0.0:
 		return                       # a troll doesn't flinch mid-swing
 	if _winding > 0.0:
 		_winding = 0.0
 		_strike_target = null
+		_cur_move = null
 		_show_telegraph(false)
+		Telegraph.end(self)
 	if _ragdoll and _ragdoll.is_down():
 		_busy = maxf(_busy, 0.3)     # already on the ground
 		return
-	if Ragdoll.is_heavy(amount, from, knockback) and _ragdoll \
-			and _ragdoll.knock_down(knockback, _hit_from, _get_up):
+	var reaction := Ragdoll.reaction(amount, from, knockback)   # stagger (hit clip) / launch / knockdown
+	if reaction != "stagger" and _ragdoll \
+			and _ragdoll.knock_down(knockback, _hit_from, _get_up, Ragdoll.LAUNCH_LIFT if reaction == "launch" else 1.0):
 		_speed = 0.0
 		_busy = Ragdoll.KNOCK_TIME + 1.2
 		if state == State.ATTACK:
@@ -546,10 +709,11 @@ func _die() -> void:
 		_play("death", true)
 	died.emit(self)
 	var t := create_tween()
+	_death_tween = t
 	t.tween_interval(6.0)
 	# Squash the model, not the body: Jolt rejects non-uniform body scale.
 	t.tween_property(_model, "scale", _model.scale * Vector3(1, 0.01, 1), 0.5)
-	t.tween_callback(queue_free)
+	t.tween_callback(recycle)
 
 
 ## Knockdown over (ragdoll.gd moved us under the hips): back on our feet.

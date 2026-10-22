@@ -1,8 +1,8 @@
 extends SceneTree
-## Every villager model the game can pick (Assets.MH_LOOKS, unique files), each shown
+## Every villager model the game can pick (A.MH_LOOKS, unique files), each shown
 ## front and back side by side under a plain sun. Catches untextured / faceless looks
 ## (a hood seen from behind, a cloak the colour of skin, a missing texture).
-##   godot --path kingdom --resolution 2400x1840 -s <abs>/tools/qa/villager_looks/lineup.gd -- --png=<file> [--lod1]
+##   godot --path kingdom --resolution 2400x1840 -s <abs>/tools/qa/villager_looks/lineup.gd -- --png=<file> [--lod1] [--merge] [--low]  (--merge --low = what the game builds for NPCs on LOW)
 
 const COLS := 7          # characters per row (each takes two slots: front, back)
 const SPACING := 0.62
@@ -12,12 +12,18 @@ var frames := 0
 
 
 func _initialize() -> void:
+	var A: GDScript = load("res://scripts/world/assets.gd")      # loaded at run time: it needs the Quality autoload to exist when compiled
 	var lod1 := false
+	var merge := false
 	for a in OS.get_cmdline_user_args():
 		if a.begins_with("--png="):
 			png = a.substr(6)
 		elif a == "--lod1":
 			lod1 = true
+		elif a == "--merge":
+			merge = true
+		elif a == "--low":
+			root.get_node("Quality").set("tier", 0)      # the merged-atlas build is tier dependent (512 px tiles, 1024 atlas)
 	var world := Node3D.new()
 	root.add_child(world)
 	var env := WorldEnvironment.new()
@@ -30,9 +36,10 @@ func _initialize() -> void:
 	var sun := DirectionalLight3D.new()
 	sun.rotation_degrees = Vector3(-35, 15, 0)
 	world.add_child(sun)
+	var no_keep: Array[String] = []
 	var files: Array[String] = []
-	for look: String in Assets.MH_LOOKS:
-		for f: String in Assets.MH_LOOKS[look]:
+	for look: String in A.MH_LOOKS:
+		for f: String in A.MH_LOOKS[look]:
 			if not files.has(f):
 				files.append(f)
 	var rows := ceili(files.size() / float(COLS))
@@ -40,11 +47,11 @@ func _initialize() -> void:
 		var x := (i % COLS - (COLS - 1) / 2.0) * SPACING * 2.4
 		var y := -(i / COLS) * ROW_H
 		for side in 2:
-			var c := Assets.mh_character(files[i], 1.75, [], lod1)
+			var c: Node3D = A.mh_character(files[i], 1.75, no_keep, lod1 and files[i].contains("meshy_dl3"), merge)
 			world.add_child(c)
 			c.position = Vector3(x + (side - 0.5) * SPACING, y, 0)
 			c.rotation.y = PI * side
-			var anim := Assets.animation_player(c)
+			var anim: AnimationPlayer = A.animation_player(c)
 			if anim and anim.has_animation("Idle"):
 				anim.play("Idle")
 		var l := Label3D.new()

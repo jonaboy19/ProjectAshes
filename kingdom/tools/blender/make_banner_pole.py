@@ -21,6 +21,8 @@ ROOT = os.path.abspath(os.path.join(HERE, "..", "..", ".."))
 CROWN = os.path.join(ROOT, "kingdom", "assets", "art", "emblems", "tower_crown.png")
 
 k = VK("BannerPole", seed=4141, pal=palette(timber="oak"))
+k.pbr = dict(size=512, seed=2, ao_dist=0.3, cage=0.03, ray=0.08)   # high-to-low PBR bake (pbr_kit.py)
+k.weather_ao = 0.34
 W, MT, CL = k.M("Wood"), k.M("Metal"), k.M("Cloth")
 CRIMSON, GOLD = hexc("9b1d24"), hexc("d4a63a")
 tc = hexc("5a3e26")

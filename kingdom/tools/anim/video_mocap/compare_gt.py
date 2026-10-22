@@ -25,11 +25,11 @@ PAIRS = {  # name: (GT joint a, GT joint b, BVH joint a, BVH joint b)
 }
 
 
-def compare(bvh_path, gt_path):
+def compare(bvh_path, gt_path, offset=0):
     b = BVH.load(bvh_path)
     P, R = b.fk()
     ix = {n: i for i, n in enumerate(b.names)}
-    gt = json.load(open(gt_path))["joints"]
+    gt = json.load(open(gt_path))["joints"][offset:]      # offset = first video frame the BVH covers (trim)
     T = min(len(gt), len(P))
     G = {k: np.array([g[k] for g in gt[:T]]) for k in gt[0]}
     res = {k: [] for k in PAIRS}
@@ -70,6 +70,18 @@ def compare(bvh_path, gt_path):
         v = np.linalg.norm(np.diff(f[:, :2], axis=0), axis=1) * 30
         gs.append(float(np.mean(v[low[1:] & low[:-1]])) if (low[1:] & low[:-1]).any() else 0.0)
     out["foot_slide_mps_gt"] = [round(s, 3) for s in gs]
+    # foot slide during GROUND-TRUTH contact frames (GT foot speed < 0.3 m/s and within 8 cm of its lowest point): the
+    # honest before/after metric for IK foot pinning, independent of the tool's own contact detector. cm/s.
+    sl, gsl = [], []
+    for a, bj in (("foot_l", "LeftFoot"), ("foot_r", "RightFoot")):
+        f = G[a]
+        gv = np.linalg.norm(np.gradient(f[:, :2], axis=0), axis=1) * 30
+        c = (gv < 0.3) & (f[:, 2] < f[:, 2].min() + 0.08)
+        bv = np.linalg.norm(np.gradient(P[:T, ix[bj]][:, [0, 2]], axis=0), axis=1) * b.fps
+        sl.append(bv[c]); gsl.append(gv[c])
+    out["foot_slide_gt_contact_cm_s"] = {"recovered_mean": round(float(np.concatenate(sl).mean()) * 100, 1),
+                                         "recovered_p90": round(float(np.percentile(np.concatenate(sl), 90)) * 100, 1),
+                                         "gt_mean": round(float(np.concatenate(gsl).mean()) * 100, 1)}
     return out
 
 
@@ -78,8 +90,9 @@ if __name__ == "__main__":
     ap.add_argument("bvh")
     ap.add_argument("gt")
     ap.add_argument("--json")
+    ap.add_argument("--offset", type=int, default=0, help="frames trimmed from the start of the video")
     a = ap.parse_args()
-    r = compare(a.bvh, a.gt)
+    r = compare(a.bvh, a.gt, a.offset)
     print(json.dumps(r, indent=1))
     if a.json:
         json.dump(r, open(a.json, "w"), indent=1)

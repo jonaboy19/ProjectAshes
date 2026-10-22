@@ -23,7 +23,12 @@ var settlements: SettlementBuilder
 var population: PopulationLOD
 var frontier: FrontierPresence
 var region: RegionDressing
+var region1: Node   # scripts/region1/region1_glue.gd (Region1 hooks)
 const Flow := preload("res://scripts/ui/frontend/flow.gd")
+const CellStreamer := preload("res://scripts/core/cell_streamer.gd")
+const GameMenu := preload("res://scripts/ui/gamemenu/game_menu.gd")
+const StyleG := preload("res://scripts/style_g.gd")
+const SeasonsScript := preload("res://scripts/sim/seasons.gd")
 const RoadTraffic := preload("res://scripts/world/road_traffic.gd")
 const RoadEvents := preload("res://scripts/world/road_events.gd")
 var road_traffic: Node3D
@@ -34,6 +39,9 @@ var weather: Node3D
 var ambient_fx: Node3D
 var noble_courts: Node3D
 var lord_hall: Node3D
+var realm_presence: Node3D
+var build_resources: Node3D
+var construction_view: Node3D
 var _order_from: Variant = null   # command view: where the current drag order started
 var player: Player
 var hud: HUD
@@ -46,6 +54,7 @@ var services: VillageServices
 var camps: MonsterCamps
 var ambient: AmbientLife
 var sun: DirectionalLight3D
+var fill: DirectionalLight3D
 var env: Environment
 var _status_timer := 0.0
 var _raids_cleared := 0
@@ -84,20 +93,23 @@ func _ready() -> void:
 	add_child(hud)
 	hud.fast_travel_requested.connect(func(at: Vector2) -> void: _teleport(at, 0.0))
 	hud.place_discovered.connect(func(_place: Variant) -> void: Audio.play_discovery())
-	hud.add_action_button("lock_on", "Lock", "lock_on", "eye-target")
+	hud.add_action_button("lock_on", "Lock", "lock_on", "glyph:lock")
 	hud.add_action_button("crouch", "Sneak", "crouch", "walk")
 
-	hud.set_loading_text("Painting sprites...")
+	hud.set_loading_text("Painting sprites...", 0.04)
 	await get_tree().process_frame
 	await baker.bake("soldier", "Knight", ["Knight_Helmet", "1H_Sword", "Round_Shield"])
 	await baker.bake("raider", "Barbarian", ["1H_Axe", "Barbarian_Round_Shield", "Barbarian_Hat"])
+	var looks_done := 0
 	for look: String in PopulationLOD.LOOK_MODEL:
+		hud.set_loading_text("Painting sprites...", 0.08 + 0.32 * looks_done / maxf(1.0, PopulationLOD.LOOK_MODEL.size()))
+		looks_done += 1
 		var model: Array = PopulationLOD.LOOK_MODEL[look]
 		var keep: Array[String] = []
 		keep.assign(model[1])
 		await baker.bake(look, model[0], keep, "Walking_A")
 
-	hud.set_loading_text("Raising the land...")
+	hud.set_loading_text("Raising the land...", 0.45)
 	await get_tree().process_frame
 	terrain = TerrainStreamer.new()
 	world.add_child(terrain)
@@ -111,12 +123,18 @@ func _ready() -> void:
 	frontier = FrontierPresence.new()
 	world.add_child(frontier)
 	Frontier.frontier_event.connect(func(text: String, _pos: Vector2) -> void: Game.say(text))
+	# Region1 hook (docs/regions/REGION_1_PLAN.md)
+	world.add_child(preload("res://scripts/region1/region1_root.gd").new())
 	var spawn := Vector3(HOME_SPAWN.x, WorldGen.height(HOME_SPAWN.x, HOME_SPAWN.y) + 0.5, HOME_SPAWN.y)
 	terrain.focus = spawn
 	settlements.focus = spawn
 	terrain.view_radius = 2
+	hud.set_loading_text("Raising the land...", 0.5)
+	await get_tree().process_frame
 	terrain.build_all_now()
 	terrain.view_radius = 4
+	hud.set_loading_text("Building the villages...", 0.7)
+	await get_tree().process_frame
 	settlements.update_now()
 
 	world.add_child(player)
@@ -128,6 +146,7 @@ func _ready() -> void:
 	InteriorDoor.tag_player(player)
 	InteriorDoor.external_dispatch = true
 	player.health_changed.connect(_on_player_health)
+	player.died.connect(_on_player_died)
 
 	captain = Captain.new()
 	world.add_child(captain)
@@ -145,6 +164,8 @@ func _ready() -> void:
 	# Keepers inside the rooms get their menus (doors of towns built so far, then new ones).
 	services.wire_settlement(settlements)
 	settlements.settlement_built.connect(func(_s: Dictionary, root: Node3D) -> void: services.wire_settlement(root))
+	hud.set_loading_text("Filling the wilds...", 0.85)
+	await get_tree().process_frame
 	camps = MonsterCamps.new()
 	world.add_child(camps)
 	world.add_child(Lakeside.new())
@@ -171,10 +192,23 @@ func _ready() -> void:
 	world.add_child(noble_courts)
 	ambient = AmbientLife.new()
 	world.add_child(ambient)
+	world.add_child(preload("res://scripts/world/soulbeast_director.gd").new())   # F10 the Soulbeast companion
 	var ore := preload("res://scripts/world/ore_vein.gd").new()
 	ore.name = "OreVeins"
 	world.add_child(ore)
+	realm_presence = preload("res://scripts/world/realm_presence.gd").new()
+	realm_presence.setup(hud)
+	world.add_child(realm_presence)
+	build_resources = preload("res://scripts/world/build_resources.gd").new()
+	build_resources.name = "BuildResources"
+	world.add_child(build_resources)
+	construction_view = preload("res://scripts/world/construction_view.gd").new()
+	construction_view.name = "ConstructionView"
+	construction_view.hud = hud
+	world.add_child(construction_view)
 
+	hud.set_loading_text("Waking the world...", 0.95)
+	await get_tree().process_frame
 	army = Squad.new().setup(0, "soldier", "Knight", ["Knight_Helmet", "1H_Sword", "Round_Shield"])
 	army.routed.connect(func(_s: Squad) -> void: Game.say("Our men are breaking!"))
 	army.leader = player
@@ -183,6 +217,22 @@ func _ready() -> void:
 	_spawn_raiders(FIRST_CAMP, 12)
 	WorldSim.hour_changed.connect(func(_h: int) -> void: _maybe_spawn_war_battle())
 
+	# Region1 hook (docs/regions/REGION_1_PLAN.md) C3-C8, C12: wards, Scar, embers, Ashsight, story, tutorial, audio
+	region1 = preload("res://scripts/region1/region1_glue.gd").new()
+	region1.name = "Region1Glue"
+	world.add_child(region1)
+	region1.setup(self)
+	world.add_child(preload("res://scripts/world/towers/tower_site.gd").new())   # towers hook (docs/design tower plan)
+	preload("res://scripts/world/town_kit/town_hub.gd").attach_all(world, true)   # town kit: one hub per town file (quest wiring, clues, threat, specials; Thornfield: cart, figure, wilds); gated = asleep outside the settlement tier of the cell streamer
+
+	hud.set_loading_text("Gathering the townsfolk...", 0.93)
+	await get_tree().process_frame
+	var warm_t0 := Time.get_ticks_msec()
+	Assets.warm_characters()        # one throw-away body per resident look: GLB read, merged atlas and clips are cached before play
+	InteriorDoor.warm_scenes()      # the rooms are read from disk now, behind the loading screen, not at the first door
+	ambient.warm_models()           # and the village animals' and wildlife's model scenes, not at the first critter
+	print("[boot] warmed characters and interiors in %d ms" % (Time.get_ticks_msec() - warm_t0))
+	hud.set_loading_text("Ready", 1.0)
 	hud.hide_loading()
 	Quality.start_adaptive()
 	VFX.warmup(world)   # pre-draw every effect shader so the first cast doesn't hitch
@@ -192,6 +242,11 @@ func _ready() -> void:
 		player.apply_age()
 	if args.has("shot"):
 		_screenshot(args["shot"], args.get("out", "user://shot.png"))
+	elif args.has("qa"):
+		# QA driver: --qa=res://tools_qa/construction/build_qa.gd (its run(main) takes over from here)
+		var qa: Node = (load(String(args["qa"])) as GDScript).new()
+		add_child(qa)
+		qa.call("run", self)
 	elif args.has("demo"):
 		_run_demo()
 	elif args.has("skipintro") or Flow.wants_skip_intro():   # loading a save from the menu
@@ -287,11 +342,12 @@ func _after_birth() -> void:
 
 
 func _process(delta: float) -> void:
-	if player == null or not player.is_inside_tree():
+	if player == null or not player.is_inside_tree() or terrain == null or army == null:   # still loading (awaits in _ready)
 		return
 	var focus := player.global_position
-	terrain.focus = focus
-	water.focus = focus
+	# Region1 look hook: a cutscene may stream the ground around its camera path (Hidden Vale flyover, exploration_director.gd).
+	terrain.focus = Engine.get_meta("stream_focus", focus)
+	water.focus = terrain.focus
 	settlements.focus = focus
 	population.focus = focus
 	frontier.focus = focus
@@ -299,11 +355,21 @@ func _process(delta: float) -> void:
 	road_traffic.focus = focus
 	road_events.focus = focus
 	homestead_view.focus = focus
+	build_resources.focus = focus
+	construction_view.focus = focus
 	ambient_fx.focus = focus
 	noble_courts.focus = focus
 	camps.focus = focus
 	ambient.focus = focus
-	terrain.view_radius = mini(5 if player.view == Player.View.COMMAND else 4, Quality.view_radius)
+	# The settings screen's View Distance (Quality tier or override) sets the chunk ring; the command view sees one ring further.
+	# F12: one cell manager sets the radii per quality tier (cell_streamer.gd) and wakes/sleeps the registered spawners and sites.
+	var cells: RefCounted = CellStreamer.shared()
+	cells.update(focus)
+	var ring: int = cells.radius_cells("terrain")
+	terrain.view_radius = ring + (1 if player.view == Player.View.COMMAND and ring >= 4 else 0)
+	terrain.collision_radius = cells.radius_cells("terrain", "full")
+	terrain.grass_radius = cells.radius_cells("terrain", "full")
+	water.view_radius = terrain.view_radius
 	_update_daylight()
 	_status_timer -= delta
 	if _status_timer <= 0.0:
@@ -337,7 +403,11 @@ func _unhandled_input(event: InputEvent) -> void:
 	if player == null:
 		return
 	if event.is_action_pressed("attack"):
-		player.attack()
+		player.attack_press()        # tap = light combo on release, hold = charged heavy / bow draw (player_arms.gd)
+	elif event.is_action_released("attack"):
+		player.attack_release()
+	elif event.is_action_pressed("jump"):
+		player.jump()
 	elif event.is_action_pressed("dodge"):
 		player.dodge()
 	elif event.is_action_pressed("ability_dash"):
@@ -349,23 +419,18 @@ func _unhandled_input(event: InputEvent) -> void:
 	elif event.is_action_pressed("zoom_in"):
 		player.zoom(-1)
 	elif event.is_action_pressed("interact"):
+		if InteractionController.consumed_frame == Engine.get_process_frames():
+			return      # the player's InteractionController ran this very press (it may just have opened a menu)
 		if hud.is_menu_open():
 			hud.close_menu()
 			return
-		var target := player.nearest_interactable()
-		if target is Captain:
-			hud.show_menu(services.captain_menu)
-		elif target is Station:
-			hud.show_menu((target as Station).open)
-		elif target is CampMonster:
-			hud.show_menu(services.naming_menu.bind(target))
-		elif target is InteriorDoor:
-			(target as InteriorDoor).use()
+		# Everything else is handled by the player's InteractionController (scripts/interaction/), which marks the
+		# event handled before it gets here; this branch only closes an open menu.
 	elif event.is_action_pressed("journal"):
 		if hud.is_menu_open():
 			hud.close_menu()
 		else:
-			hud.show_menu(services.pack_menu)
+			GameMenu.toggle(hud, "inventory")   # the tabbed menu; the Pack button keeps the full pack list
 	elif event.is_action_pressed("eat"):
 		var food := Life.best_food()
 		Game.say(Life.use_item(food) if food != "" else "You have nothing to eat.")
@@ -408,6 +473,20 @@ func _unhandled_input(event: InputEvent) -> void:
 func _on_player_health(current: int, _maximum: int) -> void:
 	if current <= 0 and InteriorDoor.active != null:
 		InteriorDoor.active.leave()
+
+
+## The fall has played: the death screen offers respawn at home / last save / load / main menu.
+func _on_player_died() -> void:
+	const DeathScreen := preload("res://scripts/ui/frontend/death_screen.gd")
+	DeathScreen.open(hud, _respawn_at_home)
+
+
+## "Respawn at Home": the life-sim cost of dying (gold, a minor injury; Life.apply_death_penalty),
+## then back on your feet at the last bed or the village.
+func _respawn_at_home() -> void:
+	var r: Dictionary = Life.apply_death_penalty()
+	player.revive()
+	Game.say(String(r["text"]))
 
 
 func _recruit(count: int) -> void:
@@ -475,7 +554,9 @@ func _maybe_spawn_war_battle() -> void:
 
 func _on_raiders_defeated(camp: Node3D) -> void:
 	_raids_cleared += 1
-	var reward := 120 + 60 * _raids_cleared
+	# C13: the camp bounty was 120 + 60 per camp cleared, without end (the 20th paid 1320). It now tops out at the fifth camp and
+	# falls to a token bounty after the eighth: camps still come, they stop being a gold mine.
+	var reward := 120 + 40 * mini(_raids_cleared, 5) if _raids_cleared <= 8 else 40
 	Game.add_gold(reward)
 	Game.say("The raiders are broken! +%d gold." % reward)
 	Game.promote()
@@ -491,81 +572,34 @@ func _on_raiders_defeated(camp: Node3D) -> void:
 # --- Environment & day/night ------------------------------------------------------
 
 func _build_environment() -> void:
-	# Real captured sky (Poly Haven HDRI, CC0) lights the scene and fills reflections.
-	# Graded toward the art reference's saturated storybook blue (shaders/storybook_sky.gdshader).
-	var sky_mat := ShaderMaterial.new()
-	sky_mat.shader = load("res://shaders/storybook_sky.gdshader")
-	sky_mat.set_shader_parameter("panorama", load("res://assets/generated/sky/kloofendal_43d_clear_puresky_2k.hdr"))
-	var sky := Sky.new()
-	sky.sky_material = sky_mat
-	sky.radiance_size = Sky.RADIANCE_SIZE_256
+	# Style G (skills ashes-style-g): ONE look. Environment, sun and bounce fill come from scripts/style_g.gd; the
+	# Quality autoload re-applies SSAO / glow / shadows per tier when these nodes enter the tree.
+	StyleG.game_mode = true
+	var tier := StyleG.tier_name(Quality.tier)
 	env = Environment.new()
-	env.background_mode = Environment.BG_SKY
-	env.sky = sky
-	env.ambient_light_source = Environment.AMBIENT_SOURCE_SKY
-	env.ambient_light_energy = 0.7
-	# Warm bounce mixed into the sky ambient: blue-violet shadows, but sunlit stone stays honey-warm.
-	env.ambient_light_color = Color("ffe2bd")
-	env.ambient_light_sky_contribution = 0.72
-	env.reflected_light_source = Environment.REFLECTION_SOURCE_SKY
-	# AgX: filmic highlight roll-off and natural colour (less "cartoon" than ACES + saturation).
-	env.tonemap_mode = Environment.TONE_MAPPER_AGX
-	env.tonemap_exposure = 1.2
-	env.tonemap_white = 7.0
-	# Modern lighting (Forward+ on desktop; the Mobile renderer skips what it can't do).
-	env.ssao_enabled = true
-	env.ssao_radius = 1.4
-	env.ssao_intensity = 2.0
-	env.ssao_detail = 0.6          # tighter occlusion where objects meet the ground
-	env.ssao_light_affect = 0.15
-	# SSIL, SDFGI and volumetric fog are Forward+ only; asking for them on the Mobile /
-	# Compatibility renderers just prints warnings before Quality turns them off.
-	var forward_plus := RenderingServer.get_current_rendering_method() == "forward_plus"
-	env.ssil_enabled = forward_plus
-	env.sdfgi_enabled = forward_plus
-	env.sdfgi_use_occlusion = true
-	env.glow_enabled = true
-	env.glow_intensity = 0.6
-	env.glow_bloom = 0.07
-	env.glow_hdr_threshold = 1.1
-	env.fog_enabled = true
-	env.fog_light_color = Color("c9d4e6")
-	env.fog_density = 0.0006
-
-	env.fog_aerial_perspective = 0.3
-	env.fog_sky_affect = 0.15
-	env.volumetric_fog_enabled = forward_plus
-	env.volumetric_fog_density = 0.0025
-	env.volumetric_fog_albedo = Color("e8dccb")
-	env.volumetric_fog_length = 64.0
-	env.adjustment_enabled = true
-	# Cosy stylised target (docs/art_reference): warm and saturated, not grey-photoreal.
-	env.adjustment_saturation = 1.28
-	env.adjustment_contrast = 1.1
+	StyleG.apply_environment(env, tier, true)
+	# SSIL, SDFGI and volumetric fog are Forward+ only; Quality switches them on for ULTRA.
+	env.ssil_enabled = false
+	env.sdfgi_enabled = false
+	env.volumetric_fog_enabled = false
 	var we := WorldEnvironment.new()
 	we.environment = env
 	world.add_child(we)
-	sun = DirectionalLight3D.new()
-	sun.shadow_enabled = true
-	sun.shadow_blur = 1.5
-	sun.directional_shadow_mode = DirectionalLight3D.SHADOW_PARALLEL_4_SPLITS
-	sun.directional_shadow_max_distance = 140.0
-	sun.light_angular_distance = 0.8
+	sun = StyleG.make_sun(tier)
 	sun.light_volumetric_fog_energy = 1.4
 	world.add_child(sun)
+	fill = StyleG.make_fill()
+	world.add_child(fill)
 
 
 func _update_daylight() -> void:
 	var t := WorldSim.time_of_day
-	var day_amount := clampf(sin((t - 6.0) / 12.0 * PI) * 1.4, 0.0, 1.0)   # 0 at night, 1 at noon
-	sun.rotation = Vector3(-lerpf(0.15, 1.1, day_amount), PI * 0.25 + (t - 12.0) / 12.0 * PI * 0.5, 0)
-	# At night the key light becomes a cool moon so the world stays readable.
+	# The seasons' day length (Seasons.daylight_of) is squeezed into Style G's solar hours: 6 = sunrise, 18 = sunset.
+	var dl: Vector2 = SeasonsScript.daylight_of(WorldSim.day, t)
+	var solar := StyleG.solar_hour(t, dl.x, dl.y)
+	var day_amount := clampf(sin((solar - 6.0) / 12.0 * PI) * 1.4, 0.0, 1.0)   # 0 at night, 1 at noon
 	var night := 1.0 - smoothstep(0.0, 0.25, day_amount)
-	sun.light_energy = lerpf(lerpf(0.05, 1.7, day_amount), 0.42, night)
-	sun.light_color = Color("ff9a5a").lerp(Color("ffd9a2"), day_amount).lerp(Color("8fa8ff"), night)
-	env.ambient_light_energy = lerpf(lerpf(0.25, 0.7, day_amount), 0.4, night)
-	env.fog_light_color = Color("1b2238").lerp(Color("c9d4e6"), day_amount)
-	env.background_energy_multiplier = lerpf(0.08, 1.0, day_amount) + night * 0.12
+	StyleG.apply_daylight(env, sun, fill, solar, solar)
 	baker.set_light(lerpf(0.35, 1.0, day_amount))
 	# Emberglass Mere turns ember-coloured around sunset (lore); rain rings follow the weather.
 	var rain: float = weather.rain_amount() if weather else 0.0
@@ -575,8 +609,9 @@ func _update_daylight() -> void:
 		Audio.set_wind(preload("res://scripts/world/weather.gd").wind_strength)
 	var lamp_energy := 1.6 * night
 	for l in get_tree().get_nodes_in_group("street_lamp"):
-		(l as OmniLight3D).light_energy = lamp_energy
-		(l as OmniLight3D).visible = lamp_energy > 0.01
+		# LampNode (billboard glow, omni light only on HIGH+) or a plain OmniLight3D: both take light_energy.
+		l.set("light_energy", lamp_energy)
+		(l as Node3D).visible = lamp_energy > 0.01
 
 
 # --- Scripted demo (for trailer capture with --write-movie) ------------------------
@@ -589,6 +624,7 @@ func _teleport(p: Vector2, yaw: float) -> void:
 	var pos := Vector3(p.x, WorldGen.height(p.x, p.y) + 0.3, p.y)
 	player.global_position = pos
 	player.velocity = Vector3.ZERO
+	player.teleported()
 	player.set_camera(yaw, -0.28)
 	# With physics/common/physics_interpolation on, a teleport would otherwise
 	# smear the camera across the screen for one frame as it interpolates from
@@ -691,6 +727,60 @@ func _user_args() -> Dictionary:
 	return out
 
 
+## HUD QA shots (--shot=hud_explore|hud_npc|hud_door|hud_work|hud_combat): the exploration / combat HUD at a
+## street, beside a villager, at a door, at a work spot and in a fight (see docs in .claude/skills/ashes-visual-qa).
+func _hud_shot(shot: String) -> void:
+	_teleport(Vector2(1.0, 7.5), 0.0)
+	player.set_camera(0.25, -0.12)
+	for i in 30:
+		await get_tree().process_frame
+	match shot:
+		"hud_npc":
+			var best: Node3D = null
+			var bd := 1e9
+			for v in get_tree().get_nodes_in_group("villager"):
+				var d := (v as Node3D).global_position.distance_to(player.global_position)
+				if (v as Node3D).is_visible_in_tree() and d < bd:
+					bd = d
+					best = v
+			if best:
+				var at := best.global_position + Vector3(1.8, 0, 1.0)
+				_teleport(Vector2(at.x, at.z), 0.0)
+				var look := best.global_position - player.global_position
+				player.set_camera(atan2(-look.x, -look.z), -0.12)
+		"hud_door":
+			var door: InteriorDoor = null
+			for n in world.find_children("*", "InteriorDoor", true, false):
+				if (n as InteriorDoor).interior_scene.contains("inn_interior"):
+					door = n
+					break
+			if door:
+				_teleport(Vector2(door.global_position.x, door.global_position.z), 0.0)
+				var fwd := -door.global_transform.basis.z
+				player.set_camera(atan2(-fwd.x, -fwd.z) + PI, -0.12)
+		"hud_work":
+			var spot: Node3D = null
+			for st in get_tree().get_nodes_in_group("station"):
+				if (st as Station).verb == "Work":
+					spot = st
+					break
+			if spot == null:      # no career work spot in this build yet: a stand-in so the label can be judged
+				spot = Station.new("Blacksmith", "Work", Callable())
+				world.add_child(spot)
+				spot.global_position = player.global_position + player.forward() * 1.5
+			else:
+				_teleport(Vector2(spot.global_position.x + 1.5, spot.global_position.z + 1.5), 0.0)
+			var lk := spot.global_position - player.global_position
+			player.set_camera(atan2(-lk.x, -lk.z), -0.15)
+		"hud_combat":
+			_teleport(FIRST_CAMP + Vector2(-15, 6), 0.0)
+			player._invulnerable = 999.0      # QA: stay alive long enough to read the combat HUD
+			var cd := Vector3(FIRST_CAMP.x, 0, FIRST_CAMP.y) - player.global_position
+			player.set_camera(atan2(-cd.x, -cd.z), -0.15)
+	for i in 40:
+		await get_tree().process_frame
+
+
 func _screenshot(shot: String, path: String) -> void:
 	WorldSim.time_of_day = float(_user_args().get("hour", "16.2"))   # late-afternoon side light
 	var warmup := 60
@@ -733,6 +823,49 @@ func _screenshot(shot: String, path: String) -> void:
 		warmup = 60
 		shot = ""
 	match shot:
+		"stronghold":
+			# Nearest stronghold to the player (--n=k for the kth nearest), framed from --dist metres (default 40).
+			var sh_list: Array = Life.realm.mod("strongholds").strongholds()
+			var here := Vector2(player.global_position.x, player.global_position.z)
+			sh_list.sort_custom(func(a: Dictionary, b: Dictionary) -> bool: return here.distance_to(a["pos"]) < here.distance_to(b["pos"]))
+			for si in mini(sh_list.size(), 30):
+				print("[stronghold-list] ", si, " ", sh_list[si]["name"], " ", sh_list[si]["kind"], " ", snapped(here.distance_to(sh_list[si]["pos"]), 1.0))
+			var sh: Dictionary = sh_list[clampi(int(_user_args().get("n", "0")), 0, sh_list.size() - 1)]
+			var shp: Vector2 = sh["pos"]
+			var ent: Dictionary = realm_presence.nearest_stronghold(shp)
+			var focus2: Vector2 = ent["pos"] if not ent.is_empty() else shp
+			var back := Vector2(sin(deg_to_rad(float(_user_args().get("yaw", "20")))), cos(deg_to_rad(float(_user_args().get("yaw", "20")))))
+			var sd := float(_user_args().get("dist", "40"))
+			var ssp: Vector2 = focus2 + back * sd
+			_teleport(ssp, 0.0)
+			var sl := focus2 - ssp
+			player.set_camera(atan2(-sl.x, -sl.y), float(_user_args().get("pitch", "-0.16")))
+			region.focus = player.global_position
+			region.build_all_now()
+			realm_presence.refresh_now()
+			print("[stronghold] ", sh["name"], " kind=", sh["kind"], " owner=", sh["owner"], " at ", shp, " frame at ", focus2)
+			warmup = 120
+		"wartable":
+			# Walk into the first guild hall, then look at the War Room table.
+			var wdoor: InteriorDoor = null
+			for n in world.find_children("*", "InteriorDoor", true, false):
+				var wid := n as InteriorDoor
+				if wid.interior_scene.contains("guild_interior"):
+					wdoor = wid
+					break
+			if wdoor:
+				_teleport(Vector2(wdoor.global_position.x, wdoor.global_position.z), 0.0)
+				await get_tree().process_frame
+				wdoor.enter(player)
+				await get_tree().process_frame
+				realm_presence._check_war_table()
+				var tbl: Node3D = wdoor.interior.get_node_or_null("WarTable")
+				if tbl:
+					var tp: Vector3 = tbl.global_position
+					player.global_position = tp + Vector3(float(_user_args().get("dx", "-2.6")), 0.1, float(_user_args().get("dz", "2.6")))
+					var wl := tp - player.global_position
+					player.set_camera(atan2(-wl.x, -wl.z), float(_user_args().get("pitch", "-0.35")))
+			warmup = 60
 		"aerial":
 			# High 3/4 view over Ashford and its fields.
 			hud.visible = false
@@ -821,6 +954,9 @@ func _screenshot(shot: String, path: String) -> void:
 			# Street level on the plaza's south side, looking north across the square.
 			_teleport(Vector2(1.0, 7.5), 0.0)
 			player.set_camera(0.25, -0.12)
+		"hud_explore", "hud_npc", "hud_door", "hud_work", "hud_combat":
+			await _hud_shot(shot)
+			warmup = 100
 		"first":
 			player.set_view(Player.View.FIRST)
 			player.set_camera(PI * 0.9, -0.05)
@@ -972,10 +1108,30 @@ func _screenshot(shot: String, path: String) -> void:
 			var cpg: Vector2 = capg["pos"]
 			var ga: float = capg["plan"]["gates"][0]
 			var dirg := Vector2(cos(ga), sin(ga))
-			var spg: Vector2 = cpg + dirg * (float(capg["radius"]) - 42.0)
+			var spg: Vector2 = cpg + dirg * (float(capg["radius"]) - float(_user_args().get("gate_in", "42")))
 			_teleport(spg, 0.0)
 			player.set_camera(atan2(-dirg.x, -dirg.y), -0.05)
+			# fixed load-wait (AAA pass 14): finish the town's sliced prop jobs before counting draws, so runs compare
+			settlements.focus = player.global_position
+			for _i in 4:
+				settlements.update_now()
+			settlements.finish_prop_jobs()
 			warmup = 120
+		"academy":
+			# QA view of the Kingsreach Academy campus (--dist=60 --rot=0.5 rad off the front axis, --pitch=-0.12).
+			for asite: Dictionary in WorldGen.sites:
+				if asite["kind"] != "academy":
+					continue
+				var ac: Vector2 = asite["pos"]
+				var afront := Vector2(sin(float(asite["yaw"])), cos(float(asite["yaw"])))
+				var asp: Vector2 = ac + afront.rotated(float(_user_args().get("rot", "0.5"))) * float(_user_args().get("dist", "60"))
+				_teleport(asp, 0.0)
+				var alk: Vector2 = ac - asp
+				player.set_camera(atan2(-alk.x, -alk.y), float(_user_args().get("pitch", "-0.12")))
+				region.focus = player.global_position
+				region.build_all_now()
+				break
+			warmup = 90
 		"stall":
 			# QA close-up of the Nth market stall on Kingsreach's gate road (--n=2), from 6 m in front of it.
 			var capst: Dictionary = WorldGen.settlements[1]
@@ -983,6 +1139,7 @@ func _screenshot(shot: String, path: String) -> void:
 			settlements.focus = Vector3(capst["pos"].x + cos(gas) * (float(capst["radius"]) - 40.0), 0, capst["pos"].y + sin(gas) * (float(capst["radius"]) - 40.0))
 			for _i in 4:
 				settlements.update_now()
+			settlements.finish_prop_jobs()   # QA shot: the town props stream over frames in the game
 			var spots: Array = settlements.stalls_by_town.get(capst["id"], [])
 			var pick: Array = spots[clampi(int(_user_args().get("n", "3")), 0, maxi(spots.size() - 1, 0))] if not spots.is_empty() else []
 			if not pick.is_empty():
@@ -1006,6 +1163,7 @@ func _screenshot(shot: String, path: String) -> void:
 			player.set_camera(atan2(-tl.x, -tl.y), float(_user_args().get("pitch", "-0.12")))
 			settlements.focus = player.global_position
 			settlements.update_now()
+			settlements.finish_prop_jobs()   # QA shot: the town props stream over frames in the game
 			if _user_args().has("air"):      # --air=55: a camera 55 m above the square looking down at it
 				hud.visible = false
 				player.visible = false
@@ -1027,6 +1185,7 @@ func _screenshot(shot: String, path: String) -> void:
 			settlements.focus = player.global_position
 			for _i in 4:
 				settlements.update_now()
+			settlements.finish_prop_jobs()   # QA shot: the town props stream over frames in the game
 			var droot: Node3D = settlements._built.get(dtn["id"])
 			var picks: Array[Decal] = []
 			var want := String(_user_args().get("kind", "wall"))
@@ -1073,6 +1232,32 @@ func _screenshot(shot: String, path: String) -> void:
 		if i == warmup - 4 and late_fx.is_valid():
 			late_fx.call()
 		await get_tree().process_frame
+	var rv := viewport.get_render_info
+	print("[perf] fps=%d draw_calls=%d objects=%d primitives=%d process_ms=%.2f physics_ms=%.2f nodes=%d skinned=%d" % [Engine.get_frames_per_second(),
+		rv.call(Viewport.RENDER_INFO_TYPE_VISIBLE, Viewport.RENDER_INFO_DRAW_CALLS_IN_FRAME),
+		rv.call(Viewport.RENDER_INFO_TYPE_VISIBLE, Viewport.RENDER_INFO_OBJECTS_IN_FRAME),
+		rv.call(Viewport.RENDER_INFO_TYPE_VISIBLE, Viewport.RENDER_INFO_PRIMITIVES_IN_FRAME),
+		Performance.get_monitor(Performance.TIME_PROCESS) * 1000.0,
+		Performance.get_monitor(Performance.TIME_PHYSICS_PROCESS) * 1000.0,
+		int(Performance.get_monitor(Performance.OBJECT_NODE_COUNT)),
+		PerfOverlay.count_skinned(get_tree())])
+	print("[perf-shadow] shadow_draws=%d shadow_prims=%d" % [
+		rv.call(Viewport.RENDER_INFO_TYPE_SHADOW, Viewport.RENDER_INFO_DRAW_CALLS_IN_FRAME),
+		rv.call(Viewport.RENDER_INFO_TYPE_SHADOW, Viewport.RENDER_INFO_PRIMITIVES_IN_FRAME)])
+	if _user_args().has("census"):
+		PerfOverlay.print_skeleton_census(get_tree())
+	if _user_args().has("ablate"):
+		var ab_root: Node = world
+		# --ablate=settlement_builder.gd/Kingsreach : descend by script file or name prefix.
+		for part in String(_user_args().get("ablate", "")).split("/", false):
+			for c in ab_root.get_children():
+				var sc: String = c.get_script().resource_path.get_file() if c.get_script() else ""
+				if sc == part or String(c.name).begins_with(part):
+					ab_root = c
+					break
+		await PerfOverlay.ablate(get_tree(), viewport, ab_root)
+	if _user_args().has("drawcensus"):
+		PerfOverlay.print_draw_census(get_tree(), viewport)
 	var img := get_viewport().get_texture().get_image()
 	img.save_png(path)
 	print("Saved screenshot: ", path)

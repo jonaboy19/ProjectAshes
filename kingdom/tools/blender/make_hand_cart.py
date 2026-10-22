@@ -64,4 +64,5 @@ for i in range(6):   # firewood bundle lying across
 k.basket(0.02, 0.05, 0.03, r=0.15, h=0.14, goods="onion", n=6)
 k.pop()
 
+k.pbr = dict(size=256, seed=24, ao_dist=0.3, cage=0.03, ray=0.08)   # high-to-low PBR bake (pbr_kit.py)
 k.finish_checked((2.0, 1.2), 3000, cam_dir=(0.9, -1.6, 0.8), fit=1.0)

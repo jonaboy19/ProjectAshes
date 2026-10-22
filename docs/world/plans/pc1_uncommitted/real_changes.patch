@@ -1,0 +1,73 @@
+diff --git a/kingdom/scripts/core/quality.gd b/kingdom/scripts/core/quality.gd
+index 4259ddc1..bf335ef3 100644
+--- a/kingdom/scripts/core/quality.gd
++++ b/kingdom/scripts/core/quality.gd
+@@ -197,6 +197,7 @@ func _ready() -> void:
+ 		for k: String in GROUPS[g]:
+ 			_group_of[k] = g
+ 	profile = _resolve_profile()
++	_parse_qset()
+ 	_load()
+ 	var forced := _cmdline_tier()
+ 	if forced >= 0:
+@@ -218,6 +219,8 @@ func _ready() -> void:
+ 
+ 
+ func value(key: String) -> Variant:
++	if _qset.has(key):
++		return _qset[key]
+ 	var t := tier
+ 	if _group_of.has(key):
+ 		var o: int = overrides[_group_of[key]]
+@@ -226,6 +229,27 @@ func value(key: String) -> Variant:
+ 	return _table()[t][key]
+ 
+ 
++## QA debug: --qset=sdfgi=false,shadow=2,scale=0.67,scaling=fsr overrides single row keys (typed from the row's own value).
++var _qset := {}
++
++
++func _parse_qset() -> void:
++	for arg in OS.get_cmdline_user_args() + OS.get_cmdline_args() + qa_file_args():
++		if not arg.begins_with("--qset="):
++			continue
++		var tbl: Array = _table()
++		for pair in arg.substr(7).split(",", false):
++			var kv := pair.split("=", false, 1)
++			if kv.size() != 2 or not tbl[0].has(kv[0]):
++				continue
++			var cur: Variant = tbl[0][kv[0]]
++			match typeof(cur):
++				TYPE_BOOL: _qset[kv[0]] = kv[1] == "true" or kv[1] == "1"
++				TYPE_INT: _qset[kv[0]] = int(kv[1])
++				TYPE_FLOAT: _qset[kv[0]] = float(kv[1])
++				_: _qset[kv[0]] = kv[1]
++
++
+ func is_pc() -> bool:
+ 	return profile == "pc"
+ 
+diff --git a/kingdom/tools_qa/aaa_audit/audit_views.gd b/kingdom/tools_qa/aaa_audit/audit_views.gd
+index 0e447742..e08f631f 100644
+--- a/kingdom/tools_qa/aaa_audit/audit_views.gd
++++ b/kingdom/tools_qa/aaa_audit/audit_views.gd
+@@ -102,7 +102,7 @@ func _bench(name: String) -> void:
+ 	var n := deltas.size()
+ 	var rv: Callable = main.viewport.get_render_info
+ 	var q: Node = get_node_or_null("/root/Quality")
+-	print("AUDITPERF %s tier=%s profile=%s renderer=%s fps_avg=%.1f ft_p50=%.2fms ft_p95=%.2fms ft_p99=%.2fms vram_mb=%.0f tex_mb=%.0f draws=%d prims=%d gpu=%s" % [name,
++	print("AUDITPERF %s tier=%s profile=%s renderer=%s fps_avg=%.1f ft_p50=%.2fms ft_p95=%.2fms ft_p99=%.2fms vram_mb=%.0f tex_mb=%.0f draws=%d prims=%d gpu=%s cpu_setup=%.2fms proc=%.2fms phys=%.2fms" % [name,
+ 		str(q.call("tier_name")) if q != null and q.has_method("tier_name") else "n/a",
+ 		str(q.get("profile")) if q != null and q.get("profile") != null else "n/a",
+ 		RenderingServer.get_current_rendering_method(),
+@@ -110,7 +110,9 @@ func _bench(name: String) -> void:
+ 		vram_peak / 1048576.0, Performance.get_monitor(Performance.RENDER_TEXTURE_MEM_USED) / 1048576.0,
+ 		rv.call(Viewport.RENDER_INFO_TYPE_VISIBLE, Viewport.RENDER_INFO_DRAW_CALLS_IN_FRAME),
+ 		rv.call(Viewport.RENDER_INFO_TYPE_VISIBLE, Viewport.RENDER_INFO_PRIMITIVES_IN_FRAME),
+-		RenderingServer.get_video_adapter_name()])
++		RenderingServer.get_video_adapter_name(),
++		RenderingServer.get_frame_setup_time_cpu(), Performance.get_monitor(Performance.TIME_PROCESS) * 1000.0,
++		Performance.get_monitor(Performance.TIME_PHYSICS_PROCESS) * 1000.0])
+ 
+ 
+ static func yaw_for(d: Vector2) -> float:

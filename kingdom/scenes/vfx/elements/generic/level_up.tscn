@@ -51,6 +51,8 @@ shader_parameter/tail_len = null
 shader_parameter/pulse = null
 shader_parameter/pulse_speed = null
 shader_parameter/heat_scale = 0.6
+shader_parameter/soft_edge = 0.85
+shader_parameter/ring_soft = null
 
 [sub_resource type="CylinderMesh" id="CylinderMesh_k1kmo"]
 top_radius = 1.0
@@ -104,6 +106,8 @@ shader_parameter/tail_len = null
 shader_parameter/pulse = null
 shader_parameter/pulse_speed = null
 shader_parameter/heat_scale = 0.75
+shader_parameter/soft_edge = null
+shader_parameter/ring_soft = 0.7
 
 [sub_resource type="QuadMesh" id="QuadMesh_esayo"]
 size = Vector2(6, 6)
@@ -152,6 +156,8 @@ shader_parameter/tail_len = null
 shader_parameter/pulse = null
 shader_parameter/pulse_speed = null
 shader_parameter/heat_scale = 0.75
+shader_parameter/soft_edge = null
+shader_parameter/ring_soft = 0.7
 
 [sub_resource type="QuadMesh" id="QuadMesh_l7ck7"]
 size = Vector2(6, 6)
@@ -250,13 +256,13 @@ color_ramp = SubResource("GradientTexture1D_q1bya")
 material = ExtResource("7_45u0u")
 size = Vector2(0.21113402, 0.21113402)
 
-[node name="Light_Level Up" type="Node3D" unique_id=1248713495]
+[node name="Light_Level Up" type="Node3D" unique_id=312842892]
 script = ExtResource("1_sbwnv")
 duration = 2.4
 kind = &"level_up"
 element = &"light"
 
-[node name="Pillar" type="MeshInstance3D" parent="." unique_id=990613606]
+[node name="Pillar" type="MeshInstance3D" parent="." unique_id=121480261]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 3, 0)
 material_override = SubResource("ShaderMaterial_ngmy4")
 cast_shadow = 0
@@ -279,7 +285,7 @@ metadata/anims = [{
 "t1": 2.3
 }]
 
-[node name="Ring" type="MeshInstance3D" parent="." unique_id=858377631]
+[node name="Ring" type="MeshInstance3D" parent="." unique_id=421842228]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.05, 0)
 material_override = SubResource("ShaderMaterial_1pbmy")
 cast_shadow = 0
@@ -302,7 +308,7 @@ metadata/anims = [{
 "t1": 1.2
 }]
 
-[node name="Ring2" type="MeshInstance3D" parent="." unique_id=876747049]
+[node name="Ring2" type="MeshInstance3D" parent="." unique_id=429387345]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.08, 0)
 material_override = SubResource("ShaderMaterial_jppb5")
 cast_shadow = 0
@@ -325,7 +331,7 @@ metadata/anims = [{
 "t1": 1.6
 }]
 
-[node name="Rays" type="MeshInstance3D" parent="." unique_id=613083458]
+[node name="Rays" type="MeshInstance3D" parent="." unique_id=1633126280]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.1, 0)
 material_override = SubResource("ShaderMaterial_dqigg")
 cast_shadow = 0
@@ -348,7 +354,7 @@ metadata/anims = [{
 "t1": 1.9
 }]
 
-[node name="Star" type="MeshInstance3D" parent="." unique_id=1255768749]
+[node name="Star" type="MeshInstance3D" parent="." unique_id=1913849952]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.1, 0)
 material_override = SubResource("ShaderMaterial_xnr1c")
 cast_shadow = 0
@@ -371,7 +377,7 @@ metadata/anims = [{
 "t1": 0.9
 }]
 
-[node name="Motes" type="GPUParticles3D" parent="." unique_id=997321164]
+[node name="Motes" type="GPUParticles3D" parent="." unique_id=1201349988]
 cast_shadow = 0
 gi_mode = 0
 emitting = false
@@ -388,7 +394,7 @@ metadata/emit_delay = 0.1
 metadata/tint = true
 metadata/tint_white = 0.25
 
-[node name="Sparks" type="GPUParticles3D" parent="." unique_id=1937591262]
+[node name="Sparks" type="GPUParticles3D" parent="." unique_id=11102792]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1, 0)
 cast_shadow = 0
 gi_mode = 0
@@ -407,7 +413,7 @@ metadata/tier_min = 1
 metadata/tint = true
 metadata/tint_white = 0.3
 
-[node name="Flash" type="OmniLight3D" parent="." unique_id=1608308544]
+[node name="Flash" type="OmniLight3D" parent="." unique_id=916295104]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.2, 0)
 light_color = Color(1, 0.86, 0.46, 1)
 light_energy = 3.5

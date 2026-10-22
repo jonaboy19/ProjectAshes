@@ -1,5 +1,7 @@
 class_name Player
 extends CharacterBody3D
+const ContactBlobS := preload("res://scripts/actors/contact_blob.gd")
+const CameraOccludersS := preload("res://scripts/actors/camera_occluders.gd")
 ## The player character plus the four-scale camera:
 ##   FIRST   — through the eyes, sword in hand
 ##   THIRD   — close over-the-shoulder exploration
@@ -34,11 +36,32 @@ extends CharacterBody3D
 signal health_changed(current: int, maximum: int)
 signal stamina_changed(current: float, maximum: float)
 signal view_changed(view: int)
+## Weapon <-> character bus: VFX/audio/HUD subscribe (CombatFeedback), combat code only emits.
+## swing_started: action (CombatAction), info {hit_t, yaw, weak, riposte, combo, anim_speed, first_person}.
+signal swing_started(action: Resource, info: Dictionary)
+## hit_confirmed: contact points of the targets hit this swing, whether it was the finisher.
+signal hit_confirmed(points: Array, finisher: bool, mixers: Array)
+## parried: attacker, world point, grade ("perfect" / "knockaway" / "broken").
+signal parried(attacker: Node, point: Vector3, grade: String)
+signal blocked(attacker: Node, guard_broken: bool)
+signal clashed(attacker: Node, won: bool)
+## The fall animation has played; whoever owns the game decides what happens next
+## (main.gd shows the death screen). With no listener the player just gets up at spawn_point.
+signal died
 
 enum View { FIRST, THIRD, TOWN, COMMAND }
 const VIEW_NAMES := ["First person", "Third person", "Town view", "Command view"]
 ## [distance, pitch] per view.
-const VIEW_RIG := [[0.0, -0.1], [5.5, -0.32], [26.0, -0.72], [85.0, -1.2]]
+## AAA camera pass (2026-10-06, skill ashes-aaa-camera-hud): THIRD was 5.5 m / -0.32 rad with a 65 deg vertical FOV, which on a
+## 19.5:9 phone is ~110 deg wide and reads as a strategy view. Now 3.9 m at shoulder height, pitched -0.2, FOV 54 (chase_camera.gd),
+## with SHOULDER_OFFSET to the right: the hero fills about 40% of the screen height.
+const VIEW_RIG := [[0.0, -0.1], [3.9, -0.2], [26.0, -0.72], [85.0, -1.2]]
+const SHOULDER_OFFSET := 0.42     # metres right of the spine (camera-local), exploration and combat
+const SHOULDER_HEIGHT := 1.62     # pivot height for an adult (was 1.55)
+## Inside a building (InteriorDoor.active): a shorter arm and the lens tipped down a little, so the player and the room
+## sit in the middle of the frame instead of the player's feet on the bottom edge.
+const INTERIOR_CAM_DIST := 4.4
+const INTERIOR_LENS_TILT := 0.12
 const VIEWMODEL_REST := Vector3(-0.5, 0.15, -0.35)
 
 const WALK := 2.4
@@ -47,17 +70,29 @@ const RUN := 6.5
 ## braking and turning are separate rules instead of one smoothing constant.
 ## Acceleration is strongest from a standstill (the first step answers the
 ## stick at once) and eases off toward top speed, so a run still builds.
-const ACCEL_START := 34.0        # m/s² at rest
+const ACCEL_START := 17.0        # m/s² at rest (FEEL_AUDIT F2: 34 reached walk speed in 2 frames, before the first step)
 const ACCEL_TOP := 11.0          # m/s² near RUN
-const MOVE_BRAKE := 30.0         # m/s² when the stick is released or the target speed drops
+const MOVE_BRAKE := 30.0         # m/s² when the target speed drops while still moving (sprint -> walk)
+## Releasing the stick: braking eases with speed so a run takes 2-3 decelerating
+## steps instead of stopping dead in 0.2 s (FEEL_AUDIT F1). Walk stops stay short.
+const STOP_BRAKE_WALK := 16.0     # m/s² from walking pace (2.4 m/s -> 0.15 s)
+const STOP_BRAKE_RUN := 15.0      # m/s² from a run (6.5 m/s -> 0.43 s, ~1.4 m)
 const PIVOT_BRAKE := 42.0        # m/s² when reversing out of a run: plant, then go
 const PIVOT_ANGLE := 2.3         # rad (~130°) between travel and stick that triggers a pivot
 const PIVOT_EXIT_SPEED := 1.2    # a pivot sets off in the new direction below this speed
+## P5 locomotion clips: idle turns start above 63 degrees (180 clip above 135), walk stops brake gently so the planted feet match.
+const IDLE_TURN_MIN := 1.1
+const IDLE_TURN_BIG := 2.35
+const IDLE_TURN_RATE := 2.0
+const IDLE_TURN_RATE_BIG := 2.0
+const SKID_ENTRY_SPEED := 7.5
+const WALK_STOP_RATE := 2.0
+const WALK_STOP_BRAKE := 5.5
 ## Travel direction swings toward the stick at a bounded rate; facing turns
 ## faster than travel, so the body leads a turn instead of sliding sideways.
 const TRAVEL_TURN_WALK := 16.0   # rad/s
 const TRAVEL_TURN_RUN := 9.0
-const FACE_TURN_IDLE := 20.0     # rad/s: 180° turn on the spot in ~0.17 s
+const FACE_TURN_IDLE := 14.0     # rad/s: 180° on the spot in ~0.25 s (was 20: a 0.13 s 90° spin, FEEL_AUDIT F7)
 const FACE_TURN_RUN := 11.0
 const FACE_SHARPNESS := 16.0
 ## Air control after the coyote window, as a fraction of ground response.
@@ -86,7 +121,22 @@ const DODGE_ANIM_RATE := 1.8
 ## step with i-frames, no VFX. Distinct from the Shadow Dash ability below.
 const DODGE_SPEED_MIN := 3.2
 const DODGE_SPEED_MAX := 7.0
+const DODGE_LANE_STEP_DEG := 10.0
+const DODGE_LANE_MAX_DEG := 50.0
 const DODGE_STAMINA := 15.0
+## Jump is intentionally separate from the dodge action. Timing and clip names:
+## docs/anim/patches/P7_jump.md (the clip library is loaded before UAL1).
+const JUMP_BUFFER := 0.12
+const JUMP_START_STAND := 0.15
+const JUMP_START_RUN := 0.13
+const JUMP_STAND_HEIGHT := 1.10
+const JUMP_RUN_HEIGHT := 1.25
+const JUMP_FALL_GRAVITY := 32.0
+## Variable height: releasing Jump only trims the rise after this much air time, so a tap
+## (released during the take-off wind-up, the usual mobile press) still gives a readable hop.
+const JUMP_CUT_MIN_AGE := 0.1
+const JUMP_CUT_SCALE := 0.6
+const JUMP_TERMINAL := 24.0
 ## Shadow Dash (explicit ability, own input + HUD button, cooldown-gated):
 ## the fast burst with the afterimage VFX that used to fire on every dodge.
 const DASH_SPEED_MIN := 4.0
@@ -109,9 +159,15 @@ const CAMERA_MASK := 1 | CAMERA_BLOCKER_LAYER
 const BODY_RADIUS := 0.35
 ## Riding.
 const MountController := preload("res://scripts/actors/mount_controller.gd")
+const TravelRules := preload("res://scripts/world/travel_rules.gd")
 ## Foot IK on slopes and steps, torso and weapon/shield secondary motion.
 const ProceduralRig := preload("res://scripts/actors/procedural_rig.gd")
 const Ragdoll := preload("res://scripts/actors/ragdoll.gd")
+const EquipmentVisuals := preload("res://scripts/actors/equipment_visuals.gd")
+const ImpactPause := preload("res://scripts/actors/impact_pause.gd")
+const VFXSpells := preload("res://scripts/vfx/vfx_spells.gd")
+const FlipbookFX := preload("res://scripts/vfx/flipbook_fx.gd")
+const SettingsStore := preload("res://scripts/ui/frontend/settings_store.gd")
 const MOUNTED_RADIUS := 0.6      # wider body while mounted so the horse's chest meets walls
 const MOUNTED_CAMERA := 7.5      # third-person distance on horseback
 ## Swimming. Depths are for a full-size body and scale with Life.body_scale().
@@ -140,18 +196,29 @@ const PARRY_REARM := 0.3         # s the block must be down before a new raise c
 const PARRY_BONUS_TIME := 1.0
 const PARRY_DAMAGE := 1.5
 const PARRY_HIT_STOP := 0.12
-const COMBO := [
-	{"anim": "1H_Melee_Attack_Chop", "damage": 14, "lock": 0.42, "hit": 0.2, "speed": 1.7, "cost": 10.0},
-	{"anim": "1H_Melee_Attack_Slice_Diagonal", "damage": 14, "lock": 0.42, "hit": 0.18, "speed": 1.7, "cost": 10.0},
-	{"anim": "1H_Melee_Attack_Slice_Horizontal", "damage": 18, "lock": 0.45, "hit": 0.2, "speed": 1.6, "cost": 12.0},
-	{"anim": "1H_Melee_Attack_Stab", "damage": 30, "lock": 0.6, "hit": 0.26, "speed": 1.4, "cost": 16.0, "knockback": 7.0},
-]
+## The sword chain is data now: CombatMoves.combo("sword") (scripts/combat/combat_moves.gd) holds the
+## exact timings that used to live here (anim, damage, lock = whole swing, hit = contact time, cost,
+## knockback). hit_time() = old "hit", total() = old "lock", cancel window = last SWING_CANCEL of it.
+const CombatMoves := preload("res://scripts/combat/combat_moves.gd")
+const PlayerArms := preload("res://scripts/actors/player_arms.gd")   # F3: heavy / bow / knockdown glue (logic lives there)
+const HitResolver := preload("res://scripts/combat/hit_resolver.gd")
+const CombatFeedback := preload("res://scripts/combat/combat_feedback.gd")
+const CombatFeel := preload("res://scripts/combat/combat_feel.gd")
+const EnemyHighlight := preload("res://scripts/combat/enemy_highlight.gd")
+const ChaseCamera := preload("res://scripts/actors/chase_camera.gd")
+const Traversal := preload("res://scripts/actors/traversal.gd")   # F2: vault / mantle / ledge / ladder / step-up (logic lives there)
+## The slash arc needs ~0.07 s to read, so it spawns this long before the hit.
+const SLASH_LEAD := 0.07
+## Attack lunge stops short of the target: never push the body into the enemy (FEEL_AUDIT F4).
+const LUNGE_STANDOFF := 1.3
 const COMBO_WINDOW := 0.45
 
 var max_health := 120
 var health := 120
 var stamina := MAX_STAMINA
 var dead := false
+## Seconds of the fall before the death screen appears.
+const DEATH_SCREEN_DELAY := 2.4
 var team := 0
 var touch_move := Vector2.ZERO
 var view := View.THIRD
@@ -163,17 +230,32 @@ var crouching := false
 
 var _yaw := 0.0
 var _pitch := -0.32
-var _distance := 5.5
+var _distance := 3.9
+var _cam_pulled := 0.0
+var _see_last := -1.0
+## AAA pass 8: the villager being talked to. The camera swings to a two-shot (hero foreground left, speaker right of
+## centre), the hero turns to face them and looks at their face; cleared when the talk ends.
+var _talk_partner: Node3D
+var _occluders = null
 var _pivot: Node3D
 var _camera_arm: SpringArm3D
 var _model: Node3D
 var _animator: CharacterAnimator
 var _rig: Node
+var _trail: WeaponTrail          # blade ribbon on the fast frames (COMBAT_AUDIT C4)
+var _equip_vis: RefCounted       # worn / wielded item models on the skeleton bones (Life.equipment.changed)
 var _ragdoll: Node
 var _viewmodel: Node3D
 var _shake := CameraShake.new()
 var _look_target: Node3D
+var _body_node: Node3D
+var _appearance_key := ""
+var combat_style := "sword"     # key into CombatMoves; PlayerArms keeps it in step with the equipped weapon type
+var _arms: PlayerArms
 var _combo := -1
+var _action: Resource           # the CombatAction being swung
+var _feedback: RefCounted
+var _combat_rng := RandomNumberGenerator.new()
 var _swing := 0.0
 var _swing_cancel := 0.0
 var _swing_elapsed := 0.0
@@ -197,7 +279,53 @@ var _step_distance := 0.0
 var _move_dir := Vector3.FORWARD
 var _move_speed := 0.0
 var _pivoting := false
+var _pivot_clip := ""
+var _pivot_elapsed := 0.0
+var _pivot_length := 0.0
+var _pivot_rate := 1.0
+var _pivot_start_yaw := 0.0
+var _pivot_yaw_scale := 1.0
 var _air_time := 0.0
+var _jump_buffer := 0.0
+var _jump_starting := false
+var _jump_delay := 0.0
+var _jump_active := false
+var _jump_left_floor := false
+var _jump_cut := false
+var _jump_running := false
+var _jump_age := 0.0
+var _jump_falling := false
+var _air_visual := false
+var _fall_apex_y := 0.0
+var _land_time := 0.0
+var _land_lock := 0.0
+var _land_roll := false
+var _land_roll_speed := 0.0
+var _landing_dip := 0.0
+var _land_fov := 0.0
+var _impact_fov := 0.0
+var _impact_roll := 0.0       # radians; short camera roll on heavy hits (combat_feel.gd limits it)
+var _loco_transition_time := 0.0
+var _loco_kind := ""
+var _idle_time := 0.0
+var _turn_clip := ""
+var _turn_elapsed := 0.0
+var _turn_length := 0.0
+var _turn_rate := 1.0
+var _turn_start_yaw := 0.0
+var _turn_scale := 1.0
+var _impact_pause: Node
+var _camera_fade_visual: GeometryInstance3D
+## Responsive framing model (scripts/actors/chase_camera.gd): sprint/dash/gallop FOV + distance, open-ground and
+## combat framing, the cast camera. Its offsets sit ON TOP of the rig; collision and foliage fade still win.
+var _chase := ChaseCamera.new()
+var _chase_scan := 0.0
+var _chase_combat := false
+var _chase_open := false
+var _chase_roof := false
+var _caster_hooked := false
+var _caster_scan := 0.0
+var _camera_fade_original := 0.0
 var _flinch := 0.0
 var _yaw_rate := 0.0
 var _lean := Vector2.ZERO
@@ -206,11 +334,18 @@ var _hit_stop_token := 0
 var _hit_stopping := false
 var _capsule: CapsuleShape3D
 var _mount: MountController
+var _trav: Traversal.Driver
+## Travel rules (travel_rules.gd): seconds spent running, winded (out of stamina: walk), seconds of gallop.
+var _run_time := 0.0
+var _winded := false
+var _gallop_time := 0.0
 var _drown := 0.0
 var _drown_warned := false
 var _lock: Node3D
 var _lock_marker: MeshInstance3D
 var _lock_height := 2.0
+var _block_threat: Node3D
+var _block_threat_refresh := 0.0
 var _flick := 0.0
 var _flick_cooldown := 0.0
 var _stick_flicked := false
@@ -219,6 +354,7 @@ var _block_age := 99.0
 var _block_down := 99.0
 var _was_blocking := false
 var _parry_bonus := 0.0
+var _riposte_mult := PARRY_DAMAGE
 
 
 func _ready() -> void:
@@ -240,18 +376,20 @@ func _ready() -> void:
 	floor_snap_length = 0.35
 	_model = Node3D.new()
 	add_child(_model)
-	var body := Assets.character("Player", 1.8, ["1H_Sword", "Round_Shield"])
-	_model.add_child(body)
-	_animator = CharacterAnimator.new(body, RUN, WALK, "Walking_A", "Running_A", "Idle", true)
-	_ragdoll = Ragdoll.attach(self, body, [_animator.tree, _animator.player])
-	_add_head_look(body)
-	# After the look-at: the rig orders the skeleton's modifiers as
-	# animation -> look-at -> foot IK -> secondary motion.
-	_rig = ProceduralRig.attach(body, self, true)
-	_animator.rig = _rig
+	ContactBlobS.attach(self, 0.42)
+	_impact_pause = ImpactPause.new()
+	add_child(_impact_pause)
+	add_child(InteractionController.new())
+	_trav = Traversal.Driver.new(self)
+	_trav.register_provider()
+	_build_body()
+	_arms = PlayerArms.new(self)
 	_pivot = Node3D.new()
-	_pivot.position.y = 1.55
+	_pivot.position.y = SHOULDER_HEIGHT
 	add_child(_pivot)
+	_occluders = CameraOccludersS.new()
+	_occluders.ignore_root = self
+	add_child(_occluders)
 	_camera_arm = SpringArm3D.new()
 	_camera_arm.spring_length = _distance
 	_camera_arm.margin = 0.18
@@ -265,7 +403,7 @@ func _ready() -> void:
 	Life.grown.connect(func(_age: int) -> void: apply_age())
 	camera = Camera3D.new()
 	camera.far = 900.0
-	camera.fov = 65.0
+	camera.fov = ChaseCamera.BASE_FOV
 	_camera_arm.add_child(camera)
 	camera.current = true
 	_viewmodel = Assets.weapon("sword_1handed")
@@ -276,7 +414,11 @@ func _ready() -> void:
 	_viewmodel.visible = false
 	spawn_point = global_position
 	_ensure_actions()
+	_setup_pc_input()
 	_build_lock_marker()
+	_feedback = CombatFeedback.new()
+	_feedback.bind(self)
+	_combat_rng.randomize()
 
 
 ## Actions this controller adds when the project has not defined them.
@@ -285,7 +427,7 @@ func _ensure_actions() -> void:
 	var wanted := {
 		"lock_on": [KEY_Q, MOUSE_BUTTON_MIDDLE, JOY_BUTTON_RIGHT_STICK],
 		"crouch": [KEY_C, JOY_BUTTON_LEFT_STICK],
-		# Shadow Dash: an explicit ability, not the default dodge (KEY_SPACE).
+		# Shadow Dash: an explicit ability, not the default dodge (K).
 		"ability_dash": [KEY_R, JOY_BUTTON_LEFT_SHOULDER],
 	}
 	for action: String in wanted:
@@ -305,21 +447,82 @@ func _ensure_actions() -> void:
 		InputMap.action_add_event(action, jb)
 
 
+## PC mouse look: relative motion x App.look_scale x MOUSE_K while the cursor is captured (touch is unchanged).
+const MOUSE_K := 0.6
+const PAD_LOOK_SPEED := 900.0
+const PAD_LOOK_DEADZONE := 0.15
+var _pc_input := false
+var _was_ui_open := false
+
+
+func _setup_pc_input() -> void:
+	_pc_input = not ("--touch" in OS.get_cmdline_user_args() or OS.has_feature("mobile") or OS.has_feature("web_android") 			or OS.has_feature("web_ios")) and DisplayServer.get_name() != "headless" 			and not ("--no-mouse-capture" in OS.get_cmdline_user_args())
+	if _pc_input:
+		call_deferred("_capture_mouse")
+
+
+func _ui_blocking() -> bool:
+	if _menu_open():
+		return true
+	var scene := get_tree().current_scene
+	var hud: Variant = scene.get("hud") if scene else null
+	var wheel: Variant = (hud as Object).get("technique_wheel") if hud is Object else null
+	return wheel is CanvasItem and (wheel as CanvasItem).visible
+
+
+func _capture_mouse() -> void:
+	if _pc_input and not _ui_blocking() and DisplayServer.window_is_focused():
+		Input.mouse_mode = Input.MOUSE_MODE_CAPTURED
+
+
+func _release_mouse() -> void:
+	if Input.mouse_mode == Input.MOUSE_MODE_CAPTURED:
+		Input.mouse_mode = Input.MOUSE_MODE_VISIBLE
+
+
+func _notification(what: int) -> void:
+	if not _pc_input:
+		return
+	if what == NOTIFICATION_APPLICATION_FOCUS_OUT or what == NOTIFICATION_WM_WINDOW_FOCUS_OUT:
+		_release_mouse()
+	elif what == NOTIFICATION_APPLICATION_FOCUS_IN or what == NOTIFICATION_WM_WINDOW_FOCUS_IN:
+		_capture_mouse()
+
+
+func _process(delta: float) -> void:
+	if not _pc_input:
+		return
+	var blocking := _ui_blocking()
+	if blocking != _was_ui_open:
+		_was_ui_open = blocking
+		if blocking:
+			_release_mouse()
+		else:
+			_capture_mouse()
+	if blocking:
+		return
+	var v := Input.get_vector("look_left", "look_right", "look_up", "look_down")
+	if v.length() > PAD_LOOK_DEADZONE:
+		add_look(v * PAD_LOOK_SPEED * delta * App.look_scale)
+
+
 func _unhandled_input(event: InputEvent) -> void:
+	if _pc_input:
+		if event is InputEventMouseMotion and Input.mouse_mode == Input.MOUSE_MODE_CAPTURED:
+			if not _ui_blocking():
+				add_look((event as InputEventMouseMotion).relative * App.look_scale * MOUSE_K)
+			return
+		if event.is_action_pressed("ui_cancel"):
+			_release_mouse()
+		elif event is InputEventMouseButton and event.pressed and Input.mouse_mode != Input.MOUSE_MODE_CAPTURED 				and not _ui_blocking():
+			_capture_mouse()
+			get_viewport().set_input_as_handled()
+			return
 	if event.is_action_pressed("lock_on"):
 		toggle_lock()
 	elif event.is_action_pressed("crouch"):
 		toggle_crouch()
-	elif event.is_action_pressed("interact"):
-		# Runs before main.gd's handler (deeper in the tree), which ignores horses.
-		if _menu_open():
-			return
-		if _mount:
-			toggle_mount()
-		else:
-			var target := nearest_interactable()
-			if target and target.has_method("rideable") and target.call("rideable"):
-				toggle_mount(target)
+	# "interact" is handled in ONE place: the InteractionController child (scripts/interaction/).
 
 
 func _menu_open() -> bool:
@@ -329,6 +532,101 @@ func _menu_open() -> bool:
 
 
 ## Procedural head tracking: the head turns toward the nearest enemy or person.
+## The character model with its animation, ragdoll, head look, foot IK and weapon trail.
+## `Life.appearance` (character creation) picks the modular G6 look; no appearance = the default hero.
+## Tier-A Meshy hero v2 (docs/art/hero_tier_a): DEFAULT since 10-06 (beat the G6 hero in the benchmark street). Set false to roll back.
+const TIER_A_HERO := true
+const TIER_A_PATH := "res://assets/generated/characters/hero_tier_a/hero_meshy3"
+
+
+## Hero face driver (Tier-A Meshy hero only; null for the G6 / creator bodies). docs/art/FACES.md
+var _face: Node
+
+
+## The hero speaks `text` (mouth flap for FaceState.say_seconds) with an optional mood tag.
+func face_say(text: String, mood := "neutral") -> void:
+	if _face == null or not is_instance_valid(_face):
+		return
+	_face.call("set_mood", mood)
+	_face.call("say", text)
+
+
+func face_mood(m: String) -> void:
+	if _face != null and is_instance_valid(_face):
+		_face.call("set_mood", m)
+
+
+func _build_body() -> void:
+	var props: Array[String] = ["1H_Sword", "Round_Shield"]
+	var look: Variant = Life.get("appearance")
+	var body: Node3D = null
+	if look is Dictionary and not (look as Dictionary).is_empty():
+		body = (load("res://scripts/ui/character_creation.gd") as GDScript).call("build_model", look, 1.8, props)
+	_appearance_key = var_to_str(look) if body != null else ""
+	if body == null and (TIER_A_HERO or "--hero_tier_a" in OS.get_cmdline_user_args()) and ResourceLoader.exists(TIER_A_PATH + ".glb"):
+		# Tier-A hero (skill ashes-hero-character): Meshy villager on UAL + hood/satchel/strap + G6 hands + blink lids
+		body = Assets.mh_character(TIER_A_PATH, 1.8, props)
+		_face = (load("res://scripts/actors/hero_tier_a.gd") as GDScript).call("dress_meshy_hero", body)
+	if body == null:
+		# Style G default hero (target 03 hooded traveller): G6 villager tunic tinted green + skinned HeroOutfit
+		var hero_look: Dictionary = (load("res://scripts/style_lab/lab_chars.gd") as GDScript).get("HERO_LOOK")
+		body = (load("res://scripts/ui/character_creation.gd") as GDScript).call("build_model", hero_look, 1.8, props)
+		if body == null:
+			body = Assets.character("Player", 1.8, props)
+		else:
+			var outfit: GDScript = load("res://scripts/actors/hero_outfit.gd")
+			outfit.call("tint_tunic", body)
+			outfit.call("dress", body)
+	_body_node = body
+	_model.add_child(body)
+	_animator = CharacterAnimator.new(body, RUN, WALK, "Walking_A", "Running_A", "Idle", true, true)
+	# Root-driven actions need a new graph sample for every capsule physics tick.
+	# Idle processing at 30 rendered fps otherwise alternates travel and zero
+	# velocity across the two 60 Hz physics ticks in each rendered frame.
+	_animator.tree.callback_mode_process = AnimationMixer.ANIMATION_CALLBACK_MODE_PROCESS_PHYSICS
+	_ragdoll = Ragdoll.attach(self, body, [_animator.tree, _animator.player])
+	_add_head_look(body)
+	# After the look-at: the rig orders the skeleton's modifiers as
+	# animation -> look-at -> foot IK -> secondary motion.
+	_rig = ProceduralRig.attach(body, self, true)
+	_animator.rig = _rig
+	_trail = WeaponTrail.attach(body)
+	var sks := body.find_children("*", "Skeleton3D", true, false)
+	if not sks.is_empty():
+		_equip_vis = EquipmentVisuals.new(sks[0], Life.equipment)
+
+
+## Applies `Life.appearance` (skin, hair, head, outfit, sex) to the world model: after New Game the
+## first build already uses it; a loaded save calls this once its appearance has been restored.
+## Beard, scars and voice have no mesh in the asset set and stay cosmetic.
+func apply_appearance() -> void:
+	var look: Variant = Life.get("appearance")
+	var key := var_to_str(look) if look is Dictionary and not (look as Dictionary).is_empty() else ""
+	if key == _appearance_key or _model == null:
+		return
+	if _ragdoll and is_instance_valid(_ragdoll):
+		remove_child(_ragdoll)
+		_ragdoll.queue_free()
+		_ragdoll = null
+	if _look_target and is_instance_valid(_look_target):
+		remove_child(_look_target)
+		_look_target.queue_free()
+		_look_target = null
+	_face = null
+	if _body_node and is_instance_valid(_body_node):
+		_model.remove_child(_body_node)
+		_body_node.queue_free()    # also frees the rig, trail, look-at modifier and animator nodes
+	_rig = null
+	_trail = null
+	if _equip_vis != null:
+		(_equip_vis as EquipmentVisuals).detach()
+		_equip_vis = null
+	_build_body()
+	apply_age()
+	if dead:
+		_animator.set_active(true)
+
+
 func _add_head_look(body: Node3D) -> void:
 	var skeleton: Skeleton3D = body.find_children("*", "Skeleton3D", true, false)[0]
 	# The UAL rig names it "Head" (its +Z faces forward, like the KayKit "head").
@@ -410,11 +708,24 @@ func _physics_process(delta: float) -> void:
 	dash_cooldown = maxf(dash_cooldown - delta, 0.0)
 	_invulnerable -= delta
 	_stunned -= delta
+	_arms.tick(delta)
 	_hurt_cooldown -= delta
 	_stamina_delay -= delta
 	_flinch -= delta
 	_attack_buffer -= delta
 	_dodge_buffer -= delta
+	_jump_buffer -= delta
+	_land_lock = maxf(_land_lock - delta, 0.0)
+	if _loco_transition_time > 0.0:
+		_loco_transition_time -= delta
+		if _loco_transition_time <= 0.0:
+			_loco_transition_time = 0.0
+			_animator.finish_locomotion_transition()
+	if _land_time > 0.0:
+		_land_time -= delta
+		if _land_time <= 0.0:
+			_land_roll = false
+			_animator.finish_air()
 	_parry_bonus -= delta
 	_flick_cooldown -= delta
 	_flick *= exp(-8.0 * delta)
@@ -422,12 +733,17 @@ func _physics_process(delta: float) -> void:
 	if _mount != null:
 		_physics_mounted(delta)
 		return
+	if _trav.tick(delta, _input_dir()):
+		return                          # a scripted vault / mantle / ledge / ladder move owns the body
 
 	var dir := Vector3.ZERO if dead or _stunned > 0.0 else _input_dir()
 	var wade := WorldGen.water_depth(global_position.x, global_position.z)
 	_update_swim_state(wade)
 	blocking = Input.is_action_pressed("block") and stamina > 0.0 and _dodge <= 0.0 and not dead \
-			and _stunned <= 0.0 and not swimming
+			and _stunned <= 0.0 and not swimming and not _jump_starting and not _jump_active \
+			and _land_time <= 0.0
+	if blocking:
+		_cancel_locomotion_transition()
 	_track_block(delta)
 	_animator.set_blocking(blocking)
 	_consume_buffers()
@@ -437,7 +753,7 @@ func _physics_process(delta: float) -> void:
 		_set_crouch(false)            # sprinting stands up
 	var locked := is_instance_valid(_lock)
 	var running := (sprint or (touch_move.length() > 0.92 and not crouching) or view >= View.TOWN) \
-			and not blocking and not crouching and (not locked or sprint)
+			and not blocking and not crouching and (not locked or sprint) and not _winded
 	_strafing = (blocking or (locked and not running)) and not swimming
 	_animator.set_strafing(_strafing and not blocking)
 	var speed := (RUN if running else WALK) * Life.needs.speed()
@@ -456,9 +772,26 @@ func _physics_process(delta: float) -> void:
 	elif wade > 0.5:
 		# Wade slowly past knee depth; past chest depth the body swims instead.
 		speed *= lerpf(0.65, 0.35, clampf((wade - 0.5) / 0.8, 0.0, 1.0))
+	if _land_lock > 0.0:
+		speed *= 0.3
 	var target := dir * speed
-	_air_time = 0.0 if is_on_floor() or swimming else _air_time + delta
+	var floor_before := is_on_floor()
+	_air_time = 0.0 if floor_before or swimming else _air_time + delta
 	var grounded := _air_time <= COYOTE_TIME
+	if _jump_buffer > 0.0 and grounded and not _jump_starting and not _jump_active \
+			and _land_time <= 0.0 and not dead and not swimming and not blocking \
+			and _swing <= 0.0 and _dodge <= 0.0 and _stunned <= 0.0:
+		if crouching:
+			_set_crouch(false) # next physics frame can spend the buffered jump
+		else:
+			_begin_jump(running, floor_before)
+	if _jump_starting:
+		_jump_delay -= delta
+		if _jump_delay <= 0.0:
+			_launch_jump()
+	if _jump_active:
+		_jump_age += delta
+	var speed_before_steer := _move_speed
 	if _dodge > 0.0:
 		# The roll owns movement: its own speed curve, no input smoothing.
 		var speed_lo := DASH_SPEED_MIN if _dodging_ability else DODGE_SPEED_MIN
@@ -466,8 +799,10 @@ func _physics_process(delta: float) -> void:
 		var roll_speed := lerpf(speed_lo, speed_hi, clampf(_dodge / DODGE_TIME, 0.0, 1.0))
 		_move_dir = _dodge_dir
 		_move_speed = roll_speed
+	elif _land_roll:
+		_move_speed = _land_roll_speed
 	else:
-		_steer(target, delta, 1.0 if grounded else AIR_CONTROL)
+		_steer(target, delta, (0.2 if _jump_running else AIR_CONTROL) if _jump_active else (1.0 if grounded else AIR_CONTROL))
 	var planar := _move_dir * _move_speed + _impulse
 	velocity.x = planar.x
 	velocity.z = planar.z
@@ -475,29 +810,62 @@ func _physics_process(delta: float) -> void:
 	if swimming:
 		velocity.y = _swim_vertical(target.length() > 0.1)
 	else:
-		velocity.y = -1.0 if is_on_floor() else velocity.y - GRAVITY * delta
+		if floor_before and not _jump_active:
+			velocity.y = -1.0
+		else:
+			if _jump_active and not _jump_cut and velocity.y > 0.0 and _jump_age >= JUMP_CUT_MIN_AGE and not Input.is_action_pressed("jump"):
+				velocity.y *= JUMP_CUT_SCALE
+				_jump_cut = true
+			var gravity := GRAVITY if velocity.y > 0.0 else JUMP_FALL_GRAVITY
+			if _jump_active and absf(velocity.y) < 1.5:
+				gravity *= 0.5
+			velocity.y = maxf(velocity.y - gravity * delta, -JUMP_TERMINAL)
+	var impact_speed := -velocity.y
+	if floor_before and not _jump_active and not swimming and _move_speed > 0.1:
+		_trav.step_assist(delta, _move_dir, _move_speed)
 	move_and_slide()
+	_update_jump_after_move(floor_before, impact_speed, dir)
 	_resolve_contacts()
 	_keep_above_ground()
 
 	_update_facing(dir, delta)
 	var real := get_real_velocity()
 	var travel := Vector3(real.x, 0.0, real.z)
+	_update_locomotion_transition(dir, floor_before, speed_before_steer, running)
 	_animator.update(delta, travel.length() if _dodge <= 0.0 else 0.0, travel)
 	if _rig:
 		# Feet off the ground: airborne, swimming, rolling, dead. Big hits ease the IK off.
 		_rig.call("set_state", travel.length(), is_on_floor(), swimming or dead or _dodge > 0.0,
-				_animator.is_full_busy())
+				_animator.is_full_busy() or _animator.is_stand_attack())
 	_update_lean(delta)
-	_update_footsteps(delta, dir, grounded and not swimming)
+	_update_footsteps(delta, dir, grounded and not swimming and not _jump_starting and not _jump_active \
+			and _land_time <= 0.0)
 
+	_travel_stamina(delta, running and travel.length() > RUN * 0.6)
 	if swimming:
 		_swim_stamina(delta, travel.length() > 0.3)
 	elif _stamina_delay <= 0.0 and not blocking:
-		stamina = minf(stamina + 28.0 * delta * Life.needs.stamina_regen(), MAX_STAMINA * Life.needs.stamina_cap())
+		stamina = minf(stamina + 28.0 * delta * Life.needs.stamina_regen() * (TravelRules.WINDED_REGEN if _winded else 1.0), MAX_STAMINA * Life.needs.stamina_cap())
 	stamina_changed.emit(stamina, MAX_STAMINA)
 	_update_look_target()
 	_update_camera(delta)
+
+
+## Long runs cost stamina (docs/design/REALM_PLAN.md "Travel and world size"): a run is free for TravelRules.RUN_FREE_S
+## seconds, then drains until you are winded and must walk. Town view and swimming are exempt (swimming has its own drain).
+func _travel_stamina(delta: float, running_fast: bool) -> void:
+	if running_fast and view < View.TOWN and not swimming:
+		_run_time += delta
+		var drain := TravelRules.run_drain(_run_time)
+		if drain > 0.0:
+			stamina = maxf(stamina - drain * delta, 0.0)
+			_stamina_delay = 0.6
+	else:
+		_run_time = maxf(0.0, _run_time - delta * 2.0)
+	var was := _winded
+	_winded = TravelRules.is_winded(stamina, _winded, MAX_STAMINA * Life.needs.stamina_cap())
+	if _winded and not was and not dead:
+		Game.say("You are winded. Walk for a while.")
 
 
 ## Never fall through unloaded/streaming ground.
@@ -523,6 +891,7 @@ func toggle_mount(target: Node3D = null) -> void:
 	if dead or swimming or _dodge > 0.0 or _stunned > 0.0:
 		return
 	_release_lock()
+	_reset_jump()
 	_set_crouch(false)
 	if _swing > 0.0:
 		_swing_id += 1
@@ -576,6 +945,12 @@ func _physics_mounted(delta: float) -> void:
 		_dismount()
 		return
 	var dir := Vector3.ZERO if dead else _input_dir()
+	var gal := TravelRules.gallop_step(_gallop_time, _mount.speed > MountController.CANTER_SPEED + 0.6, delta, _mount.gallop_allowed)
+	_gallop_time = float(gal[0])
+	if bool(gal[1]) != _mount.gallop_allowed:
+		_mount.gallop_allowed = bool(gal[1])
+		if not _mount.gallop_allowed:
+			Game.say("The horse is blowing hard. Let it canter.")
 	var planar := _mount.drive(delta, dir, Input.is_action_pressed("sprint"), global_position)
 	velocity.x = planar.x
 	velocity.z = planar.z
@@ -608,6 +983,10 @@ func _update_swim_state(depth: float) -> void:
 	var k := Life.body_scale()
 	if not swimming and depth > SWIM_ENTER * k and not dead:
 		swimming = true
+		var surface := WorldGen.water_level_at(global_position.x, global_position.z)
+		if not is_nan(surface):
+			FlipbookFX.play(&"water_splash", Vector3(global_position.x, surface, global_position.z), 0.7, Color.WHITE, get_parent())
+		_reset_jump()
 		_set_crouch(false)
 		_drown = 0.0
 		_drown_warned = false
@@ -722,9 +1101,18 @@ func _set_lock(target: Node3D) -> void:
 	_lock_height = _body_top(target) + 0.45
 	_lock_marker.visible = true
 	_flick = 0.0
+	if get_parent() != null:
+		EnemyHighlight.at(get_parent()).lock(target)
+
+
+## The locked-on enemy, or null (HUD threat plates read it).
+func locked_target() -> Node3D:
+	return _lock if is_instance_valid(_lock) else null
 
 
 func _release_lock() -> void:
+	if _lock != null and get_parent() != null:
+		EnemyHighlight.at(get_parent()).unlock()
 	_lock = null
 	if _lock_marker:
 		_lock_marker.visible = false
@@ -827,9 +1215,10 @@ func _track_block(delta: float) -> void:
 	_was_blocking = blocking
 
 
-func _parry(from: Node) -> void:
+func _parry(from: Node, grade := "knockaway", refund := 8.0, riposte := 1.5) -> void:
 	_parry_bonus = PARRY_BONUS_TIME
-	stamina = minf(stamina + 8.0, MAX_STAMINA)
+	_riposte_mult = riposte
+	stamina = minf(stamina + refund, MAX_STAMINA)
 	var at := global_position + Vector3.UP * 1.2
 	var push := facing() * 3.5
 	if from is Node3D:
@@ -840,22 +1229,29 @@ func _parry(from: Node) -> void:
 	# The attacker's own hit-reaction path (0 damage), after its strike resolves.
 	if from and is_instance_valid(from) and from.has_method("take_damage"):
 		from.call_deferred("take_damage", 0, self, push)
-	_animator.play_upper("Block_Hit", 1.8)
-	VFX.impact_frame(get_parent(), global_position + Vector3.UP * 1.2, 0.5)
-	Audio.sfx("clash")
-	VFX.sparks(get_parent(), at, Color(1.0, 0.97, 0.75), 42)
-	VFX.flash(get_parent(), at, Color(1.0, 0.9, 0.6), 3.0, 0.15, 5.0)
-	_shake.add(0.3)
-	_hit_stop(PARRY_HIT_STOP)
+	parried.emit(from, at, grade)
 
 
 ## Body response: speed and travel direction are tuned separately. `control`
 ## scales every rate (reduced in the air).
 func _steer(target: Vector3, delta: float, control: float) -> void:
+	if _turn_clip != "":
+		_move_speed = 0.0
+		return
+	if _pivot_clip != "":
+		if target.length() < 0.05 or not is_on_floor() or swimming or dead or _stunned > 0.0 \
+				or crouching or blocking or _strafing or view == View.FIRST:
+			_cancel_pivot()
+		else:
+			_advance_pivot(delta)
+			return
 	var want_speed := target.length()
 	if want_speed < 0.05:
 		_pivoting = false
-		_move_speed = move_toward(_move_speed, 0.0, MOVE_BRAKE * control * delta)
+		var stop_brake := lerpf(STOP_BRAKE_WALK, STOP_BRAKE_RUN, clampf((_move_speed - WALK) / (RUN - WALK), 0.0, 1.0))
+		if _move_speed > 1.0 and _move_speed < 4.0 and _loco_clip_ok(is_on_floor()) and _animator.has_clip("Loco_WalkStop"):
+			stop_brake = WALK_STOP_BRAKE   # the walk-stop clip covers 0.5 m; a 0.15 s brake would slide the feet
+		_move_speed = move_toward(_move_speed, 0.0, stop_brake * control * delta)
 		return
 	var want_dir := target / want_speed
 	var run_t := clampf(_move_speed / RUN, 0.0, 1.0)
@@ -864,6 +1260,11 @@ func _steer(target: Vector3, delta: float, control: float) -> void:
 	else:
 		var angle := _move_dir.signed_angle_to(want_dir, Vector3.UP)
 		if absf(angle) > PIVOT_ANGLE:
+			if _move_speed >= 4.0 and is_on_floor() and not _strafing and not blocking \
+					and view != View.FIRST and not crouching and _swing <= 0.0 and _stunned <= 0.0 and not _jump_active and not _jump_starting:
+				if _begin_pivot(want_dir):
+					_advance_pivot(delta)
+					return
 			_pivoting = true
 		if _pivoting:
 			# Reversal: brake hard along the old line (no wide arc), then set off.
@@ -900,11 +1301,21 @@ func _resolve_contacts() -> void:
 		if into < 0.0:
 			_impulse -= n * into
 	var real := get_real_velocity()
+	if _pivot_clip != "" and Vector2(real.x, real.z).length() < _move_speed * 0.5:
+		_cancel_pivot()
 	_move_speed = minf(_move_speed, Vector2(real.x, real.z).length() + 0.5)
 
 
 func _update_facing(dir: Vector3, delta: float) -> void:
 	var before := _model.rotation.y
+	if _turn_clip != "":
+		_advance_idle_turn(delta)
+		_yaw_rate = angle_difference(before, _model.rotation.y) / maxf(delta, 0.0001)
+		return
+	if _pivot_clip != "":
+		_model.rotation.y = _pivot_start_yaw + _animator.pivot_yaw(_pivot_clip, _pivot_elapsed) * _pivot_yaw_scale
+		_yaw_rate = angle_difference(before, _model.rotation.y) / maxf(delta, 0.0001)
+		return
 	var want := before
 	var rate := 0.0
 	if _strafing and is_instance_valid(_lock) and _dodge <= 0.0 and _stunned <= 0.0:
@@ -913,6 +1324,15 @@ func _update_facing(dir: Vector3, delta: float) -> void:
 		rate = FACE_TURN_IDLE
 	elif view == View.FIRST or blocking:
 		want = _yaw + PI
+		if blocking and view != View.FIRST:
+			# Refresh at 12.5 Hz while guarding; camera heading is the fallback.
+			_block_threat_refresh -= delta
+			if _block_threat_refresh <= 0.0 or not is_instance_valid(_block_threat):
+				_block_threat = _nearest_enemy(6.0, -1.0)
+				_block_threat_refresh = 0.08
+			if is_instance_valid(_block_threat):
+				var threat_dir := _block_threat.global_position - global_position
+				want = atan2(threat_dir.x, threat_dir.z)
 		rate = FACE_TURN_IDLE
 	elif dir.length() > 0.05 and _swing <= 0.0 and _dodge <= 0.0 and _stunned <= 0.0:
 		want = atan2(dir.x, dir.z)
@@ -922,6 +1342,9 @@ func _update_facing(dir: Vector3, delta: float) -> void:
 		var step := clampf(diff * (1.0 - exp(-FACE_SHARPNESS * delta)), -rate * delta, rate * delta)
 		_model.rotation.y = before + step
 	_yaw_rate = angle_difference(before, _model.rotation.y) / maxf(delta, 0.0001)
+	if not blocking:
+		_block_threat = null
+		_block_threat_refresh = 0.0
 
 
 ## A small lean into turns and against speed changes. Pivots at the feet (the
@@ -960,7 +1383,23 @@ func _update_camera(delta: float) -> void:
 	var rig: Array = VIEW_RIG[view]
 	var want_distance: float = rig[0]
 	var k := Life.body_scale()
-	var pivot_goal := Vector3(0.0, 1.55 * k, 0.0)
+	var pivot_goal := Vector3(0.0, SHOULDER_HEIGHT * k, 0.0)
+	pivot_goal.y += _landing_dip
+	var cam_right := Basis(Vector3.UP, _yaw) * Vector3.RIGHT
+	_landing_dip = move_toward(_landing_dip, 0.0, 1.2 * delta)
+	_land_fov = move_toward(_land_fov, 0.0, 14.0 * delta)
+	_impact_fov = move_toward(_impact_fov, 0.0, maxf(_impact_fov, 1.0) * 7.0 * delta)
+	_impact_roll = move_toward(_impact_roll, 0.0, maxf(absf(_impact_roll), 0.01) * 9.0 * delta)
+	_step_chase(delta)
+	camera.fov = lerpf(camera.fov, _chase.fov_base() + _chase.impulse() + _land_fov + _impact_fov, 1.0 - exp(-14.0 * delta))
+	camera.set_meta("fov_base", _chase.fov_base())
+	if view == View.THIRD:
+		want_distance += _chase.dist_offset()
+		if InteriorDoor.active != null:
+			want_distance = minf(want_distance, INTERIOR_CAM_DIST)     # a room is 4-6 m wide: the 5.5 m arm rode up the walls
+		pivot_goal.y += _chase.lift()
+		# over-the-shoulder; the player root never turns, so the offset is rotated into camera space (the talk shift was world X)
+		pivot_goal += cam_right * (SHOULDER_OFFSET * k * (1.0 - _chase.talk_k()) + _chase.talk_shift())
 	if _mount:
 		pivot_goal.y += _mount.rider_offset(k).y
 		if view == View.THIRD:
@@ -969,17 +1408,30 @@ func _update_camera(delta: float) -> void:
 		# Frame both: pull back with the gap and shift the pivot a little toward the target.
 		var to := _lock.global_position - global_position
 		to.y = 0.0
+		var frame := ChaseCamera.lock_frame(to.length())
 		if view == View.THIRD:
-			want_distance += clampf(to.length() * 0.12, 0.0, 2.0)
-		pivot_goal += to.limit_length(4.8) * 0.25   # at most 1.2 m
+			want_distance += float(frame["dist"])
+		pivot_goal += to.limit_length(8.0).normalized() * float(frame["shift"])
 	_pivot.position = _pivot.position.lerp(pivot_goal, 1.0 - exp(-6.0 * delta))
 	_distance = lerpf(_distance, want_distance, 1.0 - exp(-5.0 * delta))
 	var pitch: float = _pitch if view <= View.THIRD else rig[1]
 	if view == View.THIRD and absf(_pitch - rig[1]) > 0.9:
 		_pitch = rig[1]
+	if view == View.THIRD:
+		pitch += _chase.pitch_offset()
+	if is_instance_valid(_talk_partner) and view == View.THIRD and _chase.talk_enabled:
+		var tp := _talk_partner.global_position - global_position
+		var d2 := Vector2(tp.x, tp.z)
+		if d2.length() > 0.3:
+			d2 = d2.normalized()
+			var frame_dir := d2.rotated(0.78)          # pass 9: wide over-the-shoulder; the hero sits left, the speaker's face clear right of centre
+			_yaw = lerp_angle(_yaw, atan2(-frame_dir.x, -frame_dir.y), 1.0 - exp(-3.5 * delta))
+			if velocity.length() < 0.3:
+				_model.rotation.y = lerp_angle(_model.rotation.y, atan2(-d2.x, -d2.y) + PI, 1.0 - exp(-6.0 * delta))
 	_pivot.rotation = Vector3(lerp_angle(_pivot.rotation.x, pitch, 1.0 - exp(-6.0 * delta)), _yaw, 0)
 	_camera_arm.spring_length = _distance
-	camera.rotation = _shake.step(delta)
+	var lens_tilt := _chase.talk_tilt() + (INTERIOR_LENS_TILT if InteriorDoor.active != null else 0.0)
+	camera.rotation = _shake.step(delta) + Vector3(-lens_tilt if view == View.THIRD else 0.0, 0.0, _impact_roll)
 	var cp := camera.global_position
 	var floor_h := WorldGen.height(cp.x, cp.z) + 0.6
 	var water_h := WorldGen.water_level_at(cp.x, cp.z)
@@ -992,29 +1444,155 @@ func _update_camera(delta: float) -> void:
 	# This runs on top of the spring arm's own collision, which alone missed thin
 	# awnings/roofs; snapping straight to the corrected point every tick made the
 	# camera visibly jerk whenever the ray flickered in and out (corners, foliage) —
-	# so the pull-IN (new occlusion) is instant (never show through a wall for even
-	# one frame) but the release back OUT eases, which absorbs that flicker.
+	# so solid walls still pull in immediately, while camera-only canopy proxies ease
+	# in and may fade their linked mesh. Releasing any occluder eases back out.
+	var camera_fade_target: GeometryInstance3D = null
 	if view == View.THIRD and InteriorDoor.active == null:
 		var from := _pivot.global_position
 		var q := PhysicsRayQueryParameters3D.create(from, camera.global_position, CAMERA_MASK)
 		q.exclude = [get_rid()]
 		var hit := get_world_3d().direct_space_state.intersect_ray(q)
 		var camera_target := camera.global_position
+		var soft_occluder := false
 		if not hit.is_empty():
 			camera_target = (hit["position"] as Vector3) + (from - camera.global_position).normalized() * 0.3
+			_cam_pulled = 0.35       # hold the pulled-in distance briefly so a ray flickering past a post does not pump the lens
+			var collider := hit.get("collider") as CollisionObject3D
+			soft_occluder = collider != null and (int(collider.collision_layer) & CAMERA_BLOCKER_LAYER) != 0
+			if soft_occluder and collider.has_meta("camera_fade_target"):
+				camera_fade_target = collider.get_meta("camera_fade_target") as GeometryInstance3D
 		if camera_target.distance_to(from) < camera.global_position.distance_to(from):
-			camera.global_position = camera_target
+			if soft_occluder:
+				camera.global_position = camera.global_position.lerp(camera_target, 1.0 - exp(-30.0 * delta))
+			else:
+				camera.global_position = camera_target
 		else:
-			camera.global_position = camera.global_position.lerp(camera_target, 1.0 - exp(-14.0 * delta))
+			# smooth recovery after a pull-in: ease back out, never snap backwards
+			_cam_pulled = maxf(_cam_pulled - delta, 0.0)
+			camera.global_position = camera.global_position.lerp(camera_target, 1.0 - exp(-(3.0 if _cam_pulled > 0.0 else 7.0) * delta))
+	_update_camera_fade(camera_fade_target)
+	# world shaders dither the cone lens -> hero (shaders/camera_see_through.gdshaderinc); 0 turns it off
+	var see := camera.global_position.distance_to(_pivot.global_position) if view == View.THIRD and camera.current else 0.0
+	if absf(see - _see_last) > 0.02:
+		_see_last = see
+		RenderingServer.global_shader_parameter_set(&"hero_cam_dist", see)
+	if _occluders != null:
+		_occluders.step(delta, camera.global_position, _pivot.global_position, view == View.THIRD and InteriorDoor.active == null)
+	_publish_cam_dist()
 	# Pinned against a wall so tight the lens would sit inside the head: hide the body.
 	if view != View.FIRST:
 		_model.visible = camera.global_position.distance_to(_pivot.global_position) > 0.45 * Life.body_scale()
 
 
+## Foliage / rock see-through cone (shaders/foliage_fade.gdshaderinc) ends at the player: publish the live lens-to-pivot
+## distance (0 in first person, so nothing is cut). One float, only when it moved.
+var _pub_cam_dist := -1.0
+func _publish_cam_dist() -> void:
+	var d := 0.0
+	if view != View.FIRST and camera != null and _pivot != null:
+		d = camera.global_position.distance_to(_pivot.global_position)
+	if absf(d - _pub_cam_dist) > 0.03:
+		_pub_cam_dist = d
+		RenderingServer.global_shader_parameter_set("ashes_cam_dist", d)
+
+
+## Feeds ChaseCamera. The expensive questions (hostiles near, open ground) are asked at 4 Hz; the rest is read live.
+func _step_chase(delta: float) -> void:
+	_chase_scan -= delta
+	if _chase_scan <= 0.0:
+		_chase_scan = 0.25
+		_chase_combat = _swing > 0.0 or blocking or is_instance_valid(_lock) or _nearest_enemy(14.0, -1.0) != null
+		var arm_clear: bool = _camera_arm != null and _camera_arm.get_hit_length() >= _camera_arm.spring_length - 0.15
+		_chase_open = arm_clear and not swimming and InteriorDoor.active == null
+		_chase_roof = global_position.y - WorldGen.height(global_position.x, global_position.z) > 2.2 and is_on_floor()
+	_hook_caster(delta)
+	var speed := Vector2(velocity.x, velocity.z).length() if _mount == null else _move_speed
+	var gallop := _mount != null and _gallop_time > 0.0
+	var ctx := {
+		"speed_k": speed / RUN, "sprinting": Input.is_action_pressed("sprint") and speed > WALK * 1.4 and not blocking,
+		"dashing": _dodge > 0.0, "gallop": gallop, "combat": _chase_combat,
+		"locked": is_instance_valid(_lock), "open": _chase_open, "rooftop": _chase_roof,
+		"strength": 1.0 if view == View.THIRD else 0.0,
+	}
+	if int(SettingsStore.get_value("screen_shake")) == 0:
+		ctx["strength"] = 0.0     # Screen Shake Off also turns off the lens motion
+	_chase.cast_enabled = bool(SettingsStore.get_value("cast_camera"))
+	_chase.talk_enabled = bool(SettingsStore.get_value("talk_camera"))
+	if _chase.casting() and (Input.is_action_just_pressed("attack") or Input.is_action_just_pressed("dodge")
+			or Input.is_action_just_pressed("jump") or touch_move.length() > 0.5):
+		_chase.cancel_cast()       # skippable: any action takes the camera back
+	_chase.step(delta, ctx)
+
+
+## FOV impulse from combat feel code: positive = outward punch. Decays on its own and rides above the base FOV.
+## Conversation framing on/off (TalkSession): eases over ~0.4 s, off when the setting is off.
+func set_talk_framing(on: bool, partner: Node3D = null) -> void:
+	_chase.talk_enabled = bool(SettingsStore.get_value("talk_camera"))
+	_talk_partner = partner if on else null
+	if on:
+		_chase.begin_talk()
+	else:
+		_chase.end_talk()
+		face_mood("neutral")
+
+
+func add_fov_impulse(degrees: float) -> void:
+	_chase.add_fov_impulse(degrees * _screen_feedback_strength())
+
+
+func _hook_caster(delta: float) -> void:
+	if _caster_hooked:
+		return
+	_caster_scan -= delta
+	if _caster_scan > 0.0:
+		return
+	_caster_scan = 1.0
+	var caster := get_node_or_null("TechniqueCaster")
+	if caster != null and caster.has_signal("cast"):
+		caster.connect("cast", _on_technique_cast)
+		_caster_hooked = true
+
+
+func _on_technique_cast(_id: String, def: Dictionary) -> void:
+	if view == View.THIRD and _mount == null and ChaseCamera.is_big_technique(def):
+		_chase.begin_cast()
+
+
+func _update_camera_fade(target: GeometryInstance3D) -> void:
+	if _camera_fade_visual != target:
+		if is_instance_valid(_camera_fade_visual):
+			_camera_fade_visual.transparency = _camera_fade_original
+		_camera_fade_visual = target if is_instance_valid(target) else null
+		if _camera_fade_visual:
+			_camera_fade_original = _camera_fade_visual.transparency
+	if is_instance_valid(_camera_fade_visual):
+		_camera_fade_visual.transparency = maxf(_camera_fade_original, 0.6)
+
+
+func _fov_punch(degrees: float) -> void:
+	# Keep the small contact cue inside the existing accessibility setting. This
+	# is an outward lens pulse, independent of positional camera shake.
+	_impact_fov = CombatFeel.merge_fov(_impact_fov, degrees * _screen_feedback_strength())
+
+
+## Short camera roll (radians, signed) for heavy hits; merged by max and capped (combat_feel.gd).
+func _camera_roll(radians: float) -> void:
+	_impact_roll = CombatFeel.merge_roll(_impact_roll, radians * _screen_feedback_strength())
+
+
+func _add_camera_shake(amount: float) -> void:
+	_shake.add(amount * _screen_feedback_strength())
+
+
+func _screen_feedback_strength() -> float:
+	# Settings: Off = none, Reduced = half, Full = full. Read on impacts only.
+	return float(clampi(int(SettingsStore.get_value("screen_shake")), 0, 2)) * 0.5
+
+
 func _update_look_target() -> void:
 	if _look_target == null:
 		return
-	var best: Node3D = _nearest_enemy(12.0, -1.0)
+	var best: Node3D = _talk_partner if is_instance_valid(_talk_partner) else _nearest_enemy(12.0, -1.0)
 	if best == null:
 		for v in get_tree().get_nodes_in_group("villager"):
 			if (v as Node3D).global_position.distance_to(global_position) < 5.0:
@@ -1027,7 +1605,9 @@ func _update_look_target() -> void:
 # --- Combat -----------------------------------------------------------------------
 
 func attack() -> void:
-	if dead or swimming or _mount != null:
+	if dead or swimming or _mount != null or _jump_starting or _jump_active or _land_time > 0.0:
+		return
+	if _arms.bow_tap():
 		return
 	if _can_attack():
 		_start_swing()
@@ -1035,11 +1615,363 @@ func attack() -> void:
 		_attack_buffer = ATTACK_BUFFER   # early press: fire at the next opening
 
 
-## Plain dodge-roll: short i-frame step, no VFX, no cooldown beyond stamina.
-## Bound to the "dodge" action (KEY_SPACE) and the HUD dodge button.
-func dodge() -> void:
-	if dead or swimming or _mount != null:
+## Input entry points (main.gd): a tap fires attack() on release, a hold past the data hold time charges a heavy
+## (bow: draws), release swings / fires. See player_arms.gd.
+func attack_press() -> void:
+	_arms.press()
+
+
+func attack_release() -> void:
+	_arms.release()
+
+
+## Space / the mobile button buffers a jump briefly through an attack lockout or
+## the last few frames before landing. A second press in the air never relaunches.
+func jump() -> void:
+	if dead or swimming or _mount != null or _menu_open():
 		return
+	if _trav.on_jump_pressed():
+		return
+	_jump_buffer = JUMP_BUFFER
+
+
+func _begin_jump(running: bool, grounded_at_press: bool) -> void:
+	_cancel_locomotion_transition()
+	_jump_running = running and _move_speed >= 4.5
+	var cost := 10.0 if _jump_running else 6.0
+	if stamina < cost:
+		_jump_buffer = 0.0
+		return
+	_spend(cost)
+	_jump_buffer = 0.0
+	_interrupt_technique("jump")
+	_jump_starting = true
+	# On a ledge, honor coyote input immediately instead of letting the start
+	# anticipation spend the grace window falling below the take-off point.
+	_jump_delay = (JUMP_START_RUN if _jump_running else JUMP_START_STAND) if grounded_at_press else 0.0
+	_jump_cut = false
+	_jump_falling = false
+	_fall_apex_y = global_position.y
+	# The run clip's take-off is frame 12; at 3x it reaches contact in 0.13 s.
+	_animator.play_air("Jump_Running_Start" if _jump_running else "Jump_Start", 3.0 if _jump_running else 2.0)
+
+
+func _launch_jump() -> void:
+	_jump_starting = false
+	_jump_active = true
+	_jump_left_floor = false
+	_jump_age = 0.0
+	_air_visual = true
+	_air_time = COYOTE_TIME + 0.01
+	velocity.y = sqrt(2.0 * GRAVITY * (JUMP_RUN_HEIGHT if _jump_running else JUMP_STAND_HEIGHT))
+	_fall_apex_y = global_position.y
+	_animator.play_air("Jump_Rise")
+	VFXSpells._dust(get_parent(), Vector3(global_position.x, WorldGen.height(global_position.x, global_position.z), global_position.z), 0.55 if _jump_running else 0.4)
+	App.vibrate(10)
+
+
+func _update_jump_after_move(floor_before: bool, impact_speed: float, dir: Vector3) -> void:
+	if not is_on_floor() and not swimming:
+		if floor_before and not _jump_active:
+			_fall_apex_y = global_position.y
+		_fall_apex_y = maxf(_fall_apex_y, global_position.y)
+		if _jump_active:
+			_jump_left_floor = true
+			if not _jump_falling and velocity.y <= 0.5:
+				_jump_falling = true
+				_animator.play_air("Jump_Fall")
+		elif not _jump_starting and not _air_visual and _air_time >= 0.15 \
+				and _dodge <= 0.0 and _land_time <= 0.0:
+			_air_visual = true
+			_animator.play_air("Jump_Fall")
+		return
+	if is_on_floor() and ((_jump_active and (_jump_left_floor or _jump_age > 0.18)) \
+			or (not floor_before and _air_visual)):
+		_land_jump(maxf(impact_speed, 0.0), dir)
+
+
+## Measured locomotion clips (docs/anim/patches/P5): run stop, walk stop, sprint skid, walk/run starts and
+## idle turns play on the lower-body loco_transition OneShot (root translation and rotation are disabled in
+## the clips; the capsule owns the motion). Starts are cancelled if the stick is released, stops if it is
+## pressed again, so a tap never leaves legs walking in place.
+func _loco_clip_ok(grounded: bool) -> bool:
+	return grounded and not dead and not swimming and not blocking and not _jump_starting and not _jump_active \
+		and _land_time <= 0.0 and _dodge <= 0.0 and _swing <= 0.0 and _stunned <= 0.0 \
+		and not crouching and not _strafing and view != View.FIRST and _mount == null
+
+
+func _update_locomotion_transition(dir: Vector3, grounded: bool, entry_speed: float, running := false) -> void:
+	var dt := get_physics_process_delta_time()
+	_idle_time = _idle_time + dt if entry_speed < 0.3 and _move_speed < 0.3 else 0.0
+	var ok := _loco_clip_ok(grounded)
+	if _turn_clip != "":
+		if not ok or dir.length() < 0.05:
+			_cancel_turn()
+	if _loco_transition_time > 0.0:
+		# a start is dropped when the stick is released, a stop when it is pressed again
+		if (_loco_kind == "start" and dir.length() < 0.05) or (_loco_kind == "stop" and dir.length() > 0.3) or not ok:
+			_loco_transition_time = 0.0
+			_loco_kind = ""
+			_animator.finish_locomotion_transition()
+		return
+	_loco_kind = ""
+	if not ok:
+		return
+	if dir.length() >= 0.05:
+		if entry_speed >= 0.3 or _idle_time < 0.06 or _turn_clip != "":
+			return
+		var want := atan2(dir.x, dir.z)
+		var diff := angle_difference(_model.rotation.y, want)
+		if absf(diff) > IDLE_TURN_MIN:
+			_begin_idle_turn(diff)
+			return
+		var start := "Loco_RunStart_F" if running else "Loco_WalkStart_F"
+		var natural_out := 3.8 if running else 1.5
+		var goal := RUN if running else WALK
+		var rate := clampf(goal * Life.needs.speed() / natural_out, 1.0, 2.2)
+		_fire_loco_clip(start, rate, "start", 0.05 if running else 0.06, 0.12 if running else 0.15)
+		return
+	if entry_speed < 1.0:
+		return
+	var clip := "Loco_RunStop_L" if _animator.gait_phase() < 0.5 else "Loco_RunStop_R"
+	var natural_entry := 3.1 if clip.ends_with("_L") else 3.6
+	var fin := 0.06
+	if entry_speed >= SKID_ENTRY_SPEED:
+		clip = "Loco_Sprint_Stop_Skid"
+		natural_entry = 4.6
+	elif entry_speed < 4.0:
+		clip = "Loco_WalkStop"
+		natural_entry = 1.1
+	var is_skid := clip == "Loco_Sprint_Stop_Skid"
+	_fire_loco_clip(clip, clampf(entry_speed / natural_entry, 0.8, 2.5) if clip != "Loco_WalkStop" else WALK_STOP_RATE, "stop", fin, 0.2)
+	if is_skid:
+		var skid_rate := clampf(entry_speed / 4.6, 0.8, 2.5)
+		for frame in [11.0, 15.0, 19.0]:
+			get_tree().create_timer(frame / 30.0 / skid_rate).timeout.connect(_skid_dust)
+
+
+## One small dust puff per braking foot (clip frames 11-20 have the soles sliding on the ground).
+func _skid_dust() -> void:
+	if dead or not is_inside_tree() or _loco_kind != "stop":
+		return
+	VFXSpells._dust(get_parent(), Vector3(global_position.x, WorldGen.height(global_position.x, global_position.z), global_position.z), 0.3)
+
+
+func _fire_loco_clip(clip: String, rate: float, kind: String, fade_in: float, fade_out: float) -> void:
+	var length := _animator.clip_length(clip)
+	if length <= 0.0 or not _animator.has_clip(clip):
+		return
+	_animator.play_locomotion_transition(clip, rate, fade_in, fade_out)
+	_loco_transition_time = length / rate
+	_loco_kind = kind
+
+
+func _begin_idle_turn(diff: float) -> void:
+	var big := absf(diff) > IDLE_TURN_BIG
+	var clip := "Loco_TurnInPlace_180" if big else "Loco_TurnInPlace_90_L"
+	var end_yaw := _animator.pivot_yaw(clip, _animator.clip_length(clip))
+	if signf(end_yaw) != signf(diff):
+		clip = "Loco_TurnInPlace_180_R" if big else "Loco_TurnInPlace_90_R"
+		end_yaw = _animator.pivot_yaw(clip, _animator.clip_length(clip))
+	var length := _animator.clip_length(clip)
+	if length <= 0.0 or absf(end_yaw) < 0.8 or signf(end_yaw) != signf(diff):
+		return
+	var scale := diff / end_yaw
+	if scale < 0.6 or scale > 1.8:
+		return
+	_turn_clip = clip
+	_turn_length = length
+	_turn_elapsed = 0.0
+	_turn_rate = IDLE_TURN_RATE_BIG if big else IDLE_TURN_RATE
+	_turn_start_yaw = _model.rotation.y
+	_turn_scale = scale
+	_fire_loco_clip(clip, _turn_rate, "turn", 0.05, 0.12)
+
+
+func _cancel_turn() -> void:
+	if _turn_clip == "":
+		return
+	_turn_clip = ""
+	if _loco_kind == "turn":
+		_loco_transition_time = 0.0
+		_loco_kind = ""
+		_animator.finish_locomotion_transition()
+
+
+## Drives the capsule yaw from the turn clip's root rotation (measured, not the nominal 90/180).
+func _advance_idle_turn(delta: float) -> void:
+	_turn_elapsed = minf(_turn_elapsed + delta * _turn_rate, _turn_length)
+	_model.rotation.y = _turn_start_yaw + _animator.pivot_yaw(_turn_clip, _turn_elapsed) * _turn_scale
+	if _turn_elapsed >= _turn_length * 0.92:
+		_model.rotation.y = _turn_start_yaw + _animator.pivot_yaw(_turn_clip, _turn_length) * _turn_scale
+		_turn_clip = ""
+		_loco_transition_time = 0.0   # hand over so the start clip can fire on this very step
+		_loco_kind = ""
+		_animator.finish_locomotion_transition()
+
+
+func _cancel_locomotion_transition() -> void:
+	_cancel_pivot()
+	_turn_clip = ""
+	_loco_kind = ""
+	if _loco_transition_time <= 0.0:
+		return
+	_loco_transition_time = 0.0
+	_animator.finish_locomotion_transition()
+
+
+func _begin_pivot(want_dir: Vector3) -> bool:
+	var turn := angle_difference(_model.rotation.y, atan2(want_dir.x, want_dir.z))
+	var clip := "Loco_Pivot180_Run_L"
+	var length := _animator.clip_length(clip)
+	var end_yaw := _animator.pivot_yaw(clip, length)
+	if signf(end_yaw) != signf(turn):
+		clip = "Loco_Pivot180_Run_R"
+		length = _animator.clip_length(clip)
+		end_yaw = _animator.pivot_yaw(clip, length)
+	if length <= 0.0 or absf(end_yaw) < 2.3 or (absf(turn / end_yaw) < 0.8 or absf(turn / end_yaw) > 1.2):
+		return false
+	_cancel_locomotion_transition()
+	_pivot_clip = clip
+	_pivot_length = length
+	_pivot_elapsed = 0.0
+	_pivot_rate = clampf(_move_speed / 4.0, 0.8, 1.5)
+	_pivot_start_yaw = _model.rotation.y
+	_pivot_yaw_scale = turn / end_yaw
+	_pivoting = false
+	_animator.play_air(clip, _pivot_rate, true)
+	return true
+
+
+func _advance_pivot(delta: float) -> void:
+	var clip_time := _animator.air_clip_time(_pivot_clip)
+	if clip_time < 0.0:
+		# State-machine travel enters on its next animation evaluation.
+		_move_speed = 0.0
+		return
+	var previous := _animator.pivot_position(_pivot_clip, _pivot_elapsed)
+	_pivot_elapsed = clampf(clip_time, _pivot_elapsed, _pivot_length)
+	var next := _animator.pivot_position(_pivot_clip, _pivot_elapsed)
+	var travel := (next - previous).rotated(Vector3.UP, _pivot_start_yaw) * Life.body_scale()
+	travel.y = 0.0
+	_move_speed = travel.length() / maxf(delta, 0.0001)
+	if travel.length_squared() > 0.000001:
+		_move_dir = travel.normalized()
+	if _pivot_elapsed >= _pivot_length:
+		_model.rotation.y = _pivot_start_yaw + _animator.pivot_yaw(_pivot_clip, _pivot_length) * _pivot_yaw_scale
+		_cancel_pivot()
+
+
+func _cancel_pivot() -> void:
+	if _pivot_clip == "":
+		return
+	_pivot_clip = ""
+	_pivoting = false
+	_animator.finish_air()
+
+
+## A teleport is not a fall: forget the apex and the airborne state of wherever the player was. A stale apex (a jump or a fall left
+## unfinished 100 m up at Highwatch) read as a 100 m drop on the first landing at the destination, and the fall damage killed the player.
+func teleported() -> void:
+	_fall_apex_y = global_position.y
+	_air_time = 0.0
+	_air_visual = false
+	_jump_active = false
+	_jump_starting = false
+	_jump_left_floor = false
+	_jump_falling = false
+
+
+func _land_jump(impact_speed: float, dir: Vector3) -> void:
+	var fall_height := maxf(_fall_apex_y - global_position.y, 0.0)
+	var forward_input := dir.length() > 0.1 and facing().dot(dir.normalized()) > 0.25
+	var running_land := (_jump_running or _move_speed > 4.5) and fall_height <= 3.0
+	var roll := (fall_height >= 3.0 and fall_height <= 6.0) or (fall_height > 1.2 and forward_input)
+	var hard := fall_height >= 1.2 or impact_speed > 11.0
+	_jump_active = false
+	_jump_starting = false
+	_jump_left_floor = false
+	_jump_falling = false
+	_jump_running = false
+	_jump_cut = false
+	_jump_age = 0.0
+	_air_visual = false
+	_air_time = 0.0
+	if fall_height > 6.0 and not roll:
+		take_damage(roundi((fall_height - 6.0) * 8.0), null, Vector3.ZERO, true)
+		if dead:
+			return
+	var ground := Vector3(global_position.x, WorldGen.height(global_position.x, global_position.z), global_position.z)
+	var water_surface := WorldGen.water_level_at(global_position.x, global_position.z)
+	if is_nan(water_surface):
+		VFXSpells._dust(get_parent(), ground, clampf(0.35 + impact_speed * 0.05, 0.4, 1.2))
+	elif WorldGen.water_depth(global_position.x, global_position.z) > 0.05:
+		FlipbookFX.play(&"water_splash", Vector3(global_position.x, water_surface, global_position.z),
+			clampf(0.5 + impact_speed * 0.035, 0.6, 1.0), Color.WHITE, get_parent())
+	if roll:
+		_land_roll = true
+		_land_roll_speed = maxf(_move_speed * 0.6, 2.2)
+		_move_dir = dir.normalized() if dir.length() > 0.1 else facing()
+		_land_time = 0.9
+		_landing_dip = -0.30
+		_animator.play_air("Jump_Land_Roll", 1.8)
+		App.vibrate(35)
+	elif running_land:
+		_land_time = 0.35
+		_landing_dip = -0.10
+		_animator.play_air("Jump_Land_Running", 2.0)
+		App.vibrate(10)
+	elif hard:
+		_land_time = 0.45
+		_land_lock = 0.35
+		_landing_dip = -0.22
+		_land_fov = 2.0
+		_animator.play_air("Jump_Land_Hard", 2.5)
+		App.vibrate(20)
+	else:
+		_land_time = 0.25
+		_landing_dip = -0.10
+		_animator.play_air("Jump_Land_Soft", 2.5)
+		App.vibrate(10)
+	# A jump pressed just before landing should leave the recovery pose on the
+	# first grounded frame; retain the buffer until the next physics step.
+	if _jump_buffer > 0.0:
+		_land_time = 0.0
+		_land_lock = 0.0
+		_land_roll = false
+		_land_roll_speed = 0.0
+
+
+func _reset_jump() -> void:
+	if _animator:
+		_cancel_locomotion_transition()
+	_jump_buffer = 0.0
+	_jump_starting = false
+	_jump_active = false
+	_jump_left_floor = false
+	_jump_falling = false
+	_jump_running = false
+	_jump_cut = false
+	_jump_age = 0.0
+	_air_visual = false
+	_land_time = 0.0
+	_land_lock = 0.0
+	_land_roll = false
+	_land_roll_speed = 0.0
+	_landing_dip = 0.0
+	_land_fov = 0.0
+	_loco_transition_time = 0.0
+	if _animator:
+		_animator.finish_air()
+
+
+## Plain dodge-roll: short i-frame step, no VFX, no cooldown beyond stamina.
+## Bound to the "dodge" action (K) and the HUD dodge button.
+func dodge() -> void:
+	if dead or swimming or _mount != null or _jump_starting or _jump_active or _land_time > 0.0:
+		return
+	if _arms.knock_dodge():
+		return                       # floored: the press is a roll-out (player_arms.gd)
 	if _can_dodge():
 		_start_dodge(false)
 	elif stamina >= DODGE_STAMINA:
@@ -1050,7 +1982,7 @@ func dodge() -> void:
 ## and a higher stamina cost. Bound to "ability_dash" (KEY_R) and the HUD
 ## ability button. Never fires from ordinary movement or the plain dodge.
 func ability_dash() -> void:
-	if dead or swimming or _mount != null:
+	if dead or swimming or _mount != null or _jump_starting or _jump_active or _land_time > 0.0:
 		return
 	if dash_cooldown > 0.0 or stamina < DASH_STAMINA:
 		return
@@ -1062,13 +1994,15 @@ func ability_dash() -> void:
 ## An attack may start when idle, in the cancel tail of the previous swing, or
 ## as a roll finishes.
 func _can_attack() -> bool:
-	return not dead and not swimming and _mount == null and _stunned <= 0.0 and _dodge <= DODGE_ATTACK_CANCEL and _swing <= _swing_cancel
+	return not dead and not swimming and _mount == null and not _jump_starting and not _jump_active \
+		and _land_time <= 0.0 and _stunned <= 0.0 and _dodge <= DODGE_ATTACK_CANCEL and _swing <= _swing_cancel
 
 
 ## A roll may cut a swing's startup or recovery, but not its hit frames (it
 ## waits for them), and may chain from the very end of another roll.
 func _can_dodge() -> bool:
-	if dead or swimming or _mount != null or _stunned > 0.0 or stamina < DODGE_STAMINA or _dodge > DODGE_CHAIN:
+	if dead or swimming or _mount != null or _jump_starting or _jump_active or _land_time > 0.0 \
+			or _stunned > 0.0 or stamina < DODGE_STAMINA or _dodge > DODGE_CHAIN:
 		return false
 	return not _in_active_frames()
 
@@ -1088,51 +2022,91 @@ func _consume_buffers() -> void:
 
 
 func _start_swing() -> void:
+	_interrupt_technique("melee attack")
+	_cancel_locomotion_transition()
 	if _dodge > 0.0:
 		_dodge = 0.0                 # roll attack: the swing takes over the roll's tail
 		_animator.stop_full()
-	_combo = (_combo + 1) % COMBO.size() if _combo_window > 0.0 else 0
-	var step: Dictionary = COMBO[_combo]
-	var weak: bool = stamina < step["cost"]
-	_spend(step["cost"])
+	var steps := CombatMoves.combo(combat_style)
+	_combo = (_combo + 1) % steps.size() if _combo_window > 0.0 else 0
+	var action: Resource = _arms.take_forced(steps[_combo])    # a released heavy replaces the combo step
+	_action = action
+	var weak: bool = stamina < action.cost
+	# A tired swing plays at 0.7x, so its blade (and hit) arrives later too.
+	var hit_t: float = action.hit_time() / (0.7 if weak else 1.0)
+	_spend(action.cost)
 	# Target assist: face the locked target, else snap toward an enemy roughly in front.
-	var target: Node3D = _lock if is_instance_valid(_lock) else _nearest_enemy(3.8, 0.1)
+	var target: Node3D = _magnet_target()
 	if target:
 		var to := target.global_position - global_position
 		_model.rotation.y = atan2(to.x, to.z)
-	_kick(facing() * ATTACK_LUNGE)
+	var lunge := ATTACK_LUNGE
+	if target:
+		# Magnetism: a small capped step toward the target (combat_feel.gd), ending at the standoff.
+		var flat := Vector2(target.global_position.x - global_position.x, target.global_position.z - global_position.z).length()
+		lunge = CombatFeel.lunge_speed(flat, IMPULSE_DECEL, action.finisher, ATTACK_LUNGE * 1.6)
 	_swing_id += 1
-	_swing = step["lock"]
+	var standing := _move_speed < 0.3
+	var mk := CombatMarkers.get_clip(String(action.anim).trim_suffix("_Upper"))
+	var step_m := float(mk.get("step_in_m", 0.0))
+	var gap_to_standoff := 0.0
+	if target:
+		gap_to_standoff = Vector2(target.global_position.x - global_position.x, target.global_position.z - global_position.z).length() - LUNGE_STANDOFF
+	if action.root_motion and standing and step_m > 0.0 and gap_to_standoff <= 0.6:
+		# P9: a standing swing lunges by the clip's authored step, starting on its step frame, so the lead foot plants where the capsule stops.
+		if target:
+			step_m = minf(step_m, maxf(Vector2(target.global_position.x - global_position.x, target.global_position.z - global_position.z).length() - LUNGE_STANDOFF, 0.0))
+		var kick_v := sqrt(2.0 * IMPULSE_DECEL * step_m)
+		var sf: Array = mk.get("step_frames", [0, 0])
+		var sid := _swing_id
+		get_tree().create_timer(float(sf[0]) / 30.0 / maxf(action.anim_speed, 0.1)).timeout.connect(func() -> void:
+			if sid == _swing_id and not dead:
+				_kick(facing() * kick_v))
+	elif action.root_motion:
+		_kick(facing() * lunge)
+	_swing = action.total()
 	_swing_elapsed = 0.0
-	_swing_hit = step["hit"]
-	_swing_cancel = step["lock"] * SWING_CANCEL
-	_combo_window = step["lock"] + COMBO_WINDOW
-	if _combo == COMBO.size() - 1:
+	_swing_hit = hit_t
+	_swing_cancel = action.cancel_remaining("attack")   # finisher has no window: commits to its recovery
+	_combo_window = action.total() + COMBO_WINDOW
+	if action.finisher:
 		_combo_window = 0.0     # finisher ends the chain
-		_swing_cancel = 0.0     # and commits to its full recovery
-	_animator.play_upper(step["anim"], step["speed"] * (0.7 if weak else 1.0))
-	Audio.sfx("swing", null, -4.0)
-	if _viewmodel.visible:
-		var t := create_tween()
-		t.tween_property(_viewmodel, "rotation", Vector3(-0.35, 1.2 * (1 if _combo % 2 == 0 else -1), 0.5), 0.1)
-		t.tween_property(_viewmodel, "rotation", VIEWMODEL_REST, 0.25)
+	var rate: float = action.anim_speed * (0.7 if weak else 1.0)
+	_animator.play_attack(action.anim, rate, standing)
 	var riposte := _parry_bonus > 0.0
 	_parry_bonus = 0.0
-	var damage: int = int(step["damage"] * (0.5 if weak else 1.0) * (PARRY_DAMAGE if riposte else 1.0))
-	var knock: float = step.get("knockback", 1.5)
-	# Sword arc: tilt alternates with the combo so chops, slices and stabs read differently.
-	var tilts := [0.9, -0.9, 0.05, 0.0]
-	var yaw := _model.rotation.y
-	var arc_col := Color(1.0, 0.9, 0.7) if not weak else Color(0.7, 0.7, 0.75)
-	if riposte:
-		arc_col = Color(1.0, 0.97, 0.55)
-	var id := _swing_id
-	var combo := _combo
-	get_tree().create_timer(step["hit"] * 0.55).timeout.connect(func() -> void:
-		if is_inside_tree() and id == _swing_id:
-			VFX.slash(get_parent(), global_position + Vector3(0, 1.15 * Life.body_scale(), 0), yaw,
-				tilts[combo % tilts.size()], arc_col, 1.6))
-	get_tree().create_timer(step["hit"]).timeout.connect(_resolve_hit.bind(damage, knock, _combo == COMBO.size() - 1, id))
+	var damage: int = int(action.damage * (0.5 if weak else 1.0) * (_riposte_mult if riposte else 1.0) * _arms.take_charge_mult())
+	_riposte_mult = PARRY_DAMAGE
+	swing_started.emit(action, {"hit_t": hit_t, "yaw": _model.rotation.y, "weak": weak, "riposte": riposte,
+		"combo": _combo, "anim_speed": rate, "first_person": _viewmodel.visible, "id": _swing_id})
+	get_tree().create_timer(hit_t).timeout.connect(_resolve_hit.bind(damage, action.knockback, action.finisher, _swing_id))
+
+
+## The locked target, else the best living enemy in the magnetism cone (combat_feel.gd pick_target).
+func _magnet_target() -> Node3D:
+	if is_instance_valid(_lock):
+		return _lock
+	var enemies: Array = []
+	var pos: Array = []
+	for enemy in get_tree().get_nodes_in_group("team1"):
+		var e := enemy as Node3D
+		if e == null or e.get("dead"):
+			continue
+		enemies.append(e)
+		pos.append(e.global_position)
+	var pick := CombatFeel.pick_target(global_position, facing(), pos)
+	return null if pick["pos"] == null else enemies[int(pick["index"])]
+
+
+## Damage and knockback of the swing in progress (breakable.gd and tools read this instead of the table).
+func swing_stats() -> Dictionary:
+	if _action == null:
+		return {"damage": 14, "knockback": 1.5}
+	return {"damage": _action.damage, "knockback": _action.knockback}
+
+
+func swing_id() -> int:
+	return _swing_id
 
 
 func _resolve_hit(damage: int, knockback: float, finisher: bool, id := -1) -> void:
@@ -1141,29 +2115,39 @@ func _resolve_hit(damage: int, knockback: float, finisher: bool, id := -1) -> vo
 	if dead or not is_inside_tree():
 		return
 	var fwd := forward() if view == View.FIRST else facing()
-	var hits := 0
-	var first_hit := Vector3.INF
+	var points: Array = []
+	var impacted_mixers: Array = []
+	var blade_tip := _trail.tip_position() if _trail else Vector3.ZERO
+	var reach: float = _action.reach if _action != null else 2.6        # spear long, staff wide (CombatAction)
+	var arc_dot: float = _action.arc_dot if _action != null else 0.2
 	for enemy in get_tree().get_nodes_in_group("team1"):
 		var to: Vector3 = (enemy as Node3D).global_position - global_position
 		to.y = 0.0
-		if to.length() < 2.6 and fwd.dot(to.normalized()) > 0.2:
+		if to.length() < reach and fwd.dot(to.normalized()) > arc_dot:
 			enemy.take_damage(damage, self, to.normalized() * knockback)
+			if _action != null and _action.guard_break and enemy.has_method("break_guard"):
+				enemy.call("break_guard", 0.9)
+			impacted_mixers.append_array(enemy.find_children("*", "AnimationMixer", true, false))
 			var point: Vector3 = (enemy as Node3D).global_position + Vector3(0, 0.8, 0) - to.normalized() * 0.3
-			VFX.sparks(get_parent(), point, Color(1.0, 0.72, 0.35), 30 if finisher else 18)
-			if hits == 0:
-				first_hit = point
-			hits += 1
-	if finisher:
-		VFX.shockwave(get_parent(), global_position + fwd * 1.2, Color(1.0, 0.85, 0.45), 3.2)
-		if hits > 0:
-			VFX.impact_frame(get_parent(), first_hit, 0.7)
-	if hits > 0:
-		Audio.sfx("hit")
-		_hit_stop(0.09 if finisher else 0.05)
-		_shake.add(0.45 if finisher else 0.22)
+			if blade_tip != Vector3.ZERO and blade_tip.distance_to(point) <= 0.6:
+				point = blade_tip
+			points.append(point)
+	# People in front of a drawn blade: a silent takedown from behind knocks them out, any other blow hurts and can kill
+	# (villager.gd take_damage; Takedown leaves the body as Evidence and silences a witness).
+	for v in get_tree().get_nodes_in_group("villager"):
+		if not (v as Node).has_method("take_damage"):
+			continue
+		var tv: Vector3 = (v as Node3D).global_position - global_position
+		tv.y = 0.0
+		if tv.length() < 2.2 and fwd.dot(tv.normalized()) > 0.2:
+			(v as Node).call("take_damage", damage, self, tv.normalized() * knockback)
+			points.append((v as Node3D).global_position + Vector3(0, 0.9, 0))
+	hit_confirmed.emit(points, finisher, impacted_mixers)
 
 
 func _start_dodge(is_ability: bool) -> void:
+	_interrupt_technique("dodge")
+	_cancel_locomotion_transition()
 	_dodging_ability = is_ability
 	if is_ability:
 		_spend(DASH_STAMINA)
@@ -1173,6 +2157,7 @@ func _start_dodge(is_ability: bool) -> void:
 	var dir := _input_dir()
 	var backward := dir.length() < 0.1
 	_dodge_dir = -facing() if backward else dir.normalized()
+	_dodge_dir = _clear_dodge_lane(_dodge_dir)
 	if not backward:
 		_model.rotation.y = atan2(_dodge_dir.x, _dodge_dir.z)
 	_set_crouch(false)
@@ -1181,6 +2166,8 @@ func _start_dodge(is_ability: bool) -> void:
 	if _swing > 0.0:
 		_swing_id += 1          # a pending hit frame no longer lands
 		_animator.stop_upper()
+		if _trail:
+			_trail.stop()
 	_swing = 0.0
 	_attack_buffer = 0.0
 	_impulse = Vector3.ZERO
@@ -1189,6 +2176,35 @@ func _start_dodge(is_ability: bool) -> void:
 		# Shadow Dash only: the afterimage trail that used to play on every dodge.
 		VFX.afterimage(get_parent(), _model, Color(0.6, 0.85, 1.0), 3)
 	get_tree().create_timer(DODGE_TIME).timeout.connect(_end_dodge_anim)
+
+
+## If the swept roll path hits a hostile capsule, choose the nearest clear lane
+## around it. The probe runs only once per dodge input; regular movement and NPC
+## collision budgets are unchanged. Walls still block the roll normally.
+func _clear_dodge_lane(direction: Vector3) -> Vector3:
+	var speed_min := DASH_SPEED_MIN if _dodging_ability else DODGE_SPEED_MIN
+	var speed_max := DASH_SPEED_MAX if _dodging_ability else DODGE_SPEED_MAX
+	var distance := (speed_min + speed_max) * 0.5 * DODGE_TIME
+	var obstruction := _dodge_obstruction(direction, distance)
+	if obstruction == null or not obstruction.is_in_group("team1"):
+		return direction
+	var right := direction.rotated(Vector3.UP, PI * 0.5)
+	var to_obstruction := obstruction.global_position - global_position
+	var preferred_side := -1.0 if to_obstruction.dot(right) >= 0.0 else 1.0
+	for step in range(1, int(DODGE_LANE_MAX_DEG / DODGE_LANE_STEP_DEG) + 1):
+		var angle := deg_to_rad(float(step) * DODGE_LANE_STEP_DEG)
+		for side in [preferred_side, -preferred_side]:
+			var candidate := direction.rotated(Vector3.UP, angle * side).normalized()
+			if _dodge_obstruction(candidate, distance) == null:
+				return candidate
+	return direction
+
+
+func _dodge_obstruction(direction: Vector3, distance: float) -> Node3D:
+	var result := KinematicCollision3D.new()
+	if test_move(global_transform, direction * distance, result):
+		return result.get_collider() as Node3D
+	return null
 
 
 ## When the roll's movement ends and the player is already steering, hand the
@@ -1203,51 +2219,122 @@ func _kick(v: Vector3) -> void:
 	_impulse = Vector3(v.x, 0.0, v.z)
 
 
-func take_damage(amount: int, from: Node = null, knockback := Vector3.ZERO) -> void:
-	if dead or _invulnerable > 0.0 or _hurt_cooldown > 0.0:
+const PLAYER_POISE := 40.0
+
+func take_damage(amount: int, from: Node = null, knockback := Vector3.ZERO, force := false) -> void:
+	if dead or (not force and (_invulnerable > 0.0 or _hurt_cooldown > 0.0)):
 		return
+	_cancel_locomotion_transition()
 	var from_front := true
 	if from is Node3D:
 		var to := (from as Node3D).global_position - global_position
 		to.y = 0.0
 		from_front = facing().dot(to.normalized()) > 0.3
-	if blocking and from_front and _block_age <= PARRY_WINDOW:
-		_parry(from)
-		return
-	if blocking and from_front:
-		_spend(amount * 1.6)
-		_kick(-facing() * BLOCK_PUSH)
-		_shake.add(0.15)
-		if stamina <= 0.0:
-			_stunned = 0.9          # guard broken
-			_swing = 0.0
-			_swing_id += 1
-			# Heavy stagger with both feet planted (CharacterAnimator.PREFERRED_CLIPS).
-			_animator.play_full("Hit_B", 1.3)
-			Game.say("Guard broken!")
-		else:
-			_animator.play_upper("Block_Hit", 1.5)
-			Audio.sfx("clash")
-			amount = int(amount * 0.15)
+	# One resolver call per incoming blow. Attackers with a move table describe the blow
+	# (attack_info: lane, poise, parryable...); anything else is a plain parryable mid blow.
+	var atk := {"damage": amount, "poise_damage": float(amount), "lane": 1, "parryable": true, "unblockable": false}
+	var from_action := false
+	if from and is_instance_valid(from) and from.has_method("attack_info"):
+		var info: Dictionary = from.call("attack_info")
+		if not info.is_empty():
+			atk.merge(info, true)
+			atk["damage"] = amount
+			from_action = true
+	var def := {"guarding": blocking and not force, "from_front": from_front, "guard_age": _block_age, "guard_pool": stamina,
+		"guard_cost": 1.6, "poise": PLAYER_POISE, "guard_lane": -1}
+	if from_action and _swing > 0.0 and amount > 0 and _action != null:
+		def["swing"] = {"active_age": _swing_elapsed - _swing_hit, "parryable": true,
+			"poise_damage": _action.poise_damage}
+	var res := HitResolver.resolve(atk, def, _combat_rng)
+	match int(res["result"]):
+		HitResolver.Outcome.CLASHED:
+			var lost: bool = res["winner"] == "attacker" or res["winner"] == "none"
+			if res["winner"] != "attacker" and from and is_instance_valid(from) and from.has_method("take_damage"):
+				var away := Vector3.ZERO
+				if from is Node3D:
+					away = ((from as Node3D).global_position - global_position) * Vector3(1, 0, 1)
+				from.call_deferred("take_damage", 0, self, away.normalized() * float(res["push"]) * 2.0)
+			if lost:
+				_interrupt_technique("clash")
+				_stunned = maxf(_stunned, float(res["defender_stun"]))
+				_swing = 0.0
+				_swing_id += 1
+				_kick(-facing() * float(res["push"]) * 2.0)
+				_animator.play_upper("Block_Hit", 1.5)
+			clashed.emit(from, not lost)
+			return
+		HitResolver.Outcome.PARRIED:
+			_parry(from, String(res["grade"]), float(res["refund"]), float(res["riposte"]))
+			if int(res["damage"]) <= 0:
+				return
+			amount = int(res["damage"])           # a broken parry still lets a part through
+		HitResolver.Outcome.BLOCKED:
+			_spend(float(res["guard_cost"]))
+			_kick(-facing() * BLOCK_PUSH)
+			blocked.emit(from, false)
+			amount = int(res["damage"])
 			if amount == 0:
 				return
+		HitResolver.Outcome.GUARD_BROKEN:
+			_interrupt_technique("guard broken")
+			_spend(float(res["guard_cost"]))
+			_kick(-facing() * BLOCK_PUSH)
+			_stunned = float(res["defender_stun"])
+			_swing = 0.0
+			_swing_id += 1
+			blocked.emit(from, true)
 	_hurt_cooldown = 0.35
 	health = maxi(health - amount, 0)
 	health_changed.emit(health, max_health)
 	if knockback.length_squared() > 0.0001:
 		_kick(knockback)
-	_shake.add(0.3)
+	_add_camera_shake(0.3)
 	if health == 0:
 		_die()
 	elif not blocking:
+		_interrupt_technique("hit reaction")
 		_flinch = FLINCH_TIME
-		_animator.play_upper("Hit_A", 1.5)
+		var heavy := amount >= max_health * 0.12 or knockback.length() >= 4.0
+		var clip := "Hit_%s_%s" % ["Heavy" if heavy else "Light", _hit_side(from)]
+		if heavy and not _mount and not swimming:
+			_animator.play_full(clip, 1.0)
+		else:
+			_animator.play_upper(clip, 1.0)
+	if health > 0:
+		_arms.on_hit_taken(int(res["result"]), float(atk["poise_damage"]), knockback.length(), from)
+	if health > 0 and amount > 0 and _impact_pause:
+		var attacker_mixers: Array = []
+		if from is Node3D:
+			attacker_mixers.append_array((from as Node3D).find_children("*", "AnimationMixer", true, false))
+		_hit_stop(0.045, attacker_mixers)
+
+
+func _hit_side(from: Node) -> String:
+	if not (from is Node3D):
+		return "Front"
+	var to := (from as Node3D).global_position - global_position
+	to.y = 0.0
+	var forward := facing()
+	var front := forward.dot(to)
+	var right := Vector3.UP.cross(forward).dot(to)
+	if absf(front) >= absf(right):
+		return "Front" if front > 0.0 else "Back"
+	return "Right" if right > 0.0 else "Left"
+
+
+func _interrupt_technique(reason: String) -> void:
+	_chase.cancel_cast()
+	var caster := get_node_or_null("TechniqueCaster")
+	if caster != null and caster.has_method("interrupt_cast"):
+		caster.call("interrupt_cast", reason)
 
 
 func _die() -> void:
+	_interrupt_technique("death")
 	if _mount:
 		_dismount()
 	_release_lock()
+	_reset_jump()
 	_set_crouch(false)
 	dead = true
 	# Death_A resolves to the long Mesh2Motion stagger/fall clip and can outlast
@@ -1256,9 +2343,21 @@ func _die() -> void:
 		_rig.call("set_paused", true)   # no foot IK or springs under the ragdoll or death clip
 	if not (_ragdoll and _ragdoll.call("die")):
 		_animator.play_terminal("Death01")
-	Game.say("You fall... and wake in the village, bruised.")
-	await get_tree().create_timer(3.0).timeout
-	global_position = spawn_point
+	if get_signal_connection_list("died").is_empty():
+		Game.say("You fall... and wake in the village, bruised.")
+		await get_tree().create_timer(3.0).timeout
+		revive()
+		return
+	await get_tree().create_timer(DEATH_SCREEN_DELAY).timeout
+	if dead:
+		died.emit()
+
+
+## Gets the fallen player back on their feet: at `spawn_point` (a bed, or the village), or
+## where they lie when `teleport` is false (a save was loaded over the death).
+func revive(teleport := true) -> void:
+	if teleport:
+		global_position = spawn_point
 	reset_physics_interpolation()
 	_move_speed = 0.0
 	_impulse = Vector3.ZERO
@@ -1281,7 +2380,7 @@ func apply_age() -> void:
 	_model.scale = Vector3.ONE * k
 	if _animator:
 		_animator.stride_scale = k   # a child's shorter legs cover less ground per step
-	_pivot.position.y = 1.55 * k
+	_pivot.position.y = SHOULDER_HEIGHT * k
 
 
 func heal(amount: int) -> void:
@@ -1303,7 +2402,12 @@ func _spend(amount: float) -> void:
 
 
 ## Brief freeze on impact: sells the weight of a hit.
-func _hit_stop(duration: float) -> void:
+func _hit_stop(duration: float, impacted_mixers: Array = []) -> void:
+	if duration <= 0.06 and _impact_pause:
+		impacted_mixers.append(_animator.tree)
+		impacted_mixers.append(_animator.player)
+		_impact_pause.call("pause", impacted_mixers, duration)
+		return
 	_hit_stop_token += 1
 	var token := _hit_stop_token
 	_hit_stopping = true
@@ -1315,6 +2419,7 @@ func _hit_stop(duration: float) -> void:
 
 
 func _exit_tree() -> void:
+	_update_camera_fade(null)
 	if _hit_stopping:
 		_hit_stopping = false
 		Engine.time_scale = 1.0   # never leave the world frozen if removed mid hit-stop
@@ -1334,16 +2439,5 @@ func _nearest_enemy(max_dist: float, min_dot: float) -> Node3D:
 
 
 func nearest_interactable() -> Node3D:
-	if _mount and is_instance_valid(_mount.horse):
-		return _mount.horse     # "Dismount"; main.gd ignores horses, player.gd handles them
-	var best: Node3D = null
-	var best_d := 3.2
-	for node in get_tree().get_nodes_in_group("interactable"):
-		var d := global_position.distance_to((node as Node3D).global_position)
-		# Doors, services and pickups beat a passer-by's "Talk" when both are in reach.
-		if node.has_meta("low_priority") and d < 3.2:
-			d = minf(d + 1.6, 3.19)
-		if d < best_d:
-			best_d = d
-			best = node
-	return best
+	# The picker's choice (distance, facing, priority, mount rule); see scripts/interaction/interaction.gd.
+	return Interaction.best_node(self)

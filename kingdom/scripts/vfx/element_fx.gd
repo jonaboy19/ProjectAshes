@@ -254,7 +254,7 @@ static func dash(element: Variant, character: Node3D, dir := Vector3.ZERO, after
 	var d := dir if dir.length_squared() > 0.001 else -character.global_basis.z
 	var fx := play(element, &"dash", character.global_position, d, 1.0, p)
 	if afterimages > 0:
-		VFX.afterimage(p, character, (pal["mid"] as Color).lerp(Color.WHITE, 0.2), afterimages, 0.05, 0.35)
+		VFX.afterimage(p, character, (pal["mid"] as Color).lerp(Color.WHITE, 0.1), afterimages + 1, 0.045, 0.5)
 	return fx
 
 

@@ -1,0 +1,308 @@
+{
+  "landmark": "The Wyrm's Ribs",
+  "note": "Original procedural work (make_giant_bones.py). Origin at ground contact, +Y up, metres. Vertex-colour painted, one material per piece. Layout = [piece, x, z, yaw_deg, scale], relative to landmark centre, +z south, skeleton ~60 m along x, skull at +x. Yaw is Godot rotation.y in degrees: ribs arch toward local +x, so yaw=90 arches toward -z (north), yaw=-90 toward +z.",
+  "pieces": {
+    "giant_rib_a": {
+      "files": {
+        "lod0": "giant_rib_a_lod0.glb",
+        "lod1": "giant_rib_a_lod1.glb"
+      },
+      "tris": {
+        "lod0": 1263,
+        "lod1": 280
+      },
+      "size_m": [
+        12.41,
+        18.16,
+        4.47
+      ],
+      "bbox_min_m": [
+        -1.85,
+        -1.4,
+        -2.2
+      ],
+      "bbox_max_m": [
+        10.57,
+        16.76,
+        2.27
+      ]
+    },
+    "giant_rib_b": {
+      "files": {
+        "lod0": "giant_rib_b_lod0.glb",
+        "lod1": "giant_rib_b_lod1.glb"
+      },
+      "tris": {
+        "lod0": 1636,
+        "lod1": 380
+      },
+      "size_m": [
+        8.84,
+        11.19,
+        7.58
+      ],
+      "bbox_min_m": [
+        -1.23,
+        -1.4,
+        -5.44
+      ],
+      "bbox_max_m": [
+        7.62,
+        9.79,
+        2.14
+      ]
+    },
+    "giant_spine_segment": {
+      "files": {
+        "lod0": "giant_spine_segment_lod0.glb",
+        "lod1": "giant_spine_segment_lod1.glb"
+      },
+      "tris": {
+        "lod0": 1222,
+        "lod1": 316
+      },
+      "size_m": [
+        5.08,
+        6.29,
+        6.72
+      ],
+      "bbox_min_m": [
+        -2.52,
+        -0.93,
+        -3.16
+      ],
+      "bbox_max_m": [
+        2.56,
+        5.36,
+        3.57
+      ]
+    },
+    "giant_skull": {
+      "files": {
+        "lod0": "giant_skull_lod0.glb",
+        "lod1": "giant_skull_lod1.glb"
+      },
+      "tris": {
+        "lod0": 4160,
+        "lod1": 860
+      },
+      "size_m": [
+        11.88,
+        10.18,
+        12.58
+      ],
+      "bbox_min_m": [
+        -3.68,
+        -1.2,
+        -4.09
+      ],
+      "bbox_max_m": [
+        8.2,
+        8.98,
+        8.48
+      ]
+    },
+    "giant_tusk": {
+      "files": {
+        "lod0": "giant_tusk_lod0.glb",
+        "lod1": "giant_tusk_lod1.glb"
+      },
+      "tris": {
+        "lod0": 1431,
+        "lod1": 260
+      },
+      "size_m": [
+        9.5,
+        4.6,
+        2.52
+      ],
+      "bbox_min_m": [
+        -1.89,
+        -0.47,
+        -1.73
+      ],
+      "bbox_max_m": [
+        7.62,
+        4.12,
+        0.79
+      ]
+    }
+  },
+  "layout": [
+    [
+      "giant_skull",
+      25.0,
+      0.0,
+      0,
+      1.0
+    ],
+    [
+      "giant_tusk",
+      22.0,
+      9.5,
+      -25,
+      1.0
+    ],
+    [
+      "giant_tusk",
+      29.0,
+      -10.5,
+      170,
+      0.9
+    ],
+    [
+      "giant_rib_a",
+      -6.0,
+      8.55,
+      90,
+      0.95
+    ],
+    [
+      "giant_rib_a",
+      -4.6,
+      -8.55,
+      -90,
+      0.92
+    ],
+    [
+      "giant_rib_a",
+      -1.0,
+      9.9,
+      90,
+      1.1
+    ],
+    [
+      "giant_rib_a",
+      0.4,
+      -9.9,
+      -90,
+      1.07
+    ],
+    [
+      "giant_rib_a",
+      4.5,
+      9.45,
+      90,
+      1.05
+    ],
+    [
+      "giant_rib_a",
+      5.9,
+      -9.45,
+      -90,
+      1.02
+    ],
+    [
+      "giant_rib_b",
+      10.0,
+      8.1,
+      90,
+      0.9
+    ],
+    [
+      "giant_rib_a",
+      11.4,
+      -8.1,
+      -90,
+      0.87
+    ],
+    [
+      "giant_spine_segment",
+      -27,
+      0.0,
+      0.0,
+      0.55
+    ],
+    [
+      "giant_spine_segment",
+      -23.5,
+      0.35,
+      3.0,
+      0.6
+    ],
+    [
+      "giant_spine_segment",
+      -20,
+      -0.09,
+      -4.0,
+      0.64
+    ],
+    [
+      "giant_spine_segment",
+      -16.5,
+      -0.32,
+      2.3,
+      0.69
+    ],
+    [
+      "giant_spine_segment",
+      -13,
+      0.17,
+      0.9,
+      0.73
+    ],
+    [
+      "giant_spine_segment",
+      -9.5,
+      0.28,
+      -3.5,
+      0.78
+    ],
+    [
+      "giant_spine_segment",
+      -6,
+      -0.24,
+      3.8,
+      0.83
+    ],
+    [
+      "giant_spine_segment",
+      -2.5,
+      -0.22,
+      -1.5,
+      0.87
+    ],
+    [
+      "giant_spine_segment",
+      1,
+      0.3,
+      -1.7,
+      0.92
+    ],
+    [
+      "giant_spine_segment",
+      4.5,
+      0.14,
+      3.8,
+      0.97
+    ],
+    [
+      "giant_spine_segment",
+      8,
+      -0.34,
+      -3.4,
+      1.01
+    ],
+    [
+      "giant_spine_segment",
+      11.5,
+      -0.05,
+      0.7,
+      1.06
+    ],
+    [
+      "giant_spine_segment",
+      15,
+      0.35,
+      2.5,
+      1.1
+    ],
+    [
+      "giant_spine_segment",
+      18.5,
+      -0.04,
+      -4.0,
+      1.15
+    ]
+  ]
+}

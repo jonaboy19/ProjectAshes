@@ -1,0 +1,11 @@
+{
+	"_comment": "Views of places that got meshy_free / KayKit / rock-scan props (docs/qa/ASSET_AUDIT.md work), for tools_qa/region1/look_capture.gd. at/look = [x, z] metres, up = height above ground.",
+	"views": [
+		{"name": "01_kingsreach_east_ward", "at": [662, -172], "look": [678, -134], "up": 5.0, "look_up": 6.0, "hour": 15.5},
+		{"name": "02_eastern_gate_queue", "at": [3708, 481], "look": [3764, 481], "up": 4.0, "look_up": 4.5, "hour": 15.5},
+		{"name": "03_hollins_reach_ruins", "at": [-105, -440], "look": [-150, -488], "up": 7.0, "look_up": 3.0, "hour": 15.5},
+		{"name": "04_wolfsend_market_street", "at": [3322, 494], "look": [3330, 524], "up": 3.5, "look_up": 2.5, "hour": 15.5},
+		{"name": "05_dawn_chapel_close", "at": [814, -437], "look": [848, -435], "up": 4.5, "look_up": 6.0, "hour": 15.5},
+		{"name": "06_stagborn_glade", "at": [-1312, -1092], "look": [-1338, -1082], "up": 4.0, "look_up": 3.0, "hour": 15.5}
+	]
+}

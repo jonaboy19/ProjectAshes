@@ -1,0 +1,570 @@
+{
+ "version": 1,
+ "_doc": "The 12 macro sub-regions of Valencious (Region 1, world +-6144 m, metres from Ashford, north = -z). Input of tools/world/gen_valencious.py. A region is a set of lobes [x, z, radius]; every ground point belongs to the lobe with the smallest distance/radius (multiplicatively weighted Voronoi, borders domain-warped by 'border_warp' m), then heights/biomes are blended over 'blend_m'. Optional terrace [strength, step_m] = broken terracing (badlands). h_min/h_max = target height band (m, WorldGen terms); roughness 0..1 scales the small-scale relief inside the band; ridged 0..1 = share of ridged mountain relief (massifs); biomes = weights over the biome ids below. See docs/world/VALENCIOUS_WORLD.md section 'Macro sub-regions'.",
+ "blend_m": 400,
+ "border_warp": 260,
+ "snow_line_m": 180,
+ "rim_m": 200,
+ "biome_ids": {
+  "0": "grass",
+  "1": "forest",
+  "2": "meadow",
+  "3": "farmland",
+  "4": "marsh",
+  "5": "highland",
+  "6": "rift",
+  "7": "snow"
+ },
+ "regions": [
+  {
+   "id": "heartvale",
+   "name": "Heartvale",
+   "realm_note": "Ashford-Kingsreach core, Crownstead, Greenhollow, Mere shore",
+   "lobes": [
+    [
+     250,
+     -250,
+     1000
+    ],
+    [
+     -1000,
+     -450,
+     750
+    ],
+    [
+     1450,
+     -250,
+     500
+    ],
+    [
+     -380,
+     380,
+     420
+    ]
+   ],
+   "h_min": 5,
+   "h_max": 25,
+   "roughness": 0.3,
+   "ridged": 0.0,
+   "biomes": {
+    "meadow": 0.3,
+    "farmland": 0.35,
+    "grass": 0.25,
+    "forest": 0.1
+   }
+  },
+  {
+   "id": "northern_ridge",
+   "name": "Hollin's Reach and Northern Ridge",
+   "realm_note": "Highwatch, Wyrm's Ribs, Redwater hills, Grimfen Pass; snow above 180 m",
+   "lobes": [
+    [
+     0,
+     -1900,
+     800
+    ],
+    [
+     600,
+     -3400,
+     1150
+    ],
+    [
+     -250,
+     -5000,
+     1000
+    ],
+    [
+     1500,
+     -5000,
+     900
+    ]
+   ],
+   "h_min": 60,
+   "h_max": 220,
+   "roughness": 0.55,
+   "ridged": 0.85,
+   "biomes": {
+    "highland": 0.5,
+    "snow": 0.15,
+    "forest": 0.2,
+    "grass": 0.15
+   },
+   "style": "spine"
+  },
+  {
+   "id": "ironmarch_highlands",
+   "name": "Ironmarch Highlands",
+   "realm_note": "NE: Ironmarch, Skullpick, Solkar camp, Coldharbor",
+   "lobes": [
+    [
+     2250,
+     -2250,
+     650
+    ],
+    [
+     3200,
+     -3600,
+     1450
+    ],
+    [
+     4800,
+     -4800,
+     1200
+    ]
+   ],
+   "h_min": 40,
+   "h_max": 140,
+   "roughness": 0.5,
+   "ridged": 0.6,
+   "biomes": {
+    "highland": 0.45,
+    "forest": 0.25,
+    "grass": 0.15,
+    "farmland": 0.15
+   },
+   "style": "mesa"
+  },
+  {
+   "id": "silverrun_valley",
+   "name": "Thornwold and Silverrun Valley",
+   "realm_note": "E: the Silverrun, Thornwold, Wolfsend, Eastern Gate",
+   "lobes": [
+    [
+     2650,
+     -1500,
+     650
+    ],
+    [
+     2750,
+     0,
+     700
+    ],
+    [
+     3350,
+     350,
+     950
+    ]
+   ],
+   "h_min": 10,
+   "h_max": 40,
+   "roughness": 0.35,
+   "ridged": 0.05,
+   "biomes": {
+    "forest": 0.5,
+    "meadow": 0.25,
+    "farmland": 0.15,
+    "grass": 0.1
+   }
+  },
+  {
+   "id": "duskbriar_wood",
+   "name": "Duskbriar Wood",
+   "realm_note": "dense old oak, Mossfang Warren, bandits, Tuskridge approach",
+   "lobes": [
+    [
+     430,
+     560,
+     430
+    ]
+   ],
+   "h_min": 10,
+   "h_max": 30,
+   "roughness": 0.35,
+   "ridged": 0.0,
+   "biomes": {
+    "forest": 0.85,
+    "grass": 0.1,
+    "marsh": 0.05
+   }
+  },
+  {
+   "id": "rift_marches",
+   "name": "Rift Marches",
+   "realm_note": "the Rift, Rift's Edge, Millbrook, Eastmere, Greywatch; scarred ground",
+   "lobes": [
+    [
+     1150,
+     1000,
+     560
+    ],
+    [
+     1300,
+     1600,
+     520
+    ]
+   ],
+   "h_min": 10,
+   "h_max": 30,
+   "roughness": 0.45,
+   "ridged": 0.1,
+   "terrace": [
+    0.2,
+    4.0
+   ],
+   "biomes": {
+    "rift": 0.35,
+    "grass": 0.25,
+    "farmland": 0.2,
+    "forest": 0.2
+   }
+  },
+  {
+   "id": "ashen_scar",
+   "name": "Ashen Scar Badlands",
+   "realm_note": "SE: the Ashen Scar, Scar Watch, Longmeadow, Amberley; broken terraced ground",
+   "lobes": [
+    [
+     2500,
+     2500,
+     750
+    ],
+    [
+     3750,
+     2450,
+     800
+    ],
+    [
+     2100,
+     3450,
+     700
+    ],
+    [
+     3100,
+     3700,
+     750
+    ]
+   ],
+   "h_min": 20,
+   "h_max": 80,
+   "roughness": 0.65,
+   "ridged": 0.45,
+   "terrace": [
+    0.6,
+    7.0
+   ],
+   "biomes": {
+    "rift": 0.45,
+    "highland": 0.35,
+    "grass": 0.1,
+    "forest": 0.1
+   }
+  },
+  {
+   "id": "greywood_emberfall",
+   "name": "Greywood and Emberfall",
+   "realm_note": "SW: Greywood, Emberfall, Saltwick, the lower Ashrun",
+   "lobes": [
+    [
+     -1500,
+     1750,
+     900
+    ],
+    [
+     -3000,
+     3000,
+     1100
+    ],
+    [
+     -4800,
+     4800,
+     1100
+    ]
+   ],
+   "h_min": 5,
+   "h_max": 40,
+   "roughness": 0.4,
+   "ridged": 0.05,
+   "biomes": {
+    "forest": 0.55,
+    "meadow": 0.2,
+    "grass": 0.15,
+    "marsh": 0.1
+   }
+  },
+  {
+   "id": "westfen_marsh",
+   "name": "Westfen Marsh",
+   "realm_note": "S: Westfen, Brackenmoor, Stonehollow fringe; wet low fen",
+   "lobes": [
+    [
+     0,
+     1500,
+     650
+    ],
+    [
+     -700,
+     2050,
+     600
+    ]
+   ],
+   "h_min": 0,
+   "h_max": 6,
+   "roughness": 0.3,
+   "ridged": 0.0,
+   "biomes": {
+    "marsh": 0.7,
+    "meadow": 0.15,
+    "grass": 0.1,
+    "forest": 0.05
+   }
+  },
+  {
+   "id": "mistwood_west",
+   "name": "Mistwood and the Western Reaches",
+   "realm_note": "W: Mistwood, Cindermoor, Frostmere, Gallows",
+   "lobes": [
+    [
+     -3250,
+     -300,
+     1050
+    ],
+    [
+     -3500,
+     900,
+     700
+    ],
+    [
+     -5000,
+     200,
+     1000
+    ],
+    [
+     -4400,
+     2300,
+     800
+    ]
+   ],
+   "h_min": 20,
+   "h_max": 90,
+   "roughness": 0.45,
+   "ridged": 0.2,
+   "biomes": {
+    "forest": 0.6,
+    "highland": 0.2,
+    "grass": 0.2
+   }
+  },
+  {
+   "id": "dunhallow_uplands",
+   "name": "Dunhallow Uplands",
+   "realm_note": "NW: Dunhallow, Deepdark, Marrowick, Skarholm",
+   "lobes": [
+    [
+     -2300,
+     -2300,
+     950
+    ],
+    [
+     -3500,
+     -3500,
+     1100
+    ],
+    [
+     -1800,
+     -4300,
+     900
+    ],
+    [
+     -5200,
+     -4900,
+     1000
+    ]
+   ],
+   "h_min": 50,
+   "h_max": 160,
+   "roughness": 0.5,
+   "ridged": 0.5,
+   "biomes": {
+    "highland": 0.4,
+    "forest": 0.35,
+    "grass": 0.15,
+    "meadow": 0.1
+   },
+   "style": "plateau"
+  },
+  {
+   "id": "harrowgate_steppe",
+   "name": "Harrowgate Steppe Edge",
+   "realm_note": "far S toward the Solkar Dominion: dry grassland, Harrow Arch, Thistledown",
+   "lobes": [
+    [
+     -100,
+     3300,
+     900
+    ],
+    [
+     1000,
+     4700,
+     1100
+    ],
+    [
+     -1500,
+     4700,
+     1000
+    ],
+    [
+     2200,
+     5600,
+     900
+    ]
+   ],
+   "h_min": 10,
+   "h_max": 40,
+   "roughness": 0.3,
+   "ridged": 0.05,
+   "biomes": {
+    "grass": 0.45,
+    "meadow": 0.25,
+    "farmland": 0.2,
+    "highland": 0.1
+   }
+  }
+ ],
+ "spines": [
+  {
+   "id": "grimfen_spine",
+   "note": "main WSW-ENE range through Grimfen Pass (notch)",
+   "half_width_m": 650,
+   "pts": [
+    [
+     -3500,
+     -3800
+    ],
+    [
+     -1800,
+     -3750
+    ],
+    [
+     -600,
+     -3680
+    ],
+    [
+     559,
+     -3597
+    ],
+    [
+     1800,
+     -3500
+    ],
+    [
+     3200,
+     -3300
+    ]
+   ],
+   "notch": {
+    "at": [
+     559,
+     -3597
+    ],
+    "radius_m": 420,
+    "cut": 0.7
+   }
+  },
+  {
+   "id": "spur_west",
+   "note": "spur south toward Highwatch",
+   "half_width_m": 320,
+   "pts": [
+    [
+     -700,
+     -3650
+    ],
+    [
+     -500,
+     -2800
+    ],
+    [
+     -300,
+     -2100
+    ]
+   ],
+   "scale": 0.75
+  },
+  {
+   "id": "spur_east",
+   "note": "spur south toward Redwater",
+   "half_width_m": 320,
+   "pts": [
+    [
+     1500,
+     -3500
+    ],
+    [
+     1400,
+     -2700
+    ],
+    [
+     1100,
+     -2000
+    ]
+   ],
+   "scale": 0.75
+  },
+  {
+   "id": "highwatch_ridge",
+   "note": "the ridge Highwatch Keep and the Wyrm's Ribs stand on",
+   "half_width_m": 420,
+   "pts": [
+    [
+     -1500,
+     -1600
+    ],
+    [
+     -600,
+     -1800
+    ],
+    [
+     300,
+     -1900
+    ],
+    [
+     1300,
+     -1950
+    ],
+    [
+     2000,
+     -2150
+    ]
+   ],
+   "scale": 0.62
+  },
+  {
+   "id": "ironmarch_scarp",
+   "note": "broken NE scarp above the Silverrun source",
+   "half_width_m": 500,
+   "pts": [
+    [
+     2200,
+     -3300
+    ],
+    [
+     3200,
+     -3000
+    ],
+    [
+     4300,
+     -2600
+    ],
+    [
+     5400,
+     -2300
+    ]
+   ],
+   "scale": 0.7
+  }
+ ],
+ "plateau": {
+  "dunhallow": {
+   "centre": [
+    -2900,
+    -3200
+   ],
+   "radii_m": [
+    1500,
+    1000
+   ],
+   "edge_m": 260,
+   "level": 0.62
+  }
+ }
+}

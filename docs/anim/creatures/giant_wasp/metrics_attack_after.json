@@ -1,0 +1,18 @@
+{
+ "clip": "attack",
+ "frames": 31,
+ "dur": 1.0,
+ "windup_start_s": 0.06666666666666667,
+ "impact_s": 0.4666666666666667,
+ "peak_extremity_speed_mps": 17.723188400268555,
+ "telegraph_s": 0.4,
+ "hold_s": 0.0,
+ "recovery_s": 1.0,
+ "end_pose_dev_cm": 30.95516014099121,
+ "centroid_shift_cm": 79.3023681640625,
+ "centroid_dz_cm": [
+  -31.99640464782715,
+  29.03506851196289
+ ],
+ "min_z_cm": 106.8007583618164
+}

@@ -54,5 +54,5 @@ The GLB then goes to `assets/incoming/animations_free2/`-style folders like the 
 
 ## Remaining work
 - Only tested on synthetic mannequin videos (Blender renders of UAL clips); run on a real phone clip and tune `--fov`, `--mincut/--beta`.
-- No hand/finger orientation, no IK foot pinning (only flattening + odometry), no automatic loop closing (retargeter `--loop` handles it).
-- Add a one-shot wrapper and a `docs/anim/advanced/README.md` link (owned by another agent).
+- DONE: IK foot pinning (`foot_ik.py`) and the one-command wrapper (`video_to_clip.ps1`), see `docs/anim/advanced/video_mocap/README.md`.
+- Still open: real phone footage test, hand/finger orientation, automatic loop closing (retargeter `--loop` handles it), slopes/stairs.

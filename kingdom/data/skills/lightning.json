@@ -28,6 +28,7 @@
 				"stun": 0.2
 			},
 			"anim": [
+				"Lightning_Point_Snap",
 				"Magic_Cast_R",
 				"Spell_Simple_Shoot"
 			],
@@ -35,7 +36,8 @@
 			"hit_time": 0.15,
 			"vfx": "lightning_chain",
 			"element": "lightning",
-			"max_rank": 3
+			"max_rank": 3,
+			"anim_mode": "upper"
 		},
 		{
 			"id": "lightning_chain",
@@ -55,6 +57,7 @@
 				"stun": 0.3
 			},
 			"anim": [
+				"Lightning_Point_Snap",
 				"Magic_Cast_L",
 				"G6_cast_unarmed_magic"
 			],
@@ -68,7 +71,8 @@
 			"needs": {
 				"level": 4
 			},
-			"max_rank": 3
+			"max_rank": 3,
+			"anim_mode": "upper"
 		},
 		{
 			"id": "lightning_quick_nerves",

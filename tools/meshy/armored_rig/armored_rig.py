@@ -563,7 +563,10 @@ FINAL.name = "Armature"; FINAL.data.name = "Armature"
 def rebuild_material(obj, size, tag):
     src_mat = obj.data.materials[0]
     img = None
-    for nd in src_mat.node_tree.nodes:
+    if cfg.get("texture"):          # explicit base-colour file (sources whose embedded image does not survive a copy)
+        img = bpy.data.images.load(cfg["texture"])
+        img.pack() if not img.packed_file else None
+    for nd in ([] if img is not None else src_mat.node_tree.nodes):
         if nd.type == "BSDF_PRINCIPLED":
             lk = nd.inputs["Base Color"].links
             if lk and lk[0].from_node.type == "TEX_IMAGE":

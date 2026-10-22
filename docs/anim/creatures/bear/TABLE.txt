@@ -1,0 +1,18 @@
+BEAR  (bear.glb / bear_lod1.glb, identical clips)   values for creature_models.gd  "bear"
+
+clip     dur(s)  ground speed (m/s)   was in table   slip before (at table speed)        slip after
+walk     1.067   1.40                 1.35           46.8 cm stance creep at 1.35 (35.7 at v*=1.705; mean 27)   6.3 cm / mean 4.1 at 1.4
+run      0.567   4.05                 4.0            9.7 / 5.2 cm (already within ~5 cm)    unchanged clip (kept), number 4.05
+attack   1.500   impact 0.70 s        0.27           see below
+idle 3.333, hit 0.667, death 1.067: unchanged.
+
+WALK (changed): the fitted wolf walk had front feet travelling 90 cm per cycle; legs were re-solved with foot IK so stance paws stay planted
+at 1.4 m/s (max residual reach error 3 cm). Body, spine and head channels untouched.
+
+ATTACK (changed): 1.5 s (45 frames), impact 0.70 s (peak extremity speed, the 2-frame swipe at frames 21-23; paw contact 0.75 s).
+Telegraph 0.63 s: rears up onto the haunches (chest +47 deg, body sits back 15 cm / down 10 cm), head reared, right paw cocked back and up,
+left paw raised, 0.25 s held. Then a swipe (paw 0.7 m forward and down, chest -43 deg), follow-through with a 13 cm weight drop onto the
+front paws, recovery to the idle pose.
+Before: impact measured at 0.93 s (the table said 0.27), a sideways paw raise while the body drifted forward 88 cm, no hold, 0.36x slow-motion in game.
+Playback scale impact/windup(0.75): now 0.93.
+Recommended entry: "bear": {"walk": 1.4, "run": 4.05, "impact": 0.70}

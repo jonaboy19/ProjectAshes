@@ -1,0 +1,19 @@
+{
+	"_doc": "MN-6. attitude -3..+3 of a culture toward a companion KIND or SPECIES (species wins over kind, then default). Cultures use faith.gd tags: caldric (secular runestone, mercantile), solenne (Dawn Throne church kingdoms), urrokai and veyl (wild-faith minorities), frontier (hold towns), folk (no church), monster_town (the polity's own terms). doctrine: unclean = named monsters are unsanctioned soul-binding.",
+	"cultures": {
+		"caldric": {"doctrine": "secular", "default": 0, "kinds": {"human": 0, "beast": 0, "tame_beast": 0, "monster": 0, "undead": -3},
+			"species": {"goblin": 0, "kobold": 0, "slime": 0, "lizardfolk": 1, "wolf": 0, "bear": -1, "troll": -1, "ogre": -1, "orc": 0, "spider": -1, "undead": -3}, "guild_sponsored_bonus": {"goblin": 1, "kobold": 1, "lizardfolk": 1, "orc": 1, "ogre": 1}},
+		"solenne": {"doctrine": "unclean", "default": -2, "kinds": {"human": 0, "beast": -1, "tame_beast": -1, "monster": -3, "undead": -3},
+			"species": {"goblin": -3, "kobold": -2, "slime": -1, "lizardfolk": -2, "wolf": -2, "bear": -2, "troll": -3, "ogre": -3, "orc": -3, "spider": -2, "undead": -3}},
+		"urrokai": {"doctrine": "kin_spirits", "default": 0, "kinds": {"human": 0, "beast": 2, "tame_beast": 2, "monster": 0, "undead": -3},
+			"species": {"wolf": 2, "bear": 2, "spider": 0, "slime": 1, "lizardfolk": 1, "goblin": -1, "kobold": 0, "orc": 0, "ogre": 0, "troll": 0, "undead": -3}},
+		"veyl": {"doctrine": "kin_spirits", "default": 0, "kinds": {"human": 0, "beast": 2, "tame_beast": 2, "monster": 0, "undead": -3},
+			"species": {"wolf": 2, "bear": 2, "spider": 1, "slime": 1, "lizardfolk": 1, "goblin": -1, "kobold": 0, "orc": -1, "ogre": 0, "troll": 0, "undead": -3}},
+		"frontier": {"doctrine": "pragmatic", "default": 0, "kinds": {"human": 0, "beast": 1, "tame_beast": 1, "monster": 0, "undead": -3},
+			"species": {"orc": 1, "wolf": 1, "bear": 1, "ogre": 1, "kobold": 1, "goblin": 0, "troll": 0, "spider": -1, "slime": 0, "lizardfolk": 0, "undead": -3}},
+		"folk": {"doctrine": "tolerant", "default": 0, "kinds": {"human": 0, "beast": 0, "tame_beast": 0, "monster": 0, "undead": -3}, "species": {"undead": -3}},
+		"monster_town": {"doctrine": "oath", "default": 2, "kinds": {"human": 0, "beast": 1, "tame_beast": 1, "monster": 2, "undead": -3},
+			"species": {"orc": 3, "goblin": 2, "kobold": 2, "ogre": 2, "troll": 2, "lizardfolk": 3, "wolf": 2, "bear": 2, "spider": 2, "slime": 2, "undead": -3}}
+	},
+	"kingdom_culture": {"caldrenn": "caldric", "solmarch": "solenne", "varska_marches": "solenne", "serathi_lowlands": "solenne", "urrokai_clanlands": "urrokai", "veylwood": "veyl"}
+}

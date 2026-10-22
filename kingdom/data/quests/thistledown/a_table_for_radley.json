@@ -1,0 +1,67 @@
+{
+ "id": "thistledown_a_table_for_radley",
+ "title": "A Table for Radley",
+ "summary": "Oswin Fleece says Radley Kettle is going short. 3 cheese wheels and a visit would help, before the first frost.",
+ "giver": {
+  "npc": "oswin_fleece",
+  "name": "Oswin Fleece",
+  "place": "thistledown"
+ },
+ "offer_text": "\"Radley Kettle will not ask, so I am asking for them. Go and see what is wanted, and bring cheese wheels before the first frost. The stock at the fold is the town's, and this is what it is for.\"",
+ "turn_in_text": "\"Thank you. It is the small things that keep a town.\"",
+ "stages": [
+  {
+   "id": "ask",
+   "title": "Look after Radley",
+   "mode": "all",
+   "objectives": [
+    {
+     "id": "visit",
+     "type": "talk_to",
+     "npc": "radley_kettle",
+     "text": "Visit Radley Kettle and ask what is wanted"
+    },
+    {
+     "id": "gather",
+     "type": "collect",
+     "item": "cheese",
+     "count": 3,
+     "text": "Take 3 cheese wheels from the fold"
+    }
+   ]
+  },
+  {
+   "id": "bring",
+   "title": "Bring it",
+   "mode": "all",
+   "objectives": [
+    {
+     "id": "bring",
+     "type": "deliver",
+     "item": "cheese",
+     "count": 3,
+     "to": "radley_kettle",
+     "text": "Hand the cheese wheels to Radley Kettle"
+    }
+   ],
+   "end": true
+  }
+ ],
+ "rewards": {
+  "gold": 10,
+  "rep": {
+   "thistledown": 5
+  },
+  "relationship": [
+   {
+    "npc": "oswin_fleece",
+    "label": "Looked after the old folk",
+    "value": 14,
+    "days": 90
+   }
+  ],
+  "items": {
+   "cheese": 1
+  }
+ }
+}

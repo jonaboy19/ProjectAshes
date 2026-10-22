@@ -4,6 +4,10 @@ extends RefCounted
 ## scale, part visibility, colliders, animation looping, MultiMesh meshes and
 ## pre-rendered sprite impostors for distant crowds.
 
+const Probe := preload("res://scripts/core/perf_probe.gd")
+const StyleG := preload("res://scripts/style_g.gd")
+const BakedVao := preload("res://scripts/world/baked_vao.gd")
+const TownAtlas := preload("res://scripts/world/town_atlas.gd")
 const CHAR_DIR := "res://assets/kaykit/characters/"
 const MED_DIR := "res://assets/kaykit/medieval/"
 const WEAPON_DIR := "res://assets/kaykit/weapons/"
@@ -23,7 +27,15 @@ const HAIR := UBC + "Hairstyles/Rigged to Head Bone/glTF (Godot -Unreal)/"
 ## travel is kept on the `root` bone position track, disabled here. To use root motion, set
 ## AnimationPlayer.root_motion_track to "<skeleton>:root" and re-enable that track.
 const UAL_ANIM_DIR := "res://assets/incoming/animations/"
-const UAL_FILES := [Q + "universal-animation-library/Unreal-Godot/UAL1_Standard.glb",
+const UAL_LOCO_DIR := "res://assets/incoming/animations_free2/loco_transitions/"
+const UAL_TRAV_DIR := "res://assets/incoming/animations_free2/traversal_authored/"
+const UAL_FILES := [
+	# First match wins: this set's Jump_Start must precede UAL1's older clip.
+	UAL_LOCO_DIR + "UAL_Loco_Transitions.glb",
+	# Authored traversal (F2): vault, mantle, ledge grab / hang / climb / drop, ladder, rides. Root track disabled;
+	# scripts/actors/traversal.gd moves the capsule. docs/anim/traversal_v2_HANDOFF.md.
+	UAL_TRAV_DIR + "UAL_Authored_Traversal.glb",
+	Q + "universal-animation-library/Unreal-Godot/UAL1_Standard.glb",
 	Q + "universal-animation-library-2/Unreal-Godot/UAL2_Standard.glb",
 	# 119 extra CC0 clips retargeted onto UAL (incoming/characters/README.md, "Recommendation"):
 	# dodges, deaths, bow/crossbow, climb, two-handed, farm work, fishing, social.
@@ -33,7 +45,14 @@ const UAL_FILES := [Q + "universal-animation-library/Unreal-Godot/UAL1_Standard.
 	# Souls-like combat, magic casting, parry, roll, interactions (Cat Prisbrey, Unlicense)
 	# and CMU mocap karate / tai chi / swim / chores / lie down (assets/incoming/animations/README.md).
 	UAL_ANIM_DIR + "souls_cat/UAL_Souls_Cat.glb",
-	UAL_ANIM_DIR + "cmu_mocap/UAL_CMU_Mocap.glb"]
+	UAL_ANIM_DIR + "cmu_mocap/UAL_CMU_Mocap.glb",
+	# Authored combat set (docs/anim/COMBAT_AUDIT.md): target-aimed light combo (+ _Upper layer variants),
+	# directional hit reactions, staggers, parry/riposte, finishers, heavy/run/2H/spear/bow, deaths.
+	# Timing markers: animations/combat/combat_markers.json (CombatMarkers). Root track disabled like the rest.
+	UAL_ANIM_DIR + "combat/UAL_Combat.glb",
+	# Elemental casting v2 (docs/anim/free_library/polish_casting.md): Cast_<Element>_Charge / _Release, Cast_AoE_Slam,
+	# Cast_Channel_Beam. In place, so no root handling is needed.
+	"res://assets/incoming/animations_free/casting/UAL_Free_CastingElements.glb"]
 const WEAPONS := Q + "fantasy-props-megakit/Exports/glTF/"
 const HELMET := Q + "lowpoly-animated-knight/FBX/Helmet1.fbx"
 ## Old KayKit clip names -> UAL clips, so gameplay code keeps using one vocabulary.
@@ -64,6 +83,7 @@ const RTS := Q + "ultimate-fantasy-rts/glTF/"
 ## Blender-built village set (tools/blender/make_village_*.py); the old pack paths are gone.
 const GEN := "res://assets/generated/"
 const MESHY := "res://assets/incoming/ai3d/meshy/"
+const MF := "res://assets/incoming/meshy_free/"
 const BUILDINGS := {
 	# Hero buildings generated with Meshy from the concept sheets (user, see
 	# docs/art_reference/concept_*.png), decimated to lod0/lod1 by tools/meshy.
@@ -86,8 +106,10 @@ const BUILDINGS := {
 	"house_15": [GEN + "village_house_c_4.glb", 0.0, GEN + "village_house_c_4_lod1.glb", 45.0, GEN + "village_house_c_4_lod2.glb", 100.0],
 	"house_16": [GEN + "village_house_d_4.glb", 0.0, GEN + "village_house_d_4_lod1.glb", 45.0, GEN + "village_house_d_4_lod2.glb", 100.0],
 	# Meshy house types (user, paid plan): fitted to the 10.5 m lots.
-	"mhouse_peasant_a": [MESHY + "house_peasant_a_lod0.glb", 7.5, MESHY + "house_peasant_a_lod1.glb", 45.0, MESHY + "house_peasant_a_lod2.glb", 100.0, MESHY + "house_peasant_a_lod3.glb", 160.0],
-	"mhouse_peasant_b": [MESHY + "house_peasant_b_lod0.glb", 8.0, MESHY + "house_peasant_b_lod1.glb", 45.0, MESHY + "house_peasant_b_lod2.glb", 100.0, MESHY + "house_peasant_b_lod3.glb", 160.0],
+	# AAA pass 4 (2026-10-06): the peasant cottage's roof read as faceted crystal at the new close camera; the owner's dl3
+	# thatch-and-timber cottage has a thick, textured thatch. Same key and 7.5 m fit, so plans, property and saves are unchanged.
+	"mhouse_peasant_a": ["res://assets/incoming/meshy_dl3/buildings/cottage_thatch_timber_lod0.glb", 7.5, "res://assets/incoming/meshy_dl3/buildings/cottage_thatch_timber_lod1.glb", 45.0, MESHY + "house_peasant_a_lod3.glb", 160.0],
+	"mhouse_peasant_b": ["res://assets/incoming/meshy_dl3/buildings/house_straw_thatch_lod0.glb", 8.0, "res://assets/incoming/meshy_dl3/buildings/house_straw_thatch_lod1.glb", 45.0, MESHY + "house_peasant_b_lod2.glb", 100.0, MESHY + "house_peasant_b_lod3.glb", 160.0],
 	"mhouse_family": [MESHY + "house_family_lod0.glb", 9.0, MESHY + "house_family_lod1.glb", 45.0, MESHY + "house_family_lod2.glb", 100.0, MESHY + "house_family_lod3.glb", 160.0],
 	"mhouse_trader": [MESHY + "house_trader_lod0.glb", 8.5, MESHY + "house_trader_lod1.glb", 45.0, MESHY + "house_trader_lod2.glb", 100.0, MESHY + "house_trader_lod3.glb", 160.0],
 	"mhouse_manor": [MESHY + "house_manor_lod0.glb", 10.0, MESHY + "house_manor_lod1.glb", 45.0, MESHY + "house_manor_lod2.glb", 110.0, MESHY + "house_manor_lod3.glb", 160.0],
@@ -131,18 +153,63 @@ const BUILDINGS := {
 	"castle": [GEN + "castle_keep.glb", 0.0],
 	"temple": [GEN + "temple.glb", 0.0],
 	"watchtower": [RTS + "WatchTower_SecondAge_Level3.gltf", 7.0],
-	"wall": [GEN + "town_wall.glb", 0.0],
-	"wall_tower": [GEN + "town_wall_tower.glb", 0.0],
-	"wall_gate": [GEN + "town_gate.glb", 0.0],
+	"wall": [GEN + "town_wall.glb", 0.0, GEN + "town_wall_lod1.glb", 60.0],
+	"wall_tower": [GEN + "town_wall_tower.glb", 0.0, GEN + "town_wall_tower_lod1.glb", 60.0],
+	"wall_gate": [GEN + "town_gate.glb", 0.0, GEN + "town_gate_lod1.glb", 60.0, GEN + "town_gate_lod2.glb", 140.0],
 	# Tall jettied townhouses lining walled towns' gate roads (Kingsreach reference).
-	"house_town_a": [GEN + "townhouse_a.glb", 0.0, GEN + "townhouse_a_lod1.glb", 60.0],
-	"house_town_b": [GEN + "townhouse_b.glb", 0.0, GEN + "townhouse_b_lod1.glb", 60.0],
-	"house_town_c": [GEN + "townhouse_c.glb", 0.0, GEN + "townhouse_c_lod1.glb", 60.0],
-	"house_town_d": [GEN + "townhouse_d.glb", 0.0, GEN + "townhouse_d_lod1.glb", 60.0],
+	"house_town_a": [GEN + "townhouse_a.glb", 0.0, GEN + "townhouse_a_lod1.glb", 60.0, GEN + "townhouse_a_lod2.glb", 130.0],
+	"house_town_b": [GEN + "townhouse_b.glb", 0.0, GEN + "townhouse_b_lod1.glb", 60.0, GEN + "townhouse_b_lod2.glb", 130.0],
+	"house_town_c": [GEN + "townhouse_c.glb", 0.0, GEN + "townhouse_c_lod1.glb", 60.0, GEN + "townhouse_c_lod2.glb", 130.0],
+	"house_town_d": [GEN + "townhouse_d.glb", 0.0, GEN + "townhouse_d_lod1.glb", 60.0, GEN + "townhouse_d_lod2.glb", 130.0],
 	# Kingsreach gate-market dressing (main art reference): stalls, lamps, banners, bunting.
 	"market_stall_red": [GEN + "market_stall_red.glb", 0.0],
 	"market_stall_green": [GEN + "market_stall_green.glb", 0.0],
 	"street_lamp": [GEN + "street_lamp.glb", 0.0],
+	# Meshy free community pack pieces for district dressing (native size, origin centred on the base): docs/qa/ASSET_AUDIT.md "use the unused models".
+	"mf_street_lamp_twin_gold": [MF + "lighting/street_lamp_twin_gold_lod0.glb", 0.0],
+	"mf_street_lantern_gothic": [MF + "lighting/street_lantern_gothic_lod0.glb", 0.0],
+	"mf_street_lantern_whimsical": [MF + "lighting/street_lantern_whimsical_lod0.glb", 0.0],
+	"mf_lamp_post_timber_cross": [MF + "lighting/lamp_post_timber_cross_lod0.glb", 0.0],
+	"mf_lantern_wall_scroll": [MF + "lighting/lantern_wall_scroll_lod0.glb", 0.0],
+	"mf_hay_bale_lowpoly": [MF + "farm/hay_bale_lowpoly_lod0.glb", 0.0],
+	"mf_hay_bale_rect_a": [MF + "farm/hay_bale_rect_a_lod0.glb", 0.0],
+	"mf_hay_bale_round": [MF + "farm/hay_bale_round_lod0.glb", 0.0],
+	"mf_hay_bale_yellow_large": [MF + "farm/hay_bale_yellow_large_lod0.glb", 0.0],
+	"mf_shed_plank_low": [MF + "farm/shed_plank_low_lod0.glb", 0.0],
+	"mf_shed_thatch_small": [MF + "farm/shed_thatch_small_lod0.glb", 0.0],
+	"mf_shed_wood_shingle": [MF + "farm/shed_wood_shingle_lod0.glb", 0.0],
+	"mf_chicken_coop_fenced": [MF + "farm/chicken_coop_fenced_lod0.glb", 0.0],
+	"mf_fence_picket_low": [MF + "fences/fence_picket_low_lod0.glb", 0.0],
+	"mf_fence_picket_tall": [MF + "fences/fence_picket_tall_lod0.glb", 0.0],
+	"mf_fence_plank_panel": [MF + "fences/fence_plank_panel_lod0.glb", 0.0],
+	"mf_fence_rail_grass_a": [MF + "fences/fence_rail_grass_a_lod0.glb", 0.0],
+	"mf_fence_rail_grass_b": [MF + "fences/fence_rail_grass_b_lod0.glb", 0.0],
+	"mf_fence_broken_rail": [MF + "fences/fence_broken_rail_lod0.glb", 0.0],
+	"mf_wall_stone_railing": [MF + "fences/wall_stone_railing_lod0.glb", 0.0],
+	"mf_well_covered_planks": [MF + "props/well_covered_planks_lod0.glb", 0.0],
+	"mf_well_stone_roofed": [MF + "props/well_stone_roofed_lod0.glb", 0.0],
+	"mf_well_stone_shingle": [MF + "props/well_stone_shingle_lod0.glb", 0.0],
+	"mf_axe_long_handle": [MF + "props/axe_long_handle_lod0.glb", 0.0],
+	"mf_chest_blue_iron": [MF + "props/chest_blue_iron_lod0.glb", 0.0],
+	"mf_chest_gold": [MF + "props/chest_gold_lod0.glb", 0.0],
+	"mf_chest_metal_wood": [MF + "props/chest_metal_wood_lod0.glb", 0.0],
+	"mf_chest_orange_metal": [MF + "props/chest_orange_metal_lod0.glb", 0.0],
+	"mf_chest_red_black": [MF + "props/chest_red_black_lod0.glb", 0.0],
+	"mf_chest_silver_lock": [MF + "props/chest_silver_lock_lod0.glb", 0.0],
+	"mf_bush_raspberry": [MF + "flora/bush_raspberry_lod0.glb", 0.0],
+	"mf_bouquet_wild": [MF + "flora/bouquet_wild_lod0.glb", 0.0],
+	"mf_mushroom_glow_brown": [MF + "flora/mushroom_glow_brown_lod0.glb", 0.0],
+	"mf_sign_shop_lion": [MF + "signs/sign_shop_lion_lod0.glb", 0.0],
+	"mf_stall_meat_shingle": [MF + "market/stall_meat_shingle_lod0.glb", 0.0],
+	"mf_stall_potatoes": [MF + "market/stall_potatoes_lod0.glb", 0.0],
+	"mf_stall_open_roof": [MF + "market/stall_open_roof_lod0.glb", 0.0],
+	"mf_shed_striped_awning": [MF + "market/shed_striped_awning_lod0.glb", 0.0],
+	"mf_table_tavern_thick": [MF + "furniture/table_tavern_thick_lod0.glb", 0.0],
+	"mf_table_tavern_trestle": [MF + "furniture/table_tavern_trestle_lod0.glb", 0.0],
+	"mf_table_barrel_top": [MF + "furniture/table_barrel_top_lod0.glb", 0.0],
+	"mf_tavern_set_barrels_b": [MF + "furniture/tavern_set_barrels_b_lod0.glb", 0.0],
+	"mf_chair_simple_a": [MF + "furniture/chair_simple_a_lod0.glb", 0.0],
+	"mf_chair_simple_b": [MF + "furniture/chair_simple_b_lod0.glb", 0.0],
 	"banner_pole": [GEN + "banner_pole.glb", 0.0],
 	"wall_banner": [GEN + "wall_banner.glb", 0.0],
 	"shop_sign": [GEN + "shop_sign.glb", 0.0],
@@ -183,7 +250,9 @@ static var _scenes: Dictionary = {}   # path -> PackedScene
 static func scene(path: String) -> PackedScene:
 	var s: PackedScene = _scenes.get(path)
 	if s == null:
+		var _pl := Probe.t()
 		s = load(path) as PackedScene
+		Probe.add("assets.scene_load", _pl)
 		if s != null:
 			_scenes[path] = s
 	return s
@@ -258,19 +327,31 @@ const G6 := "res://assets/incoming/characters/g6-ual/"
 ## Meshy armored humanoids re-rigged to UAL (user's PC session); their helmets are part of the mesh.
 const ARMORED := "res://assets/incoming/ai3d/meshy/armored/"
 const CDMIR := "res://assets/incoming/characters/cdmir-ual/"
+## Meshy batch 3 bipeds re-rigged onto the UAL skeleton (tools/meshy/armored_rig/meshy3_rerig.py, docs/art/meshy_dl3/README.md).
+const MESHY3 := "res://assets/incoming/meshy_dl3/characters_ual/"
+## Shirtless fix (2026-10-06): MESHY3 "villager_green_vest" is NOT in any villager pool. Its fur-collared vest is cut so wide that the
+## chest and shoulders are bare skin (about 40 % of its upper-chest texels are skin; every other look is under 20 %), so the town
+## villager who rolled it rendered shirtless on every tier. The model stays on disk (docs/art/hero_tier_a uses it as the Tier-A hero
+## candidate, which gets its own outfit pass). tests/test_villager_torso.gd measures every pooled look and LOD.
 const MH_LOOKS := {
 	"Rogue_Hooded": ["villager_man_a", "villager_man_b", "villager_woman_a", "villager_woman_b", "elder_man", "elder_woman",
-		G6 + "g6_m_villager_tunic", G6 + "g6_f_villager_tunic", G6 + "g6_f_worker_apron"],
-	"Barbarian": ["villager_man_a", "villager_man_b", "father", "villager_farmer", G6 + "g6_m_worker_apron", G6 + "g6_m_hunter_leather"],
+		G6 + "g6_m_villager_tunic", G6 + "g6_f_villager_tunic", G6 + "g6_f_worker_apron",
+		MESHY3 + "villager_white_shirt", MESHY3 + "villager_hat", MESHY3 + "peasant_hooded"],
+	"Barbarian": ["villager_man_a", "villager_man_b", "father", "villager_farmer", G6 + "g6_m_worker_apron", G6 + "g6_m_hunter_leather",
+		MESHY3 + "villager_hat", MESHY3 + "peasant_hooded"],
 	"Mage": ["villager_woman_a", "villager_woman_b", "mother", "elder_woman", "villager_baker", G6 + "g6_f_villager_tunic", G6 + "g6_f_blacksmith_apron"],
 	"Rogue": ["villager_man_b", "elder_man", "villager_man_a", G6 + "g6_m_villager_tunic", G6 + "g6_m_hunter_leather"],
 	"Blacksmith": [G6 + "g6_m_blacksmith_apron", "villager_smith"], "Innkeeper": [G6 + "g6_m_worker_apron", G6 + "g6_f_worker_apron"],
-	"Hunter": [G6 + "g6_m_hunter_leather", G6 + "g6_f_hunter_leather"], "Monk": [CDMIR + "cdmir_monk"],
-	"Herbalist": [CDMIR + "cdmir_old_lady", "villager_healer"], "Trader": [G6 + "g6_m_villager_tunic", G6 + "g6_f_worker_apron", "villager_merchant"],
+	"Hunter": [G6 + "g6_m_hunter_leather", G6 + "g6_f_hunter_leather", MESHY3 + "guardian_hooded"], "Monk": [CDMIR + "cdmir_monk"],
+	"Herbalist": [CDMIR + "cdmir_old_lady", "villager_healer"], "Trader": [G6 + "g6_m_villager_tunic", G6 + "g6_f_worker_apron", "villager_merchant", MESHY3 + "merchant_cloaked"],
 	"Knight": [ARMORED + "guard", ARMORED + "mercenary"],
-	"Player": ["player_young"], "Guard": [ARMORED + "guard", "villager_guard"], "Baker": ["villager_baker"], "Plate_Knight": [ARMORED + "knight"],
-	"Mercenary": [ARMORED + "mercenary"], "Bandit": [ARMORED + "bandit"], "Noble": [ARMORED + "noble"],
+	"Player": ["player_young"], "Guard": [ARMORED + "guard", "villager_guard"], "Baker": ["villager_baker"], "Plate_Knight": [ARMORED + "knight", MESHY3 + "knight_plate_a"],
+	"Mercenary": [ARMORED + "mercenary"], "Bandit": [ARMORED + "bandit", MESHY3 + "guardian_hooded"], "Noble": [ARMORED + "noble"],
 	"Orc_Warchief": [ARMORED + "orc_warchief"],
+	# Meshy batch 3 (docs/art/meshy_dl3/README.md): named looks for Thornfield's stranger, travellers and extra villagers.
+	"Meshy_Villager": [MESHY3 + "villager_white_shirt", MESHY3 + "villager_hat", MESHY3 + "peasant_hooded"],
+	"Meshy_Traveller": [MESHY3 + "guardian_hooded", MESHY3 + "merchant_cloaked"],
+	"Meshy_Knight": [MESHY3 + "knight_plate_a"],
 	"Mother": ["mother"], "Father": ["father"],
 	"Child_Boy": ["child_boy"], "Child_Girl": ["child_girl"],
 	"Elder_Man": ["elder_man"], "Elder_Woman": ["elder_woman"],
@@ -281,7 +362,9 @@ const USE_MAKEHUMAN := true
 static func character(file_name: String, height: float, keep: Array[String] = []) -> Node3D:
 	if USE_MAKEHUMAN and MH_LOOKS.has(file_name):
 		var files: Array = MH_LOOKS[file_name]
-		return mh_character(files[randi() % files.size()], height, keep)
+		var pick: String = files[randi() % files.size()]
+		# LOW: the re-rigged Meshy batch 3 looks (7.0k tris, 1024 px) use their LOD1 (2.9k tris, 512 px): cheaper than a UAL villager (6.8k)
+		return mh_character(pick, height, keep, pick.begins_with(MESHY3) and preload("res://scripts/world/low_budget.gd").low(), true)
 	if USE_REALISTIC and LOOKS.has(file_name):
 		return humanoid(LOOKS[file_name], height, keep)
 	var model: Node3D = Assets.scene(CHAR_DIR + file_name + ".glb").instantiate()
@@ -300,6 +383,28 @@ static func character(file_name: String, height: float, keep: Array[String] = []
 	return model
 
 
+## Behind the loading screen: builds (and throws away) one body of every look PopulationLOD can give a resident, so the first
+## villager of each look in the game does not pay for reading its GLB, building the merged atlas (character_merge.gd caches it per
+## outfit) and the animation library in the middle of play (a first body was 20-100 ms; the rest 3-5 ms). Nothing is added to the
+## tree; the PackedScenes and the merge cache stay. Returns how many looks were built.
+static func warm_characters(looks: Array = ["Rogue_Hooded", "Barbarian", "Mage", "Knight"]) -> int:
+	var n := 0
+	var seen := {}          # the same outfit file serves several looks: one body each
+	for look: String in looks:
+		if not MH_LOOKS.has(look):
+			continue
+		for pick: String in MH_LOOKS[look]:
+			if seen.has(pick):
+				continue
+			seen[pick] = true
+			var low1: bool = pick.begins_with(MESHY3) and preload("res://scripts/world/low_budget.gd").low()
+			var body := mh_character(pick, 1.7, [], low1, true)
+			if body != null:
+				body.free()
+				n += 1
+	return n
+
+
 static func animation_player(model: Node) -> AnimationPlayer:
 	var found := model.find_children("*", "AnimationPlayer", true, false)
 	return found[0] if not found.is_empty() else null
@@ -308,6 +413,9 @@ static func animation_player(model: Node) -> AnimationPlayer:
 static func visual_aabb(root: Node3D) -> AABB:
 	var result := AABB()
 	var first := true
+	if root is MeshInstance3D and (root as MeshInstance3D).mesh != null and (root as MeshInstance3D).visible:
+		result = (root as MeshInstance3D).mesh.get_aabb()
+		first = false
 	for node in root.find_children("*", "MeshInstance3D", true, false):
 		var mi := node as MeshInstance3D
 		if not mi.visible or mi.mesh == null:
@@ -330,13 +438,15 @@ static func visual_aabb(root: Node3D) -> AABB:
 ## to the base skeleton, props on bone attachments, and an AnimationPlayer with
 ## the UAL clips (plus KayKit-name aliases).
 ## A MakeHuman GLB on the UAL skeleton, `height` metres tall, with the UAL clips.
-static func mh_character(file: String, height: float, keep: Array[String] = [], lod1 := false) -> Node3D:
+static func mh_character(file: String, height: float, keep: Array[String] = [], lod1 := false, merge := false) -> Node3D:
 	var root := Node3D.new()
-	var path := (file if file.contains("/") else MH_DIR + file) + ("_lod1" if lod1 and not file.contains("/") else "") + ".glb"
+	var path := (file if file.contains("/") else MH_DIR + file) + ("_lod1" if lod1 and (not file.contains("/") or ResourceLoader.exists(file + "_lod1.glb")) else "") + ".glb"
 	var base: Node3D = Assets.scene(path).instantiate()
 	root.add_child(base)
 	var skeleton: Skeleton3D = base.find_children("*", "Skeleton3D", true, false)[0]
 	var armored := file.begins_with(ARMORED)
+	if merge:      # NPC bodies: parts -> one skinned surface/one atlas material (hero and character creation never merge)
+		preload("res://scripts/world/character_merge.gd").merge(skeleton, path)
 	for part in keep:      # same props as humanoid(); the rig is in metres
 		if armored and part.contains("Helmet"):
 			continue
@@ -361,6 +471,7 @@ static func mh_character(file: String, height: float, keep: Array[String] = [], 
 	# lands near the requested height (ratios from ai3d/meshy/armored/README.md).
 	var k := 0.9 if armored else 1.0
 	root.scale = Vector3.ONE * (height * k / maxf(native, 0.01))
+	root.set_meta("mh_look", file.get_file())      # which GLB was picked (face card placement, docs/art/FACES.md)
 	return root
 
 
@@ -540,7 +651,7 @@ static func _ual_for(skeleton_path: NodePath) -> AnimationLibrary:
 			continue
 		var inst: Node = Assets.scene(file).instantiate()
 		var ap: AnimationPlayer = inst.find_children("*", "AnimationPlayer", true, false)[0]
-		var root_motion_lib := file.begins_with(UAL_ANIM_DIR)
+		var root_motion_lib := file.begins_with(UAL_ANIM_DIR) or file.begins_with(UAL_LOCO_DIR) or file.begins_with(UAL_TRAV_DIR)
 		for anim_name in ap.get_animation_list():
 			var a: Animation = ap.get_animation(anim_name).duplicate(true)
 			for t in a.get_track_count():
@@ -549,6 +660,11 @@ static func _ual_for(skeleton_path: NodePath) -> AnimationLibrary:
 				if colon > 0:
 					a.track_set_path(t, NodePath(sk + tp.substr(colon)))
 					if root_motion_lib and tp.substr(colon) == ":root" and a.track_get_type(t) == Animation.TYPE_POSITION_3D:
+						a.track_set_enabled(t, false)
+					# Turn clips drive the player capsule yaw explicitly; never rotate the
+					# skeleton root as well or the rendered body turns twice.
+					if file.begins_with(UAL_LOCO_DIR) and tp.substr(colon) == ":root" \
+							and a.track_get_type(t) == Animation.TYPE_ROTATION_3D:
 						a.track_set_enabled(t, false)
 			if anim_name == "Sword_Idle":
 				a.loop_mode = Animation.LOOP_LINEAR
@@ -654,12 +770,75 @@ static func building_mesh(key: String) -> ArrayMesh:
 		Vector3(-(box.position.x + box.size.x * 0.5) * s, -box.position.y * s, -(box.position.z + box.size.z * 0.5) * s))
 	# Meshy buildings carry their own LOD chain (lod0/1/2 files): automatic LODs on
 	# top of already-decimated meshes crumpled their walls and roofs at mid range.
-	mesh = _transformed(mesh, fit, not path.begins_with(MESHY))
+	mesh = _transformed(mesh, fit, not path.begins_with(MESHY), key)
+	StyleG.restyle_mesh(mesh, key)       # Style G: every building/prop surface gets its role material (atlas + tints kept)
+	if mesh.has_meta("baked_vao"):
+		BakedVao.fix_materials(mesh)
+	TownAtlas.fold(mesh, key)           # far stages: shared texture page (see town_atlas.gd)
+	if key.begins_with("lamp_post") or key.begins_with("street_lamp"):
+		_tame_lamp_glow(mesh)
 	_building_cache[key] = mesh
 	return mesh
 
 
-static func merged_mesh(path: String) -> ArrayMesh:
+## The lantern pane of the street lamp GLBs is a white-albedo surface with a 3x amber emission: by day every lamp in every town showed a solid
+## white block (QA sweep, 20 towns). The pane keeps its glow but its albedo is amber glass and the emission 1.4x, so it reads as a warm lantern.
+static func _tame_lamp_glow(mesh: ArrayMesh) -> void:
+	for i in mesh.get_surface_count():
+		var b := mesh.surface_get_material(i) as BaseMaterial3D
+		if b == null or not b.emission_enabled or b.albedo_color.get_luminance() < 0.9:
+			continue
+		var g := b.duplicate() as BaseMaterial3D
+		g.albedo_color = Color(0.36, 0.22, 0.09)
+		g.emission_energy_multiplier = minf(g.emission_energy_multiplier, 1.4)
+		mesh.surface_set_material(i, g)
+
+
+static var _static_cache: Dictionary = {}
+
+
+## Perf round 2: a static GLB prop (notice board, crates, barrels...) usually imports as a
+## dozen MeshInstance3D nodes = a dozen draw calls per copy. This returns ONE MeshInstance3D
+## with the parts merged per material (see merged_mesh), cached per path. Scenes with
+## skeletons, animation, lights or particles fall back to the plain instantiated scene.
+static func static_model(path: String) -> Node3D:
+	if not _static_cache.has(path):
+		var sc := scene(path)
+		var mesh: ArrayMesh = null
+		if sc != null:
+			var probe: Node = sc.instantiate()
+			var plain := probe.find_children("*", "Skeleton3D", true, false).is_empty() \
+				and probe.find_children("*", "AnimationPlayer", true, false).is_empty() \
+				and probe.find_children("*", "Light3D", true, false).is_empty() \
+				and probe.find_children("*", "GPUParticles3D", true, false).is_empty() \
+				and probe.find_children("*", "CPUParticles3D", true, false).is_empty() \
+				and probe.find_children("*", "Sprite3D", true, false).is_empty() \
+				and probe.find_children("*", "Label3D", true, false).is_empty() \
+				and probe.find_children("*", "Marker3D", true, false).is_empty() \
+				and probe.find_children("*", "StaticBody3D", true, false).is_empty()
+			if plain:
+				# Named empties (sail_hub, chimney_top...) are hooks the callers look up: keep the scene.
+				for e in probe.find_children("*", "Node3D", true, false):
+					if e.get_class() == "Node3D" and e.find_children("*", "MeshInstance3D", true, false).is_empty():
+						plain = false
+						break
+			probe.free()
+			if plain:
+				var merged := merged_mesh(path)
+				if merged != null:
+					mesh = _transformed(merged, Transform3D.IDENTITY, true)   # keeps the automatic mesh LODs
+					_scenes.erase(path)      # perf: the merged copy is all that is drawn; don't keep the source scene's meshes too
+		_static_cache[path] = mesh
+	var m: ArrayMesh = _static_cache[path]
+	if m == null:
+		var s2 := scene(path)
+		return s2.instantiate() if s2 != null else null
+	var mi := MeshInstance3D.new()
+	mi.mesh = m
+	return mi
+
+
+static func merged_mesh(path: String, style := true) -> ArrayMesh:
 	if not ResourceLoader.exists(path):
 		push_warning("Missing building: " + path)
 		return null
@@ -691,22 +870,34 @@ static func merged_mesh(path: String) -> ArrayMesh:
 		var st: SurfaceTool = tools[mat]
 		st.commit(out)
 		out.surface_set_material(out.get_surface_count() - 1, mat)
-	return out if out.get_surface_count() > 0 else null
+	if out.get_surface_count() == 0:
+		return null
+	if style:
+		StyleG.restyle_mesh(out, path.get_file().get_basename())    # Style G role materials (idempotent; building_mesh/static_model reuse it)
+	return out
 
 
-static func _transformed(mesh: ArrayMesh, xform: Transform3D, auto_lods := true) -> ArrayMesh:
+static func _transformed(mesh: ArrayMesh, xform: Transform3D, auto_lods := true, vao_key := "") -> ArrayMesh:
 	# Built through ImporterMesh so the merged mesh gets automatic LODs again
 	# (SurfaceTool merging drops the importer's LODs; without them every tree and
 	# building draws full detail at any distance).
 	var im := ImporterMesh.new()
+	var surfs := []
 	for surf in mesh.get_surface_count():
 		var st := SurfaceTool.new()
 		st.begin(Mesh.PRIMITIVE_TRIANGLES)
 		st.append_from(mesh, surf, xform)
-		im.add_surface(Mesh.PRIMITIVE_TRIANGLES, st.commit_to_arrays(), [], {}, mesh.surface_get_material(surf))
+		surfs.append(st.commit_to_arrays())
+	if BakedVao.apply(vao_key, surfs):
+		im.set_meta("baked_vao", true)     # baked quality: offline AO + painterly light into COLOR (no-op without a blob)
+	for surf in surfs.size():
+		im.add_surface(Mesh.PRIMITIVE_TRIANGLES, surfs[surf], [], {}, mesh.surface_get_material(surf))
 	if auto_lods:
 		im.generate_lods(25.0, 60.0, [])
-	return im.get_mesh()
+	var out := im.get_mesh()
+	if im.has_meta("baked_vao"):
+		out.set_meta("baked_vao", true)
+	return out
 
 
 ## Static building node with a box collider (for landmarks placed individually).
@@ -875,7 +1066,7 @@ static func nature_mesh(key: String) -> ArrayMesh:
 	# real scale, origin already at the base centre, wind materials from its import, own LOD files.
 	var region := key.begins_with("region/")
 	var is_scan := key.begins_with("scan/") or key.begins_with("nature/") or region
-	var mesh := merged_mesh("res://assets/generated/" + key + ".glb" if is_scan else NATURE_DIR + key + ".gltf")
+	var mesh := merged_mesh("res://assets/generated/" + key + ".glb" if is_scan else NATURE_DIR + key + ".gltf", false)
 	if mesh == null:
 		return null
 	if region:
@@ -890,5 +1081,11 @@ static func nature_mesh(key: String) -> ArrayMesh:
 	var s: float = 1.0 if is_scan else NATURE[key] / maxf(box.size.y, 0.001)
 	mesh = _transformed(mesh, Transform3D(Basis.IDENTITY.scaled(Vector3.ONE * s),
 		Vector3(-(box.position.x + box.size.x * 0.5) * s, -box.position.y * s, -(box.position.z + box.size.z * 0.5) * s)))
+	if not is_scan:
+		# Quaternius stylized-nature kit (no wind shader): Style G tree / foliage / stone roles. The Blender "nature/" and
+		# "region/" sets keep their wind + season shaders.
+		var k := key.to_lower()
+		var role := "tree" if (k.contains("tree") or k.contains("pine") or k.contains("twisted")) else ("stone" if (k.contains("rock") or k.contains("pebble") or k.contains("stone")) else "foliage")
+		StyleG.restyle_mesh(mesh, "nature/" + key, "", role)
 	_building_cache[cache_key] = mesh
 	return mesh

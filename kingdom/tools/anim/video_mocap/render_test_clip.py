@@ -38,6 +38,10 @@ for o in bpy.data.objects:
 bpy.ops.mesh.primitive_plane_add(size=60, location=(0,0,0))
 fl = bpy.context.object; fm = bpy.data.materials.new("fl"); fm.use_nodes=True
 fm.node_tree.nodes["Principled BSDF"].inputs["Base Color"].default_value=(0.35,0.4,0.3,1)
+if os.environ.get("CHECKER"):   # 1 m checker floor: makes foot sliding visible when the camera follows the actor
+    nt = fm.node_tree; ck = nt.nodes.new("ShaderNodeTexChecker"); tc = nt.nodes.new("ShaderNodeTexCoord")
+    ck.inputs["Color1"].default_value = (0.30,0.36,0.26,1); ck.inputs["Color2"].default_value = (0.46,0.52,0.36,1); ck.inputs["Scale"].default_value = 1.0
+    nt.links.new(tc.outputs["Object"], ck.inputs["Vector"]); nt.links.new(ck.outputs["Color"], nt.nodes["Principled BSDF"].inputs["Base Color"])
 fl.data.materials.append(fm)
 # world + sun
 sc.world = bpy.data.worlds.new("w"); sc.world.use_nodes=True
@@ -53,7 +57,8 @@ def place_cam(center):
     co.location = (center.x + r*math.sin(a), center.y + r*math.cos(a), 1.25)
     d = Vector((center.x, center.y, 0.95)) - co.location
     co.rotation_euler = d.to_track_quat("-Z","Y").to_euler()
-sc.render.resolution_x=720; sc.render.resolution_y=1280
+sc.render.resolution_x=int(os.environ.get("RESX","720")); sc.render.resolution_y=int(os.environ.get("RESY","1280"))   # env RESX/RESY: landscape test videos
+sc.render.resolution_percentage=int(os.environ.get("RESPCT","100"))   # env RESPCT: preview scale in percent
 sc.render.engine="BLENDER_EEVEE"
 sc.view_settings.view_transform="Standard"
 try: sc.eevee.taa_render_samples=8
@@ -78,7 +83,9 @@ gt = [pose_at(i) for i in range(total)]
 a_ = Vector(gt[0]["pelvis"]); b_ = Vector(gt[-1]["pelvis"])
 place_cam((a_+b_)/2)
 for i in range(total):
-    pose_at(i)
+    g = pose_at(i)
+    if os.environ.get("FOLLOW"):   # camera tracks the pelvis (fixed offset), so the floor moves under the feet
+        place_cam(Vector(g["pelvis"]))
     sc.render.filepath = os.path.join(outdir, "f%04d.png" % (i+1))
     bpy.ops.render.render(write_still=True)
 json.dump({"fps":30,"joints":gt}, open(os.path.join(outdir,"gt.json"),"w"))

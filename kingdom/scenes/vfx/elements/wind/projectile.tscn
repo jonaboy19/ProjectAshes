@@ -49,6 +49,8 @@ shader_parameter/tail_len = 0.35
 shader_parameter/pulse = null
 shader_parameter/pulse_speed = null
 shader_parameter/heat_scale = 1.0
+shader_parameter/soft_edge = null
+shader_parameter/ring_soft = null
 
 [sub_resource type="ArrayMesh" id="ArrayMesh_g38ko"]
 _surfaces = [{
@@ -104,6 +106,8 @@ shader_parameter/tail_len = 0.3
 shader_parameter/pulse = null
 shader_parameter/pulse_speed = null
 shader_parameter/heat_scale = 1.2
+shader_parameter/soft_edge = null
+shader_parameter/ring_soft = null
 
 [sub_resource type="ArrayMesh" id="ArrayMesh_xdtjj"]
 _surfaces = [{
@@ -170,14 +174,14 @@ color_ramp = SubResource("GradientTexture1D_t27gd")
 material = ExtResource("5_jli7c")
 size = Vector2(0.23752578, 0.23752578)
 
-[node name="Wind_Projectile" type="Node3D" unique_id=121676073]
+[node name="Wind_Projectile" type="Node3D" unique_id=1909867372]
 script = ExtResource("1_536r4")
 duration = 0.0
 fade_out = 0.15
 kind = &"projectile"
 element = &"wind"
 
-[node name="Blade" type="MeshInstance3D" parent="." unique_id=1456653939]
+[node name="Blade" type="MeshInstance3D" parent="." unique_id=234148778]
 transform = Transform3D(-0.34202015, 0.9396926, -8.742278e-08, 0.9396926, 0.34202015, 0, 2.9900352e-08, -8.2150535e-08, -1, 0, 0, 0)
 material_override = SubResource("ShaderMaterial_kuey5")
 cast_shadow = 0
@@ -185,7 +189,7 @@ extra_cull_margin = 2.0
 gi_mode = 0
 mesh = SubResource("ArrayMesh_g38ko")
 
-[node name="BladeCore" type="MeshInstance3D" parent="." unique_id=1260181225]
+[node name="BladeCore" type="MeshInstance3D" parent="." unique_id=762421664]
 transform = Transform3D(-0.34202015, 0.9396926, -8.742278e-08, 0.9396926, 0.34202015, 0, 2.9900352e-08, -8.2150535e-08, -1, 0, 0, 0)
 material_override = SubResource("ShaderMaterial_opqkp")
 cast_shadow = 0
@@ -193,7 +197,7 @@ extra_cull_margin = 2.0
 gi_mode = 0
 mesh = SubResource("ArrayMesh_xdtjj")
 
-[node name="Streaks" type="GPUParticles3D" parent="." unique_id=1903787376]
+[node name="Streaks" type="GPUParticles3D" parent="." unique_id=1374021495]
 cast_shadow = 0
 gi_mode = 0
 emitting = false
@@ -205,7 +209,7 @@ transform_align = 3
 process_material = SubResource("ParticleProcessMaterial_inxmg")
 draw_pass_1 = SubResource("QuadMesh_yg0vu")
 
-[node name="Leaves" type="GPUParticles3D" parent="." unique_id=338597000]
+[node name="Leaves" type="GPUParticles3D" parent="." unique_id=1611636244]
 cast_shadow = 0
 gi_mode = 0
 emitting = false

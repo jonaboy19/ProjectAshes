@@ -2,13 +2,13 @@
  {
   "name": "MA_Punch_Cross_R_Head_A",
   "loop": false,
-  "seconds": 2.03,
-  "frames": 62,
+  "seconds": 1.6,
+  "frames": 48,
   "keys": 1103,
   "source": "013/13_18.bvh",
   "range_s": [
    0.26,
-   2.32
+   1.86
   ],
   "autotrim": null,
   "loop_pts": null,
@@ -16,18 +16,22 @@
   "contact_lift_m": 0.0,
   "min_foot_m": -0.001,
   "travel_m": 0.13,
-  "hip_scale": 0.0486
+  "hip_scale": 0.0486,
+  "trimmed_from_s": [
+   0,
+   1.6
+  ]
  },
  {
   "name": "MA_Punch_Cross_R_Head_B",
   "loop": false,
-  "seconds": 2.6,
-  "frames": 79,
+  "seconds": 1.0,
+  "frames": 30,
   "keys": 1362,
   "source": "014/14_03.bvh",
   "range_s": [
-   0.33,
-   2.93
+   1.18,
+   2.18
   ],
   "autotrim": null,
   "loop_pts": null,
@@ -35,7 +39,11 @@
   "contact_lift_m": 0.0,
   "min_foot_m": -0.003,
   "travel_m": 0.29,
-  "hip_scale": 0.0515
+  "hip_scale": 0.0515,
+  "trimmed_from_s": [
+   0.85,
+   1.85
+  ]
  },
  {
   "name": "MA_Punch_Cross_R_Head_C",
@@ -59,13 +67,13 @@
  {
   "name": "MA_Punch_Cross_L_Head",
   "loop": false,
-  "seconds": 2.03,
-  "frames": 62,
+  "seconds": 1.6,
+  "frames": 48,
   "keys": 1103,
   "source": "013/13_18.bvh",
   "range_s": [
    0.26,
-   2.32
+   1.86
   ],
   "autotrim": null,
   "loop_pts": null,
@@ -73,7 +81,11 @@
   "contact_lift_m": 0.0,
   "min_foot_m": -0.001,
   "travel_m": 0.13,
-  "hip_scale": 0.0486
+  "hip_scale": 0.0486,
+  "trimmed_from_s": [
+   0,
+   1.6
+  ]
  },
  {
   "name": "MA_Punch_Jab_L_Head_A",
@@ -133,25 +145,6 @@
   "hip_scale": 0.0505
  },
  {
-  "name": "MA_Punch_Cross_R_Body",
-  "loop": false,
-  "seconds": 1.73,
-  "frames": 53,
-  "keys": 899,
-  "source": "015/15_13.bvh",
-  "range_s": [
-   5.54,
-   7.29
-  ],
-  "autotrim": null,
-  "loop_pts": null,
-  "floor_fix_m": -0.022,
-  "contact_lift_m": 0.0,
-  "min_foot_m": -0.0,
-  "travel_m": 0.05,
-  "hip_scale": 0.0505
- },
- {
   "name": "MA_Punch_Jab_L_Body",
   "loop": false,
   "seconds": 1.67,
@@ -171,7 +164,7 @@
   "hip_scale": 0.0505
  },
  {
-  "name": "MA_Punch_Heavy_R_A",
+  "name": "MA_Punch_Hook_R_A",
   "loop": false,
   "seconds": 1.6,
   "frames": 49,
@@ -187,10 +180,11 @@
   "contact_lift_m": 0.0,
   "min_foot_m": -0.0,
   "travel_m": 0.1,
-  "hip_scale": 0.0505
+  "hip_scale": 0.0505,
+  "renamed_from": "MA_Punch_Heavy_R_A"
  },
  {
-  "name": "MA_Punch_Heavy_R_B",
+  "name": "MA_Punch_Hook_R_B",
   "loop": false,
   "seconds": 2.2,
   "frames": 67,
@@ -206,10 +200,11 @@
   "contact_lift_m": 0.0,
   "min_foot_m": -0.001,
   "travel_m": 0.07,
-  "hip_scale": 0.0505
+  "hip_scale": 0.0505,
+  "renamed_from": "MA_Punch_Heavy_R_B"
  },
  {
-  "name": "MA_Punch_Heavy_R_C",
+  "name": "MA_Punch_Hook_R_C",
   "loop": false,
   "seconds": 1.63,
   "frames": 50,
@@ -225,10 +220,11 @@
   "contact_lift_m": 0.0,
   "min_foot_m": -0.0,
   "travel_m": 0.02,
-  "hip_scale": 0.0505
+  "hip_scale": 0.0505,
+  "renamed_from": "MA_Punch_Heavy_R_C"
  },
  {
-  "name": "MA_Punch_Heavy_L_A",
+  "name": "MA_Punch_Hook_L_A",
   "loop": false,
   "seconds": 1.6,
   "frames": 49,
@@ -244,10 +240,11 @@
   "contact_lift_m": 0.0,
   "min_foot_m": -0.0,
   "travel_m": 0.1,
-  "hip_scale": 0.0505
+  "hip_scale": 0.0505,
+  "renamed_from": "MA_Punch_Heavy_L_A"
  },
  {
-  "name": "MA_Punch_Heavy_L_B",
+  "name": "MA_Punch_Hook_L_B",
   "loop": false,
   "seconds": 2.2,
   "frames": 67,
@@ -263,10 +260,11 @@
   "contact_lift_m": 0.0,
   "min_foot_m": -0.001,
   "travel_m": 0.07,
-  "hip_scale": 0.0505
+  "hip_scale": 0.0505,
+  "renamed_from": "MA_Punch_Heavy_L_B"
  },
  {
-  "name": "MA_Punch_Heavy_R_D",
+  "name": "MA_Punch_Hook_R_D",
   "loop": false,
   "seconds": 1.97,
   "frames": 60,
@@ -282,10 +280,11 @@
   "contact_lift_m": 0.0,
   "min_foot_m": -0.0,
   "travel_m": 0.05,
-  "hip_scale": 0.0505
+  "hip_scale": 0.0505,
+  "renamed_from": "MA_Punch_Heavy_R_D"
  },
  {
-  "name": "MA_Punch_Heavy_R_E",
+  "name": "MA_Punch_Hook_R_E",
   "loop": false,
   "seconds": 1.67,
   "frames": 51,
@@ -301,10 +300,11 @@
   "contact_lift_m": 0.0,
   "min_foot_m": -0.0,
   "travel_m": 0.03,
-  "hip_scale": 0.0515
+  "hip_scale": 0.0515,
+  "renamed_from": "MA_Punch_Heavy_R_E"
  },
  {
-  "name": "MA_Punch_Heavy_L_C",
+  "name": "MA_Punch_Hook_L_C",
   "loop": false,
   "seconds": 1.97,
   "frames": 60,
@@ -320,10 +320,11 @@
   "contact_lift_m": 0.0,
   "min_foot_m": -0.0,
   "travel_m": 0.05,
-  "hip_scale": 0.0505
+  "hip_scale": 0.0505,
+  "renamed_from": "MA_Punch_Heavy_L_C"
  },
  {
-  "name": "MA_Punch_Heavy_L_D",
+  "name": "MA_Punch_Hook_L_D",
   "loop": false,
   "seconds": 1.67,
   "frames": 51,
@@ -339,10 +340,11 @@
   "contact_lift_m": 0.0,
   "min_foot_m": -0.0,
   "travel_m": 0.03,
-  "hip_scale": 0.0515
+  "hip_scale": 0.0515,
+  "renamed_from": "MA_Punch_Heavy_L_D"
  },
  {
-  "name": "MA_Punch_Heavy_R_Body",
+  "name": "MA_Punch_Hook_R_Body",
   "loop": false,
   "seconds": 2.17,
   "frames": 66,
@@ -358,7 +360,8 @@
   "contact_lift_m": 0.0,
   "min_foot_m": -0.001,
   "travel_m": 0.19,
-  "hip_scale": 0.0515
+  "hip_scale": 0.0515,
+  "renamed_from": "MA_Punch_Heavy_R_Body"
  },
  {
   "name": "MA_Kick_Front_R_Quick",

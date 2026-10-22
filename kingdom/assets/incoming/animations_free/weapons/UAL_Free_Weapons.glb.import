@@ -4,11 +4,12 @@ importer="scene"
 importer_version=1
 type="PackedScene"
 uid="uid://bvpjbakw73y2"
-valid=false
+path="res://.godot/imported/UAL_Free_Weapons.glb-e4cec3b5eec24b7dc8a560328e6466c6.scn"
 
 [deps]
 
 source_file="res://assets/incoming/animations_free/weapons/UAL_Free_Weapons.glb"
+dest_files=["res://.godot/imported/UAL_Free_Weapons.glb-e4cec3b5eec24b7dc8a560328e6466c6.scn"]
 
 [params]
 

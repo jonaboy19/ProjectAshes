@@ -1,0 +1,89 @@
+{
+ "id": "dunhallow_bars_of_rim_iron_and_bolts_of_cloth",
+ "title": "Bars of Rim Iron and Bolts of Cloth",
+ "summary": "Two loads wait in Dunhallow: bars of rim iron for Colm Hallam and bolts of cloth for Una Chandler. Elfrida Shuttle wants them moved before the festival orders are due.",
+ "giver": {
+  "npc": "elfrida_shuttle",
+  "name": "Elfrida Shuttle",
+  "place": "dunhallow"
+ },
+ "offer_text": "\"Two things are late and both are mine to answer for. Colm Hallam waits on bars of rim iron and Una Chandler on bolts of cloth. Fetch them in any order, before the festival orders are due.\"",
+ "turn_in_text": "\"Both in. I shall sleep tonight, which is rare.\"",
+ "stages": [
+  {
+   "id": "gather",
+   "title": "Gather both loads",
+   "mode": "all",
+   "objectives": [
+    {
+     "id": "load1",
+     "type": "collect",
+     "item": "iron_ingot",
+     "count": 3,
+     "text": "Take 3 bars of rim iron from the wagon yard"
+    },
+    {
+     "id": "load2",
+     "type": "collect",
+     "item": "cloth",
+     "count": 3,
+     "text": "Take 3 bolts of cloth from the second stack"
+    }
+   ]
+  },
+  {
+   "id": "deliver",
+   "title": "Deliver them",
+   "mode": "all",
+   "objectives": [
+    {
+     "id": "to1",
+     "type": "deliver",
+     "item": "iron_ingot",
+     "count": 3,
+     "to": "colm_hallam",
+     "text": "Hand the bars of rim iron to Colm Hallam"
+    },
+    {
+     "id": "to2",
+     "type": "deliver",
+     "item": "cloth",
+     "count": 3,
+     "to": "una_chandler",
+     "text": "Hand the bolts of cloth to Una Chandler"
+    }
+   ]
+  },
+  {
+   "id": "report",
+   "title": "Tell Elfrida",
+   "mode": "all",
+   "objectives": [
+    {
+     "id": "report",
+     "type": "talk_to",
+     "npc": "elfrida_shuttle",
+     "text": "Tell Elfrida Shuttle both are in"
+    }
+   ],
+   "end": true
+  }
+ ],
+ "rewards": {
+  "gold": 20,
+  "rep": {
+   "dunhallow": 4
+  },
+  "relationship": [
+   {
+    "npc": "elfrida_shuttle",
+    "label": "Cleared two late loads",
+    "value": 9,
+    "days": 60
+   }
+  ],
+  "items": {
+   "linen": 1
+  }
+ }
+}

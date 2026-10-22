@@ -109,8 +109,7 @@ func _unhandled_input(e: InputEvent) -> void:
 
 func _layout() -> void:
 	var vw := get_viewport().get_visible_rect().size
-	position = Vector2.ZERO
-	size = vw
+	# (full-rect anchors from _ready already size this root; assigning size warned)
 	var panel: Control = get_child(1)
 	var w := clampf(vw.x * 0.94, 320.0, 820.0)
 	var h := vw.y * 0.92
@@ -184,7 +183,7 @@ func _house_card(nob: RANobility, h: Dictionary) -> PanelContainer:
 	if not settlements.is_empty():
 		var names := PackedStringArray()
 		for idx: int in settlements:
-			names.append(String(WorldGen.settlements[idx]["name"]))
+			names.append(WorldGen.display_name(String(WorldGen.settlements[idx]["name"])))
 		parts.append("fiefs: " + ", ".join(names))
 	if not (holdings.get("mills", []) as Array).is_empty():
 		parts.append("%d mill(s)" % (holdings["mills"] as Array).size())

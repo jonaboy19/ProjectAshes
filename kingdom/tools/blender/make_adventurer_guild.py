@@ -452,4 +452,5 @@ k.add_marker("chimney_top", (CX, CY, z + 0.6))
 for sx in (-1, 1):
     k.box((0.09, 0.09, 1.6), (sx * 2.2, TY + 0.2, 0.72 + 0.8), WOOD, TIMBER)
 k.stage("dressing")
+k.pbr = dict(size=1024, lod1_size=512, orm_div=2, seed=21, ao_dist=0.9)   # high-to-low PBR bake (pbr_kit.py)
 k.finish_checked((17.0, 14.5), 21800, cam_dir=(1.0, -1.45, 0.62), fit=0.95)

@@ -16,12 +16,12 @@ extends Area3D
 ## only emits `exit_requested`, which the entrance door that loaded the room
 ## listens to.
 ##
-## While the player is in range the door joins the "interactable" group and
-## offers `prompt()`, so the HUD shows its button like any other station.
+## While the player is in range its Interactable component is enabled (the door joins the "interactable"
+## group) and offers `prompt()`, so the HUD shows its button like any other station; the press reaches use()
+## through the player's InteractionController.
 ##
 ## Cost: a town builds one door per house, so an idle door does no per-frame
-## work at all. Only the door the player stands in processes (and only when no
-## external dispatcher handles "interact", see `external_dispatch`), and only the
+## work at all (no polling: the InteractionController owns the interact key), and only the
 ## active entrance runs the camera ray in _physics_process. Street doors use
 ## `PLAYER_TRIGGER_LAYER` as their only mask so they never pair with terrain or
 ## building colliders.
@@ -55,17 +55,29 @@ signal exit_requested
 ## Force the third-person view while inside (the town/command zooms don't fit a room).
 @export var force_third_person := true
 
+const Probe := preload("res://scripts/core/perf_probe.gd")
+const DoorModel := preload("res://scripts/world/door_model.gd")
+const Locks := preload("res://scripts/world/locks.gd")
+const Perception := preload("res://scripts/population/perception.gd")
+const Evidence := preload("res://scripts/population/evidence.gd")
+const NPC_WORLD := "res://scripts/population/npc_world.gd"
+
 ## Physics layer 20: the player carries it (main.gd) so door triggers can mask
 ## only the player instead of every body on layer 1.
 const PLAYER_TRIGGER_LAYER := 1 << 19
 
 static var active: InteriorDoor = null
-## True when the game's own interact handler calls use() on the nearest door
-## (main.gd does). Doors then never poll input, so one key press can't both
-## close a menu / open a service and walk through a door.
-static var external_dispatch := false
+## Legacy flag kept for tools: doors never poll input any more; the player's InteractionController
+## (scripts/interaction/) is the only handler of "interact", so one key press can't both close a menu / open
+## a service and walk through a door.
+static var external_dispatch := true
 
 var interior: Node3D = null
+## Door state machine (scripts/world/door_model.gd): null for exit doors and doors without a stable id.
+var model: RefCounted = null
+## The hinged leaf animated by the open/close tween, when the door has one ("Leaf" child).
+var _leaf: Node3D = null
+var _tween: Tween = null
 var _player: Node3D = null
 var _near := false
 var _hidden: Array[Node3D] = []
@@ -73,6 +85,7 @@ var _paused: Array[Node] = []
 var _cam: Camera3D = null
 var _saved_env: Environment = null
 var _saved_view := -1
+var _entering := false          # the room is instanced and waits one frame to be put into the world (see enter)
 
 
 func _ready() -> void:
@@ -80,13 +93,128 @@ func _ready() -> void:
 	body_entered.connect(_on_body_entered)
 	body_exited.connect(_on_body_exited)
 	process_physics_priority = 100    # after the player moved its camera
-	set_process(false)
 	set_physics_process(active == self)
+	Interactable.attach(self, {"id_fn": func() -> String: return String(model.get("id")) if model != null else String(name),
+		"verb": "Enter", "enabled": false, "do": func(_pl: Node) -> void: use(),
+		"label": func() -> Dictionary: return load("res://scripts/ui/interact_label.gd").legacy(self)})
+	if not is_exit:
+		add_to_group("entrance_door")
+		_setup_model()
+	if not is_exit and has_meta("asset") and not has_meta("building_name"):
+		var at: Variant = get_meta("lot_pos") if has_meta("lot_pos") else Vector2(global_position.x, global_position.z)
+		var town := ""
+		if at is Vector2 and not WorldGen.settlements.is_empty():
+			town = String(WorldGen.nearest_settlement(at).get("name", ""))
+		var bn := building_name(String(get_meta("asset")), town, at if at is Vector2 else Vector2.ZERO)
+		if bn != "":
+			set_meta("building_name", bn)       # read by the HUD's "Enter — <name>" label
+
+
+const INN_ADJ := ["Golden", "Rusty", "Silver", "Laughing", "Sleeping", "Crimson", "Wandering", "Merry", "Gilded", "Broken"]
+const INN_NOUN := ["Stag", "Anvil", "Lantern", "Crow", "Barrel", "Boar", "Crown", "Hound", "Oak", "Wheatsheaf"]
+const SMITH := ["Brand", "Garrick", "Hale", "Torvin", "Aldric", "Marek", "Osric", "Bryce"]
+
+
+## Deterministic building name for a lot: "Golden Stag Inn", "Hale's Smithy", "Ashford Adventurer Guild"...
+## Same town + position always gives the same name; "" when the asset has no special name (houses).
+static func building_name(asset: String, town: String, pos: Vector2) -> String:
+	var h := absi(hash("%s|%d|%d" % [town, roundi(pos.x), roundi(pos.y)]))
+	match asset:
+		"inn":
+			return "%s %s Inn" % [INN_ADJ[h % INN_ADJ.size()], INN_NOUN[(h / 11) % INN_NOUN.size()]]
+		"blacksmith":
+			return "%s's Smithy" % SMITH[h % SMITH.size()]
+		"adventurer_guild":
+			return ("%s Adventurer Guild" % town).strip_edges()
+		"healer_house":
+			return ("%s Healer's House" % town).strip_edges()
+	return ""
 
 
 ## Makes `player` detectable by street doors that mask PLAYER_TRIGGER_LAYER.
 static func tag_player(player: CollisionObject3D) -> void:
 	player.collision_layer |= PLAYER_TRIGGER_LAYER
+
+
+## Stable id: meta "door_id", else "<settlement>/door/<lot x>_<lot z>" from the lot position (deterministic plans).
+func _setup_model() -> void:
+	var did := String(get_meta("door_id")) if has_meta("door_id") else ""
+	var lot := Vector2.INF
+	if has_meta("lot_pos"):
+		var lp: Variant = get_meta("lot_pos")
+		if lp is Vector2:
+			lot = lp
+	if did == "" and lot != Vector2.INF and not WorldGen.settlements.is_empty():
+		did = DoorModel.make_id(String(WorldGen.nearest_settlement(lot).get("name", "")), lot)
+	if did == "":
+		return
+	var lock := String(get_meta("lock_id")) if has_meta("lock_id") else ""
+	if lock != "":
+		Locks.define(lock, String(get_meta("key_id")) if has_meta("key_id") else lock, int(get_meta("lock_level")) if has_meta("lock_level") else 1,
+			bool(get_meta("locked", true)), bool(get_meta("public", false)))
+	model = DoorModel.create(did, Vector2(global_position.x, global_position.z), lock, lot)
+	DoorModel.register(model)
+	_leaf = get_node_or_null("Leaf") as Node3D
+	if _leaf != null:
+		_leaf.rotation.y = -float(model.get("open_amount")) * 1.57
+
+
+func _exit_tree() -> void:
+	if model != null:
+		DoorModel.unregister(String(model.get("id")))
+
+
+## Declare this door locked by `lock_id` (dressing / quests): one lock may guard several doors and chests.
+func set_lock(lock_id: String, key_id := "", level := 1, locked := true, is_public := false) -> void:
+	if model == null:
+		return
+	Locks.define(lock_id, key_id, level, locked, is_public)
+	model.set("lock_id", lock_id)
+	model.call("load_state")
+
+
+## Do a door verb ("open", "close", "unlock", "lockpick", "lock", "break", "examine") as the player. Plays the
+## swing tween, reports noise / evidence / crime. Returns the model's result (ok, reason ...).
+func use_verb(verb: String, holder := {}) -> Dictionary:
+	if model == null:
+		return {"ok": true, "reason": ""}
+	var h: Dictionary = holder if not holder.is_empty() else Locks.player_holder()
+	var res: Dictionary = model.call("use", verb, h)
+	var at := Vector2(global_position.x, global_position.z)
+	if int(res.get("noise", -1)) >= 0:
+		Perception.emit_sound(int(res["noise"]), at, -1.0, "door", Perception.Occ.SAME_CELL)
+	if int(res.get("evidence", -1)) >= 0:
+		Evidence.add(int(res["evidence"]), at, int(WorldGen.nearest_settlement(at).get("id", -1)) if not WorldGen.settlements.is_empty() else -1)
+	if String(res.get("crime", "")) != "" and is_inside_tree():
+		var sid := int(WorldGen.nearest_settlement(at).get("id", -1)) if not WorldGen.settlements.is_empty() else -1
+		(load(NPC_WORLD) as GDScript).call("report_crime", get_tree(), String(res["crime"]), at, sid, true)
+	_animate()
+	return res
+
+
+## Swing the leaf with a Tween only while the door moves; the model settles when it ends.
+func _animate() -> void:
+	if model == null:
+		return
+	var st := int(model.get("state"))
+	if st != DoorModel.State.OPENING and st != DoorModel.State.CLOSING:
+		if _leaf != null:
+			_leaf.rotation.y = -float(model.get("open_amount")) * 1.57
+		return
+	if _tween != null and _tween.is_valid():
+		_tween.kill()
+	var target := float(model.call("target_amount"))
+	if not is_inside_tree():
+		model.call("settle")
+		return
+	_tween = create_tween()
+	_tween.tween_method(func(v: float) -> void:
+		model.set("open_amount", v)
+		if _leaf != null:
+			_leaf.rotation.y = -v * 1.57, float(model.get("open_amount")), target, DoorModel.SWING_SECONDS)
+	_tween.finished.connect(func() -> void:
+		if model != null:
+			model.call("settle"))
 
 
 func prompt() -> String:
@@ -97,39 +225,62 @@ func prompt() -> String:
 	if not is_exit and has_meta("lot_pos") and "property" in Life and Life.property != null \
 			and Life.property.is_yours(get_meta("lot_pos")):
 		return "Enter your home"
+	if model != null and bool(model.call("is_locked")):
+		return "Locked"
 	return prompt_text
+
+
+## Exit doors: grows the trigger box so the point `world_pos` (the player's spawn) is inside it with a margin. The
+## playtest bug: the hand-made exit boxes were 1 m deep and the spawn 1.1 m from the door, so no prompt appeared
+## until the player walked into the box. The shape is copied first (scene sub-resources are shared by instances).
+func cover_point(world_pos: Vector3) -> void:
+	for c in get_children():
+		if c is CollisionShape3D and (c as CollisionShape3D).shape is BoxShape3D:
+			var cs := c as CollisionShape3D
+			var r := reach_box((cs.shape as BoxShape3D).size, cs.position, to_local(world_pos), 0.35)
+			if r.is_empty():
+				return
+			var shape := (cs.shape as BoxShape3D).duplicate() as BoxShape3D
+			shape.size = r["size"]
+			cs.shape = shape
+			cs.position = r["centre"]
+			return
+
+
+## Pure: the smallest box (in the area's local space) that contains the old box (`size` at `centre`) and `point` with
+## `margin` to spare. Empty when the old box already contains it.
+static func reach_box(size: Vector3, centre: Vector3, point: Vector3, margin := 0.35) -> Dictionary:
+	var lo := centre - size * 0.5
+	var hi := centre + size * 0.5
+	var need_lo := Vector3(point.x - margin, lo.y, point.z - margin)
+	var need_hi := Vector3(point.x + margin, hi.y, point.z + margin)
+	if need_lo.x >= lo.x and need_lo.z >= lo.z and need_hi.x <= hi.x and need_hi.z <= hi.z:
+		return {}
+	var nlo := Vector3(minf(lo.x, need_lo.x), lo.y, minf(lo.z, need_lo.z))
+	var nhi := Vector3(maxf(hi.x, need_hi.x), hi.y, maxf(hi.z, need_hi.z))
+	return {"size": nhi - nlo, "centre": (nlo + nhi) * 0.5}
+
+
+## A villager walks in or out of this door: the leaf swings open and shut (scripts/world/door_pass.gd), visual only.
+func npc_pass() -> void:
+	if is_exit or not is_inside_tree():
+		return
+	(load("res://scripts/world/door_pass.gd") as GDScript).call("swing", self)
 
 
 func _on_body_entered(body: Node3D) -> void:
 	if body.is_in_group("player"):
 		_player = body
 		_near = true
-		add_to_group("interactable")
-		set_process(not external_dispatch)
+		Interactable.set_active(self, true)
 		player_in_range_changed.emit(true)
 
 
 func _on_body_exited(body: Node3D) -> void:
 	if body == _player:
 		_near = false
-		if is_in_group("interactable"):
-			remove_from_group("interactable")
-		set_process(false)
+		Interactable.set_active(self, false)
 		player_in_range_changed.emit(false)
-
-
-func _process(_delta: float) -> void:
-	if external_dispatch:
-		set_process(false)
-		return
-	if not _near or _player == null or not Input.is_action_just_pressed("interact"):
-		return
-	# Another interactable (an NPC, a station) closer to the player wins the key press.
-	if _player.has_method("nearest_interactable"):
-		var nearest: Node3D = _player.call("nearest_interactable")
-		if nearest != null and nearest != self:
-			return
-	use()
 
 
 ## Walk through: enter (entrance doors) or ask to leave (exit doors).
@@ -137,18 +288,43 @@ func use() -> void:
 	if is_exit:
 		exit_requested.emit()
 	elif active == null:
-		enter(_player if _player else get_tree().get_first_node_in_group("player") as Node3D)
+		# The scene swap is the result of the "open" verb: a locked door answers with its reason instead.
+		if model != null:
+			if bool(model.call("is_locked")):
+				# Verb priority: unlock (key) before lockpick; with neither the door answers "It is locked."
+				var h := Locks.player_holder()
+				if Locks.has_key(h, String(model.get("lock_id"))):
+					use_verb("unlock", h)
+				elif bool(h.get("lockpick", false)):
+					use_verb("lockpick", h)
+			var res := use_verb("open")
+			if not bool(res.get("ok", false)):
+				_deny(String(res.get("reason", "")))
+				return
+		enter(_player if _player else get_tree().get_first_node_in_group("player") as Node3D, true)
 
 
-func enter(player: Node3D) -> void:
-	if player == null or active != null or interior_scene == "":
+## The door will not open: say why (Game.say message pill when the autoload exists).
+func _deny(reason: String) -> void:
+	var g := get_node_or_null("/root/Game") if is_inside_tree() else null
+	if g != null and g.has_method("say") and reason != "":
+		g.call("say", reason)
+
+
+## `spread` (the player pressed the door): the room is instanced in this frame and put into the world in the next one, behind the
+## door's opening swing, so the two heavy halves (the scene's instantiation, then its `_ready` building the furniture) are two
+## small frames instead of one 40-180 ms one. Tests and tools enter at once.
+func enter(player: Node3D, spread := false) -> void:
+	if player == null or active != null or _entering or not _can_enter():
 		return
-	var packed := Assets.scene(interior_scene)
-	if packed == null:
-		push_warning("InteriorDoor: cannot load %s" % interior_scene)
+	if model != null and bool(model.call("is_locked")):
 		return
 	_player = player
-	interior = packed.instantiate() as Node3D
+	var _pi := Probe.t()
+	interior = _make_interior()
+	Probe.add("interior.make", _pi)
+	if interior == null:
+		return
 	# Standalone-only nodes: the preview camera and the scene's own WorldEnvironment
 	# (its Environment goes on the player's camera instead, so the world's stays untouched).
 	var env: Environment = null
@@ -160,10 +336,29 @@ func enter(player: Node3D) -> void:
 		c.get_parent().remove_child(c)
 		c.free()
 	interior.set_meta("embedded", true)
+	if spread and is_inside_tree():
+		_entering = true
+		get_tree().process_frame.connect(_enter_finish.bind(player, env), CONNECT_ONE_SHOT)
+		return
+	_enter_finish(player, env)
+
+
+func _enter_finish(player: Node3D, env: Environment) -> void:
+	_entering = false
+	if not is_instance_valid(player) or not is_instance_valid(interior) or active != null:
+		if is_instance_valid(interior):
+			interior.free()
+		interior = null
+		return
+	var _pf := Probe.t()
 	var host := player.get_parent()
 	host.add_child(interior)
+	Probe.add("interior.add_child", _pf)
+	_pf = Probe.t()
 	interior.global_transform = Transform3D(Basis.IDENTITY, global_position + interior_offset)
 	active = self
+	if has_meta("private_home"):
+		(load("res://scripts/population/presence_live.gd") as GDScript).call("report_player", 7, 1.0, 12.0)   # Stim.TRESPASS
 	set_physics_process(camera_collision)
 	if hide_exterior:
 		for c in host.get_children():
@@ -196,7 +391,35 @@ func enter(player: Node3D) -> void:
 	for d in interior.find_children("*", "Area3D", true, false):
 		if d is InteriorDoor and (d as InteriorDoor).is_exit:
 			(d as InteriorDoor).exit_requested.connect(leave)
+			(d as InteriorDoor).cover_point(at.origin)
+	Probe.add("interior.place", _pf)
 	interior_entered.emit(interior)
+
+
+## Loads the hand-made interior scenes (scenes/interiors/*.tscn) into the Assets cache. Called once behind the loading screen, so
+## the first door of a session does not also pay for reading the scene and its furniture from disk.
+static func warm_scenes() -> int:
+	var n := 0
+	for dir: String in ["res://scenes/interiors", "res://scenes/interiors/modular"]:     # the hand-made rooms and the generated layouts' scenes
+		for f: String in DirAccess.get_files_at(dir):
+			if f.ends_with(".tscn"):
+				if Assets.scene(dir + "/" + f) != null:
+					n += 1
+	return n
+
+
+## Hook for doors whose room is built in code (scripts/interiors/dungeon_door.gd): can this door open now?
+func _can_enter() -> bool:
+	return interior_scene != ""
+
+
+## Hook: the interior root to place. Default: instance `interior_scene`.
+func _make_interior() -> Node3D:
+	var packed := Assets.scene(interior_scene)
+	if packed == null:
+		push_warning("InteriorDoor: cannot load %s" % interior_scene)
+		return null
+	return packed.instantiate() as Node3D
 
 
 func leave() -> void:
@@ -219,6 +442,8 @@ func leave() -> void:
 		interior.queue_free()
 	interior = null
 	active = null
+	if model != null and bool(model.call("is_open")) and int(model.get("state")) != DoorModel.State.BROKEN:
+		use_verb("close")
 	set_physics_process(false)
 	if is_instance_valid(_player):
 		var out := global_transform * return_offset
@@ -233,7 +458,7 @@ func _place_player(pos: Vector3, yaw: float) -> void:
 	if "velocity" in _player:
 		_player.set("velocity", Vector3.ZERO)
 	if _player.has_method("set_camera"):
-		_player.call("set_camera", yaw, -0.28)
+		_player.call("set_camera", yaw, -0.36 if active == self else -0.28)
 	if _player is CharacterBody3D:
 		(_player as CharacterBody3D).reset_physics_interpolation()
 

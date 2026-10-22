@@ -1,0 +1,18 @@
+turn_l90: T=0.967s (29 frames); heading change (deg) every 3 frames:
+  0.0 2.3 12.0 23.3 35.2 46.8 58.5 70.4 81.3 89.3
+turn_r90: T=0.967s (29 frames); heading change (deg) every 3 frames:
+  0.0 -2.3 -12.0 -23.3 -35.2 -46.8 -58.5 -70.4 -81.3 -89.3
+turn_l180: T=1.400s (42 frames); heading change (deg) every 3 frames:
+  0.0 1.5 11.3 25.6 41.2 57.5 73.9 89.9 105.8 122.3 138.6 154.1 168.5 178.4 180.0
+turn_r180: T=1.400s (42 frames); heading change (deg) every 3 frames:
+  0.0 -1.5 -11.3 -25.6 -41.2 -57.5 -73.9 -89.9 -105.8 -122.3 -138.6 -154.1 -168.5 -178.4 -180.0
+lunge: T=1.267s; forward travel (m) every 2 frames:
+  0.00 0.00 0.00 0.00 0.00 0.00 0.00 0.14 0.54 0.93 1.05 1.08 1.11 1.12 1.12 1.12 1.12 1.12 1.12 1.12
+circle_l: T=0.600s; per-cycle root motion forward 0.070 m, left 0.836 m, heading -9.6 deg
+circle_r: T=0.600s; per-cycle root motion forward 0.070 m, left -0.836 m, heading 9.6 deg
+run_turn_l: T=0.567s; per-cycle root motion forward 2.480 m, left 1.123 m, heading 48.7 deg
+run_turn_r: T=0.567s; per-cycle root motion forward 2.480 m, left -1.123 m, heading -48.7 deg
+stalk: T=1.200s; per-cycle root motion forward 1.080 m => 0.900 m/s
+limp: T=1.000s; per-cycle root motion forward 1.100 m => 1.100 m/s
+walk: T=1.067s; per-cycle root motion forward 1.146 m => 1.075 m/s
+run: T=0.567s; per-cycle root motion forward 2.806 m => 4.952 m/s

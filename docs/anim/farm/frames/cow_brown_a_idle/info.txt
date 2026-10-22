@@ -1,0 +1,5 @@
+source: /c/tmp_pa/w/fr/cow_brown_a_idle_side
+duration_s: 1.600000
+sample_fps: 10
+frames_per_sheet: 15  (= 1.5 s per sheet)
+sheets: 3

@@ -8,6 +8,8 @@ extends RefCounted
 ## save that carries these items is loaded. AmbientLife and Lakeside call it
 ## from _ready; Life can also call it from _setup_market().
 
+const ItemsDB := preload("res://scripts/sim/items_db.gd")
+
 ## Protoset entries, in the same shape as data/items.json.
 const ITEMS := {
 	"venison": {"inherits": "food", "name": "Venison", "price": 5, "nutrition": 30},
@@ -81,6 +83,11 @@ const FISH := {
 	"emberfin": {"lake": 7.0, "river": 2.0, "sunset": true, "zone": 0.15, "pull": 0.9, "drain": 0.3},
 }
 const FISH_ORDER := ["perch", "trout", "pike", "emberfin"]
+## Named pools with their own stock (FishingSpot.pool). The Hollin Falls plunge pool (Region 1 look pass) is a rare-fish
+## spot: no perch, and the emberfin rise there at any hour, not only at sunset.
+const POOLS := {
+	"plunge": {"perch": 0.0, "trout": 40.0, "pike": 25.0, "emberfin": 35.0},
+}
 
 
 static func is_sunset(hour: float) -> bool:
@@ -88,8 +95,12 @@ static func is_sunset(hour: float) -> bool:
 
 
 ## fish -> weight for this water and hour.
-static func fish_weights(hour: float, river := false) -> Dictionary:
+static func fish_weights(hour: float, river := false, pool := "") -> Dictionary:
 	var out := {}
+	if POOLS.has(pool):
+		for id: String in FISH_ORDER:
+			out[id] = float((POOLS[pool] as Dictionary).get(id, 0.0))
+		return out
 	for id: String in FISH_ORDER:
 		var f: Dictionary = FISH[id]
 		var w := float(f["river" if river else "lake"])
@@ -100,8 +111,8 @@ static func fish_weights(hour: float, river := false) -> Dictionary:
 
 
 ## Pick a fish from a uniform roll in [0, 1).
-static func roll_fish(roll: float, hour: float, river := false) -> String:
-	var w := fish_weights(hour, river)
+static func roll_fish(roll: float, hour: float, river := false, pool := "") -> String:
+	var w := fish_weights(hour, river, pool)
 	var total := 0.0
 	for id: String in FISH_ORDER:
 		total += float(w[id])
@@ -141,6 +152,7 @@ static func forage_kind(forest: float, roll: float) -> String:
 static func register(life: Node) -> void:
 	if life == null:
 		return
+	ItemsDB.register(life)        # the Region 1 item set (data/items/*.json) rides along: Life already calls this at boot
 	var inv: Variant = life.get("inventory")
 	if inv != null and inv.protoset != null:
 		var json: JSON = inv.protoset

@@ -1,0 +1,63 @@
+{
+ "id": "ravenscar_carry_it_over",
+ "title": "Carry It Over",
+ "summary": "Kendra Nimble wants 2 jars of lamp oil carried from the far end of Ravenscar to Dane Plover at the raven tower yard before anyone asks.",
+ "giver": {
+  "npc": "kendra_nimble",
+  "name": "Kendra Nimble",
+  "place": "ravenscar"
+ },
+ "offer_text": "\"The jars of lamp oil are by my door and Dane Plover is waiting at the raven tower yard. It is a long walk and I have a bad knee. Take them over before anyone asks.\"",
+ "stages": [
+  {
+   "id": "load",
+   "title": "Collect the stock",
+   "mode": "all",
+   "objectives": [
+    {
+     "id": "load",
+     "type": "collect",
+     "item": "lamp_oil",
+     "count": 2,
+     "text": "Take 2 jars of lamp oil from outside Kendra's door"
+    }
+   ]
+  },
+  {
+   "id": "carry",
+   "title": "Carry it across town",
+   "mode": "sequence",
+   "objectives": [
+    {
+     "id": "cross",
+     "type": "goto",
+     "place": "ravenscar_works",
+     "text": "Walk to the raven tower yard"
+    },
+    {
+     "id": "drop",
+     "type": "deliver",
+     "item": "lamp_oil",
+     "count": 2,
+     "to": "dane_plover",
+     "text": "Hand the jars of lamp oil to Dane Plover"
+    }
+   ],
+   "end": true
+  }
+ ],
+ "rewards": {
+  "gold": 15,
+  "rep": {
+   "ravenscar": 3
+  },
+  "relationship": [
+   {
+    "npc": "kendra_nimble",
+    "label": "Carried the load across town",
+    "value": 7,
+    "days": 45
+   }
+  ]
+ }
+}

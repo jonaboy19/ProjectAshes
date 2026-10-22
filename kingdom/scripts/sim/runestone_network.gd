@@ -53,7 +53,7 @@ func seed_road_stones() -> void:
 		var dir := (b - a) / maxf(length, 0.001)
 		var ra: float = WorldGen.settlements[r.x]["radius"] * 1.8
 		var rb: float = WorldGen.settlements[r.y]["radius"] * 1.8
-		var to_name := String(WorldGen.settlements[r.y]["name"])
+		var to_name := WorldGen.display_name(String(WorldGen.settlements[r.y]["name"]))
 		var t := ra + spacing * 0.5
 		var n := 1
 		while t < length - rb:
@@ -99,8 +99,14 @@ func strength(s: Dictionary) -> float:
 	return clampf(s["power"] * s["condition"], 0.0, 1.0)
 
 
+## Region1 hook (docs/regions/REGION_1_PLAN.md): Wardlines takes over coverage when set.
+var coverage_override: Callable = Callable()
+
+
 ## Protection at a point, 0..1. Strongest stone wins, fading smoothly to its radius.
 func coverage(p: Vector2) -> float:
+	if coverage_override.is_valid():   # Region1 hook
+		return coverage_override.call(p)
 	var best := 0.0
 	for s in stones:
 		var d := p.distance_to(s["pos"])
@@ -123,6 +129,8 @@ func stones_near(p: Vector2) -> Array[Dictionary]:
 
 
 func tick_day(day: int) -> void:
+	if coverage_override.is_valid():
+		return   # Region1 hook H3: Wardlines owns wear and repair (the glue pushes its numbers back once a day)
 	for s in stones:
 		var late: int = day - int(s["last_maintained"])
 		var decay := DECAY_PER_DAY * (2.0 if late > NEGLECT_AFTER_DAYS else 1.0)

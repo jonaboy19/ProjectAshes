@@ -1,3 +1,5 @@
+> **SUPERSEDED (2026-09-30, package C0).** This document predates the current game (Godot 4.6, 3D storybook look, Region 1 = the Ashford Vale of Valencious). The live design is `docs/RISING_ASHES_OPEN_WORLD.md` and `docs/regions/REGION_1_PLAN.md`; canon names are in `docs/regions/OWNER_DECISIONS.md`. Kept for history only.
+
 # Kingdom — Design & Architecture (v0.1)
 
 ## Vision
@@ -49,7 +51,7 @@ people aren't drawn. Names are derived from their id, so they cost no storage.
 
 ## World
 
-- 4 × 4 km, deterministic from a seed; 64 m chunks streamed around the player.
+- 12 × 12 km (was 8 × 8, and 4 × 4 before; `WorldGen.WORLD_HALF = 6144`), deterministic from a seed; 64 m chunks streamed around the player (the streamed radius, LOD and memory do not depend on world size).
 - Settlements are placed by rules (spacing, flat ground) and connected by a road
   network (minimum spanning tree); terrain is flattened for towns and cut for roads.
 - Settlement meshes build within 520 m and free beyond 700 m.

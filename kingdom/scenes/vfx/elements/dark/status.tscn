@@ -50,6 +50,8 @@ shader_parameter/tail_len = null
 shader_parameter/pulse = null
 shader_parameter/pulse_speed = null
 shader_parameter/heat_scale = 0.9
+shader_parameter/soft_edge = null
+shader_parameter/ring_soft = 0.7
 
 [sub_resource type="QuadMesh" id="QuadMesh_nkuu3"]
 size = Vector2(1.8, 1.8)
@@ -141,14 +143,14 @@ color_ramp = SubResource("GradientTexture1D_jd71s")
 material = ExtResource("6_pj2iq")
 size = Vector2(0.41626018, 0.41626018)
 
-[node name="Dark_Status" type="Node3D" unique_id=1844296483]
+[node name="Dark_Status" type="Node3D" unique_id=1091392781]
 script = ExtResource("1_lpdk2")
 duration = 0.0
 fade_out = 0.4
 kind = &"status"
 element = &"dark"
 
-[node name="Ring" type="MeshInstance3D" parent="." unique_id=755281673]
+[node name="Ring" type="MeshInstance3D" parent="." unique_id=1027314467]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.03, 0)
 material_override = SubResource("ShaderMaterial_lvwia")
 cast_shadow = 0
@@ -156,7 +158,7 @@ extra_cull_margin = 2.0
 gi_mode = 0
 mesh = SubResource("QuadMesh_nkuu3")
 
-[node name="Sigil" type="MeshInstance3D" parent="." unique_id=893678627]
+[node name="Sigil" type="MeshInstance3D" parent="." unique_id=1917519524]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 2.1, 0)
 material_override = SubResource("ShaderMaterial_ifeuk")
 cast_shadow = 0
@@ -164,7 +166,7 @@ extra_cull_margin = 2.0
 gi_mode = 0
 mesh = SubResource("QuadMesh_r26q0")
 
-[node name="Wisps" type="GPUParticles3D" parent="." unique_id=96240651]
+[node name="Wisps" type="GPUParticles3D" parent="." unique_id=998809221]
 cast_shadow = 0
 gi_mode = 0
 emitting = false
@@ -176,7 +178,7 @@ transform_align = 1
 process_material = SubResource("ParticleProcessMaterial_425df")
 draw_pass_1 = SubResource("QuadMesh_o2y5t")
 
-[node name="Sparks" type="GPUParticles3D" parent="." unique_id=1014367543]
+[node name="Sparks" type="GPUParticles3D" parent="." unique_id=1527209560]
 cast_shadow = 0
 gi_mode = 0
 emitting = false

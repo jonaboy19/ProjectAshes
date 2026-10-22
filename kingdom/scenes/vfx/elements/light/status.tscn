@@ -47,6 +47,8 @@ shader_parameter/tail_len = null
 shader_parameter/pulse = 0.15
 shader_parameter/pulse_speed = null
 shader_parameter/heat_scale = 0.75
+shader_parameter/soft_edge = null
+shader_parameter/ring_soft = 0.7
 
 [sub_resource type="QuadMesh" id="QuadMesh_bchvn"]
 size = Vector2(0.56, 0.56)
@@ -95,6 +97,8 @@ shader_parameter/tail_len = null
 shader_parameter/pulse = null
 shader_parameter/pulse_speed = null
 shader_parameter/heat_scale = 0.75
+shader_parameter/soft_edge = null
+shader_parameter/ring_soft = 0.7
 
 [sub_resource type="QuadMesh" id="QuadMesh_drx6u"]
 size = Vector2(1.8, 1.8)
@@ -133,14 +137,14 @@ color_ramp = SubResource("GradientTexture1D_6pmmn")
 material = ExtResource("3_134gv")
 size = Vector2(0.5827642, 0.5827642)
 
-[node name="Light_Status" type="Node3D" unique_id=164590341]
+[node name="Light_Status" type="Node3D" unique_id=258976391]
 script = ExtResource("1_o3xcy")
 duration = 0.0
 fade_out = 0.4
 kind = &"status"
 element = &"light"
 
-[node name="Halo" type="MeshInstance3D" parent="." unique_id=1643182920]
+[node name="Halo" type="MeshInstance3D" parent="." unique_id=1107267212]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 2.05, 0)
 material_override = SubResource("ShaderMaterial_u3tnw")
 cast_shadow = 0
@@ -148,7 +152,7 @@ extra_cull_margin = 2.0
 gi_mode = 0
 mesh = SubResource("QuadMesh_bchvn")
 
-[node name="Ring" type="MeshInstance3D" parent="." unique_id=2008802750]
+[node name="Ring" type="MeshInstance3D" parent="." unique_id=285216976]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.04, 0)
 material_override = SubResource("ShaderMaterial_w8q24")
 cast_shadow = 0
@@ -156,7 +160,7 @@ extra_cull_margin = 2.0
 gi_mode = 0
 mesh = SubResource("QuadMesh_drx6u")
 
-[node name="Motes" type="GPUParticles3D" parent="." unique_id=2042498147]
+[node name="Motes" type="GPUParticles3D" parent="." unique_id=776436890]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.3, 0)
 cast_shadow = 0
 gi_mode = 0

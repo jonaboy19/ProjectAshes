@@ -1,0 +1,5 @@
+source: /tmp/ce/r/Cast_Earth_Release/frames
+duration_s: 2.200000
+sample_fps: 10
+frames_per_sheet: 12  (= 1.2 s per sheet)
+sheets: 2

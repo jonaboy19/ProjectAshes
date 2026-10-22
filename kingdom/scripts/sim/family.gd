@@ -45,6 +45,7 @@ extends RefCounted
 const RALifePath := preload("res://scripts/sim/life_path.gd")
 const RATendencies := preload("res://scripts/sim/tendencies.gd")
 const RAAwakening := preload("res://scripts/sim/awakening.gd")
+const R1EmberLegacy := preload("res://scripts/region1/ember_legacy.gd")   # Region1 hook H7 (docs/regions/REGION_1_PLAN.md)
 
 ## Courtship point thresholds to advance a stage.
 const COURT_POINTS_COURTING := 20.0
@@ -190,7 +191,8 @@ func court(npc_id: String) -> String:
 	var why := can_court(npc_id)
 	if why != "":
 		return why
-	courtships[npc_id] = {"stage": "interested", "points": 0.0, "since_day": WorldSim.day}
+	courtships[npc_id] = {"stage": "interested", "points": 0.0, "since_day": WorldSim.day,
+		"last_date_day": -1}
 	return "You let %s know you're interested." % _npc_name(npc_id)
 
 
@@ -199,8 +201,6 @@ func _advance_stage(npc_id: String) -> void:
 	var pts := float(c["points"])
 	if String(c["stage"]) == "interested" and pts >= COURT_POINTS_COURTING:
 		c["stage"] = "courting"
-	elif String(c["stage"]) == "courting" and pts >= COURT_POINTS_BETROTHED:
-		c["stage"] = "betrothed"
 
 
 func add_courtship_points(npc_id: String, amount: float) -> void:
@@ -226,16 +226,22 @@ func give_courtship_gift(npc_id: String, item: String) -> Dictionary:
 func date(npc_id: String, at := "the inn") -> String:
 	if stage(npc_id) == "":
 		return "You're not courting %s." % _npc_name(npc_id)
+	var courtship: Dictionary = courtships[npc_id]
+	if int(courtship.get("last_date_day", -1)) == WorldSim.day:
+		return "You've already spent time with %s today." % _npc_name(npc_id)
 	add_courtship_points(npc_id, DATE_POINTS)
 	var rel: Object = Life.get("relationships")
 	if rel != null:
 		rel.add_modifier(npc_id, "date", "A date together", 4.0, _now(), 10.0)
+	courtship["last_date_day"] = WorldSim.day
 	return "You spend time with %s at %s." % [_npc_name(npc_id), at]
 
 
 func can_propose(npc_id: String) -> String:
 	var st := stage(npc_id)
-	if st != "courting" and st != "betrothed":
+	if st != "courting":
+		return "You need to court them a while longer first."
+	if float(courtships[npc_id].get("points", 0.0)) < COURT_POINTS_BETROTHED:
 		return "You need to court them a while longer first."
 	if not _has_marriage_home():
 		return "You'll need a home of your own first."
@@ -277,6 +283,7 @@ func marry(npc_id: String) -> String:
 	courtships.erase(npc_id)
 	Life.life_path.set_flag("married")
 	Life.biography.add_highlight("Married %s" % String(spouse["name"]), WorldSim.day)
+	preload("res://scripts/realm/events.gd").emit("marriage", "", ["pl:player", "sn:" + npc_id], "wedding", "The player marries %s" % String(spouse["name"]), 5)
 	return "You marry %s." % String(spouse["name"])
 
 
@@ -556,6 +563,10 @@ func succeed_to(heir_id: Variant) -> Dictionary:
 	var family_name := Life.life_path.family_name
 	var home_settlement := Life.life_path.home_settlement
 	var home_pos := Life.life_path.home_pos
+	# Region1 hook (docs/regions/REGION_1_PLAN.md) H7: file the ember of the outgoing life
+	R1EmberLegacy.emit_life_ended(Life.biography, Life.echoes, old_name, old_age, family_name, WorldSim.day,
+		{"place": String(WorldGen.settlements[home_settlement]["name"]) if home_settlement >= 0 and home_settlement < WorldGen.settlements.size() else "", "mastery": Life.mastery.xp, "tendencies": Life.tendencies.values})
+	preload("res://scripts/realm/events.gd").emit("succession", "", ["pl:player"], "heir", "%s passes the line to an heir" % old_name, 7)
 	# Archive the outgoing life before anything else changes.
 	chronicles.append({"name": old_name, "family_name": family_name,
 		"summary": Life.biography.summary(WorldSim.day), "day": WorldSim.day})
@@ -620,6 +631,8 @@ func succeed_to(heir_id: Variant) -> Dictionary:
 			new_parents.append({"id": -1, "name": father_name, "role": "father"})
 			parent_state["father"] = {"age_at_birth": maxi(16, father_age_at_birth), "alive": true, "death_day": -1}
 		parent_state["mother"] = {"age_at_birth": maxi(16, mother_age_at_birth), "alive": true, "death_day": -1}
+		# The former spouse is parentage input only; they are not the new heir's spouse.
+		spouse = {}
 	courtships.clear()
 	var new_day := WorldSim.day - heir_age * RALifePath.DAYS_PER_YEAR
 	Life.life_path.begin(new_day, WorldSim.time_of_day, heir_given, family_name, new_parents, home_settlement, home_pos)
@@ -684,7 +697,7 @@ func deserialize(d: Dictionary) -> void:
 	for k: String in co:
 		var e: Dictionary = co[k]
 		courtships[k] = {"stage": String(e.get("stage", "interested")), "points": float(e.get("points", 0.0)),
-			"since_day": int(e.get("since_day", 0))}
+			"since_day": int(e.get("since_day", 0)), "last_date_day": int(e.get("last_date_day", -1))}
 	spouse = (d.get("spouse", {}) as Dictionary).duplicate(true)
 	children.clear()
 	for c: Variant in d.get("children", []):

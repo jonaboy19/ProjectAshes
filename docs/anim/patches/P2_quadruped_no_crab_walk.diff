@@ -1,0 +1,25 @@
+# FEEL_AUDIT F8 — Wolves / monsters slide sideways ("crab-walk") when they re-target.
+# Cause (code): velocity points straight at the new target on the same tick, while the body
+# yaw only lerps toward it at 6/s (frame-rate dependent `k*delta`), so for ~0.3 s the feet
+# play a forward gait while the body travels sideways. Also switches the yaw lerps to
+# frame-rate-independent exp() form.
+# Owner: Codex (wolf.gd; the same 3 lines apply to monster.gd, critter.gd uses exp already).
+--- a/kingdom/scripts/actors/wolf.gd
++++ b/kingdom/scripts/actors/wolf.gd
+@@ func _physics_process(delta: float) -> void:
+ 	if to.length() > 0.3 and _speed > 0.05:
+ 		var dir := to.normalized()
++		var turn_pace := 1.0     # local: never feeds back into _speed
+ 		if not face_player and _winding <= 0.0:
+-			rotation.y = lerp_angle(rotation.y, atan2(dir.x, dir.z), 6.0 * delta)
++			rotation.y = lerp_angle(rotation.y, atan2(dir.x, dir.z), 1.0 - exp(-6.0 * delta))
++			# Travel where the body points, bending toward the target: a quadruped
++			# turns into a new heading, it does not strafe. Slow down while turning hard.
++			var fwd := Vector3(sin(rotation.y), 0.0, cos(rotation.y))
++			turn_pace = clampf(0.55 + 0.45 * fwd.dot(dir), 0.35, 1.0)
++			dir = fwd.slerp(dir, 0.35).normalized()
+-		var step_velocity := dir * _speed
++		var step_velocity := dir * _speed * turn_pace
+@@ func _face(at: Vector3, delta: float) -> void:
+-		rotation.y = lerp_angle(rotation.y, atan2(to.x, to.z), 8.0 * delta)
++		rotation.y = lerp_angle(rotation.y, atan2(to.x, to.z), 1.0 - exp(-8.0 * delta))

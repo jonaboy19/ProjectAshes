@@ -1,0 +1,1061 @@
+{
+ "version": 1,
+ "stages": 9,
+ "stage_names": [
+  "First",
+  "Second",
+  "Third",
+  "Fourth",
+  "Fifth",
+  "Sixth",
+  "Seventh",
+  "Eighth",
+  "Perfected"
+ ],
+ "qi_per_eff_hour": 10,
+ "stage_growth": 0.1,
+ "overflow_cap": 1.3,
+ "med_schedule": [
+  [
+   4,
+   1.0
+  ],
+  [
+   4,
+   0.35
+  ],
+  [
+   16,
+   0.1
+  ]
+ ],
+ "minor_insight_stages": [
+  3,
+  6
+ ],
+ "minor_insight_share": 0.2,
+ "level_gate_note": "realm r stage s needs level >= level_gate + floor(level_span*(s-1)/8)",
+ "cross_step": 0.35,
+ "cross_min": 0.08,
+ "second_path_realm_lag": 1,
+ "realms": [
+  {
+   "id": "tempering",
+   "name": "Body Tempering",
+   "eff_hours": 28,
+   "level_gate": 1,
+   "level_span": 8,
+   "base_success": 0.8,
+   "insight_cost": 5,
+   "catalyst": [],
+   "blurb": "Toughen flesh and bone so the body can hold qi at all.",
+   "tribulation": {
+    "waves": 2,
+    "difficulty": 0.25
+   }
+  },
+  {
+   "id": "gathering",
+   "name": "Qi Gathering",
+   "eff_hours": 110,
+   "level_gate": 10,
+   "level_span": 18,
+   "base_success": 0.72,
+   "insight_cost": 6,
+   "catalyst": [
+    {
+     "kind": "herb",
+     "grade": 1,
+     "n": 3
+    }
+   ],
+   "blurb": "Draw qi in from the world and store it.",
+   "tribulation": {
+    "waves": 3,
+    "difficulty": 0.32
+   }
+  },
+  {
+   "id": "foundation",
+   "name": "Foundation",
+   "eff_hours": 340,
+   "level_gate": 30,
+   "level_span": 24,
+   "base_success": 0.65,
+   "insight_cost": 20,
+   "catalyst": [
+    {
+     "kind": "core",
+     "grade": 1,
+     "n": 2
+    }
+   ],
+   "blurb": "Build a base that will carry everything above it.",
+   "tribulation": {
+    "waves": 4,
+    "difficulty": 0.39
+   }
+  },
+  {
+   "id": "core",
+   "name": "Core Formation",
+   "eff_hours": 760,
+   "level_gate": 62,
+   "level_span": 30,
+   "base_success": 0.58,
+   "insight_cost": 60,
+   "catalyst": [
+    {
+     "kind": "pill",
+     "grade": 2,
+     "n": 1
+    }
+   ],
+   "blurb": "Condense the stored qi into a single dense core.",
+   "tribulation": {
+    "waves": 5,
+    "difficulty": 0.46
+   }
+  },
+  {
+   "id": "nascent",
+   "name": "Nascent Soul",
+   "eff_hours": 1800,
+   "level_gate": 95,
+   "level_span": 40,
+   "base_success": 0.52,
+   "insight_cost": 160,
+   "catalyst": [
+    {
+     "kind": "core",
+     "grade": 3,
+     "n": 2
+    },
+    {
+     "kind": "pill",
+     "grade": 3,
+     "n": 1
+    }
+   ],
+   "blurb": "A second self is born inside the core.",
+   "tribulation": {
+    "waves": 6,
+    "difficulty": 0.53
+   }
+  },
+  {
+   "id": "spirit",
+   "name": "Spirit Severing",
+   "eff_hours": 4200,
+   "level_gate": 140,
+   "level_span": 55,
+   "base_success": 0.46,
+   "insight_cost": 400,
+   "catalyst": [
+    {
+     "kind": "pill",
+     "grade": 4,
+     "n": 2
+    }
+   ],
+   "blurb": "Cut the last tie between soul and flesh.",
+   "tribulation": {
+    "waves": 7,
+    "difficulty": 0.6
+   }
+  },
+  {
+   "id": "sovereign",
+   "name": "Void Sovereign",
+   "eff_hours": 9800,
+   "level_gate": 200,
+   "level_span": 75,
+   "base_success": 0.4,
+   "insight_cost": 900,
+   "catalyst": [
+    {
+     "kind": "core",
+     "grade": 5,
+     "n": 3
+    }
+   ],
+   "blurb": "Command the space around the self.",
+   "tribulation": {
+    "waves": 8,
+    "difficulty": 0.67
+   }
+  },
+  {
+   "id": "ascendant",
+   "name": "Ascendant",
+   "eff_hours": 22000,
+   "level_gate": 280,
+   "level_span": 95,
+   "base_success": 0.35,
+   "insight_cost": 2000,
+   "catalyst": [
+    {
+     "kind": "pill",
+     "grade": 5,
+     "n": 3
+    }
+   ],
+   "blurb": "Rise above the mortal road.",
+   "tribulation": {
+    "waves": 9,
+    "difficulty": 0.74
+   }
+  },
+  {
+   "id": "immortal",
+   "name": "Immortal Ascension",
+   "eff_hours": 50000,
+   "level_gate": 380,
+   "level_span": 80,
+   "base_success": 0.3,
+   "insight_cost": 4500,
+   "catalyst": [
+    {
+     "kind": "pill",
+     "grade": 6,
+     "n": 3
+    },
+    {
+     "kind": "core",
+     "grade": 6,
+     "n": 3
+    }
+   ],
+   "blurb": "Years stop counting.",
+   "tribulation": {
+    "waves": 9,
+    "difficulty": 0.81
+   }
+  },
+  {
+   "id": "origin",
+   "name": "Origin Dao",
+   "eff_hours": 112000,
+   "level_gate": 470,
+   "level_span": 30,
+   "base_success": 0.25,
+   "insight_cost": 9000,
+   "catalyst": [
+    {
+     "kind": "pill",
+     "grade": 6,
+     "n": 6
+    }
+   ],
+   "blurb": "Touch the root of the world.",
+   "tribulation": {
+    "waves": 9,
+    "difficulty": 0.88
+   }
+  }
+ ],
+ "paths": {
+  "magic": {
+   "name": "Magic",
+   "structure": "Mana circles",
+   "unit": "circle",
+   "resource": "Mana core",
+   "diagram": "circles",
+   "realm_names": [
+    "Attunement",
+    "Mana Awakening",
+    "Circle Foundation",
+    "Mana Core",
+    "Soul Circle",
+    "Sky Circle",
+    "Sovereign Circle",
+    "Ascendant Circle",
+    "Arcane Immortal",
+    "Origin Weave"
+   ],
+   "stage_word": "Ring",
+   "blurb": "Cultivate a mana core and widen its circles. Chanted spells come first; chantless casting is an advanced-realm art.",
+   "home": [
+    "crystal_spring",
+    "academy_library",
+    "hidden_vale"
+   ]
+  },
+  "bending": {
+   "name": "Bending",
+   "structure": "Elemental resonance",
+   "unit": "resonance",
+   "resource": "Resonance",
+   "diagram": "resonance",
+   "realm_names": [
+    "Breath Discipline",
+    "Elemental Attunement",
+    "Resonance Foundation",
+    "Elemental Core",
+    "Elemental Soul",
+    "Harmonic Spirit",
+    "Sovereign Resonance",
+    "Ascendant Tide",
+    "Elemental Immortal",
+    "Origin Element"
+   ],
+   "stage_word": "Breath",
+   "blurb": "Tune breath and stance to the element until the world answers. Water near rivers, fire by forges, earth in stone halls.",
+   "home": [
+    "river_shrine",
+    "hidden_vale",
+    "rift_edge"
+   ]
+  },
+  "sect": {
+   "name": "Sect Arts",
+   "structure": "Internal qi and meridians",
+   "unit": "meridian",
+   "resource": "Internal qi",
+   "diagram": "meridians",
+   "realm_names": [
+    "Body Tempering",
+    "Qi Gathering",
+    "Meridian Foundation",
+    "Golden Core",
+    "Nascent Soul",
+    "Spirit Severing",
+    "Void Sovereign",
+    "Ascendant",
+    "Immortal Ascension",
+    "Origin Dao"
+   ],
+   "stage_word": "Meridian",
+   "blurb": "Martial cultivation: open the meridians, circulate qi, forge a golden core. Sect halls and masters teach the forms.",
+   "home": [
+    "sect_hall",
+    "hidden_vale",
+    "waterfall"
+   ]
+  },
+  "knight": {
+   "name": "Knight Arts",
+   "structure": "Aura and body reinforcement",
+   "unit": "aura layer",
+   "resource": "Aura",
+   "diagram": "aura",
+   "realm_names": [
+    "Conditioning",
+    "Aura Awakening",
+    "Aura Foundation",
+    "Aura Core",
+    "Aura Soul",
+    "Aura Spirit",
+    "Sovereign Aura",
+    "Ascendant Aura",
+    "Aura Immortal",
+    "Origin Aura"
+   ],
+   "stage_word": "Layer",
+   "blurb": "Wrap the body in aura and reinforce it. Drill, armour and discipline turn breath into steel.",
+   "home": [
+    "drill_yard",
+    "sect_hall",
+    "hidden_vale"
+   ]
+  },
+  "beast": {
+   "name": "Beast Bond",
+   "structure": "Soul bond",
+   "unit": "bond strand",
+   "resource": "Soul bond",
+   "diagram": "bond",
+   "realm_names": [
+    "Bond Sensing",
+    "Bond Awakening",
+    "Bond Foundation",
+    "Soul Bond Core",
+    "Bond Soul",
+    "Spirit Kinship",
+    "Sovereign Pack",
+    "Ascendant Kinship",
+    "Bond Immortal",
+    "Origin Bond"
+   ],
+   "stage_word": "Strand",
+   "blurb": "Braid your soul with a creature's. Bond cores from monsters feed it; trust is the real currency.",
+   "home": [
+    "wild_grove",
+    "hidden_vale",
+    "rift_edge"
+   ]
+  }
+ },
+ "locations": {
+  "town": {
+   "name": "Town / home",
+   "density": 0.6,
+   "affinity": {},
+   "risk": 0.0,
+   "note": "Noisy and thin in qi."
+  },
+  "wilds": {
+   "name": "Open wilds",
+   "density": 1.0,
+   "affinity": {},
+   "risk": 0.0,
+   "note": "Ordinary outdoors."
+  },
+  "drill_yard": {
+   "name": "Drill yard",
+   "density": 1.0,
+   "affinity": {
+    "knight": 0.5,
+    "sect": 0.2
+   },
+   "risk": 0.0,
+   "note": "Disciplined company and routine."
+  },
+  "academy_library": {
+   "name": "Academy library",
+   "density": 1.1,
+   "affinity": {
+    "magic": 0.5
+   },
+   "risk": 0.0,
+   "note": "Quiet, with wards that hold mana."
+  },
+  "river_shrine": {
+   "name": "River shrine",
+   "density": 1.4,
+   "affinity": {
+    "bending": 0.6
+   },
+   "risk": 0.0,
+   "note": "Moving water and old stones."
+  },
+  "wild_grove": {
+   "name": "Wild grove",
+   "density": 1.4,
+   "affinity": {
+    "beast": 0.6
+   },
+   "risk": 0.0,
+   "note": "Creatures gather and watch."
+  },
+  "waterfall": {
+   "name": "Waterfall pool",
+   "density": 1.6,
+   "affinity": {
+    "sect": 0.3,
+    "bending": 0.3
+   },
+   "risk": 0.0,
+   "note": "Cold water hammers the shoulders."
+  },
+  "sect_hall": {
+   "name": "Sect hall",
+   "density": 1.8,
+   "affinity": {
+    "sect": 0.6,
+    "knight": 0.3
+   },
+   "risk": 0.0,
+   "requires": "sect_access",
+   "note": "A formation array keeps the qi thick."
+  },
+  "crystal_spring": {
+   "name": "Crystal spring",
+   "density": 2.0,
+   "affinity": {
+    "magic": 0.5,
+    "bending": 0.2
+   },
+   "risk": 0.02,
+   "note": "Qi-rich water; crystals hum."
+  },
+  "hidden_vale": {
+   "name": "The Hidden Vale",
+   "density": 2.2,
+   "affinity": {
+    "magic": 0.2,
+    "bending": 0.2,
+    "sect": 0.2,
+    "knight": 0.2,
+    "beast": 0.3
+   },
+   "risk": 0.0,
+   "requires": "vale_found",
+   "note": "A sheltered valley where qi pools."
+  },
+  "rift_edge": {
+   "name": "Rift edge",
+   "density": 3.2,
+   "affinity": {},
+   "risk": 0.14,
+   "requires": "rift_seen",
+   "note": "Raw, violent qi: fastest, and can lash back."
+  }
+ },
+ "resources": {
+  "herb": {
+   "name": "Spirit herb",
+   "tox": 0.15,
+   "note": "Gathered or grown.",
+   "eff": 3.0
+  },
+  "core": {
+   "name": "Monster core",
+   "tox": 0.2,
+   "note": "Dropped by strong monsters; beast path bonds x1.5.",
+   "eff": 5.4
+  },
+  "pill": {
+   "name": "Cultivation pill",
+   "tox": 0.35,
+   "note": "Alchemy. Breakthrough pills add success chance.",
+   "eff": 9.0
+  }
+ },
+ "techniques": [
+  {
+   "id": "mg_spark",
+   "name": "Mana Spark",
+   "path": "magic",
+   "realm": 1,
+   "stage": 4,
+   "kind": "attack",
+   "desc": "Chanted bolt of raw mana.",
+   "cost": 4
+  },
+  {
+   "id": "mg_ward",
+   "name": "Chanted Ward",
+   "path": "magic",
+   "realm": 1,
+   "stage": 7,
+   "kind": "defense",
+   "desc": "A short chant raises a barrier.",
+   "cost": 6
+  },
+  {
+   "id": "mg_circle_bolt",
+   "name": "Circle Bolt",
+   "path": "magic",
+   "realm": 2,
+   "stage": 3,
+   "kind": "attack",
+   "desc": "A bolt shaped by your first circle.",
+   "cost": 8
+  },
+  {
+   "id": "mg_flow",
+   "name": "Mana Flow",
+   "path": "magic",
+   "realm": 2,
+   "stage": 7,
+   "kind": "utility",
+   "desc": "Faster mana recovery.",
+   "cost": 0
+  },
+  {
+   "id": "mg_weave",
+   "name": "Lesser Weave",
+   "path": "magic",
+   "realm": 3,
+   "stage": 4,
+   "kind": "attack",
+   "desc": "Two circles braided into one spell.",
+   "cost": 14
+  },
+  {
+   "id": "mg_chantless",
+   "name": "Chantless Casting",
+   "path": "magic",
+   "realm": 4,
+   "stage": 1,
+   "kind": "utility",
+   "desc": "Cast without chanting. Advanced art: only from Core Formation.",
+   "cost": 0
+  },
+  {
+   "id": "mg_core_burst",
+   "name": "Core Burst",
+   "path": "magic",
+   "realm": 4,
+   "stage": 5,
+   "kind": "attack",
+   "desc": "Spend core mana in one heavy blast.",
+   "cost": 30
+  },
+  {
+   "id": "bn_breath",
+   "name": "Four-Count Breath",
+   "path": "bending",
+   "realm": 1,
+   "stage": 3,
+   "kind": "utility",
+   "desc": "Steady breath halves stance drift.",
+   "cost": 0
+  },
+  {
+   "id": "bn_form1",
+   "name": "First Form",
+   "path": "bending",
+   "realm": 1,
+   "stage": 7,
+   "kind": "attack",
+   "desc": "Basic elemental strike.",
+   "cost": 4
+  },
+  {
+   "id": "bn_flow",
+   "name": "Flowing Stance",
+   "path": "bending",
+   "realm": 2,
+   "stage": 3,
+   "kind": "defense",
+   "desc": "Redirect a blow with the element.",
+   "cost": 6
+  },
+  {
+   "id": "bn_wave",
+   "name": "Resonance Wave",
+   "path": "bending",
+   "realm": 2,
+   "stage": 7,
+   "kind": "attack",
+   "desc": "A cone of your element.",
+   "cost": 10
+  },
+  {
+   "id": "bn_shape",
+   "name": "Shaping",
+   "path": "bending",
+   "realm": 3,
+   "stage": 4,
+   "kind": "utility",
+   "desc": "Shape the element into tools and barriers.",
+   "cost": 10
+  },
+  {
+   "id": "bn_storm",
+   "name": "Elemental Storm",
+   "path": "bending",
+   "realm": 4,
+   "stage": 3,
+   "kind": "attack",
+   "desc": "Sustained area form.",
+   "cost": 28
+  },
+  {
+   "id": "st_palm",
+   "name": "Iron Palm",
+   "path": "sect",
+   "realm": 1,
+   "stage": 3,
+   "kind": "attack",
+   "desc": "Hardened hand strike.",
+   "cost": 0
+  },
+  {
+   "id": "st_circ",
+   "name": "Small Circulation",
+   "path": "sect",
+   "realm": 1,
+   "stage": 7,
+   "kind": "utility",
+   "desc": "Loop qi through two meridians; faster recovery.",
+   "cost": 0
+  },
+  {
+   "id": "st_step",
+   "name": "Cloud Step",
+   "path": "sect",
+   "realm": 2,
+   "stage": 3,
+   "kind": "mobility",
+   "desc": "Light-footed dash.",
+   "cost": 6
+  },
+  {
+   "id": "st_nine",
+   "name": "Nine-Palm Meridian Strike",
+   "path": "sect",
+   "realm": 2,
+   "stage": 8,
+   "kind": "attack",
+   "desc": "Donghua-style combo along nine meridians.",
+   "cost": 12
+  },
+  {
+   "id": "st_shield",
+   "name": "Golden Bell Shield",
+   "path": "sect",
+   "realm": 3,
+   "stage": 4,
+   "kind": "defense",
+   "desc": "Qi armour over the skin.",
+   "cost": 14
+  },
+  {
+   "id": "st_core",
+   "name": "Golden Core Burst",
+   "path": "sect",
+   "realm": 4,
+   "stage": 2,
+   "kind": "attack",
+   "desc": "Release the core in a single strike.",
+   "cost": 30
+  },
+  {
+   "id": "kn_brace",
+   "name": "Brace",
+   "path": "knight",
+   "realm": 1,
+   "stage": 3,
+   "kind": "defense",
+   "desc": "Reinforce the body against a blow.",
+   "cost": 0
+  },
+  {
+   "id": "kn_edge",
+   "name": "Aura Edge",
+   "path": "knight",
+   "realm": 1,
+   "stage": 7,
+   "kind": "attack",
+   "desc": "Sheath your blade in aura.",
+   "cost": 5
+  },
+  {
+   "id": "kn_guard",
+   "name": "Bulwark Stance",
+   "path": "knight",
+   "realm": 2,
+   "stage": 4,
+   "kind": "defense",
+   "desc": "Hold the line with reinforced guard.",
+   "cost": 8
+  },
+  {
+   "id": "kn_charge",
+   "name": "Lance Rush",
+   "path": "knight",
+   "realm": 2,
+   "stage": 8,
+   "kind": "mobility",
+   "desc": "Mounted or on foot, a bone-shaking charge.",
+   "cost": 10
+  },
+  {
+   "id": "kn_aura",
+   "name": "Full Aura Armour",
+   "path": "knight",
+   "realm": 3,
+   "stage": 4,
+   "kind": "defense",
+   "desc": "Aura wraps the whole body.",
+   "cost": 16
+  },
+  {
+   "id": "kn_sunder",
+   "name": "Aura Sunder",
+   "path": "knight",
+   "realm": 4,
+   "stage": 2,
+   "kind": "attack",
+   "desc": "Break guards and shields.",
+   "cost": 28
+  },
+  {
+   "id": "bs_call",
+   "name": "Bond Call",
+   "path": "beast",
+   "realm": 1,
+   "stage": 3,
+   "kind": "utility",
+   "desc": "Call your bonded creature.",
+   "cost": 0
+  },
+  {
+   "id": "bs_share",
+   "name": "Shared Sense",
+   "path": "beast",
+   "realm": 1,
+   "stage": 7,
+   "kind": "utility",
+   "desc": "See and hear through the bond.",
+   "cost": 2
+  },
+  {
+   "id": "bs_rally",
+   "name": "Pack Rally",
+   "path": "beast",
+   "realm": 2,
+   "stage": 4,
+   "kind": "support",
+   "desc": "Bolster bonded creatures.",
+   "cost": 8
+  },
+  {
+   "id": "bs_link",
+   "name": "Soul Link",
+   "path": "beast",
+   "realm": 2,
+   "stage": 8,
+   "kind": "support",
+   "desc": "Split damage with your companion.",
+   "cost": 12
+  },
+  {
+   "id": "bs_fuse",
+   "name": "Borrowed Form",
+   "path": "beast",
+   "realm": 3,
+   "stage": 4,
+   "kind": "attack",
+   "desc": "Borrow your companion's strength for a moment.",
+   "cost": 16
+  },
+  {
+   "id": "bs_core",
+   "name": "Bond Core Surge",
+   "path": "beast",
+   "realm": 4,
+   "stage": 2,
+   "kind": "attack",
+   "desc": "Channel the bond core into both of you.",
+   "cost": 30
+  }
+ ],
+ "manuals": [
+  {
+   "id": "m_mg1",
+   "name": "Primer of Quiet Mana",
+   "path": "magic",
+   "realm": 1,
+   "source": "academy",
+   "techniques": [
+    "mg_spark",
+    "mg_ward"
+   ],
+   "desc": "The academy's first text."
+  },
+  {
+   "id": "m_mg2",
+   "name": "Circles and Their Uses",
+   "path": "magic",
+   "realm": 2,
+   "source": "teacher",
+   "techniques": [
+    "mg_circle_bolt",
+    "mg_flow"
+   ],
+   "desc": "Taught by a circle-mage."
+  },
+  {
+   "id": "m_mg3",
+   "name": "The Lesser Weave",
+   "path": "magic",
+   "realm": 3,
+   "source": "dungeon",
+   "techniques": [
+    "mg_weave"
+   ],
+   "desc": "Found in a dungeon library."
+  },
+  {
+   "id": "m_mg4",
+   "name": "On Speaking Without Voice",
+   "path": "magic",
+   "realm": 4,
+   "source": "tower",
+   "techniques": [
+    "mg_chantless",
+    "mg_core_burst"
+   ],
+   "desc": "Advanced: chantless casting."
+  },
+  {
+   "id": "m_bn1",
+   "name": "Breath and Stance",
+   "path": "bending",
+   "realm": 1,
+   "source": "academy",
+   "techniques": [
+    "bn_breath",
+    "bn_form1"
+   ],
+   "desc": "The first forms."
+  },
+  {
+   "id": "m_bn2",
+   "name": "River Forms",
+   "path": "bending",
+   "realm": 2,
+   "source": "teacher",
+   "techniques": [
+    "bn_flow",
+    "bn_wave"
+   ],
+   "desc": "A water-tradition scroll."
+  },
+  {
+   "id": "m_bn3",
+   "name": "The Shaping Hand",
+   "path": "bending",
+   "realm": 3,
+   "source": "dungeon",
+   "techniques": [
+    "bn_shape"
+   ],
+   "desc": "Shaping elements into tools."
+  },
+  {
+   "id": "m_bn4",
+   "name": "Storm Canon",
+   "path": "bending",
+   "realm": 4,
+   "source": "tower",
+   "techniques": [
+    "bn_storm"
+   ],
+   "desc": "A tower-top canon."
+  },
+  {
+   "id": "m_st1",
+   "name": "Tempering Scripture",
+   "path": "sect",
+   "realm": 1,
+   "source": "sect_hall",
+   "techniques": [
+    "st_palm",
+    "st_circ"
+   ],
+   "desc": "The outer-disciple scripture."
+  },
+  {
+   "id": "m_st2",
+   "name": "Nine Meridian Palm",
+   "path": "sect",
+   "realm": 2,
+   "source": "teacher",
+   "techniques": [
+    "st_step",
+    "st_nine"
+   ],
+   "desc": "A donghua-style martial manual."
+  },
+  {
+   "id": "m_st3",
+   "name": "Golden Bell Art",
+   "path": "sect",
+   "realm": 3,
+   "source": "dungeon",
+   "techniques": [
+    "st_shield"
+   ],
+   "desc": "Protective qi art."
+  },
+  {
+   "id": "m_st4",
+   "name": "Core Burst Secret",
+   "path": "sect",
+   "realm": 4,
+   "source": "tower",
+   "techniques": [
+    "st_core"
+   ],
+   "desc": "Inner-disciple secret."
+  },
+  {
+   "id": "m_kn1",
+   "name": "Squire's Discipline",
+   "path": "knight",
+   "realm": 1,
+   "source": "academy",
+   "techniques": [
+    "kn_brace",
+    "kn_edge"
+   ],
+   "desc": "Drills of the squire yard."
+  },
+  {
+   "id": "m_kn2",
+   "name": "Shield Wall Doctrine",
+   "path": "knight",
+   "realm": 2,
+   "source": "teacher",
+   "techniques": [
+    "kn_guard",
+    "kn_charge"
+   ],
+   "desc": "A veteran's doctrine."
+  },
+  {
+   "id": "m_kn3",
+   "name": "Aura Armour Codex",
+   "path": "knight",
+   "realm": 3,
+   "source": "dungeon",
+   "techniques": [
+    "kn_aura"
+   ],
+   "desc": "Full-body reinforcement."
+  },
+  {
+   "id": "m_kn4",
+   "name": "Sunder Canon",
+   "path": "knight",
+   "realm": 4,
+   "source": "tower",
+   "techniques": [
+    "kn_sunder"
+   ],
+   "desc": "Guard-breaking arts."
+  },
+  {
+   "id": "m_bs1",
+   "name": "Listening to the Wild",
+   "path": "beast",
+   "realm": 1,
+   "source": "teacher",
+   "techniques": [
+    "bs_call",
+    "bs_share"
+   ],
+   "desc": "First steps of bonding."
+  },
+  {
+   "id": "m_bs2",
+   "name": "The Pack's Breath",
+   "path": "beast",
+   "realm": 2,
+   "source": "teacher",
+   "techniques": [
+    "bs_rally",
+    "bs_link"
+   ],
+   "desc": "Sharing a pack's strength."
+  },
+  {
+   "id": "m_bs3",
+   "name": "Borrowed Shapes",
+   "path": "beast",
+   "realm": 3,
+   "source": "dungeon",
+   "techniques": [
+    "bs_fuse"
+   ],
+   "desc": "Rare bond art."
+  },
+  {
+   "id": "m_bs4",
+   "name": "Core Bond Rites",
+   "path": "beast",
+   "realm": 4,
+   "source": "tower",
+   "techniques": [
+    "bs_core"
+   ],
+   "desc": "Rites that braid soul and core."
+  }
+ ],
+ "resource_grade_step": 3.0
+}

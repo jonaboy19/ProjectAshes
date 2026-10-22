@@ -26,6 +26,7 @@ const APEX_MIN_ROAD_DISTANCE := 140.0
 const APEX_CHANCE := 0.03
 const APEX_SPAWN_RANGE := Vector2(45.0, 70.0)
 const APEX_LIFETIME := 100.0
+const CreaturePool := preload("res://scripts/core/creature_pool.gd")
 
 var focus := Vector3.ZERO
 var _stone_nodes: Dictionary = {}     # stone id -> {node, light, tween}
@@ -58,7 +59,7 @@ func _build_stone(s: Dictionary) -> void:
 			for g in m.find_children("*", "GeometryInstance3D", true, false):
 				var gi := g as GeometryInstance3D
 				gi.visibility_range_begin = 0.0 if i == 0 else 60.0
-				gi.visibility_range_end = 60.0 if i == 0 else 500.0
+				gi.visibility_range_end = 60.0 if i == 0 else (160.0 if Quality.tier <= 0 else 500.0)     # LOW draw budget (pass 14)
 			root.add_child(m)
 	else:
 		var model: Node3D = Assets.scene(RUNESTONE).instantiate()
@@ -113,6 +114,7 @@ func _process(delta: float) -> void:
 		return
 	_timer = 1.0
 	var p := Vector2(focus.x, focus.z)
+	_bind_territories()
 	for s in Frontier.runestones.stones:
 		var d := p.distance_to(s["pos"])
 		if d < STONE_BUILD and not _stone_nodes.has(s["id"]):
@@ -127,13 +129,22 @@ func _process(delta: float) -> void:
 			_spawn_pack(den)
 		elif _packs.has(id) and dd > terr + DESPAWN_MARGIN:
 			for w in _packs[id]:
-				if is_instance_valid(w):
-					w.queue_free()
+				CreaturePool.give_back(w)
 			_packs.erase(id)
 	_apex_timer -= 1.0
 	if _apex_timer <= 0.0:
 		_apex_timer = APEX_CHECK_INTERVAL
 		_maybe_apex_encounter(p)
+
+
+## CIV-C hook (realm/ecology.gd): territories and pack sizes come from the realm ecology. Binds it to the live dens
+## once (re-binds after a new game); a no-op when the realm has no ecology module.
+func _bind_territories() -> void:
+	if Life.realm == null:
+		return
+	var m: Variant = Life.realm.mod("ecology")
+	if m != null and m.has_method("bind_frontier") and not m.is_bound_to(Frontier.ecology):
+		m.bind_frontier(Frontier.ecology, Frontier.threat)
 
 
 func _free_stone(id: int) -> void:
@@ -182,11 +193,13 @@ func _maybe_apex_encounter(p: Vector2) -> void:
 func _spawn_pack(den: Dictionary) -> void:
 	var list: Array = []
 	var count := mini(int(den["population"]), RAMonsterEcology.SPECIES[den["species"]]["pack"])
+	if Quality.tier <= 0:
+		count = mini(count, 2)      # AAA pass 13: LOW draw budget (the census showed 4-wolf packs in the town gate view)
 	for i in count:
-		var w := Wolf.new()
 		# Apex and Rift-tainted dens reuse the closest body until they get their own models.
-		var sp := String(den["species"])
-		w.species = {"troll": "bear", "wyvern": "bear", "bear": "bear", "corrupted_wolf": "wolf"}.get(sp, sp)
+		var sp := Frontier.ecology.variant_for(String(den["species"]), den["pos"])   # Region1 hook H4: Scar cells make rift variants
+		# One pool per variant: the violet rift fur must never leak onto an ordinary wolf.
+		var w: Wolf = CreaturePool.wolf("pack_" + String(sp), {"troll": "bear", "wyvern": "bear", "bear": "bear", "corrupted_wolf": "wolf"}.get(sp, sp))
 		if sp == "troll" or sp == "wyvern":
 			w.scale = Vector3.ONE * 1.9
 		elif sp == "corrupted_wolf":
@@ -197,8 +210,11 @@ func _spawn_pack(den: Dictionary) -> void:
 		add_child(w)
 		var q: Vector2 = den["pos"] + Vector2(randf_range(-8, 8), randf_range(-8, 8))
 		w.global_position = Vector3(q.x, WorldGen.height(q.x, q.y), q.y)
+		if sp == "corrupted_wolf":
+			w.set_meta("rift", true)
+			RiftVariants.apply_creature(w, "wolf")   # violet fur (L4 rift kit)
 		w.died.connect(func(dead_wolf: Wolf) -> void:
 			Frontier.ecology.cull(dead_wolf.den_id, 1)
-			Life.on_wolf_killed(dead_wolf.global_position, dead_wolf.den_id))
+			Life.on_wolf_killed(dead_wolf.global_position, dead_wolf.den_id, "rift_wolf" if dead_wolf.has_meta("rift") else ""))
 		list.append(w)
 	_packs[den["id"]] = list

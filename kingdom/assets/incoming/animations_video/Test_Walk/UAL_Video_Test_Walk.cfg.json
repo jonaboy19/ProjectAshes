@@ -1,0 +1,53 @@
+{
+ "source_type": "bvh",
+ "bvh_dir": "C:\\Users\\Jonna\\Documents\\PA_wt_anim3c\\kingdom\\tools\\anim\\video_mocap\\out\\Test_Walk",
+ "ual": "C:\\Users\\Jonna\\Documents\\PA_wt_anim3c\\kingdom\\assets\\incoming\\quaternius\\universal-animation-library\\Unreal-Godot\\UAL1_Standard.glb",
+ "out": "C:\\Users\\Jonna\\Documents\\PA_wt_anim3c\\kingdom\\assets\\incoming\\animations_video\\Test_Walk\\UAL_Video_Test_Walk.glb",
+ "smooth": 0.02,
+ "fingers": "relaxed",
+ "finger_poses": {
+  "relaxed": [
+   "Idle_Loop",
+   0.0
+  ],
+  "fist": [
+   "Punch_Jab",
+   0.4
+  ]
+ },
+ "map": {
+  "pelvis": "Hips",
+  "spine_01": "LowerBack",
+  "spine_02": "Spine",
+  "spine_03": "Spine1",
+  "neck_01": "Neck",
+  "Head": "Head",
+  "clavicle_l": "LeftShoulder",
+  "upperarm_l": "LeftArm",
+  "lowerarm_l": "LeftForeArm",
+  "hand_l": "LeftHand",
+  "clavicle_r": "RightShoulder",
+  "upperarm_r": "RightArm",
+  "lowerarm_r": "RightForeArm",
+  "hand_r": "RightHand",
+  "thigh_l": "LeftUpLeg",
+  "calf_l": "LeftLeg",
+  "foot_l": "LeftFoot",
+  "ball_l": "LeftToeBase",
+  "thigh_r": "RightUpLeg",
+  "calf_r": "RightLeg",
+  "foot_r": "RightFoot",
+  "ball_r": "RightToeBase"
+ },
+ "check_directions": true,
+ "root_motion_track": true,
+ "clips": [
+  {
+   "name": "Test_Walk",
+   "file": "clip.bvh",
+   "fingers": "relaxed",
+   "inplace": "smooth",
+   "loop": true
+  }
+ ]
+}

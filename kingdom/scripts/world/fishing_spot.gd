@@ -11,12 +11,13 @@ extends Node3D
 ## The fish is rolled from Gathering.FISH (perch, trout, pike, and the emberfin
 ## that only rises at sunset); rarer fish pull harder with a narrower zone.
 ##
-## Self-contained like InteriorDoor: always in the "interactable" group with
-## prompt() and use(). It polls "interact" itself while it is the player's
-## nearest interactable, and use() has a per-frame guard, so a main.gd
-## dispatcher that also calls use() does no harm.
+## An Interactable (scripts/interaction/interactable.gd) over prompt() and use(); the player's
+## InteractionController runs use() when the picker chooses it, and use() has a per-frame guard.
 
 const Gathering := preload("res://scripts/sim/gathering_items.gd")
+const Crafting := preload("res://scripts/sim/crafting.gd")
+const Deposits := preload("res://scripts/world/deposits.gd")
+const GatherRun := preload("res://scripts/world/gather_run.gd")
 const BITE_WINDOW := 1.1
 const CAST_TIME := 0.9
 const REEL_LIMIT := 30.0
@@ -32,6 +33,7 @@ enum Phase { IDLE, CAST, WAIT, BITE, REEL, DONE }
 var water_point := Vector3.ZERO
 var river := false
 var water_name := "Emberglass Mere"
+var pool := ""                 # Gathering.POOLS key: a named pool with its own (rare) stock, "" = the lake or river table
 
 var phase := Phase.IDLE
 var fish := ""
@@ -45,7 +47,6 @@ var _zone_timer := 0.0
 var _progress := 0.25
 var _last_use_frame := -100
 var _last_tap := -1.0
-var _menu_was_open := false
 
 var _bobber: Node3D
 var _bang: Label3D
@@ -62,12 +63,30 @@ var _reel_box: Control
 
 
 func _ready() -> void:
-	add_to_group("interactable")
+	Interactable.attach(self, {"id_fn": func() -> String: return "fishing/%d_%d" % [roundi(global_position.x), roundi(global_position.z)],
+		"verb": "Fish", "range": 3.3,
+		"do": func(_pl: Node) -> void: use(),
+		"label": func() -> String: return prompt()})
 	Gathering.register(Life)
 	_build_marker()
 
 
+var deposits := Deposits.new()
+var _panel: Control
+
+
+## The spot's fish stock: a deposit keyed by position, regrowing daily (saved only once fished).
+func dep_id() -> String:
+	return "fishing/dep/fish/%d_%d" % [roundi(global_position.x), roundi(global_position.z)]
+
+
+static func dep_def() -> Dictionary:
+	return Deposits.make_def("fish", "perch", {"cap": 5, "regrow": 2.5})
+
+
 func prompt() -> String:
+	if phase == Phase.IDLE and deposits.is_depleted(dep_id(), dep_def(), WorldSim.day):
+		return "Fished out"
 	return "Fish" if phase == Phase.IDLE else "Reel"
 
 
@@ -77,14 +96,16 @@ func use() -> void:
 		return
 	_last_use_frame = f
 	if phase == Phase.IDLE:
-		_start()
+		if not is_instance_valid(_panel) and not deposits.is_depleted(dep_id(), dep_def(), WorldSim.day):
+			_start()
+		elif not is_instance_valid(_panel):
+			Game.say("The water is still. Nothing is biting here today.")
 	else:
 		_tap()
 
 
 func _process(delta: float) -> void:
 	if phase == Phase.IDLE:
-		_poll_interact()
 		return
 	var player := _player()
 	if phase != Phase.DONE and (player == null or bool(player.get("dead")) \
@@ -154,7 +175,7 @@ func _enter(p: Phase) -> void:
 			_status.text = "Waiting for a bite..."
 			_hint.text = "Tap when the bobber dips."
 		Phase.BITE:
-			fish = Gathering.roll_fish(randf(), WorldSim.time_of_day, river)
+			fish = Gathering.roll_fish(randf(), WorldSim.time_of_day, river, pool)
 			_status.text = "A bite! Tap!"
 			_hint.text = ""
 		Phase.REEL:
@@ -215,15 +236,36 @@ func _reel(delta: float) -> void:
 		_finish("The line goes slack. It got away.", false)
 
 
+## The fish is on the line: a short GatherSession lands it (a snapped line can lose it, skill and tackle
+## decide the grade) and the catch comes off this spot's fish stock.
 func _land() -> void:
-	Life.give(fish)
+	var landed := fish
+	var node := {"kind": "fish", "item": landed, "level": 1 + Gathering.FISH_ORDER.find(landed) * 2,
+		"qty": mini(3, deposits.units(dep_id(), dep_def(), WorldSim.day)), "quality": 50}
+	_finish("The fish is on the line!", true)
+	_close()      # drop the full-screen fishing UI (layer 30) now: for its 1.6 s fade-out it sat above the landing panel and ate its clicks
+	_panel = GatherRun.open(self, node, "Land the %s" % Life.item_name(landed), 0,
+		hash([roundi(global_position.x), roundi(global_position.z), Engine.get_process_frames()]), _on_landed)
+	if _panel == null:
+		_on_landed({"ok": true, "item": landed, "count": 1, "consumed": 1, "tier": 1, "xp": 3, "skill": "fishing"})
+
+
+func _on_landed(res: Dictionary) -> void:
+	_panel = null
+	var n: int = deposits.commit(dep_id(), dep_def(), res, WorldSim.day)
+	if n <= 0:
+		Game.say("It slips the hook.")
+		return
+	var item := String(res["item"])
+	Crafting.give_item(Life, item, n, int(res.get("tier", 1)))
 	Life.record("fished")
-	var fish_name := Life.item_name(fish)
-	var text := "You caught %s %s!" % ["an" if "aeiou".contains(fish_name.substr(0, 1).to_lower()) else "a", fish_name]
-	if fish == "emberfin":
+	var fish_name := Life.item_name(item)
+	var text := "You caught %d %s!" % [n, fish_name] if n > 1 else "You caught %s %s!" % ["an" if "aeiou".contains(fish_name.substr(0, 1).to_lower()) else "a", fish_name]
+	if item == "emberfin":
 		text = "An emberfin! Its scales glow like coals in the dusk."
+	text += GatherRun.deliver(res, 0)
+	GatherRun.grant_xp(res)
 	Game.say(text)
-	_finish(text, true)
 
 
 func _finish(text: String, caught: bool) -> void:
@@ -319,9 +361,10 @@ func _build_marker() -> void:
 	add_child(post)
 	var tag := Label3D.new()
 	tag.text = "Fishing"
-	tag.font_size = 40
-	tag.pixel_size = 0.006
-	tag.outline_size = 10
+	tag.font_size = 30
+	tag.fixed_size = true
+	tag.pixel_size = 0.0016
+	tag.outline_size = 8
 	tag.modulate = Color(0.95, 0.9, 0.75)
 	tag.billboard = BaseMaterial3D.BILLBOARD_ENABLED
 	tag.position = Vector3(0, 1.15, 0)
@@ -379,7 +422,7 @@ func _build_ui() -> void:
 		_ui.queue_free()
 	_ui = CanvasLayer.new()
 	_ui.layer = 30
-	add_child(_ui)
+	(get_tree().current_scene if get_tree().current_scene != null else self).add_child(_ui)
 	# Taps anywhere count (phones); the Stop button sits above and eats its own.
 	var blocker := Control.new()
 	blocker.set_anchors_preset(Control.PRESET_FULL_RECT)
@@ -460,27 +503,3 @@ func _build_ui() -> void:
 	stop.focus_mode = Control.FOCUS_NONE
 	stop.pressed.connect(func() -> void: _finish("You reel in the line.", false))
 	box.add_child(stop)
-
-
-# --- dispatch --------------------------------------------------------------------
-
-## Self-dispatch of the interact key while this is the nearest interactable.
-func _poll_interact() -> void:
-	var p := _player()
-	if p == null or p.global_position.distance_squared_to(global_position) > 3.3 * 3.3:
-		_menu_was_open = false
-		return
-	var menu_open := _menu_open()
-	var was := _menu_was_open
-	_menu_was_open = menu_open
-	if menu_open or was or not Input.is_action_just_pressed("interact"):
-		return
-	if p.has_method("nearest_interactable") and p.call("nearest_interactable") == self:
-		use()
-
-
-func _menu_open() -> bool:
-	var scene := get_tree().current_scene
-	var hud: Variant = scene.get("hud") if scene else null
-	return hud is Object and is_instance_valid(hud) and (hud as Object).has_method("is_menu_open") \
-		and bool((hud as Object).call("is_menu_open"))

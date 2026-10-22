@@ -50,6 +50,8 @@ shader_parameter/tail_len = null
 shader_parameter/pulse = null
 shader_parameter/pulse_speed = null
 shader_parameter/heat_scale = 0.9
+shader_parameter/soft_edge = 0.85
+shader_parameter/ring_soft = null
 
 [sub_resource type="CylinderMesh" id="CylinderMesh_l5dna"]
 top_radius = 0.3
@@ -103,6 +105,8 @@ shader_parameter/tail_len = null
 shader_parameter/pulse = null
 shader_parameter/pulse_speed = null
 shader_parameter/heat_scale = 0.7
+shader_parameter/soft_edge = 0.85
+shader_parameter/ring_soft = null
 
 [sub_resource type="CylinderMesh" id="CylinderMesh_iyrfn"]
 top_radius = 0.1
@@ -168,14 +172,14 @@ color_ramp = SubResource("GradientTexture1D_s16vs")
 material = ExtResource("6_fanmh")
 size = Vector2(0.21113402, 0.21113402)
 
-[node name="Water_Beam" type="Node3D" unique_id=1403888411]
+[node name="Water_Beam" type="Node3D" unique_id=1773167844]
 script = ExtResource("1_2asds")
 duration = 0.0
 fade_out = 0.2
 kind = &"beam"
 element = &"water"
 
-[node name="Jet" type="MeshInstance3D" parent="." unique_id=1728846638]
+[node name="Jet" type="MeshInstance3D" parent="." unique_id=159784890]
 transform = Transform3D(1, 0, 0, 0, -4.371139e-08, 1, 0, -1, -4.371139e-08, 0, 0, -0.5)
 material_override = SubResource("ShaderMaterial_wy20g")
 cast_shadow = 0
@@ -183,7 +187,7 @@ extra_cull_margin = 2.0
 gi_mode = 0
 mesh = SubResource("CylinderMesh_l5dna")
 
-[node name="Core" type="MeshInstance3D" parent="." unique_id=1469038487]
+[node name="Core" type="MeshInstance3D" parent="." unique_id=699445539]
 transform = Transform3D(1, 0, 0, 0, -4.371139e-08, 1, 0, -1, -4.371139e-08, 0, 0, -0.5)
 material_override = SubResource("ShaderMaterial_kr677")
 cast_shadow = 0
@@ -191,14 +195,14 @@ extra_cull_margin = 2.0
 gi_mode = 0
 mesh = SubResource("CylinderMesh_iyrfn")
 
-[node name="Muzzle" type="MeshInstance3D" parent="." unique_id=248677110]
+[node name="Muzzle" type="MeshInstance3D" parent="." unique_id=990427942]
 material_override = SubResource("ShaderMaterial_418c7")
 cast_shadow = 0
 extra_cull_margin = 2.0
 gi_mode = 0
 mesh = SubResource("QuadMesh_fa5j1")
 
-[node name="Tip" type="MeshInstance3D" parent="." unique_id=2010489081]
+[node name="Tip" type="MeshInstance3D" parent="." unique_id=1541031814]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, -1)
 material_override = SubResource("ShaderMaterial_pqpam")
 cast_shadow = 0
@@ -206,7 +210,7 @@ extra_cull_margin = 2.0
 gi_mode = 0
 mesh = SubResource("QuadMesh_w0q7n")
 
-[node name="Spray" type="GPUParticles3D" parent="." unique_id=2092798352]
+[node name="Spray" type="GPUParticles3D" parent="." unique_id=101037883]
 cast_shadow = 0
 gi_mode = 0
 emitting = false

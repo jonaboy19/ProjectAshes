@@ -646,6 +646,8 @@ func _chimney_points(s: Dictionary) -> PackedVector3Array:
 		var root := sb.get_node_or_null(NodePath(key))
 		if root == null:
 			return out                      # not built yet: try again later
+		if bool(root.get_meta("props_pending", false)):
+			return out                      # district props (chimney smoke) still streaming in: do not cache yet
 		for c in root.get_children():
 			if c is GPUParticles3D and (c as GPUParticles3D).lifetime == 7.0 and (c as GPUParticles3D).amount == 16:
 				out.append((c as Node3D).global_position + Vector3(0, 0.3, 0))

@@ -1,0 +1,95 @@
+{
+ "id": "westfen_the_sickness_at_the_door",
+ "title": "The Sickness at the Door",
+ "summary": "Food and drink are turning in Westfen, and people are sick. Helm Vesper needs the cause found and Rye Wythe needs herbs.",
+ "giver": {
+  "npc": "helm_vesper",
+  "name": "Helm Vesper",
+  "place": "westfen"
+ },
+ "requires": [
+  "westfen_a_table_for_dalla"
+ ],
+ "offer_text": "\"Milk, wells, stores, something is turning in this town. Find the source, then take Rye the herbs they need. I do not want to say poison yet.\"",
+ "turn_in_text": "\"You have done more than you know. I will see this is not forgotten.\"",
+ "stages": [
+  {
+   "id": "look",
+   "title": "Find the source",
+   "mode": "all",
+   "objectives": [
+    {
+     "id": "clues",
+     "type": "investigate",
+     "clues": [
+      "westfen/clue/c1",
+      "westfen/clue/c2",
+      "westfen/clue/c3"
+     ],
+     "count": 3,
+     "text": "Look around town for what could have soured it"
+    }
+   ]
+  },
+  {
+   "id": "samples",
+   "title": "Fetch the remedy",
+   "mode": "all",
+   "objectives": [
+    {
+     "id": "herbs",
+     "type": "collect",
+     "item": "healing_herb",
+     "count": 3,
+     "text": "Take 3 bundles of herbs"
+    }
+   ]
+  },
+  {
+   "id": "deliver",
+   "title": "Bring it to Rye",
+   "mode": "all",
+   "objectives": [
+    {
+     "id": "remedy",
+     "type": "deliver",
+     "item": "healing_herb",
+     "count": 3,
+     "to": "rye_wythe",
+     "text": "Hand the herbs to Rye Wythe"
+    }
+   ]
+  },
+  {
+   "id": "report",
+   "title": "Tell Helm",
+   "mode": "all",
+   "objectives": [
+    {
+     "id": "report",
+     "type": "talk_to",
+     "npc": "helm_vesper",
+     "text": "Tell Helm Vesper what you found"
+    }
+   ],
+   "end": true
+  }
+ ],
+ "rewards": {
+  "gold": 28,
+  "rep": {
+   "westfen": 6
+  },
+  "relationship": [
+   {
+    "npc": "helm_vesper",
+    "label": "Helped when folk fell ill",
+    "value": 12,
+    "days": 90
+   }
+  ],
+  "items": {
+   "candle": 2
+  }
+ }
+}

@@ -4,13 +4,35 @@ extends RefCounted
 ## Everything is a pure function of the seed so chunks can be generated in any
 ## order, on demand, and regenerated identically after unloading.
 
-const WORLD_HALF := 2048.0          # 4 km x 4 km
-const SETTLEMENT_COUNT := 10
+const WORLD_HALF := 6144.0          # 12 km x 12 km (was 8 km, and 4 km before that; the original valley is the +-2 km core)
+const SETTLEMENT_COUNT := 10        # random villages/towns of the original valley (see _place_settlements)
+## Settlements added in the new land beyond the original valley, in placement order:
+## [kind, count, radius, population]. "hamlet" is a small village (kind stays "village").
+## The first eight are the 8 km world's; the second block fills the 12 km world's outer ring (own order, so the first eight
+## keep their names and roles).
+const OUTER_SETTLEMENTS := [["town", 1, 115.0, 720], ["frontier_town", 1, 75.0, 380], ["village", 4, 60.0, 210], ["hamlet", 2, 42.0, 90],
+	["town", 1, 110.0, 640], ["frontier_town", 1, 75.0, 360], ["village", 5, 60.0, 200], ["hamlet", 3, 42.0, 90]]
+## The Hidden Vale (hidden_valley.gd CANDIDATES[0]) takes the first candidate with 720 m of room from every town and road:
+## the 12 km ring keeps its towns and its roads clear of that spot so the vale stays where the lore put it.
+const VALE_KEEP_OUT := Vector2(-2040.0, 40.0)
+const VALE_KEEP_OUT_R := 1150.0
+const VALE_ROAD_R := 900.0
+const OUTER_BLOCK_1 := 4                 # OUTER_SETTLEMENTS entries 0..3 are the 8 km world's, 4..7 the 12 km world's
+const OUTER_MIN_SPACING := 520.0
+const OUTER_EDGE_MARGIN := 520.0
+## Names are unique (Discovery keys places by name). The first twelve are the original valley's.
 const NAMES := ["Ashford", "Kingsreach", "Millbrook", "Stonehollow", "Eastmere", "Redwater",
-	"Thornfield", "Greywatch", "Oakvale", "Highcliff", "Brackenmoor", "Westfen"]
+	"Thornfield", "Greywatch", "Oakvale", "Highcliff", "Brackenmoor", "Westfen",
+	"Ironmarch", "Saltwick", "Cindermoor", "Dunhallow", "Wolfsend", "Harrowgate",
+	"Emberfall", "Ravenscar", "Longmeadow", "Blackwater", "Frostmere", "Amberley",
+	"Skarholm", "Thistledown", "Marrowick", "Coldharbor", "Hollowmere", "Duskwater"]
 
 ## Each settlement: {id, name, pos: Vector2, radius, base_h, kind: "village"|"town"|"castle", population}
 static var settlements: Array[Dictionary] = []
+## How many settlements belong to the original valley (ids below this keep their old layout and roads).
+static var core_settlement_count := 0
+## How many settlements the 8 km world had (valley + its outer block): ids from here on are the 12 km world's ring.
+static var outer_block1_count := 0
 ## Flattened grounds for monster camps from data/world/first_region.json: [{pos, radius, base_h}]
 static var camp_grounds: Array[Dictionary] = []
 ## Road segments as pairs of settlement ids.
@@ -48,6 +70,8 @@ static var lake_level := 0.0
 ## River polylines, each {points: PackedVector2Array, level/width/depth: PackedFloat32Array}.
 ## Points run downstream: arm 0 = source -> lake, arm 1 = lake -> world edge.
 static var rivers: Array[Dictionary] = []
+## Valencious macro only (W2): the Westfen marsh pools [{pos, radius, level, depth, reach_sq}], placed by _place_pools() after the macro re-base.
+static var pools: Array[Dictionary] = []
 static var _shore := FastNoiseLite.new()
 static var _lake_reach_sq := 0.0
 static var _seg := PackedFloat32Array()          # stride 10 per segment: ax, az, bx, bz, la, lb, wa, wb, da, db
@@ -55,6 +79,11 @@ static var _river_grid: Dictionary = {}           # Vector2i -> PackedInt32Array
 
 
 static func setup(seed_value: int) -> void:
+	pools.clear()
+	var macro_on := WorldMacro.prepare()   # Valencious macro hook (scripts/world/world_macro.gd): load once, main thread
+	if macro_on:
+		WorldMacro.suspend()   # settlements, camps and sites are planned on the legacy noise so no id/position can move; re-based below
+	Region1Terrain.setup()   # Region1 look hook: terrain stamps + trails as data (docs/regions/LOOK_R1.md)
 	_hills.seed = seed_value
 	_hills.frequency = 0.0022
 	_hills.fractal_octaves = 4
@@ -68,37 +97,188 @@ static func setup(seed_value: int) -> void:
 	_forest.frequency = 0.006
 	_forest.fractal_octaves = 2
 	_initialized = true
+	preload("res://scripts/world/hidden_valley.gd").reset()   # Hidden valley hook 1/2 (scripts/world/hidden_valley.gd): off until the layout is known
 	_place_settlements(seed_value)
 	_connect_roads()
+	_build_indexes()
+	preload("res://scripts/world/hidden_valley.gd").setup(seed_value)   # Hidden valley hook 2/2: picks its spot once towns and roads exist
 	for st in settlements:
 		st["plan"] = CityPlanner.plan(st, gate_angles(st), seed_value)
 	_place_water(seed_value)
 	_place_camp_grounds()
 	clearings.clear()
+	_build_indexes()
 	sites = RegionSites.plan(seed_value)
 	for site in sites:
 		if float(site["clear"]) > 0.0:
 			var c: Vector2 = site["pos"]
 			clearings.append({"pos": c, "radius": float(site["clear"]), "flatten": bool(site["flatten"]),
 				"base_h": _raw_height(c.x, c.y)})
+	_build_indexes()
+	if macro_on:
+		WorldMacro.resume()
+		_rebase_to_macro(seed_value)
+
+
+## Valencious macro hook: positions are final, so re-seat everything that follows the ground on the macro terrain.
+static func _rebase_to_macro(seed_value: int) -> void:
+	for st in settlements:
+		st["base_h"] = _raw_height(st["pos"].x, st["pos"].y)
+	_place_water(seed_value, false)    # lake level, rivers and their levels follow the macro ground (the hidden vale's stream is kept)
+	_place_camp_grounds()
+	for c in clearings:
+		c["base_h"] = _raw_height(c["pos"].x, c["pos"].y)
+	_build_indexes()
+	_place_pools()
+
+
+## Westfen marsh pools (W2, macro on only; bible: the fen is wet, 0-6 m). Fixed spots (x, z, radius) so they never depend on RNG;
+## a spot is skipped when it would touch a road, a settlement or a site clearing. Same bowl-and-shelf profile as the Mere (_lake_profile).
+const POOL_SPOTS := [[-250.0, 1430.0, 38.0], [-420.0, 1480.0, 46.0], [-560.0, 1400.0, 34.0], [-130.0, 1560.0, 40.0], [130.0, 1420.0, 36.0],
+	[240.0, 1500.0, 42.0], [350.0, 1440.0, 34.0], [-330.0, 1320.0, 30.0]]
+
+
+static func _place_pools() -> void:
+	pools.clear()
+	for sp: Array in POOL_SPOTS:
+		var c := Vector2(float(sp[0]), float(sp[1]))
+		var r := float(sp[2])
+		if road_distance(c.x, c.y) < r * 1.6 + 25.0:
+			continue
+		if _raw_height(c.x, c.y) > 8.0:
+			continue        # only on the genuinely low fen ground (bible: Westfen marsh 0-6 m)
+		var ok := true
+		for st in settlements:
+			if c.distance_to(st["pos"]) < float(st["radius"]) * 1.8 + r * 1.6 + 20.0:
+				ok = false
+		for cl in clearings:
+			if c.distance_to(cl["pos"]) < float(cl["radius"]) * 1.8 + r * 1.6:
+				ok = false
+		if not ok:
+			continue
+		var ring := _ring_stats(c, r * 1.15)
+		var level := lerpf(ring.x, ring.y, 0.3) - 0.5
+		pools.append({"pos": c, "radius": r, "level": level, "depth": 1.8, "reach_sq": pow(r * 1.5 + 60.0, 2.0)})
+
+
+static func _pool_s(p: Vector2, pl: Dictionary) -> float:
+	var v := p - (pl["pos"] as Vector2)
+	var l := v.length()
+	if l < 0.001:
+		return 0.0
+	var dir := v / l
+	return l / (float(pl["radius"]) * (1.0 + 0.25 * _shore.get_noise_2d(dir.x * 0.9 + float(pl["pos"].x) * 0.013, dir.y * 0.9)))
+
+
+static func _pool_profile(s: float, pl: Dictionary) -> float:
+	var level: float = pl["level"]
+	var d: float = pl["depth"]
+	if s < 1.0:
+		return level + 0.2 - (d + 0.2) * (1.0 - smoothstep(0.3, 1.0, s))
+	return level + 0.2 + (s - 1.0) * float(pl["radius"]) * 0.06
+
+
+# --- Spatial index ------------------------------------------------------------------
+# height(), color_at() and forest_density() run for every vertex of every streamed chunk, so
+# their cost must not grow with how much world exists elsewhere. Roads, settlements, camp
+# grounds and site clearings are bucketed in IDX_CELL cells; a lookup only walks the few
+# entries that can reach the cell. Results are exact: road and settlement lookups fall back to
+# the full scan when nothing is within reach of the bucket.
+
+const IDX_CELL := 128.0
+const IDX_SLACK := 91.0             # half the cell diagonal
+const ROAD_REACH := 500.0
+const SETTLE_REACH := 900.0
+static var _NONE := PackedInt32Array()
+static var _road_a := PackedVector2Array()
+static var _road_b := PackedVector2Array()
+static var _road_tiers: Array[String] = []
+static var _road_idx: Dictionary = {}       # Vector2i -> PackedInt32Array (road ids, ascending)
+static var _set_idx: Dictionary = {}
+static var _camp_idx: Dictionary = {}
+static var _clear_idx: Dictionary = {}
+
+
+static func _cell_of(x: float, z: float) -> Vector2i:
+	return Vector2i(floori(x / IDX_CELL), floori(z / IDX_CELL))
+
+
+## Adds `id` to every cell whose centre is within `reach` of point `c`.
+static func _index_disc(idx: Dictionary, id: int, c: Vector2, reach: float) -> void:
+	var r := reach + IDX_SLACK
+	var lo := _cell_of(c.x - r, c.y - r)
+	var hi := _cell_of(c.x + r, c.y + r)
+	for cz in range(lo.y, hi.y + 1):
+		for cx in range(lo.x, hi.x + 1):
+			var mid := Vector2((cx + 0.5) * IDX_CELL, (cz + 0.5) * IDX_CELL)
+			if mid.distance_to(c) <= r:
+				_index_add(idx, Vector2i(cx, cz), id)
+
+
+static func _index_add(idx: Dictionary, key: Vector2i, id: int) -> void:
+	var ids := PackedInt32Array()          # (never append to the shared _NONE: packed arrays are references)
+	if idx.has(key):
+		ids = idx[key]
+	ids.append(id)
+	idx[key] = ids
+
+
+static func _build_indexes() -> void:
+	_road_idx.clear()
+	_set_idx.clear()
+	_camp_idx.clear()
+	_clear_idx.clear()
+	_road_a = PackedVector2Array()
+	_road_b = PackedVector2Array()
+	_road_tiers.clear()
+	for i in roads.size():
+		var a: Vector2 = settlements[roads[i].x]["pos"]
+		var b: Vector2 = settlements[roads[i].y]["pos"]
+		_road_a.append(a)
+		_road_b.append(b)
+		_road_tiers.append(road_tier(roads[i].x, roads[i].y))
+		var r := ROAD_REACH + IDX_SLACK
+		var lo := _cell_of(minf(a.x, b.x) - r, minf(a.y, b.y) - r)
+		var hi := _cell_of(maxf(a.x, b.x) + r, maxf(a.y, b.y) + r)
+		for cz in range(lo.y, hi.y + 1):
+			for cx in range(lo.x, hi.x + 1):
+				var mid := Vector2((cx + 0.5) * IDX_CELL, (cz + 0.5) * IDX_CELL)
+				if mid.distance_to(Geometry2D.get_closest_point_to_segment(mid, a, b)) <= r:
+					_index_add(_road_idx, Vector2i(cx, cz), i)
+	for i in settlements.size():
+		_index_disc(_set_idx, i, settlements[i]["pos"], SETTLE_REACH)
+	for i in camp_grounds.size():
+		_index_disc(_camp_idx, i, camp_grounds[i]["pos"], float(camp_grounds[i]["radius"]) * 2.0)
+	for i in clearings.size():
+		var cr := float(clearings[i]["radius"])
+		_index_disc(_clear_idx, i, clearings[i]["pos"], maxf(cr * 1.8, cr + 10.0))
 
 
 static func _place_camp_grounds() -> void:
 	camp_grounds.clear()
+	for c in _lore_camp_positions():
+		camp_grounds.append({"pos": c[0], "radius": float(c[1]) * 1.15, "base_h": _raw_height((c[0] as Vector2).x, (c[0] as Vector2).y)})
+
+
+## [pos, radius] of every goblin warren and orc village in data/world/first_region.json.
+static func _lore_camp_positions() -> Array:
+	var out: Array = []
 	var path := "res://data/world/first_region.json"
 	if not FileAccess.file_exists(path):
-		return
+		return out
 	var data: Variant = JSON.parse_string(FileAccess.get_file_as_string(path))
 	if not data is Dictionary:
-		return
+		return out
 	for pl: Dictionary in data.get("places", []):
 		if String(pl.get("kind", "")) in ["goblin_warren", "orc_village"]:
 			var arr: Array = pl["pos"]
-			var c := Vector2(float(arr[0]), float(arr[1]))
-			camp_grounds.append({"pos": c, "radius": float(pl.get("radius", 30.0)) * 1.15, "base_h": _raw_height(c.x, c.y)})
+			out.append([Vector2(float(arr[0]), float(arr[1])), float(pl.get("radius", 30.0))])
+	return out
 
 
 static func _raw_height(x: float, z: float) -> float:
+	if WorldMacro.active:   # Valencious macro hook: the sampled macro heightmap replaces the noise hills/ridges/rim
+		return preload("res://scripts/world/hidden_valley.gd").shape(x, z, WorldMacro.sample(x, z) + _detail.get_noise_2d(x, z) * 0.6)
 	var hills := (_hills.get_noise_2d(x, z) * 0.5 + 0.5) * 38.0
 	var ridge := maxf(_ridges.get_noise_2d(x, z), 0.0)
 	# Mountains rise away from the home valley so they frame the horizon.
@@ -106,24 +286,28 @@ static func _raw_height(x: float, z: float) -> float:
 	var mountains := pow(ridge, 2.2) * 160.0 * valley
 	var edge := maxf(absf(x), absf(z))
 	var rim := pow(smoothstep(WORLD_HALF - 250.0, WORLD_HALF, edge), 1.5) * 200.0
-	return hills + mountains + rim + _detail.get_noise_2d(x, z) * 0.6
+	return preload("res://scripts/world/hidden_valley.gd").shape(x, z, hills + mountains + rim + _detail.get_noise_2d(x, z) * 0.6)   # Hidden valley hook
 
 
 static func height(x: float, z: float) -> float:
 	var h := _raw_height(x, z)
 	var p := Vector2(x, z)
+	var cell := _cell_of(x, z)
 	# Flatten settlements into plateaus.
-	for s in settlements:
+	for i in _set_idx.get(cell, _NONE):
+		var s: Dictionary = settlements[i]
 		var d := p.distance_to(s["pos"])
 		var r: float = s["radius"]
 		if d < r * 1.8:
 			h = lerpf(s["base_h"], h, smoothstep(r, r * 1.8, d))
-	for g in camp_grounds:
+	for i in _camp_idx.get(cell, _NONE):
+		var g: Dictionary = camp_grounds[i]
 		var gd := p.distance_to(g["pos"])
 		var gr: float = g["radius"]
 		if gd < gr * 2.0:
 			h = lerpf(g["base_h"], h, smoothstep(gr, gr * 2.0, gd))
-	for c in clearings:
+	for i in _clear_idx.get(cell, _NONE):
+		var c: Dictionary = clearings[i]
 		if c["flatten"]:
 			var cr: float = c["radius"]
 			var cd := p.distance_to(c["pos"])
@@ -141,19 +325,26 @@ static func height(x: float, z: float) -> float:
 	if p.distance_squared_to(lake_center) < _lake_reach_sq:
 		lake_s = _lake_s(p)
 		h = _carve(h, _lake_profile(lake_s), (lake_s - 1.0) * lake_radius, lake_radius * 0.3, 0.25)
-	var cell := Vector2i(floori(x / RIVER_CELL), floori(z / RIVER_CELL))
-	if _river_grid.has(cell):
-		var q := _river_query(p, _river_grid[cell])
+	for pl in pools:
+		if p.distance_squared_to(pl["pos"]) < float(pl["reach_sq"]):
+			var ps := _pool_s(p, pl)
+			h = _carve(h, _pool_profile(ps, pl), (ps - 1.0) * float(pl["radius"]), float(pl["radius"]) * 0.3, 0.25)
+	var rcell := Vector2i(floori(x / RIVER_CELL), floori(z / RIVER_CELL))
+	if _river_grid.has(rcell):
+		var q := _river_query(p, _river_grid[rcell])
 		if not q.is_empty():
 			var d: float = q["d"]
 			var w: float = q["w"]
 			var lv: float = q["level"]
 			var dep: float = q["depth"]
 			var f := lv - dep * (1.0 - (d / w) * (d / w)) if d < w else lv + (d - w) * 0.18
-			var hr := _carve(h, f, d - w, 12.0, 0.14)
+			# Region1 look fix (docs/regions/LOOK_R1.md): the levee must fall faster (0.32) than the bank profile f rises
+			# (0.18 per m); with 0.14 low ground was filled up to a plane that kept rising away from the river and ended
+			# in straight cliff steps at the RIVER_CELL grid edge (the "rectangular plateaus" beside the Ashrun).
+			var hr := _carve(h, f, d - w, 12.0, 0.32)
 			# Inside the lake the river may only deepen the bed, never raise it.
 			h = lerpf(minf(h, hr), hr, smoothstep(0.55, 0.95, lake_s))
-	return h
+	return Region1Terrain.stamp(x, z, h)   # Region1 look hook: valley/cliff stamps (docs/regions/LOOK_R1.md)
 
 
 # --- Water ------------------------------------------------------------------------
@@ -165,6 +356,9 @@ static func water_level_at(x: float, z: float) -> float:
 	var p := Vector2(x, z)
 	if p.distance_squared_to(lake_center) < _lake_reach_sq and _lake_s(p) < 1.25:
 		return lake_level
+	for pl in pools:
+		if p.distance_squared_to(pl["pos"]) < float(pl["reach_sq"]) and _pool_s(p, pl) < 1.25:
+			return pl["level"]
 	var cell := Vector2i(floori(x / RIVER_CELL), floori(z / RIVER_CELL))
 	if _river_grid.has(cell):
 		var q := _river_query(p, _river_grid[cell])
@@ -214,6 +408,9 @@ static func shore_distance(x: float, z: float) -> float:
 	var best := INF
 	if p.distance_squared_to(lake_center) < _lake_reach_sq:
 		best = (_lake_s(p) - 1.0) * lake_radius
+	for pl in pools:
+		if p.distance_squared_to(pl["pos"]) < float(pl["reach_sq"]):
+			best = minf(best, (_pool_s(p, pl) - 1.0) * float(pl["radius"]))
 	var cell := Vector2i(floori(x / RIVER_CELL), floori(z / RIVER_CELL))
 	if _river_grid.has(cell):
 		var q := _river_query(p, _river_grid[cell])
@@ -280,7 +477,19 @@ static func _river_query(p: Vector2, ids: PackedInt32Array) -> Dictionary:
 		"dir": Vector2(_seg[k + 2] - _seg[k], _seg[k + 3] - _seg[k + 1]).normalized()}
 
 
-static func _place_water(seed_value: int) -> void:
+static func _place_water(seed_value: int, with_vale := true) -> void:
+	_place_home_water(seed_value)
+	# The Silverrun, through the new land: control points run on straight out to the world edge.
+	var ctrl := PackedVector2Array(RIVER2_CTRL)
+	var tail := ctrl[ctrl.size() - 1]
+	var out_dir := (tail - ctrl[ctrl.size() - 2]).normalized()
+	ctrl.append(tail + out_dir * _edge_distance(tail, out_dir))
+	_add_river(_polyline(ctrl, 5.0, 40.0), false, true)
+	if with_vale:
+		preload("res://scripts/world/hidden_valley.gd").add_water()   # Hidden valley hook: stream + pond (not in `rivers`, so not on the map)
+
+
+static func _place_home_water(seed_value: int) -> void:
 	_shore.seed = seed_value + 51
 	_shore.frequency = 1.0
 	_shore.fractal_octaves = 2
@@ -437,7 +646,7 @@ static func _course_score(pts: PackedVector2Array) -> float:
 
 ## Adds a river arm (points ordered downstream): levels that only ever fall
 ## downstream, width/depth growing with the flow, shallow fords at road crossings.
-static func _add_river(pts: PackedVector2Array, feeds_lake: bool) -> void:
+static func _add_river(pts: PackedVector2Array, feeds_lake: bool, independent := false) -> void:
 	var n := pts.size()
 	var lv := PackedFloat32Array()
 	var wd := PackedFloat32Array()
@@ -461,7 +670,7 @@ static func _add_river(pts: PackedVector2Array, feeds_lake: bool) -> void:
 			sum += raw[j]
 			cnt += 1
 		smooth[i] = minf(sum / cnt, raw[i] + 2.0)
-	var run := INF if feeds_lake else lake_level
+	var run := INF if (feeds_lake or independent) else lake_level
 	for i in n:
 		var p := pts[i]
 		var t := float(i) / (n - 1)
@@ -471,8 +680,8 @@ static func _add_river(pts: PackedVector2Array, feeds_lake: bool) -> void:
 		else:
 			run = minf(run, smooth[i] - 1.0)
 			lv[i] = maxf(run, lake_level) if feeds_lake else run
-		wd[i] = lerpf(3.5, 8.0, t) if feeds_lake else lerpf(9.0, 12.5, t)
-		var depth := lerpf(0.9, 1.9, t) if feeds_lake else 2.1
+		wd[i] = lerpf(3.5, 8.0, t) if feeds_lake else (lerpf(4.5, 10.5, t) if independent else lerpf(9.0, 12.5, t))
+		var depth := lerpf(0.9, 1.9, t) if feeds_lake else (lerpf(1.0, 2.0, t) if independent else 2.1)
 		dp[i] = lerpf(0.4, depth, smoothstep(6.0, 26.0, road_distance(p.x, p.y)))
 	if feeds_lake:
 		# Keep the approach to the lake gentle (<= 3.5 % grade) rather than a cliff.
@@ -506,10 +715,11 @@ static func _add_river(pts: PackedVector2Array, feeds_lake: bool) -> void:
 static func road_distance(x: float, z: float) -> float:
 	var p := Vector2(x, z)
 	var best := INF
-	for r in roads:
-		var a: Vector2 = settlements[r.x]["pos"]
-		var b: Vector2 = settlements[r.y]["pos"]
-		best = minf(best, p.distance_to(Geometry2D.get_closest_point_to_segment(p, a, b)))
+	for i in _road_idx.get(_cell_of(x, z), _NONE):
+		best = minf(best, p.distance_to(Geometry2D.get_closest_point_to_segment(p, _road_a[i], _road_b[i])))
+	if best > ROAD_REACH:        # nothing near: the exact answer needs every road
+		for i in _road_a.size():
+			best = minf(best, p.distance_to(Geometry2D.get_closest_point_to_segment(p, _road_a[i], _road_b[i])))
 	return best
 
 
@@ -541,14 +751,21 @@ static func road_tier(a: int, b: int) -> String:
 static func road_info(x: float, z: float) -> Dictionary:
 	var p := Vector2(x, z)
 	var best := INF
-	var best_tier := "frontier"
-	for r in roads:
-		var a: Vector2 = settlements[r.x]["pos"]
-		var b: Vector2 = settlements[r.y]["pos"]
-		var d := p.distance_to(Geometry2D.get_closest_point_to_segment(p, a, b))
+	var bi := -1
+	for i in _road_idx.get(_cell_of(x, z), _NONE):
+		var d := p.distance_to(Geometry2D.get_closest_point_to_segment(p, _road_a[i], _road_b[i]))
 		if d < best:
 			best = d
-			best_tier = road_tier(r.x, r.y)
+			bi = i
+	if best > ROAD_REACH:        # nothing near: the exact answer needs every road
+		best = INF
+		bi = -1
+		for i in _road_a.size():
+			var d := p.distance_to(Geometry2D.get_closest_point_to_segment(p, _road_a[i], _road_b[i]))
+			if d < best:
+				best = d
+				bi = i
+	var best_tier: String = _road_tiers[bi] if bi >= 0 else "frontier"
 	return {"tier": best_tier, "width": float(ROAD_WIDTH[best_tier]), "dist": best}
 
 
@@ -619,6 +836,20 @@ static func color_at(x: float, z: float, h: float, slope: float) -> Color:
 			w.a = 0.0
 		elif dc < near["radius"] * 0.95 and paved:
 			w.r = maxf(w.r, 0.35)   # trampled yards inside the walls
+		if near.has("plan"):
+			# Gate cobble aprons (AAA pass 2, 2026-10-06): painted into the terrain's cobble channel with a noisy, feathered
+			# rim instead of 2 m tile meshes laid as a hard rectangle (settlement_builder._medieval_gates no longer lays them).
+			var gplan: Dictionary = near["plan"]
+			var gwr: float = float(gplan["wall_radius"]) if gplan["walls"] else float(near["radius"]) * 1.1
+			if absf(dc - gwr) < 12.0:
+				for ga: float in gplan["gates"]:
+					var gd := Vector2(cos(ga), sin(ga))
+					var rel := Vector2(x, z) - (Vector2(near["pos"]) + gd * (gwr + 2.0))
+					var e := Vector2(rel.dot(gd) / 7.5, rel.dot(gd.orthogonal()) / 5.5).length() + _detail.get_noise_2d(x * 0.6, z * 0.6) * 0.28
+					var ap := 1.0 - smoothstep(0.62, 1.0, e)
+					if ap > 0.0:
+						w.b = maxf(w.b, ap)
+						w.a = 0.0
 		if near.has("plan") and dc < near["radius"] * 1.1:
 			var pd := CityPlanner.path_distance(near["plan"], Vector2(x, z))
 			if pd < 0.8:
@@ -662,7 +893,8 @@ static func color_at(x: float, z: float, h: float, slope: float) -> Color:
 	# Worn dirt around region sites (farms, mines, bandit camps, wayshrines, ruins):
 	# their buildings and clutter otherwise sit straight on unbroken grass. `clearings`
 	# is a short list (one entry per site), already walked by forest_density().
-	for c in clearings:
+	for ci in _clear_idx.get(_cell_of(x, z), _NONE):
+		var c: Dictionary = clearings[ci]
 		var cd: float = Vector2(x, z).distance_to(c["pos"])
 		var cr: float = c["radius"]
 		if cd < cr + 6.0:
@@ -677,7 +909,8 @@ static func color_at(x: float, z: float, h: float, slope: float) -> Color:
 		w.r = maxf(w.r, sand * 0.85)
 		w.g = maxf(w.g, sand * (0.35 + clampf(-above * 0.2, 0.0, 0.45)))
 		w.a *= 1.0 - sand
-	return w
+	w = preload("res://scripts/world/hidden_valley.gd").paint(x, z, w)   # Hidden valley hook: no paths in the vale
+	return Region1Terrain.paint(x, z, w)   # Region1 look hook: trails (docs/regions/LOOK_R1.md)
 
 
 ## Footstep family follows the same material weights used to paint the terrain.
@@ -697,6 +930,7 @@ static func woodland(x: float, z: float) -> float:
 
 static func forest_density(x: float, z: float, with_clearings := true) -> float:
 	var f := clampf(_forest.get_noise_2d(x, z) * 1.8 + 0.25, 0.0, 1.0)
+	f = preload("res://scripts/world/hidden_valley.gd").forest(x, z, f, with_clearings)   # Hidden valley hook: groves, meadows, bare gorge
 	var near := nearest_settlement(Vector2(x, z))
 	if not near.is_empty():
 		# Fade starts at radius*1.8, not 1.2: height() blends a settlement's flat
@@ -712,25 +946,50 @@ static func forest_density(x: float, z: float, with_clearings := true) -> float:
 		f *= smoothstep(near["radius"] * 1.8, near["radius"] * 2.8, Vector2(x, z).distance_to(near["pos"]))
 	if road_distance(x, z) < 8.0:
 		f = 0.0
-	for g in camp_grounds:   # no trees standing inside a goblin warren / orc village
+	var fcell := _cell_of(x, z)
+	for gi in _camp_idx.get(fcell, _NONE):   # no trees standing inside a goblin warren / orc village
 		if f > 0.0:
+			var g: Dictionary = camp_grounds[gi]
 			f *= smoothstep(float(g["radius"]) * 0.6, float(g["radius"]) * 1.0, Vector2(x, z).distance_to(g["pos"]))
-	for c in clearings:
-		if f > 0.0 and with_clearings:
-			f *= smoothstep(float(c["radius"]), float(c["radius"]) + 10.0, Vector2(x, z).distance_to(c["pos"]))
+	if with_clearings:
+		for ci in _clear_idx.get(fcell, _NONE):
+			if f > 0.0:
+				var c: Dictionary = clearings[ci]
+				f *= smoothstep(float(c["radius"]), float(c["radius"]) + 10.0, Vector2(x, z).distance_to(c["pos"]))
 	if f > 0.0:
 		f *= smoothstep(6.0, 20.0, shore_distance(x, z))   # no trees (or wolf dens) in water or on beaches
-	return f
+	return f * Region1Terrain.tree_keep(x, z) if f > 0.0 else f   # Region1 look hook: no trees on stamped cliff faces
+
+
+static var _identity_script: GDScript
+
+
+## THE canonical player-facing name of a settlement (Region 1 canon, docs/regions/WORLD_R1.md): the poster name where there is
+## one ("Ironmarch" -> "Silverford", "Oakvale" -> "Greenhollow"), else the WorldGen name. WorldGen names stay the ids (saves, door ids,
+## town-kit files, `settlement:<name>` place ids); every line the player reads goes through this. Data: settlements.json `alias`.
+static func display_name(settlement_name: String) -> String:
+	if _identity_script == null:
+		_identity_script = load("res://scripts/world/region1_identity.gd")
+	return String(_identity_script.call("display_name", settlement_name))
 
 
 static func nearest_settlement(p: Vector2) -> Dictionary:
 	var best := {}
 	var best_d := INF
-	for s in settlements:
+	for i in _set_idx.get(_cell_of(p.x, p.y), _NONE):
+		var s: Dictionary = settlements[i]
 		var d := p.distance_squared_to(s["pos"])
 		if d < best_d:
 			best_d = d
 			best = s
+	if best_d > SETTLE_REACH * SETTLE_REACH:     # nothing near: scan them all
+		best_d = INF
+		best = {}
+		for s in settlements:
+			var d := p.distance_squared_to(s["pos"])
+			if d < best_d:
+				best_d = d
+				best = s
 	return best
 
 
@@ -745,6 +1004,7 @@ const FRONTIER_TOWN_RADIUS := 75.0
 
 static func _place_settlements(seed_value: int) -> void:
 	settlements.clear()
+	outer_block1_count = 0
 	var rng := RandomNumberGenerator.new()
 	rng.seed = seed_value
 	# Home village at the origin, the royal castle a ride away to the north-east.
@@ -778,16 +1038,112 @@ static func _place_settlements(seed_value: int) -> void:
 	# settlements at all (see docs/RISING_ASHES_LIFE_SIM_DESIGN.md, "World
 	# structure (rings)"), leaving nothing between the capital and the villages.
 	_promote_kingdom_towns(fixed)
+	# The original valley is done: everything after this index is new land, placed on
+	# its own RNG stream so the valley keeps exactly the layout (and roads) it had.
+	core_settlement_count = fixed.size()
+	_place_outer_settlements(fixed, seed_value)
 	for i in fixed.size():
 		var f: Dictionary = fixed[i]
 		var pos: Vector2 = f["pos"]
 		# ~33-35% fewer residents than the original 320/1100/2400: markets and
 		# streets stayed lively but too crowded (docs/qa/PERFORMANCE.md).
-		var pop: int = {"village": 210, "town": 720, "castle": 1600, "frontier_town": 380}[f["kind"]]
-		settlements.append({
+		var pop: int = int(f["pop"]) if f.has("pop") else {"village": 210, "town": 720, "castle": 1600, "frontier_town": 380}[f["kind"]]
+		var entry := {
 			"id": i, "name": NAMES[i % NAMES.size()], "pos": pos, "radius": f["radius"],
 			"base_h": _raw_height(pos.x, pos.y), "kind": f["kind"], "population": pop,
-		})
+		}
+		if bool(f.get("hamlet", false)):
+			entry["hamlet"] = true
+		settlements.append(entry)
+
+
+# --- The new land (8 x 8 km) -----------------------------------------------------------
+
+## Second river, the Silverrun: rises in the north-eastern foothills and runs south through the
+## eastern lowlands, then south-east to the edge of the world. Control points were routed once
+## with a downhill-averse least-cost path over the terrain (so it follows valleys instead of
+## cutting gorges through ridges) and baked here; _polyline() meanders between them.
+const RIVER2_NAME := "The Silverrun"
+const RIVER2_CTRL := [Vector2(2448, -2736), Vector2(2640, -2544), Vector2(2736, -2256), Vector2(2640, -1968),
+	Vector2(2448, -1680), Vector2(2352, -1392), Vector2(2640, -1104), Vector2(2736, -816), Vector2(2928, -528),
+	Vector2(2928, -240), Vector2(2736, 48), Vector2(2640, 336), Vector2(2448, 624), Vector2(2448, 912),
+	Vector2(2544, 1200), Vector2(2352, 1488), Vector2(2544, 1776), Vector2(2736, 2064), Vector2(2832, 2352),
+	Vector2(2928, 2640), Vector2(3216, 2928), Vector2(3312, 3216), Vector2(3504, 3504), Vector2(3504, 3792),
+	# The 12 km world's extension to the south edge, routed the same way (least-cost downhill-averse path over the terrain).
+	Vector2(3456, 4032), Vector2(3360, 4320), Vector2(3264, 4608), Vector2(3360, 4896), Vector2(3360, 5184),
+	Vector2(3168, 5472), Vector2(3072, 5760), Vector2(2880, 6048)]
+
+
+static func _near_lore_camp(p: Vector2, camps: Array, dist: float) -> bool:
+	for c in camps:
+		if p.distance_to(c[0]) < dist:
+			return true
+	return false
+
+
+## The two river courses that run through the new land, for keeping settlements off them.
+static func _clear_of_rivers(p: Vector2, margin: float) -> bool:
+	for i in RIVER2_CTRL.size() - 1:
+		if p.distance_to(Geometry2D.get_closest_point_to_segment(p, RIVER2_CTRL[i], RIVER2_CTRL[i + 1])) < margin + 90.0:
+			return false
+	# The Ashrun's downstream arm: Emberglass Mere to the world edge (see _place_home_water).
+	var a := MERE_CENTER
+	var last: Vector2 = ASHRUN_DOWNSTREAM[ASHRUN_DOWNSTREAM.size() - 1]
+	var b := last + (last - a).normalized() * _edge_distance(last, (last - a).normalized())
+	return p.distance_to(Geometry2D.get_closest_point_to_segment(p, a, b)) >= margin + 130.0
+
+
+## Villages, one more town, a frontier hold and hamlets spread over the new land
+## (everything beyond |x|,|z| = OUTER_INNER_EDGE), best-candidate sampled so they fan out.
+const OUTER_INNER_EDGE := 1500.0
+
+
+static func _place_outer_settlements(fixed: Array, seed_value: int) -> void:
+	var rng := RandomNumberGenerator.new()
+	rng.seed = seed_value + 9127
+	var capital: Vector2 = fixed[1]["pos"]
+	var camp_spots := _lore_camp_positions()
+	for spec_i in OUTER_SETTLEMENTS.size():
+		var spec: Array = OUTER_SETTLEMENTS[spec_i]
+		var label := String(spec[0])
+		var radius := float(spec[2])
+		var far := spec_i >= OUTER_BLOCK_1      # the 12 km world's second block: fans out over the whole outer ring
+		if spec_i == OUTER_BLOCK_1:
+			outer_block1_count = fixed.size()  # block 1 (and the roads between it and the valley) stay exactly as in the 8 km world
+		# Block 1 keeps the 8 km world's limits, so every town, road and lore pin of that world is where it was.
+		var lim := (WORLD_HALF if far else 4096.0) - OUTER_EDGE_MARGIN
+		for _n in int(spec[1]):
+			var best := Vector2.INF
+			var best_score := -INF
+			for _t in 200:
+				var p := Vector2(rng.randf_range(-lim, lim), rng.randf_range(-lim, lim))
+				if maxf(absf(p.x), absf(p.y)) < OUTER_INNER_EDGE:
+					continue
+				if far and p.distance_to(VALE_KEEP_OUT) < VALE_KEEP_OUT_R:
+					continue          # the Hidden Vale stays pristine: no town of the 12 km ring within sight of it
+				if far and _near_lore_camp(p, camp_spots, 700.0):
+					continue          # nor within earshot of a goblin warren or an orc hold
+				if _raw_height(p.x, p.y) > (58.0 if label == "town" else 70.0):
+					continue
+				var gap := INF
+				for f in fixed:
+					gap = minf(gap, p.distance_to(f["pos"]))
+				if gap < OUTER_MIN_SPACING * (0.8 if label == "hamlet" else 1.0):
+					continue
+				if not _clear_of_rivers(p, radius * 1.8 + 30.0):
+					continue
+				var score := minf(gap, 1800.0) - p.length() * (0.12 if far else 0.3) + rng.randf() * 100.0
+				match label:
+					"town":
+						score -= absf(p.distance_to(capital) - (4300.0 if far else 2100.0)) * 0.8
+					"frontier_town":
+						score += p.distance_to(capital) * 0.6
+				if score > best_score:
+					best_score = score
+					best = p
+			if best != Vector2.INF:
+				var is_ham := label == "hamlet"
+				fixed.append({"pos": best, "kind": "village" if is_ham else label, "radius": radius, "pop": int(spec[3]), "hamlet": is_ham})
 
 
 ## The minimum-spanning-tree road edges over `positions` (same algorithm as
@@ -899,17 +1255,32 @@ static func _connect_roads() -> void:
 	# Minimum spanning tree over settlements: every town reachable by road.
 	roads.clear()
 	var linked := {0: true}
-	while linked.size() < settlements.size():
-		var best := Vector2i(-1, -1)
-		var best_d := INF
-		for a in linked:
-			for s in settlements:
-				var b: int = s["id"]
-				if linked.has(b):
-					continue
-				var d: float = settlements[a]["pos"].distance_to(s["pos"])
-				if d < best_d:
-					best_d = d
-					best = Vector2i(a, b)
-		roads.append(best)
-		linked[best.y] = true
+	# Phase 1 is the original valley's tree, unchanged. Phase 2 links the new land to it
+	# (and to itself) but never adds a road to Ashford or the capital, so their gates,
+	# streets and the gate market stay exactly as they were.
+	var core := core_settlement_count if core_settlement_count > 0 else settlements.size()
+	# Three phases (valley, the 8 km world's outer block, the 12 km world's ring) so the older roads never change
+	# when the newer ring grows: a new village only ever adds its own road.
+	var b1 := outer_block1_count if outer_block1_count > core else settlements.size()
+	for limit: int in [core, b1, settlements.size()]:
+		while linked.size() < limit:
+			var best := Vector2i(-1, -1)
+			var best_d := INF
+			for pass_i in 2:                  # pass 1 keeps clear of the Hidden Vale; pass 2 only if that left a village stranded
+				if pass_i == 1 and best.x >= 0:
+					break
+				for a in linked:
+					if limit > core and a < 2:
+						continue
+					for s in settlements:
+						var b: int = s["id"]
+						if linked.has(b) or b >= limit:
+							continue
+						if pass_i == 0 and limit > b1 and Geometry2D.get_closest_point_to_segment(VALE_KEEP_OUT, settlements[a]["pos"], s["pos"]).distance_to(VALE_KEEP_OUT) < VALE_ROAD_R:
+							continue          # a road of the 12 km ring never passes through the Hidden Vale's foothills
+						var d: float = settlements[a]["pos"].distance_to(s["pos"])
+						if d < best_d:
+							best_d = d
+							best = Vector2i(a, b)
+			roads.append(best)
+			linked[best.y] = true

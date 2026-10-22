@@ -163,7 +163,8 @@ must feel like it functions without them.
 | VFX: sword arcs, sparks, elemental bursts, shockwaves, qi aura | done | `scripts/vfx/vfx.gd` |
 | Modern mobile HUD (round icon buttons, glass cards, themed menus) | done, palette pending | `scripts/ui/ui_theme.gd` |
 | Water (lake, river), region buildings from Blender | in progress | agents |
-| Parent quests, NPC relationships and memory, LimboAI behaviour, weather, equipment slots, sects/academies in play | next | |
+| NPC relationships, weather and equipment slots | implemented base (29 Sep audit) | `sim/relationships.gd` opinion/factions/gifts; `world/weather.gd` schedule/rain/snow/noise; `sim/equipment.gd` slots/stats/durability/buffs |
+| Parent quest depth, persistent NPC perception/memory, LimboAI near-NPC wiring, sects/academies fully in play | partial / needs integration | `population/utility_brain.gd` provides local utility AI; `sim/scouts.gd` and world data supply offers/lore, not proof of complete academy play. See `docs/SYSTEMS_MASTERPLAN.md` |
 
 **Emotional payoff:** the starting village grows with you: home, then known
 there, then influential, then leader, then owner, then fortified trade city,

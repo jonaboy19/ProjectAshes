@@ -3,7 +3,10 @@ decimate, single baked texture, metallic 0 / rough 0.9. Successor of bake_lod.py
 meshy_free batch (adds scale/origin, smooth option, LOD1 via decimating LOD0 with a half-res texture).
 
 Usage (headless Blender 5.x):
-  blender -b --python tools/meshy/optimize_free.py -- <src.glb> <out_prefix> <tris> <tex_px> <mode:h|w> <meters> [across=170] [smooth=0] [lod1_ratio=0] [variant=vox|solid|dec]
+  blender -b --python tools/meshy/optimize_free.py -- <src.glb> <out_prefix> <tris> <tex_px> <mode:h|w> <meters> [across=170] [smooth=0] [lod1_ratio=0] [variant=vox|solid|dec] [island_pct=0]
+
+  island_pct: delete disconnected islands whose bbox diagonal is below N percent of the model bbox diagonal
+  (stray smoke / floating debris), applied to the LOD shell after remesh (before decimate). 0 = off. Env BAKE_EXT overrides bake cage.
 
   mode h: scale so height (Z after import, Y-up in glTF) == meters;  w: longest side == meters.
   out: <out_prefix>_lod0.glb and (when lod1_ratio>0) <out_prefix>_lod1.glb
@@ -16,6 +19,9 @@ across = float(args[6]) if len(args) > 6 else 170.0
 smooth = int(args[7]) if len(args) > 7 else 0
 lod1_ratio = float(args[8]) if len(args) > 8 else 0.0
 variant = args[9] if len(args) > 9 else 'vox'   # vox | solid (solidify thin sheets first) | dec (no remesh, collapse only)
+
+island_pct = float(args[10]) if len(args) > 10 else float(os.environ.get('ISLAND_PCT', 0))
+bake_ext = float(os.environ.get('BAKE_EXT', 0))  # override cage extrusion (voxel units; ray distance = 3x). 0 = defaults
 
 bpy.ops.wm.read_factory_settings(use_empty=True)
 bpy.ops.import_scene.gltf(filepath=src)
@@ -39,6 +45,34 @@ def bounds(o):
     pts = [mathutils.Vector(c) for c in o.bound_box]
     return (mathutils.Vector([min(p[i] for p in pts) for i in range(3)]),
             mathutils.Vector([max(p[i] for p in pts) for i in range(3)]))
+
+
+def remove_islands(o, pct):
+    """Delete connected components whose bbox diagonal is < pct percent of the whole mesh's bbox diagonal."""
+    import bmesh
+    bm = bmesh.new(); bm.from_mesh(o.data)
+    bm.verts.ensure_lookup_table()
+    seen = set(); islands = []
+    for v in bm.verts:
+        if v.index in seen:
+            continue
+        stack = [v]; seen.add(v.index); comp = []
+        while stack:
+            x = stack.pop(); comp.append(x)
+            for e in x.link_edges:
+                y = e.other_vert(x)
+                if y.index not in seen:
+                    seen.add(y.index); stack.append(y)
+        islands.append(comp)
+
+    def diag(c):
+        return math.sqrt(sum((max(v.co[i] for v in c) - min(v.co[i] for v in c)) ** 2 for i in range(3)))
+    tot = diag(bm.verts[:]) if len(bm.verts) else 0
+    kill = [v for c in islands if diag(c) < tot * pct / 100.0 for v in c]
+    bmesh.ops.delete(bm, geom=kill, context='VERTS')
+    bm.to_mesh(o.data); bm.free()
+    print("ISLANDS", len(islands), "removed verts", len(kill))
+
 
 
 # Scale + ground: bottom-centre origin.
@@ -65,6 +99,21 @@ for m in hi.data.materials:
                     for l in list(sock.links):
                         m.node_tree.links.remove(l)
                     sock.default_value = val
+            # Emission-map glow (glass, flames, gems) is invisible to a COLOR bake: blend it over the base colour where it is lit (EMIT_ADD=1).
+            em = n.inputs.get("Emission Color"); bc = n.inputs.get("Base Color")
+            if os.environ.get('EMIT_ADD') == '1' and em is not None and em.links and bc is not None:
+                nt_ = m.node_tree
+                mx_ = nt_.nodes.new('ShaderNodeMix'); mx_.data_type = 'RGBA'; mx_.blend_type = 'MIX'
+                bw_ = nt_.nodes.new('ShaderNodeRGBToBW'); nt_.links.new(em.links[0].from_socket, bw_.inputs[0])
+                mt_ = nt_.nodes.new('ShaderNodeMath'); mt_.operation = 'MULTIPLY'; mt_.use_clamp = True; mt_.inputs[1].default_value = 6.0
+                nt_.links.new(bw_.outputs[0], mt_.inputs[0]); nt_.links.new(mt_.outputs[0], mx_.inputs[0])
+                if bc.links:
+                    nt_.links.new(bc.links[0].from_socket, mx_.inputs[6])
+                else:
+                    mx_.inputs[6].default_value = bc.default_value
+                nt_.links.new(em.links[0].from_socket, mx_.inputs[7])
+                nt_.links.new(mx_.outputs[2], bc)
+                n.inputs["Emission Strength"].default_value = 0.0
 
 lo = hi.copy(); lo.data = hi.data.copy(); lo.name = "lod"
 bpy.context.scene.collection.objects.link(lo)
@@ -89,6 +138,8 @@ if variant != 'dec':
     rm = lo.modifiers.new("vox", 'REMESH')
     rm.mode = 'VOXEL'; rm.voxel_size = voxel; rm.use_smooth_shade = False
     bpy.ops.object.modifier_apply(modifier="vox")
+if island_pct > 0:
+    remove_islands(lo, island_pct)   # after the voxel pass so fragmented sources fuse first; stray smoke/debris stays separate
 shell = tris(lo)
 for attempt in range(6):
     if tris(lo) <= target * 1.03:
@@ -135,8 +186,8 @@ except Exception:
 bk = sc.render.bake
 bk.use_pass_direct = False; bk.use_pass_indirect = False; bk.use_pass_color = True
 bk.use_selected_to_active = True
-bk.cage_extrusion = voxel * (0.6 if variant == 'dec' else 2.0)
-bk.max_ray_distance = voxel * (2.0 if variant == 'dec' else 6.0)
+bk.cage_extrusion = voxel * (bake_ext or (0.6 if variant == 'dec' else 2.0))
+bk.max_ray_distance = voxel * (bake_ext * 3 if bake_ext else (2.0 if variant == 'dec' else 6.0))
 bk.margin = 6
 for o in bpy.data.objects:
     o.select_set(o in (hi, lo))

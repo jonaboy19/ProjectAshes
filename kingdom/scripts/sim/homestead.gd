@@ -16,6 +16,7 @@ extends RefCounted
 ##          id like "wheat"), planted_day, watered}]
 
 const RegionSites := preload("res://scripts/world/region_sites.gd")
+const ItemsDB := preload("res://scripts/sim/items_db.gd")
 const SeasonsScript := preload("res://scripts/sim/seasons.gd")
 
 const GRID := 2.0                 # metres per cell
@@ -83,7 +84,7 @@ const CATALOG := {
 ##   winter_hardy: true survives a frost roll in winter (turnips)}.
 ## Real choices: grain (wheat, barley), a hardy root (turnips), veg (cabbage),
 ## flax for cloth, hops for ale.
-const CROPS := {
+const BASE_CROPS := {
 	"wheat": {"days": 4, "asset": "farm/crop_wheat"},
 	"cabbage": {"days": 5, "asset": "farm/crop_cabbage"},
 	"barley": {"days": 4, "asset": "farm/crop_wheat", "seasons": [SeasonsScript.SPRING, SeasonsScript.SUMMER]},
@@ -91,6 +92,30 @@ const CROPS := {
 	"flax": {"days": 5, "asset": "", "seasons": [SeasonsScript.SPRING, SeasonsScript.SUMMER]},
 	"hops": {"days": 6, "asset": "", "seasons": [SeasonsScript.SUMMER]},
 }
+
+## BASE_CROPS plus every crop of the Region 1 item set (data/items/crops.json: carrots, onions, peas, pumpkins, herbs ...).
+static var CROPS: Dictionary = _merged_crops()
+
+
+static func _merged_crops() -> Dictionary:
+	var out: Dictionary = BASE_CROPS.duplicate(true)
+	var extra: Dictionary = ItemsDB.crops()
+	for crop: String in extra:
+		if out.has(crop):
+			continue
+		var d: Dictionary = extra[crop]
+		var seasons: Array = []
+		for sname: String in d.get("seasons", []):
+			seasons.append({"SPRING": SeasonsScript.SPRING, "SUMMER": SeasonsScript.SUMMER, "AUTUMN": SeasonsScript.AUTUMN, "WINTER": SeasonsScript.WINTER}.get(sname, SeasonsScript.SPRING))
+		var e := {"days": int(d.get("days", 4)), "asset": String(d.get("asset", ""))}
+		if not seasons.is_empty():
+			e["seasons"] = seasons
+		if bool(d.get("winter_hardy", false)):
+			e["winter_hardy"] = true
+		out[crop] = e
+	return out
+
+
 ## Watering speeds growth (a quarter off the total, at least a day).
 const WATERED_MULT := 0.75
 ## Weeding adds a little to the harvest, the same way watering does.

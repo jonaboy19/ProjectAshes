@@ -1,0 +1,16 @@
+{
+  "mcpServers": {
+    "dcc-mcp": {
+      "type": "http",
+      "url": "http://127.0.0.1:9765/mcp"
+    },
+    "serena": {
+      "command": "${USERPROFILE}\Tools\serena\venv\Scripts\serena.exe",
+      "args": ["start-mcp-server", "--project", "kingdom", "--context", "ide", "--open-web-dashboard", "false"]
+    },
+    "context7": {
+      "command": "node",
+      "args": ["${USERPROFILE}\Tools\context7\node_modules\@upstash\context7-mcp\dist\index.js"]
+    }
+  }
+}

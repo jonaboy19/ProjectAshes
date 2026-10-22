@@ -1,0 +1,15 @@
+{
+ "name": "knight_plate_a",
+ "height_m": 1.85,
+ "lod0_tris": 6999,
+ "lod1_tris": 2908,
+ "model_units_top": 1.9928,
+ "model_units_top_all": 1.9928,
+ "head_bone_z": 1.5701,
+ "pelvis_z": 0.9167,
+ "mh_character_height_param": 1.603,
+ "forearm_radius": 0.075,
+ "skirt_verts": 1638,
+ "head_rigid_verts": 488,
+ "heat_missed": 0
+}

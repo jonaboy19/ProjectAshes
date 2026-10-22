@@ -1,0 +1,1322 @@
+{
+ "library": "res://assets/incoming/animations/life/UAL_Life_Social.glb",
+ "fps": 30,
+ "clips": {
+  "Life_Talk_Explain": {
+   "category": "social/talk",
+   "loop": true,
+   "layer": "full",
+   "props": [],
+   "enter": null,
+   "exit": null,
+   "blend_in": 0.3,
+   "blend_out": 0.3,
+   "events": {
+    "beat": [
+     20,
+     64,
+     96,
+     112
+    ]
+   },
+   "anchor": null,
+   "note": "speaker: both hands shape ideas (wide 'the whole thing', a box that grows and shrinks, counting beats)",
+   "speed_mps": 0.0,
+   "pair": {
+    "partner": "Life_Talk_Listen_Nod",
+    "distance": 1.1
+   },
+   "ik_l_on_prop": null,
+   "mask_from": null,
+   "tags": [
+    "talker"
+   ],
+   "source": "authored (Blender key poses, tools/anim/life)",
+   "frames": 151,
+   "seconds": 5.0
+  },
+  "Life_Talk_Emphatic": {
+   "category": "social/talk",
+   "loop": true,
+   "layer": "full",
+   "props": [],
+   "enter": null,
+   "exit": null,
+   "blend_in": 0.25,
+   "blend_out": 0.3,
+   "events": {
+    "chop": [
+     18,
+     48,
+     78
+    ]
+   },
+   "anchor": null,
+   "note": "speaker: hand on hip, right hand chops the air three times, leaning into every stroke",
+   "speed_mps": 0.0,
+   "pair": {
+    "partner": "Life_Talk_Listen_Hips",
+    "distance": 1.1
+   },
+   "ik_l_on_prop": null,
+   "mask_from": null,
+   "tags": [
+    "talker"
+   ],
+   "source": "authored (Blender key poses, tools/anim/life)",
+   "frames": 121,
+   "seconds": 4.0
+  },
+  "Life_Talk_Casual": {
+   "category": "social/talk",
+   "loop": true,
+   "layer": "full",
+   "props": [],
+   "enter": null,
+   "exit": null,
+   "blend_in": 0.25,
+   "blend_out": 0.3,
+   "events": {
+    "beat": [
+     20,
+     62,
+     76
+    ]
+   },
+   "anchor": null,
+   "note": "speaker: left hand on hip, weight on one leg, right hand gestures loosely (so-so wobble, across the body)",
+   "speed_mps": 0.0,
+   "pair": {
+    "partner": "Life_Talk_Listen_Nod",
+    "distance": 1.1
+   },
+   "ik_l_on_prop": null,
+   "mask_from": null,
+   "tags": [
+    "talker"
+   ],
+   "source": "authored (Blender key poses, tools/anim/life)",
+   "frames": 151,
+   "seconds": 5.0
+  },
+  "Life_Talk_Gossip": {
+   "category": "social/talk",
+   "loop": true,
+   "layer": "full",
+   "props": [],
+   "enter": null,
+   "exit": null,
+   "blend_in": 0.25,
+   "blend_out": 0.3,
+   "events": {
+    "glance": [
+     25,
+     60,
+     135
+    ]
+   },
+   "anchor": null,
+   "note": "speaker: leans in, right hand cupped beside the mouth, glances around to check nobody hears; a suppressed giggle",
+   "speed_mps": 0.0,
+   "pair": {
+    "partner": "Life_Talk_Listen_Nod",
+    "distance": 1.1
+   },
+   "ik_l_on_prop": null,
+   "mask_from": null,
+   "tags": [
+    "talker"
+   ],
+   "source": "authored (Blender key poses, tools/anim/life)",
+   "frames": 151,
+   "seconds": 5.0
+  },
+  "Life_Talk_Listen_Nod": {
+   "category": "social/talk",
+   "loop": true,
+   "layer": "full",
+   "props": [],
+   "enter": null,
+   "exit": null,
+   "blend_in": 0.25,
+   "blend_out": 0.3,
+   "events": {
+    "nod": [
+     28,
+     40,
+     100,
+     108
+    ]
+   },
+   "anchor": null,
+   "note": "listener: arms crossed, two clear nod pairs, weight shifts from foot to foot",
+   "speed_mps": 0.0,
+   "pair": {
+    "partner": "Life_Talk_Explain",
+    "distance": 1.1
+   },
+   "ik_l_on_prop": null,
+   "mask_from": null,
+   "tags": [
+    "listener"
+   ],
+   "source": "authored (Blender key poses, tools/anim/life)",
+   "frames": 151,
+   "seconds": 5.0
+  },
+  "Life_Talk_Listen_Hips": {
+   "category": "social/talk",
+   "loop": true,
+   "layer": "full",
+   "props": [],
+   "enter": null,
+   "exit": null,
+   "blend_in": 0.25,
+   "blend_out": 0.3,
+   "events": {
+    "tilt": [
+     30,
+     76
+    ],
+    "nod": [
+     104
+    ]
+   },
+   "anchor": null,
+   "note": "listener: hands on hips, head tilts side to side as if weighing it, one nod, weight shifts",
+   "speed_mps": 0.0,
+   "pair": {
+    "partner": "Life_Talk_Emphatic",
+    "distance": 1.1
+   },
+   "ik_l_on_prop": null,
+   "mask_from": null,
+   "tags": [
+    "listener"
+   ],
+   "source": "authored (Blender key poses, tools/anim/life)",
+   "frames": 151,
+   "seconds": 5.0
+  },
+  "Life_Social_Laugh": {
+   "category": "social/react",
+   "loop": false,
+   "layer": "full",
+   "props": [],
+   "enter": null,
+   "exit": null,
+   "blend_in": 0.2,
+   "blend_out": 0.3,
+   "events": {
+    "burst": [
+     12
+    ],
+    "peak": [
+     40
+    ]
+   },
+   "anchor": null,
+   "note": "one-shot belly laugh: inhale, head back, shoulders shake at 5 Hz, folds forward, wipes the eye, recovers",
+   "speed_mps": 0.0,
+   "pair": null,
+   "ik_l_on_prop": null,
+   "mask_from": null,
+   "tags": [],
+   "source": "authored (Blender key poses, tools/anim/life)",
+   "frames": 97,
+   "seconds": 3.2
+  },
+  "Life_Social_Laugh_Slap": {
+   "category": "social/react",
+   "loop": false,
+   "layer": "full",
+   "props": [],
+   "enter": null,
+   "exit": null,
+   "blend_in": 0.2,
+   "blend_out": 0.3,
+   "events": {
+    "slap": [
+     26,
+     40
+    ],
+    "burst": [
+     10
+    ]
+   },
+   "anchor": null,
+   "note": "one-shot: doubles over laughing and slaps the right knee twice",
+   "speed_mps": 0.0,
+   "pair": null,
+   "ik_l_on_prop": null,
+   "mask_from": null,
+   "tags": [],
+   "source": "authored (Blender key poses, tools/anim/life)",
+   "frames": 97,
+   "seconds": 3.2
+  },
+  "Life_Social_Argue_A": {
+   "category": "social/react",
+   "loop": true,
+   "layer": "full",
+   "props": [],
+   "enter": null,
+   "exit": null,
+   "blend_in": 0.25,
+   "blend_out": 0.3,
+   "events": {
+    "jab": [
+     16,
+     42,
+     66
+    ],
+    "stomp": [
+     42
+    ]
+   },
+   "anchor": null,
+   "note": "aggressor: leaning in, jabbing finger three times per cycle, one stamp of weight, fist clenched at the side",
+   "speed_mps": 0.0,
+   "pair": {
+    "partner": "Life_Social_Argue_B",
+    "distance": 1.0
+   },
+   "ik_l_on_prop": null,
+   "mask_from": null,
+   "tags": [
+    "talker"
+   ],
+   "source": "authored (Blender key poses, tools/anim/life)",
+   "frames": 91,
+   "seconds": 3.0
+  },
+  "Life_Social_Argue_B": {
+   "category": "social/react",
+   "loop": true,
+   "layer": "full",
+   "props": [],
+   "enter": null,
+   "exit": null,
+   "blend_in": 0.25,
+   "blend_out": 0.3,
+   "events": {
+    "step_back": [
+     36
+    ],
+    "step_fwd": [
+     84
+    ]
+   },
+   "anchor": null,
+   "note": "defender: palms out, head shakes, steps back half a step and forward again",
+   "speed_mps": 0.0,
+   "pair": {
+    "partner": "Life_Social_Argue_A",
+    "distance": 1.0
+   },
+   "ik_l_on_prop": null,
+   "mask_from": null,
+   "tags": [
+    "listener"
+   ],
+   "source": "authored (Blender key poses, tools/anim/life)",
+   "frames": 121,
+   "seconds": 4.0
+  },
+  "Life_Social_Point_Directions": {
+   "category": "social/react",
+   "loop": false,
+   "layer": "full",
+   "props": [],
+   "enter": null,
+   "exit": null,
+   "blend_in": 0.25,
+   "blend_out": 0.3,
+   "events": {
+    "raise": [
+     50
+    ],
+    "point": [
+     58
+    ],
+    "sweep": [
+     74
+    ],
+    "lower": [
+     98
+    ]
+   },
+   "anchor": null,
+   "note": "one-shot: listens with a thoughtful hand at the chin, then turns and points far off to the right, sweeps the arm along a road, turns back and nods",
+   "speed_mps": 0.0,
+   "pair": null,
+   "ik_l_on_prop": null,
+   "mask_from": null,
+   "tags": [],
+   "source": "authored (Blender key poses, tools/anim/life)",
+   "frames": 139,
+   "seconds": 4.6
+  },
+  "Life_Social_Wave_Greet": {
+   "category": "social/react",
+   "loop": false,
+   "layer": "full",
+   "props": [],
+   "enter": null,
+   "exit": null,
+   "blend_in": 0.2,
+   "blend_out": 0.3,
+   "events": {
+    "wave": [
+     14
+    ]
+   },
+   "anchor": null,
+   "note": "one-shot friendly wave: the hand comes up beside the head, waves three times with the fingers leading, lowers",
+   "speed_mps": 0.0,
+   "pair": null,
+   "ik_l_on_prop": null,
+   "mask_from": null,
+   "tags": [],
+   "source": "authored (Blender key poses, tools/anim/life)",
+   "frames": 73,
+   "seconds": 2.4
+  },
+  "Life_Social_Wave_Far": {
+   "category": "social/react",
+   "loop": false,
+   "layer": "full",
+   "props": [],
+   "enter": null,
+   "exit": null,
+   "blend_in": 0.2,
+   "blend_out": 0.3,
+   "events": {
+    "wave": [
+     16
+    ]
+   },
+   "anchor": null,
+   "note": "one-shot big overhead wave for calling across the square: whole arm sweeps, body sways under it",
+   "speed_mps": 0.0,
+   "pair": null,
+   "ik_l_on_prop": null,
+   "mask_from": null,
+   "tags": [],
+   "source": "authored (Blender key poses, tools/anim/life)",
+   "frames": 91,
+   "seconds": 3.0
+  },
+  "Life_Social_Shrug": {
+   "category": "social/react",
+   "loop": false,
+   "layer": "full",
+   "props": [],
+   "enter": null,
+   "exit": null,
+   "blend_in": 0.2,
+   "blend_out": 0.3,
+   "events": {
+    "peak": [
+     16
+    ]
+   },
+   "anchor": null,
+   "note": "one-shot 'who knows': shoulders up, palms out and up, head tilts, hold, drop with a small rebound",
+   "speed_mps": 0.0,
+   "pair": null,
+   "ik_l_on_prop": null,
+   "mask_from": null,
+   "tags": [],
+   "source": "authored (Blender key poses, tools/anim/life)",
+   "frames": 61,
+   "seconds": 2.0
+  },
+  "Life_Social_Nod": {
+   "category": "social/react",
+   "loop": false,
+   "layer": "full",
+   "props": [],
+   "enter": null,
+   "exit": null,
+   "blend_in": 0.2,
+   "blend_out": 0.25,
+   "events": {
+    "nod": [
+     10,
+     26
+    ]
+   },
+   "anchor": null,
+   "note": "one-shot: two clear nods, the second bigger, with a small chest dip",
+   "speed_mps": 0.0,
+   "pair": null,
+   "ik_l_on_prop": null,
+   "mask_from": null,
+   "tags": [],
+   "source": "authored (Blender key poses, tools/anim/life)",
+   "frames": 49,
+   "seconds": 1.6
+  },
+  "Life_Social_Shake_Head": {
+   "category": "social/react",
+   "loop": false,
+   "layer": "full",
+   "props": [],
+   "enter": null,
+   "exit": null,
+   "blend_in": 0.2,
+   "blend_out": 0.25,
+   "events": {
+    "shake": [
+     8,
+     18,
+     28
+    ]
+   },
+   "anchor": null,
+   "note": "one-shot: 'no' - three head swings with a counter-turn of the chest, small shoulder drop at the end",
+   "speed_mps": 0.0,
+   "pair": null,
+   "ik_l_on_prop": null,
+   "mask_from": null,
+   "tags": [],
+   "source": "authored (Blender key poses, tools/anim/life)",
+   "frames": 55,
+   "seconds": 1.8
+  },
+  "Life_Social_Bow": {
+   "category": "social/react",
+   "loop": false,
+   "layer": "full",
+   "props": [],
+   "enter": null,
+   "exit": null,
+   "blend_in": 0.25,
+   "blend_out": 0.3,
+   "events": {
+    "low": [
+     34
+    ]
+   },
+   "anchor": null,
+   "note": "one-shot polite bow: right hand to the chest, folds from the hips, holds a beat, rises",
+   "speed_mps": 0.0,
+   "pair": null,
+   "ik_l_on_prop": null,
+   "mask_from": null,
+   "tags": [],
+   "source": "authored (Blender key poses, tools/anim/life)",
+   "frames": 97,
+   "seconds": 3.2
+  },
+  "Life_Social_Hug_A": {
+   "category": "social/pair",
+   "loop": false,
+   "layer": "full",
+   "props": [],
+   "enter": null,
+   "exit": null,
+   "blend_in": 0.2,
+   "blend_out": 0.3,
+   "events": {
+    "embrace": [
+     24
+    ],
+    "pat": [
+     34,
+     40
+    ],
+    "release": [
+     60
+    ]
+   },
+   "anchor": null,
+   "note": "paired hug A: half-step in, arms wrap (right over the partner's left shoulder, left under), head to the partner's right shoulder, two pats, release. Author distance 0.40 m.",
+   "speed_mps": 0.0,
+   "pair": {
+    "partner": "Life_Social_Hug_B",
+    "distance": 0.4
+   },
+   "ik_l_on_prop": null,
+   "mask_from": null,
+   "tags": [],
+   "source": "authored (Blender key poses, tools/anim/life)",
+   "frames": 79,
+   "seconds": 2.6
+  },
+  "Life_Social_Hug_B": {
+   "category": "social/pair",
+   "loop": false,
+   "layer": "full",
+   "props": [],
+   "enter": null,
+   "exit": null,
+   "blend_in": 0.2,
+   "blend_out": 0.3,
+   "events": {
+    "embrace": [
+     24
+    ],
+    "pat": [
+     37,
+     43
+    ],
+    "release": [
+     60
+    ]
+   },
+   "anchor": null,
+   "note": "paired hug B: half-step in, arms wrap (right over the partner's left shoulder, left under), head to the partner's right shoulder, two pats, release. Author distance 0.40 m.",
+   "speed_mps": 0.0,
+   "pair": {
+    "partner": "Life_Social_Hug_A",
+    "distance": 0.4
+   },
+   "ik_l_on_prop": null,
+   "mask_from": null,
+   "tags": [],
+   "source": "authored (Blender key poses, tools/anim/life)",
+   "frames": 79,
+   "seconds": 2.6
+  },
+  "Life_Social_Handshake_A": {
+   "category": "social/pair",
+   "loop": false,
+   "layer": "full",
+   "props": [],
+   "enter": null,
+   "exit": null,
+   "blend_in": 0.2,
+   "blend_out": 0.3,
+   "events": {
+    "clasp": [
+     20
+    ],
+    "pump": [
+     26,
+     31,
+     37,
+     42
+    ],
+    "release": [
+     54
+    ]
+   },
+   "anchor": null,
+   "note": "paired handshake A: right hands meet at ~1.0 m in the middle, two firm pumps, release. Author distance 0.80 m.",
+   "speed_mps": 0.0,
+   "pair": {
+    "partner": "Life_Social_Handshake_B",
+    "distance": 0.8
+   },
+   "ik_l_on_prop": null,
+   "mask_from": null,
+   "tags": [],
+   "source": "authored (Blender key poses, tools/anim/life)",
+   "frames": 73,
+   "seconds": 2.4
+  },
+  "Life_Social_Handshake_B": {
+   "category": "social/pair",
+   "loop": false,
+   "layer": "full",
+   "props": [],
+   "enter": null,
+   "exit": null,
+   "blend_in": 0.2,
+   "blend_out": 0.3,
+   "events": {
+    "clasp": [
+     20
+    ],
+    "pump": [
+     26,
+     31,
+     37,
+     42
+    ],
+    "release": [
+     54
+    ]
+   },
+   "anchor": null,
+   "note": "paired handshake B: right hands meet at ~1.0 m in the middle, two firm pumps, release. Author distance 0.80 m.",
+   "speed_mps": 0.0,
+   "pair": {
+    "partner": "Life_Social_Handshake_A",
+    "distance": 0.8
+   },
+   "ik_l_on_prop": null,
+   "mask_from": null,
+   "tags": [],
+   "source": "authored (Blender key poses, tools/anim/life)",
+   "frames": 73,
+   "seconds": 2.4
+  },
+  "Life_Social_Mourn_Kneel": {
+   "category": "social/mourn",
+   "loop": true,
+   "layer": "full",
+   "props": [],
+   "enter": "Life_Social_Mourn_Kneel_Enter",
+   "exit": "Life_Social_Mourn_Kneel_Exit",
+   "blend_in": 0.3,
+   "blend_out": 0.3,
+   "events": {},
+   "anchor": null,
+   "note": "loop: kneeling on the right knee, face in both hands, shoulders shake with sobs, a slow deep breath every 2 s",
+   "speed_mps": 0.0,
+   "pair": null,
+   "ik_l_on_prop": null,
+   "mask_from": null,
+   "tags": [
+    "grief"
+   ],
+   "source": "authored (Blender key poses, tools/anim/life)",
+   "frames": 121,
+   "seconds": 4.0
+  },
+  "Life_Social_Mourn_Kneel_Enter": {
+   "category": "social/mourn",
+   "loop": false,
+   "layer": "full",
+   "props": [],
+   "enter": null,
+   "exit": null,
+   "blend_in": 0.25,
+   "blend_out": 0.0,
+   "events": {},
+   "anchor": null,
+   "note": "drops to the right knee, folds forward and lifts the hands to the face; ends on the first frame of Mourn_Kneel",
+   "speed_mps": 0.0,
+   "pair": null,
+   "ik_l_on_prop": null,
+   "mask_from": null,
+   "tags": [],
+   "source": "authored (Blender key poses, tools/anim/life)",
+   "frames": 41,
+   "seconds": 1.333
+  },
+  "Life_Social_Mourn_Kneel_Exit": {
+   "category": "social/mourn",
+   "loop": false,
+   "layer": "full",
+   "props": [],
+   "enter": null,
+   "exit": null,
+   "blend_in": 0.0,
+   "blend_out": 0.3,
+   "events": {},
+   "anchor": null,
+   "note": "from Mourn_Kneel: hands drop, pushes up off the knee and stands; ends at neutral",
+   "speed_mps": 0.0,
+   "pair": null,
+   "ik_l_on_prop": null,
+   "mask_from": null,
+   "tags": [],
+   "source": "authored (Blender key poses, tools/anim/life)",
+   "frames": 41,
+   "seconds": 1.333
+  },
+  "Life_Social_Mourn_Stand": {
+   "category": "social/mourn",
+   "loop": true,
+   "layer": "full",
+   "props": [],
+   "enter": null,
+   "exit": null,
+   "blend_in": 0.25,
+   "blend_out": 0.3,
+   "events": {
+    "wipe": [
+     96,
+     106,
+     116,
+     126
+    ]
+   },
+   "anchor": null,
+   "note": "loop: standing, head bowed, hands clasped low; small sobbing breaths, and now and then the right hand wipes the eyes",
+   "speed_mps": 0.0,
+   "pair": null,
+   "ik_l_on_prop": null,
+   "mask_from": null,
+   "tags": [
+    "grief"
+   ],
+   "source": "authored (Blender key poses, tools/anim/life)",
+   "frames": 181,
+   "seconds": 6.0
+  },
+  "Life_Kid_Run_Play": {
+   "category": "kid/play",
+   "loop": true,
+   "layer": "full",
+   "props": [],
+   "enter": null,
+   "exit": null,
+   "blend_in": 0.2,
+   "blend_out": 0.2,
+   "events": {
+    "foot_l": [
+     0,
+     20
+    ],
+    "foot_r": [
+     10,
+     30
+    ]
+   },
+   "anchor": null,
+   "note": "excited in-place run: flight phase, high knees, arms flailing loosely, body rolling with every stride, head bobbing. speed_mps on the authored skeleton",
+   "speed_mps": 2.75,
+   "pair": null,
+   "ik_l_on_prop": null,
+   "mask_from": null,
+   "tags": [
+    "kid",
+    "excited"
+   ],
+   "source": "authored (Blender key poses, tools/anim/life)",
+   "frames": 41,
+   "seconds": 1.333
+  },
+  "Life_Kid_Chase_Chicken": {
+   "category": "kid/play",
+   "loop": true,
+   "layer": "full",
+   "props": [],
+   "enter": null,
+   "exit": null,
+   "blend_in": 0.2,
+   "blend_out": 0.2,
+   "events": {
+    "grab_l": [
+     11
+    ],
+    "grab_r": [
+     39
+    ]
+   },
+   "anchor": null,
+   "note": "crouched scurrying run, head up on the target, one low two-handed-style grab lunge per arm every second stride",
+   "speed_mps": 1.398,
+   "pair": null,
+   "ik_l_on_prop": null,
+   "mask_from": null,
+   "tags": [
+    "kid",
+    "chase"
+   ],
+   "source": "authored (Blender key poses, tools/anim/life)",
+   "frames": 57,
+   "seconds": 1.867
+  },
+  "Life_Kid_Skip": {
+   "category": "kid/play",
+   "loop": true,
+   "layer": "full",
+   "props": [],
+   "enter": null,
+   "exit": null,
+   "blend_in": 0.2,
+   "blend_out": 0.2,
+   "events": {
+    "foot_l": [
+     0
+    ],
+    "foot_r": [
+     18
+    ]
+   },
+   "anchor": null,
+   "note": "in-place skipping: long-short step-hop rhythm, the free knee lifts high, arms swing wide, head rolls with the beat",
+   "speed_mps": 0.867,
+   "pair": null,
+   "ik_l_on_prop": null,
+   "mask_from": null,
+   "tags": [
+    "kid",
+    "happy"
+   ],
+   "source": "authored (Blender key poses, tools/anim/life)",
+   "frames": 37,
+   "seconds": 1.2
+  },
+  "Life_Kid_Tag_Touch": {
+   "category": "kid/play",
+   "loop": false,
+   "layer": "full",
+   "props": [],
+   "enter": null,
+   "exit": null,
+   "blend_in": 0.15,
+   "blend_out": 0.25,
+   "events": {
+    "lunge": [
+     14
+    ],
+    "touch": [
+     17
+    ],
+    "flee": [
+     34
+    ]
+   },
+   "anchor": null,
+   "note": "one-shot: coiled crouch, lunge with an outstretched hand (touch at frame 17: partner is ~0.75 m ahead), gleeful recoil, twists away and bolts; back to neutral",
+   "speed_mps": 0.0,
+   "pair": null,
+   "ik_l_on_prop": null,
+   "mask_from": null,
+   "tags": [],
+   "source": "authored (Blender key poses, tools/anim/life)",
+   "frames": 67,
+   "seconds": 2.2
+  },
+  "Life_Kid_Hopscotch": {
+   "category": "kid/play",
+   "loop": false,
+   "layer": "full",
+   "props": [],
+   "enter": null,
+   "exit": null,
+   "blend_in": 0.2,
+   "blend_out": 0.25,
+   "events": {
+    "land": [
+     16,
+     36,
+     58,
+     90,
+     109,
+     124
+    ]
+   },
+   "anchor": null,
+   "note": "one-shot in place: hop, hop on the left foot, straddle-jump landing on both, hop, hop on the right foot, jump turn and land; neutral at both ends",
+   "speed_mps": 0.0,
+   "pair": null,
+   "ik_l_on_prop": null,
+   "mask_from": null,
+   "tags": [],
+   "source": "authored (Blender key poses, tools/anim/life)",
+   "frames": 133,
+   "seconds": 4.4
+  },
+  "Life_Kid_Clap_Jump": {
+   "category": "kid/play",
+   "loop": false,
+   "layer": "full",
+   "props": [],
+   "enter": null,
+   "exit": null,
+   "blend_in": 0.15,
+   "blend_out": 0.25,
+   "events": {
+    "takeoff": [
+     10
+    ],
+    "clap": [
+     16
+    ],
+    "land": [
+     22
+    ]
+   },
+   "anchor": null,
+   "note": "one-shot: crouch, jump with both arms swinging up to clap overhead at the apex, land bouncy, small second clap of joy",
+   "speed_mps": 0.0,
+   "pair": null,
+   "ik_l_on_prop": null,
+   "mask_from": null,
+   "tags": [],
+   "source": "authored (Blender key poses, tools/anim/life)",
+   "frames": 55,
+   "seconds": 1.8
+  },
+  "Life_Ambient_Look_Around": {
+   "category": "ambient/fidget",
+   "loop": false,
+   "layer": "full",
+   "props": [],
+   "enter": null,
+   "exit": null,
+   "blend_in": 0.3,
+   "blend_out": 0.3,
+   "events": {
+    "look_l": [
+     14
+    ],
+    "look_r": [
+     46
+    ]
+   },
+   "anchor": null,
+   "note": "one-shot: the head leads a slow look over the left shoulder, then a longer look to the right, the chest follows a beat late, back to neutral",
+   "speed_mps": 0.0,
+   "pair": null,
+   "ik_l_on_prop": null,
+   "mask_from": null,
+   "tags": [
+    "idle"
+   ],
+   "source": "authored (Blender key poses, tools/anim/life)",
+   "frames": 97,
+   "seconds": 3.2
+  },
+  "Life_Ambient_Scratch_Head": {
+   "category": "ambient/fidget",
+   "loop": false,
+   "layer": "full",
+   "props": [],
+   "enter": null,
+   "exit": null,
+   "blend_in": 0.25,
+   "blend_out": 0.3,
+   "events": {
+    "scratch": [
+     18,
+     50
+    ]
+   },
+   "anchor": null,
+   "note": "one-shot: right hand up to the back of the head, scratches with a curling hand, head tilts into it, drops and shrugs it off",
+   "speed_mps": 0.0,
+   "pair": null,
+   "ik_l_on_prop": null,
+   "mask_from": null,
+   "tags": [
+    "idle",
+    "puzzled"
+   ],
+   "source": "authored (Blender key poses, tools/anim/life)",
+   "frames": 91,
+   "seconds": 3.0
+  },
+  "Life_Ambient_Shift_Weight": {
+   "category": "ambient/fidget",
+   "loop": false,
+   "layer": "full",
+   "props": [],
+   "enter": null,
+   "exit": null,
+   "blend_in": 0.3,
+   "blend_out": 0.3,
+   "events": {
+    "shift": [
+     16
+    ],
+    "back": [
+     58
+    ]
+   },
+   "anchor": null,
+   "note": "one-shot: sighs, moves the weight onto the left leg while the right foot re-plants wider, holds the cocked hip, and settles back",
+   "speed_mps": 0.0,
+   "pair": null,
+   "ik_l_on_prop": null,
+   "mask_from": null,
+   "tags": [
+    "idle"
+   ],
+   "source": "authored (Blender key poses, tools/anim/life)",
+   "frames": 85,
+   "seconds": 2.8
+  },
+  "Life_Ambient_Stretch_Morning": {
+   "category": "ambient/fidget",
+   "loop": false,
+   "layer": "full",
+   "props": [],
+   "enter": null,
+   "exit": null,
+   "blend_in": 0.3,
+   "blend_out": 0.35,
+   "events": {
+    "peak": [
+     40
+    ],
+    "release": [
+     70
+    ]
+   },
+   "anchor": null,
+   "note": "one-shot: inhales, both arms up with the fingers laced and palms to the sky, back arches and head tips back, side lean, then the arms fall wide and the shoulders roll out",
+   "speed_mps": 0.0,
+   "pair": null,
+   "ik_l_on_prop": null,
+   "mask_from": null,
+   "tags": [
+    "morning"
+   ],
+   "source": "authored (Blender key poses, tools/anim/life)",
+   "frames": 133,
+   "seconds": 4.4
+  },
+  "Life_Ambient_Yawn": {
+   "category": "ambient/fidget",
+   "loop": false,
+   "layer": "full",
+   "props": [],
+   "enter": null,
+   "exit": null,
+   "blend_in": 0.3,
+   "blend_out": 0.3,
+   "events": {
+    "yawn": [
+     18
+    ],
+    "rub": [
+     58
+    ]
+   },
+   "anchor": null,
+   "note": "one-shot: a big yawn behind the right hand, head tipping back, chest opening, then a sagging exhale and a rub of the eye with the left hand",
+   "speed_mps": 0.0,
+   "pair": null,
+   "ik_l_on_prop": null,
+   "mask_from": null,
+   "tags": [
+    "evening"
+   ],
+   "source": "authored (Blender key poses, tools/anim/life)",
+   "frames": 97,
+   "seconds": 3.2
+  },
+  "Life_Ambient_Check_Sky": {
+   "category": "ambient/fidget",
+   "loop": false,
+   "layer": "full",
+   "props": [],
+   "enter": null,
+   "exit": null,
+   "blend_in": 0.3,
+   "blend_out": 0.3,
+   "events": {
+    "look": [
+     16
+    ]
+   },
+   "anchor": null,
+   "note": "one-shot: tips the head back to read the sky, the chest opens, a slow sweep from one side to the other, then back down",
+   "speed_mps": 0.0,
+   "pair": null,
+   "ik_l_on_prop": null,
+   "mask_from": null,
+   "tags": [
+    "weather"
+   ],
+   "source": "authored (Blender key poses, tools/anim/life)",
+   "frames": 85,
+   "seconds": 2.8
+  },
+  "Life_Ambient_Shade_Eyes": {
+   "category": "ambient/fidget",
+   "loop": false,
+   "layer": "full",
+   "props": [],
+   "enter": null,
+   "exit": null,
+   "blend_in": 0.3,
+   "blend_out": 0.3,
+   "events": {
+    "shade": [
+     16
+    ]
+   },
+   "anchor": null,
+   "note": "one-shot: flat right hand to the brow against the glare, squints along the horizon left to right, drops the hand",
+   "speed_mps": 0.0,
+   "pair": null,
+   "ik_l_on_prop": null,
+   "mask_from": null,
+   "tags": [
+    "sun"
+   ],
+   "source": "authored (Blender key poses, tools/anim/life)",
+   "frames": 103,
+   "seconds": 3.4
+  },
+  "Life_Ambient_Wipe_Brow": {
+   "category": "ambient/fidget",
+   "loop": false,
+   "layer": "full",
+   "props": [],
+   "enter": null,
+   "exit": null,
+   "blend_in": 0.3,
+   "blend_out": 0.3,
+   "events": {
+    "wipe": [
+     26
+    ],
+    "flick": [
+     44
+    ]
+   },
+   "anchor": null,
+   "note": "one-shot: heavy sigh, right forearm wipes across the forehead, flicks the sweat off the hand, sags and breathes out",
+   "speed_mps": 0.0,
+   "pair": null,
+   "ik_l_on_prop": null,
+   "mask_from": null,
+   "tags": [
+    "heat"
+   ],
+   "source": "authored (Blender key poses, tools/anim/life)",
+   "frames": 85,
+   "seconds": 2.8
+  },
+  "Life_Ambient_Rub_Arms": {
+   "category": "ambient/fidget",
+   "loop": false,
+   "layer": "full",
+   "props": [],
+   "enter": null,
+   "exit": null,
+   "blend_in": 0.3,
+   "blend_out": 0.3,
+   "events": {
+    "rub": [
+     22,
+     40,
+     58,
+     76
+    ]
+   },
+   "anchor": null,
+   "note": "one-shot: hunches, hugs itself and rubs both upper arms briskly while the body shudders, releases with a shiver",
+   "speed_mps": 0.0,
+   "pair": null,
+   "ik_l_on_prop": null,
+   "mask_from": null,
+   "tags": [
+    "cold"
+   ],
+   "source": "authored (Blender key poses, tools/anim/life)",
+   "frames": 109,
+   "seconds": 3.6
+  },
+  "Life_Ambient_Glance_L": {
+   "category": "ambient/react",
+   "loop": false,
+   "layer": "full",
+   "props": [],
+   "enter": null,
+   "exit": null,
+   "blend_in": 0.12,
+   "blend_out": 0.2,
+   "events": {
+    "peak": [
+     12
+    ]
+   },
+   "anchor": null,
+   "note": "one-shot 1.2 s glance to the left: the head snaps round first, the chest follows a few frames later, hold, and back",
+   "speed_mps": 0.0,
+   "pair": null,
+   "ik_l_on_prop": null,
+   "mask_from": null,
+   "tags": [
+    "react"
+   ],
+   "source": "authored (Blender key poses, tools/anim/life)",
+   "frames": 37,
+   "seconds": 1.2
+  },
+  "Life_Ambient_Glance_R": {
+   "category": "ambient/react",
+   "loop": false,
+   "layer": "full",
+   "props": [],
+   "enter": null,
+   "exit": null,
+   "blend_in": 0.12,
+   "blend_out": 0.2,
+   "events": {
+    "peak": [
+     12
+    ]
+   },
+   "anchor": null,
+   "note": "one-shot 1.2 s glance to the right: the head snaps round first, the chest follows a few frames later, hold, and back",
+   "speed_mps": 0.0,
+   "pair": null,
+   "ik_l_on_prop": null,
+   "mask_from": null,
+   "tags": [
+    "react"
+   ],
+   "source": "authored (Blender key poses, tools/anim/life)",
+   "frames": 37,
+   "seconds": 1.2
+  },
+  "Life_Ambient_Rain_Hunch_Upper": {
+   "category": "ambient/weather",
+   "loop": true,
+   "layer": "upper",
+   "props": [],
+   "enter": null,
+   "exit": null,
+   "blend_in": 0.5,
+   "blend_out": 0.5,
+   "events": {},
+   "anchor": null,
+   "note": "upper-body layer over locomotion or idle (spine_01 and up): shoulders up, head down, left forearm held flat above the head as a shield, right hand pulling the collar shut; small shudders",
+   "speed_mps": 0.0,
+   "pair": null,
+   "ik_l_on_prop": null,
+   "mask_from": "spine_01",
+   "tags": [
+    "rain"
+   ],
+   "source": "authored (Blender key poses, tools/anim/life)",
+   "frames": 121,
+   "seconds": 4.0
+  },
+  "Life_Walk_Cane": {
+   "category": "walk/style",
+   "loop": true,
+   "layer": "full",
+   "props": [
+    {
+     "id": "cane",
+     "hand": "r"
+    }
+   ],
+   "enter": null,
+   "exit": null,
+   "blend_in": 0.3,
+   "blend_out": 0.3,
+   "events": {
+    "plant": [
+     0
+    ],
+    "lift": [
+     32
+    ],
+    "foot_l": [
+     0
+    ],
+    "foot_r": [
+     26
+    ]
+   },
+   "anchor": null,
+   "note": "elder walk, bent spine, short shuffling steps, cane in the right hand planted with every LEFT step (tip on the ground from frame 0 to 32, then swings forward). Cane length 0.90 m (measured from cane.glb)",
+   "speed_mps": 0.279,
+   "pair": null,
+   "ik_l_on_prop": null,
+   "mask_from": null,
+   "tags": [
+    "elder",
+    "cane"
+   ],
+   "source": "authored (Blender key poses, tools/anim/life)",
+   "frames": 53,
+   "seconds": 1.733
+  }
+ }
+}

@@ -48,6 +48,8 @@ shader_parameter/tail_len = null
 shader_parameter/pulse = null
 shader_parameter/pulse_speed = null
 shader_parameter/heat_scale = 1.0
+shader_parameter/soft_edge = null
+shader_parameter/ring_soft = null
 
 [sub_resource type="CylinderMesh" id="CylinderMesh_do7ue"]
 top_radius = 0.45
@@ -101,6 +103,8 @@ shader_parameter/tail_len = null
 shader_parameter/pulse = null
 shader_parameter/pulse_speed = null
 shader_parameter/heat_scale = 0.8
+shader_parameter/soft_edge = null
+shader_parameter/ring_soft = 0.7
 
 [sub_resource type="QuadMesh" id="QuadMesh_epkt0"]
 size = Vector2(2, 2)
@@ -180,14 +184,14 @@ color_ramp = SubResource("GradientTexture1D_f5d2e")
 material = ExtResource("4_lk1hc")
 size = Vector2(0.4995122, 0.4995122)
 
-[node name="Dark_Aura" type="Node3D" unique_id=1631135785]
+[node name="Dark_Aura" type="Node3D" unique_id=76887898]
 script = ExtResource("1_p3n4n")
 duration = 0.0
 fade_out = 0.4
 kind = &"aura"
 element = &"dark"
 
-[node name="Veil" type="MeshInstance3D" parent="." unique_id=608769736]
+[node name="Veil" type="MeshInstance3D" parent="." unique_id=797847686]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.95, 0)
 material_override = SubResource("ShaderMaterial_72ke3")
 cast_shadow = 0
@@ -195,7 +199,7 @@ extra_cull_margin = 2.0
 gi_mode = 0
 mesh = SubResource("CylinderMesh_do7ue")
 
-[node name="Shadow" type="MeshInstance3D" parent="." unique_id=1420019586]
+[node name="Shadow" type="MeshInstance3D" parent="." unique_id=1012932223]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.03, 0)
 material_override = SubResource("ShaderMaterial_c85bo")
 cast_shadow = 0
@@ -203,7 +207,7 @@ extra_cull_margin = 2.0
 gi_mode = 0
 mesh = SubResource("QuadMesh_epkt0")
 
-[node name="Wisps" type="GPUParticles3D" parent="." unique_id=1229538422]
+[node name="Wisps" type="GPUParticles3D" parent="." unique_id=1879968774]
 cast_shadow = 0
 gi_mode = 0
 emitting = false
@@ -216,7 +220,7 @@ transform_align = 1
 process_material = SubResource("ParticleProcessMaterial_at6j1")
 draw_pass_1 = SubResource("QuadMesh_0doit")
 
-[node name="Sparks" type="GPUParticles3D" parent="." unique_id=1248054253]
+[node name="Sparks" type="GPUParticles3D" parent="." unique_id=1949076236]
 cast_shadow = 0
 gi_mode = 0
 emitting = false

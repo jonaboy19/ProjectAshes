@@ -19,6 +19,8 @@ ROOT = os.path.abspath(os.path.join(HERE, "..", "..", ".."))
 TEX = os.path.join(ROOT, "kingdom", "assets", "art", "textures")
 
 k = VK("MarketStallRed", seed=9021, pal=palette())
+k.pbr = dict(size=512, seed=8, ao_dist=0.35, cage=0.03, ray=0.08)   # high-to-low PBR bake (pbr_kit.py)
+k.weather_ao = 0.34
 W, CL, MT = k.M("Wood"), k.M("Cloth"), k.M("Metal")
 STRIPES = (hexc("b0372a"), hexc("f1e9d8"))
 WOODC = hexc("8a6a48")

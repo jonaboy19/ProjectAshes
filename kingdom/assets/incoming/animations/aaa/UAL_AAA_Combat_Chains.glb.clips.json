@@ -1,0 +1,268 @@
+[
+ {
+  "name": "Sword_Light_Attack_01",
+  "loop": false,
+  "seconds": 1.2,
+  "frames": 37,
+  "keys": 495,
+  "source": "002/02_07.bvh",
+  "range_s": [
+   0.5,
+   1.7
+  ],
+  "autotrim": null,
+  "loop_pts": null,
+  "floor_fix_m": 0.01,
+  "contact_lift_m": 0.0,
+  "min_foot_m": -0.002,
+  "travel_m": 0.11,
+  "hip_scale": 0.0515
+ },
+ {
+  "name": "Sword_Light_Attack_02",
+  "loop": false,
+  "seconds": 1.1,
+  "frames": 34,
+  "keys": 474,
+  "source": "002/02_07.bvh",
+  "range_s": [
+   1.7,
+   2.8
+  ],
+  "autotrim": null,
+  "loop_pts": null,
+  "floor_fix_m": 0.012,
+  "contact_lift_m": 0.0,
+  "min_foot_m": -0.0,
+  "travel_m": 0.12,
+  "hip_scale": 0.0515
+ },
+ {
+  "name": "Sword_Light_Attack_03",
+  "loop": false,
+  "seconds": 1.4,
+  "frames": 43,
+  "keys": 600,
+  "source": "002/02_07.bvh",
+  "range_s": [
+   4.2,
+   5.6
+  ],
+  "autotrim": null,
+  "loop_pts": null,
+  "floor_fix_m": 0.002,
+  "contact_lift_m": 0.0,
+  "min_foot_m": -0.003,
+  "travel_m": 0.02,
+  "hip_scale": 0.0515
+ },
+ {
+  "name": "Sword_Light_Attack_04",
+  "loop": false,
+  "seconds": 1.7,
+  "frames": 52,
+  "keys": 924,
+  "source": "087/87_01.bvh",
+  "range_s": [
+   0.5,
+   2.2
+  ],
+  "autotrim": null,
+  "loop_pts": null,
+  "floor_fix_m": 0.041,
+  "contact_lift_m": 0.0,
+  "min_foot_m": -0.007,
+  "travel_m": 0.77,
+  "hip_scale": 0.0567
+ },
+ {
+  "name": "Sword_Heavy_Charge_Chop",
+  "loop": false,
+  "seconds": 1.8,
+  "frames": 55,
+  "keys": 759,
+  "source": "002/02_07.bvh",
+  "range_s": [
+   5.6,
+   7.4
+  ],
+  "autotrim": null,
+  "loop_pts": null,
+  "floor_fix_m": 0.004,
+  "contact_lift_m": 0.0,
+  "min_foot_m": -0.001,
+  "travel_m": 0.04,
+  "hip_scale": 0.0515
+ },
+ {
+  "name": "Sword_Sprint_Dash_Attack",
+  "loop": false,
+  "seconds": 1.4,
+  "frames": 43,
+  "keys": 691,
+  "source": "127/127_05.bvh",
+  "range_s": [
+   0.4,
+   1.8
+  ],
+  "autotrim": null,
+  "loop_pts": null,
+  "floor_fix_m": 0.024,
+  "contact_lift_m": 0.0,
+  "min_foot_m": -0.0,
+  "travel_m": 1.78,
+  "hip_scale": 0.0502
+ },
+ {
+  "name": "Sword_Roll_Counter_Poke",
+  "loop": false,
+  "seconds": 1.4,
+  "frames": 43,
+  "keys": 637,
+  "source": "140/140_01.bvh",
+  "range_s": [
+   2.4,
+   3.8
+  ],
+  "autotrim": null,
+  "loop_pts": null,
+  "floor_fix_m": 0.0,
+  "contact_lift_m": 0.009,
+  "min_foot_m": 0.055,
+  "travel_m": 0.67,
+  "hip_scale": 0.057
+ },
+ {
+  "name": "Sword_Plunge_Aerial_Attack",
+  "loop": false,
+  "seconds": 1.2,
+  "frames": 37,
+  "keys": 511,
+  "source": "140/140_01.bvh",
+  "range_s": [
+   1.8,
+   3.0
+  ],
+  "autotrim": null,
+  "loop_pts": null,
+  "floor_fix_m": 0.0,
+  "contact_lift_m": 0.043,
+  "min_foot_m": 0.02,
+  "travel_m": 0.4,
+  "hip_scale": 0.057
+ },
+ {
+  "name": "Parry_Left_Deflect",
+  "loop": false,
+  "seconds": 1.13,
+  "frames": 35,
+  "keys": 487,
+  "source": "144/144_07.bvh",
+  "range_s": [
+   0.24,
+   1.4
+  ],
+  "autotrim": null,
+  "loop_pts": null,
+  "floor_fix_m": -0.015,
+  "contact_lift_m": 0.0,
+  "min_foot_m": -0.0,
+  "travel_m": 0.23,
+  "hip_scale": 0.0583
+ },
+ {
+  "name": "Parry_Right_Deflect",
+  "loop": false,
+  "seconds": 1.13,
+  "frames": 35,
+  "keys": 487,
+  "source": "144/144_07.bvh",
+  "range_s": [
+   0.24,
+   1.4
+  ],
+  "autotrim": null,
+  "loop_pts": null,
+  "floor_fix_m": -0.015,
+  "contact_lift_m": 0.0,
+  "min_foot_m": -0.0,
+  "travel_m": 0.23,
+  "hip_scale": 0.0583
+ },
+ {
+  "name": "Guard_Break_Stumble",
+  "loop": false,
+  "seconds": 1.3,
+  "frames": 40,
+  "keys": 790,
+  "source": "014/14_03.bvh",
+  "range_s": [
+   3.2,
+   4.5
+  ],
+  "autotrim": null,
+  "loop_pts": null,
+  "floor_fix_m": -0.026,
+  "contact_lift_m": 0.0,
+  "min_foot_m": -0.001,
+  "travel_m": 0.15,
+  "hip_scale": 0.0515
+ },
+ {
+  "name": "Blade_Clash_Lock",
+  "loop": false,
+  "seconds": 1.6,
+  "frames": 49,
+  "keys": 689,
+  "source": "144/144_07.bvh",
+  "range_s": [
+   1.8,
+   3.4
+  ],
+  "autotrim": null,
+  "loop_pts": null,
+  "floor_fix_m": -0.015,
+  "contact_lift_m": 0.0,
+  "min_foot_m": -0.001,
+  "travel_m": 0.13,
+  "hip_scale": 0.0583
+ },
+ {
+  "name": "Combat_Roll_Forward",
+  "loop": false,
+  "seconds": 1.4,
+  "frames": 43,
+  "keys": 606,
+  "source": "140/140_01.bvh",
+  "range_s": [
+   2.2,
+   3.6
+  ],
+  "autotrim": null,
+  "loop_pts": null,
+  "floor_fix_m": 0.0,
+  "contact_lift_m": 0.009,
+  "min_foot_m": 0.035,
+  "travel_m": 0.63,
+  "hip_scale": 0.057
+ },
+ {
+  "name": "Combat_Backstep_Hop",
+  "loop": false,
+  "seconds": 1.0,
+  "frames": 31,
+  "keys": 616,
+  "source": "127/127_15.bvh",
+  "range_s": [
+   0.2,
+   1.2
+  ],
+  "autotrim": null,
+  "loop_pts": null,
+  "floor_fix_m": 0.003,
+  "contact_lift_m": 0.0,
+  "min_foot_m": -0.006,
+  "travel_m": 2.21,
+  "hip_scale": 0.0502
+ }
+]

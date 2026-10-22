@@ -3,19 +3,21 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://ba8dgpqor1kcb"
-path="res://.godot/imported/village_house_octa.png-6bd435d41e88d45c02560b943651e65d.ctex"
+path.s3tc="res://.godot/imported/village_house_octa.png-6bd435d41e88d45c02560b943651e65d.s3tc.ctex"
+path.etc2="res://.godot/imported/village_house_octa.png-6bd435d41e88d45c02560b943651e65d.etc2.ctex"
 metadata={
-"vram_texture": false
+"imported_formats": ["s3tc_bptc", "etc2_astc"],
+"vram_texture": true
 }
 
 [deps]
 
 source_file="res://assets/generated/impostors/village_house_octa.png"
-dest_files=["res://.godot/imported/village_house_octa.png-6bd435d41e88d45c02560b943651e65d.ctex"]
+dest_files=["res://.godot/imported/village_house_octa.png-6bd435d41e88d45c02560b943651e65d.s3tc.ctex", "res://.godot/imported/village_house_octa.png-6bd435d41e88d45c02560b943651e65d.etc2.ctex"]
 
 [params]
 
-compress/mode=0
+compress/mode=2
 compress/high_quality=false
 compress/lossy_quality=0.7
 compress/uastc_level=0
@@ -23,7 +25,7 @@ compress/rdo_quality_loss=0.0
 compress/hdr_compression=1
 compress/normal_map=0
 compress/channel_pack=0
-mipmaps/generate=false
+mipmaps/generate=true
 mipmaps/limit=-1
 roughness/mode=0
 roughness/src_normal=""

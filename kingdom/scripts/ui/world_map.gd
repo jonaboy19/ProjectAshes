@@ -21,9 +21,10 @@ const MapIcons := preload("res://scripts/ui/map_icons.gd")
 const Discovery := preload("res://scripts/sim/discovery.gd")
 
 const REGIONS_PATH := "res://data/world/regions.json"
-const TEX_SIZE := 1024                 # baked texture edge (fields are painted at half of this)
-const FOG_RES := 128                   # fog mask cells across the region
-const TRAVEL_SPEED := 30000.0          # metres per in-game hour (30 km/h)
+const TEX_SIZE := 1536                 # baked texture edge (fields are painted at half of this; 1024 for the 8 km world, same ~16 m per field cell at 12 km)
+const FOG_RES := 192                   # fog mask cells across the region (128 for the 8 km world)
+const TravelRules := preload("res://scripts/world/travel_rules.gd")
+## Fast travel is a coach between discovered waystations (travel_rules.gd): it costs gold and in-game hours.
 const MIN_TRAVEL := 60.0               # metres: closer than this you are already there
 const TAP_SLOP := 14.0
 const BORDER_MARGIN := 700.0           # how far past the region border you can pan (metres)
@@ -61,7 +62,7 @@ const ROAD_CASE := Color(0.23, 0.16, 0.07, 0.85)
 
 const KIND_LABELS := {
 	"castle": "Royal Capital", "frontier_town": "Frontier Hold", "fort": "Fort", "rift_outpost": "Rift Outpost",
-	"runestone": "Runestone", "rift": "The Rift", "tower_ruin": "Ancient Ruin", "hollow": "Hidden Hollow",
+	"runestone": "Runestone", "rift": "The Rift", "tower_ruin": "Ancient Ruin", "hollow": "Hidden Hollow", "academy": "Academy",
 }
 const BLURBS := {
 	"castle": "Seat of the crown. The King's Ember Road runs from here to Ashford.",
@@ -72,19 +73,21 @@ const BLURBS := {
 	"rift_outpost": "The last camp before the Rift.",
 	"rift": "A wound in the world. Nothing good comes out of it.",
 	"tower_ruin": "Crumbled stones of an older age.",
-	"waystation": "A roadside rest with a noticeboard and fast travel.",
+	"waystation": "A coach inn or roadhouse: a noticeboard, a tied horse, and a coach to any waystation you have found, for a fare.",
+	"ferry": "A lantern-lit landing. The ferryman rows to the other jetty and on to any landing or waystation you have found, for a fare.",
 	"bandit_camp": "Brigands watch the road from here.",
 	"goblin_warren": "A goblin warren. Best avoided.",
 	"orc_village": "An orc stronghold on the frontier.",
 	"mine": "An old mine in the northern hills.",
 	"bridge": "A stone crossing over the Ashrun.",
 	"watchfort": "A lookout tower over the valley.",
+	"academy": "Where the kingdom trains its knights, scholars and mages. Scouts ride out from here.",
 	"shrine": "A shrine to the Sleeping Flame.",
 	"ruined_shrine": "A shrine to the Sleeping Flame.",
 }
 const PRIORITY := {
 	"castle": 100, "capital": 100, "town": 80, "village": 70, "frontier_town": 65, "fort": 60, "rift": 58,
-	"rift_outpost": 55, "watchfort": 50, "lake": 30, "forest": 30, "river": 28, "farm": 10, "wayshrine": 15,
+	"rift_outpost": 55, "academy": 52, "watchfort": 50, "lake": 30, "forest": 30, "river": 28, "farm": 10, "wayshrine": 15,
 }
 const BIG_LABEL_KINDS := ["castle", "capital", "town", "village", "frontier_town", "fort", "rift", "rift_outpost"]
 
@@ -100,6 +103,14 @@ var player: Node3D
 var quest_target: Variant = null       # Vector2 or null
 ## Returns "" when fast travel is allowed, else the reason it is not.
 var travel_check: Callable = func() -> String: return ""
+## Set by the in-game tabbed menu (gamemenu/tab_map.gd) while it hosts this map inside
+## a tab: hides the map's own close button and leaves Esc / M to the menu.
+var embedded := false : set = set_embedded
+## Optional filter, Callable(place: Dictionary) -> bool: places it rejects are hidden and not tappable.
+var place_filter: Callable = Callable()
+## A player-placed marker (world Vector2, x/z) or null.
+var marker: Variant = null
+var _close_btn: Button
 
 var _zoom := 0.17                      # screen pixels per metre
 var _center := Vector2.ZERO
@@ -142,6 +153,9 @@ var _card_info: Label
 var _travel_btn: Button
 var _loading: Label
 var _legend_btn: Button
+var _layers: Array[Control] = []          # Region1 hook H6: painted layers (map_parchment_layer.gd)
+var _layered := false
+var _bake_labels := false
 
 
 func _ready() -> void:
@@ -677,6 +691,8 @@ func _fog_sources() -> Array:
 		var steps := maxi(1, int(a.distance_to(b) / 110.0))
 		for i in steps + 1:
 			src.append([a.lerp(b, float(i) / steps), 230.0])
+	if discovery != null:   # Hidden valley hook: areas revealed by exploration rewards
+		src.append_array(preload("res://scripts/world/region_pois.gd").reveal_sources(discovery))
 	if player and is_instance_valid(player):
 		src.append([_player_pos(), 340.0])
 	return src
@@ -754,7 +770,7 @@ func close() -> void:
 
 
 func _unhandled_input(e: InputEvent) -> void:
-	if not visible:
+	if not visible or embedded:
 		return
 	if e.is_action_pressed("ui_cancel") or e.is_action_pressed("world_map"):
 		close()
@@ -795,6 +811,51 @@ func focus_on(pos: Vector2, zoom: float) -> void:
 	_center = pos
 	_clamp_center()
 	queue_redraw()
+
+
+func set_embedded(on: bool) -> void:
+	embedded = on
+	if _close_btn:
+		_close_btn.visible = not on
+
+
+## Zooms about the centre of the view (factor > 1 zooms in).
+func zoom_by(factor: float) -> void:
+	_zoom_at(size * 0.5, factor)
+
+
+## Centres on the player.
+func focus_player() -> void:
+	focus_on(_player_pos(), maxf(_zoom, 0.55))
+
+
+func toggle_legend() -> void:
+	_legend_open = 0 if _legend_open == 1 else 1
+	queue_redraw()
+
+
+func is_legend_open() -> bool:
+	return _legend_open == 1
+
+
+## Puts the player marker at `pos` (world x/z), or removes it when `pos` is null.
+func place_marker(pos: Variant) -> void:
+	marker = pos
+	queue_redraw()
+
+
+## The place selected by the last tap ({} when none).
+func selected_place() -> Dictionary:
+	return _selected
+
+
+## The view centre in world metres.
+func view_center() -> Vector2:
+	return _center
+
+
+func _passes(pl: Dictionary) -> bool:
+	return not place_filter.is_valid() or bool(place_filter.call(pl))
 
 
 func to_screen(p: Vector2) -> Vector2:
@@ -907,9 +968,24 @@ func _gui_input(e: InputEvent) -> void:
 
 
 func _tap(pos: Vector2) -> void:
+	for group: Dictionary in _marker_groups():
+		if int(group.count) > 1 and to_screen(group.place.pos).distance_to(pos) < 28.0:
+			_center = group.place.pos
+			_zoom = minf(_max_zoom(), _zoom * 2.0)
+			_clamp_center()
+			queue_redraw()
+			return
 	var best := {}
 	var best_d := 34.0
+	var pickable: Array[Dictionary] = []
+	for group: Dictionary in _marker_groups():
+		pickable.append(group.place)
 	for pl: Dictionary in _shown:
+		if is_area(String(pl.kind)):
+			pickable.append(pl)
+	for pl: Dictionary in pickable:
+		if not _passes(pl):
+			continue
 		var d := to_screen(pl["pos"]).distance_to(pos)
 		if d < best_d:
 			best_d = d
@@ -969,24 +1045,30 @@ func _stone_visible(s: Dictionary) -> bool:
 
 func _draw() -> void:
 	var full := Rect2(Vector2.ZERO, size)
-	if _paper:
+	if not embedded:
+		draw_rect(full, Color("151923"))
+	elif _paper:
 		draw_texture_rect(_paper, full, false)
 	else:
 		draw_rect(full, PAPER_LIGHT)
 	_draw_neighbours()
 	var h := WorldGen.WORLD_HALF
 	var world_rect := Rect2(to_screen(Vector2(-h, -h)), Vector2(h, h) * 2.0 * _zoom)
-	if _texture:
+	_layered = _paint_layers()   # Region1 hook H6
+	if _layered:
+		pass
+	elif _texture:
 		draw_texture_rect(_texture, world_rect, false)
 		if _paper:
 			draw_texture_rect(_paper, world_rect, false, Color(1, 1, 1, 0.1))
 	else:
 		draw_rect(world_rect, Color("b9c98a"))
-	_draw_border()
-	_draw_rivers()
-	_draw_roads()
+	if not _layered:
+		_draw_border()
+		_draw_rivers()
+		_draw_roads()
 	_draw_runestones()
-	if _fog_texture:
+	if _fog_texture and not _layered:
 		var rr := _region_rect()
 		draw_texture_rect(_fog_texture, Rect2(to_screen(rr.position), rr.size * _zoom), false)
 	_draw_places()
@@ -995,6 +1077,13 @@ func _draw() -> void:
 		var pulse := 0.5 + 0.5 * sin(Time.get_ticks_msec() * 0.004)
 		draw_arc(q, 18.0 + pulse * 6.0, 0, TAU, 32, Color(MapIcons.RED, 0.6 * (1.0 - pulse)), 3.0, true)
 		MapIcons.draw_marker(self, "quest", q, 32.0)
+	if marker is Vector2:
+		var mk := to_screen(marker)
+		var pts := PackedVector2Array([mk + Vector2(0, -16), mk + Vector2(11, 0), mk + Vector2(0, 16), mk + Vector2(-11, 0)])
+		draw_colored_polygon(pts, Color("d8a84e"))
+		pts.append(pts[0])
+		draw_polyline(pts, INK, 2.0, true)
+		draw_circle(mk, 3.0, INK)
 	MapIcons.draw_player(self, to_screen(_player_pos()), 12.0 * clampf(0.8 + _zoom, 0.9, 1.4), _heading())
 	_draw_vignette(full)
 	_draw_plaque()
@@ -1002,6 +1091,25 @@ func _draw() -> void:
 	MapIcons.draw_rose(self, Vector2(64, size.y - 72), 30.0, _title_font)
 	if _legend_open == 1:
 		_draw_legend()
+
+
+## Region1 hook H6: adds a painted layer (scripts/ui/map_parchment_layer.gd). It paints under the icons via paint_under(self).
+func add_layer(l: Control) -> void:
+	_layers.append(l)
+	add_child(l)
+	if l.has_method("bind_map"):
+		l.call("bind_map", self)
+	queue_redraw()
+
+
+func _paint_layers() -> bool:
+	var done := false
+	_bake_labels = false
+	for l in _layers:
+		if l.visible and l.has_method("paint_under") and bool(l.call("paint_under", self)):
+			done = true
+			_bake_labels = _bake_labels or bool(l.get("bakes_labels"))
+	return done
 
 
 func _heading() -> float:
@@ -1030,26 +1138,28 @@ func _draw_border() -> void:
 
 
 func _draw_neighbours() -> void:
+	if embedded:
+		return     # War Room: the panel is wide and short, the whole 8 km region fills its height; no side strips
 	var view := Rect2(Vector2.ZERO, size)
 	for r: Dictionary in _neighbours:
 		var b: Rect2 = r["bounds"]
 		var sr := Rect2(to_screen(b.position), b.size * _zoom)
 		if not sr.intersects(view):
 			continue
-		draw_rect(sr, Color(0.62, 0.48, 0.28, 0.16))
-		draw_texture_rect(_hatch, sr, true)
-		draw_rect(sr, Color(INK, 0.35), false, 2.0)
+		draw_rect(sr, Color("1b2030"))
+		draw_rect(sr, Color(0.6, 0.65, 0.8, 0.12), false, 2.0)
 		var vis := sr.intersection(view)
 		if vis.size.x > 160.0 and vis.size.y > 60.0:
 			var c := vis.get_center()
 			var nm := String(r.get("name", "Unexplored lands")).to_upper()
 			var nw := nm.length() * 17.0
 			c.x = clampf(c.x, vis.position.x + nw * 0.5 + 8.0, maxf(vis.end.x - nw * 0.5 - 8.0, vis.position.x + nw * 0.5 + 8.0))
-			_draw_spaced(nm, c + Vector2(0, -4), 18, Color(INK, 0.55), 4.0)
+			_draw_spaced(nm, c + Vector2(0, -4), 18, Color(0.75, 0.79, 0.88, 0.5), 4.0)
 			var hint := String(r.get("hint", ""))
 			if hint != "":
 				var tw := _font.get_string_size(hint, HORIZONTAL_ALIGNMENT_LEFT, -1, 14).x
-				draw_string(_font, c + Vector2(-tw * 0.5, 22), hint, HORIZONTAL_ALIGNMENT_LEFT, -1, 14, Color(INK, 0.5))
+				if tw < vis.size.x - 24.0:
+					draw_string(_font, c + Vector2(-tw * 0.5, 22), hint, HORIZONTAL_ALIGNMENT_LEFT, -1, 14, Color(0.75, 0.79, 0.88, 0.4))
 
 
 func _draw_spaced(text: String, centre: Vector2, fs: int, col: Color, spacing: float, outline := false) -> void:
@@ -1126,9 +1236,16 @@ func _draw_places() -> void:
 	var view := Rect2(Vector2(-60, -60), size + Vector2(120, 120))
 	var sc := clampf(0.8 + _zoom * 0.9, 0.8, 1.4)
 	var used: Array[Rect2] = []
+	var groups := _marker_groups()
+	var represented: Dictionary = {}
+	for group: Dictionary in groups:
+		represented[group.place.id] = group.count
+		var marker_size := _icon_size(String(group.place.kind)) * sc
+		used.append(Rect2(to_screen(group.place.pos) - Vector2.ONE * marker_size * 0.55, Vector2.ONE * marker_size * 1.1))
+	used.append(Rect2(to_screen(_player_pos()) - Vector2(22, 22), Vector2(44, 44)))
 	# Settlement footprints first, so icons sit on top of them.
 	for pl: Dictionary in _shown:
-		if pl["category"] == "settlement":
+		if pl["category"] == "settlement" and _passes(pl):
 			var c := to_screen(pl["pos"])
 			var rr := float(pl["radius"]) * _zoom
 			if rr > 10.0:
@@ -1138,7 +1255,7 @@ func _draw_places() -> void:
 	var sizes := {}
 	for pl: Dictionary in _shown:
 		var kind := String(pl["kind"])
-		if is_area(kind):
+		if is_area(kind) or not _passes(pl) or not represented.has(pl.id):
 			continue
 		var c := to_screen(pl["pos"])
 		if not view.has_point(c):
@@ -1147,6 +1264,13 @@ func _draw_places() -> void:
 		sizes[pl["id"]] = s
 		var sel: bool = not _selected.is_empty() and _selected["id"] == pl["id"]
 		MapIcons.draw_marker(self, kind, c, s, bool(pl["hostile"]), sel)
+		if int(represented[pl.id]) > 1:
+			var badge := c + Vector2(s * 0.45, s * 0.4)
+			draw_circle(badge, 12.0, CREAM)
+			draw_arc(badge, 12.0, 0.0, TAU, 24, INK, 1.5, true)
+			var text := str(represented[pl.id])
+			var width := _font.get_string_size(text, HORIZONTAL_ALIGNMENT_LEFT, -1, 13).x
+			draw_string(_font, badge + Vector2(-width * 0.5, 4.5), text, HORIZONTAL_ALIGNMENT_LEFT, -1, 13, INK)
 		if pl["travel"]:
 			draw_circle(c + Vector2(s * 0.5, -s * 0.5), 5.0, MapIcons.TRAVEL)
 			draw_arc(c + Vector2(s * 0.5, -s * 0.5), 5.0, 0, TAU, 12, MapIcons.INK, 1.2, true)
@@ -1154,11 +1278,15 @@ func _draw_places() -> void:
 		var pl: Dictionary = _shown[i]
 		var kind := String(pl["kind"])
 		var c := to_screen(pl["pos"])
-		if not view.has_point(c):
+		if not view.has_point(c) or not _passes(pl):
 			continue
+		if _bake_labels and not (not _selected.is_empty() and _selected["id"] == pl["id"]):
+			continue      # Region1 hook H6: the parchment carries the names
 		var sel: bool = not _selected.is_empty() and _selected["id"] == pl["id"]
 		if is_area(kind):
 			_draw_area_label(pl, c, used)
+			continue
+		if not represented.has(pl.id):
 			continue
 		if not (kind in BIG_LABEL_KINDS or sel or _zoom > 0.3):
 			continue
@@ -1168,7 +1296,31 @@ func _draw_places() -> void:
 		var big := kind in ["castle", "capital"]
 		var fs := 22 if big else (17 if kind in ["town", "village", "frontier_town"] else 14)
 		var col := Color("7a1f1a") if big else (Color("5a2a0e") if not pl["hostile"] else Color("9a1f1f"))
-		_draw_label(String(pl["name"]), c + Vector2(0, s * 0.62 + fs * 0.9), fs, col, used, sel)
+		if not _draw_label(String(pl["name"]), c + Vector2(0, s * 0.62 + fs * 0.9), fs, col, used, sel):
+			_draw_label(String(pl["name"]), c + Vector2(0, -s * 0.65 - 8.0), fs, col, used, sel)
+
+
+## Cluster only already-visible places. Reuse this layout for drawing and touch
+## picking so an invisible icon cannot steal a tap. Zooming exposes members.
+func _marker_groups() -> Array[Dictionary]:
+	var result: Array[Dictionary] = []
+	var view := Rect2(Vector2(-60, -60), size + Vector2(120, 120))
+	for i in range(_shown.size() - 1, -1, -1):
+		var pl: Dictionary = _shown[i]
+		if is_area(String(pl.kind)) or not _passes(pl) or not view.has_point(to_screen(pl.pos)):
+			continue
+		var joined := false
+		if _zoom < 0.6 and (_selected.is_empty() or pl.id != _selected.id):
+			for group: Dictionary in result:
+				if not _selected.is_empty() and group.place.id == _selected.id:
+					continue
+				if to_screen(pl.pos).distance_to(to_screen(group.place.pos)) < 44.0:
+					group.count = int(group.count) + 1
+					joined = true
+					break
+		if not joined:
+			result.append({"place": pl, "count": 1})
+	return result
 
 
 func _icon_size(kind: String) -> float:
@@ -1176,23 +1328,24 @@ func _icon_size(kind: String) -> float:
 		"castle", "capital": return 50.0
 		"town": return 38.0
 		"village", "frontier_town": return 32.0
-		"fort", "rift", "rift_outpost", "watchfort": return 34.0
+		"fort", "rift", "rift_outpost", "watchfort", "academy": return 34.0
 		"farm": return 18.0
 		"wayshrine": return 22.0
 	return 28.0
 
 
-func _draw_label(text: String, anchor: Vector2, fs: int, col: Color, used: Array[Rect2], force := false) -> void:
+func _draw_label(text: String, anchor: Vector2, fs: int, col: Color, used: Array[Rect2], force := false) -> bool:
 	var tw := _title_font.get_string_size(text, HORIZONTAL_ALIGNMENT_LEFT, -1, fs).x
 	var rect := Rect2(anchor + Vector2(-tw * 0.5 - 3, -fs), Vector2(tw + 6, fs + 5))
 	if not force:
 		for u in used:
 			if u.intersects(rect):
-				return
+				return false
 	used.append(rect)
 	var p := anchor + Vector2(-tw * 0.5, 0)
 	draw_string_outline(_title_font, p, text, HORIZONTAL_ALIGNMENT_LEFT, -1, fs, 6, Color(CREAM, 0.92))
 	draw_string(_title_font, p, text, HORIZONTAL_ALIGNMENT_LEFT, -1, fs, col)
+	return true
 
 
 func _draw_area_label(pl: Dictionary, c: Vector2, used: Array[Rect2]) -> void:
@@ -1331,6 +1484,7 @@ func _build_chrome() -> void:
 	close_btn.offset_bottom = 94
 	close_btn.pressed.connect(close)
 	add_child(close_btn)
+	_close_btn = close_btn
 
 	var tools := VBoxContainer.new()
 	tools.add_theme_constant_override("separation", 10)
@@ -1485,7 +1639,7 @@ func _select(pl: Dictionary) -> void:
 		blurb = "Condition: %s (%d%%). Protects about %d m around it." % [cn, pct, int(st["radius"])]
 	elif pl["category"] == "settlement":
 		for s: Dictionary in WorldGen.settlements:
-			if String(s["name"]) == String(pl["name"]):
+			if String(pl.get("id", "")) == "settlement:%s" % s["name"] or String(s["name"]) == String(pl["name"]):   # Region1 world: aliased names (Greenhollow) still find their town
 				blurb = "%s  Home to about %d people." % [blurb, int(s["population"])]
 				break
 	if blurb != "":
@@ -1494,11 +1648,14 @@ func _select(pl: Dictionary) -> void:
 	if pl["travel"]:
 		var dist := _player_pos().distance_to(pl["travel_pos"])
 		var hours := travel_hours(dist)
+		var fare := TravelRules.fare(dist)
 		var reason := travel_check.call() as String if travel_check.is_valid() else ""
 		if reason == "" and dist < MIN_TRAVEL:
 			reason = "You are already here."
+		if reason == "":
+			reason = TravelRules.ride_block_reason(TravelRules.waystation_at(_player_pos(), WorldGen.sites), fare, Game.gold)
 		_travel_btn.disabled = reason != ""
-		_travel_btn.text = "Fast Travel  ·  %s" % fmt_hours(hours)
+		_travel_btn.text = "%s  ·  %s  ·  %d gold" % ["Ferry" if kind == "ferry" else "Coach", fmt_hours(hours), fare]
 		if reason != "":
 			info += "\n" + reason
 	_card_info.text = info
@@ -1526,7 +1683,7 @@ func _on_travel() -> void:
 
 
 static func travel_hours(distance: float) -> float:
-	return distance / TRAVEL_SPEED
+	return TravelRules.coach_hours(distance)
 
 
 static func fmt_hours(h: float) -> String:

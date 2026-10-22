@@ -1,0 +1,965 @@
+{
+ "source_type": "bvh",
+ "bvh_dir": "${ANIM_SRC}/cmu-mocap/data",
+ "ual": "../../../assets/incoming/quaternius/universal-animation-library/Unreal-Godot/UAL1_Standard.glb",
+ "out": "../../../assets/incoming/animations/life/UAL_Life_Mocap.glb",
+ "smooth": 0.015,
+ "fingers": "relaxed",
+ "finger_poses": {
+  "relaxed": [
+   "Idle_Loop",
+   0.0
+  ],
+  "fist": [
+   "Punch_Jab",
+   0.4
+  ]
+ },
+ "map": {
+  "pelvis": "Hips",
+  "spine_01": "LowerBack",
+  "spine_02": "Spine",
+  "spine_03": "Spine1",
+  "neck_01": "Neck",
+  "Head": "Head",
+  "clavicle_l": "LeftShoulder",
+  "upperarm_l": "LeftArm",
+  "lowerarm_l": "LeftForeArm",
+  "hand_l": "LeftHand",
+  "clavicle_r": "RightShoulder",
+  "upperarm_r": "RightArm",
+  "lowerarm_r": "RightForeArm",
+  "hand_r": "RightHand",
+  "thigh_l": "LeftUpLeg",
+  "calf_l": "LeftLeg",
+  "foot_l": "LeftFoot",
+  "ball_l": "LeftToeBase",
+  "thigh_r": "RightUpLeg",
+  "calf_r": "RightLeg",
+  "foot_r": "RightFoot",
+  "ball_r": "RightToeBase"
+ },
+ "heading": "mean",
+ "life_source": "CMU Graphics Lab Motion Capture Database (free, commercial use), BVH via cgspeed / una-dinosauria/cmu-mocap",
+ "clips": [
+  {
+   "name": "Life_Walk_Drunk",
+   "file": "091/91_09.bvh",
+   "start": 11.75,
+   "end": 16.0,
+   "take": "91_09",
+   "category": "walk/style",
+   "tags": [
+    "walk",
+    "drunk",
+    "tavern"
+   ],
+   "note": "staggering drunk walk, wide sway",
+   "heading": "mean",
+   "loop": true,
+   "loop_search": 0.9,
+   "loop_min": 1.2
+  },
+  {
+   "name": "Life_Walk_Limp",
+   "file": "091/91_16.bvh",
+   "start": 10.25,
+   "end": 14.5,
+   "take": "91_16",
+   "category": "walk/style",
+   "tags": [
+    "walk",
+    "injured",
+    "limp"
+   ],
+   "note": "limping walk (injured leg)",
+   "heading": "mean",
+   "loop": true,
+   "loop_search": 0.9,
+   "loop_min": 1.2
+  },
+  {
+   "name": "Life_Walk_Elder",
+   "file": "137/137_33.bvh",
+   "start": 3.25,
+   "end": 8.25,
+   "take": "137_33",
+   "category": "walk/style",
+   "tags": [
+    "walk",
+    "elder",
+    "slow"
+   ],
+   "note": "old man walk, slow shuffle, stooped",
+   "heading": "mean",
+   "loop": true,
+   "loop_search": 0.9,
+   "loop_min": 1.2
+  },
+  {
+   "name": "Life_Walk_Sad",
+   "file": "091/91_13.bvh",
+   "start": 16.0,
+   "end": 20.75,
+   "take": "91_13",
+   "category": "walk/style",
+   "tags": [
+    "walk",
+    "sad",
+    "mourning"
+   ],
+   "note": "slow sad walk, head down",
+   "heading": "mean",
+   "loop": true,
+   "loop_search": 0.9,
+   "loop_min": 1.2
+  },
+  {
+   "name": "Life_Walk_Happy",
+   "file": "104/104_11.bvh",
+   "start": 0.3,
+   "end": 4.3,
+   "take": "104_11",
+   "category": "walk/style",
+   "tags": [
+    "walk",
+    "happy",
+    "festival"
+   ],
+   "note": "happy-go-lucky bouncy walk",
+   "heading": "mean",
+   "loop": true,
+   "loop_search": 0.9,
+   "loop_min": 1.2
+  },
+  {
+   "name": "Life_Walk_Tired",
+   "file": "091/91_21.bvh",
+   "start": 22.75,
+   "end": 27.25,
+   "take": "91_21",
+   "category": "walk/style",
+   "tags": [
+    "walk",
+    "tired",
+    "night"
+   ],
+   "note": "tired, aching walk (end of day)",
+   "heading": "mean",
+   "loop": true,
+   "loop_search": 0.9,
+   "loop_min": 1.2
+  },
+  {
+   "name": "Life_Walk_Brisk",
+   "file": "091/91_22.bvh",
+   "start": 10.0,
+   "end": 14.5,
+   "take": "91_22",
+   "category": "walk/style",
+   "tags": [
+    "walk",
+    "brisk",
+    "errand"
+   ],
+   "note": "casual quick walk (errand pace)",
+   "heading": "mean",
+   "loop": true,
+   "loop_search": 0.9,
+   "loop_min": 1.2
+  },
+  {
+   "name": "Life_Walk_Careful",
+   "file": "091/91_18.bvh",
+   "start": 18.75,
+   "end": 23.25,
+   "take": "91_18",
+   "category": "walk/style",
+   "tags": [
+    "walk",
+    "careful",
+    "sneak"
+   ],
+   "note": "careful walk looking around",
+   "heading": "mean",
+   "loop": true,
+   "loop_search": 0.9,
+   "loop_min": 1.2
+  },
+  {
+   "name": "Life_Walk_March",
+   "file": "138/138_01.bvh",
+   "start": 2.0,
+   "end": 6.5,
+   "take": "138_01",
+   "category": "walk/style",
+   "tags": [
+    "walk",
+    "march",
+    "guard"
+   ],
+   "note": "marching (guards, procession)",
+   "heading": "mean",
+   "loop": true,
+   "loop_search": 0.9,
+   "loop_min": 1.2
+  },
+  {
+   "name": "Life_Walk_Proud",
+   "file": "091/91_33.bvh",
+   "start": 6.0,
+   "end": 10.5,
+   "take": "91_33",
+   "category": "walk/style",
+   "tags": [
+    "walk",
+    "proud",
+    "noble"
+   ],
+   "note": "macho / proud strut",
+   "heading": "mean",
+   "loop": true,
+   "loop_search": 0.9,
+   "loop_min": 1.2
+  },
+  {
+   "name": "Life_Mocap_Chop_Wood",
+   "file": "079/79_01.bvh",
+   "start": 0.4,
+   "end": 4.65,
+   "take": "79_01",
+   "category": "work/chore",
+   "tags": [
+    "axe",
+    "wood",
+    "pantomime"
+   ],
+   "note": "mimed two-hand chop x2; hands hold the axe grip (no prop in the take)",
+   "heading": "mean",
+   "fingers": "fist"
+  },
+  {
+   "name": "Life_Mocap_Dig",
+   "file": "079/79_04.bvh",
+   "start": 0.4,
+   "end": 4.7,
+   "take": "79_04",
+   "category": "work/farm",
+   "tags": [
+    "shovel",
+    "dig",
+    "pantomime"
+   ],
+   "note": "mimed digging x3, bent forward",
+   "heading": "mean",
+   "fingers": "fist"
+  },
+  {
+   "name": "Life_Mocap_Rake",
+   "file": "079/79_87.bvh",
+   "start": 0.4,
+   "end": 6.3,
+   "take": "79_87",
+   "category": "work/farm",
+   "tags": [
+    "rake",
+    "hoe",
+    "pantomime"
+   ],
+   "note": "mimed raking strokes",
+   "heading": "mean",
+   "fingers": "fist"
+  },
+  {
+   "name": "Life_Mocap_Plant",
+   "file": "079/79_26.bvh",
+   "start": 0.4,
+   "end": 8.4,
+   "take": "79_26",
+   "category": "work/farm",
+   "tags": [
+    "plant",
+    "sow",
+    "pantomime"
+   ],
+   "note": "mimed planting a tree / seedling: bend, place, pat down",
+   "heading": "mean"
+  },
+  {
+   "name": "Life_Mocap_Sweep",
+   "file": "079/79_55.bvh",
+   "start": 0.4,
+   "end": 5.05,
+   "take": "79_55",
+   "category": "work/chore",
+   "tags": [
+    "broom",
+    "sweep",
+    "pantomime"
+   ],
+   "note": "mimed sweeping strokes",
+   "heading": "mean",
+   "fingers": "fist"
+  },
+  {
+   "name": "Life_Mocap_Saw",
+   "file": "062/62_03.bvh",
+   "start": 4.0,
+   "end": 9.6,
+   "take": "62_03",
+   "category": "work/craft",
+   "tags": [
+    "saw",
+    "carpenter"
+   ],
+   "note": "hand saw stroke cycle, bent over the work",
+   "heading": "mean",
+   "fingers": "fist",
+   "loop": true,
+   "loop_search": 0.9,
+   "loop_min": 1.2
+  },
+  {
+   "name": "Life_Mocap_Hammer_Nail",
+   "file": "062/62_07.bvh",
+   "start": 3.0,
+   "end": 8.8,
+   "take": "62_07",
+   "category": "work/craft",
+   "tags": [
+    "hammer",
+    "nail",
+    "carpenter"
+   ],
+   "note": "hammering a nail, bent over the work",
+   "heading": "mean",
+   "fingers": "fist",
+   "loop": true,
+   "loop_search": 0.9,
+   "loop_min": 1.2
+  },
+  {
+   "name": "Life_Mocap_Stir",
+   "file": "079/79_13.bvh",
+   "start": 0.5,
+   "end": 5.2,
+   "take": "79_13",
+   "category": "work/chore",
+   "tags": [
+    "stir",
+    "cook",
+    "pantomime"
+   ],
+   "note": "mixing batter in a bowl (one hand steadies the bowl)",
+   "heading": "mean",
+   "fingers": "fist",
+   "loop": true,
+   "loop_search": 0.9,
+   "loop_min": 1.2
+  },
+  {
+   "name": "Life_Mocap_Slice",
+   "file": "079/79_09.bvh",
+   "start": 0.4,
+   "end": 6.7,
+   "take": "79_09",
+   "category": "work/chore",
+   "tags": [
+    "knife",
+    "bread",
+    "cook",
+    "pantomime"
+   ],
+   "note": "slicing bread",
+   "heading": "mean",
+   "fingers": "fist"
+  },
+  {
+   "name": "Life_Mocap_Carry_Heavy",
+   "file": "070/70_05.bvh",
+   "start": 0.6,
+   "end": 7.3,
+   "take": "70_05",
+   "category": "work/chore",
+   "tags": [
+    "carry",
+    "heavy",
+    "case",
+    "walk"
+   ],
+   "note": "walk carrying a 19.5 lb case in one hand; speed_mps is the in-place cycle speed",
+   "heading": "mean",
+   "fingers": "fist",
+   "loop": true,
+   "loop_search": 0.9,
+   "loop_min": 1.2
+  },
+  {
+   "name": "Life_Mocap_Move_Box",
+   "file": "079/79_25.bvh",
+   "start": 0.4,
+   "end": 4.75,
+   "take": "79_25",
+   "category": "work/chore",
+   "tags": [
+    "box",
+    "lift",
+    "pantomime"
+   ],
+   "note": "mimed lifting and moving a heavy box",
+   "heading": "mean"
+  },
+  {
+   "name": "Life_Mocap_Pick_Place",
+   "file": "069/69_70.bvh",
+   "start": 0.6,
+   "end": 8.4,
+   "take": "69_70",
+   "category": "work/chore",
+   "tags": [
+    "pick",
+    "place",
+    "squat"
+   ],
+   "note": "walk up, squat, pick an object up and set it down elsewhere",
+   "heading": "mean"
+  },
+  {
+   "name": "Life_Mocap_Pay",
+   "file": "080/80_06.bvh",
+   "start": 0.3,
+   "end": 7.7,
+   "take": "80_06",
+   "category": "work/trade",
+   "tags": [
+    "pay",
+    "coin",
+    "market"
+   ],
+   "note": "paying for something (hand over payment)",
+   "heading": "mean"
+  },
+  {
+   "name": "Life_Mocap_Buy",
+   "file": "079/79_16.bvh",
+   "start": 0.4,
+   "end": 5.7,
+   "take": "79_16",
+   "category": "work/trade",
+   "tags": [
+    "buy",
+    "market",
+    "pantomime"
+   ],
+   "note": "buying something, take and thank",
+   "heading": "mean"
+  },
+  {
+   "name": "Life_Mocap_Eat_Table",
+   "file": "079/79_12.bvh",
+   "start": 0.4,
+   "end": 8.25,
+   "take": "79_12",
+   "category": "eat",
+   "tags": [
+    "eat",
+    "table",
+    "meal"
+   ],
+   "note": "eating dinner at a table (standing pose, hands to mouth)",
+   "heading": "mean"
+  },
+  {
+   "name": "Life_Mocap_Eat_Soup",
+   "file": "079/79_42.bvh",
+   "start": 0.4,
+   "end": 6.35,
+   "take": "79_42",
+   "category": "eat",
+   "tags": [
+    "eat",
+    "soup",
+    "spoon"
+   ],
+   "note": "eating soup with a spoon",
+   "heading": "mean"
+  },
+  {
+   "name": "Life_Mocap_Chug",
+   "file": "079/79_33.bvh",
+   "start": 0.4,
+   "end": 4.6,
+   "take": "79_33",
+   "category": "eat",
+   "tags": [
+    "drink",
+    "mug",
+    "tavern"
+   ],
+   "note": "chug a beer from a mug",
+   "heading": "mean"
+  },
+  {
+   "name": "Life_Mocap_Drink",
+   "file": "079/79_38.bvh",
+   "start": 0.4,
+   "end": 4.25,
+   "take": "79_38",
+   "category": "eat",
+   "tags": [
+    "drink",
+    "cup",
+    "water"
+   ],
+   "note": "drinking water from a cup",
+   "heading": "mean"
+  },
+  {
+   "name": "Life_Mocap_Fiddle",
+   "file": "079/79_17.bvh",
+   "start": 1.0,
+   "end": 6.5,
+   "take": "79_17",
+   "category": "music",
+   "tags": [
+    "fiddle",
+    "violin",
+    "music"
+   ],
+   "note": "playing a violin/fiddle",
+   "heading": "mean",
+   "loop": true,
+   "loop_search": 0.9,
+   "loop_min": 1.2
+  },
+  {
+   "name": "Life_Mocap_Fish",
+   "file": "079/79_34.bvh",
+   "start": 0.4,
+   "end": 5.95,
+   "take": "79_34",
+   "category": "work/farm",
+   "tags": [
+    "fish",
+    "rod",
+    "pantomime"
+   ],
+   "note": "fishing: cast and reel",
+   "heading": "mean"
+  },
+  {
+   "name": "Life_Mocap_Sit_Stool_Enter",
+   "file": "014/14_31.bvh",
+   "start": 1.0,
+   "end": 3.4,
+   "take": "14_31",
+   "category": "rest/sit",
+   "tags": [
+    "sit",
+    "stool",
+    "enter"
+   ],
+   "note": "stand -> sit on a low stool (seat height ~0.45 m)",
+   "heading": "mean",
+   "life_exit": "Life_Mocap_Sit_Stool_Idle"
+  },
+  {
+   "name": "Life_Mocap_Sit_Stool_Idle",
+   "file": "014/14_31.bvh",
+   "start": 3.4,
+   "end": 7.1,
+   "take": "14_31",
+   "category": "rest/sit",
+   "tags": [
+    "sit",
+    "stool",
+    "idle"
+   ],
+   "note": "seated idle on a low stool (seat ~0.45 m), small fidgets",
+   "heading": "mean",
+   "loop": true,
+   "loop_search": 0.9,
+   "loop_min": 1.2
+  },
+  {
+   "name": "Life_Mocap_Sit_Stool_Exit",
+   "file": "014/14_31.bvh",
+   "start": 7.1,
+   "end": 8.4,
+   "take": "14_31",
+   "category": "rest/sit",
+   "tags": [
+    "sit",
+    "stool",
+    "exit"
+   ],
+   "note": "sit -> stand up from a low stool",
+   "heading": "mean"
+  },
+  {
+   "name": "Life_Mocap_Handshake_A",
+   "file": "018/18_01.bvh",
+   "start": 0.1,
+   "end": 2.4,
+   "take": "18_01",
+   "category": "social/pair",
+   "tags": [
+    "handshake",
+    "greet",
+    "pair"
+   ],
+   "note": "walk up and shake hands (subject A)",
+   "heading": "mean",
+   "pair_key": "handshake"
+  },
+  {
+   "name": "Life_Mocap_Handshake_B",
+   "file": "019/19_01.bvh",
+   "start": 0.1,
+   "end": 2.4,
+   "take": "19_01",
+   "category": "social/pair",
+   "tags": [
+    "handshake",
+    "greet",
+    "pair"
+   ],
+   "note": "walk up and shake hands (subject B)",
+   "heading": "mean",
+   "pair_key": "handshake"
+  },
+  {
+   "name": "Life_Mocap_Converse_A",
+   "file": "018/18_08.bvh",
+   "start": 3.0,
+   "end": 8.0,
+   "take": "18_08",
+   "category": "social/talk",
+   "tags": [
+    "talk",
+    "converse",
+    "pair"
+   ],
+   "note": "explaining with hand gestures (A)",
+   "heading": "mean",
+   "pair_key": "converse",
+   "loop": true,
+   "loop_search": 0.04,
+   "loop_min": 1.0
+  },
+  {
+   "name": "Life_Mocap_Converse_B",
+   "file": "019/19_08.bvh",
+   "start": 3.0,
+   "end": 8.0,
+   "take": "19_08",
+   "category": "social/talk",
+   "tags": [
+    "talk",
+    "converse",
+    "pair"
+   ],
+   "note": "listening / answering with gestures (B)",
+   "heading": "mean",
+   "pair_key": "converse",
+   "loop": true,
+   "loop_search": 0.04,
+   "loop_min": 1.0
+  },
+  {
+   "name": "Life_Mocap_Quarrel_A",
+   "file": "018/18_10.bvh",
+   "start": 3.0,
+   "end": 8.0,
+   "take": "18_10",
+   "category": "social/pair",
+   "tags": [
+    "quarrel",
+    "angry",
+    "pair"
+   ],
+   "note": "quarrel with angry hand gestures (A)",
+   "heading": "mean",
+   "pair_key": "quarrel",
+   "loop": true,
+   "loop_search": 0.04,
+   "loop_min": 1.0
+  },
+  {
+   "name": "Life_Mocap_Quarrel_B",
+   "file": "019/19_10.bvh",
+   "start": 3.0,
+   "end": 8.0,
+   "take": "19_10",
+   "category": "social/pair",
+   "tags": [
+    "quarrel",
+    "angry",
+    "pair"
+   ],
+   "note": "quarrel with angry hand gestures (B)",
+   "heading": "mean",
+   "pair_key": "quarrel",
+   "loop": true,
+   "loop_search": 0.04,
+   "loop_min": 1.0
+  },
+  {
+   "name": "Life_Mocap_Comfort_A",
+   "file": "022/22_03.bvh",
+   "start": 0.2,
+   "end": 6.3,
+   "take": "22_03",
+   "category": "social/pair",
+   "tags": [
+    "comfort",
+    "sit",
+    "pair"
+   ],
+   "note": "A sits (high stool/bench, hip ~0.68 m) holding face in hands",
+   "heading": "mean",
+   "pair_key": "comfort"
+  },
+  {
+   "name": "Life_Mocap_Comfort_B",
+   "file": "023/23_03.bvh",
+   "start": 0.2,
+   "end": 6.3,
+   "take": "23_03",
+   "category": "social/pair",
+   "tags": [
+    "comfort",
+    "kneel",
+    "pair"
+   ],
+   "note": "B kneels next to A and comforts",
+   "heading": "mean",
+   "pair_key": "comfort"
+  },
+  {
+   "name": "Life_Mocap_Laugh",
+   "file": "079/79_70.bvh",
+   "start": 0.4,
+   "end": 6.2,
+   "take": "79_70",
+   "category": "social/react",
+   "tags": [
+    "laugh",
+    "react",
+    "pantomime"
+   ],
+   "note": "laughing, doubling over (take 79_70 replaces 13_14, which is not a laugh)",
+   "heading": "mean"
+  },
+  {
+   "name": "Life_Mocap_Direct_Wave",
+   "file": "014/14_24.bvh",
+   "start": 0.4,
+   "end": 5.0,
+   "take": "14_24",
+   "category": "social/react",
+   "tags": [
+    "wave",
+    "direct",
+    "beckon"
+   ],
+   "note": "direct traffic: hand out then beckon (substitute for 13_27, a stylised dance-like take)",
+   "heading": "mean"
+  },
+  {
+   "name": "Life_Mocap_Directions",
+   "file": "139/139_25.bvh",
+   "start": 0.3,
+   "end": 5.2,
+   "take": "139_25",
+   "category": "social/talk",
+   "tags": [
+    "directions",
+    "point",
+    "talk"
+   ],
+   "note": "giving directions, pointing",
+   "heading": "mean"
+  },
+  {
+   "name": "Life_Mocap_Cry",
+   "file": "079/79_72.bvh",
+   "start": 0.4,
+   "end": 7.6,
+   "take": "79_72",
+   "category": "social/react",
+   "tags": [
+    "cry",
+    "sad",
+    "pantomime"
+   ],
+   "note": "crying",
+   "heading": "mean"
+  },
+  {
+   "name": "Life_Mocap_Sad",
+   "file": "079/79_71.bvh",
+   "start": 0.4,
+   "end": 8.7,
+   "take": "79_71",
+   "category": "social/react",
+   "tags": [
+    "sad",
+    "pantomime"
+   ],
+   "note": "sad, slumped",
+   "heading": "mean"
+  },
+  {
+   "name": "Life_Mocap_Happy",
+   "file": "079/79_69.bvh",
+   "start": 0.4,
+   "end": 6.5,
+   "take": "79_69",
+   "category": "social/react",
+   "tags": [
+    "happy",
+    "cheer",
+    "pantomime"
+   ],
+   "note": "very happy",
+   "heading": "mean"
+  },
+  {
+   "name": "Life_Mocap_Teach",
+   "file": "080/80_14.bvh",
+   "start": 1.0,
+   "end": 8.0,
+   "take": "80_14",
+   "category": "social/talk",
+   "tags": [
+    "teach",
+    "lecture"
+   ],
+   "note": "teaching / lecturing with gestures",
+   "heading": "mean"
+  },
+  {
+   "name": "Life_Mocap_Wave_Hello",
+   "file": "141/141_16.bvh",
+   "start": 0.1,
+   "end": 2.4,
+   "take": "141_16",
+   "category": "social/react",
+   "tags": [
+    "wave",
+    "hello",
+    "greet"
+   ],
+   "note": "wave hello",
+   "heading": "mean"
+  },
+  {
+   "name": "Life_Mocap_Cold",
+   "file": "079/79_68.bvh",
+   "start": 0.4,
+   "end": 9.4,
+   "take": "79_68",
+   "category": "ambient/weather",
+   "tags": [
+    "cold",
+    "shiver",
+    "pantomime"
+   ],
+   "note": "shivering, hugging arms",
+   "heading": "mean"
+  },
+  {
+   "name": "Life_Mocap_Stretch_Yawn",
+   "file": "141/141_13.bvh",
+   "start": 0.2,
+   "end": 2.9,
+   "take": "141_13",
+   "category": "ambient/fidget",
+   "tags": [
+    "stretch",
+    "yawn"
+   ],
+   "note": "stretch and yawn",
+   "heading": "mean"
+  },
+  {
+   "name": "Life_Mocap_Look_Around",
+   "file": "139/139_01.bvh",
+   "start": 0.3,
+   "end": 7.0,
+   "take": "139_01",
+   "category": "ambient/fidget",
+   "tags": [
+    "look",
+    "idle"
+   ],
+   "note": "looking around",
+   "heading": "mean"
+  },
+  {
+   "name": "Life_Mocap_Shift_Weight",
+   "file": "139/139_02.bvh",
+   "start": 0.5,
+   "end": 7.5,
+   "take": "139_02",
+   "category": "ambient/fidget",
+   "tags": [
+    "idle",
+    "shift"
+   ],
+   "note": "shifting weight, standing idle",
+   "heading": "mean",
+   "loop": true,
+   "loop_search": 0.9,
+   "loop_min": 1.2
+  },
+  {
+   "name": "Life_Mocap_Hopscotch",
+   "file": "075/75_13.bvh",
+   "start": 0.1,
+   "end": 3.0,
+   "take": "75_13",
+   "category": "kid/play",
+   "tags": [
+    "hopscotch",
+    "child",
+    "hop"
+   ],
+   "note": "hopscotch hops",
+   "heading": "mean"
+  },
+  {
+   "name": "Life_Mocap_Tag_Bluff",
+   "file": "020/20_13.bvh",
+   "start": 1.5,
+   "end": 6.5,
+   "take": "20_13",
+   "category": "kid/play",
+   "tags": [
+    "tag",
+    "bluff",
+    "child"
+   ],
+   "note": "blind man's bluff, groping with arms out",
+   "heading": "mean"
+  },
+  {
+   "name": "Life_Mocap_Skip",
+   "file": "056/56_06.bvh",
+   "start": 29.6,
+   "end": 33.0,
+   "take": "56_06",
+   "category": "kid/play",
+   "tags": [
+    "skip",
+    "child"
+   ],
+   "note": "skipping (from the vignette take 56_06)",
+   "heading": "mean",
+   "loop": true,
+   "loop_search": 0.9,
+   "loop_min": 1.2
+  }
+ ]
+}

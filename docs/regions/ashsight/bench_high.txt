@@ -1,0 +1,10 @@
+ASHSIGHT_FARM frames=1802 ghosts_max=6 path_error_max=0.253 m (b4) tier=2
+ASHSIGHT_FARM view.step avg=0.3395 ms worst=3.7520 ms (budget 0.30 ms, 1467 frames, tier=2)
+ASHSIGHT_FARM   parts per frame: animation=0.1436 ms look/materials=0.0085 ms particles=0.0117 ms (sum over all ghosts)
+ASHSIGHT_FARM   spikes over 1.5 ms: t=12.50 3.20ms active=6, t=12.74 3.75ms active=6, t=13.37 3.61ms active=6
+ASHSIGHT_FARM   AnimationPlayer.advance/seek: 0.0994 ms per frame, 2.0 calls per frame, 50.2 us per call
+ASHSIGHT_FARM   positions_at=0.0699 ms terrain height callable=0.0157 ms (per frame, sandbox noise terrain)
+ASHSIGHT_FARM TIME_PROCESS baseline=32.949 ms replay=14.638 ms delta=-18.311 ms
+ASHSIGHT_FARM render gpu baseline=0.958 ms replay=3.155 ms delta=2.197 ms | cpu baseline=0.575 replay=0.704
+ASHSIGHT_FARM draw calls (last frame)=102 primitives=373092
+ASHSIGHT_FARM OK

@@ -41,9 +41,19 @@ func _pass(d: Node3D, my: int, mode: int) -> void:
 	d.say("foot IK: %s   (%s)" % [["OFF (raw clip)", "ProceduralRig (ankle probe)", "anim_tech FootIK (ankle + toe probe)"][mode], clip])
 	d.set_cam(Vector3(X_START, 1.0, 5.0), Vector3(X_START + 0.5, 0.7, 0.0), 38.0)
 	var balls := [sk.find_bone("ball_l"), sk.find_bone("ball_r")]
+	# Modifier output (IK) is only visible inside skeleton_updated, not via get_bone_global_pose() later.
+	var tap: Array[Vector3] = [Vector3.ZERO, Vector3.ZERO]
+	var tap_ankle: Array[float] = [0.0, 0.0]
+	sk.skeleton_updated.connect(func() -> void:
+		for k in 2:
+			tap[k] = sk.global_transform * sk.get_bone_global_pose(balls[k]).origin
+			tap_ankle[k] = (sk.global_transform * sk.get_bone_global_pose(sk.find_bone("foot_l" if k == 0 else "foot_r")).origin).y)
 	var snaps: Array = SNAPS.duplicate()
 	var worst_sink := 0.0
 	var worst_hover := 0.0
+	var worst_log: Array[String] = []
+	var hover := 0
+	var bad_exact := 0     # penetration measured against the surface exactly under the ball (strict at step edges)
 	var samples := 0
 	var bad := 0
 	var offs: Array[float] = []
@@ -64,15 +74,21 @@ func _pass(d: Node3D, my: int, mode: int) -> void:
 		d.cam.look_at(Vector3(d.cam.position.x, 0.6 + y * 0.8, 0.0))
 		if actor.position.x > -1.5:
 			for i in 2:
-				var p: Vector3 = sk.global_transform * sk.get_bone_global_pose(balls[i]).origin
+				var p: Vector3 = tap[i]
 				var speed := p.distance_to(last_ball[i]) / maxf(dt, 0.0001)
 				last_ball[i] = p
 				if speed < 0.35:   # planted: it should sit on the surface
 					var off := p.y - minf(U.ground_y(world, p + Vector3(0.04, 0, 0), 0.0), U.ground_y(world, p - Vector3(0.04, 0, 0), 0.0))
 					if actor.position.x > 0.2 and actor.position.x < 6.6:
 						offs.append(off)
+						if off > 0.08:
+							hover += 1
+						if p.y - U.ground_y(world, p, 0.0) < -0.02:
+							bad_exact += 1
 						if off < -0.02:
 							bad += 1
+							if off < -0.05 and worst_log.size() < 6:
+								worst_log.append("x=%.2f ball=(%.2f,%.2f) off=%.3f ankle_y=%.2f" % [actor.position.x, p.x, p.y, off, tap_ankle[i]])
 					worst_sink = minf(worst_sink, off)
 					worst_hover = maxf(worst_hover, off)
 					sum_abs += absf(off - 0.03)
@@ -82,7 +98,9 @@ func _pass(d: Node3D, my: int, mode: int) -> void:
 			await d.snap()
 	offs.sort()
 	var n := maxi(offs.size(), 1)
-	print("[foot_ik] mode=%s planted ball height above surface (m): p5 %.3f  p50 %.3f  p95 %.3f  (n=%d; target ~0.03) toe-in-surface >2cm: %d%% of stair+ramp samples" % [NAMES[mode], offs[int(n * 0.05)], offs[int(n * 0.5)], offs[mini(int(n * 0.95), n - 1)], offs.size(), 100 * bad / n])
+	print("[foot_ik] mode=%s planted ball height above surface (m): p5 %.3f  p50 %.3f  p95 %.3f  (n=%d; target ~0.03) toe-in-surface >2cm: %d%% (exact-under-ball: %d%%), hovering >8cm: %d%% of stair+ramp samples" % [NAMES[mode], offs[int(n * 0.05)], offs[int(n * 0.5)], offs[mini(int(n * 0.95), n - 1)], offs.size(), 100 * bad / n, 100 * bad_exact / n, 100 * hover / n])
+	for w in worst_log:
+		print("[foot_ik]   worst ", w)
 	d.write_strip("foot_ik_" + NAMES[mode], 4)
 	if rig:
 		rig.queue_free()

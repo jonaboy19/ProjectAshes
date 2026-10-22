@@ -10,6 +10,13 @@ Repo: `C:\Users\Jonna\Documents\ProjectAshes` (GitHub jonaboy19/ProjectAshes), b
 - the **Codex session** (branch `gpt/ai3d-assets`, merged in regularly): **all animation behaviour** (locomotion speed, foot slide, clip choice, blend times). Don't touch animation code;
 - the **local PC session** (this one, with GPU, Blender, Godot and Meshy): assets, optimization and **frame rate**, QA tools, store kit, release.
 
+## Ownership update 2026-10-21 (owner decision; supersedes the Codex-animation line above, history kept)
+Three AI teams now share the project:
+- **Antigravity** = all animation and everything revolving around it (clips, AnimationTree, reaction mapping, locomotion/combat feel, mocap). It replaces "Codex = animation" above. Handoff: `docs/HANDOFF_ANTIGRAVITY.md`.
+- **Codex** = the world: terrain, towns, dressing, environment, world VFX. Handoff: `docs/HANDOFF_CODEX_WORLD.md`.
+- **Cloud Claude** = systems, simulation, saves, tests (and answers hook requests in those two files). **Local PC Claude** = GPU checks, performance, release.
+- Don't change another team's code: write a dated request in their handoff file instead. Project map: `docs/PROJECT_BIBLE.md`.
+
 ## Start of every session
 1. `git fetch && git merge --no-edit origin/claude/focused-curie-m09hbd`.
 2. Read `docs/LOCAL_SESSION_HANDOFF.md` (who owns what, what's ready, requests).

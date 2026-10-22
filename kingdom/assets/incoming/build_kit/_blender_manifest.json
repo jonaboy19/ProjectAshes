@@ -1,0 +1,879 @@
+{
+ "wall_plaster": {
+  "tris_lod0": 104,
+  "aabb_min": [
+   -1.0,
+   0.0,
+   -0.12
+  ],
+  "aabb_max": [
+   1.0,
+   3.0,
+   0.12
+  ],
+  "materials": [
+   "kit_plaster",
+   "kit_timber"
+  ]
+ },
+ "wall_plaster_window": {
+  "tris_lod0": 272,
+  "aabb_min": [
+   -1.0,
+   0.0,
+   -0.2
+  ],
+  "aabb_max": [
+   1.0,
+   3.0,
+   0.2
+  ],
+  "materials": [
+   "kit_plaster",
+   "kit_timber",
+   "kit_plank",
+   "kit_iron"
+  ]
+ },
+ "wall_plaster_door": {
+  "tris_lod0": 176,
+  "aabb_min": [
+   -1.0,
+   0.0,
+   -0.13
+  ],
+  "aabb_max": [
+   1.0,
+   3.0,
+   0.13
+  ],
+  "materials": [
+   "kit_plaster",
+   "kit_timber"
+  ]
+ },
+ "wall_stone": {
+  "tris_lod0": 432,
+  "aabb_min": [
+   -1.0,
+   0.0,
+   -0.132
+  ],
+  "aabb_max": [
+   1.0,
+   3.0,
+   0.132
+  ],
+  "materials": [
+   "kit_stone"
+  ]
+ },
+ "wall_stone_window": {
+  "tris_lod0": 644,
+  "aabb_min": [
+   -1.0,
+   0.0,
+   -0.17
+  ],
+  "aabb_max": [
+   1.0,
+   3.0,
+   0.19
+  ],
+  "materials": [
+   "kit_stone",
+   "kit_timber",
+   "kit_plank",
+   "kit_iron"
+  ]
+ },
+ "wall_stone_door": {
+  "tris_lod0": 412,
+  "aabb_min": [
+   -1.0,
+   0.0,
+   -0.14
+  ],
+  "aabb_max": [
+   1.0,
+   3.0,
+   0.14
+  ],
+  "materials": [
+   "kit_stone",
+   "kit_timber"
+  ]
+ },
+ "wall_log": {
+  "tris_lod0": 280,
+  "aabb_min": [
+   -1.15,
+   -0.0,
+   -0.12
+  ],
+  "aabb_max": [
+   1.15,
+   3.0,
+   0.12
+  ],
+  "materials": [
+   "kit_log"
+  ]
+ },
+ "wall_log_window": {
+  "tris_lod0": 432,
+  "aabb_min": [
+   -1.15,
+   -0.0,
+   -0.16
+  ],
+  "aabb_max": [
+   1.15,
+   3.0,
+   0.16
+  ],
+  "materials": [
+   "kit_log",
+   "kit_timber"
+  ]
+ },
+ "wall_log_door": {
+  "tris_lod0": 560,
+  "aabb_min": [
+   -1.15,
+   -0.0,
+   -0.12
+  ],
+  "aabb_max": [
+   1.15,
+   3.0,
+   0.12
+  ],
+  "materials": [
+   "kit_log",
+   "kit_timber"
+  ]
+ },
+ "wall_half_stone": {
+  "tris_lod0": 164,
+  "aabb_min": [
+   -1.0,
+   0.0,
+   -0.16
+  ],
+  "aabb_max": [
+   1.0,
+   1.2,
+   0.16
+  ],
+  "materials": [
+   "kit_stone"
+  ]
+ },
+ "foundation_stone": {
+  "tris_lod0": 304,
+  "aabb_min": [
+   -1.011,
+   -0.5,
+   -1.01
+  ],
+  "aabb_max": [
+   1.01,
+   0.5,
+   1.012
+  ],
+  "materials": [
+   "kit_stone"
+  ]
+ },
+ "foundation_timber": {
+  "tris_lod0": 248,
+  "aabb_min": [
+   -1.0,
+   -0.5,
+   -1.0
+  ],
+  "aabb_max": [
+   1.0,
+   0.5,
+   1.0
+  ],
+  "materials": [
+   "kit_timber",
+   "kit_plank"
+  ]
+ },
+ "floor_plank": {
+  "tris_lod0": 84,
+  "aabb_min": [
+   -1.0,
+   -0.15,
+   -1.0
+  ],
+  "aabb_max": [
+   1.0,
+   0.0,
+   1.0
+  ],
+  "materials": [
+   "kit_plank",
+   "kit_timber"
+  ]
+ },
+ "floor_jetty": {
+  "tris_lod0": 156,
+  "aabb_min": [
+   -1.0,
+   -0.85,
+   -1.5
+  ],
+  "aabb_max": [
+   1.0,
+   0.0,
+   1.0
+  ],
+  "materials": [
+   "kit_plank",
+   "kit_timber"
+  ]
+ },
+ "stairs_wood": {
+  "tris_lod0": 404,
+  "aabb_min": [
+   -1.0,
+   -0.09,
+   -2.09
+  ],
+  "aabb_max": [
+   1.0,
+   3.95,
+   2.03
+  ],
+  "materials": [
+   "kit_plank",
+   "kit_timber"
+  ]
+ },
+ "pillar_wood": {
+  "tris_lod0": 52,
+  "aabb_min": [
+   -0.2,
+   0.0,
+   -0.2
+  ],
+  "aabb_max": [
+   0.2,
+   3.0,
+   0.2
+  ],
+  "materials": [
+   "kit_timber"
+  ]
+ },
+ "roof_slate": {
+  "tris_lod0": 444,
+  "aabb_min": [
+   -1.05,
+   -0.441,
+   -1.141
+  ],
+  "aabb_max": [
+   1.05,
+   2.0,
+   1.335
+  ],
+  "materials": [
+   "kit_timber",
+   "kit_slate"
+  ]
+ },
+ "roof_shingle": {
+  "tris_lod0": 708,
+  "aabb_min": [
+   -1.05,
+   -0.441,
+   -1.141
+  ],
+  "aabb_max": [
+   1.05,
+   2.0,
+   1.342
+  ],
+  "materials": [
+   "kit_timber",
+   "kit_shingle"
+  ]
+ },
+ "roof_thatch": {
+  "tris_lod0": 180,
+  "aabb_min": [
+   -1.05,
+   -0.66,
+   -1.247
+  ],
+  "aabb_max": [
+   1.05,
+   2.0,
+   1.391
+  ],
+  "materials": [
+   "kit_thatch"
+  ]
+ },
+ "roof_ridge_thatch": {
+  "tris_lod0": 104,
+  "aabb_min": [
+   -1.0,
+   1.5,
+   -0.6
+  ],
+  "aabb_max": [
+   1.0,
+   2.2,
+   0.6
+  ],
+  "materials": [
+   "kit_thatch",
+   "kit_timber"
+  ]
+ },
+ "roof_ridge_slate": {
+  "tris_lod0": 36,
+  "aabb_min": [
+   -1.0,
+   1.45,
+   -0.55
+  ],
+  "aabb_max": [
+   1.0,
+   2.2,
+   0.55
+  ],
+  "materials": [
+   "kit_slate"
+  ]
+ },
+ "roof_ridge_shingle": {
+  "tris_lod0": 36,
+  "aabb_min": [
+   -1.0,
+   1.45,
+   -0.55
+  ],
+  "aabb_max": [
+   1.0,
+   2.2,
+   0.55
+  ],
+  "materials": [
+   "kit_shingle"
+  ]
+ },
+ "gable_plaster": {
+  "tris_lod0": 56,
+  "aabb_min": [
+   -1.0,
+   0.0,
+   -0.12
+  ],
+  "aabb_max": [
+   1.0,
+   2.0,
+   0.12
+  ],
+  "materials": [
+   "kit_plaster",
+   "kit_timber"
+  ]
+ },
+ "gable_stone": {
+  "tris_lod0": 140,
+  "aabb_min": [
+   -1.0,
+   0.0,
+   -0.13
+  ],
+  "aabb_max": [
+   1.0,
+   2.0,
+   0.13
+  ],
+  "materials": [
+   "kit_stone"
+  ]
+ },
+ "gable_log": {
+  "tris_lod0": 168,
+  "aabb_min": [
+   -1.1,
+   -0.0,
+   -0.12
+  ],
+  "aabb_max": [
+   0.75,
+   1.8,
+   0.12
+  ],
+  "materials": [
+   "kit_log"
+  ]
+ },
+ "door_wood": {
+  "tris_lod0": 260,
+  "aabb_min": [
+   -0.52,
+   0.0,
+   -0.055
+  ],
+  "aabb_max": [
+   0.526,
+   2.15,
+   0.106
+  ],
+  "materials": [
+   "kit_plank",
+   "kit_iron"
+  ]
+ },
+ "gate_wood_double": {
+  "tris_lod0": 508,
+  "aabb_min": [
+   -2.04,
+   0.0,
+   -0.19
+  ],
+  "aabb_max": [
+   2.04,
+   3.2,
+   0.19
+  ],
+  "materials": [
+   "kit_timber",
+   "kit_plank",
+   "kit_iron"
+  ]
+ },
+ "palisade": {
+  "tris_lod0": 234,
+  "aabb_min": [
+   -1.0,
+   0.0,
+   -0.14
+  ],
+  "aabb_max": [
+   1.0,
+   3.6,
+   0.22
+  ],
+  "materials": [
+   "kit_log",
+   "kit_timber"
+  ]
+ },
+ "palisade_gate": {
+  "tris_lod0": 576,
+  "aabb_min": [
+   -2.0,
+   0.0,
+   -0.18
+  ],
+  "aabb_max": [
+   2.0,
+   4.4,
+   0.36
+  ],
+  "materials": [
+   "kit_log",
+   "kit_timber",
+   "kit_iron"
+  ]
+ },
+ "fence_rail": {
+  "tris_lod0": 92,
+  "aabb_min": [
+   -1.0,
+   0.0,
+   -0.13
+  ],
+  "aabb_max": [
+   1.0,
+   1.1,
+   0.13
+  ],
+  "materials": [
+   "kit_log"
+  ]
+ },
+ "fence_wattle": {
+  "tris_lod0": 348,
+  "aabb_min": [
+   -1.0,
+   0.0,
+   -0.07
+  ],
+  "aabb_max": [
+   1.0,
+   1.02,
+   0.07
+  ],
+  "materials": [
+   "kit_log",
+   "kit_plank"
+  ]
+ },
+ "stone_wall_curtain": {
+  "tris_lod0": 468,
+  "aabb_min": [
+   -1.0,
+   0.0,
+   -0.64
+  ],
+  "aabb_max": [
+   1.0,
+   4.5,
+   0.64
+  ],
+  "materials": [
+   "kit_stone"
+  ]
+ },
+ "stone_tower": {
+  "tris_lod0": 1600,
+  "aabb_min": [
+   -2.05,
+   0.0,
+   -2.05
+  ],
+  "aabb_max": [
+   2.05,
+   8.0,
+   2.05
+  ],
+  "materials": [
+   "kit_stone",
+   "kit_coal"
+  ]
+ },
+ "stone_tower_roof": {
+  "tris_lod0": 178,
+  "aabb_min": [
+   -2.7,
+   0.0,
+   -2.7
+  ],
+  "aabb_max": [
+   2.7,
+   4.8,
+   2.7
+  ],
+  "materials": [
+   "kit_slate",
+   "kit_iron"
+  ]
+ },
+ "stone_wall_gatehouse": {
+  "tris_lod0": 1056,
+  "aabb_min": [
+   -2.0,
+   0.0,
+   -1.04
+  ],
+  "aabb_max": [
+   2.0,
+   6.0,
+   1.04
+  ],
+  "materials": [
+   "kit_stone"
+  ]
+ },
+ "forge": {
+  "tris_lod0": 346,
+  "aabb_min": [
+   -1.04,
+   0.0,
+   -0.84
+  ],
+  "aabb_max": [
+   1.65,
+   2.62,
+   0.86
+  ],
+  "materials": [
+   "kit_stone",
+   "kit_coal",
+   "kit_timber",
+   "kit_plank",
+   "kit_iron",
+   "kit_cloth"
+  ]
+ },
+ "anvil": {
+  "tris_lod0": 92,
+  "aabb_min": [
+   -0.38,
+   0.0,
+   -0.32
+  ],
+  "aabb_max": [
+   0.62,
+   0.9,
+   0.32
+  ],
+  "materials": [
+   "kit_log",
+   "kit_iron"
+  ]
+ },
+ "workbench": {
+  "tris_lod0": 252,
+  "aabb_min": [
+   -1.0,
+   0.0,
+   -0.45
+  ],
+  "aabb_max": [
+   1.0,
+   1.04,
+   0.74
+  ],
+  "materials": [
+   "kit_plank",
+   "kit_timber",
+   "kit_iron"
+  ]
+ },
+ "loom": {
+  "tris_lod0": 356,
+  "aabb_min": [
+   -0.87,
+   0.0,
+   -0.45
+  ],
+  "aabb_max": [
+   0.87,
+   1.6,
+   0.45
+  ],
+  "materials": [
+   "kit_plank",
+   "kit_timber",
+   "kit_cloth"
+  ]
+ },
+ "oven": {
+  "tris_lod0": 330,
+  "aabb_min": [
+   -0.9,
+   0.0,
+   -0.9
+  ],
+  "aabb_max": [
+   0.9,
+   1.75,
+   0.94
+  ],
+  "materials": [
+   "kit_stone",
+   "kit_clay",
+   "kit_coal"
+  ]
+ },
+ "sawhorse_bench": {
+  "tris_lod0": 218,
+  "aabb_min": [
+   -0.85,
+   -0.022,
+   -0.45
+  ],
+  "aabb_max": [
+   0.85,
+   1.17,
+   0.45
+  ],
+  "materials": [
+   "kit_timber",
+   "kit_plank",
+   "kit_log",
+   "kit_iron"
+  ]
+ },
+ "storage_crates": {
+  "tris_lod0": 420,
+  "aabb_min": [
+   -0.925,
+   -0.62,
+   -0.551
+  ],
+  "aabb_max": [
+   0.973,
+   1.7,
+   1.065
+  ],
+  "materials": [
+   "kit_plank",
+   "kit_timber",
+   "kit_cloth"
+  ]
+ },
+ "bed_simple": {
+  "tris_lod0": 252,
+  "aabb_min": [
+   -1.01,
+   0.0,
+   -0.51
+  ],
+  "aabb_max": [
+   1.01,
+   0.95,
+   0.51
+  ],
+  "materials": [
+   "kit_timber",
+   "kit_plank",
+   "kit_hay",
+   "kit_cloth"
+  ]
+ },
+ "table_bench": {
+  "tris_lod0": 168,
+  "aabb_min": [
+   -1.0,
+   -0.016,
+   -0.87
+  ],
+  "aabb_max": [
+   1.0,
+   0.8,
+   0.87
+  ],
+  "materials": [
+   "kit_plank",
+   "kit_timber"
+  ]
+ },
+ "road_cobble_tile": {
+  "tris_lod0": 480,
+  "aabb_min": [
+   -1.0,
+   -0.04,
+   -1.0
+  ],
+  "aabb_max": [
+   1.0,
+   0.04,
+   1.0
+  ],
+  "materials": [
+   "kit_dirt",
+   "kit_cobble"
+  ]
+ },
+ "road_dirt_tile": {
+  "tris_lod0": 190,
+  "aabb_min": [
+   -1.0,
+   -0.01,
+   -1.0
+  ],
+  "aabb_max": [
+   1.0,
+   0.036,
+   1.0
+  ],
+  "materials": [
+   "kit_dirt"
+  ]
+ },
+ "hay_cart": {
+  "tris_lod0": 942,
+  "aabb_min": [
+   -0.85,
+   -0.02,
+   -1.804
+  ],
+  "aabb_max": [
+   0.88,
+   1.6,
+   1.35
+  ],
+  "materials": [
+   "kit_plank",
+   "kit_timber",
+   "kit_iron",
+   "kit_hay"
+  ]
+ },
+ "laundry_line": {
+  "tris_lod0": 248,
+  "aabb_min": [
+   -2.12,
+   0.0,
+   -0.07
+  ],
+  "aabb_max": [
+   2.12,
+   2.5,
+   0.07
+  ],
+  "materials": [
+   "kit_log",
+   "kit_hay",
+   "kit_cloth"
+  ]
+ },
+ "shop_sign_bracket": {
+  "tris_lod0": 212,
+  "aabb_min": [
+   -0.45,
+   -0.88,
+   -0.04
+  ],
+  "aabb_max": [
+   0.45,
+   0.3,
+   1.115
+  ],
+  "materials": [
+   "kit_iron",
+   "kit_plank",
+   "kit_timber",
+   "kit_cloth",
+   "kit_clay"
+  ]
+ },
+ "barrel_cluster": {
+  "tris_lod0": 1212,
+  "aabb_min": [
+   -0.84,
+   0.0,
+   -1.019
+  ],
+  "aabb_max": [
+   0.84,
+   0.92,
+   0.499
+  ],
+  "materials": [
+   "kit_plank",
+   "kit_log",
+   "kit_iron"
+  ]
+ },
+ "mud_puddle": {
+  "tris_lod0": 60,
+  "aabb_min": [
+   -0.807,
+   0.0,
+   -0.653
+  ],
+  "aabb_max": [
+   0.955,
+   0.02,
+   0.526
+  ],
+  "materials": [
+   "kit_dirt"
+  ]
+ }
+}

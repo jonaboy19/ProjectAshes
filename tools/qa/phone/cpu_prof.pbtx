@@ -1,0 +1,21 @@
+# Perfetto config (release QA perf): where the game's CPU time goes on the S22. Callstack sampling of com.risingashes.game
+# (debuggable) at 200 Hz + scheduling + CPU frequency, 25 s. Symbolize with trace_processor_shell and the APK's
+# libgodot_android.so (it keeps its symbol table): PERFETTO_BINARY_PATH=<dir with the .so>.
+buffers { size_kb: 65536 fill_policy: DISCARD }
+duration_ms: 25000
+data_sources {
+  config {
+    name: "linux.perf"
+    perf_event_config {
+      timebase { frequency: 200 }
+      callstack_sampling { scope { target_cmdline: "com.risingashes.game" } kernel_frames: false }
+    }
+  }
+}
+data_sources {
+  config {
+    name: "linux.ftrace"
+    ftrace_config { ftrace_events: "sched/sched_switch" ftrace_events: "power/cpu_frequency" ftrace_events: "power/cpu_idle" }
+  }
+}
+data_sources { config { name: "linux.process_stats" process_stats_config { scan_all_processes_on_start: true } } }

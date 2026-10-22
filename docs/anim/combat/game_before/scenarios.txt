@@ -1,0 +1,12 @@
+c01_combo_4hit_idle 162 262
+c02_combo_on_orc 302 403
+c03_run_attack 426 522
+c04_parry_riposte_orc 552 621
+c05_block_orc 654 784
+c06_goblin_attacks 817 947
+c07_orc_attacks 980 1110
+c08_troll_attacks 1143 1273
+c09_wolf_bite 1306 1428
+c10_bandit_duel 1461 1629
+c11_kill_goblin_death 1662 1788
+c12_dodge 1811 1935

@@ -319,4 +319,5 @@ for hz in (0.15, 0.7):
 k.cyl(0.25, 0.22, (-0.9, -1.05, 0.0), WOOD, hexc("b89a64"), segs=8, r2=0.3, caps=True)
 k.sphere(0.24, (-0.9, -1.05, 0.25), PLANT, hexc("6f9a4e"), scale=(1, 1, 0.4), subdiv=0, noise_amt=0.03)
 
+k.pbr = dict(size=1024, lod1_size=512, orm_div=2, seed=22, ao_dist=0.7)   # high-to-low PBR bake (pbr_kit.py)
 k.finish_checked((8.4, 8.2), 18000, cam_dir=(1.0, -1.5, 0.75), fit=0.9)

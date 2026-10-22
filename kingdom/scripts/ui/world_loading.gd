@@ -7,6 +7,7 @@ extends "res://scripts/ui/frontend/screen.gd"
 ## reported value and creeps a little between reports, so it never looks frozen while a step blocks
 ## a frame. `WorldLoading.finish()` fades it out (the HUD calls it from hide_loading).
 
+const Flow := preload("res://scripts/ui/frontend/flow.gd")
 const FRONT_LOADING := "res://scripts/ui/frontend/loading_screen.gd"
 
 static var current: WorldLoading
@@ -86,7 +87,8 @@ func _ready() -> void:
 	_step.add_theme_color_override("font_color", AF.TEXT)
 	_step.text = tr("Loading World...")
 	bottom.add_child(_step)
-	_tip_i = randi() % _tips.size()
+	_tip_i = Flow.handoff_tip if Flow.handoff_tip >= 0 and Flow.handoff_tip < _tips.size() else randi() % _tips.size()
+	Flow.handoff_tip = -1
 	_tip.text = String(_tips[_tip_i])
 
 

@@ -6,6 +6,6 @@
 [resource]
 shader = ExtResource("1")
 shader_parameter/atlas = ExtResource("2")
-shader_parameter/grid = 8
+shader_parameter/grid = 7
 shader_parameter/center = Vector3(-0.038747, 3.389621, 0.064338)
 shader_parameter/radius = 4.804190

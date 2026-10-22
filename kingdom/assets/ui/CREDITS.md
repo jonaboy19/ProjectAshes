@@ -10,3 +10,7 @@ These must appear on the in-game credits screen.
 
 ## Fonts
 - Cinzel by Natanael Gama, SIL Open Font License 1.1 (fonts/OFL.txt)
+
+## Menu icons (CC BY 3.0) - in-game tabbed menu (assets/ui/icons/gm and items)
+From game-icons.net, recoloured to white. Authors: **caro-asercion**, **delapouite**, **irongamer**, **lorc**, **sbed**, **seregacthtuf**, **skoll**, **willdabeast**, **zeromancer**.
+These must also appear on the in-game credits screen.

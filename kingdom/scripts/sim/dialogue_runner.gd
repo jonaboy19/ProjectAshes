@@ -19,7 +19,8 @@ extends RefCounted
 ## default 0) are candidates and one is chosen with the rng, so a specific line
 ## ("you helped me yesterday", p 3) beats a tier greeting (p 1) beats a generic one.
 ## A line may carry its own "do" (applied when it is shown, e.g. a gossip line
-## that marks a hint as told).
+## that marks a hint as told), and face tags: "mood" (the speaker's expression) and "hero_mood" (the hero's), each one of
+## FaceState.MOODS: neutral happy sad angry fear surprise (docs/art/FACES.md).
 ##
 ## Conditions ("if"), all must hold:
 ##   tier: "friend" | [..]          tier_not: ..        bond: "mother" | [..] | "" (none)
@@ -28,6 +29,7 @@ extends RefCounted
 ##   flag: "spirit_seen" | [..]     no_flag: ..         event: "helped_recently" | [..]
 ##   no_event: ..                   min_op / max_op: opinion bounds
 ##   min_age / max_age              has: "rumour" | [..]  (ctx key must be truthy)
+##   min_soul_tier / min_gear_tier / min_level   progression gates (ctx soul_tier, gear_tier, level; absent = not gated)
 ##   not_has: ..                    chance: 0.3
 ##
 ## Choice "goto": a node id, "" to stay on the current line, "@end" to close.
@@ -47,6 +49,7 @@ extends RefCounted
 ##   var line := DialogueRunner.pick_line(d, "greet", ctx, rng)   # {text, do}
 ##   var opts := DialogueRunner.choices(d, "greet", ctx)          # [{text, goto, do}]
 
+const FaceState := preload("res://scripts/living_world/face_state.gd")
 const DIR := "res://dialogue"
 const TIERS := ["enemy", "rival", "stranger", "acquaintance", "friend", "close_friend"]
 
@@ -59,6 +62,10 @@ static func load_file(id: String, dir := DIR) -> Dictionary:
 	if _cache.has(path):
 		return _cache[path]
 	var out := {}
+	var staged := _take_staged(path)
+	if not staged.is_empty():
+		_cache[path] = staged
+		return staged
 	if FileAccess.file_exists(path):
 		var data: Variant = JSON.parse_string(FileAccess.get_file_as_string(path))
 		if data is Dictionary:
@@ -71,6 +78,44 @@ static func load_file(id: String, dir := DIR) -> Dictionary:
 
 static func clear_cache() -> void:
 	_cache.clear()
+
+
+## Frame-spike pass: reads and parses the dialogue files of a folder (`res://dialogue/<sub>`) on a worker thread, so the first
+## conversation with someone does not pay for the file read and JSON parse (7-35 ms). Pure data (no meshes or materials), so it
+## is safe on a thread. `load_file` takes a staged result over the cache. Idempotent per folder.
+static var _staged: Dictionary = {}
+static var _stage_mutex := Mutex.new()
+static var _staged_dirs: Dictionary = {}
+
+
+static func warm_async(sub: String, dir := DIR) -> void:
+	var folder := "%s/%s" % [dir, sub] if sub != "" else dir
+	if _staged_dirs.has(folder) or not DirAccess.dir_exists_absolute(folder):
+		return
+	_staged_dirs[folder] = true
+	WorkerThreadPool.add_task(_stage_folder.bind(folder), false, "dialogue warm")
+
+
+static func _stage_folder(folder: String) -> void:
+	for f: String in DirAccess.get_files_at(folder):
+		if not f.ends_with(".json"):
+			continue
+		var path := "%s/%s" % [folder, f]
+		var data: Variant = JSON.parse_string(FileAccess.get_file_as_string(path))
+		if data is Dictionary:
+			_stage_mutex.lock()
+			_staged[path] = data
+			_stage_mutex.unlock()
+
+
+static func _take_staged(path: String) -> Dictionary:
+	if _staged.is_empty():
+		return {}
+	_stage_mutex.lock()
+	var d: Variant = _staged.get(path)
+	_staged.erase(path)
+	_stage_mutex.unlock()
+	return d if d is Dictionary else {}
 
 
 static func start_node(d: Dictionary) -> String:
@@ -170,6 +215,17 @@ static func check(cond: Dictionary, ctx: Dictionary, rng: RandomNumberGenerator 
 			"max_age":
 				if int(ctx.get("age", 0)) > int(v):
 					return false
+			# Progression gates (C13, data/region1/progression_spine.json). A context that carries no figure (tests, plain
+			# conversations) is not gated; the story director passes the real soul tier, gear tier and level.
+			"min_soul_tier":
+				if int(ctx.get("soul_tier", 1 << 20)) < int(v):
+					return false
+			"min_gear_tier":
+				if int(ctx.get("gear_tier", 1 << 20)) < int(v):
+					return false
+			"min_level":
+				if int(ctx.get("level", 1 << 20)) < int(v):
+					return false
 			"has":
 				for key: Variant in _as_list(v):
 					if not _truthy(ctx.get(String(key))):
@@ -215,7 +271,8 @@ static func pick_line(d: Dictionary, node: String, ctx: Dictionary, rng: RandomN
 	if best.is_empty():
 		return {}
 	var pick: Dictionary = best[rng.randi() % best.size()] if rng else best[0]
-	return {"text": fill(String(pick.get("text", "")), ctx), "do": pick.get("do", [])}
+	return {"text": fill(String(pick.get("text", "")), ctx), "do": pick.get("do", []),
+		"mood": String(pick.get("mood", "")), "hero_mood": String(pick.get("hero_mood", ""))}
 
 
 ## [{text, goto, do}] for the node's choices whose conditions hold.
@@ -233,7 +290,7 @@ static func choices(d: Dictionary, node: String, ctx: Dictionary) -> Array:
 ## lines, unknown condition keys. Empty when the file is sound (used by tests).
 static func validate(d: Dictionary) -> PackedStringArray:
 	var known := ["tier", "tier_not", "min_tier", "bond", "time", "weather", "child", "role", "flag", "no_flag",
-		"event", "no_event", "min_op", "max_op", "min_age", "max_age", "has", "not_has", "chance"]
+		"event", "no_event", "min_op", "max_op", "min_age", "max_age", "has", "not_has", "chance", "min_soul_tier", "min_gear_tier", "min_level"]
 	var out := PackedStringArray()
 	var nodes: Dictionary = d.get("nodes", {})
 	if not nodes.has(start_node(d)):
@@ -246,6 +303,9 @@ static func validate(d: Dictionary) -> PackedStringArray:
 			for k: String in l.get("if", {}):
 				if not known.has(k):
 					out.append("%s: unknown condition '%s'" % [id, k])
+			for mk in ["mood", "hero_mood"]:
+				if l.has(mk) and not FaceState.MOODS.has(String(l[mk])):
+					out.append("%s: bad mood '%s'" % [id, String(l[mk])])
 		for c: Dictionary in n.get("choices", []):
 			var g := String(c.get("goto", ""))
 			if g != "" and g != "@end" and not nodes.has(g):

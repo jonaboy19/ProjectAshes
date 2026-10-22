@@ -13,6 +13,7 @@ extends RefCounted
 ## once per settlement on first use, and routes are only planned when a near
 ## villager's goal changes (a few per second at most, see take_route_budget()).
 
+const AuraFieldRef := preload("res://scripts/population/aura_field.gd")
 const CELL := 12.0
 ## Clearance kept from footprints when routing (capsule radius plus margin).
 const AGENT_RADIUS := 0.4
@@ -46,6 +47,7 @@ var _box_h := PackedVector2Array()
 var _box_grid := {}                 # Vector2i -> PackedInt32Array
 var _stamp := PackedInt32Array()
 var _stamp_id := 0
+var _nav_obstacle_count := -1
 # Walls: [radius, gate angles].
 var _walls: Array = []
 
@@ -56,6 +58,11 @@ var _adj: Array[PackedInt32Array] = []
 var _edges := PackedInt32Array()    # pairs of node indices
 var _edge_grid := {}                # Vector2i -> PackedInt32Array of edge ids
 var _node_lookup := {}              # Vector2i -> PackedInt32Array of node ids
+var _indexed_edges := 0             # edges already in _edge_grid (new ones are added incrementally)
+## Optional extra cost per edge: Callable(midpoint: Vector2) -> float >= 0, the edge length is multiplied by 1 + result. Unset = plain distance.
+## Costs only ever grow, so the A* heuristic stays admissible. Used by the aura repulsion field (AR-4); other systems may set it too.
+var cost_hook := Callable()
+var _rep_until := 0.0
 
 
 ## Graph of settlement `id` (built on first use), or null without a plan.
@@ -78,6 +85,27 @@ static func for_person(i: int) -> RefCounted:
 	if i < 0 or i >= WorldSim.home.size():
 		return null
 	return for_settlement(WorldSim.home[i])
+
+
+## AR-4: crowds path away from an aura source. Near tier only: the field is set only when this settlement is within the source's half reach,
+## so a far town pays nothing. Call at most every 0.5 s (callers throttle). Returns true while a field is active. Clear with clear_repulsion().
+func set_repulsion(src: Vector2, reach: float, fear: float, now_s := 0.0) -> bool:
+	if fear < 0.05 or reach <= 0.0 or center.distance_to(src) > radius + reach * 0.5:
+		cost_hook = Callable()
+		return false
+	_rep_until = now_s + 2.0
+	cost_hook = func(mid: Vector2) -> float: return AuraFieldRef.repulsion_cost(mid, src, reach, fear)
+	return true
+
+
+func clear_repulsion() -> void:
+	cost_hook = Callable()
+
+
+## Drops the field once its owner stopped refreshing it (the source left or the aura ended).
+func expire_repulsion(now_s: float) -> void:
+	if cost_hook.is_valid() and now_s > _rep_until:
+		cost_hook = Callable()
 
 
 ## Route planning is spread over frames: true while this physics frame still
@@ -122,6 +150,49 @@ func _setup(s: Dictionary) -> void:
 	if float(plan.get("inner_wall", 0.0)) > 0.0:
 		_walls.append([float(plan["inner_wall"]), [plan["gates"][0]]])
 	_stamp.resize(_box_c.size())
+	_sync_nav_obstacles()
+
+
+## A building the player raised near this settlement (scripts/realm/construction.gd): routes now avoid its
+## footprint and its door is joined to the nearest street. Returns the door's node index (-1 when the
+## settlement has no street graph to join).
+func register_building(c: Vector2, yaw: float, half: Vector2, door: Vector2) -> int:
+	_add_box(c, yaw, half)
+	_stamp.resize(_box_c.size())
+	var was_built := _graph_built
+	_ensure_graph()
+	if was_built:
+		# A fresh build already validated every edge against this box; an existing graph did not.
+		_cut_edges_through(_box_c.size() - 1)
+	var n := _node_at(door)
+	var att := _attach(door)
+	if not att.is_empty():
+		# Join the street at the attach point itself (splitting that edge): the old "nearer end of the
+		# segment" link was often not in clear sight of the door once neighbours stood 7 m apart.
+		var target := _split_edge_at(att[0], att[1], att[2])
+		if att.size() > 3:
+			var via := _node_at(att[3])
+			_link(n, via)
+			_link(via, target)
+		else:
+			_link(n, target)
+	_index_edges()      # only the edges this building added; a full re-index per building was the cost
+	return n
+
+
+## Several buildings at once (construction catch_up after a long absence). Registered in order, so the result
+## is exactly what one register_building call per entry gives; each entry is [centre, yaw, half, door].
+## Returns the door node indices.
+func register_buildings(batch: Array) -> PackedInt32Array:
+	var out := PackedInt32Array()
+	for b: Array in batch:
+		out.append(register_building(b[0], float(b[1]), b[2], b[3]))
+	return out
+
+
+func node_count() -> int:
+	_ensure_graph()
+	return _nodes.size()
 
 
 func _mesh_size(asset: String, low: bool) -> Vector3:
@@ -188,6 +259,7 @@ func _world_dir(local_dir: Vector2, k: int) -> Vector2:
 
 ## True if p (with clearance r) is inside a building footprint.
 func inside(p: Vector2, r := AGENT_RADIUS) -> bool:
+	_sync_nav_obstacles()
 	for k in _boxes_near(p, p):
 		var l := _local(p, k)
 		var h := _box_h[k] + Vector2(r, r)
@@ -198,6 +270,7 @@ func inside(p: Vector2, r := AGENT_RADIUS) -> bool:
 
 ## Nearest point to p that is outside every footprint by at least r.
 func push_out(p: Vector2, r := AGENT_RADIUS) -> Vector2:
+	_sync_nav_obstacles()
 	var q := p
 	for _pass in 3:
 		var moved := false
@@ -227,6 +300,7 @@ func push_out(p: Vector2, r := AGENT_RADIUS) -> Vector2:
 
 ## Steering push away from footprints closer than `reach` (zero in the open).
 func repulse(p: Vector2, reach := 1.2) -> Vector2:
+	_sync_nav_obstacles()
 	var push := Vector2.ZERO
 	var e := Vector2(reach, reach)
 	for k in _boxes_near(p - e, p + e):
@@ -249,6 +323,7 @@ func repulse(p: Vector2, reach := 1.2) -> Vector2:
 ## True if an agent of radius r can walk the straight segment a -> b without
 ## entering a footprint or crossing a settlement wall outside its gates.
 func clear_line(a: Vector2, b: Vector2, r := AGENT_RADIUS) -> bool:
+	_sync_nav_obstacles()
 	var lo := Vector2(minf(a.x, b.x), minf(a.y, b.y)) - Vector2(r, r)
 	var hi := Vector2(maxf(a.x, b.x), maxf(a.y, b.y)) + Vector2(r, r)
 	for k in _boxes_near(lo, hi):
@@ -258,6 +333,31 @@ func clear_line(a: Vector2, b: Vector2, r := AGENT_RADIUS) -> bool:
 		if _segment_hits_wall(a, b, w[0], w[1], r):
 			return false
 	return true
+
+
+## SettlementBuilder adds actual solid cart placements to its shared plan after
+## creating the plaza clutter. Sync them lazily so this graph still works if it
+## was cached before that build completed.
+func _sync_nav_obstacles() -> void:
+	var obstacles: Array = plan.get("npc_nav_obstacles", [])
+	if obstacles.size() == _nav_obstacle_count:
+		return
+	_nav_obstacle_count = obstacles.size()
+	for record: Array in obstacles:
+		if record.size() < 3:
+			continue
+		var center_point: Vector2 = record[0]
+		var half_extent: Vector2 = record[2]
+		_add_box(center_point, float(record[1]), half_extent)
+	_stamp.resize(_box_c.size())
+	if _graph_built:
+		_graph_built = false
+		_nodes.clear()
+		_adj.clear()
+		_edges.clear()
+		_edge_grid.clear()
+		_node_lookup.clear()
+		_indexed_edges = 0
 
 
 func _segment_hits_box(a: Vector2, b: Vector2, k: int, r: float) -> bool:
@@ -465,12 +565,139 @@ func _link(a: int, b: int) -> void:
 	_edges.append(b)
 
 
+## Adds the edges not yet in the grid (all of them after a rebuild).
 func _index_edges() -> void:
-	for e in _edges.size() / 2:
+	var total := _edges.size() / 2
+	for e in range(_indexed_edges, total):
+		if _edges[e * 2] < 0:
+			continue
 		var a := _nodes[_edges[e * 2]]
 		var b := _nodes[_edges[e * 2 + 1]]
 		for cell in _cells(Vector2(minf(a.x, b.x), minf(a.y, b.y)), Vector2(maxf(a.x, b.x), maxf(a.y, b.y))):
 			_push(_edge_grid, cell, e)
+	_indexed_edges = total
+
+
+## Detour corners sit this far outside a footprint (more than the 0.1 m clearance _link checks).
+const DETOUR_MARGIN := 0.6
+
+
+## Removes every live edge whose segment crosses box k (registered after the edge was laid) and re-routes
+## each around the box's corners, so the graph never crosses a footprint yet stays connected. Uses the
+## edge grid, so the cost is the handful of edges under the box, not the whole graph.
+func _cut_edges_through(k: int) -> void:
+	var h := _box_h[k]
+	var reach := h.length() + 0.5
+	var c := _box_c[k]
+	var hit := PackedInt32Array()
+	var seen := {}
+	for cell in _cells(c - Vector2(reach, reach), c + Vector2(reach, reach)):
+		if not _edge_grid.has(cell):
+			continue
+		for e: int in _edge_grid[cell]:
+			if seen.has(e):
+				continue
+			seen[e] = true
+			if _edges[e * 2] >= 0 and _segment_hits_box(_nodes[_edges[e * 2]], _nodes[_edges[e * 2 + 1]], k, 0.1):
+				hit.append(e)
+	if hit.is_empty():
+		return
+	hit.sort()   # deterministic order
+	var ends: Array = []
+	for e in hit:
+		ends.append([_edges[e * 2], _edges[e * 2 + 1]])
+		_kill_edge(e)
+	var m := Vector2(DETOUR_MARGIN, DETOUR_MARGIN)
+	var corners: Array[Vector2] = []
+	for sx in [-1.0, 1.0]:
+		for sy in [-1.0, 1.0]:
+			corners.append(c + _world_dir(Vector2(sx * (h.x + m.x), sy * (h.y + m.y)), k))
+	for pair: Array in ends:
+		_reroute(pair[0], pair[1], corners)
+
+
+## Node at point q of the edge a-b: an end if q is within MERGE of it, else a new node splitting the edge
+## in two (when both halves are walkable). Falls back to the nearer end.
+func _split_edge_at(a: int, b: int, q: Vector2) -> int:
+	var near := a if _nodes[a].distance_squared_to(q) <= _nodes[b].distance_squared_to(q) else b
+	if _nodes[near].distance_to(q) < MERGE:
+		return near
+	var e := _find_edge(a, b)
+	if e < 0:
+		return near
+	var nq := _node_at(q)
+	if nq == a or nq == b:
+		return nq
+	_kill_edge(e)
+	_link(a, nq)
+	_link(nq, b)
+	return nq
+
+
+func _find_edge(a: int, b: int) -> int:
+	var pa := _nodes[a]
+	var pb := _nodes[b]
+	for cell in _cells(Vector2(minf(pa.x, pb.x), minf(pa.y, pb.y)), Vector2(maxf(pa.x, pb.x), maxf(pa.y, pb.y))):
+		for e: int in _edge_grid.get(cell, PackedInt32Array()):
+			if (_edges[e * 2] == a and _edges[e * 2 + 1] == b) or (_edges[e * 2] == b and _edges[e * 2 + 1] == a):
+				return e
+	return -1
+
+
+func _kill_edge(e: int) -> void:
+	var na := _edges[e * 2]
+	var nb := _edges[e * 2 + 1]
+	var ia := _adj[na].find(nb)
+	if ia >= 0:
+		_adj[na].remove_at(ia)
+	var ib := _adj[nb].find(na)
+	if ib >= 0:
+		_adj[nb].remove_at(ib)
+	var a := _nodes[na]
+	var b := _nodes[nb]
+	for cell in _cells(Vector2(minf(a.x, b.x), minf(a.y, b.y)), Vector2(maxf(a.x, b.x), maxf(a.y, b.y))):
+		var list: PackedInt32Array = _edge_grid.get(cell, PackedInt32Array())
+		var i := list.find(e)
+		if i >= 0:
+			list.remove_at(i)
+			if list.is_empty():
+				_edge_grid.erase(cell)
+			else:
+				_edge_grid[cell] = list
+	_edges[e * 2] = -1
+	_edges[e * 2 + 1] = -1
+
+
+## Joins nodes a and b again by the shortest walkable chain through one or two of the box corners.
+func _reroute(a: int, b: int, corners: Array[Vector2]) -> void:
+	var pa := _nodes[a]
+	var pb := _nodes[b]
+	var cands: Array = []   # [length, corner ids...]
+	for i in corners.size():
+		cands.append([pa.distance_to(corners[i]) + corners[i].distance_to(pb), i])
+		for j in corners.size():
+			if i != j:
+				cands.append([pa.distance_to(corners[i]) + corners[i].distance_to(corners[j]) + corners[j].distance_to(pb), i, j])
+	cands.sort_custom(func(x: Array, y: Array) -> bool: return x[0] < y[0])
+	for cand: Array in cands:
+		var pts: Array[Vector2] = [pa]
+		for q in range(1, cand.size()):
+			pts.append(corners[cand[q]])
+		pts.append(pb)
+		var ok := true
+		for q in pts.size() - 1:
+			if not clear_line(pts[q], pts[q + 1], 0.1):
+				ok = false
+				break
+		if not ok:
+			continue
+		var prev := a
+		for q in range(1, pts.size() - 1):
+			var n := _node_at(pts[q])
+			_link(prev, n)
+			prev = n
+		_link(prev, b)
+		return
 
 
 ## Closest reachable point on the network from p: [node a, node b, point], or [].
@@ -558,7 +785,7 @@ func _edge_candidate(p: Vector2, e: int) -> Array:
 func route(from: Vector2, to: Vector2) -> PackedVector2Array:
 	last_route_partial = false
 	var goal := push_out(to)
-	if clear_line(from, goal):
+	if clear_line(from, goal) and _chord_ok(from, goal):
 		return PackedVector2Array([goal])
 	_ensure_graph()
 	var sa := _attach(from)
@@ -586,6 +813,7 @@ func route(from: Vector2, to: Vector2) -> PackedVector2Array:
 	_heap_push(heap_f, heap_n, pos[start].distance_to(pos[end]), start)
 	var same_edge: bool = (sa[0] == ga[0] and sa[1] == ga[1]) or (sa[0] == ga[1] and sa[1] == ga[0])
 	var found := false
+	var hooked := cost_hook.is_valid()
 	while not heap_n.is_empty():
 		var u := _heap_pop(heap_f, heap_n)
 		if closed[u] == 1:
@@ -607,7 +835,10 @@ func route(from: Vector2, to: Vector2) -> PackedVector2Array:
 		for v in nbrs:
 			if closed[v] == 1:
 				continue
-			var cost := g[u] + pos[u].distance_to(pos[v])
+			var step := pos[u].distance_to(pos[v])
+			if hooked:
+				step *= 1.0 + maxf(0.0, float(cost_hook.call((pos[u] + pos[v]) * 0.5)))
+			var cost := g[u] + step
 			if cost < g[v]:
 				g[v] = cost
 				came[v] = u
@@ -637,12 +868,19 @@ func route(from: Vector2, to: Vector2) -> PackedVector2Array:
 
 
 ## String-pulling: skip waypoints the agent can walk past in a straight line.
+## A shortcut is only taken while the cost hook finds its middle cheap, so a detour around a source is not straightened back through it.
+func _chord_ok(a: Vector2, b: Vector2) -> bool:
+	if not cost_hook.is_valid():
+		return true
+	return float(cost_hook.call((a + b) * 0.5)) <= 0.25 and float(cost_hook.call(a.lerp(b, 0.25))) <= 0.25 and float(cost_hook.call(a.lerp(b, 0.75))) <= 0.25
+
+
 func _smooth(chain: Array[Vector2]) -> PackedVector2Array:
 	var out := PackedVector2Array()
 	var i := 0
 	while i < chain.size() - 1:
 		var j := mini(chain.size() - 1, i + 10)
-		while j > i + 1 and not clear_line(chain[i], chain[j]):
+		while j > i + 1 and not (clear_line(chain[i], chain[j]) and _chord_ok(chain[i], chain[j])):
 			j -= 1
 		if chain[j].distance_to(chain[i]) > 0.05 or j == chain.size() - 1:
 			out.append(chain[j])

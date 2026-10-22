@@ -106,8 +106,7 @@ func _unhandled_input(e: InputEvent) -> void:
 
 func _layout() -> void:
 	var vw := get_viewport().get_visible_rect().size
-	position = Vector2.ZERO
-	size = vw
+	# (full-rect anchors from _ready already size this root; assigning size warned)
 	var panel: Control = get_child(1)
 	var w := clampf(vw.x * 0.96, 320.0, 820.0)
 	var h := vw.y * 0.92
@@ -138,7 +137,7 @@ func _refresh() -> void:
 		content.add_child(_heading("The roads are quiet"))
 		content.add_child(_body("No regional trade to speak of yet."))
 		return
-	content.add_child(_heading("%s Market" % String(WorldGen.settlements[HOME_ID]["name"])))
+	content.add_child(_heading("%s Market" % WorldGen.display_name(String(WorldGen.settlements[HOME_ID]["name"]))))
 	_local_market_rows(content, eco)
 	content.add_child(_heading("Your Cargo"))
 	_cargo_rows(content, eco)
@@ -229,7 +228,7 @@ func _known_rows(content: VBoxContainer, eco: Object) -> void:
 	for id in known:
 		if int(id) == HOME_ID:
 			continue
-		var name := String(WorldGen.settlements[int(id)]["name"]) if int(id) < WorldGen.settlements.size() else "?"
+		var name := WorldGen.display_name(String(WorldGen.settlements[int(id)]["name"])) if int(id) < WorldGen.settlements.size() else "?"
 		content.add_child(_sub_label(name))
 		for item: String in (known[id] as Dictionary):
 			var e: Dictionary = known[id][item]
@@ -244,7 +243,7 @@ func _caravan_rows(content: VBoxContainer, eco: Object) -> void:
 		content.add_child(_body("No caravans on the road."))
 		return
 	for c: Dictionary in list:
-		var to := String(WorldGen.settlements[int(c["to"])]["name"]) if int(c["to"]) < WorldGen.settlements.size() else "?"
+		var to := WorldGen.display_name(String(WorldGen.settlements[int(c["to"])]["name"])) if int(c["to"]) < WorldGen.settlements.size() else "?"
 		var eta := maxf(0.0, float(c["arrive"]) - (float(WorldSim.day) * 24.0 + WorldSim.time_of_day))
 		content.add_child(_body("To %s — %d guard%s, %d hour%s out." % [to, int(c["guards"]),
 			"" if int(c["guards"]) == 1 else "s", int(ceil(eta)), "" if int(ceil(eta)) == 1 else "s"]))
@@ -256,7 +255,7 @@ func _contract_rows(content: VBoxContainer, eco: Object) -> void:
 		content.add_child(_body("No delivery offers right now."))
 		return
 	for c: Dictionary in contracts:
-		var to := String(WorldGen.settlements[int(c["to"])]["name"]) if int(c["to"]) < WorldGen.settlements.size() else "?"
+		var to := WorldGen.display_name(String(WorldGen.settlements[int(c["to"])]["name"])) if int(c["to"]) < WorldGen.settlements.size() else "?"
 		content.add_child(_body("Deliver %d %s to %s by day %d for %d gold (%d/%d delivered)." % [
 			int(c["amount"]), _label(String(c["item"])), to, int(c["due_day"]), int(c["reward"]),
 			int(c["filled"]), int(c["amount"])]))

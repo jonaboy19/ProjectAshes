@@ -1,0 +1,23 @@
+{
+  "_doc": "NI-8 GOAP-lite (realm/minds.gd _plan_*, sim/utility_core.gd plan). Facts are bits the character's state is tested against; an action is [pre, add, del, cost] over facts, cost in minds.gd work units (CHUNK_UNITS 14 a chunk). A plan template names the (at most 3) actions it may use and the facts it wants; utility_core.plan orders them and skips any already satisfied. `run` is the existing module call the step goes through (minds.gd _plan_run). `world` facts are read from the game each time, the others are remembered in the plan once a step achieves them. Template score = base + sum(weight x trait) (persona 0..1 traits), gates: farmer, min_age, max_age. `hidden` plans are secrets (secrets.gd) until someone learns of them. Commitment: starts at c0 + c_amb x ambition + c_disc x discipline (max 255), loses decay + decay_vol x volatility per day, +gain per step done, -fail per failed step, and the plan is dropped at or below QUIT.",
+  "facts": ["cash", "funds", "land", "farm", "allies", "petition", "org"],
+  "world": ["cash", "funds", "land", "farm", "allies", "org"],
+  "actions": [
+    {"id": "save", "pre": [], "add": ["cash"], "cost": 3, "run": "save"},
+    {"id": "buy_land", "pre": ["cash"], "add": ["land"], "cost": 2, "run": "land"},
+    {"id": "start_farm", "pre": ["land"], "add": ["farm"], "cost": 2, "run": "farm"},
+    {"id": "save_big", "pre": [], "add": ["funds"], "cost": 4, "run": "save"},
+    {"id": "gather_allies", "pre": [], "add": ["allies"], "cost": 2, "run": "allies"},
+    {"id": "petition", "pre": ["allies"], "add": ["petition"], "cost": 2, "run": "petition"},
+    {"id": "found_org", "pre": ["petition", "funds"], "add": ["org"], "cost": 3, "run": "found"}
+  ],
+  "plans": [
+    {"id": "homestead", "goal": ["farm"], "steps": ["save", "buy_land", "start_farm"], "farmer": true, "min_age": 18, "max_age": 55,
+     "base": 0.25, "terms": {"disc": 0.5, "loy": 0.3, "amb": 0.2}, "hidden": false},
+    {"id": "charter", "goal": ["org"], "steps": ["gather_allies", "petition", "found_org"], "farmer": false, "min_age": 25, "max_age": 58,
+     "base": 0.1, "terms": {"amb": 0.8, "bold": 0.3}, "hidden": true}
+  ],
+  "start_chance": 0.06,
+  "start_min": 0.45,
+  "c0": 110, "c_amb": 90, "c_disc": 50, "decay": 3.0, "decay_vol": 6.0, "gain": 45, "fail": 40, "quit": 25, "shake": 30, "give_up_days": 45
+}

@@ -6,13 +6,20 @@ extends Node3D
 ## Residents fight as a group but take turns: CampMonster shares attack tokens,
 ## so only two or three swing at the player at a time while the rest circle.
 
+const Nameplates := preload("res://scripts/core/nameplates.gd")
 const PACK := "res://assets/incoming/3dassets-dev-ai/medieval-mmo-starter-realm/"
 const GEN := "res://assets/generated/"
+const CreaturePool := preload("res://scripts/core/creature_pool.gd")
+const CellStreamer := preload("res://scripts/core/cell_streamer.gd")
 const SPAWN_RANGE := 260.0
 const DESPAWN_RANGE := 420.0
+## Props (huts, palisade, totem, chief, fire light) exist only while the player is within reach:
+## the 8 x 8 km world has a dozen camps and none of them should cost anything from afar.
+const BUILD_RANGE := 520.0
+const FREE_RANGE := 760.0
 
 var focus := Vector3.ZERO
-var _camps: Array[Dictionary] = []   # {place, species, roster: [[species, n]], root, residents: Array}
+var _camps: Array[Dictionary] = []   # {place, species, roster: [[species, n]], root (null until built), residents: Array}
 var _timer := 0.0
 
 
@@ -20,10 +27,10 @@ func _ready() -> void:
 	for pl: Dictionary in Life.lore.places_in_region():
 		match String(pl.get("kind", "")):
 			"goblin_warren":
-				_add_camp(pl, "goblin", [["goblin", 7]])
+				_register(pl, "goblin", _goblin_roster(int(pl.get("danger_tier", 1))))
 			"orc_village":
-				# Five orcs and the warchief's troll (Meshy troll, 3 m) guarding the hold.
-				_add_camp(pl, "orc", [["orc", 5], ["troll", 1]])
+				# Five orcs and the warchief's troll (Meshy troll, 3 m) guarding the hold; the far holds are bigger.
+				_register(pl, "orc", [["orc", 8], ["troll", 2]] if int(pl.get("danger_tier", 0)) >= 3 else [["orc", 5], ["troll", 1]])
 
 
 func _ground(p: Vector2) -> Vector3:
@@ -50,12 +57,39 @@ func _place(root: Node3D, paths: Array, at: Vector2, yaw: float, height := 0.0) 
 	n.rotation.y = yaw
 
 
-func _add_camp(pl: Dictionary, species: String, roster: Array) -> void:
+## Danger climbs with distance from Kingsreach (danger_tier in first_region.json): the valley's
+## warrens are goblins only, the outer ones keep orc mercenaries, the deadliest a troll.
+static func _goblin_roster(tier: int) -> Array:
+	match tier:
+		2: return [["goblin", 8], ["orc", 2]]
+		3: return [["goblin", 8], ["orc", 3], ["troll", 1]]
+	return [["goblin", 7]]
+
+
+## CIV-C hook (realm/ecology.gd): a clan that marched away leaves its camp empty, and residents scale with the
+## clan's strength. Both default to "as authored" when the realm has no ecology module.
+func _eco_mod() -> Variant:
+	return Life.realm.mod("ecology") if Life.realm != null else null
+
+
+func _camp_open(camp: Dictionary) -> bool:
+	var m: Variant = _eco_mod()
+	return m == null or bool(m.camp_active(String(camp["place"].get("id", ""))))
+
+
+func _register(pl: Dictionary, species: String, roster: Array) -> void:
+	_camps.append({"place": pl, "species": species, "roster": roster, "root": null, "residents": []})
+
+
+func _build(camp: Dictionary) -> void:
+	var pl: Dictionary = camp["place"]
+	var species: String = camp["species"]
 	var c: Vector2 = pl["pos"]
 	var r := float(pl.get("radius", 30.0))
 	var root := Node3D.new()
 	root.name = String(pl.get("id", species))
 	add_child(root)
+	camp["root"] = root
 	var rng := RandomNumberGenerator.new()
 	rng.seed = hash(pl.get("id", species))
 	if species == "goblin":
@@ -88,11 +122,7 @@ func _add_camp(pl: Dictionary, species: String, roster: Array) -> void:
 		var tag := Label3D.new()
 		var chief_info: Dictionary = pl.get("chief", {})
 		tag.text = "%s · %s" % [chief_info.get("name", "Orc Warchief"), chief_info.get("title", "Warchief")]
-		tag.billboard = BaseMaterial3D.BILLBOARD_ENABLED
-		tag.pixel_size = 0.008
-		tag.font_size = 30
-		tag.outline_size = 8
-		tag.modulate = Color("ffb070")
+		Nameplates.style(tag, Color("ffb070"), 30, 40.0)
 		tag.position.y = 2.6
 		chief.add_child(tag)
 		_place(root, [PACK + "campfire-with-spit.glb"], c + Vector2(5, 4), 0.0, 1.4)
@@ -102,7 +132,6 @@ func _add_camp(pl: Dictionary, species: String, roster: Array) -> void:
 	fire.omni_range = 12.0
 	root.add_child(fire)
 	fire.global_position = _ground(c) + Vector3(0, 1.5, 0)
-	_camps.append({"place": pl, "species": species, "roster": roster, "root": root, "residents": []})
 
 
 func _process(delta: float) -> void:
@@ -115,13 +144,25 @@ func _process(delta: float) -> void:
 		var c: Vector2 = camp["place"]["pos"]
 		var d := p.distance_to(c)
 		var res: Array = camp["residents"]
-		if d < SPAWN_RANGE and res.is_empty():
+		# F12: the camp is a spawner site of the cell manager (profile "camps"): its monsters sleep in an UNLOADED cell.
+		var tier: int = CellStreamer.shared().spawner_tier("camps", camp, c, p)
+		var wake: bool = d < CellStreamer.shared().distance("camps", "load") if tier < 0 else tier >= CellStreamer.Tier.LOW
+		var sleep: bool = d > CellStreamer.shared().distance("camps", "free") if tier < 0 else tier == CellStreamer.Tier.UNLOADED
+		if d < BUILD_RANGE and camp["root"] == null:
+			_build(camp)
+		if wake and res.is_empty() and _camp_open(camp):
+			if camp["root"] == null:
+				_build(camp)
 			_spawn(camp)
-		elif d > DESPAWN_RANGE and not res.is_empty():
+		elif sleep and not res.is_empty():
 			for m in res:
 				if is_instance_valid(m) and (m as CampMonster).named == "":
-					m.queue_free()
+					CreaturePool.give_back(m)
 			res.clear()
+		if d > FREE_RANGE and res.is_empty() and camp["root"] != null:
+			if is_instance_valid(camp["root"]):
+				(camp["root"] as Node).queue_free()
+			camp["root"] = null
 
 
 ## Spawns residents now (used by screenshots).
@@ -134,16 +175,21 @@ func spawn_all_near(p: Vector3) -> void:
 func _spawn(camp: Dictionary) -> void:
 	var c: Vector2 = camp["place"]["pos"]
 	var r := float(camp["place"].get("radius", 30.0))
+	var m_eco: Variant = _eco_mod()
+	var k := float(m_eco.camp_strength(String(camp["place"].get("id", "")))) if m_eco != null else 1.0
 	for entry: Array in camp["roster"]:
-		for i in int(entry[1]):
-			var m := CampMonster.new()
-			m.species = entry[0]
+		for i in maxi(1 if int(entry[1]) > 0 else 0, roundi(int(entry[1]) * k)):
+			var m: CampMonster = CreaturePool.monster("camps", String(entry[0]))
 			m.home = c
 			m.home_radius = r * (0.45 if entry[0] == "troll" else 0.8)
 			add_child(m)
 			if m.is_queued_for_deletion():
 				continue        # model not available
-			m.died.connect(func(dead_m: CampMonster) -> void: Life.on_monster_killed(dead_m.species))
+			m.died.connect(func(dead_m: CampMonster) -> void:
+				Life.on_monster_killed(dead_m.species)
+				var em: Variant = _eco_mod()
+				if em != null:
+					em.camp_loss(String(camp["place"].get("id", "")), 1))
 			var q := c + Vector2(randf_range(-r, r), randf_range(-r, r)) * 0.5
 			m.global_position = _ground(q)
 			(camp["residents"] as Array).append(m)

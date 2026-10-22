@@ -1,6 +1,6 @@
 # Building interiors
 
-Five enterable interiors, each a self-contained scene. They're built by Blender scripts and ready to
+Nine enterable interiors, each a self-contained scene. They're built by Blender scripts and ready to
 wire into the world with one door node per building.
 
 | Scene | Room | Tris (room + props) | NPC markers |
@@ -10,8 +10,12 @@ wire into the world with one door node per building.
 | `guild_interior.tscn` | Guild hall 12 × 10 m (reception desk, quest board, banners, tables, hearth) | `interior_guild.json` | `NPC_Receptionist` behind the desk, `NPC_Adventurer` at the quest board |
 | `healer_interior.tscn` | Healer 8 × 7 m (potion shelves, herbs, two beds, work table with mortar, cauldron) | `interior_healer.json` | `NPC_Healer` behind the work table |
 | `house_interior.tscn` | Generic house 7 × 6 m (hearth, table, two beds, chest, shelves). Use it for all 5 house types | `interior_house.json` | `NPC_Resident` by the hearth |
+| `guildhall_interior.tscn` | Silverford Guild Hall 13 × 10 m (Masons' and Runecarvers' Guild + Merchants' Hall: ledger counter with scales, glowing runestone, mason's bench, contract board, hearth). Region 1, L3 | `interior_guildhall.json` | `NPC_Guildmaster`, `NPC_Runecarver`, `NPC_Clerk` |
+| `chapel_interior.tscn` | Chapel of the Dawn Throne, nave 9 × 14 m, warm white stone and gold, dais + altar under the Dawn Throne sun, pews. Region 1, L3 | `interior_chapel.json` | `NPC_Priest` on the dais, `NPC_Pilgrim` |
+| `manor_interior.tscn` | Noble manor (timber beams, plaster, fireplace, banners, rugs). Used for every `mhouse_manor` lot via `BuildingProfiles.HAND_MADE` | `interior_manor.json` (48k tris) | `NPC_Lord_Aethelgard` |
+| `trader_interior.tscn` | Trader's Post (shop interior). Used for every ordinary `mhouse_trader` lot; slice-tagged shops (general shop, bakery) keep their generated layout | `interior_trader.json` (61.8k tris, over the 60k rule: accepted, see below) | `NPC_Shopkeeper` |
 
-Every interior stays under 60k triangles and uses 4 materials: `RA_Wood`, `RA_Plaster` (the shared
+Every interior stays under 60k triangles (the trader at 61.8k is the one accepted exception; manor and trader use the high-poly `RA_Wood_hp` variant) and uses 4 materials: `RA_Wood`, `RA_Plaster` (the shared
 village textures), `RA_Ember` (fire and candle glow) and `RA_Props` (the shared props atlas). Lighting is
 baked into the vertex colours. Each scene adds at most two unshadowed OmniLights (they flicker) and a warm
 ambient `WorldEnvironment`.
@@ -161,3 +165,15 @@ Two changes to the behaviour described above:
 
 Service NPCs get their menus from `village_services.gd` `wire_settlement()` (innkeeper, blacksmith,
 receptionist, healer), and death inside calls `InteriorDoor.active.leave()`.
+
+## Modular interiors (F6, in the game now)
+
+`scenes/interiors/modular/<layout>.tscn` (house: cottage, two_room, family_loft, craftsman; shop: general_store,
+bakery, tailor; tavern: tavern_inn, alehouse) are generated from `scripts/interiors/interior_layouts.gd` with the box
+kit `interior_kit.gd` by `modular_interior.gd`: 4 batched draws for the whole shell and furniture. `BuildingProfiles.
+interior_scene(asset, building_id)` picks the variant from a hash of the lot id (houses, the trader's house as a shop,
+the inn as a tavern); the smithy, guild hall and healer keep their hand-made scenes. Furniture is interactable (Sleep
+via `bed_prop.gd`, Sit, owned containers, Climb, hearth, shop counter Station). `interior_light.gd` drives window glass,
+room light, hearth, lamp and ambient from `WorldSim.time_of_day`. `household.gd` puts the people the schedule sends home
+(or to the counter or the bar) inside as bodies. The exit trigger of every interior is grown to contain the spawn
+(`InteriorDoor.cover_point`). Tests: `tests/test_buildings_live.gd`; contact sheet harness: `tools_qa/interiors/`.

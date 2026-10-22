@@ -1,0 +1,15 @@
+{
+ "name": "villager_white_shirt",
+ "height_m": 1.72,
+ "lod0_tris": 6999,
+ "lod1_tris": 2909,
+ "model_units_top": 1.8996,
+ "model_units_top_all": 1.8996,
+ "head_bone_z": 1.5688,
+ "pelvis_z": 0.9167,
+ "mh_character_height_param": 1.562,
+ "forearm_radius": 0.052,
+ "skirt_verts": 1017,
+ "head_rigid_verts": 481,
+ "heat_missed": 0
+}

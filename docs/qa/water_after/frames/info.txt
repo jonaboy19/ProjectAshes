@@ -1,0 +1,5 @@
+source: /tmp/seqf
+duration_s: 0.960000
+sample_fps: 5
+frames_per_sheet: 12  (= 2.4 s per sheet)
+sheets: 1

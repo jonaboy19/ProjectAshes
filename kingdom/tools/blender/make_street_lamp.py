@@ -21,6 +21,8 @@ ROOT = os.path.abspath(os.path.join(HERE, "..", "..", ".."))
 TEX = os.path.join(ROOT, "kingdom", "assets", "art", "textures")
 
 k = TK("StreetLamp", seed=707, pal=palette(stone="warm", timber="dark"))
+k.pbr = dict(size=512, seed=1, ao_dist=0.3, cage=0.02, ray=0.06)   # high-to-low PBR bake (pbr_kit.py)
+k.weather_ao = 0.34
 MA, W, MT = k.M("Matte"), k.M("Wood"), k.M("Metal")
 k.grime = 0.6
 k.grime_amt = 0.18

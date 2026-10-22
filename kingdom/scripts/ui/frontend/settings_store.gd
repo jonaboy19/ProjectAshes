@@ -10,18 +10,24 @@ const PATH := "user://settings.cfg"
 
 const RES_OPTIONS := ["1280 x 720", "1600 x 900", "1920 x 1080", "2560 x 1440"]
 const LEVELS := ["Low", "Medium", "High", "Ultra"]
+## View Distance / Shadows / Textures / Effects: 0 = follow the graphics preset, 1..4 = Low..Ultra
+## (Quality.set_overrides). Saves from before the "Auto" entry stored 0..3 and are read as Auto.
+const LEVEL_KEYS := ["view_distance", "shadows", "textures", "effects"]
+const LEVEL_OPTIONS := ["Auto", "Low", "Medium", "High", "Ultra"]
 const DEFAULTS := {
-	"resolution": 0, "display_mode": 0, "vsync": 1, "aa": 1, "view_distance": 2, "shadows": 2,
-	"textures": 2, "effects": 2, "fps_limit": 1,
+	"resolution": 0, "display_mode": 0, "vsync": 1, "aa": 1, "view_distance": 0, "shadows": 0,
+	"textures": 0, "effects": 0, "fps_limit": 3,
 	"vol_master": 80, "vol_music": 70, "vol_sfx": 80, "vol_ambience": 75, "vol_voice": 85,
 	"difficulty": 1, "cam_sens": 50, "invert_y": false, "subtitles": true,
 	"hud_minimap": true, "hud_quests": true, "hud_compass": true, "hud_damage": true,
 	"language": 0, "text_size": 1, "colorblind": 0, "screen_shake": 2,
+	"render_scale": 100, "joystick_size": 50, "vibration": true, "tutorial_tips": true,
+	"cast_camera": true, "dev_sim_overlay": false, "talk_camera": true, "wheel_slow": true, "auto_vault": true,
 }
 const SECTION := {
 	"resolution": "display", "display_mode": "display", "vsync": "display", "aa": "display",
 	"view_distance": "display", "shadows": "display", "textures": "display", "effects": "display",
-	"fps_limit": "display", "language": "gameplay", "text_size": "access", "colorblind": "access",
+	"fps_limit": "display", "render_scale": "display", "language": "gameplay", "text_size": "access", "colorblind": "access",
 	"screen_shake": "access",
 }
 const BUSES := {"vol_master": "Master", "vol_music": "Music", "vol_sfx": "SFX", "vol_ambience": "Ambience",
@@ -31,11 +37,23 @@ const TEXT_SCALE := [0.9, 1.0, 1.15, 1.3]
 ## Rebindable actions: [action, label].
 const ACTIONS := [
 	["move_forward", "Move Forward"], ["move_back", "Move Back"], ["move_left", "Move Left"],
-	["move_right", "Move Right"], ["sprint", "Sprint"], ["dodge", "Dodge"], ["attack", "Attack"],
+	["move_right", "Move Right"], ["sprint", "Sprint"], ["jump", "Jump"], ["dodge", "Dodge"], ["attack", "Attack"],
 	["block", "Block"], ["interact", "Interact / Talk"], ["eat", "Eat"], ["view_cycle", "Change View"],
 	["journal", "Menu / Journal"], ["world_map", "World Map"], ["photo_mode", "Photo Mode"],
-	["quick_save", "Quick Save"], ["quick_load", "Quick Load"],
+	["quick_save", "Quick Save"], ["quick_load", "Quick Load"], ["lock_on", "Lock On"], ["crouch", "Crouch / Sneak"],
+	["ability_dash", "Shadow Dash"], ["menu_inventory", "Inventory"], ["menu_skills", "Skills"],
+	["menu_treasury", "Treasury"], ["menu_followers", "Followers"], ["menu_court", "Court"], ["menu_letters", "Letters"],
 ]
+
+
+## The four level rows from a loaded config as Quality overrides (-1 = follow the preset).
+static func levels_from_config(cf: ConfigFile) -> Array[int]:
+	var out: Array[int] = []
+	var fresh := bool(cf.get_value("display", "levels_v2", false))
+	for k: String in LEVEL_KEYS:
+		var v := int(cf.get_value("display", k, 0)) if fresh else 0
+		out.append(clampi(v, 0, 4) - 1)
+	return out
 
 
 static func section_of(key: String) -> String:
@@ -58,9 +76,19 @@ static func read_all(tree: SceneTree) -> Dictionary:
 	var out := {}
 	for k: String in DEFAULTS:
 		out[k] = cf.get_value(section_of(k), k, DEFAULTS[k])
+	# fps_limit 3 = Auto (tier cap + thermal guard), the default since 2026-10-05. Older saves
+	# stored the old default 1 (60), which overrode LOW's 30 cap on phones: read those as Auto.
+	if not bool(cf.get_value("display", "fps_v2", false)) and int(out["fps_limit"]) == 1:
+		out["fps_limit"] = 3
+	var lv := levels_from_config(cf)
+	for i in LEVEL_KEYS.size():
+		out[LEVEL_KEYS[i]] = lv[i] + 1
 	var q := tree.root.get_node_or_null("Quality")
 	if q:
 		out["preset"] = int(q.get("choice")) + 1     # 0 Auto, 1..4 Low..Ultra
+		# PC: the AA row is Auto/FXAA/TAA/FSR 2. Saves from before it (default 1 = FXAA, 2/3 = MSAA) read as Auto.
+		if bool(q.call("is_pc")) and not bool(cf.get_value("display", "aa_pc", false)):
+			out["aa"] = 0
 	else:
 		out["preset"] = 0
 	return out
@@ -72,6 +100,9 @@ static func write_all(vals: Dictionary) -> void:
 	for k: String in DEFAULTS:
 		if vals.has(k):
 			cf.set_value(section_of(k), k, vals[k])
+	cf.set_value("display", "levels_v2", true)
+	cf.set_value("display", "aa_pc", true)
+	cf.set_value("display", "fps_v2", true)
 	cf.save(PATH)
 
 
@@ -100,21 +131,41 @@ static func apply_all(tree: SceneTree, vals := {}, with_preset := false) -> void
 	var q := tree.root.get_node_or_null("Quality")
 	if with_preset and q and vals.has("preset"):
 		q.call("set_choice", int(vals["preset"]) - 1)
-	# Frame cap: 30 = battery saver (Quality), 60 / unlimited via Engine.max_fps.
+	# Frame cap: 30 = battery saver (Quality), 60 / unlimited via Engine.max_fps, 3 = Auto
+	# (the tier's own cap: LOW 30, MEDIUM/HIGH 60). The thermal guard runs for 60 and Auto.
 	if q:
 		var fps := int(vals["fps_limit"])
+		q.set("thermal_guard", fps == 1 or fps == 3)
 		q.call("set_battery_saver", fps == 0)
+		apply_levels(tree, vals)
 		if fps == 1:
 			Engine.max_fps = 60
 		elif fps == 2 and not is_mobile():
 			Engine.max_fps = 0
 	# Anti-aliasing on any 3D viewport.
 	var aa := int(vals["aa"])
-	for v in tree.root.find_children("*", "SubViewport", true, false):
-		var sv := v as SubViewport
-		sv.screen_space_aa = Viewport.SCREEN_SPACE_AA_FXAA if aa == 1 else Viewport.SCREEN_SPACE_AA_DISABLED
-		sv.msaa_3d = [Viewport.MSAA_DISABLED, Viewport.MSAA_DISABLED, Viewport.MSAA_2X, Viewport.MSAA_4X][clampi(aa, 0, 3)]
+	if q and bool(q.call("is_pc")):
+		q.call("set_aa_mode", aa)     # PC: FSR2 / TAA / FXAA live in Quality; never write MSAA over FSR 2
+	else:
+		for v in tree.root.find_children("*", "SubViewport", true, false):
+			var sv := v as SubViewport
+			sv.screen_space_aa = Viewport.SCREEN_SPACE_AA_FXAA if aa == 1 else Viewport.SCREEN_SPACE_AA_DISABLED
+			sv.msaa_3d = [Viewport.MSAA_DISABLED, Viewport.MSAA_DISABLED, Viewport.MSAA_2X, Viewport.MSAA_4X][clampi(aa, 0, 3)]
 	apply_controls()
+	var app := tree.root.get_node_or_null("App")
+	if app:
+		app.call("refresh", vals)
+
+
+## View distance, shadows, textures and effects rows -> Quality (live, also at boot).
+static func apply_levels(tree: SceneTree, vals: Dictionary) -> void:
+	var q := tree.root.get_node_or_null("Quality")
+	if q == null:
+		return
+	var l: Array[int] = []
+	for k: String in LEVEL_KEYS:
+		l.append(clampi(int(vals.get(k, DEFAULTS[k])), 0, 4) - 1)
+	q.call("set_overrides", l[0], l[1], l[2], l[3])
 
 
 static func is_mobile() -> bool:

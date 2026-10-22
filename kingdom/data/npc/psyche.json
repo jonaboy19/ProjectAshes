@@ -1,0 +1,28 @@
+{
+  "_doc": "NI-4/MW-2 appraisal table (realm/psyche.gd). A kind's m is the mood push at severity 1 for an average witness: [stress, fear, anger, grief, confidence], each -1..1 (x 140 byte points). tempered: how much surviving it builds (resilient people) or erodes (fragile) confidence. theme: the lesson family. drift: per theme, [trait, byte delta, side]: applied when the person's trait is on that side of 128 (hi/lo), so the same event hardens one person and breaks another. Every nudge goes through persona.nudge (8 points a year cap).",
+  "tau_days": [25, 40, 15, 100, 70],
+  "kinds": [
+    {"id": "raid",      "m": [0.6, 0.9, 0.4, 0.1, -0.3], "tempered": 0.35, "theme": "violence"},
+    {"id": "crime",     "m": [0.3, 0.4, 0.5, 0.0, -0.1], "tempered": 0.15, "theme": "violence"},
+    {"id": "battle",    "m": [0.5, 0.6, 0.3, 0.3, 0.0],  "tempered": 0.3,  "theme": "violence"},
+    {"id": "emergency", "m": [0.6, 0.7, 0.1, 0.1, -0.2], "tempered": 0.25, "theme": "hardship"},
+    {"id": "famine",    "m": [0.7, 0.3, 0.3, 0.1, -0.3], "tempered": 0.25, "theme": "hardship"},
+    {"id": "death",     "m": [0.4, 0.2, 0.1, 0.9, -0.1], "tempered": 0.0,  "theme": "loss"},
+    {"id": "succession","m": [0.2, 0.1, 0.1, 0.0, 0.0],  "tempered": 0.0,  "theme": "order"},
+    {"id": "marriage",  "m": [-0.2, -0.1, -0.1, 0.0, 0.4], "tempered": 0.0, "theme": "joy"},
+    {"id": "birth",     "m": [-0.1, 0.0, 0.0, 0.0, 0.3], "tempered": 0.0,  "theme": "joy"},
+    {"id": "founding",  "m": [0.0, 0.0, 0.0, 0.0, 0.4],  "tempered": 0.0,  "theme": "success"},
+    {"id": "trade",     "m": [-0.1, 0.0, 0.0, 0.0, 0.2], "tempered": 0.0,  "theme": "success"},
+    {"id": "build",     "m": [-0.1, 0.0, 0.0, 0.0, 0.2], "tempered": 0.0,  "theme": "success"},
+    {"id": "aura_fear", "m": [0.5, 0.9, 0.1, 0.0, -0.4], "tempered": 0.25, "theme": "violence"},
+    {"id": "aura_awe",  "m": [0.05, 0.15, 0.0, 0.0, 0.1],  "tempered": 0.0,  "theme": "order"}
+  ],
+  "drift": {
+    "violence": [["boldness", 1, "hi"], ["boldness", -1, "lo"], ["mercy", 1, "hi"], ["mercy", -1, "lo"]],
+    "hardship": [["discipline", 1, "hi"], ["ambition", -1, "lo"], ["boldness", -1, "lo"]],
+    "loss":     [["warmth", 1, "hi"], ["piety", 1, "hi"], ["pride", -1, "lo"]],
+    "joy":      [["warmth", 1, "hi"], ["loyalty", 1, "hi"]],
+    "success":  [["ambition", 1, "hi"], ["pride", 1, "hi"]],
+    "order":    [["loyalty", 1, "hi"]]
+  }
+}

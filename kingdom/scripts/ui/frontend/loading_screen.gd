@@ -1,11 +1,11 @@
 extends "res://scripts/ui/frontend/screen.gd"
 ## Loading screen: logo, backdrop, rotating tips, gold progress bar driven by
-## ResourceLoader.load_threaded_request for main.tscn (>= MIN_TIME on screen), then
+## a MAIN-THREAD load of main.tscn (never load_threaded_request: see docs/qa/stability.md) after MIN_TIME, then
 ## the scene change. `preview` >= 0 freezes the bar there (screenshots / tests).
 
 const Flow := preload("res://scripts/ui/frontend/flow.gd")
 
-const MIN_TIME := 1.8
+const MIN_TIME := 1.4
 const TIP_TIME := 4.5
 const TIPS := [
 	"People remember your actions. Your reputation can open doors, or close them forever.",
@@ -45,7 +45,7 @@ var _tip_i := 0
 var _tip_t := 0.0
 var _t := 0.0
 var _shown := 0.0
-var _requested := false
+var _frames := 0
 var _done := false
 
 
@@ -121,9 +121,7 @@ func _ready() -> void:
 	_tip.text = TIPS[_tip_i]
 	_update(0.0)
 	FE.fade_in(self, 0.3)
-	if preview < 0.0:
-		ResourceLoader.load_threaded_request(target)
-		_requested = true
+	Flow.handoff_tip = _tip_i
 
 
 func _update(p: float) -> void:
@@ -133,6 +131,7 @@ func _update(p: float) -> void:
 
 func _process(delta: float) -> void:
 	_t += delta
+	_frames += 1
 	_tip_t += delta
 	if _tip_t >= TIP_TIME:
 		_tip_t = 0.0
@@ -146,29 +145,19 @@ func _process(delta: float) -> void:
 		return
 	if _done:
 		return
-	var prog := []
-	var st := ResourceLoader.load_threaded_get_status(target, prog)
-	var real := 0.0
-	if st == ResourceLoader.THREAD_LOAD_LOADED:
-		real = 1.0
-	elif st == ResourceLoader.THREAD_LOAD_IN_PROGRESS and not prog.is_empty():
-		real = float(prog[0])
-	elif st == ResourceLoader.THREAD_LOAD_FAILED or st == ResourceLoader.THREAD_LOAD_INVALID_RESOURCE:
-		_done = true
-		push_error("Loading failed: " + target)
-		get_tree().change_scene_to_file(target)
-		return
-	# Smoothed: shown never runs ahead of the real progress or of the minimum show time.
-	var want := minf(real, clampf(_t / MIN_TIME, 0.0, 1.0))
-	_shown = move_toward(_shown, want, delta * 1.5)
+	# Bar creeps to a few percent while the screen holds; main.gd's world veil (same look, same tip)
+	# takes over and reports the real world-generation progress.
+	_shown = move_toward(_shown, minf(_t / MIN_TIME, 1.0) * 0.03, delta)
 	_update(_shown)
-	if real >= 1.0 and _shown >= 0.999 and _t >= MIN_TIME:
+	if _t >= MIN_TIME and _frames >= 4:
 		_done = true
 		_finish()
 
 
 func _finish() -> void:
-	var res := ResourceLoader.load_threaded_get(target) as PackedScene
+	# Main-thread load: main.tscn pulls in scripts that touch meshes and materials, which must never
+	# be loaded on a worker thread. The screen has been on display for MIN_TIME, so the hitch is hidden.
+	var res := load(target) as PackedScene
 	var tree := get_tree()
 	Flow.enter_game(tree)
 	tree.paused = false

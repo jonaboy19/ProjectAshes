@@ -3,8 +3,8 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://cwr5r5hxwmgo2"
-path.s3tc="res://.godot/imported/iron.png-58185813c83f2c99d411d7d29e714da1.s3tc.ctex"
-path.etc2="res://.godot/imported/iron.png-58185813c83f2c99d411d7d29e714da1.etc2.ctex"
+path.bptc="res://.godot/imported/iron.png-58185813c83f2c99d411d7d29e714da1.bptc.ctex"
+path.astc="res://.godot/imported/iron.png-58185813c83f2c99d411d7d29e714da1.astc.ctex"
 metadata={
 "imported_formats": ["s3tc_bptc", "etc2_astc"],
 "vram_texture": true
@@ -13,12 +13,12 @@ metadata={
 [deps]
 
 source_file="res://assets/generated/region/textures/iron.png"
-dest_files=["res://.godot/imported/iron.png-58185813c83f2c99d411d7d29e714da1.s3tc.ctex", "res://.godot/imported/iron.png-58185813c83f2c99d411d7d29e714da1.etc2.ctex"]
+dest_files=["res://.godot/imported/iron.png-58185813c83f2c99d411d7d29e714da1.bptc.ctex", "res://.godot/imported/iron.png-58185813c83f2c99d411d7d29e714da1.astc.ctex"]
 
 [params]
 
 compress/mode=2
-compress/high_quality=false
+compress/high_quality=true
 compress/lossy_quality=0.7
 compress/uastc_level=0
 compress/rdo_quality_loss=0.0

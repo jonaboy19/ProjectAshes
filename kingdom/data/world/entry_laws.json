@@ -1,0 +1,18 @@
+{
+	"_doc": "MN-7. Entry law per culture (default) and per kingdom override. law: open | registry | escort | blessing | ban | reserve | quarantine. floor: required status for a companion SPECIES (kind fallback, then default) before power is added (+0.03 per power level). fee: gold per head under registry; permit price base. Strict-curfew towns exclude monsters after dusk even with permits.",
+	"laws": {
+		"caldric":  {"law": "registry",  "fee": 3, "strict_curfew": false, "floor": {"default": 0.25, "wolf": 0.25, "goblin": 0.25, "orc": 0.30, "ogre": 0.35, "bear": 0.35, "troll": 0.40, "spider": 0.35, "undead": 1.2}},
+		"solenne":  {"law": "blessing",  "fee": 8, "strict_curfew": true,  "floor": {"default": 0.55, "orc": 0.60, "wolf": 0.45, "goblin": 0.55, "ogre": 0.65, "troll": 0.65, "undead": 1.2}},
+		"urrokai":  {"law": "open",      "fee": 0, "strict_curfew": false, "floor": {"default": 0.20, "goblin": 0.30, "undead": 1.2}},
+		"veyl":     {"law": "open",      "fee": 0, "strict_curfew": false, "floor": {"default": 0.20, "orc": 0.30, "goblin": 0.30, "undead": 1.2}},
+		"frontier": {"law": "escort",    "fee": 2, "strict_curfew": false, "floor": {"default": 0.25, "spider": 0.35, "undead": 1.2}},
+		"folk":     {"law": "registry",  "fee": 2, "strict_curfew": false, "floor": {"default": 0.25, "undead": 1.2}},
+		"monster_town": {"law": "reserve", "fee": 0, "strict_curfew": false, "floor": {"default": 0.10, "undead": 1.2}}
+	},
+	"kingdom_override": {"varska_marches": {"law": "ban"}},
+	"bribe_base": 20,
+	"permit_price": {"charter": 60, "church_seal": 80, "noble_letter": 120, "registry_tag": 3},
+	"dusk_hour": 20,
+	"dawn_hour": 5,
+	"cleansing_rite": {"days": 3, "gold_per_day": 3, "status_bonus": 0.1}
+}

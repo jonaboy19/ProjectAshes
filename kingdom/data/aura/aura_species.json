@@ -1,0 +1,8 @@
+{
+	"version": 1,
+	"species": {"human": 1.0, "dog": 1.6, "horse": 1.8, "cat": 2.0, "bird": 1.4, "cattle": 1.0, "insect": 0.2, "undead": 0.0, "soulbeast": 0.6, "spirit": 2.5},
+	"state": {"normal": 1.0, "asleep": 0.7, "drunk": 0.8, "panicked": 1.3, "ill": 1.5, "starving": 1.5, "praying": 1.1},
+	"training": {"civilian": 1.0, "soldier": 0.5, "monk": 0.3, "warded_officer": 0.4, "quest_critical": 0.5},
+	"age": {"infant": -0.2, "child": 0.0, "adult": 0.0, "elder": 0.3},
+	"faith_read": {"holy": 1.2, "demonic": 1.4, "neutral": 1.0, "secular": 0.8}
+}

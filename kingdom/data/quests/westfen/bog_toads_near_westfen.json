@@ -1,0 +1,76 @@
+{
+ "id": "westfen_bog_toads_near_westfen",
+ "title": "Bog Toads Near Westfen",
+ "summary": "Bog toad sign has been found at the edge of Westfen: slime trails through flattened reeds. Helm Vesper wants 3 of them dealt with.",
+ "giver": {
+  "npc": "helm_vesper",
+  "name": "Helm Vesper",
+  "place": "westfen"
+ },
+ "requires": [
+  "westfen_the_sickness_at_the_door"
+ ],
+ "offer_text": "\"The bog toads have come closer to Westfen each night: croaking that stops when anyone comes near. Go to the edge and thin them out, before someone is hurt.\"",
+ "turn_in_text": "\"Quieter already. I will sleep tonight. A little.\"",
+ "stages": [
+  {
+   "id": "edge",
+   "title": "Go to the edge of town",
+   "mode": "all",
+   "objectives": [
+    {
+     "id": "reach",
+     "type": "goto",
+     "place": "westfen_outskirts",
+     "text": "Go to where the bog toads were seen"
+    }
+   ]
+  },
+  {
+   "id": "hunt",
+   "title": "Thin them out",
+   "mode": "all",
+   "objectives": [
+    {
+     "id": "hunt",
+     "type": "kill",
+     "target": "bog_toad",
+     "place": "westfen_outskirts",
+     "count": 3,
+     "text": "Kill 3 bog toads near Westfen"
+    }
+   ]
+  },
+  {
+   "id": "report",
+   "title": "Tell Helm",
+   "mode": "all",
+   "objectives": [
+    {
+     "id": "report",
+     "type": "talk_to",
+     "npc": "helm_vesper",
+     "text": "Tell Helm Vesper it is done"
+    }
+   ],
+   "end": true
+  }
+ ],
+ "rewards": {
+  "gold": 31,
+  "rep": {
+   "westfen": 5
+  },
+  "relationship": [
+   {
+    "npc": "helm_vesper",
+    "label": "Kept the bog toads from the edge",
+    "value": 10,
+    "days": 60
+   }
+  ],
+  "items": {
+   "candle": 2
+  }
+ }
+}

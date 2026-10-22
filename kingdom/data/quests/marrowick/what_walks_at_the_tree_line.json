@@ -1,0 +1,78 @@
+{
+ "id": "marrowick_what_walks_at_the_tree_line",
+ "title": "What Walks at the Tree Line",
+ "summary": "Vance Thackeray says something is out at the edge of Marrowick: tracks too big for a dog and fences torn outward. Learn what it is, then put it down.",
+ "giver": {
+  "npc": "vance_thackeray",
+  "name": "Vance Thackeray",
+  "place": "marrowick"
+ },
+ "requires": [
+  "marrowick_light_fingers"
+ ],
+ "offer_text": "\"There is sign at the tree line: tracks too big for a dog and fences torn outward. I cannot tell how many, or how bold. Read it for me, and then put them down.\"",
+ "turn_in_text": "\"Now we know what we are dealing with, and it is dealt with.\"",
+ "stages": [
+  {
+   "id": "read",
+   "title": "Read the sign",
+   "mode": "all",
+   "objectives": [
+    {
+     "id": "sign",
+     "type": "investigate",
+     "clues": [
+      "marrowick/clue/t1",
+      "marrowick/clue/t2",
+      "marrowick/clue/t3"
+     ],
+     "count": 2,
+     "text": "Find two signs of the wolves around the edge of Marrowick"
+    }
+   ]
+  },
+  {
+   "id": "hunt",
+   "title": "Deal with them",
+   "mode": "all",
+   "objectives": [
+    {
+     "id": "hunt",
+     "type": "kill",
+     "target": "wolf",
+     "place": "marrowick_outskirts",
+     "count": 2,
+     "text": "Kill 2 wolves near Marrowick"
+    }
+   ]
+  },
+  {
+   "id": "report",
+   "title": "Tell Vance",
+   "mode": "all",
+   "objectives": [
+    {
+     "id": "report",
+     "type": "talk_to",
+     "npc": "vance_thackeray",
+     "text": "Tell Vance Thackeray what you found"
+    }
+   ],
+   "end": true
+  }
+ ],
+ "rewards": {
+  "gold": 27,
+  "rep": {
+   "marrowick": 5
+  },
+  "relationship": [
+   {
+    "npc": "vance_thackeray",
+    "label": "Read the sign and acted on it",
+    "value": 11,
+    "days": 60
+   }
+  ]
+ }
+}

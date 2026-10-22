@@ -159,12 +159,14 @@ func _tab_graphics() -> void:
 		_row("resolution", "Resolution", "opt", SS.RES_OPTIONS)
 		_row("display_mode", "Display Mode", "opt", ["Windowed", "Fullscreen", "Borderless"])
 	_row("vsync", "VSync", "opt", ["Off", "On", "Adaptive"])
-	_row("aa", "Anti-Aliasing", "opt", ["Off", "FXAA", "MSAA 2x", "MSAA 4x"])
-	_row("view_distance", "View Distance", "opt", SS.LEVELS)
-	_row("shadows", "Shadows", "opt", SS.LEVELS)
-	_row("textures", "Textures", "opt", SS.LEVELS)
-	_row("effects", "Effects", "opt", SS.LEVELS)
-	_row("fps_limit", "Frame Rate Limit", "opt", ["30", "60", "Unlimited"])
+	_row("aa", "Anti-Aliasing", "opt", ["Auto", "FXAA", "TAA", "FSR 2"] if Quality.is_pc() else ["Off", "FXAA", "MSAA 2x", "MSAA 4x"])
+	_row("view_distance", "View Distance", "opt", SS.LEVEL_OPTIONS, "Auto follows the graphics preset.")
+	_row("shadows", "Shadows", "opt", SS.LEVEL_OPTIONS, "Auto follows the graphics preset.")
+	_row("textures", "Textures", "opt", SS.LEVEL_OPTIONS, "Auto follows the graphics preset.")
+	_row("effects", "Effects", "opt", SS.LEVEL_OPTIONS, "Auto follows the graphics preset.")
+	_row("fps_limit", "Frame Rate Limit", "opt", ["30", "60", "Unlimited", "Auto"],
+		"Auto follows the graphics preset (30 on Low, 60 above) and drops to 30 when the phone gets hot.")
+	_row("render_scale", "Resolution Scale", "slider", [], "50-100 % of the screen resolution for the 3D view. Lower is faster and cooler.")
 
 
 func _tab_audio() -> void:
@@ -179,11 +181,19 @@ func _tab_gameplay() -> void:
 	_row("difficulty", "Difficulty", "opt", DIFFICULTY)
 	_row("cam_sens", "Camera Sensitivity", "slider", [])
 	_row("invert_y", "Invert Y Axis", "toggle", [])
+	_row("cast_camera", "Cast Camera", "toggle", [], "A short push-in on big techniques. Any action skips it.")
+	_row("talk_camera", "Conversation Camera", "toggle", [], "The camera eases to an over-the-shoulder view while you talk to someone.")
+	_row("wheel_slow", "Slow Time In Wheel", "toggle", [], "The technique wheel slows the world while it is open.")
+	_row("auto_vault", "Auto Vault", "toggle", [], "Sprinting into a low obstacle vaults it. Off: use the Vault button or jump.")
+	_row("joystick_size", "Joystick Size", "slider", [], "Size of the on-screen movement stick (touch).")
+	_row("vibration", "Vibration", "toggle", [], "Feel hits and damage on phones.")
 	_row("subtitles", "Subtitles", "toggle", [])
+	_row("tutorial_tips", "Tutorial Tips", "toggle", [], "Short hints the first time you can do something. Turn off if you know the game; \"Show all tips again\" is on the story journal page.")
 	_row("hud_minimap", "HUD: Minimap", "toggle", [])
 	_row("hud_compass", "HUD: Compass", "toggle", [])
 	_row("hud_quests", "HUD: Quest Tracker", "toggle", [])
 	_row("hud_damage", "HUD: Damage Numbers", "toggle", [])
+	_row("dev_sim_overlay", "Developer Simulation Overlay", "toggle", [], "Show each resident's job, gold and current activity above their name (debug).")
 
 
 func _tab_controls() -> void:
@@ -200,7 +210,7 @@ func _tab_controls() -> void:
 
 
 func _tab_language() -> void:
-	_row("language", "Language", "opt", ["English"])
+	_row("language", "Language", "opt", ["English", "Nederlands"])
 	for l: String in ["Français", "Deutsch", "Español", "Português", "日本語"]:
 		var r := SelRow.new()
 		r.setup("", l, "info", [], "Coming soon")
@@ -213,7 +223,7 @@ func _tab_access() -> void:
 	_row("text_size", "Text Size", "opt", ["Small", "Normal", "Large", "Extra Large"])
 	_row("colorblind", "Colour-Blind Mode", "opt", ["Off", "Protanopia", "Deuteranopia", "Tritanopia"])
 	_row("screen_shake", "Screen Shake", "opt", ["Off", "Reduced", "Full"])
-	_content.add_child(AF.label("Colour-blind filters are a placeholder and will be applied in a later update.", 15, AF.TEXT_DIM, true))
+	_content.add_child(AF.label("Colour-blind mode shifts the colours so red, green and blue stay easy to tell apart.", 15, AF.TEXT_DIM, true))
 
 
 func _on_changed(key: String, value: Variant) -> void:
@@ -223,6 +233,8 @@ func _on_changed(key: String, value: Variant) -> void:
 	_vals[key] = value
 	if SS.BUSES.has(key):
 		SS.apply_volume(key, int(value))     # live preview of volume
+	elif SS.LEVEL_KEYS.has(key):
+		SS.apply_levels(get_tree(), _vals)   # view distance / shadows / textures / effects show at once
 	_update_caption()
 
 
@@ -261,14 +273,16 @@ func _reset() -> void:
 	else:
 		_vals = SS.DEFAULTS.duplicate()
 		_vals["preset"] = 0
+		SS.apply_levels(get_tree(), _vals)
 	_show_tab(_tab)
 	_update_caption()
 
 
 func back() -> void:
-	# Drop un-applied live previews (volumes).
+	# Drop un-applied live previews (volumes, graphics levels).
 	for k: String in SS.BUSES:
 		SS.apply_volume(k, int(_saved.get(k, SS.DEFAULTS[k])))
+	SS.apply_levels(get_tree(), _saved)
 	super()
 
 

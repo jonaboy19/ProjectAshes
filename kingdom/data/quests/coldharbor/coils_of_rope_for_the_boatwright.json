@@ -1,0 +1,77 @@
+{
+ "id": "coldharbor_coils_of_rope_for_the_boatwright",
+ "title": "Coils of Rope for the Boatwright",
+ "summary": "Fulk Brine wants 3 coils of rope from the boat slip taken to Blythe Selby before the boats go out, and then a word.",
+ "giver": {
+  "npc": "fulk_brine",
+  "name": "Fulk Brine",
+  "place": "coldharbor"
+ },
+ "offer_text": "\"We need coils of rope, and what is stacked at the boat slip is the town's to take. Carry it to Blythe Selby before the boats go out, then come and tell me.\"",
+ "turn_in_text": "\"Good. That is one thing in Coldharbor that goes right.\"",
+ "stages": [
+  {
+   "id": "fetch",
+   "title": "Fetch the stock",
+   "mode": "sequence",
+   "objectives": [
+    {
+     "id": "reach",
+     "type": "goto",
+     "place": "coldharbor_works",
+     "text": "Go to the boat slip"
+    },
+    {
+     "id": "gather",
+     "type": "collect",
+     "item": "rope",
+     "count": 3,
+     "text": "Take 3 coils of rope from the pile"
+    }
+   ]
+  },
+  {
+   "id": "deliver",
+   "title": "Take it to Blythe Selby",
+   "mode": "all",
+   "objectives": [
+    {
+     "id": "hand_over",
+     "type": "deliver",
+     "item": "rope",
+     "count": 3,
+     "to": "blythe_selby",
+     "text": "Hand the coils of rope to Blythe Selby"
+    }
+   ]
+  },
+  {
+   "id": "report",
+   "title": "Tell Fulk",
+   "mode": "all",
+   "objectives": [
+    {
+     "id": "report",
+     "type": "talk_to",
+     "npc": "fulk_brine",
+     "text": "Tell Fulk Brine it is done"
+    }
+   ],
+   "end": true
+  }
+ ],
+ "rewards": {
+  "gold": 14,
+  "rep": {
+   "coldharbor": 3
+  },
+  "relationship": [
+   {
+    "npc": "fulk_brine",
+    "label": "Ran an errand for the town",
+    "value": 8,
+    "days": 45
+   }
+  ]
+ }
+}

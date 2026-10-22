@@ -3,8 +3,8 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://d0hsdlk5a3saa"
-path.s3tc="res://.godot/imported/ra_plaster_alb.png-1fa887e583ba8887279d05d22978f56c.s3tc.ctex"
-path.etc2="res://.godot/imported/ra_plaster_alb.png-1fa887e583ba8887279d05d22978f56c.etc2.ctex"
+path.bptc="res://.godot/imported/ra_plaster_alb.png-1fa887e583ba8887279d05d22978f56c.bptc.ctex"
+path.astc="res://.godot/imported/ra_plaster_alb.png-1fa887e583ba8887279d05d22978f56c.astc.ctex"
 metadata={
 "imported_formats": ["s3tc_bptc", "etc2_astc"],
 "vram_texture": true
@@ -13,12 +13,12 @@ metadata={
 [deps]
 
 source_file="res://assets/generated/village_tex/ra_plaster_alb.png"
-dest_files=["res://.godot/imported/ra_plaster_alb.png-1fa887e583ba8887279d05d22978f56c.s3tc.ctex", "res://.godot/imported/ra_plaster_alb.png-1fa887e583ba8887279d05d22978f56c.etc2.ctex"]
+dest_files=["res://.godot/imported/ra_plaster_alb.png-1fa887e583ba8887279d05d22978f56c.bptc.ctex", "res://.godot/imported/ra_plaster_alb.png-1fa887e583ba8887279d05d22978f56c.astc.ctex"]
 
 [params]
 
 compress/mode=2
-compress/high_quality=false
+compress/high_quality=true
 compress/lossy_quality=0.7
 compress/uastc_level=0
 compress/rdo_quality_loss=0.0

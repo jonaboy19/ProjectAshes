@@ -575,6 +575,18 @@ func decide(settlement_idx: int, issue_id: int, choice: int) -> Dictionary:
 			issue = q
 	if issue.is_empty():
 		return {"ok": false, "text": "That matter has already been settled."}
+	if String(issue.get("kind", "")) == "wolves":
+		var den_id := int((issue.get("data", {}) as Dictionary).get("den_id", -1))
+		var den_is_threatening := false
+		if den_id >= 0:
+			for den: Dictionary in Frontier.ecology.dens:
+				if int(den.get("id", -1)) == den_id and bool(den.get("alive", false)) and int(den.get("population", 0)) > 0:
+					den_is_threatening = true
+					break
+		if not den_is_threatening:
+			v["issues"].erase(issue)
+			village_changed.emit(settlement_idx)
+			return {"ok": true, "text": "The wolf threat has already been resolved."}
 	var decisions := decisions_for(v, issue)
 	if choice < 0 or choice >= decisions.size():
 		return {"ok": false, "text": "No such choice."}

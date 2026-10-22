@@ -73,13 +73,13 @@ func _run(shots: PackedStringArray) -> void:
 	var t := Time.get_ticks_msec()
 	while main.get("player") == null or not main.player.is_inside_tree():
 		await frames(1)
-		if Time.get_ticks_msec() - t > 180000:
+		if Time.get_ticks_msec() - t > int(_args().get("bootwait", "180")) * 1000:
 			print("STORE: player never appeared"); get_tree().quit(1); return
 	player = main.player
 	hud = main.hud
 	while true:
-		var ld: Control = hud.get("_loading")
-		if ld == null or not ld.visible:
+		var ld: Variant = hud.get("_loading")
+		if not is_instance_valid(ld) or not ld.visible:
 			break
 		await frames(1)
 	await wait(2.0)

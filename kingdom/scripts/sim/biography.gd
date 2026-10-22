@@ -14,7 +14,7 @@ extends RefCounted
 
 const RALifePath := preload("res://scripts/sim/life_path.gd")
 
-const SPHERES: Array[String] = ["military", "trade", "craft", "farming", "faith", "underworld"]
+const SPHERES: Array[String] = ["military", "trade", "craft", "farming", "faith", "underworld", "letters"]
 ## Chronological log kept in full; only the highlight list per chapter is capped.
 const MAX_HIGHLIGHTS_PER_CHAPTER := 12
 

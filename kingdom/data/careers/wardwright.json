@@ -1,0 +1,7 @@
+{
+ "_doc": "Runeward Legion terms for the Wardwright trade (C13, Region 1 balance). Read by scripts/realm/career_trades.gd (stone_work, ward_stipend); ranks and promotion live in ladders.json under \"wardwright\". The Legion pays a weekly stipend by rank (docked when the player did stone work on fewer than min_days_week days), a small fee for the first mend of a day (the round), a fee scaled by how much a stone needed mending (a sound stone pays nothing extra, so repeat-mending pays nothing), and a fee per glyph carved (at most max_paid_carves a day).",
+ "stipend_week": [28, 42, 63, 91, 126],
+ "min_days_week": 4,
+ "mend": {"daily_base": 6, "need_base": 8, "clean_above": 0.9, "full_need": 0.45, "min_need": 0.1},
+ "carve": {"base": 9, "max_paid_carves": 3}
+}

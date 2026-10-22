@@ -1,0 +1,5 @@
+source: /c/Users/Jonna/AppData/Local/Temp/claude/look/walk2/seq
+duration_s: 48.600000
+sample_fps: 2
+frames_per_sheet: 12  (= 6 s per sheet)
+sheets: 7

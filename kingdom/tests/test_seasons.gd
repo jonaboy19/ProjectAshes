@@ -74,7 +74,9 @@ func test_festival_today_and_next_festival() -> void:
 	assert_str(String(nxt["id"])).is_equal("planting")
 	assert_int(int(nxt["in_days"])).is_equal(6)
 	var after_harvest := Seasons.next_festival_from(Seasons.first_day_of(Seasons.AUTUMN) + 21)
-	assert_str(String(after_harvest["id"])).is_equal("solstice")
+	assert_str(String(after_harvest["id"])).is_equal("kindling_night")    # Region1: last night of autumn
+	var after_kindling := Seasons.next_festival_from(Seasons.first_day_of(Seasons.AUTUMN) + 28)
+	assert_str(String(after_kindling["id"])).is_equal("solstice")
 
 
 func test_forage_in_season() -> void:

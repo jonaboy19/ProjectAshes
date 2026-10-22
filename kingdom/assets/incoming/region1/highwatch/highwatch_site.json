@@ -1,0 +1,569 @@
+{
+ "name": "highwatch_keep",
+ "region": "ashford_vale",
+ "faction": "Order of the Highwatch (Valencious)",
+ "coordinate_space": "Godot metres, site-local. Origin = centre of the gate threshold on the ground; the compound extends toward -Z (north). Piece yaw is degrees about +Y (counter-clockwise seen from above); piece fronts face +Z at yaw 0.",
+ "footprint_m": {
+  "x": [
+   -27.3,
+   27.3
+  ],
+  "z": [
+   -37.6,
+   2.6
+  ]
+ },
+ "material": "highwatch_kit.tres (shared atlas textures/highwatch_atlas.jpg)",
+ "draw_calls": 32,
+ "instances": 32,
+ "tris_lod0": 120058,
+ "tris_lod1": 37079,
+ "lod_switch_m": [
+  60.0,
+  160.0
+ ],
+ "far_lod": "highwatch_site_far.glb",
+ "pieces": {
+  "gate": {
+   "lod0": "gate_lod0.glb",
+   "lod1": "gate_lod1.glb",
+   "tris_lod0": 11999,
+   "tris_lod1": 3598,
+   "size_m_xyz": [
+    14.0,
+    10.49,
+    4.59
+   ]
+  },
+  "tower_round": {
+   "lod0": "tower_round_lod0.glb",
+   "lod1": "tower_round_lod1.glb",
+   "tris_lod0": 7990,
+   "tris_lod1": 2397,
+   "size_m_xyz": [
+    5.78,
+    10.6,
+    7.05
+   ]
+  },
+  "watchtower": {
+   "lod0": "watchtower_lod0.glb",
+   "lod1": "watchtower_lod1.glb",
+   "tris_lod0": 8000,
+   "tris_lod1": 2400,
+   "size_m_xyz": [
+    6.39,
+    8.6,
+    6.18
+   ]
+  },
+  "keep": {
+   "lod0": "keep_lod0.glb",
+   "lod1": "keep_lod1.glb",
+   "tris_lod0": 15000,
+   "tris_lod1": 4500,
+   "size_m_xyz": [
+    15.89,
+    11.4,
+    16.0
+   ]
+  },
+  "well": {
+   "lod0": "well_lod0.glb",
+   "lod1": "well_lod1.glb",
+   "tris_lod0": 2491,
+   "tris_lod1": 747,
+   "size_m_xyz": [
+    2.32,
+    3.0,
+    1.84
+   ]
+  },
+  "wall_14": {
+   "lod0": "wall_14_lod0.glb",
+   "lod1": "wall_14_lod1.glb",
+   "tris_lod0": 108,
+   "tris_lod1": 28,
+   "size_m_xyz": [
+    14.6,
+    7.55,
+    3.38
+   ]
+  },
+  "banner_pole": {
+   "lod0": "banner_pole_lod0.glb",
+   "lod1": "banner_pole_lod1.glb",
+   "tris_lod0": 176,
+   "tris_lod1": 96,
+   "size_m_xyz": [
+    1.05,
+    4.3,
+    0.5
+   ]
+  },
+  "tower_roof": {
+   "lod0": "tower_roof_lod0.glb",
+   "lod1": "tower_roof_lod1.glb",
+   "tris_lod0": 180,
+   "tris_lod1": 104,
+   "size_m_xyz": [
+    7.5,
+    5.95,
+    7.31
+   ]
+  },
+  "training_yard": {
+   "lod0": "training_yard_lod0.glb",
+   "lod1": "training_yard_lod1.glb",
+   "tris_lod0": 12861,
+   "tris_lod1": 4493,
+   "size_m_xyz": [
+    11.0,
+    2.54,
+    15.85
+   ]
+  },
+  "guard_post": {
+   "lod0": "guard_post_lod0.glb",
+   "lod1": "guard_post_lod1.glb",
+   "tris_lod0": 10503,
+   "tris_lod1": 3156,
+   "size_m_xyz": [
+    2.45,
+    2.26,
+    2.4
+   ]
+  },
+  "supplies": {
+   "lod0": "supplies_lod0.glb",
+   "lod1": "supplies_lod1.glb",
+   "tris_lod0": 5993,
+   "tris_lod1": 1797,
+   "size_m_xyz": [
+    4.21,
+    1.7,
+    1.69
+   ]
+  }
+ },
+ "placements": [
+  {
+   "piece": "gate",
+   "pos": [
+    0,
+    0.0,
+    0
+   ],
+   "yaw_deg": 0,
+   "note": "exterior faces -Y (south / Godot +Z)"
+  },
+  {
+   "piece": "wall_14",
+   "pos": [
+    -14.0,
+    0.0,
+    0
+   ],
+   "yaw_deg": 0,
+   "note": "south wing"
+  },
+  {
+   "piece": "wall_14",
+   "pos": [
+    14.0,
+    0.0,
+    0
+   ],
+   "yaw_deg": 0,
+   "note": "south wing"
+  },
+  {
+   "piece": "wall_14",
+   "pos": [
+    -14.6,
+    0.0,
+    -34.6
+   ],
+   "yaw_deg": 180,
+   "note": "north run"
+  },
+  {
+   "piece": "wall_14",
+   "pos": [
+    0,
+    0.0,
+    -34.6
+   ],
+   "yaw_deg": 180,
+   "note": "north run"
+  },
+  {
+   "piece": "wall_14",
+   "pos": [
+    14.6,
+    0.0,
+    -34.6
+   ],
+   "yaw_deg": 180,
+   "note": "north run"
+  },
+  {
+   "piece": "wall_14",
+   "pos": [
+    24.3,
+    0.0,
+    -8.65
+   ],
+   "yaw_deg": 90,
+   "note": "east run"
+  },
+  {
+   "piece": "wall_14",
+   "pos": [
+    -24.3,
+    0.0,
+    -8.65
+   ],
+   "yaw_deg": -90,
+   "note": "west run"
+  },
+  {
+   "piece": "wall_14",
+   "pos": [
+    24.3,
+    0.0,
+    -25.95
+   ],
+   "yaw_deg": 90,
+   "note": "east run"
+  },
+  {
+   "piece": "wall_14",
+   "pos": [
+    -24.3,
+    0.0,
+    -25.95
+   ],
+   "yaw_deg": -90,
+   "note": "west run"
+  },
+  {
+   "piece": "tower_round",
+   "pos": [
+    -24.3,
+    0.0,
+    0
+   ],
+   "yaw_deg": 0,
+   "note": "corner tower"
+  },
+  {
+   "piece": "tower_roof",
+   "pos": [
+    -24.3,
+    8.75,
+    0
+   ],
+   "yaw_deg": 0,
+   "note": "conical blue roof on the corner tower"
+  },
+  {
+   "piece": "tower_round",
+   "pos": [
+    -24.3,
+    0.0,
+    -34.6
+   ],
+   "yaw_deg": 0,
+   "note": "corner tower"
+  },
+  {
+   "piece": "tower_roof",
+   "pos": [
+    -24.3,
+    8.75,
+    -34.6
+   ],
+   "yaw_deg": 0,
+   "note": "conical blue roof on the corner tower"
+  },
+  {
+   "piece": "watchtower",
+   "pos": [
+    -24.3,
+    0.0,
+    -17.3
+   ],
+   "yaw_deg": 90,
+   "note": "mid-wall watchtower, door faces the yard"
+  },
+  {
+   "piece": "tower_round",
+   "pos": [
+    24.3,
+    0.0,
+    0
+   ],
+   "yaw_deg": 0,
+   "note": "corner tower"
+  },
+  {
+   "piece": "tower_roof",
+   "pos": [
+    24.3,
+    8.75,
+    0
+   ],
+   "yaw_deg": 0,
+   "note": "conical blue roof on the corner tower"
+  },
+  {
+   "piece": "tower_round",
+   "pos": [
+    24.3,
+    0.0,
+    -34.6
+   ],
+   "yaw_deg": 0,
+   "note": "corner tower"
+  },
+  {
+   "piece": "tower_roof",
+   "pos": [
+    24.3,
+    8.75,
+    -34.6
+   ],
+   "yaw_deg": 0,
+   "note": "conical blue roof on the corner tower"
+  },
+  {
+   "piece": "watchtower",
+   "pos": [
+    24.3,
+    0.0,
+    -17.3
+   ],
+   "yaw_deg": -90,
+   "note": "mid-wall watchtower, door faces the yard"
+  },
+  {
+   "piece": "keep",
+   "pos": [
+    0,
+    0.0,
+    -23.4
+   ],
+   "yaw_deg": 0,
+   "note": "keep built into the north wall, faces the gate"
+  },
+  {
+   "piece": "training_yard",
+   "pos": [
+    -16.0,
+    0.0,
+    -13.0
+   ],
+   "yaw_deg": 0,
+   "note": "west yard 11 x 15 m"
+  },
+  {
+   "piece": "guard_post",
+   "pos": [
+    -9.6,
+    0.0,
+    -4.2
+   ],
+   "yaw_deg": 15,
+   "note": "inner gate guard"
+  },
+  {
+   "piece": "guard_post",
+   "pos": [
+    9.6,
+    0.0,
+    -4.2
+   ],
+   "yaw_deg": -15,
+   "note": "inner gate guard"
+  },
+  {
+   "piece": "well",
+   "pos": [
+    15.5,
+    0.0,
+    -10.0
+   ],
+   "yaw_deg": 0,
+   "note": ""
+  },
+  {
+   "piece": "supplies",
+   "pos": [
+    16.5,
+    0.0,
+    -20.0
+   ],
+   "yaw_deg": 160,
+   "note": ""
+  },
+  {
+   "piece": "banner_pole",
+   "pos": [
+    -8.6,
+    0.0,
+    4.2
+   ],
+   "yaw_deg": 0,
+   "note": ""
+  },
+  {
+   "piece": "banner_pole",
+   "pos": [
+    8.6,
+    0.0,
+    4.2
+   ],
+   "yaw_deg": 0,
+   "note": ""
+  },
+  {
+   "piece": "banner_pole",
+   "pos": [
+    -3.6,
+    0.0,
+    -6.5
+   ],
+   "yaw_deg": 0,
+   "note": ""
+  },
+  {
+   "piece": "banner_pole",
+   "pos": [
+    3.6,
+    0.0,
+    -6.5
+   ],
+   "yaw_deg": 0,
+   "note": ""
+  },
+  {
+   "piece": "banner_pole",
+   "pos": [
+    -5.2,
+    0.0,
+    -13.2
+   ],
+   "yaw_deg": 0,
+   "note": ""
+  },
+  {
+   "piece": "banner_pole",
+   "pos": [
+    5.2,
+    0.0,
+    -13.2
+   ],
+   "yaw_deg": 0,
+   "note": ""
+  }
+ ],
+ "npc_markers": [
+  {
+   "role": "gate_guard",
+   "pos": [
+    -6.0,
+    0,
+    -0.5
+   ],
+   "yaw_deg": 0,
+   "model": "res://assets/incoming/ai3d/meshy/armored/guard.glb"
+  },
+  {
+   "role": "gate_guard",
+   "pos": [
+    6.0,
+    0,
+    -0.5
+   ],
+   "yaw_deg": 0,
+   "model": "res://assets/incoming/ai3d/meshy/armored/guard.glb"
+  },
+  {
+   "role": "knight_captain",
+   "pos": [
+    0.0,
+    0,
+    -13.0
+   ],
+   "yaw_deg": 0,
+   "model": "res://assets/incoming/ai3d/meshy/armored/knight.glb",
+   "note": "Sir Rowan Ashby, in front of the keep"
+  },
+  {
+   "role": "sparring_pair",
+   "pos": [
+    -16.0,
+    0,
+    -12.0
+   ],
+   "yaw_deg": 90,
+   "model": "res://assets/incoming/ai3d/meshy/armored/knight.glb"
+  },
+  {
+   "role": "sparring_pair",
+   "pos": [
+    -14.0,
+    0,
+    -12.0
+   ],
+   "yaw_deg": -90,
+   "model": "res://assets/incoming/ai3d/meshy/armored/mercenary.glb"
+  },
+  {
+   "role": "wall_sentry",
+   "pos": [
+    -24.3,
+    7.0,
+    -8.6
+   ],
+   "yaw_deg": -90,
+   "model": "res://assets/incoming/ai3d/meshy/armored/guard.glb",
+   "note": "on the wall walk (z ~ 7.0 m)"
+  }
+ ],
+ "interactables": [
+  {
+   "id": "keep_door",
+   "pos": [
+    0.0,
+    0,
+    -14.8
+   ]
+  },
+  {
+   "id": "yard_dummy",
+   "pos": [
+    -18.5,
+    0,
+    -16.5
+   ]
+  },
+  {
+   "id": "barracks_supplies",
+   "pos": [
+    16.5,
+    0,
+    -20.0
+   ]
+  },
+  {
+   "id": "well",
+   "pos": [
+    15.5,
+    0,
+    -10.0
+   ]
+  }
+ ]
+}

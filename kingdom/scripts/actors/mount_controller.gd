@@ -44,6 +44,8 @@ var yaw := 0.0
 var speed := 0.0
 ## Saddle in the horse's local space: height of the seat surface and its offset along the spine.
 var seat := Vector3(0.0, 1.45, -0.2)
+## Cleared by the rider when the horse has galloped too long (travel_rules.gd GALLOP_FREE_S): it canters until it recovers.
+var gallop_allowed := true
 var _full_push := 0.0
 var _hoof := 0.0
 
@@ -110,7 +112,7 @@ func drive(delta: float, input: Vector3, sprint: bool, at: Vector3) -> Vector3:
 		yaw += clampf(angle, -rate * delta, rate * delta)
 		_full_push = _full_push + delta if push > 0.92 else 0.0
 		target = WALK_SPEED if push <= WALK_STICK else CANTER_SPEED
-		if target == CANTER_SPEED and (sprint or _full_push > GALLOP_HOLD):
+		if target == CANTER_SPEED and gallop_allowed and (sprint or _full_push > GALLOP_HOLD):
 			target = GALLOP_SPEED
 		# Stick well off the nose: collect and turn instead of charging on.
 		var align := facing().dot(want)

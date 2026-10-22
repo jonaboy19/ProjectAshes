@@ -49,6 +49,8 @@ shader_parameter/tail_len = null
 shader_parameter/pulse = null
 shader_parameter/pulse_speed = null
 shader_parameter/heat_scale = 1.0
+shader_parameter/soft_edge = 0.85
+shader_parameter/ring_soft = null
 
 [sub_resource type="CylinderMesh" id="CylinderMesh_i7c8t"]
 top_radius = 0.24
@@ -102,6 +104,8 @@ shader_parameter/tail_len = null
 shader_parameter/pulse = null
 shader_parameter/pulse_speed = null
 shader_parameter/heat_scale = 1.0
+shader_parameter/soft_edge = 0.85
+shader_parameter/ring_soft = null
 
 [sub_resource type="CylinderMesh" id="CylinderMesh_pig8q"]
 top_radius = 0.2
@@ -155,20 +159,20 @@ color_ramp = SubResource("GradientTexture1D_pulhl")
 material = ExtResource("5_xuv8e")
 size = Vector2(0.6666667, 0.8258065)
 
-[node name="Wind_Charge" type="Node3D" unique_id=828243571]
+[node name="Wind_Charge" type="Node3D" unique_id=1579415509]
 script = ExtResource("1_myawc")
 duration = 0.0
 kind = &"charge"
 element = &"wind"
 
-[node name="BandA" type="MeshInstance3D" parent="." unique_id=1996744477]
+[node name="BandA" type="MeshInstance3D" parent="." unique_id=865990911]
 material_override = SubResource("ShaderMaterial_dhql1")
 cast_shadow = 0
 extra_cull_margin = 2.0
 gi_mode = 0
 mesh = SubResource("CylinderMesh_i7c8t")
 
-[node name="BandB" type="MeshInstance3D" parent="." unique_id=342174086]
+[node name="BandB" type="MeshInstance3D" parent="." unique_id=1966358694]
 transform = Transform3D(0.8660254, -0.5, 0, 0.24999999, 0.43301266, -0.86602545, 0.43301272, 0.75, 0.49999997, 0, 0, 0)
 material_override = SubResource("ShaderMaterial_77tkl")
 cast_shadow = 0
@@ -176,14 +180,14 @@ extra_cull_margin = 2.0
 gi_mode = 0
 mesh = SubResource("CylinderMesh_pig8q")
 
-[node name="Glow" type="MeshInstance3D" parent="." unique_id=513357636]
+[node name="Glow" type="MeshInstance3D" parent="." unique_id=94117471]
 material_override = SubResource("ShaderMaterial_r318h")
 cast_shadow = 0
 extra_cull_margin = 2.0
 gi_mode = 0
 mesh = SubResource("QuadMesh_1rkpd")
 
-[node name="Streaks" type="GPUParticles3D" parent="." unique_id=84763900]
+[node name="Streaks" type="GPUParticles3D" parent="." unique_id=1130559545]
 cast_shadow = 0
 gi_mode = 0
 emitting = false

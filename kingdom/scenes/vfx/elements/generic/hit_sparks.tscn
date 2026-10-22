@@ -95,13 +95,13 @@ color_ramp = SubResource("GradientTexture1D_gq1q8")
 material = ExtResource("6_lcxu2")
 size = Vector2(0.18474227, 0.18474227)
 
-[node name="Light_Hit Sparks" type="Node3D" unique_id=1684540996]
+[node name="Light_Hit Sparks" type="Node3D" unique_id=897255744]
 script = ExtResource("1_164nf")
 duration = 0.55
 kind = &"hit_sparks"
 element = &"light"
 
-[node name="Star" type="MeshInstance3D" parent="." unique_id=1119573680]
+[node name="Star" type="MeshInstance3D" parent="." unique_id=359561475]
 material_override = SubResource("ShaderMaterial_hexmt")
 cast_shadow = 0
 extra_cull_margin = 2.0
@@ -123,7 +123,7 @@ metadata/anims = [{
 "t1": 0.2
 }]
 
-[node name="Flash" type="MeshInstance3D" parent="." unique_id=1427738016]
+[node name="Flash" type="MeshInstance3D" parent="." unique_id=587043511]
 material_override = SubResource("ShaderMaterial_ey42q")
 cast_shadow = 0
 extra_cull_margin = 2.0
@@ -145,7 +145,7 @@ metadata/anims = [{
 "t1": 0.22
 }]
 
-[node name="Sparks" type="GPUParticles3D" parent="." unique_id=184556468]
+[node name="Sparks" type="GPUParticles3D" parent="." unique_id=129599540]
 cast_shadow = 0
 gi_mode = 0
 emitting = false
@@ -161,7 +161,7 @@ draw_pass_1 = SubResource("QuadMesh_rqt1i")
 metadata/tint = true
 metadata/tint_white = 0.25
 
-[node name="Motes" type="GPUParticles3D" parent="." unique_id=754471230]
+[node name="Motes" type="GPUParticles3D" parent="." unique_id=111564847]
 cast_shadow = 0
 gi_mode = 0
 emitting = false
@@ -177,7 +177,7 @@ metadata/tier_min = 1
 metadata/tint = true
 metadata/tint_white = 0.3
 
-[node name="@OmniLight3D@8" type="OmniLight3D" parent="." unique_id=893046805]
+[node name="@OmniLight3D@8" type="OmniLight3D" parent="." unique_id=1450954279]
 light_color = Color(1, 0.86, 0.46, 1)
 light_energy = 2.0
 omni_range = 4.0

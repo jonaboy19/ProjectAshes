@@ -1,0 +1,32 @@
+[
+ {
+  "name": "Test_Walk",
+  "loop": true,
+  "seconds": 3.93,
+  "frames": 119,
+  "keys": 1389,
+  "source": "clip.bvh",
+  "range_s": [
+   null,
+   null
+  ],
+  "autotrim": null,
+  "loop_pts": [
+   0.23,
+   4.17,
+   3.55
+  ],
+  "floor_fix_m": 0.04,
+  "contact_lift_m": 0.0,
+  "min_foot_m": -0.0,
+  "travel_m": 3.6,
+  "hip_scale": 0.9936,
+  "video": "walk_rm.mp4",
+  "video_mocap": true,
+  "foot_ik": true,
+  "foot_slide_cm_s": [
+   37.2,
+   0.4
+  ]
+ }
+]

@@ -1,0 +1,11 @@
+{
+  "triangles_before": 47556,
+  "triangles": 2700,
+  "size_metres": [
+    0.800000011920929,
+    0.7860031127929688,
+    0.7976174354553223
+  ],
+  "materials": 1,
+  "source": "output\\crate_test\\0\\mesh.glb"
+}

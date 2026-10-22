@@ -7,6 +7,8 @@ extends Node
 ## with real WorldSim people, leaving genuine vacancies.
 
 signal inventory_changed
+## Region1 hook (docs/regions/REGION_1_PLAN.md) C7: a creature the player killed (story kill objectives). species is a registry target id.
+signal region1_kill(species: String, where: Vector3)
 signal employment_changed
 signal grown(age: int)
 
@@ -34,9 +36,31 @@ var naming := RANaming.new()
 var injuries := RAInjuries.new()
 var scouts := RAScouts.new()
 var discovery := preload("res://scripts/sim/discovery.gd").new()
+## Persistent state of interactive world objects (doors, chests, locks, broken props) and the evidence
+## left on the ground; saved under "interactives" (scripts/world/world_state.gd).
+var world_state: RefCounted = preload("res://scripts/world/world_state.gd").shared()
 var relationships := preload("res://scripts/sim/relationships.gd").new()
+## Sparse NPC-to-NPC ties from completed embodied conversations; separate from player opinion.
+var npc_social_graph := preload("res://scripts/sim/npc_social_graph.gd").new()
 var radiant := preload("res://scripts/sim/radiant_quests.gd").new()
 var crafting := preload("res://scripts/sim/crafting.gd").new()
+const Probe := preload("res://scripts/core/perf_probe.gd")
+const ItemsDB := preload("res://scripts/sim/items_db.gd")
+const PathLearning := preload("res://scripts/abilities/path_learning.gd")
+const SaveContainers := preload("res://scripts/sim/save_containers.gd")
+const WorldEventLog := preload("res://scripts/systems/world_event_log.gd")
+const ActionRuntime := preload("res://scripts/systems/action_runtime.gd")
+const NpcActivityRuntime := preload("res://scripts/systems/npc_activity_runtime.gd")
+const UtilityBrain := preload("res://scripts/population/utility_brain.gd")
+const NpcSocialGraph := preload("res://scripts/sim/npc_social_graph.gd")
+## Bounded facts from player actions, available to future dialogue/simulation consumers.
+var world_events = WorldEventLog.new()
+## Short-lived actor/action leases; deliberately excluded from saves.
+var action_runtime = ActionRuntime.new()
+## NPC activity names/leases adapt onto the same transient ActionRuntime authority.
+var npc_activity_runtime = NpcActivityRuntime.new(action_runtime)
+## Active craft token -> generation-qualified station resource key.
+var _craft_station_actions: Dictionary = {}
 var equipment := preload("res://scripts/sim/equipment.gd").new()
 var skills := preload("res://scripts/sim/skills.gd").new()
 ## Careers as biography (docs/RISING_ASHES_LIFE_SIM_DESIGN.md): mastery only grows by doing,
@@ -57,8 +81,12 @@ const RECORD_TO_SOUL := {
 	"trained_sword": "combat", "trained_bow": "combat", "adventured": "combat", "studied": "technique",
 	"meditated": "meditate",
 }
+## Look chosen at character creation (scripts/ui/character_creation.gd); empty = default hero.
+var appearance: Dictionary = {}
 var life_courses := preload("res://scripts/sim/life_courses.gd").new()
 var war := preload("res://scripts/sim/war_sim.gd").new()
+## Realm / war / settlement / city-life simulation (scripts/realm/, docs/design/SIM_HIERARCHY.md).
+var realm := preload("res://scripts/realm/realm_hub.gd").new()
 const CareerLadders := preload("res://scripts/sim/career_ladders.gd")
 var career_id := ""            # career_ladders.gd key, "" = none yet
 var career_rank := ""          # rank id within that career
@@ -88,13 +116,84 @@ var market := RAMarket.new()
 ## Regional markets, caravans, contracts; Ashford keeps using `market` (docs/RISING_ASHES_LIFE_SIM_DESIGN.md).
 var economy := preload("res://scripts/sim/economy.gd").new()
 var inventory: Inventory
+## Dirty-flagged save containers (scripts/sim/save_containers.gd); the SaveManager sees them via `saves.containers`.
+var save_containers := SaveContainers.new()
 var player: Node3D        # set by main once the player exists
 
 var _last_abs := -1.0     # absolute in-game hours at the last tick
+const NO_CLOCK := -1.0e9  # `_spoil_abs` before the first day tick
+var _spoil_abs := NO_CLOCK   # absolute in-game hours the pack's food was last aged to
+
+
+## NI-5: the realm's bonds module keeps its relationship axes in the same graph the embodied villagers use (one store, one save).
+func _link_social_graph() -> void:
+	if realm != null and npc_social_graph != null:
+		realm.social_graph = npc_social_graph
 
 
 func _ready() -> void:
+	_link_social_graph()
+	WorldSim.hour_changed.connect(_on_hour)
+	_new_life()
+
+
+## Every state object of a run (recreated by reset()).
+const STATE := ["life_path", "titles", "triggers", "careers", "guild", "magicules", "naming", "injuries", "scouts",
+	"discovery", "relationships", "npc_social_graph", "radiant", "crafting", "equipment", "skills", "mastery", "biography", "property",
+	"nobility", "lordship", "family", "soul", "skill_evolution", "echoes", "life_courses", "war", "realm",
+	"homestead", "tendencies", "childhood_events", "awakening", "needs", "market", "economy"]
+
+
+## A brand-new run: Game, WorldSim, Frontier, Region 1 and every object Life owns go back to their
+## initial state and the first life begins again (New Game after "Exit to Main Menu"). The saved
+## Flow.creation is applied by _begin_life, so call this after it is set (or {}) and apply_creation
+## again afterwards if the choices arrive later. Settings and save slots are untouched.
+func reset() -> void:
+	player = null
+	_hud = null
+	Game.reset()
+	WorldSim.reset()
+	UtilityBrain.clear_sound_events()
+	UtilityBrain.clear_transient_social()
+	Frontier.reset()
+	Region1State.reset()
+	world_state.call("clear")
+	preload("res://scripts/population/evidence.gd").reset()
+	var qw := get_node_or_null("/root/QuestWeaverGameState")
+	if qw and qw.has_method("load_from_data"):
+		qw.call("load_from_data", {})
+	const MenuData := preload("res://scripts/ui/gamemenu/menu_data.gd")
+	MenuData.quest_log.clear()
+	if inventory and is_instance_valid(inventory):
+		inventory.name = "OldInventory"
+		remove_child(inventory)
+		inventory.queue_free()
+	for n: String in STATE:
+		set(n, get(n).get_script().new())
+	_link_social_graph()
+	world_events = WorldEventLog.new()
+	action_runtime = ActionRuntime.new()
+	npc_activity_runtime = NpcActivityRuntime.new(action_runtime)
+	_craft_station_actions.clear()
+	pending_offers.clear()
+	appearance = {}
+	career_id = ""
+	career_rank = ""
+	career_since_day = 0
+	career_sponsor_tier = 0
+	saves.reset_autosave_clock()
+	_new_life()
+	inventory_changed.emit()
+	employment_changed.emit()
+
+
+## Wires the state objects together and begins the first life (boot, and again after reset()).
+func _new_life() -> void:
+	_spoil_abs = _abs_hours()
+	realm.mod("monster_bonds").share_naming(naming)   # MN: one naming ledger for the UI and the bond module
 	equipment.clock = _abs_hours
+	if not crafting.station_invalidated.is_connected(_on_craft_station_invalidated):
+		crafting.station_invalidated.connect(_on_craft_station_invalidated)
 	skills.breakthrough.connect(func(r: Dictionary) -> void:
 		Game.say(String(r["text"]))
 		if r["success"]:
@@ -107,6 +206,13 @@ func _ready() -> void:
 	add_child(inventory)
 	inventory.item_added.connect(func(_i: InventoryItem) -> void: inventory_changed.emit())
 	inventory.item_removed.connect(func(_i: InventoryItem) -> void: inventory_changed.emit())
+	# Dirty-flagged save container: the inventory is only re-serialized after one of its signals fired.
+	save_containers.register("inventory", func() -> Dictionary: return inventory.serialize())
+	var dirty_inv := func(_a: Variant = null, _b: Variant = null) -> void: save_containers.mark_dirty("inventory")
+	inventory.item_added.connect(dirty_inv)
+	inventory.item_removed.connect(dirty_inv)
+	inventory.item_moved.connect(dirty_inv)
+	inventory.item_property_changed.connect(dirty_inv)
 	_setup_orgs()
 	_setup_market()
 	careers.player_changed.connect(func(text: String) -> void:
@@ -115,6 +221,12 @@ func _ready() -> void:
 		employment_changed.emit())
 	crafting.crafted.connect(func(res: Dictionary) -> void:
 		var sk := String(res.get("skill", ""))
+		var item_id := String(res.get("item", ""))
+		award_progress("craft", {"subject": item_id})
+		world_events.publish("item_crafted", "player", "item:" + item_id if not item_id.is_empty() else "", _abs_hours(), {
+			"skill": sk, "count": int(res.get("count", 0)), "quality": int(res.get("quality", 0)),
+			"xp": int(res.get("xp", 0)), "tag": String(res.get("tag", "crafted")),
+		})
 		if mastery.DISCIPLINES.has(sk):
 			mastery.gain(sk, float(res.get("xp", 0)) * 0.1, WorldSim.day)
 		if sk in ["smithing", "forging", "blacksmithing"]:
@@ -150,7 +262,6 @@ func _ready() -> void:
 			biography.start_chapter("lord", "", "lord", place, WorldSim.day)
 			biography.add_highlight("Granted the village of %s" % place, WorldSim.day)
 			Game.say("You are now lord of %s." % place))
-	WorldSim.hour_changed.connect(_on_hour)
 	_last_abs = _abs_hours()
 	give("bread", 2)
 	_begin_life()
@@ -179,10 +290,42 @@ func _ready() -> void:
 				Game.say(String(r.get("text", ""))))
 
 
+# --- death ------------------------------------------------------------------------
+
+## Share of the purse lost when the player is carried home after dying.
+const DEATH_GOLD_LOSS := 0.10
+const DEATH_INJURIES := ["bruised_ribs", "deep_cut"]
+
+
+## The cost of dying and waking up at home: a tenth of the gold (thieves, the healer, a
+## day's lost work) and a minor injury that heals by itself (Life.injuries, shown at the
+## healer and in the character sheet). Returns {gold_lost, injury, text}.
+func apply_death_penalty() -> Dictionary:
+	var lost := clampi(int(round(Game.gold * DEATH_GOLD_LOSS)), 0, Game.gold)
+	if lost > 0:
+		Game.add_gold(-lost)
+	var picked := ""
+	for t: String in DEATH_INJURIES:
+		if not injuries.has(t):
+			picked = t
+			break
+	if picked != "":
+		injuries.add(picked, WorldSim.day)
+		magicules.apply_effects(injuries.effects())
+	var inj_name := String(RAInjuries.info(picked).get("name", "")) if picked != "" else ""
+	var text := "You wake at home, bruised."
+	if lost > 0:
+		text += " %d gold is gone from your purse." % lost
+	if inj_name != "":
+		text += " Injury: %s." % inj_name
+	return {"gold_lost": lost, "injury": picked, "text": text}
+
+
 # --- life from birth ------------------------------------------------------------
 
 ## A child of two real villagers, living in one of the village's houses.
 func _begin_life() -> void:
+	realm.warm_up()
 	var home: Dictionary = WorldGen.settlements[0]
 	var r: Vector2i = WorldSim.ranges[0]
 	var mother := r.x + 3
@@ -206,6 +349,7 @@ func _begin_life() -> void:
 	life_path.set_age(START_AGE, WorldSim.day, WorldSim.time_of_day)
 	triggers.seed_first_region(home["pos"], home["radius"])
 	childhood_events.seed_from(WorldSim.SEED, life_path.full_name())
+	apply_creation(preload("res://scripts/ui/frontend/flow.gd").creation)
 	life_courses.seed_from(WorldSim.SEED)
 	life_courses.populate_region(150, WorldSim.day)
 
@@ -249,11 +393,155 @@ func record(tag: String, weight := 1.0) -> void:
 			skill_evolution.record_use(_soul_element(), "farm", WorldSim.day)
 		elif tag == "meditated":
 			skill_evolution.record_use(_soul_element(), "meditate", WorldSim.day)
+	world_events.publish("life_action_recorded", "player", "", _abs_hours(), {
+		"tag": tag, "weight": weight, "day": WorldSim.day,
+	})
+
+
+## Applies the New Game character-creation choices (name, family, look, leanings, parents' trades).
+func apply_creation(c: Dictionary) -> void:
+	if c == null or c.is_empty():
+		return
+	var lp := life_path
+	lp.given_name = String(c.get("given_name", lp.given_name))
+	var fam := String(c.get("family_name", ""))
+	if fam != "":
+		lp.family_name = fam
+		for p in lp.parents:
+			p["name"] = "%s %s" % [String(p["name"]).get_slice(" ", 0), fam]
+	appearance = c.get("appearance", {})
+	tendencies.nudge_many(c.get("tendencies", {}))
+	if String(c.get("birthplace", "")) != "":
+		lp.set_flag("birthplace:" + String(c["birthplace"]))
+	if String(c.get("culture", "")) != "":
+		lp.set_flag("culture:" + String(c["culture"]))
+	var trades := {"father": String(c.get("father_trade", "")), "mother": String(c.get("mother_trade", ""))}
+	for p in lp.parents:
+		var idx: int = WorldSim.JOBS.find(trades.get(String(p["role"]), ""))
+		if idx >= 0 and int(p["id"]) >= 0:
+			WorldSim.job[int(p["id"])] = idx
 
 
 ## The element the player's Blessing gave ("qi" when none): what their power grows from.
 func _soul_element() -> String:
 	return awakening.element if awakening.element != "" else "qi"
+
+
+## Query recent persistent facts without exposing the mutable journal itself.
+func recent_world_events(after_id: int = 0, limit: int = 32, type_filter: String = "") -> Array[Dictionary]:
+	return world_events.since(after_id, limit, type_filter)
+
+
+func world_event_window(after_id: int = -1) -> Dictionary:
+	return world_events.window_info(after_id)
+
+
+func begin_craft_action(recipe_id: String, lease_s: float, requested_kinds: Array = []) -> Dictionary:
+	var now_s := Time.get_ticks_msec() / 1000.0
+	action_runtime.expire(now_s, 8)
+	_prune_craft_station_actions(now_s)
+	var recipe: Dictionary = crafting.recipe(recipe_id)
+	if recipe.is_empty():
+		return {"ok": false, "token": "", "error": "unknown_recipe"}
+	var required: Array = recipe.get("stations", [])
+	var station: Dictionary = {}
+	var resources: Array = ["actor:player"]
+	var station_ref := ""
+	var station_generation := 0
+	var station_kind := ""
+	if not required.is_empty():
+		if player == null or not is_instance_valid(player):
+			return {"ok": false, "token": "", "error": "station_required"}
+		station = crafting.nearest_station_for_recipe(player.global_position, recipe_id, requested_kinds)
+		if station.is_empty():
+			return {"ok": false, "token": "", "error": "station_required"}
+		station_ref = String(station.get("ref", ""))
+		station_generation = int(station.get("generation", 0))
+		station_kind = String(station.get("kind", ""))
+		resources.append(crafting.station_resource_key(station_ref, station_generation))
+	var payload := {"recipe_id": recipe_id, "station_ref": station_ref,
+		"station_generation": station_generation, "station_kind": station_kind}
+	var started: Dictionary = action_runtime.begin_resources("player", "craft", resources,
+		now_s, lease_s, payload)
+	if not bool(started.get("ok", false)):
+		return started
+	if not action_runtime.transition(String(started["token"]), "begun", "working", now_s):
+		action_runtime.cancel(String(started["token"]), "transition_failed")
+		return {"ok": false, "token": "", "error": "transition_failed"}
+	if not station_ref.is_empty():
+		_craft_station_actions[String(started["token"])] = crafting.station_resource_key(station_ref, station_generation)
+	return started
+
+
+func commit_craft_action(token: String, recipe_id: String, requested_kinds: Array, ctx: Dictionary) -> Dictionary:
+	var inspection: Dictionary = action_runtime.inspect(token)
+	var action_info: Dictionary = inspection.get("action", inspection)
+	var action_payload: Dictionary = action_info.get("payload", {})
+	if (String(action_info.get("actor_ref", "")) != "player"
+			or String(action_info.get("action_type", "")) != "craft"
+			or String(action_payload.get("recipe_id", "")) != recipe_id):
+		return {"ok": false, "newly_committed": false, "result": {}, "error": "action_mismatch"}
+	if inspection.has("newly_committed"):
+		var prior := inspection.duplicate(true)
+		prior["newly_committed"] = false
+		return prior
+	var now_s := Time.get_ticks_msec() / 1000.0
+	var station_ref := String(action_payload.get("station_ref", ""))
+	var station_generation := int(action_payload.get("station_generation", 0))
+	var station_kind := String(action_payload.get("station_kind", ""))
+	var recipe: Dictionary = crafting.recipe(recipe_id)
+	var required: Array = recipe.get("stations", [])
+	var allowed_kinds: Variant = [station_kind] if not station_ref.is_empty() else null
+	var check := func() -> String:
+		if not station_ref.is_empty():
+			if player == null or not is_instance_valid(player):
+				return "station_changed"
+			var current: Dictionary = crafting.station_at(station_ref, station_generation, player.global_position)
+			if current.is_empty() or String(current.get("kind", "")) != station_kind:
+				return "station_changed"
+			if not required.has(station_kind) or (not requested_kinds.is_empty() and not requested_kinds.has(station_kind)):
+				return "station_changed"
+		elif not required.is_empty():
+			return "station_changed"
+		return String(crafting.call("can_craft", recipe_id, self, allowed_kinds, ctx))
+	var apply := func() -> Dictionary:
+		return crafting.call("craft", recipe_id, self, allowed_kinds, ctx)
+	var result: Dictionary = action_runtime.commit(token, now_s, check, apply)
+	_craft_station_actions.erase(token)
+	return result
+
+
+func cancel_action(token: String) -> Dictionary:
+	var result: Dictionary = action_runtime.cancel(token)
+	_craft_station_actions.erase(token)
+	return result
+
+
+func _on_craft_station_invalidated(ref: String, generation: int) -> void:
+	var resource_key: String = crafting.station_resource_key(ref, generation)
+	for token: String in _craft_station_actions.keys():
+		if String(_craft_station_actions[token]) == resource_key:
+			action_runtime.cancel(token, "station_unloaded")
+			_craft_station_actions.erase(token)
+
+
+func _prune_craft_station_actions(now_s: float) -> void:
+	for token: String in _craft_station_actions.keys():
+		var state: Dictionary = action_runtime.inspect(token)
+		if not state.has("phase") or (String(state.get("phase", "")) != "committing"
+				and now_s >= float(state.get("expires_at", 0.0))):
+			_craft_station_actions.erase(token)
+
+
+func _craft_station_kinds_near_player() -> Array:
+	if player == null or not is_instance_valid(player):
+		return []
+	var result: Array = []
+	for station: Dictionary in crafting.call("stations_near", player.global_position):
+		var kind := String(station.get("kind", ""))
+		if not kind.is_empty() and not result.has(kind):
+			result.append(kind)
+	return result
 
 
 ## TechniqueCaster reports every successful cast: Soul Power, and the element
@@ -507,32 +795,131 @@ func _offer(e: Dictionary) -> void:
 	pending_offers.append(e)
 	var sc: Dictionary = e.get("scout", {})
 	var org: Dictionary = e.get("org", {})
-	Game.say("%s of %s has been watching you. (See your Pack to answer.)" % [sc.get("name", "A stranger"), org.get("name", "somewhere")])
+	Game.say("%s of %s has been watching you. Open Pack → Journal → Scouting Offers to answer." % [
+		sc.get("name", "A stranger"), org.get("name", "somewhere")])
 
 
 func answer_offer(event_id: int, yes: bool) -> String:
-	for e: Dictionary in pending_offers.duplicate():
-		if int(e["id"]) == event_id:
-			pending_offers.erase(e)
-			if not yes:
-				scouts.decline(event_id)
-				return "You decline, politely."
-			var r := scouts.accept(event_id, WorldSim.day)
-			life_path.set_flag("recruited:" + String(e["org"].get("id", "?")))
-			if bool(e["offer"].get("soulbeast_path", false)):
-				life_path.set_flag("permit:xiava_lake")
-			return String(r.get("text", "You accept the offer."))
-	return ""
+	var e := scouts.offer(event_id)
+	if e.is_empty():
+		return "That offer has expired."
+	if WorldSim.day > int(e.get("offer", {}).get("expires_day", -1)):
+		scouts.tick_day(WorldSim.day)
+		for pending: Dictionary in pending_offers.duplicate():
+			if int(pending.get("id", -1)) == event_id:
+				pending_offers.erase(pending)
+		return "That offer has expired."
+	for pending: Dictionary in pending_offers.duplicate():
+		if int(pending.get("id", -1)) == event_id:
+			pending_offers.erase(pending)
+	if not yes:
+		scouts.decline(event_id)
+		return "You decline, politely."
+	var accepted := scouts.accept(event_id, WorldSim.day)
+	if accepted.is_empty():
+		return "That offer has expired."
+	var org_id := String(accepted["org"].get("id", "?"))
+	life_path.set_flag("recruited:" + org_id)
+	if bool(accepted["offer"].get("soulbeast_path", false)):
+		life_path.set_flag("permit:xiava_lake")
+	var org_name := String(accepted["org"].get("name", "the organization"))
+	biography.add_highlight("Accepted a recruitment offer from %s" % org_name, WorldSim.day)
+	var bonus := int(accepted["offer"].get("signing_bonus", 0))
+	if bonus > 0:
+		Game.add_gold(bonus)
+		return "You accept the offer from %s and receive %d gold to begin." % [org_name, bonus]
+	return "You accept the offer from %s." % org_name
 
 
 ## Effective level for naming: grows with merit, reduced while levels are lost to naming.
 func player_level() -> int:
+	var prog: Variant = _progression()
+	if prog != null:
+		return int(prog.level)   # docs/balance/PROGRESSION_R1.md hook: the cultivation module owns the level curve
 	return maxi(1, 1 + int(sqrt(float(Game.merit))) + age() / 4 - naming.level_penalty(WorldSim.day))
+
+
+## Item effects only world systems can apply (equipment.consume calls this): pills, manuals/scrolls, coatings, recall,
+## wards, reveals. Returns a short line for the toast, or "" when nothing happened (the item is still spent).
+func apply_item_effect(id: String, info: Dictionary) -> String:
+	var cult: Variant = realm.mod("cultivation") if realm != null else null
+	if info.has("cultivation_xp"):
+		if cult == null or (cult.cultivating() as Array).is_empty():
+			return "The pill's warmth fades; you aren't cultivating yet."
+		return "Qi +%d." % int(cult.add_pill_qi(float(info["cultivation_xp"])))
+	if info.has("breakthrough_bonus"):
+		if cult != null:
+			cult.pill_bonus = maxf(float(cult.pill_bonus), float(info["breakthrough_bonus"]))
+		return "Your next breakthrough is steadier (+%d%%)." % int(round(float(info["breakthrough_bonus"]) * 100.0))
+	if info.has("permanent_stat"):
+		var stat := String(info["permanent_stat"])
+		equipment.add_buff("Tempered body", stat, float(info.get("value", 5.0)), 24.0 * 365.0 * 200.0)
+		return "Your %s grows for good." % stat.replace("_", " ")
+	if info.has("casts"):
+		var r: Dictionary = skills.grant(String(info["casts"]))
+		if not bool(r.get("ok", true)):
+			return String(r.get("text", ""))
+		return "You learn %s." % String(skills.get_def(String(info["casts"])).get("name", String(info["casts"]).replace("_", " ")))
+	if info.has("coating"):
+		equipment.add_buff("%s coating" % String(info["coating"]).capitalize(), String(info["coating"]) + "_damage", float(info.get("value", 6.0)), 1.0)
+		return "Your blade is coated for an hour."
+	match String(info.get("effect", "")):
+		"ward":
+			equipment.add_buff("Ward", "armor", float(info.get("value", 8.0)), 2.0)
+			return "A ward settles around you."
+		"recall":
+			if player != null and not WorldGen.settlements.is_empty():
+				var home: Vector2 = WorldGen.settlements[0]["pos"]
+				var near: Dictionary = WorldGen.nearest_settlement(Vector2(player.global_position.x, player.global_position.z))
+				if near.has("pos"):
+					home = near["pos"]
+				player.global_position = Vector3(home.x, WorldGen.height(home.x, home.y) + 1.0, home.y)
+				return "The world folds; you stand at the edge of town."
+			return ""
+		"reveal":
+			if player != null:
+				var pp := Vector2(player.global_position.x, player.global_position.z)
+				for s: Dictionary in WorldGen.sites:
+					if bool(s.get("secret", false)) and (s["pos"] as Vector2).distance_to(pp) < 400.0 and discovery.reveal_site(s, WorldSim.day):
+						return "Hidden ways show themselves: %s." % String(s["name"])
+			return "Nothing hidden lies near."
+	return ""
+
+
+## Reads a path manual item (data/items type manual with power_manual): power_paths / cultivation learn it.
+## Old-script books need glyphs (the Scribe's glyph tables). -> {ok, text}
+func read_power_manual(id: String, info: Dictionary) -> Dictionary:
+	var pp: Variant = realm.mod("power_paths") if realm != null else null
+	var cult: Variant = realm.mod("cultivation") if realm != null else null
+	var scribe: Variant = realm.mod("scribe") if realm != null and (realm.mods as Dictionary).has("scribe") else null
+	var glyphs := (scribe.glyphs_known_list() as Array).size() if scribe != null else 0
+	return PathLearning.read_manual(pp, cult, String(info.get("power_manual", "")), info, {"glyphs": glyphs})
+
+
+## The character-level module (cultivation.prog), or null before the realm exists.
+func _progression() -> Variant:
+	if realm == null:
+		return null
+	var cult: Variant = realm.mod("cultivation")
+	return cult.prog if cult != null and cult.get("prog") != null else null
+
+
+## Progression hook (docs/balance/PROGRESSION_R1.md section 5): award XP for an activity. Null-safe.
+func award_progress(activity: String, ctx: Dictionary = {}) -> void:
+	var prog: Variant = _progression()
+	if prog != null:
+		var c := ctx.duplicate()
+		c["day"] = WorldSim.day
+		c["region"] = "region1"
+		prog.award(activity, c)
 
 
 ## Name a yielded monster: pays magicules, may cost levels or cause injuries.
 func name_monster(m: CampMonster, given: String, klass: String) -> String:
-	var r := naming.name_monster(magicules, injuries, player_level(), m.species, m.level, given, klass, WorldSim.day)
+	# MN-1: the realm bond module adds exhaustion tiers, hollowing, refusals and the bond tracks on top of RANaming.
+	var r: Dictionary = realm.mod("monster_bonds").name_creature(magicules, injuries, player_level(),
+		{"species": m.species, "level": m.level, "name": given, "key": "camp:%d" % m.get_instance_id()}, given,
+		{"klass": klass, "grade": "lesser", "tier": maxi(soul.tier(), 3), "day": WorldSim.day, "namer": "player"})
 	if not r.get("ok", false):
 		return String(r.get("text", "The name does not take."))
 	m.become_named(given, klass)
@@ -559,6 +946,8 @@ func turn_in(cid: int) -> String:
 	if r.get("ok", false):
 		Game.add_gold(int(r.get("gold", 0)))
 		record("adventured", 2.0)
+		# Progression hook (PROGRESSION_R1.md section 5): commissions repeat, so they decay like radiant quests (no unique id).
+		award_progress("quest", {"subject": "guild_commission"})
 		Audio.play_ui("quest_complete")
 	return String(r.get("text", ""))
 
@@ -611,7 +1000,7 @@ func _setup_orgs() -> void:
 
 
 func _setup_market() -> void:
-	market.add_good("bread", 2, 30, 6)
+	market.add_good("bread", 2, 30, 12)   # C13: was 6 a day, the baker could not feed a village and the player (price pinned at 3x, food cost 14 gold a day)
 	market.add_good("apple", 1, 40, 8)
 	market.add_good("cheese", 4, 12, 2)
 	market.add_good("stew", 5, 8, 3)
@@ -619,11 +1008,14 @@ func _setup_market() -> void:
 	market.add_good("wolf_pelt", 8, 6, 0)
 	market.add_good("wolf_meat", 2, 10, 0)
 	market.add_good("firewood", 1, 30, 6)
+	market.add_good("scar_crystal", 40, 4, 0)   # Region1 hook C4: the Scar's harvest sells here too
+	market.add_good("scarbloom", 18, 6, 0)
 	preload("res://scripts/sim/gathering_items.gd").register(self)
 	economy.setup(0)
 	economy.bind_home_market(0, market)
 	for id: String in ["iron_ingot", "leather", "plank", "arrowheads", "horseshoe", "healing_salve", "antidote", "stamina_draught", "grilled_fish", "berry_pie", "saddle"]:
 		market.add_good(id, int(item_prop(id, "price", 1)), 4, 0)
+		market.imports[id] = 0.15 * 1.67 * 4.0     # wagons bring a trickle (economy.gd, once a day) so crafting goods aren't sold out forever
 
 
 ## Local people of a settlement who aren't already in an organisation, laborers first.
@@ -662,12 +1054,31 @@ func _abs_hours() -> float:
 	return WorldSim.day * 24.0 + WorldSim.time_of_day
 
 
+## Real seconds between the needs / mana / attendance integrations in _process.
+const LIFE_TICK := 0.1
+var _tick_dh := 0.0
+var _tick_wall := 0.0
+
+
 func _process(_delta: float) -> void:
 	var now := _abs_hours()
 	var dh := now - _last_abs
 	_last_abs = now
 	if dh <= 0.0 or dh > 2.0:
 		return
+	var _tp := Probe.t()
+	for msg: String in realm.pump():
+		Game.say(msg)
+	Probe.add("life.realm_pump", _tp)
+	# CPU pass 2026-10-06: hunger, mana, shift attendance and starvation only move by hundredths per frame, so they are
+	# integrated at LIFE_TICK with the summed game hours (the pump above still runs every frame for its budget).
+	_tick_dh += dh
+	_tick_wall += _delta
+	if _tick_wall < LIFE_TICK:
+		return
+	dh = _tick_dh
+	_tick_dh = 0.0
+	_tick_wall = 0.0
 	needs.tick(dh)
 	magicules.regenerate(dh)
 	if player and is_instance_valid(player):
@@ -703,20 +1114,67 @@ func _contracts_daily() -> void:
 			Game.say("Crown requisition officers took %d sacks from your farm stores for the war." % taken)
 
 
+func _realm_ctx() -> Dictionary:
+	var pp := Vector2.ZERO
+	if player and is_instance_valid(player):
+		pp = Vector2(player.global_position.x, player.global_position.z)
+	return {"player_pos": pp, "season": WorldSim.season, "at_war": war.is_at_war(),
+		"abs_hours": _abs_hours(), "gold": Game.gold, "life": self, "weather": _army_weather()}
+
+
+## The live weather node's state (or a seasonal roll with no node) in the armies' vocabulary; feeds armies.weather and campaign every hour.
+func _army_weather() -> String:
+	const Armies := preload("res://scripts/realm/armies.gd")
+	var w: Node = get_tree().get_first_node_in_group("weather") if is_inside_tree() else null
+	if w != null and w.has_method("current_name"):
+		return Armies.field_weather(String(w.call("current_name")))
+	return Armies.season_weather(WorldSim.season, WorldSim.day, int(WorldSim.time_of_day))
+
+
 func _on_hour(hour: int) -> void:
+	var _ph := Probe.t()
+	realm.on_hour(hour, WorldSim.day, _realm_ctx())
+	Probe.add("life.hour.realm_on_hour", _ph)
+	_ph = Probe.t()
+	# War map authority follows the soldier career rank (none for civilians).
+	var cam: RefCounted = realm.mod("campaign")
+	if cam.has_method("set_player_rank"):
+		cam.set_player_rank(CareerLadders.military_rank_for(career_rank) if career_id == "soldier" else "")
+	# City life and society keep a signed ledger instead of touching the purse.
+	for k: String in ["city_life", "society", "education", "household", "callups", "enterprise", "construction", "scribe", "soldier", "trades", "recruitment", "farming", "organizations", "war_intel", "aura_fallout"]:
+		var m: RefCounted = realm.mod(k)
+		if m != null and m.has_method("take_pending_gold"):
+			var net := int(m.take_pending_gold())
+			if net != 0:
+				Game.add_gold(net)
+	Probe.add("life.hour.pending_gold", _ph)
+	_ph = Probe.t()
+	# Combat training is open to every career (education.training_options).
+	var gains: Dictionary = realm.mod("education").take_pending_gains()
+	if float(gains.get("combat", 0.0)) > 0.0:
+		mastery.gain("swordsmanship", float(gains["combat"]), WorldSim.day)
 	if hour == 6:
 		# War first: economy, lordship levies and promotion speed read the at_war flag this hour.
 		for msg: String in war.tick_day(WorldSim.day, {"feud_count": nobility.feuds().size(),
 				"rift_instability": Frontier.rift_instability, "season": WorldSim.season}):
 			Game.say(msg)
 		life_path.set_flag("at_war", war.is_at_war())
+	Probe.add("life.hour.war_day", _ph)
+	_ph = Probe.t()
 	economy.refresh_road_risk(Frontier.runestones)
-	for r: Dictionary in economy.tick_hour(1.0, {
+	Probe.add("life.hour.road_risk", _ph)
+	_ph = Probe.t()
+	# CPU pass 2026-10-06: spread over the next frames through the realm hub's pump (a 17 ms hitch every game hour on the PC);
+	# the same jobs in the same order as economy.tick_hour, and a save finishes what is pending (economy.serialize).
+	realm.queue_jobs(economy.queue_hour_jobs(1.0, {
 			"season": WorldSim.season, "festival": not WorldSim.seasons.festival_today().is_empty(),
 			"at_war": bool(life_path.flags.get("at_war", false)), "mine_opened": bool(life_path.flags.get("mine_opened", false)),
-			"abs_hours": _abs_hours()}):
-		Game.say(String(r["text"]))
+			"abs_hours": _abs_hours()}))
+	Probe.add("life.hour.economy_tick", _ph)
+	_ph = Probe.t()
 	_life_tick(hour)
+	Probe.add("life.hour.life_tick", _ph)
+	_ph = Probe.t()
 	if careers.is_employed():
 		var sh: Vector2 = careers.player_org()["shift"]
 		if hour == int(sh.y):
@@ -727,6 +1185,8 @@ func _on_hour(hour: int) -> void:
 				Game.say(r["text"])
 			if not careers.is_employed():
 				employment_changed.emit()
+	Probe.add("life.hour.career_pay", _ph)
+	_ph = Probe.t()
 	if hour == 6:
 		for msg: String in property.daily(WorldSim.day):
 			Game.say(msg)
@@ -736,7 +1196,12 @@ func _on_hour(hour: int) -> void:
 			Game.say(msg)
 		for msg: String in family.daily_tick(WorldSim.day):
 			Game.say(msg)
+		Probe.add("life.hour6.property_nobility_lordship_family", _ph)
+		_ph = Probe.t()
 		_contracts_daily()
+		_spoilage_tick()
+		Probe.add("life.hour6.contracts_spoilage", _ph)
+		_ph = Probe.t()
 		var threat := 0.0
 		if player and is_instance_valid(player):
 			var t: Dictionary = Frontier.threat_at(Vector2(player.global_position.x, player.global_position.z))
@@ -744,6 +1209,7 @@ func _on_hour(hour: int) -> void:
 		for msg: String in life_courses.tick_day(WorldSim.day, {"at_war": war.is_at_war(),
 				"frontier_threat": clampf(threat, 0.0, 100.0), "careers": careers, "nobility": nobility}):
 			Game.say(msg)
+		Probe.add("life.hour6.life_courses", _ph)
 		if family.check_old_age_death(age(), WorldSim.day):
 			_on_old_age_death()
 	if hour == 5:
@@ -754,10 +1220,16 @@ func _on_hour(hour: int) -> void:
 			Game.say("Your %s has healed." % String(RAInjuries.info(String(h["type"])).get("name", "injury")).to_lower())
 		magicules.apply_effects(injuries.effects())
 		naming.tick_day(WorldSim.day)
-		scouts.tick_day(WorldSim.day)
+		var expired_offers: Array = scouts.tick_day(WorldSim.day)
+		for expired: Dictionary in expired_offers:
+			for pending: Dictionary in pending_offers.duplicate():
+				if int(pending.get("id", -1)) == int(expired.get("id", -2)):
+					pending_offers.erase(pending)
+			Game.say("The offer from %s has expired." % String(expired.get("scout", {}).get("name", "the recruiter")))
 		_offer(scouts.daily_roll(scout_profile(), WorldSim.day))
 		careers.tick_day(_hire)
-		market.tick_day(WorldSim.ranges[0].y - WorldSim.ranges[0].x)
+		# Ashford's market (`market`) is bound into `economy` (see _setup_market) and ticks hourly there; ticking
+		# it here too double-counted demand.
 
 
 ## Sleep until rested (or at most until the next morning), then wake.
@@ -774,6 +1246,89 @@ func sleep(quality := 1.0) -> String:
 	return "You sleep %d hours and wake %s." % [int(hours), needs.rest_label().to_lower()]
 
 
+## Rest until the next `hour` o'clock (0..24) on the clock, however long that is: a noon nap on a bedroll runs to the next
+## 06:00 (18 h), an evening one to the same dawn. Less than a quarter hour away means tomorrow's. Returns the toast line.
+func sleep_until(hour: float, quality := 1.0) -> String:
+	var hours := fposmod(hour - WorldSim.time_of_day, 24.0)
+	if hours < 0.25:
+		hours += 24.0
+	needs.sleep(hours, quality)
+	WorldSim.advance_hours(hours)
+	WorldSim.time_of_day = fposmod(hour, 24.0)      # advance_hours adds in float steps: land exactly on the hour
+	_last_abs = _abs_hours()
+	if player and player.get("health") != null:
+		player.heal(int(20 * hours * quality))
+	return "You rest %d hours and wake at %02d:00, %s." % [int(roundf(hours)), int(hour), needs.rest_label().to_lower()]
+
+
+## Night camping on the road (scripts/world/travel_rules.gd): a Bedroll or Travel Tent used outdoors from dusk. Sleeps rough
+## until morning (a tinderbox lights a fire), but the night can be interrupted: bandits or beasts (realm_encounters.on_camp),
+## a thief, or a traveller at the fire with news. Returns the line for the toast; the kit is never used up.
+func camp_here(_kit_id := "") -> String:
+	var TR := preload("res://scripts/world/travel_rules.gd")
+	if player == null or not is_instance_valid(player) or bool(player.get("dead")):
+		return "You can't camp now."
+	var pos := Vector2(player.global_position.x, player.global_position.z)
+	var near: Dictionary = WorldGen.nearest_settlement(pos)
+	var ratio := 99.0
+	if not near.is_empty():
+		ratio = pos.distance_to(near["pos"]) / maxf(float(near["radius"]), 1.0)
+	var kit := TR.camp_kit({"bedroll": count("bedroll"), "tent_kit": count("tent_kit"), "tinderbox": count("tinderbox")})
+	var enemies := false
+	for e in get_tree().get_nodes_in_group("team1"):
+		if e is Node3D and (e as Node3D).is_visible_in_tree() and (e as Node3D).global_position.distance_to(player.global_position) < 45.0:
+			enemies = true
+			break
+	var why := TR.camp_block_reason(int(WorldSim.time_of_day), InteriorDoor.active != null, ratio, enemies, kit)
+	if why != "":
+		return why
+	var eco: Variant = realm.mod("ecology") if realm != null else null
+	var danger := {}
+	if eco != null and eco.has_method("danger_at"):
+		danger = eco.danger_at(pos)
+	var sources: Array = danger.get("sources", [])
+	var ri := WorldGen.road_info(pos.x, pos.y)
+	var bandit_dist := 1.0e9
+	for site: Dictionary in WorldGen.sites:
+		if String(site.get("kind", "")) in ["bandit_camp", "hideout"]:
+			bandit_dist = minf(bandit_dist, pos.distance_to(site["pos"]))
+	var ctx := {"danger": float(danger.get("total", 0.0)), "road_dist": float(ri["dist"]), "bandit_dist": bandit_dist, "tier": String(ri["tier"]),
+		"fire": bool(kit["fire"]), "tent": bool(kit["tent"]), "species": String((sources[0] as Dictionary).get("species", "")) if not sources.is_empty() else ""}
+	var rng := RandomNumberGenerator.new()
+	rng.seed = hash([WorldSim.SEED, WorldSim.day, int(pos.x / 60.0), int(pos.y / 60.0)])
+	var plan: Dictionary = TR.camp_outcome(ctx, rng.randf(), rng.randf())
+	var quality := TR.camp_quality(kit)
+	var night := TR.night_hours(WorldSim.time_of_day)
+	var enc := get_tree().get_first_node_in_group("realm_encounters")
+	var line := ""
+	var slept := night
+	match String(plan["outcome"]):
+		"ambush":
+			slept = clampf(float(plan["hours"]), 1.0, night)
+			line = "You are woken by %s." % ("shouting outside the tent" if String(plan["foe"]) == "bandits" else "growls beyond the firelight")
+		"thief":
+			slept = clampf(float(plan["hours"]), 1.0, night)
+			var lost := mini(Game.gold, maxi(5, int(Game.gold * 0.12)))
+			Game.add_gold(-lost)
+			line = "You wake to find a thief gone, and %d gold with him." % lost if lost > 0 else "You wake to a thief's footsteps, and he leaves empty-handed."
+		"visitor":
+			line = "A traveller shares your fire and the road's news."
+	needs.sleep(slept, quality)
+	WorldSim.advance_hours(slept)
+	_last_abs = _abs_hours()
+	player.heal(int(20 * slept * quality))
+	if slept >= night - 0.01 and player.get("stamina") != null:
+		player.set("stamina", 100.0)
+	record("camped")
+	if String(plan["outcome"]) == "ambush" and enc != null and enc.has_method("on_camp"):
+		enc.on_camp(String(plan["foe"]), String(plan["species"]), ctx)
+	elif String(plan["outcome"]) == "visitor" and enc != null and enc.has_method("camp_visitor"):
+		enc.camp_visitor()
+	if line == "":
+		line = "You sleep %d hours under the stars and wake %s." % [int(slept), needs.rest_label().to_lower()]
+	return line
+
+
 # --- merit & rank ----------------------------------------------------------------
 
 func add_merit(amount: int, reason: String) -> void:
@@ -786,15 +1341,25 @@ func add_merit(amount: int, reason: String) -> void:
 
 
 func on_monster_killed(species: String) -> void:
+	award_progress("kill", {"subject": species, "magnitude": 1})
+	region1_kill.emit(species, player.global_position if player and is_instance_valid(player) else Vector3.ZERO)
 	guild.on_kill(RAAdventurerGuild.PLAYER, species, -1)
 	add_merit(12 if species == "orc" else 6, "%s slain" % species)
 	record("hunted")
 
 
-func on_wolf_killed(_where: Vector3, den_id := -1) -> void:
-	for c: Dictionary in guild.on_kill(RAAdventurerGuild.PLAYER, "wolf", den_id):
-		if guild.is_ready(int(c["id"])):
-			Game.say("Commission ready to turn in: %s" % c.get("title", ""))
+func on_wolf_killed(_where: Vector3, den_id := -1, variant := "") -> void:
+	award_progress("kill", {"subject": "rift_wolf" if variant != "" else "wolf", "magnitude": 1})
+	var r1_species := variant if variant != "" else "wolf"
+	if den_id >= 0 and den_id < Frontier.ecology.dens.size() and String(Frontier.ecology.dens[den_id].get("species", "wolf")) == "corrupted_wolf":
+		r1_species = "rift_wolf"
+	elif den_id >= 0 and den_id < Frontier.ecology.dens.size() and String(Frontier.ecology.dens[den_id].get("species", "")) == "stagborn_warden":
+		r1_species = "stagborn_warden"      # Region 1 story: the Antlered Warden's defeat (r1_story_director.gd)
+	region1_kill.emit(r1_species, _where)
+	# guild.on_kill returns the ids of the commissions now ready to hand in (ints, not dictionaries).
+	for cid: Variant in guild.on_kill(RAAdventurerGuild.PLAYER, "wolf", den_id):
+		if guild.is_ready(int(cid)):
+			Game.say("Commission ready to turn in: %s" % guild.commission(int(cid)).get("title", ""))
 	add_merit(5, "wolf slain")
 	record("hunted")
 	if den_id >= 0 and den_id < Frontier.ecology.dens.size():
@@ -816,6 +1381,18 @@ func count(item: String) -> int:
 	for it in inventory.get_items_with_prototype_id(item):
 		n += it.get_stack_size()
 	return n
+
+
+## Mean quality tier (0 rough, 1 fine, 2 masterwork) of the carried stacks of `item`, -1 when none carried.
+## Feeds Crafting.input_grade so better materials give better products.
+func quality_of(item: String) -> int:
+	var sum := 0.0
+	var n := 0
+	for it in inventory.get_items_with_prototype_id(item):
+		var q := int(it.get_property("quality", 1))
+		sum += float(q) * float(it.get_stack_size())
+		n += it.get_stack_size()
+	return int(round(sum / float(n))) if n > 0 else -1
 
 
 func give(item: String, amount := 1) -> void:
@@ -843,6 +1420,61 @@ func take(item: String, amount := 1) -> bool:
 	return true
 
 
+# --- food spoilage ---------------------------------------------------------------------------------------------------
+# Food with spoil data (ItemsDB.spoil_hours) ages in the pack: each stack carries an `age_hours` property (absent = fresh) that
+# grows on the realm day tick (hour 6, see _on_hour) by the game time elapsed since the last time, in ONE step however long
+# that was (sleep, fast travel, waiting). Past its shelf life a stack turns into its `spoils_into` item (Spoiled Food);
+# before that, stale food gives less nutrition (use_item). Cured / smoked / salted / dried food has a long shelf life in the data.
+
+## Called once a day (hour 6) and after skipping time: ages the pack by the game time since the last call.
+func _spoilage_tick() -> void:
+	var now := _abs_hours()
+	if _spoil_abs <= NO_CLOCK or now < _spoil_abs:
+		_spoil_abs = now
+		return
+	var elapsed := now - _spoil_abs
+	if elapsed < 1.0:
+		return
+	_spoil_abs = now
+	age_pack(elapsed)
+
+
+## Ages every food stack in the pack by `hours` game hours (closed form). Returns {aged, spoiled}: stacks aged and items turned bad.
+func age_pack(hours: float) -> Dictionary:
+	var out := {"aged": 0, "spoiled": 0}
+	if hours <= 0.0 or inventory == null:
+		return out
+	var spoiled: Array = []         # [spoiled id, count, name of the good item]
+	for it: InventoryItem in inventory.get_items().duplicate():
+		var id := it.get_prototype().get_prototype_id()
+		if ItemsDB.spoil_hours(id) <= 0.0:
+			continue
+		var r := ItemsDB.age_by(id, float(it.get_property(ItemsDB.AGE_PROP, 0.0)), hours)
+		out["aged"] += 1
+		if String(r["into"]) != "":
+			spoiled.append([String(r["into"]), it.get_stack_size(), item_name(id)])
+			inventory.remove_item(it)
+		else:
+			it.set_property(ItemsDB.AGE_PROP, float(r["age"]))
+	for s: Array in spoiled:
+		give(String(s[0]), int(s[1]))
+		out["spoiled"] += int(s[1])
+		Game.say("%d %s spoiled in your pack." % [int(s[1]), String(s[2]).to_lower()])
+	# Stacks of one kind that now share an age merge back into one.
+	for it: InventoryItem in inventory.get_items().duplicate():
+		if is_instance_valid(it) and it.has_property(ItemsDB.AGE_PROP) and it.get_inventory() == inventory:
+			inventory.pack_item(it)
+	inventory_changed.emit()
+	return out
+
+
+## Age in game hours of the stack `take(item)` consumes first (the first stack of that id); 0 = fresh.
+func food_age(item: String) -> float:
+	for it in inventory.get_items_with_prototype_id(item):
+		return float(it.get_property(ItemsDB.AGE_PROP, 0.0))
+	return 0.0
+
+
 func item_prop(item: String, prop: String, default: Variant = null) -> Variant:
 	return inventory.get_prototree().get_prototype_property(item, prop, default)
 
@@ -859,6 +1491,7 @@ func use_item(item: String) -> String:
 	var heal := int(item_prop(item, "heal", 0))
 	if nutrition <= 0.0 and heal <= 0:
 		return "You can't use %s." % item_name(item)
+	nutrition *= ItemsDB.freshness(item, food_age(item))     # stale food feeds less (spoilage)
 	take(item)
 	if nutrition > 0.0:
 		needs.eat(nutrition)
@@ -893,10 +1526,24 @@ func buy(item: String) -> String:
 func sell(item: String) -> String:
 	if count(item) <= 0:
 		return "You have no %s." % item_name(item)
+	var gov: Variant = realm.mod("governance")   # CIV-B law hook: banned monster-part trade
+	if gov != null:
+		var refusal: String = gov.refuses_item(int(realm.mod("city_life").near_settlement()), item)
+		if refusal != "":
+			return refusal
+	# Stolen goods (F5): an honest merchant of the town the item was taken from will not touch it.
+	var Theft_ := preload("res://scripts/sim/theft.gd")
+	var town := 0
+	if player != null and is_instance_valid(player):
+		town = maxi(Theft_.sid_at(Vector2(player.global_position.x, player.global_position.z)), 0)
+	var hot: String = Theft_.sale_gate(item, town)
+	if hot != "":
+		return hot
 	var got := market.sell(item)
 	if got < 0:
 		return "The merchant can't afford it today."
-	take(item)
+	if not Theft_.take_one_for_sale(item, town):
+		take(item)
 	Game.add_gold(got)
 	record("traded", 0.5)
 	return "Sold %s for %d gold." % [item_name(item), got]
@@ -904,61 +1551,118 @@ func sell(item: String) -> String:
 
 # --- save / load -----------------------------------------------------------------
 
+var _snap_waits := 0
+const SNAP_MAX_WAITS := 40
+
+
 func snapshot() -> Dictionary:
-	var d := {
-		"version": SAVE_VERSION,
-		"world": WorldSim.serialize(),
-		"game": Game.serialize(),
-		"careers": careers.serialize(),
-		"needs": needs.serialize(),
-		"market": market.serialize(),
-		"economy": economy.serialize(),
-		"inventory": inventory.serialize(),
-		"frontier": Frontier.serialize(),
-		"life_path": life_path.serialize(),
-		"titles": titles.serialize(),
-		"triggers": triggers.serialize(),
-		"guild": guild.serialize(),
-		"magicules": magicules.serialize(),
-		"naming": naming.serialize(),
-		"injuries": injuries.serialize(),
-		"scouts": scouts.serialize(),
-		"discovery": discovery.serialize(),
-		"relationships": relationships.serialize(),
-		"mastery": mastery.serialize(),
-		"biography": biography.serialize(),
-		"property": property.serialize(),
-		"nobility": nobility.serialize(),
-		"lordship": lordship.serialize(),
-		"family": family.serialize(),
-		"life_courses": life_courses.serialize(),
-		"war": war.serialize(),
-		"soul": soul.serialize(),
-		"skill_evolution": skill_evolution.serialize(),
-		"echoes": echoes.serialize(),
-		"career": {"id": career_id, "rank": career_rank, "since_day": career_since_day, "sponsor_tier": career_sponsor_tier},
-		"radiant": radiant.serialize(),
-		"crafting": crafting.serialize(),
-		"equipment": equipment.serialize(),
-		"skills": skills.serialize(),
-		"homestead": homestead.serialize(),
-		"tendencies": tendencies.serialize(),
-		"childhood_events": childhood_events.serialize(),
-		"awakening": awakening.serialize(),
-	}
-	if player and is_instance_valid(player):
-		d["player"] = {"x": player.global_position.x, "y": player.global_position.y,
-			"z": player.global_position.z, "health": player.get("health")}
+	var d := {}
+	_snap_waits = SNAP_MAX_WAITS            # a synchronous snapshot never waits for the pump
+	for step: Array in snapshot_steps(false):
+		var v: Variant = (step[1] as Callable).call()
+		if v != null:             # a step with nothing to save (no player body yet) leaves its key out
+			SaveManager.put(d, String(step[0]), v)
 	return d
 
 
+## The snapshot as a list of [key, Callable() -> value] steps, in save order. `snapshot()` runs them all in one go; the
+## SaveManager's autosave runs a few per frame (a budget of ms) and hands the finished dictionary to a worker thread, so
+## the 70 ms a two-year game takes to serialise never lands in one frame. Every step returns a fresh value that nothing
+## in the game still references (a worker thread stringifies it later): with `detach` every small section is deep-copied here
+## (tools_qa/cpu_mem/snapshot_alias_probe.gd found `careers` handing out its live dictionary), except the three big ones,
+## `world`, `realm` and `economy` (1.4 of the 1.5 MB), which the probe shows build fresh containers; it checks that again.
+func snapshot_steps(detach := true) -> Array:
+	var steps: Array = _snapshot_steps_raw()
+	if not detach:
+		return steps
+	var out: Array = []
+	for st: Array in steps:
+		var key: String = st[0]
+		var fn: Callable = st[1]
+		if key in ["world", "realm", "economy"] or key.begins_with("realm/") or key.begins_with("economy/markets/"):
+			out.append(st)
+		else:
+			out.append([key, func() -> Variant:
+				var v: Variant = fn.call()
+				return v.duplicate(true) if v is Dictionary or v is Array else v])
+	return out
+
+
+func _snapshot_steps_raw() -> Array:
+	var steps: Array = []
+	steps.append(["version", func() -> Variant:
+		# The home market is saved twice (market, economy.markets): both must see the finished hour. The jobs of an hour that
+		# just ticked are drained by the realm pump (a few hundred microseconds a frame): an async autosave waits for that
+		# for up to 40 frames instead of finishing them in one 20-50 ms step; then (or in a synchronous save) it settles them.
+		if economy.has_pending_hour_jobs() and _snap_waits < SNAP_MAX_WAITS:
+			_snap_waits += 1
+			return SaveManager.RETRY
+		_snap_waits = 0
+		economy.settle_hour_jobs()
+		return SAVE_VERSION])
+	steps.append(["game", func() -> Variant: return Game.serialize()])
+	steps.append(["inventory", func() -> Variant: return save_containers.snapshot()["inventory"]])
+	steps.append(["spoil_abs", func() -> Variant: return _spoil_abs])
+	steps.append(["appearance", func() -> Variant: return appearance])
+	steps.append(["career", func() -> Variant: return {"id": career_id, "rank": career_rank, "since_day": career_since_day, "sponsor_tier": career_sponsor_tier}])
+	steps.append(["world", func() -> Variant: return WorldSim.serialize()])
+	for key: String in ["careers", "needs", "market"]:
+		steps.append([key, func() -> Variant: return get(key).serialize()])
+	# The economy (30 markets, 7-10 ms in one go) is collected a market per step, then its loose fields.
+	for mid: Variant in economy.markets.keys():
+		steps.append(["economy/markets/%s" % str(mid), func() -> Variant: return economy.serialize_market(mid)])
+	steps.append(["economy/*", func() -> Variant: return economy.serialize_rest()])
+	steps.append(["frontier", func() -> Variant: return Frontier.serialize()])
+	for key: String in ["life_path", "titles", "triggers", "guild", "magicules", "naming", "injuries", "scouts", "discovery",
+			"relationships", "npc_social_graph", "mastery", "biography", "property", "nobility", "lordship", "family",
+			"life_courses", "war", "soul", "skill_evolution", "echoes", "radiant", "crafting", "world_events",
+			"equipment", "skills", "homestead", "tendencies", "childhood_events", "awakening"]:
+		steps.append([key, func() -> Variant: return get(key).serialize()])
+	# The realm (532 KB, 9-13 ms in one go) is collected a module per step.
+	for rk: String in realm.ORDER:
+		steps.append(["realm/%s" % rk, func() -> Variant: return realm.mods[rk].serialize()])
+	# Region1 hook (docs/regions/REGION_1_PLAN.md)
+	steps.append(["region1", func() -> Variant: return Region1State.snapshot()])
+	steps.append(["interactives", func() -> Variant:
+		var interactives: Dictionary = world_state.call("snapshot")
+		interactives["evidence"] = preload("res://scripts/population/evidence.gd").serialize()
+		# Search, knocked-out / killed people and the town's guard alert (all clock-relative).
+		var now_ms := Time.get_ticks_msec()
+		interactives["search"] = preload("res://scripts/population/search.gd").serialize(now_ms)
+		interactives["takedown"] = preload("res://scripts/combat/takedown.gd").serialize(now_ms)
+		interactives["guard_alert"] = preload("res://scripts/population/alert_net.gd").serialize(now_ms)
+		return interactives])
+	steps.append(["player", func() -> Variant:
+		if player and is_instance_valid(player):
+			return {"x": player.global_position.x, "y": player.global_position.y,
+				"z": player.global_position.z, "health": player.get("health")}
+		return null])
+	return steps
+
+
 func restore(d: Dictionary) -> void:
+	action_runtime.reset()
+	_craft_station_actions.clear()
+	UtilityBrain.clear_sound_events()
+	UtilityBrain.clear_transient_social()
+	# Optional social data must not leak across loading an older/empty save.
+	npc_social_graph = NpcSocialGraph.new()
+	_link_social_graph()
+	# Older saves simply start a fresh journal. Invalid new journal data is isolated
+	# from the rest of the save so existing player state still restores normally.
+	world_events = WorldEventLog.new()
+	if d.has("world_events"):
+		var event_data: Variant = d["world_events"]
+		if not event_data is Dictionary or not world_events.deserialize(event_data):
+			world_events = WorldEventLog.new()
+			push_warning("Ignoring invalid saved world event journal.")
 	var cd: Dictionary = d.get("career", {})
 	career_id = String(cd.get("id", ""))
 	career_rank = String(cd.get("rank", ""))
 	career_since_day = int(cd.get("since_day", 0))
 	career_sponsor_tier = int(cd.get("sponsor_tier", 0))
 	WorldSim.deserialize(d.get("world", {}))
+	UtilityBrain.restore_active_needs()
 	Game.deserialize(d.get("game", {}))
 	careers.deserialize(d.get("careers", {}))
 	for o in careers.orgs:
@@ -970,20 +1674,39 @@ func restore(d: Dictionary) -> void:
 	market.deserialize(d.get("market", {}))
 	economy.deserialize(d.get("economy", {}), 0, market)
 	inventory.deserialize(d.get("inventory", {}))
+	save_containers.mark_all()
+	_spoil_abs = float(d.get("spoil_abs", NO_CLOCK))
 	Frontier.deserialize(d.get("frontier", {}))
 	if d.has("life_path"):
 		life_path.deserialize(d["life_path"])
 		titles.deserialize(d.get("titles", {}))
 		triggers.deserialize(d.get("triggers", {}))
-	for key: String in ["guild", "magicules", "naming", "injuries", "scouts", "discovery", "relationships", "radiant", "crafting", "equipment", "skills", "homestead", "tendencies", "childhood_events", "awakening", "mastery", "biography", "property", "nobility", "lordship", "family", "life_courses", "war", "soul", "skill_evolution", "echoes"]:
+	for key: String in ["guild", "magicules", "naming", "injuries", "scouts", "discovery", "relationships", "npc_social_graph", "radiant", "crafting", "equipment", "skills", "homestead", "tendencies", "childhood_events", "awakening", "mastery", "biography", "property", "nobility", "lordship", "family", "life_courses", "war", "soul", "skill_evolution", "echoes", "realm"]:
 		if d.has(key):
 			get(key).deserialize(d[key])
+	appearance = d.get("appearance", {})
+	if player and is_instance_valid(player) and player.has_method("apply_appearance"):
+		player.apply_appearance()
+	realm.warm_up()
 	_last_abs = _abs_hours()
 	if d.has("player") and player and is_instance_valid(player):
 		var p: Dictionary = d["player"]
 		player.global_position = Vector3(p["x"], p["y"], p["z"])
+		if bool(player.get("dead")) and player.has_method("revive"):
+			player.revive(false)     # a save loaded from the death screen
 		if player.has_method("set_health"):
 			player.set_health(int(p.get("health", 100)))
+	# Region1 hook (docs/regions/REGION_1_PLAN.md)
+	Region1State.restore(d.get("region1", {}))
+	# Two-phase: only the dictionaries load here; each door / chest pulls its own state by id when it is built.
+	world_state.call("restore", d.get("interactives", {}))
+	var inter: Variant = d.get("interactives", {})
+	preload("res://scripts/population/evidence.gd").deserialize(inter.get("evidence", []) if inter is Dictionary else [])
+	var inter_d: Dictionary = inter if inter is Dictionary else {}
+	var now_ms2 := Time.get_ticks_msec()
+	preload("res://scripts/combat/takedown.gd").deserialize(inter_d.get("takedown", []), now_ms2)       # after Evidence: re-links bodies
+	preload("res://scripts/population/search.gd").deserialize(inter_d.get("search", []), now_ms2)
+	preload("res://scripts/population/alert_net.gd").deserialize(inter_d.get("guard_alert", []), now_ms2)
 	inventory_changed.emit()
 	employment_changed.emit()
 	Game.stats_changed.emit()
@@ -999,7 +1722,11 @@ var saves: Node = _make_save_manager()
 func _make_save_manager() -> Node:
 	var m: Node = SaveManager.new()
 	m.name = "SaveManager"
+	m.async_autosave = true          # timer / settlement / rest autosaves: snapshot over frames, written by a worker (save_manager.gd)
 	add_child(m)
+	# Focus-loss autosaves skip a clean game (scripts/sim/save_manager.gd is_dirty).
+	inventory_changed.connect(m.mark_dirty)
+	m.watch = save_containers
 	return m
 
 
@@ -1060,6 +1787,12 @@ func _on_career_post_changed() -> void:
 func _career_daily() -> void:
 	if career_id == "":
 		return
+	# The scribe career promotes itself (patron, exams, counters): scripts/realm/scribe.gd.
+	if career_id == "scribe":
+		return
+	# The soldier career promotes itself (merit, service time, muster): scripts/realm/soldier.gd.
+	if career_id == "soldier" and realm != null and bool(realm.mod("soldier").get("active")):
+		return
 	var ctx := {
 		"career": career_id, "rank": career_rank, "since_day": career_since_day, "day": WorldSim.day,
 		"mastery": mastery, "biography": biography, "careers": careers, "gold": Game.gold,
@@ -1069,6 +1802,11 @@ func _career_daily() -> void:
 	}
 	economy.has_shop = property.owned().any(func(p: Variant) -> bool: return p is Dictionary and String(p.get("kind", "")) == "trader")
 	ctx.merge(economy.ladder_ctx())
+	# Counters and property the lighter ladders read (harvests, drills, pieces, workshops): career_trades.gd.
+	var trades: Variant = realm.mod("trades") if realm != null else null
+	if trades != null:
+		ctx["career_stats"] = trades.career_stats(career_id)
+		ctx["owns_workshop"] = bool(trades.ladder_ctx(career_id, WorldSim.day).get("owns_workshop", false))
 	if bool(CareerLadders.check_promotion(ctx)["eligible"]):
 		var r: Dictionary = CareerLadders.promote(ctx)
 		career_rank = String(r["rank"])
@@ -1083,6 +1821,9 @@ func _on_old_age_death() -> void:
 	var story := "\n".join(biography.summary(WorldSim.day))
 	if heirs.is_empty():
 		Game.say("%s dies in old age, with no heir to carry the name.\n%s" % [life_path.full_name(), story])
+		# Region1 hook (docs/regions/REGION_1_PLAN.md) H7: the story ends, the ember remains
+		preload("res://scripts/region1/ember_legacy.gd").emit_life_ended(biography, echoes, life_path.full_name(), age(),
+			life_path.family_name, WorldSim.day, {"place": String(WorldGen.settlements[life_path.home_settlement]["name"]) if life_path.home_settlement >= 0 and life_path.home_settlement < WorldGen.settlements.size() else "", "mastery": mastery.xp, "tendencies": tendencies.values})
 		return
 	var heir: Dictionary = heirs[0]
 	Game.say("%s dies in old age. %s carries on the family.\n%s" % [life_path.full_name(), String(heir.get("name", "Your heir")), story])

@@ -1,0 +1,28 @@
+{
+ "_doc": "F3 player combat tuning: heavy-attack hold, weapon-type to move-table map, bow draw/aim/ammo, projectile pool caps, knockdown thresholds and clips. Read by scripts/combat/weapon_rules.gd (built-in defaults when missing). Clip names only: Codex owns blends.",
+ "heavy": {"hold_time": 0.3, "charge_max": 1.0, "charge_bonus": 0.25, "tap_cutoff_note": "a press shorter than hold_time is a tap (light combo, fired on release)"},
+ "style_of_type": {
+  "sword": "sword", "greatsword": "sword", "sabre": "sword", "dagger": "sword", "axe": "sword", "battleaxe": "sword",
+  "mace": "sword", "warhammer": "sword", "fist": "sword",
+  "spear": "spear", "halberd": "spear",
+  "staff": "staff", "wand": "staff",
+  "shortbow": "bow", "longbow": "bow", "crossbow": "bow"
+ },
+ "ammo_of_type": {"shortbow": "arrow", "longbow": "arrow", "crossbow": "bolt"},
+ "bow": {
+  "draw_min": 0.12, "draw_full": 0.9, "power_min": 0.3, "power_curve": 1.6,
+  "speed_min": 22.0, "speed_max": 44.0, "gravity": 5.5, "range": 60.0,
+  "base_damage": 9.0, "weapon_damage_mult": 0.8, "ammo_damage_mult": 1.5,
+  "stamina_min": 5.0, "stamina_full": 13.0,
+  "assist_deg": 11.0, "assist_blend": 0.65, "lock_snap": true,
+  "pick_range": 32.0, "pick_cone_dot": 0.82, "knockback_full": 3.0,
+  "clips": {"draw": "Bow_Draw", "hold": "Bow_Hold", "loose": "Bow_Loose"}
+ },
+ "pool": {"arrows": 24, "orbs": 16, "stick_time": 3.0, "stick_time_body": 0.6, "arrow_life": 3.5},
+ "knockdown": {
+  "poise_threshold": 38.0, "knockback_threshold": 5.5, "ragdoll_knockback": 99.0, "ragdoll_enabled": false,
+  "fall_time": 0.55, "down_time": 0.75, "getup_time": 1.1, "getup_iframes": 0.7, "roll_iframes": 0.45,
+  "roll_min_down": 0.0, "cooldown": 1.5,
+  "clips": {"fall": "Lie_Down", "fall_rate": 3.0, "getup": "Stand_From_Floor", "getup_rate": 1.8}
+ }
+}

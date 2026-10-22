@@ -1,0 +1,15 @@
+{
+ "name": "hero_meshy3_base",
+ "height_m": 1.78,
+ "lod0_tris": 4252,
+ "lod1_tris": 4252,
+ "model_units_top": 1.8154,
+ "model_units_top_all": 1.8154,
+ "head_bone_z": 1.5688,
+ "pelvis_z": 0.9167,
+ "mh_character_height_param": 1.692,
+ "forearm_radius": 0.055,
+ "skirt_verts": 246,
+ "head_rigid_verts": 640,
+ "heat_missed": 44
+}

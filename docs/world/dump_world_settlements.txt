@@ -1,0 +1,30 @@
+ 0 Ashford      village       (     0.0,      0.0) r=60   pop=210
+ 1 Kingsreach   castle        (   560.0,   -420.0) r=175  pop=1600
+ 2 Millbrook    village       (  1050.8,    816.4) r=60   pop=210
+ 3 Stonehollow  village       (  -453.7,   1156.4) r=60   pop=210
+ 4 Eastmere     village       (   921.1,   1361.9) r=60   pop=210
+ 5 Redwater     town          (   810.8,  -1387.8) r=115  pop=720
+ 6 Thornfield   town          (  1499.4,   -211.4) r=115  pop=720
+ 7 Greywatch    village       (  1449.5,   1561.9) r=60   pop=210
+ 8 Oakvale      village       (  -942.1,   -633.4) r=60   pop=210
+ 9 Highcliff    town          (   -20.7,  -1457.2) r=115  pop=720
+10 Brackenmoor  frontier_town (   377.7,   1144.6) r=75   pop=380
+11 Westfen      frontier_town (    34.5,   1136.0) r=75   pop=380
+12 Ironmarch    town          (  2092.4,  -2007.3) r=115  pop=720
+13 Saltwick     frontier_town ( -3516.6,   3351.6) r=75   pop=380
+14 Cindermoor   village       ( -2786.9,    857.1) r=60   pop=210
+15 Dunhallow    village       ( -1834.4,  -2200.2) r=60   pop=210
+16 Wolfsend     village       (  3288.1,    370.1) r=60   pop=210
+17 Harrowgate   village       (   -85.5,   2935.1) r=60   pop=210
+18 Emberfall    village       ( -1791.9,   2464.1) r=42   pop=90
+19 Ravenscar    village       (   913.2,  -3304.1) r=42   pop=90
+20 Longmeadow   town          (  3896.7,   2380.6) r=110  pop=640
+21 Blackwater   frontier_town ( -5006.2,   5359.8) r=75   pop=360
+22 Frostmere    village       ( -3963.3,  -1283.0) r=60   pop=200
+23 Amberley     village       (  2042.4,   3359.0) r=60   pop=200
+24 Skarholm     village       ( -1618.7,  -4190.0) r=60   pop=200
+25 Thistledown  village       (   616.4,   4545.6) r=60   pop=200
+26 Marrowick    village       ( -3364.6,  -3405.1) r=60   pop=200
+27 Coldharbor   village       (  3014.2,  -3609.6) r=42   pop=90
+28 Hollowmere   village       (  3892.1,  -1278.5) r=42   pop=90
+29 Duskwater    village       ( -1395.6,   4392.3) r=42   pop=90

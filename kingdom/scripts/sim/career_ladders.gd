@@ -13,6 +13,7 @@ extends RefCounted
 ##   {career, rank, since_day, day, mastery (RAMastery), biography (RABiography),
 ##    careers (RACareers) optional, gold, at_war, sponsor_tier (Relationships
 ##    tier_rank; >= 4 is "friend"), org, place,
+##    career_stats {name: count}, exams {id: day}, clean_record (bool, default true),
 ##    <property flag>: bool, e.g. "owns_plot": true}
 ## Property requirements are plain ctx boolean flags (the caller already knows
 ## whether the player leases or owns a plot, a cart, a shop...), so this file
@@ -33,6 +34,8 @@ const SOLDIER_TROOPS := {
 	"militia": 0, "recruit": 0, "soldier": 5, "veteran": 5,
 	"squad_leader": 20, "junior_officer": 20, "captain": 60, "commander": 200, "general": 200,
 }
+
+const EXAM_TITLES := {"registrar_exam": "the Registrar's Examination", "steward_exam": "the Steward's Accounts"}
 
 static var _data: Dictionary = {}
 
@@ -95,44 +98,66 @@ static func military_rank_for(soldier_rank_id: String) -> String:
 	return String(SOLDIER_TO_MILITARY.get(soldier_rank_id, "recruit"))
 
 
-## Why `req` isn't met yet, as human-readable lines ([] means it is met).
-static func _missing(req: Dictionary, ctx: Dictionary) -> PackedStringArray:
-	var missing := PackedStringArray()
+## Every requirement of `req` as {text, met}, in display order (the ladder view shows ticks and crosses).
+static func lines(req: Dictionary, ctx: Dictionary) -> Array:
+	var out: Array = []
 	var mastery: Object = ctx.get("mastery")
 	var need_m: Dictionary = req.get("mastery", {})
 	for disc: String in need_m:
 		var lvl := int(mastery.call("level", disc)) if mastery else 0
-		if lvl < int(need_m[disc]):
-			missing.append("%s mastery %d (have %d)" % [String(disc).capitalize(), int(need_m[disc]), lvl])
+		out.append({"text": "%s mastery %d (have %d)" % [String(disc).capitalize(), int(need_m[disc]), lvl], "met": lvl >= int(need_m[disc])})
 	var biography: Object = ctx.get("biography")
 	var need_rep: Dictionary = req.get("reputation", {})
 	for sphere: String in need_rep:
 		var have := float(biography.call("rep", sphere)) if biography else 0.0
-		if have < float(need_rep[sphere]):
-			missing.append("%s reputation %d (have %d)" % [String(sphere).capitalize(), int(need_rep[sphere]), int(have)])
+		out.append({"text": "%s reputation %d (have %d)" % [String(sphere).capitalize(), int(need_rep[sphere]), int(have)], "met": have >= float(need_rep[sphere])})
 	if req.has("days_in_rank"):
 		var need_days := int(req["days_in_rank"])
 		if bool(req.get("wartime_speeds", false)) and bool(ctx.get("at_war", false)):
 			need_days = int(round(need_days * 0.5))
 		var elapsed := int(ctx.get("day", 0)) - int(ctx.get("since_day", 0))
-		if elapsed < need_days:
-			missing.append("%d days in the current rank (have %d)" % [need_days, maxi(0, elapsed)])
-	if req.has("money") and int(ctx.get("gold", 0)) < int(req["money"]):
-		missing.append("%d gold (have %d)" % [int(req["money"]), int(ctx.get("gold", 0))])
+		out.append({"text": "%d days in the current rank (have %d)" % [need_days, maxi(0, elapsed)], "met": elapsed >= need_days})
+	if req.has("money"):
+		out.append({"text": "%d gold (have %d)" % [int(req["money"]), int(ctx.get("gold", 0))], "met": int(ctx.get("gold", 0)) >= int(req["money"])})
 	if req.has("property"):
 		var flag := String(req["property"])
-		if not bool(ctx.get(flag, false)):
-			missing.append("%s" % flag.replace("_", " ").capitalize())
+		out.append({"text": "%s" % flag.replace("_", " ").capitalize(), "met": bool(ctx.get(flag, false))})
 	if req.has("seat"):
 		var seat_req: Dictionary = req["seat"]
 		var careers_obj: Object = ctx.get("careers")
 		if careers_obj:
 			var seat: Dictionary = careers_obj.call("seat", String(seat_req["org"]), String(seat_req["title"]))
-			if seat.is_empty() or int(careers_obj.call("open_count", seat)) <= 0:
-				missing.append("An open %s post" % String(seat_req["title"]))
-	if bool(req.get("sponsor", false)) and int(ctx.get("sponsor_tier", 0)) < SPONSOR_TIER_NEEDED:
-		missing.append("A sponsor's support (a friend among your betters)")
+			var open := not seat.is_empty() and int(careers_obj.call("open_count", seat)) > 0
+			out.append({"text": "An open %s post" % String(seat_req["title"]), "met": open})
+	# Things done, not just time served: counters the career modules keep (harvests, forgeries caught...).
+	var need_stats: Dictionary = req.get("stats", {})
+	var have_stats: Dictionary = ctx.get("career_stats", {})
+	for st: String in need_stats:
+		var got := int(have_stats.get(st, 0))
+		out.append({"text": "%s %d (have %d)" % [String(st).replace("_", " ").capitalize(), int(need_stats[st]), got], "met": got >= int(need_stats[st])})
+	if req.has("exam"):
+		var passed: Dictionary = ctx.get("exams", {})
+		out.append({"text": "Pass: %s" % String(EXAM_TITLES.get(String(req["exam"]), String(req["exam"]).replace("_", " ").capitalize())), "met": passed.has(String(req["exam"]))})
+	if bool(req.get("clean", false)):
+		out.append({"text": "A clean record (no conviction or dismissal for fraud)", "met": bool(ctx.get("clean_record", true))})
+	if bool(req.get("sponsor", false)):
+		out.append({"text": "A sponsor's support (a friend among your betters)", "met": int(ctx.get("sponsor_tier", 0)) >= SPONSOR_TIER_NEEDED})
+	return out
+
+
+## Why `req` isn't met yet, as human-readable lines ([] means it is met).
+static func _missing(req: Dictionary, ctx: Dictionary) -> PackedStringArray:
+	var missing := PackedStringArray()
+	for l: Dictionary in lines(req, ctx):
+		if not bool(l["met"]):
+			missing.append(String(l["text"]))
 	return missing
+
+
+## The requirement lines for the rank after `rank_id` ([] at the top): [{text, met}].
+static func next_lines(ctx: Dictionary) -> Array:
+	var nxt := next_rank_def(String(ctx.get("career", "")), String(ctx.get("rank", "")))
+	return lines(nxt.get("requires", {}), ctx) if not nxt.is_empty() else []
 
 
 ## {eligible, next: {id, title} or {}, missing: PackedStringArray}

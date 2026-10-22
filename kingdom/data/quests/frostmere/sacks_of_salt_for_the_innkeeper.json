@@ -1,0 +1,77 @@
+{
+ "id": "frostmere_sacks_of_salt_for_the_innkeeper",
+ "title": "Sacks of Salt for the Innkeeper",
+ "summary": "Larkin Antler wants 2 sacks of salt from the smokehouse yard taken to Clem Wythe before the pelt buyers come through, and then a word.",
+ "giver": {
+  "npc": "larkin_antler",
+  "name": "Larkin Antler",
+  "place": "frostmere"
+ },
+ "offer_text": "\"We need sacks of salt, and what is stacked at the smokehouse yard is the town's to take. Carry it to Clem Wythe before the pelt buyers come through, then come and tell me.\"",
+ "turn_in_text": "\"Good. That is one thing in Frostmere that goes right.\"",
+ "stages": [
+  {
+   "id": "fetch",
+   "title": "Fetch the stock",
+   "mode": "sequence",
+   "objectives": [
+    {
+     "id": "reach",
+     "type": "goto",
+     "place": "frostmere_works",
+     "text": "Go to the smokehouse yard"
+    },
+    {
+     "id": "gather",
+     "type": "collect",
+     "item": "salt_sack",
+     "count": 2,
+     "text": "Take 2 sacks of salt from the pile"
+    }
+   ]
+  },
+  {
+   "id": "deliver",
+   "title": "Take it to Clem Wythe",
+   "mode": "all",
+   "objectives": [
+    {
+     "id": "hand_over",
+     "type": "deliver",
+     "item": "salt_sack",
+     "count": 2,
+     "to": "clem_wythe",
+     "text": "Hand the sacks of salt to Clem Wythe"
+    }
+   ]
+  },
+  {
+   "id": "report",
+   "title": "Tell Larkin",
+   "mode": "all",
+   "objectives": [
+    {
+     "id": "report",
+     "type": "talk_to",
+     "npc": "larkin_antler",
+     "text": "Tell Larkin Antler it is done"
+    }
+   ],
+   "end": true
+  }
+ ],
+ "rewards": {
+  "gold": 14,
+  "rep": {
+   "frostmere": 3
+  },
+  "relationship": [
+   {
+    "npc": "larkin_antler",
+    "label": "Ran an errand for the town",
+    "value": 8,
+    "days": 45
+   }
+  ]
+ }
+}

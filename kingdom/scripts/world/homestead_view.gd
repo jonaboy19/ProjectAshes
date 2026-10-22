@@ -27,14 +27,13 @@ var _work_spots: Dictionary = {}        # WorldGen.sites index -> FarmWorkSpot
 var _hand_nodes: Dictionary = {}        # "hand:<worker uid>" -> Node3D (hired hand visuals)
 
 
-## A bed beside the cottage: sets the player's spawn point and sleeps, like
-## fishing_spot.gd's self-dispatched interactable.
+## A bed beside the cottage: sets the player's spawn point and sleeps. An Interactable like any other.
 class HomesteadBed extends Node3D:
 	var plot := -1
-	var _menu_was_open := false
 
 	func _ready() -> void:
-		add_to_group("interactable")
+		Interactable.attach(self, {"id": "homestead/bed/%d" % plot, "verb": "Sleep", "target": "Bed",
+			"do": func(_pl: Node) -> void: use()})
 
 	func prompt() -> String:
 		return "Sleep"
@@ -47,22 +46,6 @@ class HomesteadBed extends Node3D:
 			var msg := String(Life.sleep(1.0))
 			if msg != "":
 				Game.say(msg)
-
-	func _process(_delta: float) -> void:
-		var p: Variant = Life.player
-		if not (p is Node3D) or not is_instance_valid(p) or (p as Node3D).global_position.distance_squared_to(global_position) > 3.2 * 3.2:
-			_menu_was_open = false
-			return
-		var scene := get_tree().current_scene
-		var hud: Variant = scene.get("hud") if scene else null
-		var menu_open: bool = hud is Object and is_instance_valid(hud) and (hud as Object).has_method("is_menu_open") \
-			and bool((hud as Object).call("is_menu_open"))
-		var was := _menu_was_open
-		_menu_was_open = menu_open
-		if menu_open or was or not Input.is_action_just_pressed("interact"):
-			return
-		if (p as Node3D).has_method("nearest_interactable") and (p as Node3D).call("nearest_interactable") == self:
-			use()
 
 
 func _process(delta: float) -> void:

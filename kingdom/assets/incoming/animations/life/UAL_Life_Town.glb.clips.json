@@ -1,0 +1,589 @@
+[
+ {
+  "name": "Life_Market_Call_Out",
+  "loop": true,
+  "frames": 97,
+  "seconds": 3.2,
+  "events": {
+   "call": [
+    18,
+    37
+   ]
+  },
+  "note": "vendor hawking wares: right hand cupped at the mouth, chest lifts on the inhale and drives on each shout; left arm beckons twice; head scans the crowd",
+  "root_motion_m": 0.0
+ },
+ {
+  "name": "Life_Market_Hand_Over",
+  "loop": false,
+  "frames": 101,
+  "seconds": 3.333,
+  "events": {
+   "take": [
+    17
+   ],
+   "offer": [
+    40
+   ],
+   "release": [
+    46
+   ],
+   "coin_receive": [
+    58
+   ],
+   "pocket": [
+    84
+   ]
+  },
+  "note": "vendor takes the item from the stall table (0.9 m), holds it out to a customer 0.8 m in front, catches the coin in the left palm and pockets it. Hide the bread at 'release', show the coin at 'coin_receive', hide at 'pocket'.",
+  "root_motion_m": 0.0
+ },
+ {
+  "name": "Life_Guard_Attention",
+  "loop": true,
+  "frames": 121,
+  "seconds": 4.0,
+  "events": {
+   "glance": [
+    38
+   ]
+  },
+  "note": "guard at attention: spear upright in the right hand beside the hip, chest up, chin level, a rare glance and a small heel-shift. The spear model puts the grip 0.75 m above the butt, so at this hand height (0.89 m) the butt hovers ~0.14 m above the ground: move the prop origin ~0.2 m toward the tip to ground it",
+  "root_motion_m": 0.0
+ },
+ {
+  "name": "Life_Guard_Lean_Spear",
+  "loop": true,
+  "frames": 145,
+  "seconds": 4.8,
+  "events": {
+   "glance": [
+    34,
+    100
+   ]
+  },
+  "note": "guard leaning his weight on a planted spear, both hands on the shaft, weight on the left leg, right foot relaxed forward; two glances and a shift of the chest over the spear",
+  "root_motion_m": 0.0
+ },
+ {
+  "name": "Life_Guard_Patrol_Walk",
+  "loop": true,
+  "frames": 41,
+  "seconds": 1.333,
+  "events": {
+   "step_l": [
+    0
+   ],
+   "step_r": [
+    20
+   ]
+  },
+  "note": "measured guard patrol stride, spear resting on the right shoulder (right hand steady in front of the chest, left arm swinging short), upright chest, chin level",
+  "root_motion_m": 0.0
+ },
+ {
+  "name": "Life_Guard_Look_Out",
+  "loop": false,
+  "frames": 105,
+  "seconds": 3.467,
+  "events": {
+   "scan_left": [
+    40
+   ],
+   "scan_right": [
+    62
+   ]
+  },
+  "note": "guard shades his eyes with the left hand (spear planted in the right) and scans left then right",
+  "root_motion_m": 0.0
+ },
+ {
+  "name": "Life_Shop_Counter_Lean",
+  "loop": true,
+  "frames": 145,
+  "seconds": 4.8,
+  "events": {
+   "tap": [
+    86,
+    92,
+    98
+   ]
+  },
+  "note": "shopkeeper waiting at the counter: both palms flat on the top (planted), weight rocks from foot to foot, glances at the street, drums the right fingers once",
+  "root_motion_m": 0.0
+ },
+ {
+  "name": "Life_Shop_Wipe",
+  "loop": true,
+  "frames": 73,
+  "seconds": 2.4,
+  "events": {
+   "stroke": [
+    0,
+    18,
+    36,
+    54
+   ]
+  },
+  "note": "shopkeeper wipes the counter in wide circles with a cloth in the right hand (palm flat on the top), the whole chest and head follow the hand, the left hand steadies on the counter",
+  "root_motion_m": 0.0
+ },
+ {
+  "name": "Life_Shop_Tally",
+  "loop": true,
+  "frames": 151,
+  "seconds": 5.0,
+  "events": {
+   "dip": [
+    78
+   ],
+   "write_start": [
+    6
+   ]
+  },
+  "note": "shopkeeper writing in the ledger (a flat scene object: with the prop grip contract a left-hand book cannot lie flat under the palm), left palm on its edge, right hand writes a line with the quill, lifts, dips it in the ink and comes back; head follows the nib",
+  "root_motion_m": 0.0
+ },
+ {
+  "name": "Life_Read_Stand",
+  "loop": true,
+  "frames": 157,
+  "seconds": 5.2,
+  "events": {
+   "page_turn": [
+    98
+   ]
+  },
+  "note": "standing reader: book held by its edge in the right hand at the chest, the left hand cradles it from below, eyes sweep the lines, weight shifts, the left hand turns a page (book model: spine axis = thumb, body along the palm)",
+  "root_motion_m": 0.0
+ },
+ {
+  "name": "Life_Read_Sit",
+  "loop": true,
+  "frames": 161,
+  "seconds": 5.333,
+  "events": {
+   "page_turn": [
+    92
+   ]
+  },
+  "note": "reader seated on a bench (seat 0.45 m), book resting on the lap and steadied by the right hand at its edge, the left hand supports it and turns one page; head down, a neck stretch at the end",
+  "root_motion_m": 0.0
+ },
+ {
+  "name": "Life_Write_Desk",
+  "loop": true,
+  "frames": 157,
+  "seconds": 5.2,
+  "events": {
+   "dip": [
+    76
+   ],
+   "write_start": [
+    6
+   ]
+  },
+  "note": "writer seated at a table (top 0.75 m): left palm holds the page, right hand writes with the quill, lifts, dips it in the ink pot at the right, returns; head follows the nib",
+  "root_motion_m": 0.0
+ },
+ {
+  "name": "Life_Market_Arrange",
+  "loop": true,
+  "frames": 157,
+  "seconds": 5.2,
+  "events": {
+   "pick": [
+    20,
+    92
+   ],
+   "place": [
+    46,
+    118
+   ]
+  },
+  "note": "vendor arranging goods on the stall: picks a loaf from the pile on the right, sets it in the row, nudges it straight with a pat of the left hand, then a second loaf to another spot; head follows the hands, weight shifts on the feet",
+  "root_motion_m": 0.0
+ },
+ {
+  "name": "Life_Market_Browse",
+  "loop": true,
+  "frames": 181,
+  "seconds": 6.0,
+  "events": {
+   "pick": [
+    40
+   ],
+   "inspect": [
+    56,
+    84
+   ],
+   "put_back": [
+    112
+   ]
+  },
+  "note": "customer at a stall: studies the goods with a hand at the chin, picks up a loaf, turns it over in front of the face, sets it back a little to one side, shrugs and glances along the stall",
+  "root_motion_m": 0.0
+ },
+ {
+  "name": "Life_Tavern_Drink",
+  "loop": false,
+  "frames": 109,
+  "seconds": 3.6,
+  "events": {
+   "sip": [
+    30
+   ],
+   "wipe": [
+    76
+   ],
+   "swallow": [
+    40
+   ]
+  },
+  "note": "lifts the tankard, tips it to the lips (head goes back, throat swallow), lowers it with an exhale, then wipes the mouth with the back of the left hand and settles",
+  "root_motion_m": 0.0
+ },
+ {
+  "name": "Life_Tavern_Toast",
+  "loop": false,
+  "frames": 123,
+  "seconds": 4.067,
+  "events": {
+   "raise": [
+    16
+   ],
+   "cheers": [
+    26
+   ],
+   "clink": [
+    32
+   ],
+   "sip": [
+    64
+   ]
+  },
+  "note": "anticipation (mug cocked back, chest dips), thrusts the tankard up and out for 'cheers' with a clink push, left hand open in a gesture, then drains a long sip and lowers it",
+  "root_motion_m": 0.0
+ },
+ {
+  "name": "Life_Tavern_Cheer",
+  "loop": true,
+  "frames": 61,
+  "seconds": 2.0,
+  "events": {
+   "beat": [
+    0,
+    15,
+    30,
+    45
+   ]
+  },
+  "note": "drinking song: tankard raised beside the head and swung side to side, knees bouncing on the beat (4 beats per loop), left arm swaying, head thrown back and nodding",
+  "root_motion_m": 0.0
+ },
+ {
+  "name": "Life_Tavern_Lean_Bar",
+  "loop": true,
+  "frames": 145,
+  "seconds": 4.8,
+  "events": {
+   "sip": [
+    86
+   ]
+  },
+  "note": "leaning over the bar counter (top 1.05 m, edge 0.22 m in front) on the left elbow, tankard in the right hand on the counter; weight shifts, he watches the room, straightens up for one sip",
+  "root_motion_m": 0.0
+ },
+ {
+  "name": "Life_Tavern_Sit_Drink",
+  "loop": true,
+  "frames": 181,
+  "seconds": 6.0,
+  "events": {
+   "sip": [
+    58
+   ],
+   "set_down": [
+    84
+   ],
+   "laugh": [
+    104
+   ]
+  },
+  "note": "seated at a tavern table (0.75 m), right hand around the tankard on the table; a sip, the mug set down with a thunk, then a laugh (head back, shoulders bounce, left hand slaps the table)",
+  "root_motion_m": 0.0
+ },
+ {
+  "name": "Life_Music_Lute",
+  "loop": true,
+  "frames": 97,
+  "seconds": 3.2,
+  "events": {
+   "strum": [
+    0,
+    12,
+    24,
+    36,
+    48,
+    60,
+    72,
+    84
+   ],
+   "chord": [
+    22,
+    46,
+    70
+   ]
+  },
+  "note": "standing lute player: the lute rests on the belly with the neck up to the left (left fist on the neck), the right hand strums 8 times in the loop with accents, the left hand changes chord three times (slide + finger flick), body sways and the right foot taps the beat",
+  "root_motion_m": 0.0
+ },
+ {
+  "name": "Life_Music_Lute_Sit",
+  "loop": true,
+  "frames": 97,
+  "seconds": 3.2,
+  "events": {
+   "strum": [
+    0,
+    12,
+    24,
+    36,
+    48,
+    60,
+    72,
+    84
+   ],
+   "chord": [
+    22,
+    46,
+    70
+   ]
+  },
+  "note": "seated lute player (stool seat 0.47 m): lute on the lap and belly, strumming, chord changes and a swaying torso",
+  "root_motion_m": 0.0
+ },
+ {
+  "name": "Life_Music_Flute",
+  "loop": true,
+  "frames": 97,
+  "seconds": 3.2,
+  "events": {
+   "phrase": [
+    0,
+    48
+   ]
+  },
+  "note": "standing flute player: transverse flute at the right side of the mouth held by both hands (elbows out), fingers flutter through a tune, head and chest sway gently and the head lifts on the long notes",
+  "root_motion_m": 0.0
+ },
+ {
+  "name": "Life_Eat_Bread_Stand",
+  "loop": true,
+  "frames": 133,
+  "seconds": 4.4,
+  "events": {
+   "bite": [
+    22
+   ],
+   "chew": [
+    30,
+    40,
+    50,
+    60,
+    70
+   ],
+   "swallow": [
+    80
+   ]
+  },
+  "note": "standing snack: loaf lifted to the mouth, a bite with a small tearing pull, lowered while chewing (jaw = head pitch pulses), a swallow, a glance around; left hand cups under the chin/loaf",
+  "root_motion_m": 0.0
+ },
+ {
+  "name": "Life_Eat_Bowl_Sit",
+  "loop": true,
+  "frames": 145,
+  "seconds": 4.8,
+  "events": {
+   "scoop": [
+    12,
+    84
+   ],
+   "bite": [
+    32,
+    104
+   ],
+   "swallow": [
+    60,
+    124
+   ]
+  },
+  "note": "seated meal: bowl held by the rim in the left hand in front of the belly, the spoon scoops, lifts to the mouth (head dips to meet it), lowers; two spoonfuls per loop with a chew and a glance up",
+  "root_motion_m": 0.0
+ },
+ {
+  "name": "Life_Rest_Sit_Bench",
+  "loop": true,
+  "frames": 193,
+  "seconds": 6.4,
+  "events": {
+   "glance": [
+    34,
+    148
+   ],
+   "sigh": [
+    124
+   ]
+  },
+  "note": "idle on a bench (seat 0.45 m): hands resting on the knees, glances left and right, leans forward with the forearms on the thighs for a while, sits back and sighs, drums the fingers on the knee",
+  "root_motion_m": 0.0
+ },
+ {
+  "name": "Life_Rest_Sit_Bench_Enter",
+  "loop": false,
+  "frames": 67,
+  "seconds": 2.2,
+  "events": {},
+  "note": "stands with the bench behind him, glances back over the shoulder, turns the hips a little, leans forward and lowers onto the seat (pelvis travels 0.30 m back and 0.37 m down over the planted feet), hands find the knees. The game turns the character to face away from the bench first.",
+  "root_motion_m": 0.0
+ },
+ {
+  "name": "Life_Rest_Sit_Bench_Exit",
+  "loop": false,
+  "frames": 55,
+  "seconds": 1.8,
+  "events": {},
+  "note": "stands up from the bench: a beat of preparation, leans forward pressing on the knees, pelvis moves forward over the feet and rises, torso straightens, hands release, settles into the neutral stand",
+  "root_motion_m": 0.0
+ },
+ {
+  "name": "Life_Rest_Sit_Ground",
+  "loop": true,
+  "frames": 181,
+  "seconds": 6.0,
+  "events": {
+   "look_up": [
+    50
+   ]
+  },
+  "note": "sits on the grass with the legs out in front and leans back on the hands: gazes at the sky, rocks a little, one foot flops and wiggles, weight shifts from hand to hand, leans forward to stretch and comes back",
+  "root_motion_m": 0.0
+ },
+ {
+  "name": "Life_Rest_Sit_Ground_Enter",
+  "loop": false,
+  "frames": 85,
+  "seconds": 2.8,
+  "events": {},
+  "note": "lowers to the ground: bends, squats with the hands on the thighs, drops the hips, reaches the hands back and slides the legs out in front",
+  "root_motion_m": 0.0
+ },
+ {
+  "name": "Life_Rest_Sit_Ground_Exit",
+  "loop": false,
+  "frames": 79,
+  "seconds": 2.6,
+  "events": {},
+  "note": "gets up from the ground: pulls the legs in, hands to the thighs, rocks forward onto the feet and rises",
+  "root_motion_m": 0.0
+ },
+ {
+  "name": "Life_Rest_Sit_Chair",
+  "loop": true,
+  "frames": 193,
+  "seconds": 6.4,
+  "events": {
+   "chin_rest": [
+    70
+   ],
+   "glance": [
+    30,
+    128
+   ]
+  },
+  "note": "idle at a table (top 0.75 m), leaning on both forearms; rests the chin in the right hand for a while, glances around, taps the fingers, sits back and stretches the neck",
+  "root_motion_m": 0.0
+ },
+ {
+  "name": "Life_Rest_Doze_Bench",
+  "loop": true,
+  "frames": 181,
+  "seconds": 6.0,
+  "events": {
+   "jerk": [
+    118
+   ]
+  },
+  "note": "dozing on the bench with folded arms and the legs stretched out: the head sinks slowly with the chest, then snaps up with a startled breath, blinks around, and starts to sink again",
+  "root_motion_m": 0.0
+ },
+ {
+  "name": "Life_Pray_Stand",
+  "loop": true,
+  "frames": 181,
+  "seconds": 6.0,
+  "events": {},
+  "note": "standing prayer: feet together, hands clasped at the chest, head bowed; the bow deepens slowly on the breath out and lifts a little on the breath in, a barely visible sway",
+  "root_motion_m": 0.0
+ },
+ {
+  "name": "Life_Pray_Kneel",
+  "loop": true,
+  "frames": 217,
+  "seconds": 7.2,
+  "events": {},
+  "note": "kneeling prayer on both knees (toes tucked): hands clasped at the chest, head bowed, very slow breathing; the head sinks on the breath out, the shoulders settle, a tiny sway",
+  "root_motion_m": 0.0
+ },
+ {
+  "name": "Life_Pray_Kneel_Enter",
+  "loop": false,
+  "frames": 79,
+  "seconds": 2.6,
+  "events": {},
+  "note": "stands, brings the hands together, steps the right foot back, lowers onto the right knee and then the left, settles upright with the head bowed",
+  "root_motion_m": 0.0
+ },
+ {
+  "name": "Life_Pray_Kneel_Exit",
+  "loop": false,
+  "frames": 67,
+  "seconds": 2.2,
+  "events": {},
+  "note": "lifts the head, releases the hands, rocks forward onto the left foot, pushes up and stands",
+  "root_motion_m": 0.0
+ },
+ {
+  "name": "Life_Rest_Sleep_Ground",
+  "loop": true,
+  "frames": 181,
+  "seconds": 6.0,
+  "events": {
+   "breath": [
+    0,
+    90
+   ]
+  },
+  "note": "asleep on the left side, curled up, left arm under the head: slow deep breathing (chest and shoulder rise), a small settling shift and a twitch of the free hand",
+  "root_motion_m": 0.0
+ },
+ {
+  "name": "Life_Rest_Sleep_Ground_Enter",
+  "loop": false,
+  "frames": 109,
+  "seconds": 3.6,
+  "events": {},
+  "note": "lies down to sleep: squats, sits down on the hip supporting on the left hand, lowers onto the left elbow, then the shoulder, tucks the legs up and settles the head onto the arm",
+  "root_motion_m": 0.0
+ },
+ {
+  "name": "Life_Rest_Sleep_Ground_Exit",
+  "loop": false,
+  "frames": 97,
+  "seconds": 3.2,
+  "events": {},
+  "note": "wakes up: a deep breath, the head lifts, pushes up on the left hand into a sitting position, rubs the face, squats and stands",
+  "root_motion_m": 0.0
+ }
+]

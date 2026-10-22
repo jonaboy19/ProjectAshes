@@ -102,19 +102,21 @@ shader_parameter/tail_len = null
 shader_parameter/pulse = null
 shader_parameter/pulse_speed = null
 shader_parameter/heat_scale = 0.75
+shader_parameter/soft_edge = null
+shader_parameter/ring_soft = 0.7
 
 [sub_resource type="QuadMesh" id="QuadMesh_0f3x0"]
 size = Vector2(1.6, 1.6)
 orientation = 1
 
-[node name="Water_Status" type="Node3D" unique_id=1134260910]
+[node name="Water_Status" type="Node3D" unique_id=318552198]
 script = ExtResource("1_tcoke")
 duration = 0.0
 fade_out = 0.4
 kind = &"status"
 element = &"water"
 
-[node name="Drips" type="GPUParticles3D" parent="." unique_id=484418425]
+[node name="Drips" type="GPUParticles3D" parent="." unique_id=1000718147]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.4, 0)
 cast_shadow = 0
 gi_mode = 0
@@ -127,7 +129,7 @@ transform_align = 1
 process_material = SubResource("ParticleProcessMaterial_3nqoq")
 draw_pass_1 = SubResource("QuadMesh_vw6fd")
 
-[node name="Glints" type="GPUParticles3D" parent="." unique_id=1186221912]
+[node name="Glints" type="GPUParticles3D" parent="." unique_id=1238777796]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1, 0)
 cast_shadow = 0
 gi_mode = 0
@@ -142,7 +144,7 @@ process_material = SubResource("ParticleProcessMaterial_viopg")
 draw_pass_1 = SubResource("QuadMesh_ffnbw")
 metadata/tier_min = 1
 
-[node name="Puddle" type="MeshInstance3D" parent="." unique_id=1085664396]
+[node name="Puddle" type="MeshInstance3D" parent="." unique_id=262236410]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.03, 0)
 material_override = SubResource("ShaderMaterial_v3e0r")
 cast_shadow = 0

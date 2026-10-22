@@ -50,6 +50,8 @@ shader_parameter/tail_len = null
 shader_parameter/pulse = null
 shader_parameter/pulse_speed = null
 shader_parameter/heat_scale = 0.45
+shader_parameter/soft_edge = null
+shader_parameter/ring_soft = null
 
 [sub_resource type="SphereMesh" id="SphereMesh_eiwn2"]
 radius = 0.24
@@ -100,6 +102,8 @@ shader_parameter/tail_len = null
 shader_parameter/pulse = null
 shader_parameter/pulse_speed = null
 shader_parameter/heat_scale = 0.7
+shader_parameter/soft_edge = 0.85
+shader_parameter/ring_soft = null
 
 [sub_resource type="CylinderMesh" id="CylinderMesh_4wve5"]
 top_radius = 0.0
@@ -184,21 +188,21 @@ color_ramp = SubResource("GradientTexture1D_l3l18")
 material = ExtResource("6_6a4ea")
 size = Vector2(0.15835051, 0.15835051)
 
-[node name="Fire_Projectile" type="Node3D" unique_id=1772956954]
+[node name="Fire_Projectile" type="Node3D" unique_id=514049110]
 script = ExtResource("1_lvfvm")
 duration = 0.0
 fade_out = 0.15
 kind = &"projectile"
 element = &"fire"
 
-[node name="Orb" type="MeshInstance3D" parent="." unique_id=2038658101]
+[node name="Orb" type="MeshInstance3D" parent="." unique_id=204055892]
 material_override = SubResource("ShaderMaterial_rcbmh")
 cast_shadow = 0
 extra_cull_margin = 2.0
 gi_mode = 0
 mesh = SubResource("SphereMesh_eiwn2")
 
-[node name="Trail" type="MeshInstance3D" parent="." unique_id=428612060]
+[node name="Trail" type="MeshInstance3D" parent="." unique_id=1818275531]
 transform = Transform3D(1, 0, 0, 0, -4.371139e-08, -1, 0, 1, -4.371139e-08, 0, 0, 0.75)
 material_override = SubResource("ShaderMaterial_447w3")
 cast_shadow = 0
@@ -206,14 +210,14 @@ extra_cull_margin = 2.0
 gi_mode = 0
 mesh = SubResource("CylinderMesh_4wve5")
 
-[node name="Glow" type="MeshInstance3D" parent="." unique_id=1466323385]
+[node name="Glow" type="MeshInstance3D" parent="." unique_id=2114340724]
 material_override = SubResource("ShaderMaterial_4ep6h")
 cast_shadow = 0
 extra_cull_margin = 2.0
 gi_mode = 0
 mesh = SubResource("QuadMesh_gnr6e")
 
-[node name="TrailFlames" type="GPUParticles3D" parent="." unique_id=1958678218]
+[node name="TrailFlames" type="GPUParticles3D" parent="." unique_id=456282329]
 cast_shadow = 0
 gi_mode = 0
 emitting = false
@@ -224,7 +228,7 @@ transform_align = 1
 process_material = SubResource("ParticleProcessMaterial_tjag2")
 draw_pass_1 = SubResource("QuadMesh_0uqfy")
 
-[node name="Embers" type="GPUParticles3D" parent="." unique_id=678479159]
+[node name="Embers" type="GPUParticles3D" parent="." unique_id=1821469638]
 cast_shadow = 0
 gi_mode = 0
 emitting = false
@@ -237,7 +241,7 @@ process_material = SubResource("ParticleProcessMaterial_pc4ql")
 draw_pass_1 = SubResource("QuadMesh_nqglc")
 metadata/tier_min = 1
 
-[node name="Flash" type="OmniLight3D" parent="." unique_id=542017907]
+[node name="Flash" type="OmniLight3D" parent="." unique_id=710293623]
 light_color = Color(1, 0.5, 0.12, 1)
 light_energy = 1.6
 metadata/flash = {

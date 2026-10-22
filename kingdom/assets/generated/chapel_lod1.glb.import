@@ -37,29 +37,6 @@ import_script/path=""
 materials/extract=0
 materials/extract_format=0
 materials/extract_path=""
-_subresources={
-"materials": {
-"RA_Matte_hp": {
-"use_external/enabled": true,
-"use_external/fallback_path": "res://assets/generated/village_tex/ra_hp_stone.tres",
-"use_external/path": "res://assets/generated/village_tex/ra_hp_stone.tres"
-},
-"RA_Metal": {
-"use_external/enabled": true,
-"use_external/fallback_path": "res://assets/generated/village_tex/ra_iron.tres",
-"use_external/path": "res://assets/generated/village_tex/ra_iron.tres"
-},
-"RA_Roof": {
-"use_external/enabled": true,
-"use_external/fallback_path": "res://assets/generated/village_tex/ra_roof.tres",
-"use_external/path": "res://assets/generated/village_tex/ra_roof.tres"
-},
-"RA_Wood_hp": {
-"use_external/enabled": true,
-"use_external/fallback_path": "res://assets/generated/village_tex/ra_hp_wood.tres",
-"use_external/path": "res://assets/generated/village_tex/ra_hp_wood.tres"
-}
-}
-}
+_subresources={}
 gltf/naming_version=2
 gltf/embedded_image_handling=1

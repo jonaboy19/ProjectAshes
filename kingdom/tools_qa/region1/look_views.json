@@ -1,0 +1,27 @@
+{
+	"_comment": "Region 1 look-dev survey views for look_capture.gd. at/look = [x, z] metres (north = -z); up/look_up = metres above ground.",
+	"views": [
+		{"name": "01_ashford_lane", "at": [42, 38], "look": [0, 0], "up": 2.0, "hour": 16.2},
+		{"name": "02_ashford_aerial", "at": [150, 170], "look": [0, -10], "up": 70, "look_up": 0, "hour": 17.6},
+		{"name": "03_ember_road", "at": [120, -70], "look": [288, -199], "up": 2.0, "hour": 16.2},
+		{"name": "04_kingsreach_skyline", "at": [230, -110], "look": [560, -420], "up": 14, "look_up": 25, "hour": 18.2},
+		{"name": "05_crownstead_fields", "at": [330, -80], "look": [460, -210], "up": 10, "look_up": 0, "hour": 12.0},
+		{"name": "06_ashrun_bridge", "at": [-250, -165], "look": [-318, -214], "up": 2.2, "hour": 16.2},
+		{"name": "07_upper_ashrun", "at": [-230, -500], "look": [-150, -900], "up": 6, "look_up": 10, "hour": 16.2},
+		{"name": "08_north_hills_aerial", "at": [150, -620], "look": [-180, -880], "up": 90, "look_up": 0, "hour": 12.0},
+		{"name": "09_mere_shore", "at": [-290, 230], "look": [-440, 310], "up": 2.2, "hour": 18.4},
+		{"name": "10_mere_midday", "at": [-560, 190], "look": [-400, 330], "up": 12, "look_up": 0, "hour": 12.0},
+		{"name": "11_duskbriar_edge", "at": [330, 330], "look": [420, 470], "up": 2.2, "hour": 16.2},
+		{"name": "12_greyseam_mine", "at": [150, -400], "look": [75, -470], "up": 3, "hour": 16.2},
+		{"name": "13_highwatch_keep", "at": [60, -1280], "look": [-21, -1457], "up": 4, "look_up": 8, "hour": 17.6},
+		{"name": "14_greenhollow", "at": [-840, -540], "look": [-942, -633], "up": 3, "hour": 16.2},
+		{"name": "15_elden_road_shrine", "at": [-610, -110], "look": [-700, -160], "up": 2.4, "hour": 18.2},
+		{"name": "16_glade_woods", "at": [-1080, -900], "look": [-1180, -980], "up": 3, "hour": 16.2},
+		{"name": "17_rift_frontier", "at": [1020, 900], "look": [1130, 1004], "up": 4, "hour": 16.2},
+		{"name": "18_brackenmoor", "at": [380, 1040], "look": [378, 1145], "up": 3, "hour": 12.0},
+		{"name": "19_north_panorama", "at": [-40, -160], "look": [-60, -1100], "up": 45, "look_up": 30, "hour": 12.0},
+		{"name": "20_south_panorama", "at": [60, 200], "look": [400, 950], "up": 35, "look_up": 10, "hour": 17.8},
+		{"name": "21_thornfield_road", "at": [1350, -180], "look": [1499, -211], "up": 2.4, "hour": 12.0},
+		{"name": "22_meadow_open", "at": [-500, -400], "look": [-300, -300], "up": 1.8, "hour": 17.8}
+	]
+}

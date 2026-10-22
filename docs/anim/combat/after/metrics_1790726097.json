@@ -1,0 +1,193 @@
+[
+  {
+    "body_clip_frames": [],
+    "chest_max_disp": [
+      -0.02,
+      -0.01
+    ],
+    "clip": "Bow_Draw",
+    "foot_slide_cm": {
+      "l": 14.3,
+      "r": 9.1
+    },
+    "frames_at_rate": 18,
+    "layer": "full",
+    "length_s": 0.533,
+    "markers": {
+      "cancel_window": [
+        15,
+        17
+      ],
+      "combo_window": [
+        8,
+        15
+      ],
+      "hit_end": 7,
+      "hit_start": 4,
+      "hits": [
+        6
+      ],
+      "trail_end": 9,
+      "trail_start": 2,
+      "windup_end": 1
+    },
+    "min_bone_h_cm": 8.6,
+    "pelvis_end_disp": [
+      0.0,
+      0.0,
+      0.0
+    ],
+    "rate": 1.0,
+    "root_travel_m": 0.0,
+    "settle_frame": 15,
+    "step_in_fwd_m": 0.0,
+    "step_in_m": 0.0,
+    "strikes": [
+      {
+        "arc_ratio": 1.07,
+        "backswing_m": 0.0,
+        "chain": {
+          "arm": 6,
+          "hand": 6,
+          "hips": 4,
+          "shoulders": 4,
+          "tip": 6
+        },
+        "contact_frames": 4,
+        "follow_end": 15,
+        "follow_m": 0.29,
+        "hip_range_deg": 12.0,
+        "hit_end": 7,
+        "hit_start": 4,
+        "peak": 6,
+        "peak_speed": 4.83,
+        "tip_at_hit": [
+          -0.17,
+          1.44,
+          0.32
+        ],
+        "tip_dir": [
+          0.48,
+          0.67,
+          0.57
+        ],
+        "tip_path_m": 0.44,
+        "windup_end": 1,
+        "xfactor_deg": 35.3
+      }
+    ],
+    "target_contact": []
+  },
+  {
+    "body_clip_frames": [],
+    "chest_max_disp": [
+      0.02,
+      0.01
+    ],
+    "clip": "Bow_Loose",
+    "foot_slide_cm": {
+      "l": 14.9,
+      "r": 9.9
+    },
+    "frames_at_rate": 20,
+    "layer": "full",
+    "length_s": 0.6,
+    "markers": {
+      "cancel_window": [
+        19,
+        19
+      ],
+      "combo_window": [
+        15,
+        19
+      ],
+      "hit_end": 14,
+      "hit_start": 1,
+      "hits": [
+        2,
+        12
+      ],
+      "trail_end": 16,
+      "trail_start": 0,
+      "windup_end": 1
+    },
+    "min_bone_h_cm": 8.6,
+    "pelvis_end_disp": [
+      0.0,
+      0.0,
+      0.0
+    ],
+    "rate": 1.0,
+    "root_travel_m": 0.0,
+    "settle_frame": 18,
+    "step_in_fwd_m": 0.0,
+    "step_in_m": 0.0,
+    "strikes": [
+      {
+        "arc_ratio": 1.0,
+        "backswing_m": 0.0,
+        "chain": {
+          "arm": 2,
+          "hand": 2,
+          "hips": 1,
+          "shoulders": 1,
+          "tip": 2
+        },
+        "contact_frames": 2,
+        "follow_end": 19,
+        "follow_m": 0.67,
+        "hip_range_deg": 12.0,
+        "hit_end": 2,
+        "hit_start": 1,
+        "peak": 2,
+        "peak_speed": 1.93,
+        "tip_at_hit": [
+          -0.24,
+          1.59,
+          -0.03
+        ],
+        "tip_dir": [
+          -0.6,
+          0.41,
+          -0.68
+        ],
+        "tip_path_m": 0.09,
+        "windup_end": 1,
+        "xfactor_deg": 40.0
+      },
+      {
+        "arc_ratio": 1.0,
+        "backswing_m": 0.0,
+        "chain": {
+          "arm": 12,
+          "hand": 12,
+          "hips": 12,
+          "shoulders": 12,
+          "tip": 12
+        },
+        "contact_frames": 3,
+        "follow_end": 19,
+        "follow_m": 0.17,
+        "hip_range_deg": 0.0,
+        "hit_end": 14,
+        "hit_start": 12,
+        "peak": 12,
+        "peak_speed": 2.63,
+        "tip_at_hit": [
+          -0.3,
+          1.27,
+          -0.02
+        ],
+        "tip_dir": [
+          -0.01,
+          -0.97,
+          0.23
+        ],
+        "tip_path_m": 0.15,
+        "windup_end": 12,
+        "xfactor_deg": 0.0
+      }
+    ],
+    "target_contact": []
+  }
+]

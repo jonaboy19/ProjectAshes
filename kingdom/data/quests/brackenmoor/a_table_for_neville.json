@@ -1,0 +1,67 @@
+{
+ "id": "brackenmoor_a_table_for_neville",
+ "title": "A Table for Neville",
+ "summary": "Lorne Snare says Neville Ledger is going short. 4 dry hides and a visit would help, before the cold sets in for good.",
+ "giver": {
+  "npc": "lorne_snare",
+  "name": "Lorne Snare",
+  "place": "brackenmoor"
+ },
+ "offer_text": "\"Neville Ledger will not ask, so I am asking for them. Go and see what is wanted, and bring dry hides before the cold sets in for good. The stock at the lodge yard is the town's, and this is what it is for.\"",
+ "turn_in_text": "\"Thank you. It is the small things that keep a town.\"",
+ "stages": [
+  {
+   "id": "ask",
+   "title": "Look after Neville",
+   "mode": "all",
+   "objectives": [
+    {
+     "id": "visit",
+     "type": "talk_to",
+     "npc": "neville_ledger",
+     "text": "Visit Neville Ledger and ask what is wanted"
+    },
+    {
+     "id": "gather",
+     "type": "collect",
+     "item": "hides",
+     "count": 4,
+     "text": "Take 4 dry hides from the lodge yard"
+    }
+   ]
+  },
+  {
+   "id": "bring",
+   "title": "Bring it",
+   "mode": "all",
+   "objectives": [
+    {
+     "id": "bring",
+     "type": "deliver",
+     "item": "hides",
+     "count": 4,
+     "to": "neville_ledger",
+     "text": "Hand the dry hides to Neville Ledger"
+    }
+   ],
+   "end": true
+  }
+ ],
+ "rewards": {
+  "gold": 12,
+  "rep": {
+   "brackenmoor": 5
+  },
+  "relationship": [
+   {
+    "npc": "lorne_snare",
+    "label": "Looked after the old folk",
+    "value": 14,
+    "days": 90
+   }
+  ],
+  "items": {
+   "venison": 1
+  }
+ }
+}

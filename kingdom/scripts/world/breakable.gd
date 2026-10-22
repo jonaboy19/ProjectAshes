@@ -185,7 +185,18 @@ func shatter(hit: Vector3, force := 3.0, from: Node = null) -> int:
 	_dust(global_position, 14)
 	if from and from.is_in_group("player"):
 		give_loot(roll_loot(kind, _rng))
+		_report_theft()
 	return n
+
+
+## Smashing a crate or barrel open inside a settlement and pocketing what falls out is petty theft: whoever
+## saw it shouts for the watch and the town's society module records it (NpcWorld.report_crime).
+func _report_theft() -> void:
+	var here := Vector2(global_position.x, global_position.z)
+	for s: Dictionary in WorldGen.settlements:
+		if here.distance_to(s["pos"]) < float(s["radius"]) * 0.95:
+			(load("res://scripts/population/npc_world.gd") as GDScript).call("report_crime", get_tree(), "pickpocket", here, int(s["id"]), true)
+			return
 
 
 ## Puts the prop back (intact, full health, solid).
@@ -535,12 +546,10 @@ static func _sweep(player_ref: WeakRef, sid: int) -> void:
 		fwd = player.forward()     # View.FIRST
 	var damage := 14
 	var knock := 1.5
-	var combo: Variant = player.get("_combo")
-	var table: Variant = player.get_script().get_script_constant_map().get("COMBO") if player.get_script() else null
-	if combo is int and table is Array and int(combo) < (table as Array).size():
-		var step: Dictionary = table[combo]
-		damage = int(step.get("damage", 14))
-		knock = float(step.get("knockback", 1.5))
+	if player.has_method("swing_stats"):
+		var st: Dictionary = player.call("swing_stats")
+		damage = int(st.get("damage", 14))
+		knock = float(st.get("knockback", 1.5))
 	var hits := 0
 	for b in _all.duplicate():
 		if b.broken:

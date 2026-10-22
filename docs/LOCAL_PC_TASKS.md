@@ -25,6 +25,7 @@ behind a network allowlist. Here's the split.
 | **Play-feel judgement** (does combat feel good, is the camera annoying) | Can't hold a controller | Play the build and write short notes in `docs/PLAYTEST_NOTES.md` |
 | **Audio listening checks** | No speakers; can only verify files load | Listen to music and SFX mixes and report balance |
 | **Terrain3D editor sculpting** | Editor GUI | Later, once we adopt Terrain3D |
+| **Repaint the parchment world map for the 12 x 12 km world** | The painter needs the GPU (`paint_parchment.tscn` is not headless) | `Godot --headless -s res://tools_qa/map/dump_world.gd -- --out=<dir> --grid=1024`, then `tools_qa/map/run_paint.sh <dir>` (writes `assets/ui/maps/region1_parchment.{png,json}`; the new json has `world_min` -6144 so `map_parchment_layer.covers_world()` turns the layer back on). Until then the map draws its own terrain. Also check the 10 new towns and the long roads on the map, and ride a horse from a waystation (docs/design/REALM_PLAN.md "Travel and world size") |
 | **Signing into services** (Steam, stores, accounts) | Credentials must stay local | Local only |
 
 ## Local tooling notes (from your research)

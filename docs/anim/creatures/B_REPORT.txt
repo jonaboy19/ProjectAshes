@@ -1,0 +1,86 @@
+CREATURE MOTION, GROUP B: goblin / orc / troll                    branch tmp-creature, Blender 5.2, Godot not run
+=====================================================================================================================
+Time convention: Blender frame f (1-based) = f/30 s in the GLB and in Godot (the shipped files already had their first key at 1/30 s and the
+new files keep that). "s into clip" below is the Godot time unless it says clip-seconds. Clip length in Godot = last key = frames/30.
+Sheets: docs/anim/creatures/<c>/before/*.jpg (original GLB) and after/*.jpg (the new GLB, re-imported and rendered FROM THE GLB, side + front
+in one tile, 30 fps, step 1 up to 46 frames else step 2, labelled #frame and time), compare_<clip>.jpg = before row over after row.
+Numbers: <c>/TABLE.txt, <c>/slip.txt, attack_timing.txt. Scripts + README: tools/creatures/motion_b/.
+
+WHAT I READ (honest list). Every attack / slam / attack_charged sheet before and after was read frame by frame. For the other clips I read the
+after sheets of goblin walk 2-3, run 1-2, hit 1-3, death 1-3, idle 1/3/6; orc run 1, hit 2, death 2; troll walk 1-2, run 1, death 2, and the
+before sheets of goblin walk 1 / run 1, troll hit 1/3 / death 2. NOT read one by one: orc/troll idle (12 sheets), orc walk (3), the remaining hit /
+death / walk sheets. Those clips are the same Meshy motions retargeted on all three rigs (identical yaw and timing signatures) and were covered
+numerically (loop closure, per-frame jumps, mesh min z, foot slip, LOD0-vs-LOD1 and original-vs-new bone positions <= 0.01 cm when unchanged).
+
+VERDICT   goblin PASS   orc PASS   troll PASS   (open issues at the end)
+
+1. FOOT SLIDING (stance foot ground speed with the root moving at the stated speed; toe bone, stance = within 2 % of body height of its cycle min)
+   Walk clips were already planted, only run speeds were wrong. No re-keying of feet was needed, no mesh distortion, the new game numbers:
+              walk old -> new   max slip at new   run old -> new   max slip at old / new
+     goblin   0.87 -> 0.90      0.8 cm            2.64 -> 2.96     2.5 cm / 0.3 cm
+     orc      1.70 -> 1.70      3.5 cm            5.20 -> 5.84     5.1 cm / 2.5 cm
+     troll    2.40 -> 2.50      3.6 cm            6.90 -> 8.22     10.0 cm / 1.8 cm   (walk slip at old speed: 4.9 cm)
+   The loop closes (frame 1 == last frame, delta <= 0.01 cm) for walk and run of all three. If a 8.2 m/s troll run is too fast for gameplay, keep the
+   game speed and scale the AnimationPlayer speed by (game speed / 8.22) instead of changing the clip.
+   Ground sink (mesh min z): goblin run -0.026 -> -0.005; troll walk -0.047 -> -0.005, run -0.071 -> -0.005 (hips lifted per frame by up to 4.2 / 6.6 cm,
+   smoothed; only Hips z changes, so slip is unchanged). Orc walk/run (-0.011/-0.014) and goblin walk (-0.015) left alone (< 1.5 cm).
+
+2. ATTACKS (per clip: defects in the original, fix, new timing). New attacks are authored (tools/creatures/motion_b/specs_*.py): hips drop and shift,
+   spine pitch / counter-twist, head kept on target, chest-relative IK hand targets, planted feet, then baked to plain FK keys.
+   GOBLIN attack (orig 46 frames, sheet before/attack_sheet_1-4)
+     - #6-#11 (0.20-0.37 s) both arms sweep outward, #13-#20 (0.43-0.63 s) arms wide open like a T-pose: no hand-over-shoulder pull-back, reads as a wave.
+     - hips z only 0.43..0.45 m (2 cm) and feet static: weightless. No hold, strike 7 frames above half peak (0.43-0.63 s), impact ~#16-#17.
+     - New (after/attack_sheet_1-4, compare_attack.jpg): #1-#6 (0.03-0.20 s) crouch, hips -7 cm down and back, torso back-twist, hand over the right shoulder;
+       #7-#15 (0.23-0.47 s) hold with 3-frame shake; #16-#17 strike (3 frames, 2 above half peak, 18 m/s); #17 impact, torso counter-rotates, hips +13 cm forward /
+       -9 cm down; #18-#28 follow-through; #29-#39 settle, last frame == ready pose. Duration 1.53 -> 1.33 s, impact 0.55 -> 0.60 s, anticipation 0.46 s.
+   ORC attack (orig 85 frames, before/attack_sheet_1-4)
+     - #0-#8 hands drift up, #9-#11 (0.6-0.73 s) clasped overhead, no hold, then a 3-frame chop at 1.0-1.07 s and 1.7 s of slow return. The hips did drop
+       22 cm, so it was not weightless, it lacked the telegraph and was 2.8 s long.
+     - New: #1-#3 weight back on the rear foot (hips -20 cm, torso arched -24 deg, twisted), both hands high (axe overhead); #5-#12 hold (0.33-0.73 s) with 3-frame
+       tremble; #12->#13 (0.73-0.85 s, 4 frames) strike; 0.85 s impact (hips +18 cm fwd / -16 cm down, torso pitched 32 deg); follow-through, settle by 2.10 s.
+       Duration 2.83 -> 2.13 s, impact 1.11 -> 0.90 s, anticipation 0.73 s (hold 0.37 s).
+   ORC attack_charged (orig 231 frames, before/attack_charged_sheet_1-10)
+     - 0-3.4 s is the kneel (0-0.6) and stand-up (2.3-3.4) that the game slices for `kneel`/`stand_up`: KEPT bit-identical (frames 1-103, max delta 0.014 cm).
+       After that: a weak arm raise 3.5-4.3 s, a 4-frame chop at 4.33-4.43 s at only 6.9 m/s, then ~3.2 s of standing about until 7.7 s.
+     - New from frame 103 on: slow raise 3.4-4.3, hold with growing tremble 4.45-5.0, strike 5.0-5.12, impact 5.17, follow-through, recover upright by 6.33 s.
+       Duration 7.7 -> 6.33 s. KNEEL_RANGE (0.0, 0.6) and STAND_RANGE (2.3, 3.4) stay valid; no new ranges.
+   TROLL attack (orig 56 frames, before/attack_sheet_1-2)
+     - The arm rose in one continuous 1.1 s motion with no hold (#8-#17), strike 13 frames above half peak (1.17-1.57 s, 15 m/s: mushy), skinned fists 0.36 m
+       BELOW the floor at impact (mesh min z -0.358, ~1.5-1.8 s), ended bent over and 0.22 m displaced from its start.
+     - New (after/attack_sheet_1-4, compare_attack.jpg): slow one-arm raise 0-0.76 s (chest arched, lean back, left arm guard), hold 0.82-1.05 s with 3-frame
+       shake, 3-frame strike 1.05-1.15 s (55 m/s peak), impact 1.20 s (game convention): hips -40 cm, torso pitched, right fist on the floor (wrist 0.50 m,
+       skinned min z 0.000), squash, recover upright by 2.6 s. Duration 1.87 -> 2.63 s, impact 1.57 -> 1.20 s.
+   TROLL slam (orig 91 frames)
+     - Skinned fists 0.26 m below the floor (min z -0.259) at ~1.6-1.8 s, strike 6 frames, no hold. New: two-arm raise 0-1.2 s (arched, rising to straight legs),
+       hold with 4 cm tremble 1.28-1.6 s, strike 1.6-1.75 s (2 frames above half peak), impact 1.77 s, fists on the floor (min z -0.013 = the small squash),
+       hold, recover by 3.4 s. Duration 3.03 -> 3.43 s.
+   New `impact` values for creature_models.gd (peak hand speed frame, the same rule that gave the old 0.55 / 1.11 / 1.57): goblin 0.60, orc 0.90, troll 1.20.
+   Their species `windup` values (0.5 / 0.85 / 1.1 s) then play the clips at 1.20 / 1.06 / 1.09x, inside the 0.3-1.5 clamp. Not needed: orc attack_charged 5.17,
+   troll slam 1.77 (no game use yet). I did not edit monster.gd / creature_models.gd / wolf.gd.
+
+3. OTHER FINDINGS AND FIXES
+   - `hit` (all three, identical Meshy motion): the hips travel 0.66 / 1.31 / 1.82 m (goblin/orc/troll) and the clip ENDS displaced by the same amount
+     (before/orc/hit_sheet_2: the model slides out of the tile). In game that is a slide off the collider and a pop back at the end. Fixed: horizontal hip travel
+     removed (in place); the stagger stays as leg and torso motion. Any knockback should come from code (`_knock`).
+   - `death` (all three): ends 0.52 / 1.09 / 1.41 m from where it starts (the fall carries the body backwards). Left as is (it stays there), but the
+     collider will be that far from the corpse. Orc and troll death sank up to 2.7 / 8 cm into the floor mid-fall: hips lifted per frame (min z now -0.005).
+   - troll `idle` loop popped by 5.5 cm at the seam (frame 121 vs 1): last 12 frames cross-blended into frame 1, now 0.
+   - Idle of all three (same motion): a 4 s "look around" that twists the shoulders +-75 deg and turns the head/torso away (goblin idle sheets #24-#35);
+     feet stay planted. Not a defect, but the creature turns its back to the player for about 1 s.
+   - Orc `attack_charged` mesh min z -0.035 during the kneel part is original and unchanged (kneel range kept bit-identical).
+
+4. FILES
+   kingdom/assets/incoming/ai3d/meshy/creatures/{goblin,orc,troll}{,_lod1}.glb rebuilt from git HEAD. Same 24-bone skeleton, same 7-clip (6 goblin) names,
+   tris 15000/5000, 15000/5000, 14999/5000, textures re-encoded JPEG q92 (same size). LOD0 authored, the identical baked keys re-applied to LOD1
+   (max bone position difference LOD0 vs LOD1 0.01 cm). Unchanged clips reproduce the original within 0.01 cm. .import files are untouched (Godot will
+   reimport the GLBs). Reproduce: tools/creatures/motion_b/README.md.
+
+5. REMAINING / OPEN
+   - No weapon meshes exist, so the hold pose reads as raised empty hands in the sheets; the axe / hammer / sword direction assumes the RightHand bone
+     (grip axis not verified with a real weapon). Check the orc/troll overhead poses with the weapon attached in Godot.
+   - The strike is 2-4 frames as requested: the troll hand peaks at 55 m/s, so a weapon trail / hitstop will be needed to sell it, and the hit frame in the
+     game is `impact` (see above). The game's own knockback / lunge code was not touched.
+   - Goblin run has two frames with both feet off the ground (flight phase, original motion).
+   - Hit clips are now in place; if the game relied on their travel as a knockback it needs its own slide.
+   - I did not run Godot; the reimport, the AnimationLibrary names and kneel/stand slices were checked only by clip names/times/keys in the GLB JSON
+     (tools/creatures/motion_b/glb_times.py).

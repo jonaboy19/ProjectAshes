@@ -3,8 +3,8 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://dacf8s65t1i8n"
-path.s3tc="res://.godot/imported/g6_m_modular_all_tex_human_male_head_3.png-b1fee30cfa0c2319995da64dedb0e4ae.s3tc.ctex"
-path.etc2="res://.godot/imported/g6_m_modular_all_tex_human_male_head_3.png-b1fee30cfa0c2319995da64dedb0e4ae.etc2.ctex"
+path.bptc="res://.godot/imported/g6_m_modular_all_tex_human_male_head_3.png-b1fee30cfa0c2319995da64dedb0e4ae.bptc.ctex"
+path.astc="res://.godot/imported/g6_m_modular_all_tex_human_male_head_3.png-b1fee30cfa0c2319995da64dedb0e4ae.astc.ctex"
 metadata={
 "imported_formats": ["s3tc_bptc", "etc2_astc"],
 "vram_texture": true
@@ -16,12 +16,12 @@ generator_parameters={
 [deps]
 
 source_file="res://assets/incoming/characters/g6-ual/g6_m_modular_all_tex_human_male_head_3.png"
-dest_files=["res://.godot/imported/g6_m_modular_all_tex_human_male_head_3.png-b1fee30cfa0c2319995da64dedb0e4ae.s3tc.ctex", "res://.godot/imported/g6_m_modular_all_tex_human_male_head_3.png-b1fee30cfa0c2319995da64dedb0e4ae.etc2.ctex"]
+dest_files=["res://.godot/imported/g6_m_modular_all_tex_human_male_head_3.png-b1fee30cfa0c2319995da64dedb0e4ae.bptc.ctex", "res://.godot/imported/g6_m_modular_all_tex_human_male_head_3.png-b1fee30cfa0c2319995da64dedb0e4ae.astc.ctex"]
 
 [params]
 
 compress/mode=2
-compress/high_quality=false
+compress/high_quality=true
 compress/lossy_quality=0.7
 compress/uastc_level=0
 compress/rdo_quality_loss=0.0

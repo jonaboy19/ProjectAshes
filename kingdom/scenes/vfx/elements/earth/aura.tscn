@@ -49,6 +49,8 @@ shader_parameter/tail_len = null
 shader_parameter/pulse = null
 shader_parameter/pulse_speed = null
 shader_parameter/heat_scale = 0.75
+shader_parameter/soft_edge = null
+shader_parameter/ring_soft = 0.7
 
 [sub_resource type="QuadMesh" id="QuadMesh_l7pyg"]
 size = Vector2(2.2, 2.2)
@@ -97,6 +99,8 @@ shader_parameter/tail_len = null
 shader_parameter/pulse = null
 shader_parameter/pulse_speed = null
 shader_parameter/heat_scale = 0.55
+shader_parameter/soft_edge = null
+shader_parameter/ring_soft = null
 
 [sub_resource type="CylinderMesh" id="CylinderMesh_exl00"]
 top_radius = 0.0
@@ -148,6 +152,8 @@ shader_parameter/tail_len = null
 shader_parameter/pulse = null
 shader_parameter/pulse_speed = null
 shader_parameter/heat_scale = 0.55
+shader_parameter/soft_edge = null
+shader_parameter/ring_soft = null
 
 [sub_resource type="CylinderMesh" id="CylinderMesh_elu6n"]
 top_radius = 0.0
@@ -199,6 +205,8 @@ shader_parameter/tail_len = null
 shader_parameter/pulse = null
 shader_parameter/pulse_speed = null
 shader_parameter/heat_scale = 0.55
+shader_parameter/soft_edge = null
+shader_parameter/ring_soft = null
 
 [sub_resource type="CylinderMesh" id="CylinderMesh_6bgnk"]
 top_radius = 0.0
@@ -250,6 +258,8 @@ shader_parameter/tail_len = null
 shader_parameter/pulse = null
 shader_parameter/pulse_speed = null
 shader_parameter/heat_scale = 0.55
+shader_parameter/soft_edge = null
+shader_parameter/ring_soft = null
 
 [sub_resource type="CylinderMesh" id="CylinderMesh_uysxg"]
 top_radius = 0.0
@@ -301,6 +311,8 @@ shader_parameter/tail_len = null
 shader_parameter/pulse = null
 shader_parameter/pulse_speed = null
 shader_parameter/heat_scale = 0.55
+shader_parameter/soft_edge = null
+shader_parameter/ring_soft = null
 
 [sub_resource type="CylinderMesh" id="CylinderMesh_sanqv"]
 top_radius = 0.0
@@ -371,14 +383,14 @@ color_ramp = SubResource("GradientTexture1D_67v8k")
 material = ExtResource("5_b5mgr")
 size = Vector2(0.15835051, 0.15835051)
 
-[node name="Earth_Aura" type="Node3D" unique_id=83211276]
+[node name="Earth_Aura" type="Node3D" unique_id=983315772]
 script = ExtResource("1_gejs2")
 duration = 0.0
 fade_out = 0.4
 kind = &"aura"
 element = &"earth"
 
-[node name="Ring" type="MeshInstance3D" parent="." unique_id=548637836]
+[node name="Ring" type="MeshInstance3D" parent="." unique_id=2094989434]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.04, 0)
 material_override = SubResource("ShaderMaterial_xmb8m")
 cast_shadow = 0
@@ -386,10 +398,10 @@ extra_cull_margin = 2.0
 gi_mode = 0
 mesh = SubResource("QuadMesh_l7pyg")
 
-[node name="Stone0_p" type="Node3D" parent="." unique_id=1130515995]
+[node name="Stone0_p" type="Node3D" parent="." unique_id=1961833739]
 transform = Transform3D(-4.371139e-08, 0.2419219, 0.9702957, 0, 0.9702957, -0.2419219, -1, -1.0574742e-08, -4.2412974e-08, 0.75, 0, 0)
 
-[node name="Stone0" type="MeshInstance3D" parent="Stone0_p" unique_id=1657759072]
+[node name="Stone0" type="MeshInstance3D" parent="Stone0_p" unique_id=137773965]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.21, 0)
 material_override = SubResource("ShaderMaterial_vq37r")
 cast_shadow = 0
@@ -405,10 +417,10 @@ metadata/anims = [{
 "t1": 0.25
 }]
 
-[node name="Stone1_p" type="Node3D" parent="." unique_id=26983108]
+[node name="Stone1_p" type="Node3D" parent="." unique_id=1009916750]
 transform = Transform3D(0.95105654, 0.07475798, 0.2998379, 0, 0.9702957, -0.2419219, -0.309017, 0.23008141, 0.9228061, 0.23176275, 0, 0.71329236)
 
-[node name="Stone1" type="MeshInstance3D" parent="Stone1_p" unique_id=91850998]
+[node name="Stone1" type="MeshInstance3D" parent="Stone1_p" unique_id=1818124679]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.21, 0)
 material_override = SubResource("ShaderMaterial_3gu8t")
 cast_shadow = 0
@@ -424,10 +436,10 @@ metadata/anims = [{
 "t1": 0.3
 }]
 
-[node name="Stone2_p" type="Node3D" parent="." unique_id=764992849]
+[node name="Stone2_p" type="Node3D" parent="." unique_id=1770460466]
 transform = Transform3D(0.5877853, -0.19571893, -0.7849857, 0, 0.9702957, -0.2419219, 0.809017, 0.14219815, 0.57032555, -0.60676277, 0, 0.44083893)
 
-[node name="Stone2" type="MeshInstance3D" parent="Stone2_p" unique_id=482042256]
+[node name="Stone2" type="MeshInstance3D" parent="Stone2_p" unique_id=873048013]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.21, 0)
 material_override = SubResource("ShaderMaterial_jo62x")
 cast_shadow = 0
@@ -443,10 +455,10 @@ metadata/anims = [{
 "t1": 0.35
 }]
 
-[node name="Stone3_p" type="Node3D" parent="." unique_id=52098881]
+[node name="Stone3_p" type="Node3D" parent="." unique_id=1054254455]
 transform = Transform3D(-0.5877852, -0.19571893, -0.7849857, 0, 0.9702957, -0.2419219, 0.809017, -0.14219812, -0.57032543, -0.60676277, 0, -0.44083893)
 
-[node name="Stone3" type="MeshInstance3D" parent="Stone3_p" unique_id=1793099157]
+[node name="Stone3" type="MeshInstance3D" parent="Stone3_p" unique_id=1350444143]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.21, 0)
 material_override = SubResource("ShaderMaterial_srfe2")
 cast_shadow = 0
@@ -462,10 +474,10 @@ metadata/anims = [{
 "t1": 0.4
 }]
 
-[node name="Stone4_p" type="Node3D" parent="." unique_id=1423710212]
+[node name="Stone4_p" type="Node3D" parent="." unique_id=1726156118]
 transform = Transform3D(-0.95105654, 0.07475797, 0.29983786, 0, 0.9702957, -0.2419219, -0.30901697, -0.23008141, -0.9228061, 0.23176275, 0, -0.71329236)
 
-[node name="Stone4" type="MeshInstance3D" parent="Stone4_p" unique_id=1248151755]
+[node name="Stone4" type="MeshInstance3D" parent="Stone4_p" unique_id=1987590582]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.21, 0)
 material_override = SubResource("ShaderMaterial_vxwcw")
 cast_shadow = 0
@@ -481,7 +493,7 @@ metadata/anims = [{
 "t1": 0.45
 }]
 
-[node name="Dust" type="GPUParticles3D" parent="." unique_id=990883117]
+[node name="Dust" type="GPUParticles3D" parent="." unique_id=937040035]
 cast_shadow = 0
 gi_mode = 0
 emitting = false
@@ -493,7 +505,7 @@ transform_align = 1
 process_material = SubResource("ParticleProcessMaterial_c2tmw")
 draw_pass_1 = SubResource("QuadMesh_5oy2v")
 
-[node name="Motes" type="GPUParticles3D" parent="." unique_id=1741365210]
+[node name="Motes" type="GPUParticles3D" parent="." unique_id=91063726]
 cast_shadow = 0
 gi_mode = 0
 emitting = false

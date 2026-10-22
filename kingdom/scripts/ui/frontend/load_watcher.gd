@@ -27,7 +27,7 @@ func _process(delta: float) -> void:
 	if hud == null or not is_instance_valid(hud):
 		return
 	var veil: Variant = (hud as Object).get("_loading")
-	if veil is CanvasItem and (veil as CanvasItem).visible:
+	if is_instance_valid(veil) and veil is CanvasItem and (veil as CanvasItem).visible:
 		return
 	# Let the first frames settle (birth cutscene / spawn) before restoring.
 	if _t < 2.0:

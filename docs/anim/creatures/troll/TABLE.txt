@@ -1,0 +1,21 @@
+TROLL  (3.0 m, 24 bones, LOD0 14999 / LOD1 5000 tris, unchanged)   clip time in Godot = frame/30 (first key at 1/30 s)
+
+creatures_models.gd keys        old      new      note
+walk   (m/s)                    2.40     2.50     slip at new speed max 3.6 cm (old: 4.9 cm); hips lifted up to 4.2 cm to cure foot sink (min z -0.047 -> -0.005)
+run    (m/s)                    6.90     8.22     slip at new speed max 1.8 cm (old speed: 10.0 cm!); hips lifted up to 6.6 cm (min z -0.071 -> -0.005)
+impact (attack, s)              1.57     1.20     frame 36; duration 1.87 -> 2.63 s (79 frames, was 56)
+slam impact (s)                 -        1.77     frame 53; duration 3.03 -> 3.43 s (103 frames, was 91). Old slam impact by the same method: 1.67
+KNEEL_RANGE / STAND_RANGE       the troll has none (kneel comes from the orc)
+
+attack (one-arm heavy swing):
+  0.00-0.76  slow raise of the right arm behind the head, chest expands/leans back (-24 deg), hips -14 cm back, left arm forward as a guard
+  0.82-1.05  HOLD with 3-frame shake, 3.2 cm amplitude (0.23 s hold, 1.0 s from wind-up start to strike)
+  1.05-1.15  STRIKE, 3 frames (2 above half peak speed)
+  1.15       impact: hips drop 40 cm, torso pitched 52 deg, right fist at the floor, wrist 0.50 m so that the skinned fist stops AT the floor (min z 0.000)
+  1.25-1.55  small squash (another 9 cm of hip drop, fists stay), then slow recovery to upright by 2.6 s (last frame == first pose)
+slam (two-arm ground slam): 0-1.2 slow raise (hips rise +13 cm to straight legs, chest arched -34 deg), 1.28-1.60 HOLD with tremble 4 cm,
+  1.60-1.75 STRIKE, 1.75 impact both fists to the floor (min mesh z -0.013 = the small squash), hold to 2.3, recover by 3.4 s.
+Old clips pushed the skinned fists 0.36 m (attack) / 0.26 m (slam) BELOW the floor at impact; new min z 0.000 / -0.006 over the whole clip.
+Game windup 1.10 s -> playback speed 1.20/1.10 = 1.09.
+other clips changed: walk, run (hip lift, see above), death (hips lifted up to 7.5 cm, min z -0.080 -> -0.005), idle (last 12 frames cross-blended so the loop
+  closes, first/last delta 5.5 cm -> 0), hit (in place, 1.82 m of travel removed).

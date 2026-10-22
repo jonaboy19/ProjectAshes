@@ -1,0 +1,82 @@
+{
+ "source_type": "bvh",
+ "bvh_dir": "${ANIM_SRC}/cmu-mocap/data",
+ "ual": "../../assets/incoming/quaternius/universal-animation-library/Unreal-Godot/UAL1_Standard.glb",
+ "out": "../../assets/incoming/animations/aaa/UAL_AAA_Combat_Knockbacks.glb",
+ "smooth": 0.012,
+ "fingers": "open",
+ "finger_poses": {
+  "relaxed": [
+   "Idle_Loop",
+   0.0
+  ],
+  "fist": [
+   "Punch_Jab",
+   0.4
+  ],
+  "open": [
+   "Idle_Loop",
+   0.0
+  ]
+ },
+ "map": {
+  "pelvis": "Hips",
+  "spine_01": "LowerBack",
+  "spine_02": "Spine",
+  "spine_03": "Spine1",
+  "neck_01": "Neck",
+  "Head": "Head",
+  "clavicle_l": "LeftShoulder",
+  "upperarm_l": "LeftArm",
+  "lowerarm_l": "LeftForeArm",
+  "hand_l": "LeftHand",
+  "clavicle_r": "RightShoulder",
+  "upperarm_r": "RightArm",
+  "lowerarm_r": "RightForeArm",
+  "hand_r": "RightHand",
+  "thigh_l": "LeftUpLeg",
+  "calf_l": "LeftLeg",
+  "foot_l": "LeftFoot",
+  "ball_l": "LeftToeBase",
+  "thigh_r": "RightUpLeg",
+  "calf_r": "RightLeg",
+  "foot_r": "RightFoot",
+  "ball_r": "RightToeBase"
+ },
+ "check_directions": true,
+ "heading": "strike",
+ "clips": [
+  {
+   "name": "Knockback_Heavy_Slide_Brake",
+   "file": "127/127_05.bvh",
+   "start": 0.4,
+   "end": 2.0,
+   "fingers": "open",
+   "heading": "start"
+  },
+  {
+   "name": "Knockback_Airborne_Blowback",
+   "file": "090/90_17.bvh",
+   "start": 1.0,
+   "end": 3.0,
+   "fingers": "open",
+   "heading": "start"
+  },
+  {
+   "name": "Knockback_3Step_Stumble_Recoil",
+   "file": "014/14_03.bvh",
+   "start": 3.2,
+   "end": 4.8,
+   "fingers": "open",
+   "heading": "start"
+  },
+  {
+   "name": "Guard_Impact_Heavy_Stagger",
+   "file": "144/144_07.bvh",
+   "start": 1.8,
+   "end": 3.4,
+   "fingers": "fist",
+   "heading": "mean"
+  }
+ ]
+}

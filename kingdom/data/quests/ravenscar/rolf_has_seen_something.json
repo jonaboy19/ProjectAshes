@@ -1,0 +1,86 @@
+{
+ "id": "ravenscar_rolf_has_seen_something",
+ "title": "Rolf Has Seen Something",
+ "summary": "Rolf Slater has seen wolves at the edge of Ravenscar, and Kendra Nimble wants someone to act before the town hears it from the wolves.",
+ "giver": {
+  "npc": "kendra_nimble",
+  "name": "Kendra Nimble",
+  "place": "ravenscar"
+ },
+ "requires": [
+  "ravenscar_goods_without_a_count"
+ ],
+ "offer_text": "\"Rolf Slater has been out past the last house and does not like what they saw. Hear it, go and look, and thin the pack out.\"",
+ "turn_in_text": "\"Good. Now the rest of the town can sleep.\"",
+ "stages": [
+  {
+   "id": "hear",
+   "title": "Hear the warning",
+   "mode": "all",
+   "objectives": [
+    {
+     "id": "warning",
+     "type": "talk_to",
+     "npc": "rolf_slater",
+     "text": "Hear what Rolf Slater has seen"
+    }
+   ]
+  },
+  {
+   "id": "edge",
+   "title": "Go and see",
+   "mode": "all",
+   "objectives": [
+    {
+     "id": "reach",
+     "type": "goto",
+     "place": "ravenscar_outskirts",
+     "text": "Go to the tree line"
+    }
+   ]
+  },
+  {
+   "id": "hunt",
+   "title": "Put them down",
+   "mode": "all",
+   "objectives": [
+    {
+     "id": "hunt",
+     "type": "kill",
+     "target": "wolf",
+     "place": "ravenscar_outskirts",
+     "count": 2,
+     "text": "Kill 2 wolves near Ravenscar"
+    }
+   ]
+  },
+  {
+   "id": "report",
+   "title": "Tell Kendra",
+   "mode": "all",
+   "objectives": [
+    {
+     "id": "report",
+     "type": "talk_to",
+     "npc": "kendra_nimble",
+     "text": "Tell Kendra Nimble it is done"
+    }
+   ],
+   "end": true
+  }
+ ],
+ "rewards": {
+  "gold": 28,
+  "rep": {
+   "ravenscar": 6
+  },
+  "relationship": [
+   {
+    "npc": "kendra_nimble",
+    "label": "Acted on the warning",
+    "value": 11,
+    "days": 60
+   }
+  ]
+ }
+}

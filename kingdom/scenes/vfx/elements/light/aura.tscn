@@ -48,6 +48,8 @@ shader_parameter/tail_len = null
 shader_parameter/pulse = null
 shader_parameter/pulse_speed = null
 shader_parameter/heat_scale = 0.9
+shader_parameter/soft_edge = 0.85
+shader_parameter/ring_soft = null
 
 [sub_resource type="CylinderMesh" id="CylinderMesh_ajl4k"]
 bottom_radius = 0.55
@@ -99,6 +101,8 @@ shader_parameter/tail_len = null
 shader_parameter/pulse = null
 shader_parameter/pulse_speed = null
 shader_parameter/heat_scale = 0.75
+shader_parameter/soft_edge = null
+shader_parameter/ring_soft = 0.7
 
 [sub_resource type="QuadMesh" id="QuadMesh_4503p"]
 size = Vector2(0.64, 0.64)
@@ -147,6 +151,8 @@ shader_parameter/tail_len = null
 shader_parameter/pulse = null
 shader_parameter/pulse_speed = null
 shader_parameter/heat_scale = 0.75
+shader_parameter/soft_edge = null
+shader_parameter/ring_soft = 0.7
 
 [sub_resource type="QuadMesh" id="QuadMesh_httu8"]
 size = Vector2(2, 2)
@@ -189,14 +195,14 @@ color_ramp = SubResource("GradientTexture1D_pffob")
 material = ExtResource("4_3ga33")
 size = Vector2(0.5827642, 0.5827642)
 
-[node name="Light_Aura" type="Node3D" unique_id=191085893]
+[node name="Light_Aura" type="Node3D" unique_id=1721191983]
 script = ExtResource("1_tsc3y")
 duration = 0.0
 fade_out = 0.4
 kind = &"aura"
 element = &"light"
 
-[node name="Column" type="MeshInstance3D" parent="." unique_id=919606916]
+[node name="Column" type="MeshInstance3D" parent="." unique_id=1451148229]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1, 0)
 material_override = SubResource("ShaderMaterial_j10b1")
 cast_shadow = 0
@@ -204,7 +210,7 @@ extra_cull_margin = 2.0
 gi_mode = 0
 mesh = SubResource("CylinderMesh_ajl4k")
 
-[node name="Halo" type="MeshInstance3D" parent="." unique_id=1041657053]
+[node name="Halo" type="MeshInstance3D" parent="." unique_id=1290885522]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 2.05, 0)
 material_override = SubResource("ShaderMaterial_yjm0o")
 cast_shadow = 0
@@ -212,7 +218,7 @@ extra_cull_margin = 2.0
 gi_mode = 0
 mesh = SubResource("QuadMesh_4503p")
 
-[node name="Ring" type="MeshInstance3D" parent="." unique_id=1607532528]
+[node name="Ring" type="MeshInstance3D" parent="." unique_id=164468438]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.04, 0)
 material_override = SubResource("ShaderMaterial_6iefl")
 cast_shadow = 0
@@ -220,7 +226,7 @@ extra_cull_margin = 2.0
 gi_mode = 0
 mesh = SubResource("QuadMesh_httu8")
 
-[node name="Motes" type="GPUParticles3D" parent="." unique_id=827515049]
+[node name="Motes" type="GPUParticles3D" parent="." unique_id=1456373899]
 cast_shadow = 0
 gi_mode = 0
 emitting = false

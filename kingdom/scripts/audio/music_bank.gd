@@ -20,6 +20,7 @@ extends RefCounted
 
 const MUSIC := "res://assets/audio/music/"
 const MI := "res://assets/audio/music_interactive/"
+const R1 := "res://assets/audio/region1/music/"
 const SILENCE := &"silence"
 
 ## name: [base file, stem file or "", bpm, loops, loop_offset_s, volume_db]
@@ -37,6 +38,17 @@ const CLIPS := {
 	&"combat": [MUSIC + "mus_combat.ogg", "", 145.98, true, 0.0, -2.0],
 	&"boss": [MI + "mus_boss.ogg", "", 114.0, true, 14.7508, -2.0],
 	&"tavern": [MUSIC + "mus_tavern.ogg", "", 86.5, true, 0.0, -4.0],
+	# Region 1 area themes and story cues (docs/regions/AUDIO_R1.md, C12). All loops except the finale; -16 LUFS files.
+	&"r1_village_day": [R1 + "mus_r1_village_day.ogg", "", 90.0, true, 0.0, -3.0],
+	&"r1_guild_town": [R1 + "mus_r1_guild_town.ogg", "", 90.0, true, 0.0, -3.0],
+	&"r1_highwatch_keep": [R1 + "mus_r1_highwatch_keep.ogg", "", 90.0, true, 0.0, -3.0],
+	&"r1_forest_glade": [R1 + "mus_r1_forest_glade.ogg", "", 90.0, true, 0.0, -3.0],
+	&"r1_rift_wilds": [R1 + "mus_r1_rift_wilds.ogg", "", 90.0, true, 0.0, -3.0],
+	&"r1_night": [R1 + "mus_r1_night.ogg", "", 90.0, true, 0.0, -4.0],
+	&"r1_boss_warden": [R1 + "mus_r1_boss_warden.ogg", "", 110.0, true, 0.0, -2.0],
+	&"r1_lament": [R1 + "mus_r1_lament.ogg", "", 73.0, true, 0.0, -3.0],
+	&"r1_kindling": [R1 + "mus_r1_kindling.ogg", "", 68.0, true, 0.0, -3.0],
+	&"r1_finale": [R1 + "mus_r1_finale.ogg", "", 90.0, false, 0.0, -2.0],
 }
 ## Mood -> clips it may play (a playlist is walked in order, starting at random).
 const MOODS := {
@@ -49,6 +61,10 @@ const MOODS := {
 	&"boss": [&"boss"],
 	&"tavern": [&"tavern"],
 	&"silence": [&"silence"],
+	&"r1_village_day": [&"r1_village_day"], &"r1_guild_town": [&"r1_guild_town"], &"r1_highwatch_keep": [&"r1_highwatch_keep"],
+	&"r1_forest_glade": [&"r1_forest_glade"], &"r1_rift_wilds": [&"r1_rift_wilds"], &"r1_night": [&"r1_night"],
+	&"r1_boss_warden": [&"r1_boss_warden"], &"r1_lament": [&"r1_lament"], &"r1_kindling": [&"r1_kindling"],
+	&"r1_finale": [&"r1_finale"],
 }
 const STINGERS := {
 	&"victory": MI + "stinger_victory.ogg",

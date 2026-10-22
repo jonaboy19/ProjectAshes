@@ -23,6 +23,8 @@ uniform sampler2D cobble_arm : filter_linear_mipmap_anisotropic, repeat_enable;
 uniform sampler2D macro_noise : filter_linear_mipmap, repeat_enable;
 uniform float tile_size = 4.0;            // metres per texture repeat
 uniform vec3 grass_tint : source_color = vec3(0.85, 1.0, 0.7);
+// Style G: golden honey cobbles (StyleG cobble_tint) and a warm sun-baked path.
+uniform vec3 cobble_tint : source_color = vec3(1.0);
 // Rain soak, driven by scripts/world/weather.gd (0 = dry: the look is unchanged).
 // Flat ground darkens and turns glossy, streets and paths more than grass, and
 // low spots in the macro noise collect mirror-smooth puddles.
@@ -34,6 +36,11 @@ global uniform float autumn_amount;
 global uniform float winter_amount;
 global uniform float snow_amount;
 global uniform float bloom_amount;
+// Region1 hook H5 (docs/regions/REGION_1_PLAN.md): Scar Tide mask, 1 texel per 32 m over the whole 12 x 12 km map (scripts/region1/scar_tide.gd).
+global uniform sampler2D scar_mask : filter_linear;
+
+// Region1 look (docs/regions/LOOK_R1.md): biome tints and the farmland patchwork (region_biome is set by Region1Look).
+#include "res://shaders/region1/biome.gdshaderinc"
 
 varying vec3 world_pos;
 varying vec3 world_normal;
@@ -69,10 +76,21 @@ void fragment() {
 	layer(forest_albedo, forest_normal, forest_arm, uv * 0.8, m2, fa, fn, fo);
 	fa *= vec3(0.86, 1.06, 0.62);   // leaf litter stays warm but greener under the canopy
 	layer(path_albedo, path_normal, path_arm, uv * 0.9, m2, pa, pn, po);
+	float r1_hedge;
+	ga = r1_biome(ga, pa, world_pos.xz, r1_biome_sample(world_pos.xz), r1_hedge);
 	layer(cobble_albedo, cobble_normal, cobble_arm, uv * 0.8, 0.0, ca, cn, co);
+	ca *= cobble_tint;
 	// Rock: side projection chosen by the dominant horizontal axis of the normal.
 	vec2 ruv = (abs(world_normal.x) > abs(world_normal.z) ? world_pos.zy : world_pos.xy) / (tile_size * 1.5);
 	vec3 ra = texture(rock_albedo, ruv).rgb;
+	// Region1 look (docs/regions/LOOK_R1.md): warm, lighter storybook stone instead of the grey-green scan.
+	// The scan is grey-green (walls read olive): keep its value, repaint its hue as warm sandstone.
+	float r1_lum = dot(ra, vec3(0.3, 0.59, 0.11));
+	ra = mix(ra, vec3(r1_lum) * vec3(1.18, 1.0, 0.8), 0.7);
+	ra = ra * vec3(1.2, 1.07, 0.86) + vec3(0.05, 0.035, 0.0);
+	// Sandstone strata on steep faces: painted horizontal bands instead of the stretched side projection.
+	float r1_strata = sin(world_pos.y * 0.9 + texture(macro_noise, world_pos.xz * 0.013).r * 7.0);
+	ra *= mix(1.0, mix(0.8, 1.12, smoothstep(-0.35, 0.35, r1_strata)), smoothstep(0.45, 0.75, 1.0 - world_normal.y));
 	vec3 rn = texture(rock_normal, ruv).rgb;
 	vec3 ro = texture(rock_arm, ruv).rgb;
 
@@ -80,6 +98,10 @@ void fragment() {
 	vec4 w = COLOR;
 	float slope = 1.0 - world_normal.y;
 	w.g = max(w.g, smoothstep(0.3, 0.5, slope));
+	// Region1 look: steep faces are stone, not stone blended 50/50 with leaf litter or path (gorge walls read olive).
+	float r1_steep = smoothstep(0.42, 0.62, slope);
+	w.r *= 1.0 - r1_steep;
+	w.a *= 1.0 - r1_steep;
 	float grain = texture(macro_noise, world_pos.xz * 0.11).r - 0.5;
 	w = clamp(w + vec4(grain * 0.35) * step(0.02, w), 0.0, 1.0);
 	float wg = max(0.0, 1.0 - (w.r + w.g + w.b + w.a));
@@ -125,6 +147,15 @@ void fragment() {
 	}
 	if (bloom_amount > 0.0) {
 		albedo = mix(albedo, albedo * vec3(0.92, 1.04, 0.9), bloom_amount * 0.3);
+	}
+	// Region1 hook H5: violet rift corruption, glowing at the creeping front
+	float scar = texture(scar_mask, (world_pos.xz + 6144.0) / 12288.0).r;
+	if (scar > 0.004) {
+		float sc = smoothstep(0.3, 0.62, scar + (texture(macro_noise, world_pos.xz * 0.05).r - 0.5) * 0.45);
+		float front = sc * (1.0 - smoothstep(0.55, 0.95, scar));
+		albedo = mix(albedo, vec3(0.36, 0.14, 0.52) * (0.75 + grain * 0.6), sc * 0.78);
+		rough = mix(rough, 0.55, sc);
+		EMISSION = vec3(0.5, 0.14, 0.95) * front * 0.55;
 	}
 	ALBEDO = albedo;
 	NORMAL_MAP = normal;

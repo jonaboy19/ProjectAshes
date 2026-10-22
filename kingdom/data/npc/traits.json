@@ -1,0 +1,19 @@
+{
+  "_doc": "NI-2 persona layout names and experience drift. Experience: goal id -> [success nudges, failure nudges] as [trait, byte delta] pairs. Every nudge goes through persona.nudge, which caps total drift at 8 byte points per game year per person.",
+  "temperament": ["boldness", "warmth", "discipline", "volatility"],
+  "values": ["honesty", "loyalty", "piety", "ambition", "mercy", "pride"],
+  "skills": ["craft", "trade", "arms", "lore"],
+  "drift_cap_per_year": 8,
+  "experience": {
+    "work":      {"ok": [["discipline", 1]], "fail": [["discipline", -1]]},
+    "wed":       {"ok": [["warmth", 2], ["loyalty", 1]], "fail": [["warmth", -1]]},
+    "land":      {"ok": [["pride", 1], ["discipline", 1]], "fail": [["ambition", -1]]},
+    "business":  {"ok": [["ambition", 2], ["pride", 1]], "fail": [["ambition", -2], ["pride", -1]]},
+    "org_join":  {"ok": [["loyalty", 1]], "fail": [["loyalty", -1]]},
+    "org_found": {"ok": [["ambition", 2], ["boldness", 1], ["pride", 2]], "fail": [["ambition", -2], ["boldness", -1]]},
+    "move":      {"ok": [["boldness", 1]], "fail": [["boldness", -1]]},
+    "petition":  {"ok": [["boldness", 1], ["loyalty", 1]], "fail": [["loyalty", -2], ["mercy", -1]]},
+    "enlist":    {"ok": [["boldness", 2], ["discipline", 1]], "fail": [["boldness", -1]]},
+    "contract":  {"ok": [["discipline", 1]], "fail": []}
+  }
+}

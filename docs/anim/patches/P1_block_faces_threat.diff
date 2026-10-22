@@ -1,0 +1,18 @@
+# FEEL_AUDIT F6 — Block faces the camera heading, not the attacker.
+# Evidence: docs/anim/feel/before/11_block_orc_crop_sheet_001.png #2-#18 (player guards 57° away
+# from the orc that is winding up). A frontal-only block (`from_front` dot > 0.3) then fails
+# for an attack from the side of the screen, and the guard pose reads as "not blocking".
+# Owner: Codex (player.gd). Cost: one _nearest_enemy scan per physics tick only while blocking.
+--- a/kingdom/scripts/actors/player.gd
++++ b/kingdom/scripts/actors/player.gd
+@@ func _update_facing(dir: Vector3, delta: float) -> void:
+ 	elif view == View.FIRST or blocking:
+ 		want = _yaw + PI
++		if blocking and view != View.FIRST:
++			# Guard toward the nearest threat within 6 m (lock-on already does this);
++			# fall back to the camera heading when nobody is close.
++			var threat := _nearest_enemy(6.0, -1.0)
++			if threat:
++				var to := threat.global_position - global_position
++				want = atan2(to.x, to.z)
+ 		rate = FACE_TURN_IDLE

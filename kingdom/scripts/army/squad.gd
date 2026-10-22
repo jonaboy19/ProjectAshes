@@ -149,21 +149,48 @@ func _ready() -> void:
 	_officer_acc = OFFICER_SCAN
 
 
-func add_soldiers(count: int, near: Vector3) -> void:
+## `casters`: NpcCaster ids (CasterSpawns.mix) for the first soldiers; the rest are plain fighters.
+## `spread`: the bodies are built one per frame (a Soldier is 4-6 ms to build, 20-30 ms on the S22: a camp's or a garrison's eight
+## in one frame was a visible hitch); they appear a frame apart where the squad stands. Without it, all at once.
+func add_soldiers(count: int, near: Vector3, casters: Array = [], spread := false) -> void:
+	if spread and count > 1 and is_inside_tree():
+		for i in count:
+			_pending_adds.append([near, String(casters[i]) if i < casters.size() else ""])
+		return
 	for i in count:
-		var s := Soldier.create(team, _look, _file, _keep)
-		s.squad = self
-		get_parent().add_child(s)
-		var p := near + Vector3(randf_range(-3, 3), 0, randf_range(-3, 3))
-		p.y = WorldGen.height(p.x, p.z)
-		s.global_position = p
-		s.died.connect(_on_soldier_died)
-		soldiers.append(s)
-		_apply_stats(s)
+		_add_one(near, String(casters[i]) if i < casters.size() else "")
+	_finish_adds(count)
+
+
+var _pending_adds: Array = []      # [near, caster id] bodies waiting for their frame (add_soldiers(spread))
+
+
+func _add_one(near: Vector3, caster: String) -> void:
+	var s := Soldier.create(team, _look, _file, _keep)
+	if caster != "":
+		s.caster_id = caster
+	s.squad = self
+	get_parent().add_child(s)
+	var p := near + Vector3(randf_range(-3, 3), 0, randf_range(-3, 3))
+	p.y = WorldGen.height(p.x, p.z)
+	s.global_position = p
+	s.died.connect(_on_soldier_died)
+	soldiers.append(s)
+	_apply_stats(s)
+
+
+func _finish_adds(count: int) -> void:
 	_peak += count
 	_cols = Formation.default_cols(formation, soldiers.size())
 	_request_assign(true)
 	strength_changed.emit(soldiers.size())
+
+
+## Builds the next queued body (one per frame).
+func _drain_adds() -> void:
+	var a: Array = _pending_adds.pop_front()
+	_add_one(a[0], a[1])
+	_finish_adds(1)
 
 
 func alive() -> int:
@@ -317,8 +344,33 @@ func is_routed() -> bool:
 func target_for(s: Soldier) -> Node3D:
 	var e: Variant = _targets.get(s)
 	if e != null and is_instance_valid(e) and not (e as Node).get("dead"):
+		if (e as Node).is_in_group("player") and not _sees_player(s, e as Node3D):
+			return null            # acquisition: a man only fights what Perception says he can see
 		return e
 	return null
+
+
+const _Perception := preload("res://scripts/population/perception.gd")
+const SIGHT_MEMORY := 3.0          # s a seen player stays acquired after sight is lost
+const CLOSE_SIGHT := 6.0           # m: inside this he has noticed you regardless
+var _seen_until := {}
+
+
+func _sees_player(s: Soldier, p: Node3D) -> bool:
+	var now := Time.get_ticks_msec() * 0.001
+	var d := s.global_position.distance_to(p.global_position)
+	if d < CLOSE_SIGHT:
+		_seen_until[s] = now + SIGHT_MEMORY
+		return true
+	var fwd := s.global_transform.basis.z
+	var pos := Vector2(s.global_position.x, s.global_position.z)
+	var tp := Vector2(p.global_position.x, p.global_position.z)
+	var stance: float = _Perception.STANCE_CROUCH if bool(p.get("crouching")) else _Perception.STANCE_WALK
+	var vis: float = _Perception.vis(pos, Vector2(fwd.x, fwd.z), tp, _Perception.light_at(tp), stance, false, 1.0)
+	if vis > _Perception.VIS_MIN:
+		_seen_until[s] = now + SIGHT_MEMORY
+		return true
+	return float(_seen_until.get(s, 0.0)) > now
 
 
 ## Walking/running speed multiplier from formation and troop type (cached:
@@ -392,6 +444,8 @@ func _physics_process(delta: float) -> void:
 
 
 func _process(delta: float) -> void:
+	if not _pending_adds.is_empty():
+		_drain_adds()
 	if banner.visible:
 		var k := clampf(delta * 6.0, 0.0, 1.0)
 		_standard.global_position = _standard.global_position.lerp(_banner_pos, k)
@@ -1056,8 +1110,11 @@ func _update_banner() -> void:
 		and dist > 22.0 and dist < 260.0 and not get_tree().get_nodes_in_group("cutscene_active").size()
 	# Our own army's standard only shows in the command / overview cameras, not over the
 	# plaza while it follows us around town (playtest: "12 · Line" hanging over Ashford).
-	if vis and leader and is_instance_valid(leader) and leader.get("view") != null:
-		vis = int(leader.get("view")) >= 2
+	# Every squad's standard (bandits, garrisons, ours) is a command-view tool only: in the normal
+	# third-person view "☠ 4 · Line" floated over bandit camps and the Watch Post (POI review 2026-10-05).
+	var viewer: Node = leader if leader and is_instance_valid(leader) else get_tree().get_first_node_in_group("player")
+	if vis:
+		vis = viewer != null and viewer.get("view") != null and int(viewer.get("view")) >= 2
 	if vis and not banner.visible:
 		_standard.global_position = _banner_pos    # appear in place, don't slide in
 	banner.visible = vis

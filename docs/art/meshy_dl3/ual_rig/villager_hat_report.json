@@ -1,0 +1,15 @@
+{
+ "name": "villager_hat",
+ "height_m": 1.72,
+ "lod0_tris": 7000,
+ "lod1_tris": 2910,
+ "model_units_top": 2.3967,
+ "model_units_top_all": 2.3967,
+ "head_bone_z": 1.5825,
+ "pelvis_z": 0.9167,
+ "mh_character_height_param": 1.249,
+ "forearm_radius": 0.114,
+ "skirt_verts": 918,
+ "head_rigid_verts": 675,
+ "heat_missed": 0
+}

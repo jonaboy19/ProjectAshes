@@ -1,20 +1,25 @@
 extends "res://scripts/ui/frontend/screen.gd"
-## "YOU DIED": dark red veil, Reload Last Save / Load Game / Return to Main Menu.
-##   DeathScreen.open(hud_or_any_node)     (call when the player dies)
+## "YOU DIED": dark red veil, Respawn at Home / Load Last Save / Load Game / Main Menu.
+##   DeathScreen.open(hud_or_any_node, on_respawn)   (main.gd calls this when player.died fires;
+##   `on_respawn` applies the life-sim cost and stands the player up at home, the screen closes after)
 
 const Flow := preload("res://scripts/ui/frontend/flow.gd")
 const SlotScreen := preload("res://scripts/ui/frontend/slot_screen.gd")
 
 var _was_paused := false
 var _reload: Button
+var _respawn: Button
+var on_respawn := Callable()
+var buttons: Array[Button] = []
 
 
-static func open(parent: Node) -> Control:
+static func open(parent: Node, respawn_cb := Callable()) -> Control:
 	var existing := parent.get_node_or_null("DeathScreen")
 	if existing:
 		return existing
 	var s: Variant = load("res://scripts/ui/frontend/death_screen.gd").new()
 	s.name = "DeathScreen"
+	s.on_respawn = respawn_cb
 	parent.add_child(s)
 	return s
 
@@ -74,12 +79,18 @@ func _ready() -> void:
 	sp.custom_minimum_size = Vector2(0, 16)
 	col.add_child(sp)
 	var have: bool = get_tree().root.has_node("Life") and Life.saves.latest_id() != ""
-	_reload = _btn("Reload Last Save", _do_reload)
+	if on_respawn.is_valid():
+		_respawn = _btn("Respawn at Home", _do_respawn)
+		col.add_child(_center(_respawn))
+	_reload = _btn("Load Last Save", _do_reload)
 	_reload.disabled = not have
 	col.add_child(_center(_reload))
 	col.add_child(_center(_btn("Load Game", func() -> void: SlotScreen.open(self, "load", Callable(), true))))
 	col.add_child(_center(_btn("Return to Main Menu", func() -> void: Flow.exit_to_menu(get_tree()))))
-	(col.get_child(3 + (0 if have else 1)).get_child(0) as Control).call_deferred("grab_focus")
+	var first: Button = _respawn if _respawn else (_reload if have else null)
+	if first == null:
+		first = buttons[2]
+	first.call_deferred("grab_focus")
 	# Slow fade in of the whole thing.
 	modulate.a = 0.0
 	create_tween().tween_property(self, "modulate:a", 1.0, 1.2)
@@ -105,7 +116,15 @@ func _btn(text: String, cb: Callable) -> Button:
 	for st: String in ["hover", "focus", "pressed"]:
 		b.add_theme_stylebox_override(st, h)
 	b.add_theme_font_size_override("font_size", 18)
+	buttons.append(b)
 	return b
+
+
+func _do_respawn() -> void:
+	get_tree().paused = _was_paused
+	if on_respawn.is_valid():
+		on_respawn.call()
+	queue_free()
 
 
 func _do_reload() -> void:

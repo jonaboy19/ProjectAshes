@@ -11,6 +11,9 @@ var runestones: RARunestoneNetwork
 var ecology: RAMonsterEcology
 ## Callable(Vector2) -> float in 0..1: how patrolled a point is.
 var patrols: Callable = func(_p: Vector2) -> float: return 0.0
+## CIV-C hook (realm/ecology.gd bind_frontier): Callable(Vector2) -> Array of [label, value] for hunting bands the dens
+## do not cover (goblin / orc clans). Unset by default.
+var territory_source: Callable = Callable()
 
 var _next_id := 0
 
@@ -45,6 +48,9 @@ func evaluate(p: Vector2) -> Dictionary:
 		var d := p.distance_to(m["pos"])
 		if d < m["radius"]:
 			lines.append([m["label"], m["value"] * (1.0 - smoothstep(m["radius"] * 0.5, m["radius"], d))])
+	if territory_source.is_valid():
+		for tl: Array in territory_source.call(p):
+			lines.append([String(tl[0]), float(tl[1])])
 	var cov := runestones.coverage(p)
 	if cov > 0.01:
 		lines.append(["Runestone protection", -cov * 80.0])

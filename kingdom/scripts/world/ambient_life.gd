@@ -14,9 +14,13 @@ extends Node3D
 ## drop pork and a tusk. A ForageNodes child keeps a few herbs, mushrooms,
 ## berries and firewood to pick around the player.
 
+const Probe := preload("res://scripts/core/perf_probe.gd")
 const Gathering := preload("res://scripts/sim/gathering_items.gd")
 const ForageNodes := preload("res://scripts/world/forage_nodes.gd")
+const CreaturePool := preload("res://scripts/core/creature_pool.gd")
+const CellStreamer := preload("res://scripts/core/cell_streamer.gd")
 const SPAWN := 110.0
+const SMALL_FLOCK := ["chicken", "pigeon", "duck", "goose"]
 const DESPAWN := 170.0
 const WILD_RINGS := 3          # wildlife groups kept around the player in forests
 const Models := preload("res://scripts/actors/creature_models.gd")
@@ -69,6 +73,29 @@ func _ready() -> void:
 				1: _group(p, [["sheep", rng.randi_range(6, 9)], ["sheepdog", 1]], 12.0)
 				_: _group(p, [["goat", rng.randi_range(3, 5)]], 8.0)
 		_group(c + Vector2(4, 6), [["pigeon", rng.randi_range(4, 7)]], 6.0)
+	# Every waystation (coach inn, roadhouse, wayside inn) ties up a horse or two: in the 12 km world a horse is the fast way
+	# across (player.toggle_mount, mount_controller.gd). Own RNG so nothing above changes.
+	var wrng := RandomNumberGenerator.new()
+	wrng.seed = 5151
+	for site in WorldGen.sites:
+		if String(site["kind"]) == "waystation":
+			var wyaw := float(site["yaw"])
+			var wp: Vector2 = site["pos"]
+			var tied := wp + Vector2(sin(wyaw), cos(wyaw)) * 9.0 + Vector2(cos(wyaw), -sin(wyaw)) * 8.0
+			_group(tied, [["horse", 1], ["horse_grey", 1]] if wrng.randf() < 0.5 else [["horse", 1]], 3.0)
+	# Meshy free / Quaternius extras (own RNG stream, appended after everything above): a white horse at the Crownstead and Highwatch
+	# stables, huskies at the northern camps (Grimfen Pass, Frostmere).
+	var xrng := RandomNumberGenerator.new()
+	xrng.seed = 5152
+	for site in WorldGen.sites:
+		var nm := String(site["name"])
+		var sp: Vector2 = site["pos"]
+		var syaw := float(site["yaw"])
+		var side := Vector2(cos(syaw), -sin(syaw))
+		if nm == "Crownstead Steward's Hall" or nm == "Highwatch Keep":
+			_group(sp + Vector2(sin(syaw), cos(syaw)) * 14.0 + side * 12.0, [["horse_white", 1]], 3.0)
+		elif nm == "Grimfen Pass" or nm == "Frostmere Smokehouse":
+			_group(sp + Vector2(sin(syaw), cos(syaw)) * 9.0 + side * (xrng.randf_range(4.0, 8.0)), [["husky", 2]], 5.0)
 	# Waterfowl on the lake shore.
 	var lc: Vector2 = WorldGen.lake_center
 	if lc.x < 1.0e5:
@@ -76,6 +103,23 @@ func _ready() -> void:
 			var a := TAU * i / 4.0 + 0.4
 			var p := lc + Vector2(cos(a), sin(a)) * (WorldGen.lake_radius + 4.0)
 			_group(p, [["duck", rng.randi_range(3, 5)], ["goose", rng.randi_range(0, 2)]], 6.0)
+	preload("res://scripts/world/town_kit/town_livestock.gd").add_groups(self)   # town kit: every kit town's livestock groups (Thornfield: pigs, hens, sheep, cows, yard dog)
+
+
+## Meshy free pack farm animals stand in for part of the herd and the flock: every other cow wears one of three coats, every other
+## hen or rooster is the rigged Meshy bird (docs/qa/ASSET_AUDIT.md). Deterministic per animal index and group position.
+const COW_COATS := ["cow", "cow_brown_a", "cow_spotted", "cow_brown_b"]
+
+
+static func _variant(kind: String, k: int, at: Vector2) -> String:
+	var h := absi(int(at.x * 0.37) + int(at.y * 0.53)) + k
+	if kind == "cow":
+		return COW_COATS[h % COW_COATS.size()]
+	if kind == "chicken" and h % 2 == 1:
+		return "hen_meshy"
+	if kind == "rooster" and h % 2 == 0:
+		return "rooster_meshy"
+	return kind
 
 
 func _group(pos: Vector2, kinds: Array, radius: float) -> void:
@@ -83,39 +127,103 @@ func _group(pos: Vector2, kinds: Array, radius: float) -> void:
 
 
 func _process(delta: float) -> void:
+	_drain_spawn_jobs()
 	_timer -= delta
 	if _timer > 0.0:
 		return
 	_timer = 1.0
 	forage.set("focus", focus)
 	var p := Vector2(focus.x, focus.z)
+	var _pg := Probe.t()
 	for g in _groups:
 		_update_group(g, p)
+	Probe.add("ambient.groups", _pg)
+	_pg = Probe.t()
 	_update_wild(p)
+	Probe.add("ambient.wild", _pg)
+
+
+var _spawn_jobs: Array = []        # [group, kind, index] bodies waiting for their frame
 
 
 func _update_group(g: Dictionary, p: Vector2) -> void:
 	var d := p.distance_to(g["pos"])
 	var nodes: Array = g["nodes"]
-	if d < SPAWN and nodes.is_empty():
+	# F12: the group is a spawner site of the cell manager: asleep (UNLOADED) = no bodies, awake = bodies. Without the
+	# manager's tier (-1: not fed this focus) the old distance check is used with the same numbers.
+	var cs: RefCounted = CellStreamer.shared()
+	var tier: int = cs.spawner_tier("ambient", g, g["pos"], p)
+	var wake: bool = d < cs.distance("ambient", "load") if tier < 0 else tier >= CellStreamer.Tier.LOW
+	var sleep: bool = d > cs.distance("ambient", "free") if tier < 0 else tier == CellStreamer.Tier.UNLOADED
+	if wake and nodes.is_empty() and not bool(g.get("woken", false)):
+		# The bodies are queued and built one per frame by _drain_spawn_jobs (a group of five used to be 30-130 ms in one frame).
+		g["woken"] = true
 		for pair: Array in g["kinds"]:
-			for k in int(pair[1]):
-				if BEASTS.has(pair[0]):
-					_spawn_beast(g, String(pair[0]), nodes)
-					continue
-				var cr := Critter.new()
-				cr.kind = pair[0]
-				cr.home = g["pos"]
-				add_child(cr)
-				var r: float = g["radius"]
-				var q: Vector2 = g["pos"] + Vector2(randf_range(-r, r), randf_range(-r, r)) * 0.6
-				cr.global_position = Vector3(q.x, WorldGen.height(q.x, q.y), q.y)
-				nodes.append(cr)
-	elif d > DESPAWN and not nodes.is_empty():
+			var want := int(pair[1])
+			if SMALL_FLOCK.has(pair[0]):
+				# Perf: fewer hens/doves on weaker tiers (each is a skinned, animated model).
+				want = maxi(1, roundi(want * clampf(float(Quality.value("scatter")) + 0.15, 0.3, 1.0)))
+			if Quality.tier <= 0:
+				want = mini(want, 1)      # AAA pass 13: LOW draw budget, one animal of each kind per group
+			for k in want:
+				_spawn_jobs.append([g, String(pair[0]), k])
+	elif sleep and (not nodes.is_empty() or bool(g.get("woken", false))):
+		g["woken"] = false         # queued bodies of this group are dropped when their turn comes
 		for n in nodes:
-			if is_instance_valid(n):
-				n.queue_free()
+			CreaturePool.give_back(n)
 		nodes.clear()
+
+
+## Behind the loading screen: loads the model scene of every kind the groups can spawn (and the wild kinds), so the first critter of
+## a kind does not read its GLB in the middle of play (a first cow or deer was 30-700 ms). Returns how many scenes were loaded.
+func warm_models() -> int:
+	var kinds := {}
+	for g: Dictionary in _groups:
+		for pair: Array in g["kinds"]:
+			kinds[String(pair[0])] = true
+	for k: String in ["deer", "stag", "rabbit", "fox", "crow"]:
+		kinds[k] = true
+	if kinds.has("cow"):
+		for c: String in COW_COATS:
+			kinds[c] = true
+	if kinds.has("chicken"):
+		kinds["hen_meshy"] = true
+	if kinds.has("rooster"):
+		kinds["rooster_meshy"] = true
+	var n := 0
+	for k: String in kinds:
+		if BEASTS.has(k) or not Critter.KINDS.has(k):
+			continue
+		var path := String((Critter.KINDS[k] as Array)[0])
+		if not path.begins_with("res://"):
+			path = Critter.DIR + path
+		if ResourceLoader.exists(path) and Assets.scene(path) != null:
+			n += 1
+	return n
+
+
+## One queued ambient body per frame.
+func _drain_spawn_jobs() -> void:
+	var _pj := Probe.t()
+	while not _spawn_jobs.is_empty():
+		var job: Array = _spawn_jobs.pop_front()
+		var g: Dictionary = job[0]
+		if not bool(g.get("woken", false)):
+			continue
+		var nodes: Array = g["nodes"]
+		var kind: String = job[1]
+		if BEASTS.has(kind):
+			_spawn_beast(g, kind, nodes)
+		else:
+			var cr: Critter = CreaturePool.critter("ambient", _variant(kind, int(job[2]), g["pos"]))
+			cr.home = g["pos"]
+			add_child(cr)
+			var r: float = g["radius"]
+			var q: Vector2 = g["pos"] + Vector2(randf_range(-r, r), randf_range(-r, r)) * 0.6
+			cr.global_position = Vector3(q.x, WorldGen.height(q.x, q.y), q.y)
+			nodes.append(cr)
+		break
+	Probe.add("ambient.spawn", _pj)
 
 
 ## Wildlife: a few groups in woodland around the player, re-rolled as they move.
@@ -123,8 +231,9 @@ func _update_wild(p: Vector2) -> void:
 	for g in _wild.duplicate():
 		if p.distance_to(g["pos"]) > DESPAWN:
 			for n in g["nodes"]:
-				if is_instance_valid(n):
-					n.queue_free()
+				CreaturePool.give_back(n)
+			CellStreamer.shared().release_spawner("ambient", g)
+			g["woken"] = false
 			_wild.erase(g)
 	var tries := 6
 	while _wild.size() < WILD_RINGS and tries > 0:
@@ -149,7 +258,7 @@ func _update_wild(p: Vector2) -> void:
 ## Roughly one wild group in five is a beast, rarer and tougher in denser forest,
 ## never inside runestone protection. Empty when the roll gives ordinary wildlife.
 func _beast_kinds(q: Vector2) -> Array:
-	if Frontier.runestones.coverage(q) > 0.4:
+	if Frontier.runestones.coverage(q) > 0.4 or preload("res://scripts/world/hidden_valley.gd").protected_ground(q):   # Hidden valley hook: no beasts in the vale
 		return []
 	var dense := WorldGen.forest_density(q.x, q.y)
 	var roll := randf()
@@ -167,8 +276,7 @@ func _beast_kinds(q: Vector2) -> Array:
 func _spawn_beast(g: Dictionary, kind: String, nodes: Array) -> void:
 	if not Models.has(kind):
 		return
-	var b := Wolf.new()
-	b.species = kind
+	var b: Wolf = CreaturePool.wolf("ambient", kind)
 	b.home = g["pos"]
 	b.territory = float(BEASTS[kind])
 	add_child(b)

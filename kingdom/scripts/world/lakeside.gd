@@ -120,4 +120,8 @@ func _spawn(path: String, height := 0.0) -> Node3D:
 		var box := Assets.visual_aabb(n)
 		n.scale = Vector3.ONE * (height / maxf(box.size.y, 0.01))
 	add_child(n)
+	# AAA pass 14 (LOW draw census): the pier alone was 6 draws in the Kingsreach gate view from across the lake.
+	var vr := 110.0 if Quality.tier <= 0 else 260.0
+	for gi in n.find_children("*", "GeometryInstance3D", true, false):
+		(gi as GeometryInstance3D).visibility_range_end = vr
 	return n

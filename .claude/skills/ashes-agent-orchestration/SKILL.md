@@ -28,3 +28,15 @@ description: How the local Rising Ashes session splits work across subagents che
   2. Run `ashes-aaa-review`.
   3. Update `docs/STATUS_LOCAL.md`.
   4. Send the best PNGs to the owner.
+
+## Disk safety (lessons from 2026-09-29)
+- A full worktree checkout is about 5 GB, and a Godot import adds about 7 GB. Eight parallel worktrees filled C: and corrupted files, including the import cache and a build script.
+- Before launching several agents, check free space. Before every import, check that at least 12 GB is free.
+- Prefer **sparse** worktrees for Blender, docs or data work. Allow at most about 3 agents with full Godot imports at a time.
+- Agents delete frame PNGs right after making sheets, and delete `kingdom/.godot` plus the worktree when done.
+- Never permanently delete user files. Send them to the Recycle Bin in batches smaller than the bin capacity (about 49 GB on C:), and the owner empties it.
+- If the disk gets low, message every agent: push work in progress, pause imports.
+- **Orphan processes.** Every Godot or Blender run needs a timeout (`--quit-after`, or a watchdog). Before finishing, an agent kills the PIDs it started (check `Get-Process` against the start time and command line).
+  - On 2026-09-29 a forgotten anim_tech bench burned 100% of a core for 6.6 hours and invalidated every perf measurement that day.
+  - Perf agents first list running Godot and Blender processes, then report the machine load next to their numbers.
+- **Never `rm -rf` outside your own worktree or temp folder.** Print and check the absolute path first. On 2026-10-06 an MSYS path bug (`C:\c\...`) led an agent to wipe stray folder copies. Use `MSYS_NO_PATHCONV=1` or Windows paths when running git from bash.

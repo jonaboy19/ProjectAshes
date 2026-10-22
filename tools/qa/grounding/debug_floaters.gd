@@ -26,7 +26,7 @@ func _process(delta: float) -> bool:
 	match phase:
 		"boot":
 			main = current_scene as Control
-			if main and main.get("player") and main.player.is_inside_tree() and main.hud and not main.hud._loading.visible:
+			if main and main.get("player") and main.player.is_inside_tree() and main.hud and not main.hud._veil():
 				phase = "goto1"
 				t = 0.0
 			elif t > 40.0:

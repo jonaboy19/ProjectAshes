@@ -1,0 +1,912 @@
+[
+ {
+  "clear": 42.0,
+  "h": 19.1,
+  "id": 549,
+  "kind": "keep",
+  "name": "Highwatch Keep",
+  "parts": 34,
+  "pos": [
+   120.3,
+   -1672.7
+  ],
+  "r1id": "highwatch_keep",
+  "yaw": -0.579
+ },
+ {
+  "clear": 10.0,
+  "h": 19.1,
+  "id": 550,
+  "kind": "elder_stone",
+  "name": "Highwatch Elder Stone",
+  "parts": 5,
+  "pos": [
+   105.5,
+   -1650.1
+  ],
+  "r1id": "elder_highwatch",
+  "yaw": -0.579
+ },
+ {
+  "clear": 28.0,
+  "h": 28.3,
+  "id": 551,
+  "kind": "estate",
+  "name": "Crownstead Steward's Hall",
+  "parts": 44,
+  "pos": [
+   620.5,
+   -80.0
+  ],
+  "r1id": "crownstead_estate",
+  "yaw": -2.094
+ },
+ {
+  "clear": 16.0,
+  "h": 12.5,
+  "id": 552,
+  "kind": "elder_stone",
+  "name": "Greyseam Elder Stone",
+  "parts": 8,
+  "pos": [
+   -188.1,
+   -499.2
+  ],
+  "r1id": "elder_greyseam",
+  "yaw": 0.0
+ },
+ {
+  "clear": 18.0,
+  "h": 10.3,
+  "id": 553,
+  "kind": "elder_stone",
+  "name": "Elden Elder Stone",
+  "parts": 9,
+  "pos": [
+   -1199.6,
+   -91.3
+  ],
+  "r1id": "elder_elden",
+  "yaw": 1.571
+ },
+ {
+  "clear": 20.0,
+  "h": 32.2,
+  "id": 554,
+  "kind": "chapel",
+  "name": "Chapel of the Dawn Throne",
+  "parts": 18,
+  "pos": [
+   839.8,
+   -409.5
+  ],
+  "r1id": "dawn_chapel",
+  "yaw": -1.608
+ },
+ {
+  "clear": 46.0,
+  "h": 27.9,
+  "id": 555,
+  "kind": "border_gate",
+  "name": "The Eastern Gate",
+  "parts": 38,
+  "pos": [
+   3771.9,
+   480.8
+  ],
+  "r1id": "eastern_gate",
+  "yaw": -1.571
+ },
+ {
+  "clear": 30.0,
+  "h": 133.0,
+  "id": 556,
+  "kind": "pass",
+  "name": "Grimfen Pass",
+  "parts": 33,
+  "pos": [
+   559.5,
+   -3597.8
+  ],
+  "r1id": "grimfen_pass",
+  "yaw": 1.571
+ },
+ {
+  "clear": 28.0,
+  "h": 20.0,
+  "id": 557,
+  "kind": "scar_arena",
+  "name": "Scar Mouth Arena",
+  "parts": 29,
+  "pos": [
+   2398.8,
+   2468.2
+  ],
+  "r1id": "scar_arena",
+  "yaw": 1.571
+ },
+ {
+  "clear": 22.0,
+  "h": 25.7,
+  "id": 558,
+  "kind": "caravan_camp",
+  "name": "Solkar Caravan Camp",
+  "parts": 21,
+  "pos": [
+   1990.9,
+   -1831.4
+  ],
+  "r1id": "solkar_camp",
+  "yaw": 2.618
+ },
+ {
+  "clear": 0.0,
+  "h": 60.2,
+  "id": 559,
+  "kind": "waystone",
+  "name": "Elden Waymark",
+  "parts": 1,
+  "pos": [
+   -770.1,
+   -141.3
+  ],
+  "r1id": "elden_waymark_1",
+  "yaw": 1.707
+ },
+ {
+  "clear": 0.0,
+  "h": 25.9,
+  "id": 560,
+  "kind": "waystone",
+  "name": "Elden Waymark",
+  "parts": 1,
+  "pos": [
+   -844.0,
+   -149.3
+  ],
+  "r1id": "elden_waymark_2",
+  "yaw": 1.707
+ },
+ {
+  "clear": 0.0,
+  "h": 29.8,
+  "id": 561,
+  "kind": "waystone",
+  "name": "Elden Waymark",
+  "parts": 1,
+  "pos": [
+   -912.9,
+   -121.6
+  ],
+  "r1id": "elden_waymark_3",
+  "yaw": 1.707
+ },
+ {
+  "clear": 0.0,
+  "h": 17.4,
+  "id": 562,
+  "kind": "waystone",
+  "name": "Elden Waymark",
+  "parts": 1,
+  "pos": [
+   -986.7,
+   -129.6
+  ],
+  "r1id": "elden_waymark_4",
+  "yaw": 1.707
+ },
+ {
+  "clear": 0.0,
+  "h": 12.7,
+  "id": 563,
+  "kind": "waystone",
+  "name": "Elden Waymark",
+  "parts": 1,
+  "pos": [
+   -1055.6,
+   -102.0
+  ],
+  "r1id": "elden_waymark_5",
+  "yaw": 1.707
+ },
+ {
+  "clear": 0.0,
+  "h": 11.3,
+  "id": 564,
+  "kind": "waystone",
+  "name": "Elden Waymark",
+  "parts": 1,
+  "pos": [
+   -1129.4,
+   -110.0
+  ],
+  "r1id": "elden_waymark_6",
+  "yaw": 1.707
+ },
+ {
+  "clear": 20.0,
+  "h": 14.1,
+  "id": 565,
+  "kind": "landmark",
+  "name": "Old Mill Staff Yard",
+  "parts": 29,
+  "pos": [
+   126.0,
+   0.0
+  ],
+  "r1id": "landmark_ashford",
+  "yaw": -1.571
+ },
+ {
+  "clear": 26.0,
+  "h": 29.9,
+  "id": 566,
+  "kind": "landmark",
+  "name": "Royal Tourney Lists",
+  "parts": 34,
+  "pos": [
+   323.5,
+   -322.0
+  ],
+  "r1id": "landmark_kingsreach",
+  "yaw": 1.963
+ },
+ {
+  "clear": 22.0,
+  "h": 16.5,
+  "id": 567,
+  "kind": "landmark",
+  "name": "Millbrook Great Mill",
+  "parts": 21,
+  "pos": [
+   1033.1,
+   681.3
+  ],
+  "r1id": "landmark_millbrook",
+  "yaw": 0.131
+ },
+ {
+  "clear": 24.0,
+  "h": 14.5,
+  "id": 568,
+  "kind": "landmark",
+  "name": "Stonehollow Quarry",
+  "parts": 23,
+  "pos": [
+   -453.7,
+   1034.6
+  ],
+  "r1id": "landmark_stonehollow",
+  "yaw": 0.0
+ },
+ {
+  "clear": 22.0,
+  "h": 18.5,
+  "id": 569,
+  "kind": "landmark",
+  "name": "Eastmere Dairy",
+  "parts": 30,
+  "pos": [
+   884.7,
+   1274.2
+  ],
+  "r1id": "landmark_eastmere",
+  "yaw": 0.393
+ },
+ {
+  "clear": 22.0,
+  "h": 25.0,
+  "id": 570,
+  "kind": "landmark",
+  "name": "Redwater Dye Works",
+  "parts": 26,
+  "pos": [
+   838.0,
+   -1181.8
+  ],
+  "r1id": "landmark_redwater",
+  "yaw": -3.011
+ },
+ {
+  "clear": 24.0,
+  "h": 40.2,
+  "id": 571,
+  "kind": "landmark",
+  "name": "Thornfield Brewery",
+  "parts": 29,
+  "pos": [
+   1306.1,
+   -211.4
+  ],
+  "r1id": "landmark_thornfield",
+  "yaw": 1.571
+ },
+ {
+  "clear": 26.0,
+  "h": 32.9,
+  "id": 572,
+  "kind": "landmark",
+  "name": "Greywatch Spear Hall",
+  "parts": 13,
+  "pos": [
+   1432.3,
+   1692.7
+  ],
+  "r1id": "landmark_greywatch",
+  "yaw": 3.011
+ },
+ {
+  "clear": 26.0,
+  "h": 12.3,
+  "id": 573,
+  "kind": "landmark",
+  "name": "Pennick Farm, Greenhollow",
+  "parts": 37,
+  "pos": [
+   -927.0,
+   -518.9
+  ],
+  "r1id": "landmark_oakvale",
+  "yaw": -3.011
+ },
+ {
+  "clear": 22.0,
+  "h": 20.1,
+  "id": 574,
+  "kind": "landmark",
+  "name": "Highcliff Armoury",
+  "parts": 16,
+  "pos": [
+   186.5,
+   -1371.3
+  ],
+  "r1id": "landmark_highcliff",
+  "yaw": -1.963
+ },
+ {
+  "clear": 22.0,
+  "h": 11.7,
+  "id": 575,
+  "kind": "landmark",
+  "name": "Hunters' Lodge",
+  "parts": 16,
+  "pos": [
+   236.3,
+   1253.1
+  ],
+  "r1id": "landmark_brackenmoor",
+  "yaw": 2.225
+ },
+ {
+  "clear": 22.0,
+  "h": 22.2,
+  "id": 576,
+  "kind": "landmark",
+  "name": "Westfen Herb Walk",
+  "parts": 30,
+  "pos": [
+   34.5,
+   999.0
+  ],
+  "r1id": "landmark_westfen",
+  "yaw": 0.0
+ },
+ {
+  "clear": 30.0,
+  "h": 21.9,
+  "id": 577,
+  "kind": "landmark",
+  "name": "Silverford Guild Hall",
+  "parts": 16,
+  "pos": [
+   2065.4,
+   -1801.6
+  ],
+  "r1id": "landmark_ironmarch",
+  "yaw": 3.011
+ },
+ {
+  "clear": 24.0,
+  "h": 14.6,
+  "id": 578,
+  "kind": "landmark",
+  "name": "Saltwick Salt Works",
+  "parts": 22,
+  "pos": [
+   -3411.9,
+   3488.0
+  ],
+  "r1id": "landmark_saltwick",
+  "yaw": -2.487
+ },
+ {
+  "clear": 24.0,
+  "h": 18.3,
+  "id": 579,
+  "kind": "landmark",
+  "name": "Cindermoor Kilns",
+  "parts": 23,
+  "pos": [
+   -2928.0,
+   775.6
+  ],
+  "r1id": "landmark_cindermoor",
+  "yaw": 1.047
+ },
+ {
+  "clear": 26.0,
+  "h": 12.8,
+  "id": 580,
+  "kind": "landmark",
+  "name": "Dunhallow Wagon Yard",
+  "parts": 16,
+  "pos": [
+   -1848.4,
+   -2093.9
+  ],
+  "r1id": "landmark_dunhallow",
+  "yaw": 3.011
+ },
+ {
+  "clear": 22.0,
+  "h": 22.5,
+  "id": 581,
+  "kind": "landmark",
+  "name": "Wolfsend Watch Post",
+  "parts": 18,
+  "pos": [
+   3232.8,
+   503.6
+  ],
+  "r1id": "landmark_wolfsend",
+  "yaw": 2.749
+ },
+ {
+  "clear": 28.0,
+  "h": 17.5,
+  "id": 582,
+  "kind": "landmark",
+  "name": "Harrow Arch and Caravan Stage",
+  "parts": 18,
+  "pos": [
+   -197.8,
+   2822.8
+  ],
+  "r1id": "landmark_harrowgate",
+  "yaw": 0.785
+ },
+ {
+  "clear": 22.0,
+  "h": 18.4,
+  "id": 583,
+  "kind": "landmark",
+  "name": "Emberfall Glass Kiln",
+  "parts": 20,
+  "pos": [
+   -1791.9,
+   2381.5
+  ],
+  "r1id": "landmark_emberfall",
+  "yaw": 0.0
+ },
+ {
+  "clear": 22.0,
+  "h": 17.0,
+  "id": 584,
+  "kind": "landmark",
+  "name": "Ravenscar Raven Tower",
+  "parts": 16,
+  "pos": [
+   1004.0,
+   -3304.1
+  ],
+  "r1id": "landmark_ravenscar",
+  "yaw": -1.571
+ },
+ {
+  "clear": 28.0,
+  "h": 14.8,
+  "id": 585,
+  "kind": "landmark",
+  "name": "Longmeadow Fair Green",
+  "parts": 15,
+  "pos": [
+   3765.1,
+   2552.2
+  ],
+  "r1id": "landmark_longmeadow",
+  "yaw": 2.487
+ },
+ {
+  "clear": 24.0,
+  "h": 22.9,
+  "id": 586,
+  "kind": "landmark",
+  "name": "Blackwater Ford Post",
+  "parts": 15,
+  "pos": [
+   -4864.0,
+   5321.7
+  ],
+  "r1id": "landmark_blackwater",
+  "yaw": -1.309
+ },
+ {
+  "clear": 22.0,
+  "h": 21.6,
+  "id": 587,
+  "kind": "landmark",
+  "name": "Frostmere Smokehouse",
+  "parts": 15,
+  "pos": [
+   -3990.0,
+   -1382.7
+  ],
+  "r1id": "landmark_frostmere",
+  "yaw": 0.262
+ },
+ {
+  "clear": 22.0,
+  "h": 20.2,
+  "id": 588,
+  "kind": "landmark",
+  "name": "Amberley Apiary",
+  "parts": 15,
+  "pos": [
+   2015.6,
+   3458.7
+  ],
+  "r1id": "landmark_amberley",
+  "yaw": 2.88
+ },
+ {
+  "clear": 26.0,
+  "h": 27.0,
+  "id": 589,
+  "kind": "landmark",
+  "name": "Skarholm Ore Yard",
+  "parts": 16,
+  "pos": [
+   -1597.1,
+   -4353.6
+  ],
+  "r1id": "landmark_skarholm",
+  "yaw": -0.131
+ },
+ {
+  "clear": 22.0,
+  "h": 16.5,
+  "id": 590,
+  "kind": "landmark",
+  "name": "Thistledown Fold",
+  "parts": 15,
+  "pos": [
+   514.9,
+   4467.7
+  ],
+  "r1id": "landmark_thistledown",
+  "yaw": 0.916
+ },
+ {
+  "clear": 22.0,
+  "h": 97.6,
+  "id": 591,
+  "kind": "landmark",
+  "name": "Marrowick Tannery",
+  "parts": 15,
+  "pos": [
+   -3300.6,
+   -3516.0
+  ],
+  "r1id": "landmark_marrowick",
+  "yaw": -0.524
+ },
+ {
+  "clear": 22.0,
+  "h": 29.1,
+  "id": 592,
+  "kind": "landmark",
+  "name": "Coldharbor Slip",
+  "parts": 15,
+  "pos": [
+   2878.7,
+   -3573.3
+  ],
+  "r1id": "landmark_coldharbor",
+  "yaw": 1.833
+ },
+ {
+  "clear": 20.0,
+  "h": 32.2,
+  "id": 593,
+  "kind": "landmark",
+  "name": "Hollowmere Reed Cutters",
+  "parts": 15,
+  "pos": [
+   3938.7,
+   -1166.0
+  ],
+  "r1id": "landmark_hollowmere",
+  "yaw": -2.749
+ },
+ {
+  "clear": 22.0,
+  "h": 36.8,
+  "id": 594,
+  "kind": "landmark",
+  "name": "Duskwater Lamp Pier",
+  "parts": 15,
+  "pos": [
+   -1321.9,
+   4382.6
+  ],
+  "r1id": "landmark_duskwater",
+  "yaw": -1.44
+ },
+ {
+  "clear": 22.0,
+  "h": 19.6,
+  "id": 595,
+  "kind": "roadside",
+  "name": "Highwatch Standards Yard",
+  "parts": 8,
+  "pos": [
+   157.3,
+   -1608.6
+  ],
+  "r1id": "highwatch_standards",
+  "yaw": -2.618
+ },
+ {
+  "clear": 30.0,
+  "h": 26.8,
+  "id": 596,
+  "kind": "roadside",
+  "name": "Eastern Gate Outer Towers",
+  "parts": 4,
+  "pos": [
+   3797.1,
+   386.7
+  ],
+  "r1id": "eastern_gate_outer",
+  "yaw": -0.262
+ },
+ {
+  "clear": 34.0,
+  "h": 30.3,
+  "id": 597,
+  "kind": "roadside",
+  "name": "Kingsreach Outer Ward",
+  "parts": 17,
+  "pos": [
+   336.9,
+   -591.2
+  ],
+  "r1id": "kingsreach_ward",
+  "yaw": 0.916
+ },
+ {
+  "clear": 24.0,
+  "h": 19.8,
+  "id": 598,
+  "kind": "roadside",
+  "name": "Kingsreach Gate Fair",
+  "parts": 25,
+  "pos": [
+   699.6,
+   -238.1
+  ],
+  "r1id": "kingsreach_fair",
+  "yaw": -2.487
+ },
+ {
+  "clear": 26.0,
+  "h": 21.1,
+  "id": 599,
+  "kind": "roadside",
+  "name": "Harrowgate Chapel Close",
+  "parts": 10,
+  "pos": [
+   -189.9,
+   2978.3
+  ],
+  "r1id": "harrowgate_church",
+  "yaw": 1.963
+ },
+ {
+  "clear": 28.0,
+  "h": 10.1,
+  "id": 600,
+  "kind": "roadside",
+  "name": "Emberfall Minster Yard",
+  "parts": 7,
+  "pos": [
+   -1923.6,
+   2428.8
+  ],
+  "r1id": "emberfall_minster",
+  "yaw": 1.309
+ },
+ {
+  "clear": 30.0,
+  "h": 18.4,
+  "id": 601,
+  "kind": "roadside",
+  "name": "Saltwick Landing",
+  "parts": 11,
+  "pos": [
+   -3534.2,
+   3484.7
+  ],
+  "r1id": "saltwick_harbour",
+  "yaw": 3.011
+ },
+ {
+  "clear": 24.0,
+  "h": 17.4,
+  "id": 602,
+  "kind": "roadside",
+  "name": "Pennick Farm Yard",
+  "parts": 18,
+  "pos": [
+   -834.9,
+   -662.1
+  ],
+  "r1id": "oakvale_farm",
+  "yaw": -1.309
+ },
+ {
+  "clear": 22.0,
+  "h": 17.9,
+  "id": 603,
+  "kind": "roadside",
+  "name": "Eastmere Dairy Barns",
+  "parts": 8,
+  "pos": [
+   1009.4,
+   1310.9
+  ],
+  "r1id": "eastmere_dairy",
+  "yaw": -1.047
+ },
+ {
+  "clear": 24.0,
+  "h": 134.8,
+  "id": 604,
+  "kind": "roadside",
+  "name": "Brackenmoor Cottage Row",
+  "parts": 5,
+  "pos": [
+   220.0,
+   1102.3
+  ],
+  "r1id": "brackenmoor_row",
+  "yaw": 1.309
+ },
+ {
+  "clear": 24.0,
+  "h": 41.5,
+  "id": 605,
+  "kind": "roadside",
+  "name": "Westfen Stilt Row",
+  "parts": 7,
+  "pos": [
+   -88.7,
+   1064.8
+  ],
+  "r1id": "westfen_row",
+  "yaw": 1.047
+ },
+ {
+  "clear": 24.0,
+  "h": 20.5,
+  "id": 606,
+  "kind": "roadside",
+  "name": "Dunhallow Gatehouse Yard",
+  "parts": 5,
+  "pos": [
+   -1696.6,
+   -2182.1
+  ],
+  "r1id": "dunhallow_gate",
+  "yaw": -1.702
+ },
+ {
+  "clear": 24.0,
+  "h": 22.7,
+  "id": 607,
+  "kind": "roadside",
+  "name": "Highcliff Forge Yard",
+  "parts": 6,
+  "pos": [
+   -175.2,
+   -1393.2
+  ],
+  "r1id": "highcliff_forge",
+  "yaw": 1.963
+ },
+ {
+  "clear": 28.0,
+  "h": 31.2,
+  "id": 608,
+  "kind": "roadside",
+  "name": "Greywatch Wall Ring",
+  "parts": 10,
+  "pos": [
+   1490.8,
+   1661.7
+  ],
+  "r1id": "greywatch_ring",
+  "yaw": -2.749
+ },
+ {
+  "clear": 20.0,
+  "h": 57.6,
+  "id": 609,
+  "kind": "roadside",
+  "name": "Wolfsend Den",
+  "parts": 5,
+  "pos": [
+   3380.3,
+   358.0
+  ],
+  "r1id": "wolfsend_den",
+  "yaw": -1.44
+ },
+ {
+  "clear": 22.0,
+  "h": 16.2,
+  "id": 610,
+  "kind": "roadside",
+  "name": "Ravenscar Goblin Warren",
+  "parts": 13,
+  "pos": [
+   834.7,
+   -3283.0
+  ],
+  "r1id": "ravenscar_warren",
+  "yaw": 1.833
+ },
+ {
+  "clear": 22.0,
+  "h": 112.7,
+  "id": 611,
+  "kind": "roadside",
+  "name": "Ward-Stone Glade",
+  "parts": 11,
+  "pos": [
+   -495.4,
+   1257.1
+  ],
+  "r1id": "ward_glade",
+  "yaw": 2.749
+ },
+ {
+  "clear": 22.0,
+  "h": 57.7,
+  "id": 612,
+  "kind": "roadside",
+  "name": "Hollowmere Old Arches",
+  "parts": 6,
+  "pos": [
+   3984.2,
+   -1370.7
+  ],
+  "r1id": "hollowmere_ruins",
+  "yaw": -0.785
+ },
+ {
+  "clear": 18.0,
+  "h": 27.2,
+  "id": 613,
+  "kind": "roadside",
+  "name": "Ashford Gardens",
+  "parts": 7,
+  "pos": [
+   -103.9,
+   103.9
+  ],
+  "r1id": "ashford_garden",
+  "yaw": 2.356
+ }
+]

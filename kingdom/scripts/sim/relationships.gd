@@ -40,6 +40,14 @@ const ENEMY_AT := -60
 const MEET_TALKS := 1
 const PARENT_FLOOR := 0
 const GIFT_REPEAT_DAYS := 7.0
+## Conversation topic memory is deliberately small and expires by game day.
+const TOPIC_TTL_DAYS := 30.0
+const TOPIC_MAX_NPCS := 128
+const TOPIC_MAX_PER_NPC := 8
+const TOPIC_MAX_TOTAL := 512
+const TOPIC_MAX_NPC_ID := 128
+const TOPIC_MAX_TEXT := 160
+const TOPIC_MAX_SOURCE := 160
 
 ## Factions: id -> [display name, starting reputation]. Sects are added from data
 ## (add_faction / add_sects).
@@ -91,6 +99,8 @@ var npcs: Dictionary = {}
 var reputation: Dictionary = {}
 ## faction id -> display name
 var faction_names: Dictionary = {}
+## npc id -> [{topic, day, source_ref, count}]. Optional save section.
+var topic_memory: Dictionary = {}
 
 
 func _init() -> void:
@@ -264,12 +274,122 @@ func talked_today(npc: String, now: float) -> bool:
 	return floorf(float(npcs.get(npc, {}).get("last_talk", -999.0))) == floorf(now)
 
 
+## Remember a topic that was actually spoken in a conversation.
+func remember_topic(npc: String, topic: String, now: float, source_ref := "") -> bool:
+	if not _valid_topic_text(npc, TOPIC_MAX_NPC_ID) or not _valid_topic_text(topic, TOPIC_MAX_TEXT):
+		return false
+	if not is_finite(now) or (not source_ref.is_empty() and not _valid_topic_text(source_ref, TOPIC_MAX_SOURCE)):
+		return false
+	_prune_topic_memory(now)
+	if not topic_memory.has(npc) and topic_memory.size() >= TOPIC_MAX_NPCS:
+		_evict_oldest_topic_npc()
+	var records: Array = topic_memory.get(npc, [])
+	for i in range(records.size()):
+		var record: Dictionary = records[i]
+		if String(record["topic"]) == topic:
+			record["day"] = now
+			if not source_ref.is_empty():
+				record["source_ref"] = source_ref
+			record["count"] = mini(int(record.get("count", 1)) + 1, 999)
+			records.remove_at(i)
+			records.append(record)
+			topic_memory[npc] = records
+			return true
+	if records.size() >= TOPIC_MAX_PER_NPC:
+		records.pop_front()
+	if _topic_record_count() >= TOPIC_MAX_TOTAL:
+		_evict_oldest_topic_record()
+	records.append({"topic": topic, "day": now, "source_ref": source_ref, "count": 1})
+	topic_memory[npc] = records
+	return true
+
+
+## Returns the most recently remembered topic, or {} when none is current.
+func last_topic(npc: String, now: float) -> Dictionary:
+	if not is_finite(now):
+		return {}
+	_prune_topic_memory(now)
+	var records: Array = topic_memory.get(npc, [])
+	return (records.back() as Dictionary).duplicate() if not records.is_empty() else {}
+
+
+## Returns recent conversation context, newest first, limited to eight records.
+func topic_context(npc: String, now: float, limit := TOPIC_MAX_PER_NPC) -> Array:
+	if not is_finite(now):
+		return []
+	_prune_topic_memory(now)
+	var records: Array = topic_memory.get(npc, [])
+	var out: Array = []
+	var start := maxi(0, records.size() - clampi(limit, 0, TOPIC_MAX_PER_NPC))
+	for i in range(records.size() - 1, start - 1, -1):
+		out.append((records[i] as Dictionary).duplicate())
+	return out
+
+
+func _valid_topic_text(value: String, max_length: int) -> bool:
+	return not value.strip_edges().is_empty() and value.length() <= max_length
+
+
+func _prune_topic_memory(now: float) -> void:
+	for npc in topic_memory.keys():
+		var records: Array = topic_memory[npc]
+		records = records.filter(func(r: Dictionary) -> bool:
+			return now >= float(r["day"]) and now - float(r["day"]) <= TOPIC_TTL_DAYS
+		)
+		if records.is_empty():
+			topic_memory.erase(npc)
+		else:
+			topic_memory[npc] = records
+
+
+func _topic_record_count() -> int:
+	var total := 0
+	for records: Array in topic_memory.values():
+		total += records.size()
+	return total
+
+
+func _evict_oldest_topic_record() -> void:
+	var oldest_npc := ""
+	var oldest_index := -1
+	var oldest_day := INF
+	for npc in topic_memory:
+		var records: Array = topic_memory[npc]
+		for i in range(records.size()):
+			if float(records[i]["day"]) < oldest_day:
+				oldest_day = float(records[i]["day"])
+				oldest_npc = String(npc)
+				oldest_index = i
+	if oldest_index >= 0:
+		var records: Array = topic_memory[oldest_npc]
+		records.remove_at(oldest_index)
+		if records.is_empty():
+			topic_memory.erase(oldest_npc)
+		else:
+			topic_memory[oldest_npc] = records
+
+
+func _evict_oldest_topic_npc() -> void:
+	var oldest_npc := ""
+	var oldest_day := INF
+	for npc in topic_memory:
+		var records: Array = topic_memory[npc]
+		for record: Dictionary in records:
+			if float(record["day"]) < oldest_day:
+				oldest_day = float(record["day"])
+				oldest_npc = String(npc)
+	if oldest_npc != "":
+		topic_memory.erase(oldest_npc)
+
+
 ## Drops faded modifiers (call once a day).
 func prune(now: float) -> void:
 	for id: String in npcs:
 		var mods: Array = npcs[id]["mods"]
 		npcs[id]["mods"] = mods.filter(func(m: Dictionary) -> bool:
 			return float(m["fade"]) <= 0.0 or now - float(m["day"]) < float(m["fade"]))
+	if is_finite(now):
+		_prune_topic_memory(now)
 
 
 # --- factions -------------------------------------------------------------------
@@ -375,10 +495,61 @@ func known_reaction(npc: String, item: String) -> String:
 # --- save -----------------------------------------------------------------------
 
 func serialize() -> Dictionary:
-	return {"npcs": npcs.duplicate(true), "reputation": reputation.duplicate(), "faction_names": faction_names.duplicate()}
+	return {"npcs": npcs.duplicate(true), "reputation": reputation.duplicate(), "faction_names": faction_names.duplicate(),
+		"topic_memory": topic_memory.duplicate(true)}
 
 
 func deserialize(d: Dictionary) -> void:
+	# Validate this optional section as a unit; older saves simply omit it.
+	var restored_topics: Dictionary = {}
+	if d.has("topic_memory") and d["topic_memory"] is Dictionary and d["topic_memory"].size() <= TOPIC_MAX_NPCS:
+		var candidate: Dictionary = {}
+		var valid := true
+		var total := 0
+		var raw_topics: Dictionary = d["topic_memory"]
+		for npc_variant in raw_topics:
+			if not npc_variant is String or not _valid_topic_text(String(npc_variant), TOPIC_MAX_NPC_ID):
+				valid = false
+				break
+			var raw_records: Variant = raw_topics[npc_variant]
+			if not raw_records is Array or raw_records.size() > TOPIC_MAX_PER_NPC:
+				valid = false
+				break
+			var parsed: Array = []
+			var seen_topics: Dictionary = {}
+			var previous_day := -INF
+			for raw_record in raw_records:
+				if not raw_record is Dictionary:
+					valid = false
+					break
+				var rec: Dictionary = raw_record
+				var topic: Variant = rec.get("topic", null)
+				var source: Variant = rec.get("source_ref", "")
+				var day: Variant = rec.get("day", null)
+				var count: Variant = rec.get("count", 1)
+				if not topic is String or not _valid_topic_text(String(topic), TOPIC_MAX_TEXT) \
+				or not source is String or (not String(source).is_empty() and not _valid_topic_text(String(source), TOPIC_MAX_SOURCE)) \
+				or not (day is float or day is int) or not is_finite(float(day)) \
+				or not (count is int or count is float) or not is_finite(float(count)) \
+				or float(count) != floorf(float(count)) or float(count) < 1.0 or float(count) > 999.0:
+					valid = false
+					break
+				if seen_topics.has(String(topic)) or float(day) < previous_day:
+					valid = false
+					break
+				seen_topics[String(topic)] = true
+				previous_day = float(day)
+				parsed.append({"topic": String(topic), "day": float(day), "source_ref": String(source), "count": int(count)})
+			if not valid:
+				break
+			total += parsed.size()
+			if total > TOPIC_MAX_TOTAL:
+				valid = false
+				break
+			candidate[String(npc_variant)] = parsed
+		if valid and candidate.size() <= TOPIC_MAX_NPCS and total <= TOPIC_MAX_TOTAL:
+			restored_topics = candidate
+	topic_memory = restored_topics
 	npcs.clear()
 	var src: Dictionary = d.get("npcs", {})
 	for id: String in src:

@@ -21,13 +21,13 @@
  {
   "name": "Fall_Slip_Back",
   "loop": false,
-  "seconds": 4.0,
-  "frames": 121,
+  "seconds": 2.2,
+  "frames": 66,
   "keys": 1719,
   "source": "090/90_17.bvh",
   "range_s": [
-   1.0,
-   5.0
+   1.8,
+   4.0
   ],
   "autotrim": null,
   "loop_pts": null,
@@ -35,18 +35,22 @@
   "contact_lift_m": 0.0,
   "min_foot_m": -0.013,
   "travel_m": 1.72,
-  "hip_scale": 0.0502
+  "hip_scale": 0.0502,
+  "trimmed_from_s": [
+   0.8,
+   3.0
+  ]
  },
  {
   "name": "Fall_RugPull_Back",
   "loop": false,
-  "seconds": 2.0,
-  "frames": 61,
+  "seconds": 1.2,
+  "frames": 36,
   "keys": 844,
   "source": "090/90_18.bvh",
   "range_s": [
    0.6,
-   2.6
+   1.8
   ],
   "autotrim": null,
   "loop_pts": null,
@@ -54,17 +58,21 @@
   "contact_lift_m": 0.042,
   "min_foot_m": -0.067,
   "travel_m": 0.03,
-  "hip_scale": 0.0502
+  "hip_scale": 0.0502,
+  "trimmed_from_s": [
+   0.0,
+   1.2
+  ]
  },
  {
   "name": "Fall_BackflipTwist",
   "loop": false,
-  "seconds": 3.5,
-  "frames": 106,
+  "seconds": 1.8,
+  "frames": 54,
   "keys": 1623,
   "source": "090/90_13.bvh",
   "range_s": [
-   2.0,
+   3.7,
    5.5
   ],
   "autotrim": null,
@@ -73,18 +81,22 @@
   "contact_lift_m": 0.026,
   "min_foot_m": -0.044,
   "travel_m": 0.61,
-  "hip_scale": 0.0502
+  "hip_scale": 0.0502,
+  "trimmed_from_s": [
+   1.7,
+   3.5
+  ]
  },
  {
   "name": "GetUp_FaceDown_A",
   "loop": false,
-  "seconds": 5.0,
-  "frames": 151,
+  "seconds": 4.3,
+  "frames": 130,
   "keys": 1750,
   "source": "140/140_01.bvh",
   "range_s": [
    1.6,
-   6.6
+   5.0
   ],
   "autotrim": null,
   "loop_pts": null,
@@ -92,18 +104,23 @@
   "contact_lift_m": 0.097,
   "min_foot_m": -0.001,
   "travel_m": 0.8,
-  "hip_scale": 0.057
+  "hip_scale": 0.057,
+  "trimmed_from_s": [
+   0.0,
+   3.4
+  ],
+  "idle_blend_s": 0.9
  },
  {
   "name": "GetUp_FaceDown_B",
   "loop": false,
-  "seconds": 4.0,
-  "frames": 121,
+  "seconds": 3.9,
+  "frames": 118,
   "keys": 1711,
   "source": "139/139_16.bvh",
   "range_s": [
    1.2,
-   5.2
+   4.2
   ],
   "autotrim": null,
   "loop_pts": null,
@@ -111,18 +128,23 @@
   "contact_lift_m": 0.197,
   "min_foot_m": -0.0,
   "travel_m": 0.55,
-  "hip_scale": 0.0555
+  "hip_scale": 0.0555,
+  "trimmed_from_s": [
+   0.0,
+   3.0
+  ],
+  "idle_blend_s": 0.9
  },
  {
   "name": "GetUp_Side",
   "loop": false,
-  "seconds": 6.5,
-  "frames": 196,
+  "seconds": 5.7,
+  "frames": 172,
   "keys": 2527,
   "source": "140/140_03.bvh",
   "range_s": [
    1.5,
-   8.0
+   6.3
   ],
   "autotrim": null,
   "loop_pts": null,
@@ -130,18 +152,23 @@
   "contact_lift_m": 0.031,
   "min_foot_m": -0.069,
   "travel_m": 0.51,
-  "hip_scale": 0.057
+  "hip_scale": 0.057,
+  "trimmed_from_s": [
+   0.0,
+   4.8
+  ],
+  "idle_blend_s": 0.9
  },
  {
   "name": "GetUp_Back_A",
   "loop": false,
-  "seconds": 6.27,
-  "frames": 189,
+  "seconds": 5.1,
+  "frames": 154,
   "keys": 2237,
   "source": "140/140_08.bvh",
   "range_s": [
    1.2,
-   7.5
+   5.4
   ],
   "autotrim": null,
   "loop_pts": null,
@@ -149,18 +176,23 @@
   "contact_lift_m": 0.038,
   "min_foot_m": -0.069,
   "travel_m": 0.68,
-  "hip_scale": 0.057
+  "hip_scale": 0.057,
+  "trimmed_from_s": [
+   0.0,
+   4.2
+  ],
+  "idle_blend_s": 0.9
  },
  {
   "name": "GetUp_Back_B",
   "loop": false,
-  "seconds": 5.57,
-  "frames": 168,
+  "seconds": 4.7,
+  "frames": 142,
   "keys": 1909,
   "source": "140/140_09.bvh",
   "range_s": [
    1.2,
-   7.0
+   5.0
   ],
   "autotrim": null,
   "loop_pts": null,
@@ -168,6 +200,11 @@
   "contact_lift_m": 0.022,
   "min_foot_m": -0.069,
   "travel_m": 0.65,
-  "hip_scale": 0.057
+  "hip_scale": 0.057,
+  "trimmed_from_s": [
+   0.0,
+   3.8
+  ],
+  "idle_blend_s": 0.9
  }
 ]

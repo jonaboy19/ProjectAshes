@@ -33,10 +33,24 @@ func _ready() -> void:
 	col.add_theme_constant_override("separation", 6)
 	left.add_child(col)
 	var lc := CenterContainer.new()
-	lc.add_child(FE.logo(0.62))
+	lc.add_child(FE.logo(0.42))
 	col.add_child(lc)
-	var t := FE.title_label(30)
-	col.add_child(t)
+	# AAA pass 2026-10-06 (owner review): RISING ASHES is the dominant element of the screen, with a small studio credit.
+	var head := VBoxContainer.new()
+	head.set_anchors_and_offsets_preset(Control.PRESET_TOP_WIDE)
+	head.offset_left = 56 + 340
+	head.offset_right = -24
+	head.offset_top = 70
+	head.add_theme_constant_override("separation", 2)
+	head.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	add_child(head)
+	head.add_child(FE.title_label(96))
+	var studio := AF.label("A Total Showdown Studios Game", 18, Color(1, 0.95, 0.85, 0.85))
+	studio.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	studio.add_theme_color_override("font_shadow_color", Color(0, 0, 0, 0.8))
+	studio.add_theme_constant_override("shadow_offset_x", 1)
+	studio.add_theme_constant_override("shadow_offset_y", 1)
+	head.add_child(studio)
 	var sp := Control.new()
 	sp.custom_minimum_size = Vector2(0, 22)
 	col.add_child(sp)
@@ -44,17 +58,21 @@ func _ready() -> void:
 	_menu.add_theme_constant_override("separation", 2)
 	col.add_child(_menu)
 	var have: String = Life.saves.latest_id() if _has_life() else ""
-	_continue = FE.menu_row("Continue", _continue_game)
+	_continue = FE.menu_row(tr("MENU_CONTINUE"), _continue_game)
 	_continue.disabled = have == ""
 	_menu.add_child(_continue)
-	_menu.add_child(FE.menu_row("New Game", _new_game))
-	var load_b := FE.menu_row("Load Game", _load_game)
+	_menu.add_child(FE.menu_row(tr("MENU_NEW"), _new_game))
+	var load_b := FE.menu_row(tr("MENU_LOAD"), _load_game)
 	_menu.add_child(load_b)
-	_menu.add_child(FE.menu_row("Settings", func() -> void: SettingsScreen.open(self)))
+	_menu.add_child(FE.menu_row(tr("MENU_SETTINGS"), func() -> void: SettingsScreen.open(self)))
 	_menu.add_child(FE.menu_row("Extras", func() -> void: Extras.open(self)))
-	_menu.add_child(FE.menu_row("Credits", func() -> void: Credits.open(self)))
-	if not Flow.is_mobile():
-		_menu.add_child(FE.menu_row("Exit", func() -> void: get_tree().quit()))
+	_menu.add_child(FE.menu_row(tr("MENU_CREDITS"), func() -> void: Credits.open(self)))
+	# Debug builds (and any build with a `user://style_lab.flag` file): the Style Lab look-dev scene.
+	if (OS.is_debug_build() or FileAccess.file_exists("user://style_lab.flag")) and ResourceLoader.exists("res://scenes/style_lab/style_lab.tscn"):
+		_menu.add_child(FE.menu_row("Style Lab", func() -> void: get_tree().change_scene_to_file("res://scenes/style_lab/style_lab.tscn")))
+	# iOS apps must not offer a Quit button (App Store guideline); Android and desktop do.
+	if not OS.has_feature("ios"):
+		_menu.add_child(FE.menu_row(tr("MENU_QUIT"), func() -> void: get_tree().quit()))
 	# Version (top right), tagline (bottom right), key hints (bottom left).
 	var ver := VBoxContainer.new()
 	ver.set_anchors_and_offsets_preset(Control.PRESET_TOP_RIGHT)

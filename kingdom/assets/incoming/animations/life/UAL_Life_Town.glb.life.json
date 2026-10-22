@@ -1,0 +1,1838 @@
+{
+ "library": "res://assets/incoming/animations/life/UAL_Life_Town.glb",
+ "fps": 30,
+ "clips": {
+  "Life_Market_Call_Out": {
+   "category": "work/market",
+   "loop": true,
+   "layer": "full",
+   "props": [],
+   "enter": null,
+   "exit": null,
+   "blend_in": 0.25,
+   "blend_out": 0.3,
+   "events": {
+    "call": [
+     18,
+     37
+    ]
+   },
+   "anchor": {
+    "type": "market_stall",
+    "at": [
+     0.0,
+     0.62,
+     0.9
+    ],
+    "size": [
+     1.4,
+     0.55,
+     0.9
+    ],
+    "offset": [
+     0.0,
+     0.0,
+     0.35
+    ],
+    "face": "anchor"
+   },
+   "note": "vendor hawking wares: right hand cupped at the mouth, chest lifts on the inhale and drives on each shout; left arm beckons twice; head scans the crowd",
+   "speed_mps": 0.0,
+   "pair": null,
+   "ik_l_on_prop": null,
+   "mask_from": null,
+   "tags": [
+    "vendor",
+    "shout"
+   ],
+   "source": "authored (Blender key poses, tools/anim/life)",
+   "frames": 97,
+   "seconds": 3.2
+  },
+  "Life_Market_Hand_Over": {
+   "category": "work/market",
+   "loop": false,
+   "layer": "full",
+   "props": [
+    {
+     "id": "bread",
+     "hand": "r"
+    },
+    {
+     "id": "coin",
+     "hand": "l"
+    }
+   ],
+   "enter": null,
+   "exit": null,
+   "blend_in": 0.25,
+   "blend_out": 0.3,
+   "events": {
+    "take": [
+     17
+    ],
+    "offer": [
+     40
+    ],
+    "release": [
+     46
+    ],
+    "coin_receive": [
+     58
+    ],
+    "pocket": [
+     84
+    ]
+   },
+   "anchor": {
+    "type": "market_stall",
+    "at": [
+     0.0,
+     0.62,
+     0.9
+    ],
+    "size": [
+     1.4,
+     0.55,
+     0.9
+    ],
+    "offset": [
+     0.0,
+     0.0,
+     0.35
+    ],
+    "face": "anchor"
+   },
+   "note": "vendor takes the item from the stall table (0.9 m), holds it out to a customer 0.8 m in front, catches the coin in the left palm and pockets it. Hide the bread at 'release', show the coin at 'coin_receive', hide at 'pocket'.",
+   "speed_mps": 0.0,
+   "pair": null,
+   "ik_l_on_prop": null,
+   "mask_from": null,
+   "tags": [
+    "vendor",
+    "trade",
+    "give"
+   ],
+   "source": "authored (Blender key poses, tools/anim/life)",
+   "frames": 101,
+   "seconds": 3.333
+  },
+  "Life_Guard_Attention": {
+   "category": "work/guard",
+   "loop": true,
+   "layer": "full",
+   "props": [
+    {
+     "id": "spear",
+     "hand": "r"
+    }
+   ],
+   "enter": null,
+   "exit": null,
+   "blend_in": 0.25,
+   "blend_out": 0.3,
+   "events": {
+    "glance": [
+     38
+    ]
+   },
+   "anchor": null,
+   "note": "guard at attention: spear upright in the right hand beside the hip, chest up, chin level, a rare glance and a small heel-shift. The spear model puts the grip 0.75 m above the butt, so at this hand height (0.89 m) the butt hovers ~0.14 m above the ground: move the prop origin ~0.2 m toward the tip to ground it",
+   "speed_mps": 0.0,
+   "pair": null,
+   "ik_l_on_prop": null,
+   "mask_from": null,
+   "tags": [
+    "guard",
+    "post"
+   ],
+   "source": "authored (Blender key poses, tools/anim/life)",
+   "frames": 121,
+   "seconds": 4.0
+  },
+  "Life_Guard_Lean_Spear": {
+   "category": "work/guard",
+   "loop": true,
+   "layer": "full",
+   "props": [
+    {
+     "id": "spear",
+     "hand": "r"
+    }
+   ],
+   "enter": null,
+   "exit": null,
+   "blend_in": 0.25,
+   "blend_out": 0.3,
+   "events": {
+    "glance": [
+     34,
+     100
+    ]
+   },
+   "anchor": null,
+   "note": "guard leaning his weight on a planted spear, both hands on the shaft, weight on the left leg, right foot relaxed forward; two glances and a shift of the chest over the spear",
+   "speed_mps": 0.0,
+   "pair": null,
+   "ik_l_on_prop": 0.32,
+   "mask_from": null,
+   "tags": [
+    "guard",
+    "idle"
+   ],
+   "source": "authored (Blender key poses, tools/anim/life)",
+   "frames": 145,
+   "seconds": 4.8
+  },
+  "Life_Guard_Patrol_Walk": {
+   "category": "walk/style",
+   "loop": true,
+   "layer": "full",
+   "props": [
+    {
+     "id": "spear",
+     "hand": "r"
+    }
+   ],
+   "enter": null,
+   "exit": null,
+   "blend_in": 0.25,
+   "blend_out": 0.3,
+   "events": {
+    "step_l": [
+     0
+    ],
+    "step_r": [
+     20
+    ]
+   },
+   "anchor": null,
+   "note": "measured guard patrol stride, spear resting on the right shoulder (right hand steady in front of the chest, left arm swinging short), upright chest, chin level",
+   "speed_mps": 0.75,
+   "pair": null,
+   "ik_l_on_prop": null,
+   "mask_from": null,
+   "tags": [
+    "guard",
+    "walk",
+    "in_place"
+   ],
+   "source": "authored (Blender key poses, tools/anim/life)",
+   "frames": 41,
+   "seconds": 1.333
+  },
+  "Life_Guard_Look_Out": {
+   "category": "work/guard",
+   "loop": false,
+   "layer": "full",
+   "props": [
+    {
+     "id": "spear",
+     "hand": "r"
+    }
+   ],
+   "enter": null,
+   "exit": null,
+   "blend_in": 0.25,
+   "blend_out": 0.3,
+   "events": {
+    "scan_left": [
+     40
+    ],
+    "scan_right": [
+     62
+    ]
+   },
+   "anchor": null,
+   "note": "guard shades his eyes with the left hand (spear planted in the right) and scans left then right",
+   "speed_mps": 0.0,
+   "pair": null,
+   "ik_l_on_prop": null,
+   "mask_from": null,
+   "tags": [
+    "guard",
+    "scan"
+   ],
+   "source": "authored (Blender key poses, tools/anim/life)",
+   "frames": 105,
+   "seconds": 3.467
+  },
+  "Life_Shop_Counter_Lean": {
+   "category": "work/shop",
+   "loop": true,
+   "layer": "full",
+   "props": [],
+   "enter": null,
+   "exit": null,
+   "blend_in": 0.25,
+   "blend_out": 0.3,
+   "events": {
+    "tap": [
+     86,
+     92,
+     98
+    ]
+   },
+   "anchor": {
+    "type": "shop_counter",
+    "at": [
+     0.0,
+     0.7,
+     1.0
+    ],
+    "size": [
+     1.6,
+     0.7,
+     1.0
+    ],
+    "offset": [
+     0.0,
+     0.0,
+     0.35
+    ],
+    "face": "anchor"
+   },
+   "note": "shopkeeper waiting at the counter: both palms flat on the top (planted), weight rocks from foot to foot, glances at the street, drums the right fingers once",
+   "speed_mps": 0.0,
+   "pair": null,
+   "ik_l_on_prop": null,
+   "mask_from": null,
+   "tags": [
+    "shopkeeper",
+    "idle"
+   ],
+   "source": "authored (Blender key poses, tools/anim/life)",
+   "frames": 145,
+   "seconds": 4.8
+  },
+  "Life_Shop_Wipe": {
+   "category": "work/shop",
+   "loop": true,
+   "layer": "full",
+   "props": [],
+   "enter": null,
+   "exit": null,
+   "blend_in": 0.25,
+   "blend_out": 0.3,
+   "events": {
+    "stroke": [
+     0,
+     18,
+     36,
+     54
+    ]
+   },
+   "anchor": {
+    "type": "shop_counter",
+    "at": [
+     0.0,
+     0.7,
+     1.0
+    ],
+    "size": [
+     1.6,
+     0.7,
+     1.0
+    ],
+    "offset": [
+     0.0,
+     0.0,
+     0.35
+    ],
+    "face": "anchor"
+   },
+   "note": "shopkeeper wipes the counter in wide circles with a cloth in the right hand (palm flat on the top), the whole chest and head follow the hand, the left hand steadies on the counter",
+   "speed_mps": 0.0,
+   "pair": null,
+   "ik_l_on_prop": null,
+   "mask_from": null,
+   "tags": [
+    "shopkeeper",
+    "clean"
+   ],
+   "source": "authored (Blender key poses, tools/anim/life)",
+   "frames": 73,
+   "seconds": 2.4
+  },
+  "Life_Shop_Tally": {
+   "category": "work/shop",
+   "loop": true,
+   "layer": "full",
+   "props": [
+    {
+     "id": "quill",
+     "hand": "r"
+    }
+   ],
+   "enter": null,
+   "exit": null,
+   "blend_in": 0.25,
+   "blend_out": 0.3,
+   "events": {
+    "dip": [
+     78
+    ],
+    "write_start": [
+     6
+    ]
+   },
+   "anchor": {
+    "type": "shop_counter",
+    "at": [
+     0.0,
+     0.7,
+     1.0
+    ],
+    "size": [
+     1.6,
+     0.7,
+     1.0
+    ],
+    "offset": [
+     0.0,
+     0.0,
+     0.35
+    ],
+    "face": "anchor",
+    "note": "the ledger is a scene object lying flat on the counter (top 1.03 m, centre 0.5 m in front, 0.3 x 0.38 m); the left palm rests on its left edge, the quill writes on it",
+    "extra": [
+     {
+      "at": [
+       0.02,
+       0.5,
+       1.03
+      ],
+      "size": [
+       0.3,
+       0.38,
+       0.03
+      ]
+     }
+    ]
+   },
+   "note": "shopkeeper writing in the ledger (a flat scene object: with the prop grip contract a left-hand book cannot lie flat under the palm), left palm on its edge, right hand writes a line with the quill, lifts, dips it in the ink and comes back; head follows the nib",
+   "speed_mps": 0.0,
+   "pair": null,
+   "ik_l_on_prop": null,
+   "mask_from": null,
+   "tags": [
+    "shopkeeper",
+    "write"
+   ],
+   "source": "authored (Blender key poses, tools/anim/life)",
+   "frames": 151,
+   "seconds": 5.0
+  },
+  "Life_Read_Stand": {
+   "category": "ambient/read",
+   "loop": true,
+   "layer": "full",
+   "props": [
+    {
+     "id": "book",
+     "hand": "r"
+    }
+   ],
+   "enter": null,
+   "exit": null,
+   "blend_in": 0.25,
+   "blend_out": 0.3,
+   "events": {
+    "page_turn": [
+     98
+    ]
+   },
+   "anchor": null,
+   "note": "standing reader: book held by its edge in the right hand at the chest, the left hand cradles it from below, eyes sweep the lines, weight shifts, the left hand turns a page (book model: spine axis = thumb, body along the palm)",
+   "speed_mps": 0.0,
+   "pair": null,
+   "ik_l_on_prop": null,
+   "mask_from": null,
+   "tags": [
+    "read",
+    "stand"
+   ],
+   "source": "authored (Blender key poses, tools/anim/life)",
+   "frames": 157,
+   "seconds": 5.2
+  },
+  "Life_Read_Sit": {
+   "category": "ambient/read",
+   "loop": true,
+   "layer": "full",
+   "props": [
+    {
+     "id": "book",
+     "hand": "r"
+    }
+   ],
+   "enter": null,
+   "exit": null,
+   "blend_in": 0.25,
+   "blend_out": 0.3,
+   "events": {
+    "page_turn": [
+     92
+    ]
+   },
+   "anchor": {
+    "type": "bench",
+    "at": [
+     0.0,
+     0.0,
+     0.45
+    ],
+    "size": [
+     1.3,
+     0.36,
+     0.45
+    ],
+    "offset": [
+     0.0,
+     0.05,
+     0.0
+    ],
+    "face": "anchor"
+   },
+   "note": "reader seated on a bench (seat 0.45 m), book resting on the lap and steadied by the right hand at its edge, the left hand supports it and turns one page; head down, a neck stretch at the end",
+   "speed_mps": 0.0,
+   "pair": null,
+   "ik_l_on_prop": null,
+   "mask_from": null,
+   "tags": [
+    "read",
+    "sit",
+    "bench"
+   ],
+   "source": "authored (Blender key poses, tools/anim/life)",
+   "frames": 161,
+   "seconds": 5.333
+  },
+  "Life_Write_Desk": {
+   "category": "ambient/write",
+   "loop": true,
+   "layer": "full",
+   "props": [
+    {
+     "id": "quill",
+     "hand": "r"
+    }
+   ],
+   "enter": null,
+   "exit": null,
+   "blend_in": 0.25,
+   "blend_out": 0.3,
+   "events": {
+    "dip": [
+     76
+    ],
+    "write_start": [
+     6
+    ]
+   },
+   "anchor": {
+    "type": "table",
+    "at": [
+     0.0,
+     0.62,
+     0.75
+    ],
+    "size": [
+     1.4,
+     0.8,
+     0.75
+    ],
+    "offset": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "face": "anchor",
+    "extra": [
+     {
+      "at": [
+       0.0,
+       0.0,
+       0.45
+      ],
+      "size": [
+       0.45,
+       0.42,
+       0.45
+      ]
+     },
+     {
+      "at": [
+       0.0,
+       0.42,
+       0.757
+      ],
+      "size": [
+       0.3,
+       0.3,
+       0.014
+      ]
+     }
+    ]
+   },
+   "note": "writer seated at a table (top 0.75 m): left palm holds the page, right hand writes with the quill, lifts, dips it in the ink pot at the right, returns; head follows the nib",
+   "speed_mps": 0.0,
+   "pair": null,
+   "ik_l_on_prop": null,
+   "mask_from": null,
+   "tags": [
+    "write",
+    "sit",
+    "desk"
+   ],
+   "source": "authored (Blender key poses, tools/anim/life)",
+   "frames": 157,
+   "seconds": 5.2
+  },
+  "Life_Market_Arrange": {
+   "category": "work/market",
+   "loop": true,
+   "layer": "full",
+   "props": [
+    {
+     "id": "bread",
+     "hand": "r"
+    }
+   ],
+   "enter": null,
+   "exit": null,
+   "blend_in": 0.25,
+   "blend_out": 0.3,
+   "events": {
+    "pick": [
+     20,
+     92
+    ],
+    "place": [
+     46,
+     118
+    ]
+   },
+   "anchor": {
+    "type": "market_stall",
+    "at": [
+     0.0,
+     0.62,
+     0.9
+    ],
+    "size": [
+     1.4,
+     0.55,
+     0.9
+    ],
+    "offset": [
+     0.0,
+     0.0,
+     0.35
+    ],
+    "face": "anchor"
+   },
+   "note": "vendor arranging goods on the stall: picks a loaf from the pile on the right, sets it in the row, nudges it straight with a pat of the left hand, then a second loaf to another spot; head follows the hands, weight shifts on the feet",
+   "speed_mps": 0.0,
+   "pair": null,
+   "ik_l_on_prop": null,
+   "mask_from": null,
+   "tags": [
+    "vendor",
+    "arrange"
+   ],
+   "source": "authored (Blender key poses, tools/anim/life)",
+   "frames": 157,
+   "seconds": 5.2
+  },
+  "Life_Market_Browse": {
+   "category": "social/market",
+   "loop": true,
+   "layer": "full",
+   "props": [
+    {
+     "id": "bread",
+     "hand": "r"
+    }
+   ],
+   "enter": null,
+   "exit": null,
+   "blend_in": 0.25,
+   "blend_out": 0.3,
+   "events": {
+    "pick": [
+     40
+    ],
+    "inspect": [
+     56,
+     84
+    ],
+    "put_back": [
+     112
+    ]
+   },
+   "anchor": {
+    "type": "market_stall",
+    "at": [
+     0.0,
+     0.62,
+     0.9
+    ],
+    "size": [
+     1.4,
+     0.55,
+     0.9
+    ],
+    "offset": [
+     0.0,
+     0.0,
+     0.35
+    ],
+    "face": "anchor"
+   },
+   "note": "customer at a stall: studies the goods with a hand at the chin, picks up a loaf, turns it over in front of the face, sets it back a little to one side, shrugs and glances along the stall",
+   "speed_mps": 0.0,
+   "pair": null,
+   "ik_l_on_prop": null,
+   "mask_from": null,
+   "tags": [
+    "customer",
+    "browse"
+   ],
+   "source": "authored (Blender key poses, tools/anim/life)",
+   "frames": 181,
+   "seconds": 6.0
+  },
+  "Life_Tavern_Drink": {
+   "category": "social/tavern",
+   "loop": false,
+   "layer": "full",
+   "props": [
+    {
+     "id": "mug",
+     "hand": "r"
+    }
+   ],
+   "enter": null,
+   "exit": null,
+   "blend_in": 0.25,
+   "blend_out": 0.3,
+   "events": {
+    "sip": [
+     30
+    ],
+    "wipe": [
+     76
+    ],
+    "swallow": [
+     40
+    ]
+   },
+   "anchor": null,
+   "note": "lifts the tankard, tips it to the lips (head goes back, throat swallow), lowers it with an exhale, then wipes the mouth with the back of the left hand and settles",
+   "speed_mps": 0.0,
+   "pair": null,
+   "ik_l_on_prop": null,
+   "mask_from": null,
+   "tags": [
+    "tavern",
+    "drink"
+   ],
+   "source": "authored (Blender key poses, tools/anim/life)",
+   "frames": 109,
+   "seconds": 3.6
+  },
+  "Life_Tavern_Toast": {
+   "category": "social/tavern",
+   "loop": false,
+   "layer": "full",
+   "props": [
+    {
+     "id": "mug",
+     "hand": "r"
+    }
+   ],
+   "enter": null,
+   "exit": null,
+   "blend_in": 0.25,
+   "blend_out": 0.3,
+   "events": {
+    "raise": [
+     16
+    ],
+    "cheers": [
+     26
+    ],
+    "clink": [
+     32
+    ],
+    "sip": [
+     64
+    ]
+   },
+   "anchor": null,
+   "note": "anticipation (mug cocked back, chest dips), thrusts the tankard up and out for 'cheers' with a clink push, left hand open in a gesture, then drains a long sip and lowers it",
+   "speed_mps": 0.0,
+   "pair": null,
+   "ik_l_on_prop": null,
+   "mask_from": null,
+   "tags": [
+    "tavern",
+    "toast",
+    "cheers"
+   ],
+   "source": "authored (Blender key poses, tools/anim/life)",
+   "frames": 123,
+   "seconds": 4.067
+  },
+  "Life_Tavern_Cheer": {
+   "category": "social/tavern",
+   "loop": true,
+   "layer": "full",
+   "props": [
+    {
+     "id": "mug",
+     "hand": "r"
+    }
+   ],
+   "enter": null,
+   "exit": null,
+   "blend_in": 0.25,
+   "blend_out": 0.3,
+   "events": {
+    "beat": [
+     0,
+     15,
+     30,
+     45
+    ]
+   },
+   "anchor": null,
+   "note": "drinking song: tankard raised beside the head and swung side to side, knees bouncing on the beat (4 beats per loop), left arm swaying, head thrown back and nodding",
+   "speed_mps": 0.0,
+   "pair": null,
+   "ik_l_on_prop": null,
+   "mask_from": null,
+   "tags": [
+    "tavern",
+    "cheer",
+    "song",
+    "loop"
+   ],
+   "source": "authored (Blender key poses, tools/anim/life)",
+   "frames": 61,
+   "seconds": 2.0
+  },
+  "Life_Tavern_Lean_Bar": {
+   "category": "social/tavern",
+   "loop": true,
+   "layer": "full",
+   "props": [
+    {
+     "id": "mug",
+     "hand": "r"
+    }
+   ],
+   "enter": null,
+   "exit": null,
+   "blend_in": 0.25,
+   "blend_out": 0.3,
+   "events": {
+    "sip": [
+     86
+    ]
+   },
+   "anchor": {
+    "type": "bar_counter",
+    "at": [
+     0.0,
+     0.52,
+     1.05
+    ],
+    "size": [
+     2.0,
+     0.6,
+     1.05
+    ],
+    "offset": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "face": "anchor",
+    "note": "bar_counter model: top 1.05 m; the character stands with the counter edge 0.22 m in front of him and leans over it"
+   },
+   "note": "leaning over the bar counter (top 1.05 m, edge 0.22 m in front) on the left elbow, tankard in the right hand on the counter; weight shifts, he watches the room, straightens up for one sip",
+   "speed_mps": 0.0,
+   "pair": null,
+   "ik_l_on_prop": null,
+   "mask_from": null,
+   "tags": [
+    "tavern",
+    "bar",
+    "idle"
+   ],
+   "source": "authored (Blender key poses, tools/anim/life)",
+   "frames": 145,
+   "seconds": 4.8
+  },
+  "Life_Tavern_Sit_Drink": {
+   "category": "social/tavern",
+   "loop": true,
+   "layer": "full",
+   "props": [
+    {
+     "id": "mug",
+     "hand": "r"
+    }
+   ],
+   "enter": null,
+   "exit": null,
+   "blend_in": 0.25,
+   "blend_out": 0.3,
+   "events": {
+    "sip": [
+     58
+    ],
+    "set_down": [
+     84
+    ],
+    "laugh": [
+     104
+    ]
+   },
+   "anchor": {
+    "type": "table",
+    "at": [
+     0.0,
+     0.62,
+     0.75
+    ],
+    "size": [
+     1.4,
+     0.8,
+     0.75
+    ],
+    "offset": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "face": "anchor",
+    "extra": [
+     {
+      "at": [
+       0.0,
+       0.0,
+       0.46
+      ],
+      "size": [
+       0.42,
+       0.42,
+       0.46
+      ]
+     }
+    ]
+   },
+   "note": "seated at a tavern table (0.75 m), right hand around the tankard on the table; a sip, the mug set down with a thunk, then a laugh (head back, shoulders bounce, left hand slaps the table)",
+   "speed_mps": 0.0,
+   "pair": null,
+   "ik_l_on_prop": null,
+   "mask_from": null,
+   "tags": [
+    "tavern",
+    "sit",
+    "drink",
+    "laugh"
+   ],
+   "source": "authored (Blender key poses, tools/anim/life)",
+   "frames": 181,
+   "seconds": 6.0
+  },
+  "Life_Music_Lute": {
+   "category": "social/music",
+   "loop": true,
+   "layer": "full",
+   "props": [
+    {
+     "id": "lute",
+     "hand": "l"
+    }
+   ],
+   "enter": null,
+   "exit": null,
+   "blend_in": 0.25,
+   "blend_out": 0.3,
+   "events": {
+    "strum": [
+     0,
+     12,
+     24,
+     36,
+     48,
+     60,
+     72,
+     84
+    ],
+    "chord": [
+     22,
+     46,
+     70
+    ]
+   },
+   "anchor": null,
+   "note": "standing lute player: the lute rests on the belly with the neck up to the left (left fist on the neck), the right hand strums 8 times in the loop with accents, the left hand changes chord three times (slide + finger flick), body sways and the right foot taps the beat",
+   "speed_mps": 0.0,
+   "pair": null,
+   "ik_l_on_prop": null,
+   "mask_from": null,
+   "tags": [
+    "music",
+    "lute",
+    "stand"
+   ],
+   "source": "authored (Blender key poses, tools/anim/life)",
+   "frames": 97,
+   "seconds": 3.2
+  },
+  "Life_Music_Lute_Sit": {
+   "category": "social/music",
+   "loop": true,
+   "layer": "full",
+   "props": [
+    {
+     "id": "lute",
+     "hand": "l"
+    }
+   ],
+   "enter": null,
+   "exit": null,
+   "blend_in": 0.25,
+   "blend_out": 0.3,
+   "events": {
+    "strum": [
+     0,
+     12,
+     24,
+     36,
+     48,
+     60,
+     72,
+     84
+    ],
+    "chord": [
+     22,
+     46,
+     70
+    ]
+   },
+   "anchor": {
+    "type": "stool",
+    "at": [
+     0.0,
+     0.0,
+     0.47
+    ],
+    "size": [
+     0.4,
+     0.4,
+     0.47
+    ],
+    "offset": [
+     0.0,
+     0.05,
+     0.0
+    ],
+    "face": "anchor"
+   },
+   "note": "seated lute player (stool seat 0.47 m): lute on the lap and belly, strumming, chord changes and a swaying torso",
+   "speed_mps": 0.0,
+   "pair": null,
+   "ik_l_on_prop": null,
+   "mask_from": null,
+   "tags": [
+    "music",
+    "lute",
+    "sit",
+    "stool"
+   ],
+   "source": "authored (Blender key poses, tools/anim/life)",
+   "frames": 97,
+   "seconds": 3.2
+  },
+  "Life_Music_Flute": {
+   "category": "social/music",
+   "loop": true,
+   "layer": "full",
+   "props": [
+    {
+     "id": "flute",
+     "hand": "r"
+    }
+   ],
+   "enter": null,
+   "exit": null,
+   "blend_in": 0.25,
+   "blend_out": 0.3,
+   "events": {
+    "phrase": [
+     0,
+     48
+    ]
+   },
+   "anchor": null,
+   "note": "standing flute player: transverse flute at the right side of the mouth held by both hands (elbows out), fingers flutter through a tune, head and chest sway gently and the head lifts on the long notes",
+   "speed_mps": 0.0,
+   "pair": null,
+   "ik_l_on_prop": null,
+   "mask_from": null,
+   "tags": [
+    "music",
+    "flute",
+    "stand"
+   ],
+   "source": "authored (Blender key poses, tools/anim/life)",
+   "frames": 97,
+   "seconds": 3.2
+  },
+  "Life_Eat_Bread_Stand": {
+   "category": "ambient/eat",
+   "loop": true,
+   "layer": "full",
+   "props": [
+    {
+     "id": "bread",
+     "hand": "r"
+    }
+   ],
+   "enter": null,
+   "exit": null,
+   "blend_in": 0.25,
+   "blend_out": 0.3,
+   "events": {
+    "bite": [
+     22
+    ],
+    "chew": [
+     30,
+     40,
+     50,
+     60,
+     70
+    ],
+    "swallow": [
+     80
+    ]
+   },
+   "anchor": null,
+   "note": "standing snack: loaf lifted to the mouth, a bite with a small tearing pull, lowered while chewing (jaw = head pitch pulses), a swallow, a glance around; left hand cups under the chin/loaf",
+   "speed_mps": 0.0,
+   "pair": null,
+   "ik_l_on_prop": null,
+   "mask_from": null,
+   "tags": [
+    "eat",
+    "stand"
+   ],
+   "source": "authored (Blender key poses, tools/anim/life)",
+   "frames": 133,
+   "seconds": 4.4
+  },
+  "Life_Eat_Bowl_Sit": {
+   "category": "ambient/eat",
+   "loop": true,
+   "layer": "full",
+   "props": [
+    {
+     "id": "bowl",
+     "hand": "l"
+    },
+    {
+     "id": "spoon",
+     "hand": "r"
+    }
+   ],
+   "enter": null,
+   "exit": null,
+   "blend_in": 0.25,
+   "blend_out": 0.3,
+   "events": {
+    "scoop": [
+     12,
+     84
+    ],
+    "bite": [
+     32,
+     104
+    ],
+    "swallow": [
+     60,
+     124
+    ]
+   },
+   "anchor": {
+    "type": "bench",
+    "at": [
+     0.0,
+     0.0,
+     0.45
+    ],
+    "size": [
+     1.3,
+     0.36,
+     0.45
+    ],
+    "offset": [
+     0.0,
+     0.05,
+     0.0
+    ],
+    "face": "anchor"
+   },
+   "note": "seated meal: bowl held by the rim in the left hand in front of the belly, the spoon scoops, lifts to the mouth (head dips to meet it), lowers; two spoonfuls per loop with a chew and a glance up",
+   "speed_mps": 0.0,
+   "pair": null,
+   "ik_l_on_prop": null,
+   "mask_from": null,
+   "tags": [
+    "eat",
+    "sit",
+    "bench"
+   ],
+   "source": "authored (Blender key poses, tools/anim/life)",
+   "frames": 145,
+   "seconds": 4.8
+  },
+  "Life_Rest_Sit_Bench": {
+   "category": "rest/sit",
+   "loop": true,
+   "layer": "full",
+   "props": [],
+   "enter": "Life_Rest_Sit_Bench_Enter",
+   "exit": "Life_Rest_Sit_Bench_Exit",
+   "blend_in": 0.25,
+   "blend_out": 0.3,
+   "events": {
+    "glance": [
+     34,
+     148
+    ],
+    "sigh": [
+     124
+    ]
+   },
+   "anchor": {
+    "type": "bench",
+    "at": [
+     0.0,
+     -0.32,
+     0.45
+    ],
+    "size": [
+     1.3,
+     0.36,
+     0.45
+    ],
+    "offset": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "face": "away",
+    "note": "the bench is BEHIND the standing character (seat centre 0.32 m behind the root, top 0.45 m)"
+   },
+   "note": "idle on a bench (seat 0.45 m): hands resting on the knees, glances left and right, leans forward with the forearms on the thighs for a while, sits back and sighs, drums the fingers on the knee",
+   "speed_mps": 0.0,
+   "pair": null,
+   "ik_l_on_prop": null,
+   "mask_from": null,
+   "tags": [
+    "rest",
+    "sit",
+    "bench"
+   ],
+   "source": "authored (Blender key poses, tools/anim/life)",
+   "frames": 193,
+   "seconds": 6.4
+  },
+  "Life_Rest_Sit_Bench_Enter": {
+   "category": "rest/sit",
+   "loop": false,
+   "layer": "full",
+   "props": [],
+   "enter": null,
+   "exit": null,
+   "blend_in": 0.25,
+   "blend_out": 0.3,
+   "events": {},
+   "anchor": {
+    "type": "bench",
+    "at": [
+     0.0,
+     -0.32,
+     0.45
+    ],
+    "size": [
+     1.3,
+     0.36,
+     0.45
+    ],
+    "offset": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "face": "away",
+    "note": "the bench is BEHIND the standing character (seat centre 0.32 m behind the root, top 0.45 m)"
+   },
+   "note": "stands with the bench behind him, glances back over the shoulder, turns the hips a little, leans forward and lowers onto the seat (pelvis travels 0.30 m back and 0.37 m down over the planted feet), hands find the knees. The game turns the character to face away from the bench first.",
+   "speed_mps": 0.0,
+   "pair": null,
+   "ik_l_on_prop": null,
+   "mask_from": null,
+   "tags": [
+    "rest",
+    "sit",
+    "bench",
+    "enter"
+   ],
+   "source": "authored (Blender key poses, tools/anim/life)",
+   "frames": 67,
+   "seconds": 2.2
+  },
+  "Life_Rest_Sit_Bench_Exit": {
+   "category": "rest/sit",
+   "loop": false,
+   "layer": "full",
+   "props": [],
+   "enter": null,
+   "exit": null,
+   "blend_in": 0.25,
+   "blend_out": 0.3,
+   "events": {},
+   "anchor": {
+    "type": "bench",
+    "at": [
+     0.0,
+     -0.32,
+     0.45
+    ],
+    "size": [
+     1.3,
+     0.36,
+     0.45
+    ],
+    "offset": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "face": "away",
+    "note": "the bench is BEHIND the standing character (seat centre 0.32 m behind the root, top 0.45 m)"
+   },
+   "note": "stands up from the bench: a beat of preparation, leans forward pressing on the knees, pelvis moves forward over the feet and rises, torso straightens, hands release, settles into the neutral stand",
+   "speed_mps": 0.0,
+   "pair": null,
+   "ik_l_on_prop": null,
+   "mask_from": null,
+   "tags": [
+    "rest",
+    "sit",
+    "bench",
+    "exit"
+   ],
+   "source": "authored (Blender key poses, tools/anim/life)",
+   "frames": 55,
+   "seconds": 1.8
+  },
+  "Life_Rest_Sit_Ground": {
+   "category": "rest/sit",
+   "loop": true,
+   "layer": "full",
+   "props": [],
+   "enter": "Life_Rest_Sit_Ground_Enter",
+   "exit": "Life_Rest_Sit_Ground_Exit",
+   "blend_in": 0.25,
+   "blend_out": 0.3,
+   "events": {
+    "look_up": [
+     50
+    ]
+   },
+   "anchor": {
+    "type": "ground",
+    "at": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "size": [
+     1.2,
+     1.4,
+     0.02
+    ],
+    "offset": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "face": "anchor"
+   },
+   "note": "sits on the grass with the legs out in front and leans back on the hands: gazes at the sky, rocks a little, one foot flops and wiggles, weight shifts from hand to hand, leans forward to stretch and comes back",
+   "speed_mps": 0.0,
+   "pair": null,
+   "ik_l_on_prop": null,
+   "mask_from": null,
+   "tags": [
+    "rest",
+    "sit",
+    "ground"
+   ],
+   "source": "authored (Blender key poses, tools/anim/life)",
+   "frames": 181,
+   "seconds": 6.0
+  },
+  "Life_Rest_Sit_Ground_Enter": {
+   "category": "rest/sit",
+   "loop": false,
+   "layer": "full",
+   "props": [],
+   "enter": null,
+   "exit": null,
+   "blend_in": 0.25,
+   "blend_out": 0.3,
+   "events": {},
+   "anchor": {
+    "type": "ground",
+    "at": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "size": [
+     1.2,
+     1.4,
+     0.02
+    ],
+    "offset": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "face": "anchor"
+   },
+   "note": "lowers to the ground: bends, squats with the hands on the thighs, drops the hips, reaches the hands back and slides the legs out in front",
+   "speed_mps": 0.0,
+   "pair": null,
+   "ik_l_on_prop": null,
+   "mask_from": null,
+   "tags": [
+    "rest",
+    "sit",
+    "ground",
+    "enter"
+   ],
+   "source": "authored (Blender key poses, tools/anim/life)",
+   "frames": 85,
+   "seconds": 2.8
+  },
+  "Life_Rest_Sit_Ground_Exit": {
+   "category": "rest/sit",
+   "loop": false,
+   "layer": "full",
+   "props": [],
+   "enter": null,
+   "exit": null,
+   "blend_in": 0.25,
+   "blend_out": 0.3,
+   "events": {},
+   "anchor": {
+    "type": "ground",
+    "at": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "size": [
+     1.2,
+     1.4,
+     0.02
+    ],
+    "offset": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "face": "anchor"
+   },
+   "note": "gets up from the ground: pulls the legs in, hands to the thighs, rocks forward onto the feet and rises",
+   "speed_mps": 0.0,
+   "pair": null,
+   "ik_l_on_prop": null,
+   "mask_from": null,
+   "tags": [
+    "rest",
+    "sit",
+    "ground",
+    "exit"
+   ],
+   "source": "authored (Blender key poses, tools/anim/life)",
+   "frames": 79,
+   "seconds": 2.6
+  },
+  "Life_Rest_Sit_Chair": {
+   "category": "rest/sit",
+   "loop": true,
+   "layer": "full",
+   "props": [],
+   "enter": null,
+   "exit": null,
+   "blend_in": 0.25,
+   "blend_out": 0.3,
+   "events": {
+    "chin_rest": [
+     70
+    ],
+    "glance": [
+     30,
+     128
+    ]
+   },
+   "anchor": {
+    "type": "table_chair",
+    "at": [
+     0.0,
+     0.62,
+     0.75
+    ],
+    "size": [
+     1.4,
+     0.72,
+     0.75
+    ],
+    "offset": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "face": "anchor",
+    "extra": [
+     {
+      "at": [
+       0.0,
+       0.0,
+       0.46
+      ],
+      "size": [
+       0.42,
+       0.42,
+       0.46
+      ]
+     }
+    ]
+   },
+   "note": "idle at a table (top 0.75 m), leaning on both forearms; rests the chin in the right hand for a while, glances around, taps the fingers, sits back and stretches the neck",
+   "speed_mps": 0.0,
+   "pair": null,
+   "ik_l_on_prop": null,
+   "mask_from": null,
+   "tags": [
+    "rest",
+    "sit",
+    "table",
+    "chair"
+   ],
+   "source": "authored (Blender key poses, tools/anim/life)",
+   "frames": 193,
+   "seconds": 6.4
+  },
+  "Life_Rest_Doze_Bench": {
+   "category": "rest/sit",
+   "loop": true,
+   "layer": "full",
+   "props": [],
+   "enter": null,
+   "exit": null,
+   "blend_in": 0.25,
+   "blend_out": 0.3,
+   "events": {
+    "jerk": [
+     118
+    ]
+   },
+   "anchor": {
+    "type": "bench",
+    "at": [
+     0.0,
+     -0.32,
+     0.45
+    ],
+    "size": [
+     1.3,
+     0.36,
+     0.45
+    ],
+    "offset": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "face": "away",
+    "note": "the bench is BEHIND the standing character (seat centre 0.32 m behind the root, top 0.45 m)"
+   },
+   "note": "dozing on the bench with folded arms and the legs stretched out: the head sinks slowly with the chest, then snaps up with a startled breath, blinks around, and starts to sink again",
+   "speed_mps": 0.0,
+   "pair": null,
+   "ik_l_on_prop": null,
+   "mask_from": null,
+   "tags": [
+    "rest",
+    "sit",
+    "bench",
+    "doze"
+   ],
+   "source": "authored (Blender key poses, tools/anim/life)",
+   "frames": 181,
+   "seconds": 6.0
+  },
+  "Life_Pray_Stand": {
+   "category": "ritual/pray",
+   "loop": true,
+   "layer": "full",
+   "props": [],
+   "enter": null,
+   "exit": null,
+   "blend_in": 0.25,
+   "blend_out": 0.3,
+   "events": {},
+   "anchor": null,
+   "note": "standing prayer: feet together, hands clasped at the chest, head bowed; the bow deepens slowly on the breath out and lifts a little on the breath in, a barely visible sway",
+   "speed_mps": 0.0,
+   "pair": null,
+   "ik_l_on_prop": null,
+   "mask_from": null,
+   "tags": [
+    "pray",
+    "stand",
+    "chapel"
+   ],
+   "source": "authored (Blender key poses, tools/anim/life)",
+   "frames": 181,
+   "seconds": 6.0
+  },
+  "Life_Pray_Kneel": {
+   "category": "ritual/pray",
+   "loop": true,
+   "layer": "full",
+   "props": [],
+   "enter": "Life_Pray_Kneel_Enter",
+   "exit": "Life_Pray_Kneel_Exit",
+   "blend_in": 0.25,
+   "blend_out": 0.3,
+   "events": {},
+   "anchor": null,
+   "note": "kneeling prayer on both knees (toes tucked): hands clasped at the chest, head bowed, very slow breathing; the head sinks on the breath out, the shoulders settle, a tiny sway",
+   "speed_mps": 0.0,
+   "pair": null,
+   "ik_l_on_prop": null,
+   "mask_from": null,
+   "tags": [
+    "pray",
+    "kneel",
+    "chapel"
+   ],
+   "source": "authored (Blender key poses, tools/anim/life)",
+   "frames": 217,
+   "seconds": 7.2
+  },
+  "Life_Pray_Kneel_Enter": {
+   "category": "ritual/pray",
+   "loop": false,
+   "layer": "full",
+   "props": [],
+   "enter": null,
+   "exit": null,
+   "blend_in": 0.25,
+   "blend_out": 0.3,
+   "events": {},
+   "anchor": null,
+   "note": "stands, brings the hands together, steps the right foot back, lowers onto the right knee and then the left, settles upright with the head bowed",
+   "speed_mps": 0.0,
+   "pair": null,
+   "ik_l_on_prop": null,
+   "mask_from": null,
+   "tags": [
+    "pray",
+    "kneel",
+    "enter"
+   ],
+   "source": "authored (Blender key poses, tools/anim/life)",
+   "frames": 79,
+   "seconds": 2.6
+  },
+  "Life_Pray_Kneel_Exit": {
+   "category": "ritual/pray",
+   "loop": false,
+   "layer": "full",
+   "props": [],
+   "enter": null,
+   "exit": null,
+   "blend_in": 0.25,
+   "blend_out": 0.3,
+   "events": {},
+   "anchor": null,
+   "note": "lifts the head, releases the hands, rocks forward onto the left foot, pushes up and stands",
+   "speed_mps": 0.0,
+   "pair": null,
+   "ik_l_on_prop": null,
+   "mask_from": null,
+   "tags": [
+    "pray",
+    "kneel",
+    "exit"
+   ],
+   "source": "authored (Blender key poses, tools/anim/life)",
+   "frames": 67,
+   "seconds": 2.2
+  },
+  "Life_Rest_Sleep_Ground": {
+   "category": "rest/sleep",
+   "loop": true,
+   "layer": "full",
+   "props": [],
+   "enter": "Life_Rest_Sleep_Ground_Enter",
+   "exit": "Life_Rest_Sleep_Ground_Exit",
+   "blend_in": 0.25,
+   "blend_out": 0.3,
+   "events": {
+    "breath": [
+     0,
+     90
+    ]
+   },
+   "anchor": {
+    "type": "ground",
+    "at": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "size": [
+     1.6,
+     1.0,
+     0.02
+    ],
+    "offset": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "face": "anchor",
+    "note": "lies along the character's X axis: head toward +X (the character's left), feet toward -X, face toward -Y"
+   },
+   "note": "asleep on the left side, curled up, left arm under the head: slow deep breathing (chest and shoulder rise), a small settling shift and a twitch of the free hand",
+   "speed_mps": 0.0,
+   "pair": null,
+   "ik_l_on_prop": null,
+   "mask_from": null,
+   "tags": [
+    "rest",
+    "sleep",
+    "ground"
+   ],
+   "source": "authored (Blender key poses, tools/anim/life)",
+   "frames": 181,
+   "seconds": 6.0
+  },
+  "Life_Rest_Sleep_Ground_Enter": {
+   "category": "rest/sleep",
+   "loop": false,
+   "layer": "full",
+   "props": [],
+   "enter": null,
+   "exit": null,
+   "blend_in": 0.25,
+   "blend_out": 0.3,
+   "events": {},
+   "anchor": {
+    "type": "ground",
+    "at": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "size": [
+     1.6,
+     1.0,
+     0.02
+    ],
+    "offset": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "face": "anchor",
+    "note": "lies along the character's X axis: head toward +X (the character's left), feet toward -X, face toward -Y"
+   },
+   "note": "lies down to sleep: squats, sits down on the hip supporting on the left hand, lowers onto the left elbow, then the shoulder, tucks the legs up and settles the head onto the arm",
+   "speed_mps": 0.0,
+   "pair": null,
+   "ik_l_on_prop": null,
+   "mask_from": null,
+   "tags": [
+    "rest",
+    "sleep",
+    "ground",
+    "enter"
+   ],
+   "source": "authored (Blender key poses, tools/anim/life)",
+   "frames": 109,
+   "seconds": 3.6
+  },
+  "Life_Rest_Sleep_Ground_Exit": {
+   "category": "rest/sleep",
+   "loop": false,
+   "layer": "full",
+   "props": [],
+   "enter": null,
+   "exit": null,
+   "blend_in": 0.25,
+   "blend_out": 0.3,
+   "events": {},
+   "anchor": {
+    "type": "ground",
+    "at": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "size": [
+     1.6,
+     1.0,
+     0.02
+    ],
+    "offset": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "face": "anchor",
+    "note": "lies along the character's X axis: head toward +X (the character's left), feet toward -X, face toward -Y"
+   },
+   "note": "wakes up: a deep breath, the head lifts, pushes up on the left hand into a sitting position, rubs the face, squats and stands",
+   "speed_mps": 0.0,
+   "pair": null,
+   "ik_l_on_prop": null,
+   "mask_from": null,
+   "tags": [
+    "rest",
+    "sleep",
+    "ground",
+    "exit"
+   ],
+   "source": "authored (Blender key poses, tools/anim/life)",
+   "frames": 97,
+   "seconds": 3.2
+  }
+ }
+}

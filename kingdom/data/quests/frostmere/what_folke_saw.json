@@ -1,0 +1,131 @@
+{
+ "id": "frostmere_what_folke_saw",
+ "title": "What Folke Saw",
+ "summary": "Something went wrong at night in Frostmere, and Clem Wythe says Folke Heron saw it. Clem Wythe wants it checked before names are said.",
+ "giver": {
+  "npc": "clem_wythe",
+  "name": "Clem Wythe",
+  "place": "frostmere"
+ },
+ "requires": [
+  "frostmere_sacks_of_salt_for_the_innkeeper"
+ ],
+ "offer_text": "\"Somebody was in my place after dark. Folke Heron saw something and will not say it loud. Hear Folke, then see if the story holds.\"",
+ "stages": [
+  {
+   "id": "ask",
+   "title": "Hear Folke out",
+   "mode": "all",
+   "objectives": [
+    {
+     "id": "hear",
+     "type": "talk_to",
+     "npc": "folke_heron",
+     "text": "Ask Folke Heron what they saw"
+    }
+   ]
+  },
+  {
+   "id": "look",
+   "title": "Check the story",
+   "mode": "all",
+   "objectives": [
+    {
+     "id": "clues",
+     "type": "investigate",
+     "clues": [
+      "frostmere/clue/c1",
+      "frostmere/clue/c2",
+      "frostmere/clue/c3"
+     ],
+     "count": 2,
+     "text": "Find two signs that match what Folke said"
+    }
+   ]
+  },
+  {
+   "id": "decide",
+   "title": "Say what you will do",
+   "mode": "all",
+   "objectives": [
+    {
+     "id": "verdict",
+     "type": "choose",
+     "npc": "clem_wythe",
+     "options": [
+      {
+       "id": "name",
+       "text": "Name Gerda to Clem",
+       "say": "Clem goes quiet. \"I will deal with it. Openly.\""
+      },
+      {
+       "id": "warn",
+       "text": "Warn Gerda quietly and leave it",
+       "say": "Gerda will owe you. You can see it in the shoulders."
+      }
+     ]
+    }
+   ],
+   "branches": {
+    "name": "named",
+    "warn": "warned"
+   }
+  },
+  {
+   "id": "named",
+   "title": "Clem hears it",
+   "mode": "all",
+   "objectives": [
+    {
+     "id": "told",
+     "type": "talk_to",
+     "npc": "clem_wythe",
+     "text": "Tell Clem Wythe it is settled"
+    }
+   ],
+   "end": true,
+   "rewards": {
+    "gold": 18,
+    "rep": {
+     "frostmere": 5
+    },
+    "relationship": [
+     {
+      "npc": "clem_wythe",
+      "label": "Named the culprit",
+      "value": 12,
+      "days": 90
+     }
+    ]
+   }
+  },
+  {
+   "id": "warned",
+   "title": "Let Gerda know",
+   "mode": "all",
+   "objectives": [
+    {
+     "id": "warned",
+     "type": "talk_to",
+     "npc": "gerda_thorpe",
+     "text": "Tell Gerda Thorpe you kept it quiet"
+    }
+   ],
+   "end": true,
+   "rewards": {
+    "gold": 24,
+    "rep": {
+     "frostmere": -2
+    },
+    "relationship": [
+     {
+      "npc": "gerda_thorpe",
+      "label": "Kept quiet about it",
+      "value": 15,
+      "days": 120
+     }
+    ]
+   }
+  }
+ ]
+}

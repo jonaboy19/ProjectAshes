@@ -1,0 +1,11 @@
+GIANT WASP (giant_wasp.glb / giant_wasp_lod1.glb, identical clips)   a flyer: no ground-speed numbers, and it is not in creature_models.gd yet.
+
+clip     dur(s)  notes
+idle     1.500   flight loop, wings beating. walk and run are byte-identical aliases of idle (0.0 cm difference), so a "walk"/"run" override is unnecessary.
+                 Loop closed: last frame == first (was 5.4 cm off at the wing tip).
+attack   1.000   impact 0.47 s (was 0.567 s, 0.733 s long). New: abdomen curls forward 100 deg while the body pulls back 22 cm, rises 16 cm and pitches
+                 up 18 deg (telegraph 0.40 s, flutter on the hold), 2-frame dive 60 cm forward / 36 cm down with the sting leading (peak 17.7 m/s),
+                 overshoot and recovery. Wings keep beating through the attack (from the idle loop).
+hit      0.467   changed (was a frozen-wing 18 deg nudge): knock-back 22 cm, nose-up 24 deg flinch, abdomen tuck, wings keep beating.
+death    0.733   unchanged (pack clip; the body falls, see the sheets).
+Recommended entry when wired: "giant_wasp": {"impact": 0.47}

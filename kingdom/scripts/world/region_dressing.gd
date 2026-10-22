@@ -9,10 +9,25 @@ extends Node3D
 const REGION := "res://assets/generated/region/"
 const GEN := "res://assets/generated/"
 const MESHY := "res://assets/incoming/ai3d/meshy/"
-const BUILD := 240.0
+const Probe := preload("res://scripts/core/perf_probe.gd")
+const CellStreamer := preload("res://scripts/core/cell_streamer.gd")
+const BUILD := 240.0       # defaults; live values: CellStreamer profile "dressing"
 const FREE := 330.0
 const LOD_DIST := 55.0
 const Breakable := preload("res://scripts/world/breakable.gd")
+## Region 1 world packages (C1 C2 C10): extra asset keys "free:<cat>/<name>@<h>" (incoming/meshy_free) and
+## "r1:<dir>/<name>@<h>" (incoming/region1), and bodies that are not meshes (signs, named NPCs, doors).
+const Extras := preload("res://scripts/world/region1_extras.gd")
+const FREE_PACK := "res://assets/incoming/meshy_free/"
+const DL3_PACK := "res://assets/incoming/meshy_dl3/"      # Meshy batch 3: asset keys "dl3:<cat>/<name>@H"
+const FillStyle := preload("res://scripts/world/fill_style.gd")      # Style G per-model treatment of the meshy_free pack
+const LowBudget := preload("res://scripts/world/low_budget.gd")      # LOW tier: decorative cloud clutter thinned / proxied / LOD1
+const R1 := "res://assets/incoming/region1/"
+const R1_KIT := "res://assets/incoming/region1/highwatch/highwatch_kit.tres"
+const R1_KIT_LOW := "res://assets/incoming/region1/highwatch/highwatch_kit_low.tres"
+## Site kinds (and minimum part count) whose parts are merged into per-material meshes (see _bake_site).
+const BAKE_KINDS := ["farm", "roadside", "waystation"]
+const BAKE_MIN_PARTS := 12
 const BRIDGE_DECK := {"road/bridge_stone": [2.6, 12.0], "road/bridge_wood": [1.6, 14.0]}
 
 var focus := Vector3.ZERO
@@ -44,13 +59,30 @@ func _ready() -> void:
 	var t0 := Time.get_ticks_msec()
 	var n := 0
 	var paths: Array = [REGION + "farm/windmill_sails.glb", REGION + "road/bridge_stone.glb", REGION + "road/bridge_wood.glb"]
+	var seen_assets := {}     # a few hundred sites share a few dozen assets: resolve each asset once
 	for site in WorldGen.sites:
 		for part: Array in site.get("parts", []):
-			paths.append_array(_paths(String(part[0])))
+			var asset := String(part[0])
+			if not seen_assets.has(asset):
+				seen_assets[asset] = true
+				paths.append_array(_paths(asset))
+	# Phones (perf pass 2026-10-06): no boot preload of every region scene (hundreds of MB kept for the session, most of it
+	# swapped out on the S22). Sites load their files when first built; the build queue stays time-sliced.
+	if OS.has_feature("mobile"):
+		paths = paths.slice(0, 3)
 	for path: String in paths:
 		if path != "" and ResourceLoader.exists(path) and Assets.scene(path) != null:
 			n += 1
 	print("RegionDressing: preloaded %d region scenes in %d ms (main thread)" % [n, Time.get_ticks_msec() - t0])
+	# Region1 look hook (docs/regions/LOOK_R1.md): landmark bodies, cliff rocks, waterfalls and the far horizon.
+	add_child(preload("res://scripts/region1/region1_look.gd").new())
+	add_child(preload("res://scripts/world/exploration_director.gd").new())   # Hidden valley hook: the vale, its cutscene and the exploration POIs
+	# Region1 world hook (docs/regions/REGION_1_PLAN.md C11): creature dens, Stagborn herds, bandit rosters (placement only).
+	add_child(preload("res://scripts/world/region1_creatures.gd").new())
+	# Caves hook (scripts/world/region_caves.gd): walk-in doors for the planned cave, mine, hideout and crypt sites.
+	add_child(preload("res://scripts/world/region_caves_view.gd").new())
+	# Rising Ashes identity hook (scripts/world/outer_identity.gd): ward-edge ground tint and Soulbeast tracks near live dens.
+	add_child(preload("res://scripts/world/outer_identity_view.gd").new())
 
 
 ## Every file is loaded at boot now, so any part can be built right away.
@@ -60,12 +92,17 @@ func _ready_to_spawn(_asset: String) -> bool:
 
 ## The GLB paths _spawn will load for an asset key (LOD0 and LOD1).
 func _paths(asset: String) -> Array:
+	if asset.begins_with("free:") or asset.begins_with("r1:") or asset.begins_with("dl3:"):
+		return []      # loaded when a site is built: hundreds of baked textures must not sit in VRAM from boot
 	if asset.begins_with("meshy:"):
 		var n := asset.substr(6).split("@")[0]
 		return [MESHY + n + "_lod0.glb", MESHY + n + "_lod1.glb"]
 	if asset.begins_with("nature:"):
 		var nm := asset.substr(7)
 		return [REGION + "nature/" + nm + ".glb", REGION + "nature/" + nm + "_lod1.glb"]
+	if asset.begins_with("gen:"):
+		var gn := asset.substr(4).split("@")[0]
+		return [GEN + gn + ".glb", GEN + gn + "_lod1.glb"]
 	if asset.begins_with("props/"):
 		return [GEN + asset + ".glb"]
 	return [REGION + asset + ".glb", REGION + asset + "_lod1.glb"]
@@ -76,24 +113,40 @@ func _drain_queue() -> void:
 	var t0 := Time.get_ticks_usec()
 	while not _queue.is_empty() and Time.get_ticks_usec() - t0 < BUILD_BUDGET_MS * 1000.0:
 		var item: Array = _queue[0]
-		var root: Node3D = item[0]
-		if not is_instance_valid(root):
+		# Variant first: assigning a freed Node to a typed var is a SCRIPT ERROR every frame.
+		var root_v: Variant = item[0]
+		if not is_instance_valid(root_v):
 			_queue.pop_front()
 			continue
+		var root: Node3D = root_v
 		var site: Dictionary = item[1]
 		if item[2] == "part":
 			var part: Array = site["parts"][item[3]]
 			if not _ready_to_spawn(String(part[0])):
 				return          # still loading from disk: try again next frame
+			var _pp := Probe.t()
 			_build_part(root, site, part)
+			Probe.add("region.part", _pp)
 		else:
 			_build_light(root, site["lights"][item[3]])
 		_queue.pop_front()
 
 
+var dbg_usec := 0      # QA: total _process time (usec) and frames, read by tools/qa/water_shots/water_prof.gd
+var dbg_frames := 0
+
+
 func _process(delta: float) -> void:
+	var _t0 := Time.get_ticks_usec()
+	_process_inner(delta)
+	dbg_usec += Time.get_ticks_usec() - _t0
+	dbg_frames += 1
+
+
+func _process_inner(delta: float) -> void:
 	Breakable.tick(delta)   # breakable props: melee sweep + regrowth (once per frame)
 	_drain_queue()
+	_bake_drain()
 	_t += delta
 	for s in _sails:
 		if is_instance_valid(s):
@@ -108,24 +161,33 @@ func _process(delta: float) -> void:
 		return
 	_timer = 0.75
 	var p := Vector2(focus.x, focus.z)
+	var build_dist: float = CellStreamer.shared().distance("dressing", "load")      # F12: one place sets the distances
+	var free_dist: float = CellStreamer.shared().distance("dressing", "free")
 	for site in WorldGen.sites:
 		var id: int = site["id"]
 		var d := p.distance_to(site["pos"])
-		if d < BUILD and not _built.has(id):
+		if not _in_season(site):
+			d = INF      # seasonal pieces (the Solkar caravans) exist only in their season
+		if d < build_dist and not _built.has(id):
+			var _pb := Probe.t()
 			_built[id] = _build(site)
-		elif d > FREE and _built.has(id):
+			Probe.add("region.build_site", _pb)
+		elif d > free_dist and _built.has(id):
 			var n: Node3D = _built[id]
 			_built.erase(id)
 			if is_instance_valid(n):
 				n.queue_free()
 			_sails = _sails.filter(func(x: Node3D) -> bool: return is_instance_valid(x) and not n.is_ancestor_of(x))
 			_flicker = _flicker.filter(func(x: OmniLight3D) -> bool: return is_instance_valid(x) and not n.is_ancestor_of(x))
+	if not _bake_cache.is_empty():
+		trim_bake_cache()
 
 
 ## Builds every site at once (screenshots, tests, teleports): blocks on purpose.
 func build_all_now() -> void:
+	sync_bake = true
 	for site in WorldGen.sites:
-		if not _built.has(site["id"]):
+		if not _built.has(site["id"]) and _in_season(site):
 			_built[site["id"]] = _build(site)
 	while not _queue.is_empty():
 		var item: Array = _queue.pop_front()
@@ -135,6 +197,17 @@ func build_all_now() -> void:
 			_build_part(item[0], item[1], item[1]["parts"][item[3]])
 		else:
 			_build_light(item[0], item[1]["lights"][item[3]])
+	while not _bake_jobs.is_empty():            # merges that were already waiting: finish them too
+		_bake_step(_bake_jobs.pop_front(), -1.0)
+	sync_bake = false
+
+
+## Sites may name a season ("season": "summer"); everything else is always there.
+func _in_season(site: Dictionary) -> bool:
+	if not site.has("season"):
+		return true
+	var ws := get_node_or_null("/root/WorldSim")
+	return ws != null and String(ws.get("season")) == String(site["season"])
 
 
 func built_count() -> int:
@@ -156,14 +229,32 @@ func _build(site: Dictionary) -> Node3D:
 		return root
 	_scatter_ground(root, site)
 	# Parts and lights are queued and built a few per frame (see _drain_queue).
+	# Big multi-part sites (farms, the waystation) are baked into a few merged meshes once their last part is in.
+	if String(site["kind"]) in BAKE_KINDS and site["parts"].size() >= BAKE_MIN_PARTS:
+		root.set_meta("pending", site["parts"].size())
+		root.set_meta("site_id", site["id"])
 	for i in site["parts"].size():
 		_queue.append([root, site, "part", i])
 	for i in site["lights"].size():
 		_queue.append([root, site, "light", i])
+	if site.has("x"):
+		Extras.build(root, site)
 	return root
 
 
 func _build_part(root: Node3D, site: Dictionary, part: Array) -> void:
+	_build_part_node(root, site, part)
+	if root.has_meta("pending"):
+		var left := int(root.get_meta("pending")) - 1
+		root.set_meta("pending", left)
+		if left <= 0:
+			root.remove_meta("pending")
+			_bake_site(root)
+
+
+func _build_part_node(root: Node3D, site: Dictionary, part: Array) -> void:
+	if LowBudget.skip_part(site, part):
+		return          # LOW: heavy loose clutter of fill / Meshy3 yards is thinned (low_budget.gd); the bake counter still advances in _build_part
 	var basis := Basis(Vector3.UP, float(site["yaw"]))
 	var off: Vector2 = part[1]
 	var world := root.global_position + basis * Vector3(off.x, 0.0, off.y)
@@ -172,10 +263,16 @@ func _build_part(root: Node3D, site: Dictionary, part: Array) -> void:
 		return
 	root.add_child(n)
 	n.rotation.y = float(part[2])
+	n.set_meta("bakeable", not String(part[0]).begins_with("nature:") and not (String(part[0]).begins_with("props/") and Breakable.is_breakable(String(part[0]).trim_prefix("props/"))))
 	# Settle on the lowest ground under the footprint so nothing floats on a slope.
 	var box := Assets.visual_aabb(n)
-	var ground := _footprint_ground(world, basis * Basis(Vector3.UP, float(part[2])), box)
-	n.global_position = Vector3(world.x, ground, world.z)
+	var pbasis := basis * Basis(Vector3.UP, float(part[2]))
+	if String(part[0]).begins_with("farm/crop_") and _ground_spread(world, pbasis, box) > CROP_MAX_SPREAD:
+		root.remove_child(n)      # a field tile on a hillside is buried by the lowest-corner snap (lint): leave that tile out
+		n.free()
+		return
+	var ground := _footprint_ground(world, pbasis, box)
+	n.global_position = Vector3(world.x, ground + (float(part[4]) if part.size() > 4 else 0.0), world.z)
 	var prop := String(part[0]).trim_prefix("props/")
 	if String(part[0]).begins_with("props/") and Breakable.is_breakable(prop):
 		var b: StaticBody3D = Breakable.new()   # barrels, crates, sacks: smashable, always solid
@@ -187,6 +284,182 @@ func _build_part(root: Node3D, site: Dictionary, part: Array) -> void:
 		_add_sails(n)
 	if not String(part[0]).begins_with("props/"):
 		_base_clutter(root, world, basis * Basis(Vector3.UP, float(part[2])), box)
+
+
+var _bake_cache: Dictionary = {}     # site id -> {range key: ArrayMesh}, so a rebuilt site costs no merge
+## A site's merged meshes stay cached while it is within this many "free" distances of the focus (CellStreamer profile "dressing"):
+## walking back and forth across its edge never re-merges, but a teleport (or a long trip) lets every far site's meshes go.
+const BAKE_KEEP_FACTOR := 2.0
+
+
+## Drops the cached merged meshes of built-and-freed sites that are out of range (UNLOADED twice over). Sites that are standing
+## keep theirs. Returns how many entries were released.
+func trim_bake_cache() -> int:
+	var cs: RefCounted = CellStreamer.shared()
+	var drop: Array = []
+	for sid: Variant in _bake_cache:
+		if _built.has(sid):
+			continue
+		var pos := Vector2.INF
+		for site in WorldGen.sites:
+			if site["id"] == sid:
+				pos = site["pos"]
+				break
+		if pos == Vector2.INF or Vector2(focus.x, focus.z).distance_to(pos) > float(cs.call("distance", "dressing", "free")) * BAKE_KEEP_FACTOR:
+			drop.append(sid)
+	for sid: Variant in drop:
+		_bake_cache.erase(sid)
+	return drop.size()
+
+
+## Draw-call pass: a farm is ~150 parts, each its own MeshInstance3D with 1-6 surfaces (180 draws, 58 distinct
+## mesh+material pairs). Every static part's meshes are merged, per visibility range, into ONE ArrayMesh whose
+## surfaces are grouped by material look (RG_Timber of the barn and of the fence rail are the same material), so a
+## farm draws ~20 surfaces. Colliders, sails, breakables and wind-shaded nature stay their own nodes; the look is the
+## same geometry with the same materials, ranges and shadow flags.
+func _bake_site(root: Node3D) -> void:
+	var _pk := Probe.t()
+	var job := _bake_begin(root)
+	Probe.add("region.bake_begin", _pk)
+	if sync_bake:
+		while not _bake_step(job, -1.0):
+			pass
+	else:
+		_bake_jobs.append(job)       # merged a few ms per frame by _bake_drain (one site's merge used to be 60-200 ms in one frame)
+
+
+## True: a finished site is merged at once (teleports, tests). Otherwise the merge is a job drained within BAKE_BUDGET_MS per frame.
+var sync_bake := false
+const BAKE_BUDGET_MS := 2.5
+var _bake_jobs: Array = []
+
+
+func _bake_drain() -> void:
+	if _bake_jobs.is_empty():
+		return
+	var _pk := Probe.t()
+	if _bake_step(_bake_jobs[0], BAKE_BUDGET_MS):
+		_bake_jobs.pop_front()
+	Probe.add("region.bake", _pk)
+
+
+func _bake_begin(root: Node3D) -> Dictionary:
+	var groups := {}        # range key -> [MeshInstance3D]
+	for n in root.get_children():
+		if not (n is Node3D) or not n.has_meta("bakeable") or not bool(n.get_meta("bakeable")):
+			continue
+		for mi in n.find_children("*", "MeshInstance3D", true, false):
+			var g := mi as MeshInstance3D
+			if g.mesh == null:
+				continue
+			var key := "%.1f|%.1f|%d" % [g.visibility_range_begin, g.visibility_range_end, g.cast_shadow]
+			if not groups.has(key):
+				groups[key] = []
+			(groups[key] as Array).append(g)
+	var sid: Variant = root.get_meta("site_id", -1)
+	var cached: Dictionary = _bake_cache.get(sid, {})
+	return {"root": root, "inv": root.global_transform.affine_inverse(), "groups": groups, "keys": groups.keys(), "ki": 0,
+		"sid": sid, "cached": cached, "first": cached.is_empty(), "phase": 0, "i": 0, "by_look": {}, "mats": {}, "mesh": null}
+
+
+## Merges a site's static parts, one range group at a time and within `budget_ms` per call (negative: no limit). The same
+## surfaces, materials and ranges as the old one-shot bake; the originals are freed when their group's merged mesh is in, so
+## nothing is ever missing or doubled on screen. Returns true when the site is done (or was freed meanwhile).
+func _bake_step(job: Dictionary, budget_ms: float) -> bool:
+	var root: Node3D = job["root"] if is_instance_valid(job["root"]) else null
+	if root == null:
+		return true
+	var t_end := Time.get_ticks_usec() + int(budget_ms * 1000.0)
+	var keys: Array = job["keys"]
+	var cached: Dictionary = job["cached"]
+	while int(job["ki"]) < keys.size():
+		var key: String = keys[int(job["ki"])]
+		var list: Array = (job["groups"] as Dictionary)[key]
+		if int(job["phase"]) == 0:
+			var mesh: ArrayMesh = cached.get(key)
+			if mesh != null:
+				job["mesh"] = mesh
+				job["phase"] = 1
+			else:
+				var by_look: Dictionary = job["by_look"]
+				var mats: Dictionary = job["mats"]
+				while int(job["i"]) < list.size():
+					var g := list[int(job["i"])] as MeshInstance3D
+					job["i"] = int(job["i"]) + 1
+					if not is_instance_valid(g):
+						continue
+					var xf: Transform3D = (job["inv"] as Transform3D) * g.global_transform
+					for si in g.mesh.get_surface_count():
+						var mat: Material = g.get_active_material(si)
+						var look := _material_look(mat)
+						if not by_look.has(look):
+							var st := SurfaceTool.new()
+							st.begin(Mesh.PRIMITIVE_TRIANGLES)
+							by_look[look] = st
+							mats[look] = mat
+						(by_look[look] as SurfaceTool).append_from(g.mesh, si, xf)
+					if budget_ms >= 0.0 and Time.get_ticks_usec() >= t_end:
+						return false
+				var merged := ArrayMesh.new()
+				for look: String in by_look:
+					var st2: SurfaceTool = by_look[look]
+					st2.commit(merged)
+					merged.surface_set_material(merged.get_surface_count() - 1, mats[look])
+				cached[key] = merged
+				job["mesh"] = merged
+				job["phase"] = 1
+				job["by_look"] = {}
+				job["mats"] = {}
+				job["i"] = 0
+				if budget_ms >= 0.0 and Time.get_ticks_usec() >= t_end:
+					return false
+		if int(job["phase"]) == 1:
+			var ref: MeshInstance3D = list[0]
+			var baked := MeshInstance3D.new()
+			baked.name = "Baked_" + key.replace("|", "_").replace(".", "")      # unique per range group (the linter skips names containing "baked"; a second "Baked" would be auto-renamed)
+			baked.mesh = job["mesh"]
+			baked.cast_shadow = ref.cast_shadow
+			baked.visibility_range_begin = ref.visibility_range_begin
+			baked.visibility_range_begin_margin = ref.visibility_range_begin_margin
+			baked.visibility_range_end = ref.visibility_range_end
+			baked.visibility_range_end_margin = ref.visibility_range_end_margin
+			baked.visibility_range_fade_mode = ref.visibility_range_fade_mode
+			root.add_child(baked)
+			job["phase"] = 2
+			job["i"] = 0
+		if int(job["phase"]) == 2:
+			while int(job["i"]) < list.size():
+				var g2 := list[int(job["i"])] as MeshInstance3D
+				job["i"] = int(job["i"]) + 1
+				if is_instance_valid(g2):
+					g2.get_parent().remove_child(g2)
+					g2.free()
+				if budget_ms >= 0.0 and Time.get_ticks_usec() >= t_end:
+					return false
+			job["phase"] = 0
+			job["i"] = 0
+			job["ki"] = int(job["ki"]) + 1
+			if budget_ms >= 0.0 and Time.get_ticks_usec() >= t_end:
+				return int(job["ki"]) >= keys.size() and _bake_done(job)
+	return _bake_done(job)
+
+
+func _bake_done(job: Dictionary) -> bool:
+	if bool(job["first"]):
+		_bake_cache[job["sid"]] = job["cached"]
+		job["first"] = false
+	return true
+
+
+## Two materials with the same name, texture, colour and class render the same: one surface serves both.
+static func _material_look(mat: Material) -> String:
+	if mat == null:
+		return "null"
+	if mat is BaseMaterial3D:
+		var b := mat as BaseMaterial3D
+		return "%s|%s|%s|%d|%d|%.2f|%.2f|%s" % [b.resource_name, b.albedo_texture.resource_path if b.albedo_texture else "-",
+			b.albedo_color.to_html(), b.transparency, b.cull_mode, b.roughness, b.metallic, b.vertex_color_use_as_albedo]
+	return str(mat.get_instance_id())
 
 
 func _build_light(root: Node3D, l: Array) -> void:
@@ -232,12 +505,35 @@ func _base_clutter(root: Node3D, world: Vector3, basis: Basis, box: AABB) -> voi
 		mi.global_position = Vector3(at.x, WorldGen.height(at.x, at.z) - 0.03, at.z)
 
 
+## Steepest field tile a site lays (m of height difference across its footprint, a tile is 1.2 m tall); steeper tiles are skipped.
+const CROP_MAX_SPREAD := 0.9
+
+
+## Height difference across the part's footprint (centre and the corners at 80 %).
+func _ground_spread(world: Vector3, basis: Basis, box: AABB) -> float:
+	var lo := WorldGen.height(world.x, world.z)
+	var hi := lo
+	var mid := box.get_center()
+	for corner in [Vector3(box.position.x, 0, box.position.z), Vector3(box.end.x, 0, box.position.z),
+			Vector3(box.position.x, 0, box.end.z), Vector3(box.end.x, 0, box.end.z),
+			Vector3(mid.x, 0, box.position.z), Vector3(mid.x, 0, box.end.z),      # edge midpoints: a ridge between corners
+			Vector3(box.position.x, 0, mid.z), Vector3(box.end.x, 0, mid.z), Vector3(mid.x, 0, mid.z)]:
+		var q: Vector3 = world + basis * (corner * 0.8)
+		var h := WorldGen.height(q.x, q.z)
+		lo = minf(lo, h)
+		hi = maxf(hi, h)
+	return hi - lo
+
+
 func _footprint_ground(world: Vector3, basis: Basis, box: AABB) -> float:
 	var lowest := WorldGen.height(world.x, world.z)
 	if box.size.x * box.size.z < 4.0:
 		return lowest - 0.03
+	var mid := box.get_center()
 	for corner in [Vector3(box.position.x, 0, box.position.z), Vector3(box.end.x, 0, box.position.z),
-			Vector3(box.position.x, 0, box.end.z), Vector3(box.end.x, 0, box.end.z)]:
+			Vector3(box.position.x, 0, box.end.z), Vector3(box.end.x, 0, box.end.z),
+			Vector3(mid.x, 0, box.position.z), Vector3(mid.x, 0, box.end.z),      # edge midpoints: a ridge between corners
+			Vector3(box.position.x, 0, mid.z), Vector3(box.end.x, 0, mid.z), Vector3(mid.x, 0, mid.z)]:
 		var q: Vector3 = world + basis * (corner * 0.8)
 		lowest = minf(lowest, WorldGen.height(q.x, q.z))
 	return lowest - 0.08
@@ -246,19 +542,45 @@ func _footprint_ground(world: Vector3, basis: Basis, box: AABB) -> float:
 ## "farm/barn" -> region set, "props/x" -> generated props, "nature:x" -> region
 ## nature (with its wind materials), "meshy:x@H" -> a Meshy landmark scaled to H m.
 func _spawn(asset: String) -> Node3D:
+	if asset.begins_with("free:") or asset.begins_with("r1:") or asset.begins_with("dl3:"):
+		return _spawn_kit(asset)
 	if asset.begins_with("meshy:"):
 		var spec := asset.substr(6).split("@")
 		var target := float(spec[1]) if spec.size() > 1 else 4.0
-		var n := _lod_pair(MESHY + spec[0] + "_lod0.glb", MESHY + spec[0] + "_lod1.glb", 90.0)
+		var n := _lod_pair(MESHY + spec[0] + "_lod0.glb", MESHY + spec[0] + "_lod1.glb", 90.0, target)
 		if n == null:
 			return null
 		var box := Assets.visual_aabb(n)
 		var k := target / maxf(box.size.y, 0.01)
+		# Round 2: far stages for hero pieces that ship lod2/lod3 (3.5-7k / ~1k tris) so a
+		# landmark seen from a kilometre away no longer draws its 20k+ tri lod1.
+		var l2 := MESHY + spec[0] + "_lod2.glb"
+		var l3 := MESHY + spec[0] + "_lod3.glb"
+		if ResourceLoader.exists(l2) and n.get_child_count() > 1:
+			var stage_end := 400.0 if ResourceLoader.exists(l3) else 0.0
+			_ranges(n.get_child(1), 90.0, 200.0)
+			var m2 := Assets.static_model(l2)
+			n.add_child(m2)
+			_ranges(m2, 200.0, stage_end if stage_end > 0.0 else 600.0)
+			if stage_end > 0.0:
+				var m3 := Assets.static_model(l3)
+				n.add_child(m3)
+				_ranges(m3, stage_end, 600.0)
 		var holder := Node3D.new()
 		holder.add_child(n)
 		n.scale = Vector3.ONE * k
 		n.position.y = -box.position.y * k
 		return holder
+	if asset.begins_with("gen:"):
+		# A big building from assets/generated at a uniform scale (castle keep, temple, chapel...).
+		var gspec := asset.substr(4).split("@")
+		var gn := _lod_pair(GEN + gspec[0] + ".glb", GEN + gspec[0] + "_lod1.glb", 110.0)
+		if gn == null:
+			return null
+		var gholder := Node3D.new()
+		gholder.add_child(gn)
+		gn.scale = Vector3.ONE * (float(gspec[1]) if gspec.size() > 1 else 1.0)
+		return gholder
 	if asset.begins_with("nature:"):
 		var name := asset.substr(7)
 		var nat := _lod_pair(REGION + "nature/" + name + ".glb", REGION + "nature/" + name + "_lod1.glb", LOD_DIST)
@@ -275,16 +597,82 @@ func _spawn(asset: String) -> Node3D:
 	return _lod_pair(REGION + asset + ".glb", REGION + asset + "_lod1.glb", LOD_DIST)
 
 
-func _lod_pair(lod0: String, lod1: String, dist: float) -> Node3D:
+## "free:market/stall_apples@3.2" (Meshy free pack) or "r1:stones/elder_stone" (the local session's Region 1 kits):
+## LOD0 and LOD1 pair, fitted to @H metres tall when given (else natural size), standing on its own base.
+## The Highwatch kit ships without textures: its atlas material goes on every mesh.
+func _spawn_kit(asset: String) -> Node3D:
+	var is_dl3 := asset.begins_with("dl3:")
+	var is_free := asset.begins_with("free:") or is_dl3
+	var px := LowBudget.proxy_for(asset) if is_free else {}
+	if not px.is_empty():
+		return _spawn_fence_proxy(asset, px)
+	var spec := asset.substr(4 if is_dl3 else (5 if is_free else 3)).split("@")
+	var base := (DL3_PACK if is_dl3 else (FREE_PACK if is_free else R1)) + spec[0]
+	var lod0 := base + "_lod0.glb"
+	var lod1 := base + "_lod1.glb"
+	if not ResourceLoader.exists(lod0):
+		lod0 = base + ".glb"
+		lod1 = ""
+	var target := float(spec[1]) if spec.size() > 1 else 0.0
+	var lod_at := 55.0 if target < 6.0 else 85.0
+	var n := _lod_pair(lod0, lod1, LowBudget.lod_distance(lod_at) if is_free else lod_at, target)
+	if n == null:
+		return null
+	var box := Assets.visual_aabb(n)
+	var k := target / maxf(box.size.y, 0.01) if target > 0.0 else 1.0
+	if spec[0].begins_with("highwatch/"):
+		var low := int(Quality.tier) <= 1
+		var mat := load(R1_KIT_LOW if low else R1_KIT) as Material
+		if mat != null:
+			for mi in n.find_children("*", "MeshInstance3D", true, false):
+				(mi as MeshInstance3D).material_override = mat
+	elif is_free:
+		FillStyle.apply(n, asset)       # Style G per-model remap (desaturate, matte, role) for the meshy_free pack
+	var holder := Node3D.new()
+	holder.add_child(n)
+	n.scale = Vector3.ONE * k
+	n.position.y = -box.position.y * k
+	return holder
+
+
+## LOW stand-in for a Meshy fence section (2.5-3k tris each, no LOD1, no engine LOD): the generated Style G picket / rail fence (60-190
+## tris) stretched to the Meshy section's length and height. Same holder shape as _spawn_kit (the part's yaw and position apply to it).
+func _spawn_fence_proxy(asset: String, px: Dictionary) -> Node3D:
+	var path: String = REGION + String(px["path"])
+	var spec := asset.substr(asset.find(":") + 1).split("@")
+	var target := float(spec[1]) if spec.size() > 1 else 1.0
+	var n := _lod_pair(path + ".glb", path + "_lod1.glb", 40.0, 0.0)
+	if n == null:
+		return null
+	var box := Assets.visual_aabb(n)
+	var ky := target / maxf(box.size.y, 0.01)
+	var holder := Node3D.new()
+	holder.add_child(n)
+	n.scale = Vector3(float(px["length"]) / maxf(box.size.x, 0.01), ky, ky)
+	n.position.y = -box.position.y * ky
+	return holder
+
+
+## `fit_height` > 0: the piece is later scaled to that height (Meshy landmarks import at
+## ~2 m and are scaled x4-9), so its cull ranges and shadow rule must use the SCALED size.
+## Before this a 9 m guild hall counted as a 2.4 m prop: cut off at 120 m, no shadows.
+func _lod_pair(lod0: String, lod1: String, dist: float, fit_height := 0.0) -> Node3D:
 	if not ResourceLoader.exists(lod0):
 		return null
 	var holder := Node3D.new()
-	var near: Node3D = Assets.scene(lod0).instantiate()
+	# One merged MeshInstance3D per part (draw calls = materials) except wind-shaded nature.
+	var merge := not lod0.contains("/nature/")
+	var near: Node3D = Assets.static_model(lod0) if merge else Assets.scene(lod0).instantiate()
 	holder.add_child(near)
-	var extent := Assets.visual_aabb(near).size.length()
+	var raw := Assets.visual_aabb(near)
+	var extent := raw.size.length()
+	if fit_height > 0.0:
+		extent *= fit_height / maxf(raw.size.y, 0.01)
 	var far_end := 120.0 if extent < 3.0 else (260.0 if extent < 10.0 else 600.0)
+	if Quality.tier <= 0:
+		far_end = minf(far_end, 220.0)     # AAA pass 14: LOW draw budget (a 5-material windmill LOD1 drew from 600 m)
 	if dist > 0.0 and lod1 != "" and ResourceLoader.exists(lod1):
-		var far: Node3D = Assets.scene(lod1).instantiate()
+		var far: Node3D = Assets.static_model(lod1) if merge else Assets.scene(lod1).instantiate()
 		holder.add_child(far)
 		_ranges(near, 0.0, dist)
 		_ranges(far, dist, far_end)

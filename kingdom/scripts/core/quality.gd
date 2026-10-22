@@ -20,6 +20,11 @@ extends Node
 ## Game code reads the budgets it owns: `npc_full`, `npc_sprites` (PopulationLOD)
 ## and `view_radius` (terrain chunks, main.gd).
 ##
+## The settings screen's View Distance / Shadows / Textures / Effects rows override
+## single groups of a tier's values (GROUPS below) on top of the preset: `set_overrides`
+## applies them live (terrain ring radius, visibility ranges, sun shadows, SSAO/glow/fog,
+## anisotropy and texture mip bias) and they are read again at start-up from settings.cfg.
+##
 ## Launch overrides (not saved, adaptation off): -- --quality=low|medium|high|ultra
 
 signal changed
@@ -29,7 +34,17 @@ const AUTO := -1
 const NAMES := ["Low", "Medium", "High", "Ultra"]
 const SETTINGS_PATH := "user://settings.cfg"
 ## Bump when detect_tier() changes so saved AUTO results are re-detected.
-const DETECT_VERSION := 3
+const DETECT_VERSION := 5   # 5: PC profile tiers; 4: re-detect after builds whose Quality failed to compile (stuck at LOW)
+const SS := preload("res://scripts/ui/frontend/settings_store.gd")
+## Settings-screen row -> the tier keys it controls (value() reads them from the row's own level).
+const GROUPS := {
+	"view": ["view_radius", "range", "scatter", "town_far", "light_fade", "lod_threshold", "npc_full", "npc_sprites", "fog_mul",
+		"stream_mul", "grass_mul", "crowd", "prop_cull", "impostor_cap"],
+	"shadows": ["shadow", "shadow_size", "shadow_dist", "soft_shadow", "omni_shadows", "shadow_min"],
+	"textures": ["aniso", "tex_bias"],
+	"effects": ["ssao", "ssil", "sdfgi", "glow", "vol_fog", "ssr", "particles",
+		"sdfgi_cascades", "sdfgi_cell", "sdfgi_rays", "sdfgi_converge", "gi_half", "ssao_half", "vfog_size", "vfog_depth", "ssr_steps", "water_ssr"],
+}
 
 ## Per-tier settings. `max_3d_height`: the 3D view is rendered at most this many
 ## pixels tall (0 = native) and upscaled, so a 1440p phone costs no more than a
@@ -37,40 +52,111 @@ const DETECT_VERSION := 3
 ## undergrowth instances kept. `shadow`: 0 off, 1 one low-res split, 2 two splits, 4 four.
 const TIERS := [
 	{   # LOW: old phones (Mali-G52, Adreno 610, PowerVR, 2-3 GB RAM), Compatibility renderer
-		"max_3d_height": 540, "scaling": "bilinear", "fps": 30,
-		"shadow": 0, "shadow_size": 1024, "shadow_dist": 0.0, "soft_shadow": 0, "omni_shadows": false,
+		"max_3d_height": 720, "scaling": "bilinear", "fps": 30, "physics_hz": 30,
+		"shadow": 1, "shadow_size": 1024, "shadow_dist": 24.0, "soft_shadow": 0, "omni_shadows": false, "shadow_min": 3.0,
 		"ssao": false, "ssil": false, "sdfgi": false, "glow": false, "vol_fog": false, "ssr": false,
-		"lod_threshold": 8.0, "range": 0.55, "scatter": 0.3, "particles": 0.35, "aniso": 0,
-		"msaa": 0, "fxaa": false, "npc_full": 5, "rig_budget": 0, "npc_sprites": 10, "view_radius": 2, "light_fade": 35.0, "town_far": 420.0,
+		"lod_threshold": 8.0, "range": 0.55, "scatter": 0.3, "particles": 0.35, "aniso": 0, "tex_bias": 1.0, "fog_mul": 1.5,
+		"msaa": 0, "fxaa": false, "npc_full": 5, "rig_budget": 0, "npc_sprites": 10, "view_radius": 2, "light_fade": 35.0, "town_far": 200.0,
+		"draw_merge": true, "prop_cull": 1, "impostor_cap": 150.0, "vat_crowd": false, "lite_world": true, "lod1_dressing": true, "stream_mul": 1.0, "grass_mul": 1.0,
 	},
 	{   # MEDIUM: mid-range phones (Adreno 618-650, Mali-G57..G77, Apple A11-A12)
-		"max_3d_height": 720, "scaling": "fsr", "fps": 60,
-		"shadow": 1, "shadow_size": 2048, "shadow_dist": 55.0, "soft_shadow": 1, "omni_shadows": false,
+		"max_3d_height": 720, "scaling": "fsr", "fps": 60, "physics_hz": 60,
+		"shadow": 1, "shadow_size": 2048, "shadow_dist": 50.0, "soft_shadow": 1, "omni_shadows": false, "shadow_min": 1.5,
 		"ssao": false, "ssil": false, "sdfgi": false, "glow": false, "vol_fog": false, "ssr": false,
-		"lod_threshold": 2.0, "range": 0.75, "scatter": 0.6, "particles": 0.6, "aniso": 1,
-		"msaa": 0, "fxaa": false, "npc_full": 8, "rig_budget": 3, "npc_sprites": 22, "view_radius": 3, "light_fade": 50.0, "town_far": 600.0,
+		"lod_threshold": 2.0, "range": 0.75, "scatter": 0.6, "particles": 0.6, "aniso": 1, "tex_bias": 0.5, "fog_mul": 1.2,
+		"msaa": 0, "fxaa": true, "npc_full": 8, "rig_budget": 3, "npc_sprites": 22, "view_radius": 3, "light_fade": 50.0, "town_far": 600.0,
+		"draw_merge": false, "prop_cull": 2, "impostor_cap": 220.0, "vat_crowd": true, "lite_world": false, "lod1_dressing": true, "stream_mul": 1.0, "grass_mul": 1.0,
 	},
 	{   # HIGH: recent phones (Adreno 7xx, Mali-G710+, Apple A13+), integrated PC GPUs
-		"max_3d_height": 1080, "scaling": "fsr", "fps": 60,
-		"shadow": 2, "shadow_size": 4096, "shadow_dist": 100.0, "soft_shadow": 2, "omni_shadows": true,
+		"max_3d_height": 1080, "scaling": "fsr", "fps": 60, "physics_hz": 60,
+		"shadow": 2, "shadow_size": 4096, "shadow_dist": 60.0, "soft_shadow": 2, "omni_shadows": true, "shadow_min": 2.5,
 		"ssao": true, "ssil": false, "sdfgi": false, "glow": true, "vol_fog": false, "ssr": false,
-		"lod_threshold": 1.0, "range": 1.0, "scatter": 1.0, "particles": 1.0, "aniso": 2,
-		"msaa": 0, "fxaa": true, "npc_full": 12, "rig_budget": 6, "npc_sprites": 32, "view_radius": 4, "light_fade": 80.0, "town_far": 0.0,
+		"lod_threshold": 1.0, "range": 1.0, "scatter": 1.0, "particles": 1.0, "aniso": 2, "tex_bias": 0.0, "fog_mul": 1.0,
+		"msaa": 0, "fxaa": true, "npc_full": 14, "rig_budget": 6, "npc_sprites": 32, "view_radius": 4, "light_fade": 80.0, "town_far": 0.0,
+		"draw_merge": false, "prop_cull": 0, "impostor_cap": 0.0, "vat_crowd": true, "lite_world": false, "lod1_dressing": false, "stream_mul": 1.0, "grass_mul": 1.0,
 	},
 	{   # ULTRA: desktop GPUs; the full Forward+ look the game was lit for
-		"max_3d_height": 0, "scaling": "bilinear", "fps": 0,
-		"shadow": 4, "shadow_size": 4096, "shadow_dist": 140.0, "soft_shadow": 3, "omni_shadows": true,
+		"max_3d_height": 0, "scaling": "bilinear", "fps": 0, "physics_hz": 60,
+		"shadow": 4, "shadow_size": 4096, "shadow_dist": 140.0, "soft_shadow": 3, "omni_shadows": true, "shadow_min": 0.0,
 		"ssao": true, "ssil": true, "sdfgi": true, "glow": true, "vol_fog": true, "ssr": false,
-		"lod_threshold": 1.0, "range": 1.0, "scatter": 1.0, "particles": 1.0, "aniso": 3,
+		"lod_threshold": 1.0, "range": 1.0, "scatter": 1.0, "particles": 1.0, "aniso": 3, "tex_bias": -0.3, "fog_mul": 1.0,
 		"msaa": 2, "fxaa": true, "npc_full": 16, "rig_budget": 10, "npc_sprites": 45, "view_radius": 5, "light_fade": 0.0, "town_far": 0.0,
+		"draw_merge": false, "prop_cull": 0, "impostor_cap": 0.0, "vat_crowd": true, "lite_world": false, "lod1_dressing": false, "stream_mul": 1.0, "grass_mul": 1.0,
 	},
 ]
+
+## PC profile (Forward+ desktop): same keys as TIERS plus the PC-only keys. `Quality.profile == "pc"` selects it.
+## tier 0..3 = PC_LOW / PC_MED / PC_HIGH / PC_ULTRA (the enum is shared with the phone tiers).
+const PC_TIERS := [
+	{   # PC_LOW: integrated / GTX 16xx class
+		"max_3d_height": 0, "scale": 0.75, "scaling": "fsr", "taa": false, "fps": 0, "physics_hz": 60,
+		"shadow": 2, "shadow_size": 2048, "shadow_dist": 90.0, "soft_shadow": 1, "omni_shadows": false, "shadow_min": 1.5,
+		"ssao": false, "ssao_half": true, "ssil": false, "sdfgi": false, "sdfgi_cascades": 4, "sdfgi_cell": 0.3, "sdfgi_rays": 1, "sdfgi_converge": 1, "gi_half": true,
+		"glow": true, "vol_fog": false, "vfog_size": 64, "vfog_depth": 64, "ssr": false, "ssr_steps": 0, "water_ssr": 0,
+		"lod_threshold": 1.5, "range": 1.0, "scatter": 0.8, "particles": 0.7, "aniso": 2, "tex_bias": 0.0, "fog_mul": 1.0,
+		"msaa": 0, "fxaa": true, "npc_full": 16, "rig_budget": 6, "npc_sprites": 60, "view_radius": 4, "light_fade": 80.0, "town_far": 0.0,
+		"draw_merge": false, "prop_cull": 0, "impostor_cap": 0.0, "vat_crowd": true, "lite_world": false, "lod1_dressing": false,
+		"stream_mul": 1.0, "grass_mul": 1.0,
+		"crowd": {"near_max": 8, "near_dist": 14.0, "mid_dist": 40.0, "far_dist": 160.0, "shadow_dist": 18.0, "steps": [2, 3, 4]},
+	},
+	{   # PC_MED: RTX 3050/4050 laptop, GTX 1070-1080
+		"max_3d_height": 0, "scale": 0.67, "scaling": "fsr2", "taa": false, "fps": 0, "physics_hz": 60,
+		"shadow": 4, "shadow_size": 4096, "shadow_dist": 160.0, "soft_shadow": 2, "omni_shadows": true, "shadow_min": 1.0,
+		"ssao": true, "ssao_half": true, "ssil": false, "sdfgi": false, "sdfgi_cascades": 4, "sdfgi_cell": 0.3, "sdfgi_rays": 1, "sdfgi_converge": 1, "gi_half": true,
+		"glow": true, "vol_fog": true, "vfog_size": 96, "vfog_depth": 64, "ssr": false, "ssr_steps": 0, "water_ssr": 16,
+		"lod_threshold": 1.0, "range": 1.25, "scatter": 1.0, "particles": 1.0, "aniso": 3, "tex_bias": 0.0, "fog_mul": 1.0,
+		"msaa": 0, "fxaa": false, "npc_full": 20, "rig_budget": 8, "npc_sprites": 90, "view_radius": 5, "light_fade": 120.0, "town_far": 0.0,
+		"draw_merge": false, "prop_cull": 0, "impostor_cap": 0.0, "vat_crowd": true, "lite_world": false, "lod1_dressing": false,
+		"stream_mul": 1.15, "grass_mul": 1.2,
+		"crowd": {"near_max": 10, "near_dist": 16.0, "mid_dist": 48.0, "far_dist": 190.0, "shadow_dist": 22.0, "steps": [1, 2, 3]},
+	},
+	{   # PC_HIGH: RTX 4070 Laptop target, 60 fps @ 2560x1440
+		"max_3d_height": 0, "scale": 0.77, "scaling": "fsr2", "taa": false, "fps": 0, "physics_hz": 60,
+		"shadow": 4, "shadow_size": 4096, "shadow_dist": 220.0, "soft_shadow": 3, "omni_shadows": true, "shadow_min": 0.5,
+		"ssao": true, "ssao_half": false, "ssil": false, "sdfgi": true, "sdfgi_cascades": 4, "sdfgi_cell": 0.3, "sdfgi_rays": 2, "sdfgi_converge": 1, "gi_half": true,
+		"glow": true, "vol_fog": true, "vfog_size": 128, "vfog_depth": 96, "ssr": true, "ssr_steps": 48, "water_ssr": 32,
+		"lod_threshold": 1.0, "range": 1.5, "scatter": 1.0, "particles": 1.0, "aniso": 4, "tex_bias": 0.0, "fog_mul": 1.0,
+		"msaa": 0, "fxaa": false, "npc_full": 28, "rig_budget": 12, "npc_sprites": 140, "view_radius": 6, "light_fade": 0.0, "town_far": 0.0,
+		"draw_merge": false, "prop_cull": 0, "impostor_cap": 0.0, "vat_crowd": true, "lite_world": false, "lod1_dressing": false,
+		"stream_mul": 1.3, "grass_mul": 1.5,
+		"crowd": {"near_max": 14, "near_dist": 20.0, "mid_dist": 60.0, "far_dist": 220.0, "shadow_dist": 28.0, "steps": [1, 2, 3]},
+	},
+	{   # PC_ULTRA: RTX 4080+ desktop
+		"max_3d_height": 0, "scale": 1.0, "scaling": "fsr2", "taa": false, "fps": 0, "physics_hz": 60,
+		"shadow": 4, "shadow_size": 8192, "shadow_dist": 300.0, "soft_shadow": 4, "omni_shadows": true, "shadow_min": 0.0,
+		"ssao": true, "ssao_half": false, "ssil": true, "sdfgi": true, "sdfgi_cascades": 6, "sdfgi_cell": 0.25, "sdfgi_rays": 3, "sdfgi_converge": 2, "gi_half": false,
+		"glow": true, "vol_fog": true, "vfog_size": 160, "vfog_depth": 128, "ssr": true, "ssr_steps": 64, "water_ssr": 48,
+		"lod_threshold": 0.75, "range": 2.0, "scatter": 1.0, "particles": 1.0, "aniso": 4, "tex_bias": 0.0, "fog_mul": 1.0,
+		"msaa": 0, "fxaa": false, "npc_full": 36, "rig_budget": 16, "npc_sprites": 200, "view_radius": 7, "light_fade": 0.0, "town_far": 0.0,
+		"draw_merge": false, "prop_cull": 0, "impostor_cap": 0.0, "vat_crowd": true, "lite_world": false, "lod1_dressing": false,
+		"stream_mul": 1.5, "grass_mul": 2.0,
+		"crowd": {"near_max": 18, "near_dist": 24.0, "mid_dist": 70.0, "far_dist": 260.0, "shadow_dist": 34.0, "steps": [1, 1, 2]},
+	},
+]
+
+## "ram8" memory preset (8 GB RAM PCs): opt-in with `-- --ram8`, or set `Quality.ram8` before the world builds. It is a cap layered on
+## whatever tier is in effect (never raises a value), so every existing preset stays as it is. Stream radius, full-body NPCs
+## (PopulationLOD reads npc_full / npc_sprites), mip bias and GI are cut; textures are only blurrier here (a real texture-size
+## limit is an import setting, see docs), and GI is off (SDFGI / SSIL; VoxelGI is not used by the game).
+const RAM8_CAP := {"view_radius": 3, "npc_full": 10, "npc_sprites": 40, "range": 1.0, "scatter": 0.7, "shadow_dist": 90.0}
+const RAM8_FLOOR := {"tex_bias": 1.0, "lod_threshold": 1.5}
+const RAM8_OFF := ["sdfgi", "ssil"]
+var ram8 := false
 
 ## Saved choice: AUTO or a tier.
 var choice := AUTO
 ## Tier in effect.
 var tier := HIGH
+## "mobile" or "pc": which table value() reads (resolved in _ready).
+var profile := "mobile"
+## Player AA choice on PC from the settings screen: 0 tier default, 1 FXAA, 2 TAA, 3 FSR2 (in memory only).
+var aa_mode := 0
 var battery_saver := false
+## Per-group tier overrides from the settings screen: -1 = follow the preset, else LOW..ULTRA.
+var overrides := {"view": -1, "shadows": -1, "textures": -1, "effects": -1}
+var _group_of := {}
+## Player resolution scale for the 3D view (0.5-1.0), from the settings screen (App.refresh).
+var render_scale := 1.0
 ## The tier AUTO settled on (saved so the next launch starts there).
 var auto_tier := -1
 var detected_reason := ""
@@ -94,8 +180,34 @@ var _frame_n := 0
 const WARMUP := 4.0
 const WINDOW := 16.0
 
+## Thermal guard (Android, API 29+): every 5 s reads PowerManager.getCurrentThermalStatus()
+## through the AndroidRuntime singleton (app sysfs thermal reads are denied on Samsung).
+## MODERATE (2) or worse caps the frame rate at 30; SEVERE (3) or worse also drops the 3D
+## render scale to 75 %. Released when the status is back at LIGHT (1) or better for 60 s.
+## The settings screen turns it on for the "60" and "Auto" frame-rate limits.
+var thermal_guard := true
+var thermal_status := -1
+var _thermal_pm: Object = null
+var _thermal_timer := 0.0
+var _thermal_cool := 0.0
+var _thermal_status_logged := false
+var _thermal_level := 0          # 0 off, 1 fps cap, 2 fps cap + render scale
+var _thermal_prev_fps := 0
+var _thermal_prev_scale := 1.0
+# Debug builds on phones: a PERF line in logcat every 10 s for the soak bench
+# (adb logcat -s godot | grep PERF). Release builds print nothing.
+var _perf_log := OS.is_debug_build()
+var _perf_ft := PackedFloat32Array()
+var _perf_t := 0.0
+
 
 func _ready() -> void:
+	for g: String in GROUPS:
+		for k: String in GROUPS[g]:
+			_group_of[k] = g
+	profile = _resolve_profile()
+	_parse_qset()
+	ram8 = (OS.get_cmdline_user_args() + OS.get_cmdline_args() + qa_file_args()).has("--ram8")
 	_load()
 	var forced := _cmdline_tier()
 	if forced >= 0:
@@ -117,7 +229,68 @@ func _ready() -> void:
 
 
 func value(key: String) -> Variant:
-	return TIERS[tier][key]
+	if _qset.has(key):
+		return _qset[key]
+	var t := tier
+	if _group_of.has(key):
+		var o: int = overrides[_group_of[key]]
+		if o >= 0:
+			t = o
+	var v: Variant = _table()[t][key]
+	if ram8:
+		if RAM8_CAP.has(key):
+			return minf(float(v), float(RAM8_CAP[key])) if v is float else mini(int(v), int(RAM8_CAP[key]))
+		if RAM8_FLOOR.has(key):
+			return maxf(float(v), float(RAM8_FLOOR[key]))
+		if RAM8_OFF.has(key):
+			return false
+	return v
+
+
+## QA debug: --qset=sdfgi=false,shadow=2,scale=0.67,scaling=fsr overrides single row keys (typed from the row's own value).
+var _qset := {}
+
+
+func _parse_qset() -> void:
+	for arg in OS.get_cmdline_user_args() + OS.get_cmdline_args() + qa_file_args():
+		if not arg.begins_with("--qset="):
+			continue
+		var tbl: Array = _table()
+		for pair in arg.substr(7).split(",", false):
+			var kv := pair.split("=", false, 1)
+			if kv.size() != 2 or not tbl[0].has(kv[0]):
+				continue
+			var cur: Variant = tbl[0][kv[0]]
+			match typeof(cur):
+				TYPE_BOOL: _qset[kv[0]] = kv[1] == "true" or kv[1] == "1"
+				TYPE_INT: _qset[kv[0]] = int(kv[1])
+				TYPE_FLOAT: _qset[kv[0]] = float(kv[1])
+				_: _qset[kv[0]] = kv[1]
+
+
+func is_pc() -> bool:
+	return profile == "pc"
+
+
+func has_value(key: String) -> bool:
+	return _table()[0].has(key)
+
+
+func _table() -> Array:
+	return PC_TIERS if profile == "pc" else TIERS
+
+
+## "mobile" on phones, with --profile=mobile, or when the Mobile / Compatibility renderer is forced without --profile=pc.
+func _resolve_profile() -> String:
+	var args := OS.get_cmdline_user_args() + OS.get_cmdline_args() + qa_file_args()
+	if args.has("--profile=pc"):
+		return "pc"
+	if _is_mobile() or args.has("--profile=mobile"):
+		return "mobile"
+	var r := renderer()
+	if r == "mobile" or r == "gl_compatibility":
+		return "mobile"
+	return "pc"
 
 
 func tier_name() -> String:
@@ -143,14 +316,18 @@ func set_choice(c: int) -> void:
 	_save()
 
 
-func set_battery_saver(on: bool) -> void:
-	battery_saver = on
-	_apply_globals()
-	_save()
+## The four settings-screen levels (each -1 = follow the preset, else LOW..ULTRA). Applied live.
+func set_overrides(view: int, shadows: int, textures: int, effects: int) -> void:
+	var n := {"view": clampi(view, -1, ULTRA), "shadows": clampi(shadows, -1, ULTRA),
+		"textures": clampi(textures, -1, ULTRA), "effects": clampi(effects, -1, ULTRA)}
+	if n == overrides:
+		return
+	overrides = n
+	_reapply()
 
 
-func _set_tier(t: int) -> void:
-	tier = clampi(t, LOW, ULTRA)
+## Everything that depends on the tier or an override, on the whole running world.
+func _reapply() -> void:
 	_apply_globals()
 	_apply_viewports()
 	for e in _envs:
@@ -164,6 +341,25 @@ func _set_tier(t: int) -> void:
 	changed.emit()
 
 
+func set_render_scale(s: float) -> void:
+	s = clampf(s, 0.5, 1.0)
+	if is_equal_approx(s, render_scale):
+		return
+	render_scale = s
+	_apply_viewports()
+
+
+func set_battery_saver(on: bool) -> void:
+	battery_saver = on
+	_apply_globals()
+	_save()
+
+
+func _set_tier(t: int) -> void:
+	tier = clampi(t, LOW, ULTRA)
+	_reapply()
+
+
 func _load() -> void:
 	var cf := ConfigFile.new()
 	if cf.load(SETTINGS_PATH) != OK:
@@ -173,6 +369,8 @@ func _load() -> void:
 	if int(cf.get_value("graphics", "detect_version", 0)) != DETECT_VERSION:
 		auto_tier = -1
 	battery_saver = bool(cf.get_value("graphics", "battery_saver", false))
+	var lv := SS.levels_from_config(cf)
+	overrides = {"view": lv[0], "shadows": lv[1], "textures": lv[2], "effects": lv[3]}
 
 
 func _save() -> void:
@@ -185,8 +383,17 @@ func _save() -> void:
 	cf.save(SETTINGS_PATH)
 
 
+## Phone QA (debug builds only): extra args from user://qa_args.txt, one per line, pushed with `adb shell run-as`.
+## The S22 cannot pass intent extras to the non-exported GodotApp activity (tools/qa/phone/route.sh).
+static func qa_file_args() -> PackedStringArray:
+	if not OS.is_debug_build() or not FileAccess.file_exists("user://qa_args.txt"):
+		return PackedStringArray()
+	return FileAccess.get_file_as_string("user://qa_args.txt").strip_edges().split("
+", false)
+
+
 func _cmdline_tier() -> int:
-	for arg in OS.get_cmdline_user_args() + OS.get_cmdline_args():
+	for arg in OS.get_cmdline_user_args() + OS.get_cmdline_args() + qa_file_args():
 		if arg.begins_with("--quality="):
 			var n := arg.substr(10).to_lower()
 			for i in NAMES.size():
@@ -218,7 +425,17 @@ func detect_tier() -> int:
 		# Desktop: discrete GPU -> ULTRA, integrated -> MEDIUM (adaptation refines it).
 		var type := RenderingServer.get_video_adapter_type()
 		var g := gpu.to_lower()
-		if type == RenderingDevice.DEVICE_TYPE_DISCRETE_GPU or g.contains("rtx") or g.contains("radeon rx") or g.contains("arc a"):
+		if is_pc():
+			# PC: 4080/4090/50-series/RX 79xx -> ULTRA, any other discrete or RTX (the 4070 Laptop) -> HIGH, integrated -> LOW.
+			if g.contains("rtx 4080") or g.contains("rtx 4090") or g.contains("rtx 50") or g.contains("rx 79"):
+				t = ULTRA
+			elif type == RenderingDevice.DEVICE_TYPE_DISCRETE_GPU or g.contains("rtx") or g.contains("radeon rx") or g.contains("arc a"):
+				t = HIGH
+			elif type == RenderingDevice.DEVICE_TYPE_INTEGRATED_GPU:
+				t = LOW
+			else:
+				t = MEDIUM if ram_gb >= 8.0 else LOW
+		elif type == RenderingDevice.DEVICE_TYPE_DISCRETE_GPU or g.contains("rtx") or g.contains("radeon rx") or g.contains("arc a"):
 			t = ULTRA
 		elif type == RenderingDevice.DEVICE_TYPE_INTEGRATED_GPU:
 			t = MEDIUM
@@ -289,6 +506,9 @@ func start_adaptive() -> void:
 
 
 func _process(delta: float) -> void:
+	_thermal_tick(delta)
+	if _perf_log and (_is_mobile() or OS.get_cmdline_user_args().has("--perflog")):
+		_perf_tick(delta)
 	if not _measuring:
 		return
 	_measure_time += delta
@@ -315,6 +535,93 @@ func _process(delta: float) -> void:
 		_measuring = false
 
 
+func _read_thermal_status() -> int:
+	if _thermal_pm == null:
+		if not Engine.has_singleton("AndroidRuntime"):
+			print("THERMAL api missing: no AndroidRuntime singleton")
+			return -1
+		var rt: Object = Engine.get_singleton("AndroidRuntime")
+		var act: Object = rt.call("getActivity")      # JNI singleton: has_method() is always false
+		if act == null:
+			print("THERMAL api missing: getActivity() returned null")
+			return -1
+		_thermal_pm = act.call("getSystemService", "power")
+		if _thermal_pm == null:
+			return -1
+	var st: Variant = _thermal_pm.call("getCurrentThermalStatus")
+	if _thermal_status_logged == false:
+		_thermal_status_logged = true
+		print("THERMAL api ok: AndroidRuntime -> PowerManager, status=%s" % str(st))
+	return int(st)
+
+
+func _perf_tick(delta: float) -> void:
+	_perf_ft.append(delta)
+	_perf_t += delta
+	if _perf_t < 10.0:
+		return
+	var n := _perf_ft.size()
+	var sorted := _perf_ft.duplicate()
+	sorted.sort()
+	print("PERF fps=%.1f p50=%.1f p95=%.1f p99=%.1f draws=%d prims=%d objs=%d vram=%d tex=%d static=%d nodes=%d tier=%s cap=%d scale=%.2f thermal=%d" % [
+		n / maxf(_perf_t, 0.001), sorted[n / 2] * 1000.0, sorted[mini(n - 1, n * 95 / 100)] * 1000.0,
+		sorted[mini(n - 1, n * 99 / 100)] * 1000.0,
+		Performance.get_monitor(Performance.RENDER_TOTAL_DRAW_CALLS_IN_FRAME),
+		Performance.get_monitor(Performance.RENDER_TOTAL_PRIMITIVES_IN_FRAME),
+		Performance.get_monitor(Performance.RENDER_TOTAL_OBJECTS_IN_FRAME),
+		int(Performance.get_monitor(Performance.RENDER_VIDEO_MEM_USED) / 1048576.0),
+		int(Performance.get_monitor(Performance.RENDER_TEXTURE_MEM_USED) / 1048576.0),
+		int(Performance.get_monitor(Performance.MEMORY_STATIC) / 1048576.0),
+		Performance.get_monitor(Performance.OBJECT_NODE_COUNT), NAMES[tier], Engine.max_fps, render_scale, thermal_status])
+	_perf_ft.clear()
+	_perf_t = 0.0
+
+
+func _thermal_tick(delta: float) -> void:
+	_thermal_timer -= delta
+	if _thermal_timer > 0.0 or not _is_mobile():
+		return
+	_thermal_timer = 5.0
+	var st := _read_thermal_status()
+	if st < 0:
+		_thermal_timer = 1e9       # no API on this device: stop polling
+		return
+	if st != thermal_status:
+		print("THERMAL status=%d fps_cap=%d scale=%.2f guard=%s" % [st, Engine.max_fps, render_scale, thermal_guard])
+	thermal_status = st
+	if not thermal_guard:
+		_thermal_set(0)
+		return
+	var want := 2 if st >= 3 else (1 if st >= 2 else 0)
+	if want > _thermal_level:
+		_thermal_cool = 0.0
+		_thermal_set(want)
+	elif want < _thermal_level and st <= 1:
+		_thermal_cool += 5.0
+		if _thermal_cool >= 60.0:
+			_thermal_set(want)
+	else:
+		_thermal_cool = 0.0
+
+
+func _thermal_set(level: int) -> void:
+	if level == _thermal_level:
+		return
+	if _thermal_level == 0:
+		_thermal_prev_fps = Engine.max_fps
+		_thermal_prev_scale = render_scale
+	if level >= 1:
+		Engine.max_fps = 30 if _thermal_prev_fps == 0 else mini(_thermal_prev_fps, 30)
+	else:
+		Engine.max_fps = _thermal_prev_fps
+	var scale := minf(_thermal_prev_scale, 0.75) if level >= 2 else _thermal_prev_scale
+	if not is_equal_approx(scale, render_scale):
+		render_scale = scale
+		_apply_viewports()
+	_thermal_level = level
+	print("THERMAL guard level=%d status=%d fps_cap=%d scale=%.2f" % [level, thermal_status, Engine.max_fps, render_scale])
+
+
 func _target_fps() -> int:
 	var cap := int(Engine.max_fps)
 	if cap <= 0:
@@ -331,12 +638,32 @@ func _apply_globals() -> void:
 	if fps == 0 and (OS.has_feature("mobile") or OS.has_feature("android") or OS.has_feature("ios")):
 		fps = 60
 	Engine.max_fps = fps
+	if _thermal_level > 0:
+		_thermal_prev_fps = fps
+		Engine.max_fps = 30 if fps == 0 else mini(fps, 30)
+	# LOW renders at 30 fps: ticking physics at 60 ran every _physics_process (villagers, player, soldiers, Jolt) twice per
+	# frame on the phone. Physics interpolation (project setting) keeps 30 Hz motion smooth.
+	Engine.physics_ticks_per_second = int(value("physics_hz"))
 	npc_full = value("npc_full")
 	npc_sprites = value("npc_sprites")
 	view_radius = value("view_radius")
+	# shaders/environment/cave_rock.gdshader: LOW one dominant-axis tap, MEDIUM/HIGH the full blend + normal map.
+	RenderingServer.global_shader_parameter_set("ashes_ground_detail", 0.0 if (not is_pc() and tier == LOW) else (0.5 if (not is_pc() and tier == MEDIUM) else 1.0))
+	if is_pc():
+		RenderingServer.environment_set_sdfgi_ray_count(_enum_pick(int(value("sdfgi_rays")), [RenderingServer.ENV_SDFGI_RAY_COUNT_4, RenderingServer.ENV_SDFGI_RAY_COUNT_8, RenderingServer.ENV_SDFGI_RAY_COUNT_16, RenderingServer.ENV_SDFGI_RAY_COUNT_32]))
+		RenderingServer.environment_set_sdfgi_frames_to_converge(_enum_pick(int(value("sdfgi_converge")), [RenderingServer.ENV_SDFGI_CONVERGE_IN_5_FRAMES, RenderingServer.ENV_SDFGI_CONVERGE_IN_10_FRAMES, RenderingServer.ENV_SDFGI_CONVERGE_IN_15_FRAMES]))
+		RenderingServer.gi_set_use_half_resolution(bool(value("gi_half")))
+		RenderingServer.environment_set_volumetric_fog_volume_size(int(value("vfog_size")), int(value("vfog_depth")))
+		var half := bool(value("ssao_half"))
+		RenderingServer.environment_set_ssao_quality(RenderingServer.ENV_SSAO_QUALITY_MEDIUM if half else RenderingServer.ENV_SSAO_QUALITY_HIGH, half, 0.5, 2.0, 50.0, 300.0)
+		RenderingServer.global_shader_parameter_set("ashes_gi_on", 1.0 if (bool(value("sdfgi")) and renderer() == "forward_plus") else 0.0)
 	RenderingServer.directional_shadow_atlas_set_size(int(value("shadow_size")), true)
 	RenderingServer.directional_soft_shadow_filter_set_quality(value("soft_shadow"))
 	RenderingServer.positional_soft_shadow_filter_set_quality(value("soft_shadow"))
+
+
+static func _enum_pick(i: int, list: Array) -> int:
+	return list[clampi(i, 0, list.size() - 1)]
 
 
 func _on_node_added(n: Node) -> void:
@@ -400,10 +727,14 @@ func _apply_viewport(v: Viewport) -> void:
 		v.positional_shadow_atlas_size = 0
 		return
 	var h: float = v.get_visible_rect().size.y if v == get_tree().root else float((v as SubViewport).size.y) if v is SubViewport else 0.0
+	if is_pc() and not compat:
+		_apply_viewport_pc(v)
+		return
 	var max_h: int = value("max_3d_height")
 	var scale := 1.0
 	if max_h > 0 and h > 0.0:
 		scale = clampf(max_h / h, 0.4, 1.0)
+	scale = clampf(scale * render_scale, 0.4, 1.0)
 	v.scaling_3d_scale = scale
 	if value("scaling") == "fsr" and not compat and scale < 0.99:
 		v.scaling_3d_mode = Viewport.SCALING_3D_MODE_FSR
@@ -412,10 +743,66 @@ func _apply_viewport(v: Viewport) -> void:
 		v.scaling_3d_mode = Viewport.SCALING_3D_MODE_BILINEAR
 	v.mesh_lod_threshold = value("lod_threshold")
 	v.anisotropic_filtering_level = value("aniso")
+	if "texture_mipmap_bias" in v:
+		v.set("texture_mipmap_bias", float(value("tex_bias")))    # Low textures: one mip level blurrier
 	var msaa: int = value("msaa")
 	v.msaa_3d = [Viewport.MSAA_DISABLED, Viewport.MSAA_2X, Viewport.MSAA_2X, Viewport.MSAA_4X][clampi(msaa, 0, 3)] if msaa > 0 else Viewport.MSAA_DISABLED
 	v.screen_space_aa = Viewport.SCREEN_SPACE_AA_FXAA if value("fxaa") and not compat else Viewport.SCREEN_SPACE_AA_DISABLED
 	v.positional_shadow_atlas_size = 2048 if value("omni_shadows") else 0
+
+
+## PC viewport: FSR2 / FSR1 / bilinear upscale of `scale`, no MSAA with FSR2 (it does its own temporal AA).
+func _apply_viewport_pc(v: Viewport) -> void:
+	var mode: String = value("scaling")
+	var taa: bool = value("taa")
+	var fxaa: bool = value("fxaa")
+	var sc: float = value("scale")
+	match aa_mode:
+		1:
+			mode = "fsr"
+			taa = false
+			fxaa = true
+		2:
+			mode = "bilinear"
+			taa = true
+			fxaa = false
+		3:
+			mode = "fsr2"
+			taa = false
+			fxaa = false
+	# Terrain3D 1.0.2 crashes with FSR2 (motion vectors / depth), so use FSR1 + TAA on that backend.
+	if mode == "fsr2" and TerrainBackend.is_terrain3d():
+		mode = "fsr"
+		taa = true
+	sc = clampf(sc * render_scale, 0.5, 1.0)
+	v.scaling_3d_scale = sc
+	var fsr2 := false
+	if mode == "fsr2" and sc < 0.99:
+		v.scaling_3d_mode = Viewport.SCALING_3D_MODE_FSR2
+		fsr2 = true
+	elif mode == "fsr" and sc < 0.99:
+		v.scaling_3d_mode = Viewport.SCALING_3D_MODE_FSR
+		v.fsr_sharpness = 0.4
+	else:
+		v.scaling_3d_mode = Viewport.SCALING_3D_MODE_BILINEAR
+	v.use_taa = taa and not fsr2
+	v.mesh_lod_threshold = value("lod_threshold")
+	v.anisotropic_filtering_level = value("aniso")
+	if "texture_mipmap_bias" in v:
+		v.set("texture_mipmap_bias", float(value("tex_bias")))
+	var msaa: int = value("msaa")
+	if fsr2 or v.use_taa or msaa <= 0:
+		v.msaa_3d = Viewport.MSAA_DISABLED
+	else:
+		v.msaa_3d = [Viewport.MSAA_DISABLED, Viewport.MSAA_2X, Viewport.MSAA_2X, Viewport.MSAA_4X][clampi(msaa, 0, 3)]
+	v.screen_space_aa = Viewport.SCREEN_SPACE_AA_FXAA if (fxaa and not fsr2) else Viewport.SCREEN_SPACE_AA_DISABLED
+	v.positional_shadow_atlas_size = 4096 if value("omni_shadows") else 0
+
+
+## PC player AA choice: 0 tier default, 1 FXAA, 2 TAA, 3 FSR 2. In memory only.
+func set_aa_mode(aa: int) -> void:
+	aa_mode = clampi(aa, 0, 3)
+	_apply_viewports()
 
 
 func _apply_env(we: WorldEnvironment) -> void:
@@ -429,12 +816,25 @@ func _apply_env(we: WorldEnvironment) -> void:
 	env.volumetric_fog_enabled = value("vol_fog") and fwd
 	env.volumetric_fog_sky_affect = 0.0   # default 1.0 greys out a clear sky on Ultra
 	env.ssr_enabled = value("ssr") and fwd
+	if is_pc() and fwd:
+		if env.sdfgi_enabled:
+			env.sdfgi_cascades = int(value("sdfgi_cascades"))
+			env.sdfgi_min_cell_size = float(value("sdfgi_cell"))
+			env.sdfgi_use_occlusion = false
+			env.sdfgi_read_sky_light = true
+			env.sdfgi_bounce_feedback = 0.4
+			env.sdfgi_energy = 0.75
+			env.sdfgi_y_scale = Environment.SDFGI_Y_SCALE_75_PERCENT
+		env.ssr_max_steps = int(value("ssr_steps"))
+		env.ssr_fade_in = 0.15
+		env.ssr_fade_out = 2.0
+		env.ssr_depth_tolerance = 0.3
 	env.glow_enabled = value("glow")
 	if not env.has_meta("q_fog"):
 		env.set_meta("q_fog", env.fog_density)
 	var fog: float = env.get_meta("q_fog")
 	# Without volumetric fog, plain depth fog carries the aerial perspective: a touch denser.
-	env.fog_density = fog if value("vol_fog") else maxf(fog, 0.0009)
+	env.fog_density = (fog if value("vol_fog") else maxf(fog, 0.0009)) * float(value("fog_mul"))
 
 
 func _apply_sun(sun: DirectionalLight3D) -> void:
@@ -461,6 +861,8 @@ func _apply_local_light(l: Light3D) -> void:
 
 
 func _apply_geometry(g: GeometryInstance3D) -> void:
+	if g is Label3D and (g.is_in_group("nameplate") or g.get_parent() is Label3D):
+		return       # nameplates are distance-managed by Nameplates.refresh (nearest 3, fade); a 0.55 range cut them at ~6.6 m from a camera 4 m behind the player
 	var mul: float = value("range")
 	# Visibility ranges: remember the author's values once, then scale them.
 	if not g.has_meta("q_range"):
@@ -471,12 +873,34 @@ func _apply_geometry(g: GeometryInstance3D) -> void:
 	if g.has_meta("q_range"):
 		_set_ranges(g, g.get_meta("q_range"), mul)
 		var far: float = value("town_far")
-		if g.get_meta("q_town", false) and g.visibility_range_end <= 0.0 and far > 0.0:
+		if g.get_meta("q_town", false) and far > 0.0 and (g.visibility_range_end <= 0.0 or (tier == LOW and g.visibility_range_end > far)):
 			# Whole towns (buildings with no range, far LODs) stop at the fog line on
 			# LOW/MEDIUM: from Ashford the capital's ~40 buildings were 600k tris.
 			g.visibility_range_end = far
 			g.visibility_range_end_margin = far * 0.15
 			g.visibility_range_fade_mode = GeometryInstance3D.VISIBILITY_RANGE_FADE_SELF
+	var imp_cap: float = value("impostor_cap")
+	var pcull: int = value("prop_cull")
+	if imp_cap > 0.0 and g is MultiMeshInstance3D and g.has_meta("q_range") and g.visibility_range_begin > 0.0 and g.visibility_range_end > imp_cap:
+		var im := (g as MultiMeshInstance3D).multimesh.mesh if (g as MultiMeshInstance3D).multimesh else null
+		if im != null and im.get_surface_count() == 1 and im.surface_get_material(0) != null and String(im.surface_get_material(0).resource_name).begins_with("RG_Impostor"):
+			g.visibility_range_end = imp_cap     # tree impostor cards stop at 150 m (the fog line)
+	if pcull > 0 and g.has_meta("q_range") and g.visibility_range_begin <= 0.0 and g.visibility_range_end > 0.0 and not _under_terrain(g):
+		# LOW draw-call pass: small and mid-size props end sooner (each distinct mesh per cell is a draw call).
+		var gm: Mesh = (g as MeshInstance3D).mesh if g is MeshInstance3D else ((g as MultiMeshInstance3D).multimesh.mesh if g is MultiMeshInstance3D and (g as MultiMeshInstance3D).multimesh else null)
+		if gm != null:
+			var ext := maxf(gm.get_aabb().size.x, gm.get_aabb().size.z)
+			var cap := (28.0 if ext < 4.5 else ((60.0 if pcull == 1 else 90.0) if ext < 12.0 else 0.0)) * (1.0 if pcull == 1 else 2.0)
+			if cap > 0.0 and g.visibility_range_end > cap:
+				g.visibility_range_end = cap
+	if pcull > 0 and g is MeshInstance3D and not g.has_meta("q_range") and g.visibility_range_end <= 0.0 and (g as MeshInstance3D).skin == null \
+			and (g as MeshInstance3D).mesh != null and not _under_terrain(g) and not g.is_in_group("keep_range"):
+		# LOW/MEDIUM draw-call pass: a loose small mesh (landmark furniture, props) stops drawing past 80 / 160 m.
+		var lb := (g as MeshInstance3D).mesh.get_aabb().size
+		if maxf(lb.x, lb.z) < 12.0 and (g as Node3D).get_parent() is Node3D and not (g.get_parent() is Skeleton3D) and not (g.get_parent() is BoneAttachment3D):
+			g.visibility_range_end = 80.0 if pcull == 1 else 160.0
+			g.visibility_range_end_margin = 8.0
+			g.visibility_range_fade_mode = GeometryInstance3D.VISIBILITY_RANGE_FADE_DISABLED
 	_small_shadow(g)
 	if g is MultiMeshInstance3D:
 		_thin_scatter(g as MultiMeshInstance3D)
@@ -539,13 +963,16 @@ static func _is_mobile() -> bool:
 ## there the limit is usually the CPU (simulation, draw submission), which
 ## LOW's 3D settings wouldn't fix, and the player can still pick lower by hand.
 func _adapt_floor() -> int:
+	if is_pc():
+		return MEDIUM
 	if not _is_mobile() and RenderingServer.get_video_adapter_type() == RenderingDevice.DEVICE_TYPE_DISCRETE_GPU:
 		return HIGH
 	return LOW
 
 
-## Props under ~1 m (crates, buckets, flowers, clutter) stop casting sun shadows
-## below ULTRA: a shadow-map pass for each of them costs more than it shows.
+## Static props smaller than the tier's `shadow_min` (LOW 3 m, MEDIUM 1.5 m, HIGH 1 m; crates, barrels, carts, stalls,
+## clutter) stop casting sun shadows: a shadow-map draw for each of them costs more than it shows on a phone. Skinned
+## characters always keep their shadow. ULTRA keeps every caster.
 func _small_shadow(g: GeometryInstance3D) -> void:
 	if not g.has_meta("q_cast"):
 		var mesh: Mesh = null
@@ -555,8 +982,13 @@ func _small_shadow(g: GeometryInstance3D) -> void:
 			mesh = (g as MultiMeshInstance3D).multimesh.mesh
 		if mesh == null or g.cast_shadow == GeometryInstance3D.SHADOW_CASTING_SETTING_OFF:
 			return
+		if g is MeshInstance3D and (g as MeshInstance3D).skin != null:
+			return
 		var s := mesh.get_aabb().size * (g as Node3D).global_transform.basis.get_scale()
-		if maxf(maxf(s.x, s.y), s.z) >= 1.0 or (g is MeshInstance3D and (g as MeshInstance3D).skin != null):
+		var ext := maxf(maxf(s.x, s.y), s.z)
+		if ext >= 3.0:
 			return
 		g.set_meta("q_cast", g.cast_shadow)
-	g.cast_shadow = g.get_meta("q_cast") if tier == ULTRA else GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+		g.set_meta("q_ext", ext)
+	var keep: bool = float(g.get_meta("q_ext", 0.0)) >= float(value("shadow_min"))
+	g.cast_shadow = g.get_meta("q_cast") if keep else GeometryInstance3D.SHADOW_CASTING_SETTING_OFF

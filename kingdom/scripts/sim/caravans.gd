@@ -12,7 +12,7 @@ extends RefCounted
 ## outcome (tests/test_economy.gd checks this).
 
 ## World units a cart covers per in-game hour.
-const CART_SPEED := 55.0
+const CART_SPEED := 82.5   # metres per hour (55 before the 12 km world; x1.5 like the realm speeds)
 ## Base ambush chance per road tier before guards or stone condition.
 const BASE_RISK_BY_TIER := {"kingdom": 0.02, "rural": 0.07, "frontier": 0.16}
 ## Added risk for how dangerous the road's runestones are (0..1, from economy.road_risk).

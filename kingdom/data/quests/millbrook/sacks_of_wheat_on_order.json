@@ -1,0 +1,73 @@
+{
+ "id": "millbrook_sacks_of_wheat_on_order",
+ "title": "Sacks of Wheat on Order",
+ "summary": "Hilde Harrow says Isolt Charnock has an order for 4 sacks of wheat that cannot wait. The stock is at the mill yard, and the deadline is before the tithe collector counts the barns.",
+ "giver": {
+  "npc": "hilde_harrow",
+  "name": "Hilde Harrow",
+  "place": "millbrook"
+ },
+ "offer_text": "\"Isolt Charnock has an order and nobody to fetch it. Hear Isolt out, then bring the goods from the mill yard before the tithe collector counts the barns. I will vouch for you.\"",
+ "stages": [
+  {
+   "id": "order",
+   "title": "Hear the order",
+   "mode": "all",
+   "objectives": [
+    {
+     "id": "hear",
+     "type": "talk_to",
+     "npc": "isolt_charnock",
+     "text": "Hear what Isolt Charnock needs"
+    }
+   ]
+  },
+  {
+   "id": "gather",
+   "title": "Gather the stock",
+   "mode": "all",
+   "objectives": [
+    {
+     "id": "gather",
+     "type": "collect",
+     "item": "wheat",
+     "count": 4,
+     "text": "Take 4 sacks of wheat from the mill yard"
+    }
+   ]
+  },
+  {
+   "id": "deliver",
+   "title": "Fill the order",
+   "mode": "all",
+   "objectives": [
+    {
+     "id": "fill",
+     "type": "deliver",
+     "item": "wheat",
+     "count": 4,
+     "to": "isolt_charnock",
+     "text": "Hand the sacks of wheat to Isolt Charnock"
+    }
+   ],
+   "end": true
+  }
+ ],
+ "rewards": {
+  "gold": 16,
+  "rep": {
+   "millbrook": 3
+  },
+  "relationship": [
+   {
+    "npc": "hilde_harrow",
+    "label": "Filled a standing order",
+    "value": 8,
+    "days": 45
+   }
+  ],
+  "items": {
+   "bread": 2
+  }
+ }
+}

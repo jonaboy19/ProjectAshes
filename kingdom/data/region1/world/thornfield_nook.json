@@ -1,0 +1,47 @@
+{
+ "version": 1,
+ "_doc": "The Miner's Nook (F9 hidden cave): a tiny hand-made mine, the same format as thornfield_rift.json (read by rift_layout.gd, opened by rift_door.gd). Two rooms, a couple of rats, a strongbox, ore (iron, copper and coal) and a miner's last journal. No boss, no camp.",
+ "id": "thornfield_nook",
+ "name": "Miner's Nook",
+ "theme": "mine",
+ "tier": 1,
+ "seed": 90211,
+ "level": [2, 6],
+ "side": 24,
+ "height": [3.6, 4.6],
+ "organic": false,
+ "dark": false,
+ "rooms": [
+  {"id": 0, "name": "The Crack", "role": "entrance", "rect": [3, 8, 6, 6], "chamfer": 1},
+  {"id": 1, "name": "Ore Chamber", "role": "chamber", "rect": [13, 6, 8, 10], "chamfer": 1}
+ ],
+ "corridors": [
+  {"a": 0, "b": 1, "path": [[8, 11], [13, 11]], "width": 2}
+ ],
+ "exit": {"cell": [3, 11], "dir": [-1, 0]},
+ "creatures": [
+  {"id": "m1", "kind": "giant_rat", "cell": [16, 9], "room": 1, "level": 3},
+  {"id": "m2", "kind": "giant_rat", "cell": [18, 13], "room": 1, "level": 3}
+ ],
+ "chests": [
+  {"id": "k1", "room": 1, "wall": [20, 8, 1, 0], "tier": 1, "label": "Miner's strongbox", "vault": false,
+   "loot": [["coal", 3], ["iron_ore", 2], ["bandage", 1], ["gold", 12]]}
+ ],
+ "nodes": [
+  {"id": "n1", "kind": "iron_ore", "wall": [14, 6, 0, -1], "room": 1, "count": 2, "needs_pick": true},
+  {"id": "n2", "kind": "iron_ore", "wall": [17, 6, 0, -1], "room": 1, "count": 2, "needs_pick": true},
+  {"id": "n3", "kind": "copper_ore", "wall": [20, 13, 1, 0], "room": 1, "count": 2, "needs_pick": true},
+  {"id": "n4", "kind": "coal", "wall": [14, 15, 0, 1], "room": 1, "count": 2, "needs_pick": false}
+ ],
+ "lore": [
+  {"id": "j1", "room": 1, "cell": [18, 14], "title": "Miner's last page", "kind": "journal",
+   "text": "Day 9. Struck iron behind the second prop and told no one. If the roof holds I will be rich by harvest. If it does not, tell Mara the lamp was lit.",
+   "fact": "topic:thornfield_nook_miner"}
+ ],
+ "lights": [
+  {"kind": "lantern", "wall": [4, 8, 0, -1], "room": 0},
+  {"kind": "lantern", "wall": [20, 10, 1, 0], "room": 1},
+  {"kind": "lantern", "wall": [14, 15, 0, 1], "room": 1}
+ ],
+ "clutter": [["crate", 14.5, 14.0, 1], ["rock", 19.0, 9.0, 1], ["barrel", 4.5, 12.5, 1]]
+}

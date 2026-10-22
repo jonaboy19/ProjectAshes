@@ -2,12 +2,12 @@
  {
   "name": "MA_Acro_HandSpinKick",
   "loop": false,
-  "seconds": 3.8,
-  "frames": 115,
-  "keys": 1984,
+  "seconds": 3.4,
+  "frames": 103,
+  "keys": 2093,
   "source": "087/87_01.bvh",
   "range_s": [
-   0.4,
+   0.8,
    4.2
   ],
   "autotrim": null,
@@ -16,18 +16,23 @@
   "contact_lift_m": 0.036,
   "min_foot_m": -0.001,
   "travel_m": 2.31,
-  "hip_scale": 0.0567
+  "hip_scale": 0.0567,
+  "trimmed_from_s": [
+   0.4,
+   3.8
+  ],
+  "polish": "cmu_acro_fix.py: trim, root rebased, toes straightened, grounded"
  },
  {
   "name": "MA_Acro_Cartwheel_A",
   "loop": false,
-  "seconds": 2.77,
-  "frames": 84,
-  "keys": 1235,
+  "seconds": 2.53,
+  "frames": 77,
+  "keys": 1553,
   "source": "144/144_01.bvh",
   "range_s": [
    1.44,
-   4.21
+   3.97
   ],
   "autotrim": null,
   "loop_pts": null,
@@ -35,18 +40,23 @@
   "contact_lift_m": 0.155,
   "min_foot_m": 0.072,
   "travel_m": 2.27,
-  "hip_scale": 0.0583
+  "hip_scale": 0.0583,
+  "trimmed_from_s": [
+   0.0,
+   2.53
+  ],
+  "polish": "cmu_acro_fix.py: trim, root rebased, toes straightened, grounded"
  },
  {
   "name": "MA_Acro_Cartwheel_B",
   "loop": false,
-  "seconds": 2.63,
-  "frames": 80,
-  "keys": 1209,
+  "seconds": 2.4,
+  "frames": 73,
+  "keys": 1488,
   "source": "144/144_01.bvh",
   "range_s": [
    8.42,
-   11.07
+   10.82
   ],
   "autotrim": null,
   "loop_pts": null,
@@ -54,18 +64,23 @@
   "contact_lift_m": 0.178,
   "min_foot_m": 0.072,
   "travel_m": 2.37,
-  "hip_scale": 0.0583
+  "hip_scale": 0.0583,
+  "trimmed_from_s": [
+   0.0,
+   2.4
+  ],
+  "polish": "cmu_acro_fix.py: trim, root rebased, toes straightened, grounded"
  },
  {
   "name": "MA_Acro_Cartwheel_C",
   "loop": false,
-  "seconds": 2.9,
-  "frames": 88,
-  "keys": 1287,
+  "seconds": 2.6,
+  "frames": 79,
+  "keys": 1583,
   "source": "144/144_01.bvh",
   "range_s": [
    14.02,
-   16.92
+   16.62
   ],
   "autotrim": null,
   "loop_pts": null,
@@ -73,17 +88,22 @@
   "contact_lift_m": 0.185,
   "min_foot_m": 0.05,
   "travel_m": 2.46,
-  "hip_scale": 0.0583
+  "hip_scale": 0.0583,
+  "trimmed_from_s": [
+   0.0,
+   2.6
+  ],
+  "polish": "cmu_acro_fix.py: trim, root rebased, toes straightened, grounded"
  },
  {
   "name": "MA_Acro_Cartwheel_D",
   "loop": false,
-  "seconds": 3.6,
-  "frames": 109,
-  "keys": 1746,
+  "seconds": 3.4,
+  "frames": 103,
+  "keys": 2166,
   "source": "049/49_06.bvh",
   "range_s": [
-   0.3,
+   0.5,
    3.9
   ],
   "autotrim": null,
@@ -92,33 +112,19 @@
   "contact_lift_m": 0.215,
   "min_foot_m": 0.093,
   "travel_m": 2.61,
-  "hip_scale": 0.0516
- },
- {
-  "name": "MA_Acro_Cartwheel_E",
-  "loop": false,
-  "seconds": 2.63,
-  "frames": 80,
-  "keys": 1550,
-  "source": "088/88_09.bvh",
-  "range_s": [
-   0.5,
-   3.4
+  "hip_scale": 0.0516,
+  "trimmed_from_s": [
+   0.2,
+   3.6
   ],
-  "autotrim": null,
-  "loop_pts": null,
-  "floor_fix_m": 0.003,
-  "contact_lift_m": 0.246,
-  "min_foot_m": -0.0,
-  "travel_m": 1.83,
-  "hip_scale": 0.0575
+  "polish": "cmu_acro_fix.py: trim, root rebased, toes straightened, grounded"
  },
  {
   "name": "MA_Acro_Backflip_A",
   "loop": false,
   "seconds": 1.47,
   "frames": 45,
-  "keys": 883,
+  "keys": 990,
   "source": "088/88_01.bvh",
   "range_s": [
    0.2,
@@ -130,17 +136,22 @@
   "contact_lift_m": 0.117,
   "min_foot_m": 0.001,
   "travel_m": 0.47,
-  "hip_scale": 0.0575
+  "hip_scale": 0.0575,
+  "trimmed_from_s": [
+   0.0,
+   1.47
+  ],
+  "polish": "cmu_acro_fix.py: trim, root rebased, toes straightened, grounded"
  },
  {
   "name": "MA_Acro_Backflip_B",
   "loop": false,
-  "seconds": 1.53,
-  "frames": 47,
-  "keys": 864,
+  "seconds": 1.27,
+  "frames": 39,
+  "keys": 928,
   "source": "087/87_03.bvh",
   "range_s": [
-   0.5,
+   0.77,
    2.03
   ],
   "autotrim": null,
@@ -149,18 +160,23 @@
   "contact_lift_m": 0.015,
   "min_foot_m": -0.02,
   "travel_m": 1.59,
-  "hip_scale": 0.0567
+  "hip_scale": 0.0567,
+  "trimmed_from_s": [
+   0.27,
+   1.53
+  ],
+  "polish": "cmu_acro_fix.py: trim, root rebased, toes straightened, grounded"
  },
  {
   "name": "MA_Acro_Backflip_C",
   "loop": false,
-  "seconds": 1.4,
-  "frames": 43,
-  "keys": 835,
+  "seconds": 1.2,
+  "frames": 37,
+  "keys": 853,
   "source": "087/87_04.bvh",
   "range_s": [
-   0.4,
-   1.9
+   0.53,
+   1.73
   ],
   "autotrim": null,
   "loop_pts": null,
@@ -168,17 +184,22 @@
   "contact_lift_m": 0.055,
   "min_foot_m": 0.002,
   "travel_m": 1.34,
-  "hip_scale": 0.0567
+  "hip_scale": 0.0567,
+  "trimmed_from_s": [
+   0.13,
+   1.33
+  ],
+  "polish": "cmu_acro_fix.py: trim, root rebased, toes straightened, grounded"
  },
  {
   "name": "MA_Acro_Somersault_Back",
   "loop": false,
-  "seconds": 3.5,
-  "frames": 106,
-  "keys": 1699,
+  "seconds": 3.3,
+  "frames": 100,
+  "keys": 1925,
   "source": "090/90_01.bvh",
   "range_s": [
-   2.0,
+   2.2,
    5.5
   ],
   "autotrim": null,
@@ -187,17 +208,22 @@
   "contact_lift_m": 0.274,
   "min_foot_m": -0.059,
   "travel_m": 1.92,
-  "hip_scale": 0.0502
+  "hip_scale": 0.0502,
+  "trimmed_from_s": [
+   0.2,
+   3.5
+  ],
+  "polish": "cmu_acro_fix.py: trim, root rebased, toes straightened, grounded"
  },
  {
   "name": "MA_Acro_Handspring",
   "loop": false,
-  "seconds": 1.4,
-  "frames": 43,
-  "keys": 853,
+  "seconds": 1.37,
+  "frames": 42,
+  "keys": 917,
   "source": "090/90_11.bvh",
   "range_s": [
-   0.0,
+   0.03,
    1.4
   ],
   "autotrim": null,
@@ -206,36 +232,22 @@
   "contact_lift_m": 0.217,
   "min_foot_m": 0.072,
   "travel_m": 2.81,
-  "hip_scale": 0.0502
- },
- {
-  "name": "MA_Acro_FrontHandFlip_A",
-  "loop": false,
-  "seconds": 2.5,
-  "frames": 76,
-  "keys": 958,
-  "source": "090/90_14.bvh",
-  "range_s": [
-   2.0,
-   4.5
+  "hip_scale": 0.0502,
+  "trimmed_from_s": [
+   0.03,
+   1.4
   ],
-  "autotrim": null,
-  "loop_pts": null,
-  "floor_fix_m": -0.071,
-  "contact_lift_m": 0.172,
-  "min_foot_m": 0.031,
-  "travel_m": 0.89,
-  "hip_scale": 0.0502
+  "polish": "cmu_acro_fix.py: trim, root rebased, toes straightened, grounded"
  },
  {
   "name": "MA_Acro_FrontHandFlip_B",
   "loop": false,
-  "seconds": 3.0,
-  "frames": 91,
-  "keys": 1188,
+  "seconds": 2.0,
+  "frames": 61,
+  "keys": 1279,
   "source": "090/90_15.bvh",
   "range_s": [
-   2.0,
+   3.0,
    5.0
   ],
   "autotrim": null,
@@ -244,17 +256,22 @@
   "contact_lift_m": 0.186,
   "min_foot_m": -0.004,
   "travel_m": 1.72,
-  "hip_scale": 0.0502
+  "hip_scale": 0.0502,
+  "trimmed_from_s": [
+   1.0,
+   3.0
+  ],
+  "polish": "cmu_acro_fix.py: trim, root rebased, toes straightened, grounded"
  },
  {
   "name": "MA_Acro_SideFlip",
   "loop": false,
-  "seconds": 2.3,
-  "frames": 70,
-  "keys": 1177,
+  "seconds": 1.67,
+  "frames": 51,
+  "keys": 1121,
   "source": "090/90_08.bvh",
   "range_s": [
-   0.5,
+   1.13,
    2.8
   ],
   "autotrim": null,
@@ -263,18 +280,23 @@
   "contact_lift_m": 0.0,
   "min_foot_m": -0.047,
   "travel_m": 1.3,
-  "hip_scale": 0.0502
+  "hip_scale": 0.0502,
+  "trimmed_from_s": [
+   0.63,
+   2.3
+  ],
+  "polish": "cmu_acro_fix.py: trim, root rebased, toes straightened, grounded"
  },
  {
   "name": "MA_Acro_FlipForward_Hands",
   "loop": false,
-  "seconds": 1.7,
-  "frames": 52,
-  "keys": 1026,
+  "seconds": 1.5,
+  "frames": 46,
+  "keys": 1048,
   "source": "090/90_09.bvh",
   "range_s": [
    0.8,
-   2.5
+   2.3
   ],
   "autotrim": null,
   "loop_pts": null,
@@ -282,17 +304,22 @@
   "contact_lift_m": 0.306,
   "min_foot_m": 0.007,
   "travel_m": 0.18,
-  "hip_scale": 0.0502
+  "hip_scale": 0.0502,
+  "trimmed_from_s": [
+   0.0,
+   1.5
+  ],
+  "polish": "cmu_acro_fix.py: trim, root rebased, toes straightened, grounded"
  },
  {
   "name": "MA_Acro_BackflipBackOnHands",
   "loop": false,
-  "seconds": 2.1,
-  "frames": 64,
-  "keys": 1188,
+  "seconds": 2.0,
+  "frames": 61,
+  "keys": 1338,
   "source": "088/88_08.bvh",
   "range_s": [
-   0.3,
+   0.4,
    2.4
   ],
   "autotrim": null,
@@ -301,33 +328,19 @@
   "contact_lift_m": 0.258,
   "min_foot_m": -0.001,
   "travel_m": 1.37,
-  "hip_scale": 0.0575
- },
- {
-  "name": "MA_Acro_Flip_A",
-  "loop": false,
-  "seconds": 5.5,
-  "frames": 166,
-  "keys": 2621,
-  "source": "085/85_01.bvh",
-  "range_s": [
-   1.0,
-   6.5
+  "hip_scale": 0.0575,
+  "trimmed_from_s": [
+   0.1,
+   2.1
   ],
-  "autotrim": null,
-  "loop_pts": null,
-  "floor_fix_m": 0.005,
-  "contact_lift_m": 0.296,
-  "min_foot_m": 0.001,
-  "travel_m": 1.34,
-  "hip_scale": 0.0539
+  "polish": "cmu_acro_fix.py: trim, root rebased, toes straightened, grounded"
  },
  {
   "name": "MA_Acro_HandstandKicks",
   "loop": false,
-  "seconds": 9.5,
-  "frames": 286,
-  "keys": 4738,
+  "seconds": 7.13,
+  "frames": 215,
+  "keys": 11610,
   "source": "085/85_05.bvh",
   "range_s": [
    1.5,
@@ -339,14 +352,15 @@
   "contact_lift_m": 0.281,
   "min_foot_m": 0.001,
   "travel_m": 0.85,
-  "hip_scale": 0.0539
+  "hip_scale": 0.0539,
+  "polish": "cmu_acro_splice.py: stand -> handstand + kicks, entry played backwards to stand"
  },
  {
   "name": "MA_Acro_KickFlip",
   "loop": false,
   "seconds": 2.6,
   "frames": 79,
-  "keys": 1462,
+  "keys": 1632,
   "source": "085/85_06.bvh",
   "range_s": [
    4.9,
@@ -358,25 +372,11 @@
   "contact_lift_m": 0.038,
   "min_foot_m": 0.004,
   "travel_m": 0.83,
-  "hip_scale": 0.0539
- },
- {
-  "name": "MA_Acro_MonkeyBackflip",
-  "loop": false,
-  "seconds": 4.5,
-  "frames": 136,
-  "keys": 2256,
-  "source": "090/90_19.bvh",
-  "range_s": [
-   1.5,
-   6.0
+  "hip_scale": 0.0539,
+  "trimmed_from_s": [
+   0.0,
+   2.6
   ],
-  "autotrim": null,
-  "loop_pts": null,
-  "floor_fix_m": 0.015,
-  "contact_lift_m": 0.323,
-  "min_foot_m": -0.069,
-  "travel_m": 1.28,
-  "hip_scale": 0.0502
+  "polish": "cmu_acro_fix.py: trim, root rebased, toes straightened, grounded"
  }
 ]

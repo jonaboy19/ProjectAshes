@@ -1,0 +1,14 @@
+{
+	"version": 1,
+	"cultures": {
+		"valencios": {"reads": "secular", "t2_guard": "call_guard", "licence": true, "inquisitors": false, "officer_training": 0.5, "bribe_base": 0.45, "dread_mult": 1.0, "awe_mult": 0.8},
+		"church": {"reads": "faith", "t2_pious": "kneel", "inquisitors": true, "officer_training": 0.8, "bribe_base": 0.2, "dread_mult": 1.2, "awe_mult": 1.4},
+		"monster_town": {"reads": "language", "fear_mult": 0.5, "calls_guard": false, "release_expected": true, "dread_mult": 0.4, "awe_mult": 1.0},
+		"sect": {"reads": "rank", "fear_mult": 0.7, "sanctum_insult": true, "dread_mult": 0.5, "awe_mult": 1.2},
+		"frontier": {"reads": "protection", "dread_mult": 0.7, "awe_mult": 1.1},
+		"other": {"reads": "neutral", "dread_mult": 1.0, "awe_mult": 1.0}
+	},
+	"signatures": {
+		"warm_gold": "holy", "cold_white": "neutral", "dark_swirl": "demonic", "red_flicker": "demonic", "living_green": "holy"
+	}
+}

@@ -47,8 +47,15 @@ render_mode blend_mix, cull_back, diffuse_burley, specular_schlick_ggx;
 uniform sampler2D normal_a : hint_normal, filter_linear_mipmap, repeat_enable;
 uniform sampler2D normal_b : hint_normal, filter_linear_mipmap, repeat_enable;
 uniform sampler2D foam_noise : filter_linear_mipmap, repeat_enable;
-uniform sampler2D screen_tex : hint_screen_texture, filter_linear_mipmap;
+// Declaring a screen or depth texture makes the engine copy the frame (and split the
+// render pass on tile-based phone GPUs) whether or not a branch reads it, so the LOW tier
+// compiles a variant without them: WaterStreamer prepends `#define WATER_LITE`.
+// No mipmaps on the screen copy: only LOD 0 is ever read, and mip generation is a
+// per-frame chain of blur passes.
+#ifndef WATER_LITE
+uniform sampler2D screen_tex : hint_screen_texture, filter_linear;
 uniform sampler2D depth_tex : hint_depth_texture, filter_nearest;
+#endif
 
 uniform vec3 shallow_color : source_color = vec3(0.16, 0.55, 0.52);
 uniform vec3 deep_color : source_color = vec3(0.012, 0.06, 0.10);
@@ -222,8 +229,13 @@ void fragment() {
 	// --- Depth below the surface (vertical) and along the view ray.
 	vec3 surface = (INV_VIEW_MATRIX * vec4(VERTEX, 1.0)).xyz;
 	vec3 view_w = normalize(CAMERA_POSITION_WORLD - surface);
+#ifdef WATER_LITE
+	float raw_depth = 0.0;
+	vec3 bottom = surface;
+#else
 	float raw_depth = texture(depth_tex, SCREEN_UV).r;
 	vec3 bottom = world_from_depth(SCREEN_UV, raw_depth, INV_PROJECTION_MATRIX, INV_VIEW_MATRIX);
+#endif
 	float depth_v = max(surface.y - bottom.y, 0.0);
 	// No usable depth buffer (MSAA on some drivers, some mobile GPUs): fall back
 	// to the per-vertex terrain depth baked by WaterStreamer.
@@ -234,6 +246,7 @@ void fragment() {
 	}
 
 	vec2 ruv = SCREEN_UV;
+#ifndef WATER_LITE
 	if (use_refraction && depth_ok) {
 		vec2 try_uv = SCREEN_UV + nxy * refraction * clamp(depth_v, 0.0, 1.5);
 		vec3 b2 = world_from_depth(try_uv, texture(depth_tex, try_uv).r, INV_PROJECTION_MATRIX, INV_VIEW_MATRIX);
@@ -243,6 +256,7 @@ void fragment() {
 			depth_v = max(surface.y - bottom.y, 0.0);
 		}
 	}
+#endif
 	float path = distance(surface, bottom);
 	vec3 transmit = exp(-absorption * path * (1.4 - clarity));
 	float murk = 1.0 - exp(-depth_v / (scatter_depth * (0.6 + clarity)));
@@ -272,7 +286,11 @@ void fragment() {
 	}
 	foam = max(foam, clamp(rip.z, 0.0, 1.0) * ripple_strength);
 
+#ifdef WATER_LITE
+	vec3 behind = vec3(0.0);
+#else
 	vec3 behind = use_refraction ? textureLod(screen_tex, ruv, 0.0).rgb : vec3(0.0);
+#endif
 	// --- Caustics on the bed, and sun glints on the surface.
 	float day = clamp(sun_energy, 0.0, 1.0);
 	vec3 caustic_add = vec3(0.0);

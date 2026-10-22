@@ -334,6 +334,12 @@ static func _budget() -> int:
 
 
 func _check_range() -> void:
+	# A duplicated model (e.g. the dialogue portrait copies an NPC's model) carries a
+	# copy of this node without its setup: nothing to drive, so remove the copy.
+	if _model == null or not is_instance_valid(_model):
+		_candidates.erase(get_instance_id())
+		queue_free()
+		return
 	if _camera == null or not is_instance_valid(_camera) or not _camera.current:
 		_camera = get_viewport().get_camera_3d() if is_inside_tree() else null
 	var near := false

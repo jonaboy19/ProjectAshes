@@ -1,0 +1,76 @@
+{
+ "id": "wolfsend_thinning_the_wolves",
+ "title": "Thinning the Wolves",
+ "summary": "Wolf sign has been found at the edge of Wolfsend: tracks too big for a dog and fences torn outward. Tuck Pikeman wants 2 of them dealt with.",
+ "giver": {
+  "npc": "tuck_pikeman",
+  "name": "Tuck Pikeman",
+  "place": "wolfsend"
+ },
+ "requires": [
+  "wolfsend_quiet_goods"
+ ],
+ "offer_text": "\"The wolves have come closer to Wolfsend each night: howling closer every night. Go to the edge and thin them out, before someone is hurt.\"",
+ "turn_in_text": "\"Quieter already. I will sleep tonight. A little.\"",
+ "stages": [
+  {
+   "id": "edge",
+   "title": "Go to the edge of town",
+   "mode": "all",
+   "objectives": [
+    {
+     "id": "reach",
+     "type": "goto",
+     "place": "wolfsend_outskirts",
+     "text": "Go to where the wolves were seen"
+    }
+   ]
+  },
+  {
+   "id": "hunt",
+   "title": "Thin them out",
+   "mode": "all",
+   "objectives": [
+    {
+     "id": "hunt",
+     "type": "kill",
+     "target": "wolf",
+     "place": "wolfsend_outskirts",
+     "count": 2,
+     "text": "Kill 2 wolves near Wolfsend"
+    }
+   ]
+  },
+  {
+   "id": "report",
+   "title": "Tell Tuck",
+   "mode": "all",
+   "objectives": [
+    {
+     "id": "report",
+     "type": "talk_to",
+     "npc": "tuck_pikeman",
+     "text": "Tell Tuck Pikeman it is done"
+    }
+   ],
+   "end": true
+  }
+ ],
+ "rewards": {
+  "gold": 25,
+  "rep": {
+   "wolfsend": 5
+  },
+  "relationship": [
+   {
+    "npc": "tuck_pikeman",
+    "label": "Kept the wolves from the edge",
+    "value": 10,
+    "days": 60
+   }
+  ],
+  "items": {
+   "bandage": 2
+  }
+ }
+}

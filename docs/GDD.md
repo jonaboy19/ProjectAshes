@@ -1,3 +1,5 @@
+> **SUPERSEDED (2026-09-30, package C0).** This document predates the current game (Godot 4.6, 3D storybook look, Region 1 = the Ashford Vale of Valencious). The live design is `docs/RISING_ASHES_OPEN_WORLD.md` and `docs/regions/REGION_1_PLAN.md`; canon names are in `docs/regions/OWNER_DECISIONS.md`. Kept for history only.
+
 # Rising Ashes — Game Design Document (v0.1)
 
 > Status: first draft. Anything marked **[PLACEHOLDER]** was inferred from the

@@ -5,6 +5,7 @@ extends RefCounted
 ## travel time in seconds so gameplay can apply damage when the impact lands.
 
 const K := preload("res://scripts/vfx/vfx_kit.gd")
+const Decals := preload("res://scripts/vfx/ground_decals.gd")
 
 
 # --- rune circles ---------------------------------------------------------------
@@ -546,7 +547,7 @@ static func tidal_ring(parent: Node, pos: Vector3, radius := 4.0) -> void:
 static func earthquake(parent: Node, pos: Vector3, radius := 4.0, seconds := 2.0) -> void:
 	var p := {"tint": Color(1.0, 0.45, 0.1), "hot": Color(1.0, 0.85, 0.5), "edge": Color(0.45, 0.08, 0.02)}
 	var cm := K.fx_mat(K.CRACK, p, 3.0, {"width": 1.0, "speed": 1.0})
-	var crack := K.ground(parent, pos, cm, radius * 2.0)
+	var crack := K.ground(parent, pos, cm, Decals.crack_size(radius))     # a few metres across, not the whole AoE disc
 	K.anim(crack, cm, "progress", 0.05, 1.0, 0.45, 0.0, Tween.EASE_OUT, Tween.TRANS_CUBIC)
 	K.anim(crack, cm, "fade", 1.0, 0.0, 0.7, seconds - 0.7, Tween.EASE_IN)
 	K.free_after(crack, seconds + 0.05)

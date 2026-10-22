@@ -1,0 +1,332 @@
+{
+ "source_type": "bvh",
+ "bvh_dir": "../../assets/incoming/mocap/cmu/_raw",
+ "ual": "../../assets/incoming/quaternius/universal-animation-library/Unreal-Godot/UAL1_Standard.glb",
+ "out": "../../assets/incoming/mocap/cmu/clips/UAL_CMU_Bending.glb",
+ "smooth": 0.015,
+ "fingers": "relaxed",
+ "finger_poses": {
+  "relaxed": [
+   "Idle_Loop",
+   0.0
+  ],
+  "fist": [
+   "Punch_Jab",
+   0.4
+  ]
+ },
+ "map": {
+  "pelvis": "Hips",
+  "spine_01": "LowerBack",
+  "spine_02": "Spine",
+  "spine_03": "Spine1",
+  "neck_01": "Neck",
+  "Head": "Head",
+  "clavicle_l": "LeftShoulder",
+  "upperarm_l": "LeftArm",
+  "lowerarm_l": "LeftForeArm",
+  "hand_l": "LeftHand",
+  "clavicle_r": "RightShoulder",
+  "upperarm_r": "RightArm",
+  "lowerarm_r": "RightForeArm",
+  "hand_r": "RightHand",
+  "thigh_l": "LeftUpLeg",
+  "calf_l": "LeftLeg",
+  "foot_l": "LeftFoot",
+  "ball_l": "LeftToeBase",
+  "thigh_r": "RightUpLeg",
+  "calf_r": "RightLeg",
+  "foot_r": "RightFoot",
+  "ball_r": "RightToeBase"
+ },
+ "clips": [
+  {
+   "name": "Water_Flow_SunSalute",
+   "file": "144/144_31.bvh",
+   "start": 0.7,
+   "end": 5.4,
+   "fingers": "relaxed",
+   "smooth": 0.01
+  },
+  {
+   "name": "Water_Dance_ArmsHigh",
+   "file": "049/49_09.bvh",
+   "start": 0.4,
+   "end": 4.2,
+   "fingers": "relaxed",
+   "smooth": 0.01
+  },
+  {
+   "name": "Water_Lean_Sway_A",
+   "file": "005/05_04.bvh",
+   "start": 4.8,
+   "end": 8.4,
+   "fingers": "relaxed",
+   "smooth": 0.01
+  },
+  {
+   "name": "Water_SpinReach_L",
+   "file": "144/144_15.bvh",
+   "start": 4.4,
+   "end": 6.8,
+   "fingers": "relaxed",
+   "smooth": 0.01
+  },
+  {
+   "name": "Water_Whirl",
+   "file": "055/55_01.bvh",
+   "start": 0.5,
+   "end": 6.5,
+   "fingers": "relaxed",
+   "smooth": 0.01
+  },
+  {
+   "name": "Air_Evade_L",
+   "file": "078/78_18.bvh",
+   "start": 0,
+   "end": 1.8,
+   "fingers": "relaxed",
+   "smooth": 0.01
+  },
+  {
+   "name": "Air_Evade_R",
+   "file": "078/78_19.bvh",
+   "start": 0,
+   "end": 1.5,
+   "fingers": "relaxed",
+   "smooth": 0.01
+  },
+  {
+   "name": "Air_Duck_Weave_L",
+   "file": "078/78_13.bvh",
+   "start": 0,
+   "end": 1.1,
+   "fingers": "relaxed",
+   "smooth": 0.01
+  },
+  {
+   "name": "Air_Balance_OneLeg",
+   "file": "049/49_18.bvh",
+   "start": 0.3,
+   "end": 4.3,
+   "fingers": "relaxed",
+   "smooth": 0.01
+  },
+  {
+   "name": "Air_SpinJump_360",
+   "file": "075/75_08.bvh",
+   "start": 1.6,
+   "end": 3.0,
+   "fingers": "relaxed",
+   "smooth": 0.01
+  },
+  {
+   "name": "Air_Handspring_Evade",
+   "file": "088/88_04.bvh",
+   "start": 3.3,
+   "end": 4.6,
+   "fingers": "fist",
+   "smooth": 0.01
+  },
+  {
+   "name": "Air_Jump_Twist",
+   "file": "141/141_06.bvh",
+   "start": 3.6,
+   "end": 5.2,
+   "fingers": "relaxed",
+   "smooth": 0.01
+  },
+  {
+   "name": "Earth_Lunge_R",
+   "file": "144/144_17.bvh",
+   "start": 3.2,
+   "end": 5.7,
+   "fingers": "fist",
+   "smooth": 0.01
+  },
+  {
+   "name": "Earth_Lunge_L",
+   "file": "144/144_11.bvh",
+   "start": 2.9,
+   "end": 5.4,
+   "fingers": "fist",
+   "smooth": 0.01
+  },
+  {
+   "name": "Earth_PunchSeq_L",
+   "file": "144/144_13.bvh",
+   "start": 1.5,
+   "end": 6.5,
+   "fingers": "fist",
+   "smooth": 0.01
+  },
+  {
+   "name": "Earth_PunchSeq_Deep",
+   "file": "144/144_20.bvh",
+   "start": 3,
+   "end": 4.6,
+   "fingers": "fist",
+   "smooth": 0.01
+  },
+  {
+   "name": "Earth_Crouch_Reach_R",
+   "file": "144/144_24.bvh",
+   "start": 15.9,
+   "end": 17.7,
+   "fingers": "relaxed",
+   "smooth": 0.01
+  },
+  {
+   "name": "Fire_Box_Combo_A",
+   "file": "013/13_17.bvh",
+   "start": 4.6,
+   "end": 9,
+   "fingers": "fist",
+   "smooth": 0.01
+  },
+  {
+   "name": "Fire_Box_Combo_B",
+   "file": "014/14_02.bvh",
+   "start": 20.6,
+   "end": 22.0,
+   "fingers": "fist",
+   "smooth": 0.01
+  },
+  {
+   "name": "Fire_Box_Combo_C",
+   "file": "017/17_10.bvh",
+   "start": 3.8,
+   "end": 8.2,
+   "fingers": "fist",
+   "smooth": 0.01
+  },
+  {
+   "name": "Fire_Punch_Kick",
+   "file": "141/141_14.bvh",
+   "start": 0.5,
+   "end": 4.8,
+   "fingers": "fist",
+   "smooth": 0.01
+  },
+  {
+   "name": "Fire_Aerial_Flip",
+   "file": "088/88_06.bvh",
+   "start": 0,
+   "end": 1.9,
+   "fingers": "fist",
+   "smooth": 0.01
+  },
+  {
+   "name": "Lightning_Point_Snap",
+   "file": "013/13_26.bvh",
+   "start": 6.1,
+   "end": 9.0,
+   "fingers": "fist",
+   "smooth": 0.01
+  },
+  {
+   "name": "Lightning_Punch_Snap",
+   "file": "143/143_23.bvh",
+   "start": 5.4,
+   "end": 6.6,
+   "fingers": "fist",
+   "smooth": 0.01
+  },
+  {
+   "name": "Guard_Ready_Defensive",
+   "file": "076/76_04.bvh",
+   "start": 0.3,
+   "end": 3.5,
+   "fingers": "fist",
+   "smooth": 0.01
+  },
+  {
+   "name": "Fire_Box_Jab_Hook_B",
+   "file": "013/13_17.bvh",
+   "start": 13.7,
+   "end": 16.4,
+   "fingers": "fist",
+   "smooth": 0.01
+  },
+  {
+   "name": "Fire_Box_Straight_C",
+   "file": "013/13_17.bvh",
+   "start": 16.4,
+   "end": 19.4,
+   "fingers": "fist",
+   "smooth": 0.01
+  },
+  {
+   "name": "Fire_Box_Hooks_D",
+   "file": "014/14_02.bvh",
+   "start": 5.3,
+   "end": 7.5,
+   "fingers": "fist",
+   "smooth": 0.01
+  },
+  {
+   "name": "Fire_Box_Flurry_E",
+   "file": "014/14_02.bvh",
+   "start": 7.5,
+   "end": 9.4,
+   "fingers": "fist",
+   "smooth": 0.01
+  },
+  {
+   "name": "Fire_Stride_Strike_F",
+   "file": "017/17_10.bvh",
+   "start": 11.0,
+   "end": 14.4,
+   "fingers": "fist",
+   "smooth": 0.01
+  },
+  {
+   "name": "Earth_Crouch_Reach_L",
+   "file": "144/144_22.bvh",
+   "start": 17.8,
+   "end": 20.6,
+   "fingers": "relaxed",
+   "smooth": 0.01
+  },
+  {
+   "name": "Earth_Spin_Reach_R",
+   "file": "144/144_28.bvh",
+   "start": 1.1,
+   "end": 5.0,
+   "fingers": "fist",
+   "smooth": 0.01
+  },
+  {
+   "name": "Earth_Punch_Hold_Deep",
+   "file": "144/144_13.bvh",
+   "start": 5,
+   "end": 11.7,
+   "fingers": "fist",
+   "smooth": 0.01
+  },
+  {
+   "name": "Cultivate_Yoga_Floor_Flow",
+   "file": "144/144_31.bvh",
+   "start": 7.9,
+   "end": 15.1,
+   "fingers": "relaxed",
+   "smooth": 0.01
+  },
+  {
+   "name": "Water_Lean_Sway_B",
+   "file": "049/49_12.bvh",
+   "start": 1.9,
+   "end": 5.4,
+   "fingers": "relaxed",
+   "smooth": 0.01
+  },
+  {
+   "name": "Air_Jump_Kick",
+   "file": "090/90_07.bvh",
+   "start": 5.0,
+   "end": 7.5,
+   "fingers": "fist",
+   "smooth": 0.01
+  }
+ ]
+}

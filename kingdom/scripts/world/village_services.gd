@@ -7,9 +7,12 @@ extends Node3D
 ## the same menus are offered inside: wire_settlement() hooks every InteriorDoor
 ## so the innkeeper, smith, receptionist and healer in a room get a Station.
 
+const Probe := preload("res://scripts/core/perf_probe.gd")
+const DistanceCull := preload("res://scripts/core/distance_cull.gd")
 const FarmLedger := preload("res://scripts/ui/farm_ledger.gd")
 const TradeScreen := preload("res://scripts/ui/trade_screen.gd")
 const CraftingScreen := preload("res://scripts/ui/crafting_screen.gd")
+const ShopScreen := preload("res://scripts/ui/shop_screen.gd")
 const InventoryScreen := preload("res://scripts/ui/inventory_screen.gd")
 const BuildMenu := preload("res://scripts/ui/build_menu.gd")
 const CareerScreen := preload("res://scripts/ui/career_screen.gd")
@@ -20,6 +23,7 @@ const SoulScreen := preload("res://scripts/ui/soul_screen.gd")
 const FamilyScreen := preload("res://scripts/ui/family_screen.gd")
 const BuildingProfiles := preload("res://scripts/world/building_profiles.gd")
 const RAProperty := preload("res://scripts/sim/property.gd")
+const SeasonsScript := preload("res://scripts/sim/seasons.gd")
 const MEGAKIT := "res://assets/incoming/quaternius/fantasy-props-megakit/Exports/glTF/"
 const BOARD := "res://assets/generated/notice_board.glb"
 const BED_PRICE := 3
@@ -27,7 +31,19 @@ const Relationships := preload("res://scripts/sim/relationships.gd")
 const RadiantQuests := preload("res://scripts/sim/radiant_quests.gd")
 const DialogueRunner := preload("res://scripts/sim/dialogue_runner.gd")
 const TalkTarget := preload("res://scripts/world/talk_target.gd")
+const TalkSession := preload("res://scripts/ui/talk_session.gd")
+const Region1Identity := preload("res://scripts/world/region1_identity.gd")
 const QUEST_SEED := 1066 * 31
+const Ownership := preload("res://scripts/sim/ownership.gd")
+const ShopHours := preload("res://scripts/sim/shop_hours.gd")
+const CrimeWatch := preload("res://scripts/population/crime_watch.gd")
+const Theft := preload("res://scripts/sim/theft.gd")
+const TownRoster := preload("res://scripts/world/town_kit/town_roster.gd")
+const TownTalk := preload("res://scripts/world/town_kit/town_talk.gd")
+const WardwrightUI := preload("res://scripts/ui/wardwright_ui.gd")
+const RecruitmentUI := preload("res://scripts/ui/recruitment_ui.gd")   # Living World §2: "Offer work" and the hiring board
+## NPC marker role -> ShopHours kind (the service shuts outside these hours; the inn never does).
+const ROLE_HOURS := {"blacksmith": "blacksmith", "healer": "healer", "receptionist": "guild"}
 const SOCIAL_TICK := 0.5
 ## Service keepers you can talk to: id -> [role, dialogue file, radiant giver role].
 const KEEPERS := {
@@ -46,6 +62,7 @@ var recruit: Callable       # (count) -> void
 var talk_target: Node3D
 ## Used until Life owns `relationships` / `radiant` (see relationships()).
 var _rel_local: Relationships = Relationships.new()
+var talk_session: Node               # in-world conversation world side (scripts/ui/talk_session.gd)
 var _radiant_local: RadiantQuests = RadiantQuests.new()
 ## The conversation on screen: {id, info, file, node, line, hint_id}.
 var _talk: Dictionary = {}
@@ -57,6 +74,7 @@ var _weather: Node
 var _weather_search := 0.0
 var _gossip: Dictionary = {}
 var _keeper_pos: Dictionary = {}     # keeper id -> Vector2 (where to report back)
+var _slice_keepers: Dictionary = {}  # keeper id ("smith", "innkeeper") -> roster id while inside a Thornfield slice building
 
 
 func setup(p_hud: HUD, p_captain: Captain, p_soldiers: Callable, p_recruit: Callable) -> void:
@@ -74,7 +92,10 @@ func _ready() -> void:
 	# Merchant in front of the first plaza stall (see SettlementBuilder).
 	var ang := 0.2
 	var stall := c + Vector2(cos(ang), sin(ang)) * (pr - 4.6)
-	_person("Market Trader", "Trade", merchant_menu, stall, c, "Trader")
+	var trader := _person("Market Trader", "Trade", _hours_gate("general_store", "Market Trader", merchant_menu), stall, c, "Trader")
+	trader.hours_kind = "general_store"
+	CrimeWatch.install(self)     # pickpocket hold, trespass, arrest (package F5)
+	preload("res://scripts/quests/quest_pump.gd").attach(self)   # feeds the library quest bus (F7)
 	_prop("Barrel_Apples", stall + Vector2(-sin(ang), cos(ang)) * 1.6, 1.0)
 	_prop("FarmCrate_Apple", stall + Vector2(sin(ang), -cos(ang)) * 1.5, 1.0)
 	# Innkeeper beside the inn's entrance, clear of the InteriorDoor (he is also
@@ -109,7 +130,7 @@ func _ready() -> void:
 	var board := Station.new("Notice Board", "Read", notice_menu)
 	add_child(board)
 	board.global_position = _ground(board_pos)
-	var model: Node3D = Assets.scene(BOARD).instantiate()
+	var model: Node3D = Assets.static_model(BOARD)
 	board.add_child(model)
 	board.look_at(_ground(board_pos + Vector2(-1.0, 3.0)), Vector3.UP, true)
 	board.rotate_y(PI)
@@ -118,6 +139,9 @@ func _ready() -> void:
 	relationships().add_sects(Life.lore.sects)
 	talk_target = TalkTarget.new(hud, talk_menu)
 	add_child(talk_target)
+	talk_session = TalkSession.new()
+	add_child(talk_session)
+	talk_session.ended.connect(_on_talk_session_ended)
 	# Compass / map marker for the tracked radiant quest (HUD asks active_objective_position()).
 	if hud and "quest_source" in hud and hud.get("quest_source") == null:
 		hud.set("quest_source", self)
@@ -164,22 +188,84 @@ func _role_service(role: String) -> Array:
 ## that loaded this room) is used to spot the player's own home: a house lot
 ## they own or rent gets a storage chest and, on a bed marker, a place to sleep.
 func _on_interior_entered(room: Node3D, door: InteriorDoor = null) -> void:
-	Life.crafting.scan_interior(room)
+	Life.crafting.scan_interior(room, _building_ref_for_door(door))
+	room.set_meta("building_owner", Ownership.owner_for_door(door))     # who owns what is inside (F5)
+	InnProps.populate(room)    # one of each interaction kind in the inn (scripts/interaction/kinds/)
 	for m in room.find_children("NPC_*", "Marker3D", true, false):
 		var svc := _role_service(String(m.get_meta("role", "")))
 		if svc.is_empty():
 			continue
-		var st := Station.new(svc[0], svc[1], svc[2])
+		var hk := String(ROLE_HOURS.get(String(m.get_meta("role", "")), ""))
+		var title := String(svc[0])
+		var slice_keeper := _slice_keeper_for(door)      # Thornfield: the roster's smith / innkeeper runs the building
+		var kid := _keeper_id_for_role(String(m.get_meta("role", "")))
+		if not slice_keeper.is_empty() and kid != "" and _slice_role_matches(slice_keeper, String(m.get_meta("role", ""))):
+			title = String(slice_keeper["name"])
+			_slice_keepers[kid] = String(slice_keeper["id"])
+			m.set_meta("look", TownRoster.look_of(slice_keeper))
+			m.set_meta("npc_id", String(slice_keeper["id"]))
+		elif kid != "":
+			_slice_keepers.erase(kid)
+		var st := Station.new(title, svc[1], _hours_gate(hk, title, svc[2]) if hk != "" else svc[2])
+		st.hours_kind = hk
 		st.name = "Service_" + String(m.name).trim_prefix("NPC_")
+		if m.has_meta("npc_id"):
+			st.set_meta("npc_id", m.get_meta("npc_id"))
 		room.add_child(st)
 		st.global_position = (m as Marker3D).global_position
+	var counter_keeper := _slice_keeper_for(door)
+	if not counter_keeper.is_empty():
+		for cs in room.find_children("Service_Merchant", "Station", true, false):
+			(cs as Station).set_meta("npc_id", String(counter_keeper["id"]))
+			for lb in cs.find_children("*", "Label3D", false, false):
+				(lb as Label3D).text = String(counter_keeper["name"])
+			(cs as Station).title = String(counter_keeper["name"])
 	if door and door.has_meta("lot_pos"):
 		var lot_id: String = Life.property.find_by_pos(door.get_meta("lot_pos"))
 		if lot_id != "" and Life.property.is_held(lot_id):
 			_furnish_home(room, lot_id)
 
 
+## The roster entry that runs the slice building `door` leads into ({} outside Thornfield's tagged lots).
+func _slice_keeper_for(door: InteriorDoor) -> Dictionary:
+	if door == null or not door.has_meta("bid"):
+		return {}
+	return TownRoster.keeper_of(String(door.get_meta("bid")))
+
+
+static func _keeper_id_for_role(role: String) -> String:
+	match role:
+		"blacksmith": return "smith"
+		"innkeeper": return "innkeeper"
+	return ""
+
+
+static func _slice_role_matches(keeper: Dictionary, marker_role: String) -> bool:
+	return (marker_role == "blacksmith" and String(keeper.get("role", "")) == "blacksmith") \
+		or (marker_role == "innkeeper" and String(keeper.get("role", "")) == "innkeeper")
+
+
+## Stable settlement/lot reference for station identity. The property registry
+## intentionally excludes civic lots such as the smithy, so resolve against
+## the canonical generated lot plan directly.
+func _building_ref_for_door(door: InteriorDoor) -> String:
+	if door == null or not door.has_meta("lot_pos"):
+		return ""
+	var lot_pos: Variant = door.get_meta("lot_pos")
+	if not lot_pos is Vector2:
+		return ""
+	for settlement_index in WorldGen.settlements.size():
+		var settlement: Dictionary = WorldGen.settlements[settlement_index]
+		var lots: Array = settlement.get("plan", {}).get("lots", [])
+		for lot_index in lots.size():
+			var pos: Vector2 = lots[lot_index].get("pos", Vector2.INF)
+			if pos.distance_squared_to(lot_pos) < 0.0001:
+				return "s%d:l%d" % [settlement_index, lot_index]
+	return ""
+
+
 const HomeChest := preload("res://scripts/world/home_chest.gd")
+const InnProps := preload("res://scripts/interaction/kinds/inn_props.gd")
 
 ## Puts a storage chest (if the property has one, i.e. it isn't a bare inn
 ## room) and, on a "BedSpawn" marker, a free "Sleep" station and sets the
@@ -225,6 +311,7 @@ func _person(title: String, verb: String, menu: Callable, at: Vector2, face: Vec
 	var anim := Assets.animation_player(body)
 	if anim:
 		anim.play("Idle" if anim.has_animation("Idle") else anim.get_animation_list()[0])
+	DistanceCull.attach(body, 80.0, anim)
 	var to := face - at
 	st.rotation.y = atan2(to.x, to.y)
 	return st
@@ -234,7 +321,7 @@ func _prop_gen(asset: String, at: Vector2, yaw: float) -> void:
 	var path := "res://assets/generated/%s.glb" % asset
 	if not ResourceLoader.exists(path):
 		return
-	var n: Node3D = Assets.scene(path).instantiate()
+	var n: Node3D = Assets.static_model(path)
 	add_child(n)
 	n.global_position = _ground(at)
 	n.rotation.y = yaw
@@ -247,7 +334,7 @@ func _prop(item: String, at: Vector2, scale_by: float) -> void:
 	var scene := Assets.scene(path)
 	if scene == null:   # exists but failed to load (e.g. not imported): skip instead of erroring every boot
 		return
-	var n: Node3D = scene.instantiate()
+	var n: Node3D = Assets.static_model(path)
 	n.scale = Vector3.ONE * scale_by
 	add_child(n)
 	n.global_position = _ground(at)
@@ -274,17 +361,43 @@ func _deliver_contract(id: int) -> String:
 	return "That contract is gone."
 
 
+## Wraps a service menu so it is shut outside the kind's opening hours (data/living_world/shop_hours.json): the
+## merchant says "Come back in the morning." and offers nothing.
+func _hours_gate(kind: String, title: String, open_menu: Callable) -> Callable:
+	return func() -> Dictionary:
+		var refusal := ShopHours.refusal(kind)
+		if refusal == "":
+			return open_menu.call()
+		return {"title": title, "body": "\"%s\"\n(%s)" % [refusal, ShopHours.hours_text(kind)], "options": []}
+
+
+## A fence's counter: pays a share of the list price for stolen goods, asks nothing (scripts/sim/theft.gd).
+func _fence_sell(item: String) -> String:
+	return String(Theft.fence_sell(item, -1).get("text", ""))
+
+
 func merchant_menu() -> Dictionary:
 	var m := Life.market
 	var opts: Array = []
-	for item: String in ["bread", "apple", "cheese", "bandage", "firewood"]:
-		opts.append(["Buy %s  —  %dg  (%d in stock)" % [Life.item_name(item), m.price(item), m.stock[item]],
+	# What the general store really has on the shelf now (ItemsDB shop + the market's own stock), not a fixed list.
+	for line: Dictionary in ShopHours.stock_lines(m, "general_store", 1, 10):
+		var item := String(line["item"])
+		opts.append(["Buy %s  —  %dg  (%d in stock)" % [Life.item_name(item), int(line["price"]), int(line["stock"])],
 			Life.buy.bind(item), m.can_buy(item, Game.gold) == ""])
 	for item: String in ["wolf_pelt", "wolf_meat", "firewood"]:
 		var n := Life.count(item)
 		if n > 0:
 			opts.append(["Sell %s ×%d  —  %dg each" % [Life.item_name(item), n, m.sell_price(item)],
 				Life.sell.bind(item), m.purse >= m.sell_price(item)])
+	if Theft.fence_available() and ShopHours.is_open("black_market"):
+		var fenced := {}
+		for st: Dictionary in Theft.stolen_stacks():
+			var fid := String(st["item"])
+			if fenced.has(fid):
+				continue
+			fenced[fid] = true
+			opts.append(["Fence %s (no questions)  —  %dg each" % [Life.item_name(fid), Theft.fence_price(fid)],
+				_fence_sell.bind(fid), true])
 	for c: Dictionary in Life.economy.contracts:
 		var need := int(c["amount"]) - int(c["filled"])
 		var have := Life.count(String(c["item"]))
@@ -292,11 +405,21 @@ func merchant_menu() -> Dictionary:
 			"Army order" if bool(c.get("war", false)) else "Contract", need, Life.item_name(String(c["item"])),
 			Life.economy._settlement_name(int(c["to"])), int(c["due_day"]), int(c["reward"]), have],
 			_deliver_contract.bind(int(c["id"])), have >= need])
+	opts.append(ShopScreen.menu_option(hud, "general_store", Life.market, 1, "Browse the general store", "General Store"))
+	opts.append(ShopScreen.menu_option(hud, "grocer", Life.market, 1, "Browse the grocer's stall", "Grocer"))
 	opts.append(["Trade routes & caravans", TradeScreen.open_for.bind(hud), true])
+	opts.append(_board_option("market"))
 	opts.append(_talk_option("trader"))
 	return {"title": "Market Trader",
 		"body": "\"Fresh from the farms. Pelts wanted: the tanner's short.\"\nYou carry %d gold. Trader's purse: %d gold." % [Game.gold, m.purse],
 		"options": opts}
+
+
+## The hiring board of this settlement's inn / market / guild hall (Living World §2: post a vacancy, read applicants).
+func _board_option(kind: String) -> Array:
+	return ["Hiring board  (post a vacancy, read applicants)", func() -> String:
+		hud.show_menu(RecruitmentUI.board_menu.bind(0, kind, hud, 0.0, clampf(30.0 + Game.merit * 0.5, 0.0, 100.0)))
+		return ""]
 
 
 func inn_menu() -> Dictionary:
@@ -311,6 +434,10 @@ func inn_menu() -> Dictionary:
 	var server := Life.careers.seat("inn", "Server")
 	if not Life.careers.is_employed() and Life.careers.open_count(server) > 0:
 		opts.append(["Ask for work as a Server (%dg/day)" % server["wage"], _apply.bind("inn", "Server")])
+	opts.append(["Hiring board  (post a vacancy, read applicants)", func() -> String:
+		hud.show_menu(RecruitmentUI.board_menu.bind(0, "inn", hud, 0.0, clampf(30.0 + Game.merit * 0.5, 0.0, 100.0)))
+		return ""])
+	opts.append(ShopScreen.menu_option(hud, "tavern", Life.market, 1, "Order from the kitchen", "Tavern"))
 	opts.append(CraftingScreen.menu_option(hud, ["hearth"], "Cook at the hearth", "Inn Hearth"))
 	opts.append(_talk_option("innkeeper"))
 	return {"title": "%s Inn" % WorldGen.settlements[0]["name"],
@@ -337,6 +464,7 @@ func smith_menu() -> Dictionary:
 	var body := "The forge roars; the smith doesn't look up from the anvil.\n\"Wood for the fire, or a strong back. Nothing else I need today.\""
 	if opts.is_empty():
 		body += "\nYou have nothing the smith wants."
+	opts.append(ShopScreen.menu_option(hud, "blacksmith", Life.market, 1, "Browse the smith's wares", "Blacksmith"))
 	opts.append(CraftingScreen.menu_option(hud, ["anvil", "workbench"], "Work the anvil & bench", "Smithy"))
 	opts.append(_talk_option("smith"))
 	return {"title": "Blacksmith", "body": body, "options": opts}
@@ -532,6 +660,10 @@ func pack_menu() -> Dictionary:
 			hud.close_menu()
 			BuildMenu.open_for(hud)
 			return ""])
+	opts.append(["Build and settle", func() -> String:
+		hud.close_menu()
+		BuildMenu.open_for(hud)
+		return ""])
 	if not Life.homestead.owned.is_empty() or not Life.homestead.leased.is_empty():
 		opts.append(["Farm ledger", func() -> String:
 			hud.close_menu()
@@ -562,7 +694,7 @@ func pack_menu() -> Dictionary:
 		inj.append(Life.injuries.label(i))
 	if not inj.is_empty():
 		lines.append("Injuries: " + ", ".join(inj))
-	lines.append("Magicules %d / %d" % [int(Life.magicules.current), int(Life.magicules.effective_max())])
+	lines.append("Soul reserve %d / %d" % [int(Life.magicules.current), int(Life.magicules.effective_max())])
 	var jl: PackedStringArray = radiant().journal_lines()
 	if not jl.is_empty():
 		lines.append("Quests:\n  " + "\n  ".join(jl))
@@ -653,6 +785,7 @@ func guild_menu() -> Dictionary:
 		opts.append(["Local contracts%s" % (("  (%d to report)" % reports) if reports > 0 else ""), func() -> String:
 			hud.show_menu(_quest_menu.bind(_keeper_info("receptionist")))
 			return ""])
+	opts.append(_board_option("guild"))
 	opts.append(_talk_option("receptionist"))
 	return {"title": "Adventurer Guild", "body": body, "options": opts}
 
@@ -676,6 +809,7 @@ func healer_menu() -> Dictionary:
 		opts.append(["Ask about work (%d)" % herb_jobs.size(), func() -> String:
 			hud.show_menu(_quest_menu.bind(hinfo))
 			return ""])
+	opts.append(ShopScreen.menu_option(hud, "herbalist", Life.market, 1, "Browse the herbalist's shelf", "Herbalist"))
 	opts.append(CraftingScreen.menu_option(hud, ["alchemy_table"], "Mix remedies at the table", "Healer's Table"))
 	opts.append(_talk_option("herbalist"))
 	return {"title": "Herbalist", "body": body, "options": opts}
@@ -692,7 +826,7 @@ func naming_menu(m: CampMonster) -> Dictionary:
 	var given: String = m.get_meta("given")
 	var risk := float(pv["risk"])
 	var body := "A %s (level %d) kneels before you. Name it, and it becomes a %s bound to you.\n" % [m.species, m.level, pv["form"]]
-	body += "Cost %d magicules (you have %d / %d)  ·  risk %d%%" % [pv["cost"], int(Life.magicules.current),
+	body += "Cost %d embers (you have %d / %d)  ·  risk %d%%" % [pv["cost"], int(Life.magicules.current),
 		int(Life.magicules.effective_max()), int(risk * 100)]
 	if risk > 0.3:
 		body += "\nNaming beyond your strength can cost levels or crack your soul-core; only a healer mends that."
@@ -848,7 +982,8 @@ func world_from_game() -> Dictionary:
 	var sites: Array = []
 	for st: Dictionary in WorldGen.sites:
 		sites.append({"name": st["name"], "kind": st["kind"], "pos": st["pos"]})
-	var world := {"home": _home_pos(), "dens": dens, "sites": sites, "places": Life.lore.places}
+	var world := {"home": _home_pos(), "dens": dens, "sites": sites, "places": Life.lore.places,
+		"days_left_in_season": SeasonsScript.DAYS_PER_SEASON - WorldSim.seasons.day_of_season() + 1}
 	if Life.career_id != "":
 		world["career_rank"] = {"career": Life.career_id, "rank": Life.career_rank}
 	world["at_war"] = bool(Life.life_path.flags.get("at_war", false))
@@ -933,9 +1068,15 @@ func _keeper_info(id: String) -> Dictionary:
 	var rng := RandomNumberGenerator.new()
 	rng.seed = hash([WorldSim.SEED, id])
 	var nm := Life.lore.random_name("caldric", rng)
-	return {"id": id, "person": -1, "name": nm if nm != "" else id.capitalize(), "role": k[0], "file": k[1],
+	var info := {"id": id, "person": -1, "name": nm if nm != "" else id.capitalize(), "role": k[0], "file": k[1],
 		"quest_role": k[2], "culture": "caldric", "faction": "ashford", "bond": "",
 		"pos": _keeper_pos.get(id, _home_pos())}
+	var named := TownRoster.info_for_id(String(_slice_keepers.get(id, "")))     # Thornfield's own smith / innkeeper
+	if not named.is_empty():
+		for key: String in ["id", "name", "role", "file", "quest_role"]:
+			info[key] = named[key]
+		info["keeper"] = id
+	return info
 
 
 ## Fills in who a villager (TalkTarget.npc_of) or keeper is: name, role, culture,
@@ -949,9 +1090,17 @@ func _npc_info(npc: Dictionary) -> Dictionary:
 		"file": "villager", "quest_role": "villager", "culture": "caldric", "faction": "ashford", "bond": "",
 		"pos": _home_pos()}
 	if person < 0:
+		var station_named := TownRoster.info_for_id(id)     # F8: Hesta Thorne is a Station, not a WorldSim row
+		if not station_named.is_empty():
+			for k: String in ["id", "name", "role", "file", "quest_role"]:
+				info[k] = station_named[k]
 		return info
 	info["name"] = WorldSim.person_name(person)
 	info["role"] = String(WorldSim.JOBS[WorldSim.job[person]]).to_lower()
+	var named := TownRoster.info_for(person)      # F8: a named resident of Thornfield talks as themselves
+	if not named.is_empty():
+		for k: String in ["id", "name", "role", "file", "quest_role"]:
+			info[k] = named[k]
 	if WorldSim.home[person] != 0:
 		info["faction"] = "crown_caldrenn"
 	for p: Dictionary in Life.life_path.parents:
@@ -1011,6 +1160,9 @@ static func _culture_greeting(c: Dictionary) -> Array:
 func _recent_events(id: String, now: float) -> Array:
 	var rel := relationships()
 	var ev: Array = []
+	# Conversation knowledge is local to the participant, not a world broadcast.
+	for memory: Dictionary in rel.topic_context(id, now):
+		ev.append("discussed:" + String(memory["topic"]))
 	if rel.has_modifier(id, "insult", now) and now - rel.modifier_day(id, "insult") < 20.0:
 		ev.append("insulted")
 	if now - rel.modifier_day(id, "chores") < 2.0:
@@ -1083,7 +1235,18 @@ func _nearest_settlement_name(p: Variant) -> String:
 
 ## One rumour from the state of the world (dens, threats, places, the guild).
 func _pick_rumour() -> String:
+	var news_line: String = Life.realm.mod("news").tavern_line_at(_player_pos(), randi()) if Life.realm.mod("news") != null else ""   # CIV-B: regional news first
+	if news_line != "" and randf() < 0.5:
+		return news_line
+	# Region1 world hook (docs/regions/REGION_1_PLAN.md C2): the town you are standing in has its own rumours.
+	if randf() < 0.55:
+		var local := Region1Identity.rumour_near(_player_pos())
+		if local != "":
+			return local
 	# Failing runestones are the talk of every road (docs/RISING_ASHES_LIFE_SIM_DESIGN.md).
+	var vale := preload("res://scripts/world/hidden_valley.gd").rumour()   # Hidden valley hook: text-only leads, never a marker
+	if vale != "" and randf() < 0.14:
+		return vale
 	var stones: Array = Frontier.runestones.rumours()
 	if not stones.is_empty() and randf() < 0.45:
 		return String(stones[randi() % stones.size()])
@@ -1140,7 +1303,7 @@ func _talk_ctx(info: Dictionary) -> Dictionary:
 		gift_items = true
 		break
 	var chores_day: float = rel.modifier_day(id, "chores")
-	return {
+	var ctx := {
 		"id": id, "tier": tier_s, "bond": String(info.get("bond", "")), "opinion": rel.opinion(id, now),
 		"time": DialogueRunner.time_bucket(WorldSim.time_of_day), "weather": _weather_name(),
 		"child": not Life.is_adult(), "age": Life.age(), "role": String(info.get("role", "")),
@@ -1159,6 +1322,8 @@ func _talk_ctx(info: Dictionary) -> Dictionary:
 		"guild_member": Life.guild.is_member(RAAdventurerGuild.PLAYER),
 		"vars": {"family": Life.life_path.family_name},
 	}
+	ctx.merge(TownTalk.ctx_extra(info))      # F8: quest-driven dialogue keys for the Thornfield residents
+	return ctx
 
 
 func _ready_quests(info: Dictionary) -> Array:
@@ -1187,13 +1352,55 @@ func talk_menu(npc: Dictionary) -> Dictionary:
 
 
 func _begin_talk(info: Dictionary) -> void:
+	var _pt := Probe.t()
 	_sync(info)
 	_talk = {"id": info["id"], "info": info, "file": info["file"], "node": "", "line": ""}
 	var d := DialogueRunner.load_file(info["file"])
+	Probe.add("talk.load_file", _pt)
+	_pt = Probe.t()
 	_enter(DialogueRunner.start_node(d))
+	Probe.add("talk.enter", _pt)
 	var rel := relationships()
 	if rel.note_talk(info["id"], _now()):
 		rel.add_modifier(info["id"], "talked", "Chatted recently", 3.0, _now(), 4.0)
+	var _ps := Probe.t()
+	_start_talk_session(info)
+	Probe.add("talk.session", _ps)
+
+
+## In-world conversation: the NPC stops and faces you, the camera eases over the shoulder, and walking
+## away (or moving the stick) ends it (talk_session.gd). Skipped when there is no HUD or no body to face.
+func _start_talk_session(info: Dictionary) -> void:
+	if talk_session == null or hud == null:
+		return
+	var player := get_tree().get_first_node_in_group("player") as Node3D
+	var body := _npc_node(info)
+	if player == null or body == null:
+		return
+	var open := Callable(hud, "is_menu_open") if hud.has_method("is_menu_open") else Callable()
+	var sheet := Callable(hud, "is_sheet_open") if hud.has_method("is_sheet_open") else Callable()
+	talk_session.begin(player, body, open, sheet, String(info.get("id", "")))
+
+
+func _on_talk_session_ended(reason: String) -> void:
+	if reason != "closed" and reason != "restarted" and hud != null and hud.has_method("is_menu_open") and hud.is_menu_open():
+		hud.close_menu()      # walked away / moved the stick: the sheet closes gracefully
+
+
+## The world body of who you are talking to (a villager, or the keeper's station), or null.
+func _npc_node(info: Dictionary) -> Node3D:
+	var person := int(info.get("person", -1))
+	if person >= 0:
+		for n in get_tree().get_nodes_in_group("villager"):
+			if n.get("person") != null and int(n.get("person")) == person:
+				return n as Node3D
+	# A named resident that is not a WorldSim row (Hesta Thorne) has a body in group "talk_body" with meta npc_id.
+	var id := String(info.get("id", ""))
+	if id != "":
+		for n in get_tree().get_nodes_in_group("talk_body"):
+			if n is Node3D and String(n.get_meta("npc_id", "")) == id:
+				return n as Node3D
+	return null
 
 
 ## Moves to a dialogue node: fresh rumour/hint, picks and applies the line.
@@ -1207,12 +1414,33 @@ func _enter(node: String) -> void:
 	var d := DialogueRunner.load_file(_talk["file"])
 	var line := DialogueRunner.pick_line(d, node, _talk_ctx(info), _rng)
 	_talk["line"] = String(line.get("text", "…"))
+	if not line.is_empty() and DialogueRunner.node_exists(d, node):
+		relationships().remember_topic(String(info["id"]), "%s:%s" % [_talk["file"], node],
+			_now(), String(_talk["file"]))
 	var msg := _do_actions(line.get("do", []))
 	if msg != "":
 		_talk["line"] += "\n\n" + msg
+	TownTalk.on_node(info, node)      # F8: `talk {npc, node}` for the quest bus
+
+
+## Faces (docs/art/FACES.md): the NPC mouths the line with the tagged / derived mood, the hero reacts with `hero_mood`.
+func _face_line(info: Dictionary, line: Dictionary) -> void:
+	var body := _npc_node(info)
+	if body != null and body.has_method("face_say"):
+		body.call("face_say", String(_talk["line"]), String(line.get("mood", "")), int(relationships().opinion(String(info.get("id", "")), _now())))
+	var player := get_tree().get_first_node_in_group("player")
+	if player != null and player.has_method("face_mood"):
+		player.call("face_mood", String(line.get("hero_mood", "")) if String(line.get("hero_mood", "")) != "" else "neutral")
 
 
 func _talk_page() -> Dictionary:
+	var _pp := Probe.t()
+	var page := _talk_page_inner()
+	Probe.add("talk.page", _pp)
+	return page
+
+
+func _talk_page_inner() -> Dictionary:
 	var info: Dictionary = _talk["info"]
 	var rel := relationships()
 	var now := _now()
@@ -1222,6 +1450,10 @@ func _talk_page() -> Dictionary:
 	for c: Dictionary in DialogueRunner.choices(d, _talk["node"], ctx):
 		opts.append([c["text"], _choose.bind(c)])
 	_add_courtship_options(opts, info)
+	preload("res://scripts/quests/quest_talk.gd").add_options(opts, info, hud)   # library quests (F7)
+	TownTalk.add_options(opts, info)      # F8: hand over goods (Deliver) to the miller and friends
+	WardwrightUI.add_options(opts, info)  # Region 1: the Runeward Legion's recruiter enlists Wardwrights
+	RecruitmentUI.add_options(opts, info, hud, _back_to_talk.bind(info), float(rel.opinion(info["id"], now)), clampf(30.0 + Game.merit * 0.5, 0.0, 100.0))   # Living World §2: offer work
 	if Life.soul.tier() >= RANaming.MIN_SOUL_TIER and String(info.get("id", "")) != "" \
 			and rel.opinion(info["id"], now) >= RANaming.PERSON_TRUST_MIN \
 			and Life.naming.soul_bonds.size() < RANaming.bond_limit(Life.soul.tier()):
@@ -1234,8 +1466,53 @@ func _talk_page() -> Dictionary:
 	if not why.is_empty():
 		status += "\n" + ", ".join(why)
 	var role := String(info.get("bond", "")) if info.get("bond", "") != "" else String(info.get("role", ""))
+	var opinion := int(rel.opinion(info["id"], now))
+	# "speaker" makes HUD.show_menu open the conversation screen (scripts/ui/dialogue_ui.gd);
+	# title / body / options stay as before for anything that reads the plain menu.
 	return {"title": "%s  ·  %s" % [info["name"], role.capitalize()],
-		"body": "%s\n\n%s" % [_talk["line"], status], "options": opts}
+		"body": "%s\n\n%s" % [_talk["line"], status], "options": opts,
+		"speaker": String(info["name"]), "role": role.capitalize(), "line": String(_talk["line"]),
+		"relationship": "%s (%s)" % [rel.tier_label(info["id"], now), ("%+d" % opinion) if opinion != 0 else "0"],
+		"rel_value": float(opinion), "portrait_key": String(info["id"]),
+		"model": _npc_model(info), "look": _npc_look(info), "in_world": talk_session != null and talk_session.active}
+
+
+## The live 3D model of who you are talking to (the dialogue bust duplicates it), or null.
+func _npc_model(info: Dictionary) -> Node3D:
+	var person := int(info.get("person", -1))
+	if person >= 0:
+		for n in get_tree().get_nodes_in_group("villager"):
+			if n.get("person") != null and int(n.get("person")) == person:
+				return _model_of(n)
+	var id := String(info.get("id", ""))
+	var titles := {"receptionist": "Adventurer Guild", "herbalist": "Herbalist", "trader": "Market Trader"}
+	for c in get_children():
+		if c is Station:
+			var t := String((c as Station).title)
+			if (titles.has(id) and t == titles[id]) or (id == "innkeeper" and t.ends_with(" Inn")):
+				return _model_of(c)
+	return null
+
+
+static func _model_of(n: Node) -> Node3D:
+	for c in n.get_children():
+		if c is Node3D and not (c is CollisionShape3D) and not c.find_children("*", "Skeleton3D", true, false).is_empty():
+			return c as Node3D
+	return null
+
+
+## Assets look used for the dialogue bust when no live model is around.
+func _npc_look(info: Dictionary) -> String:
+	match String(info.get("bond", "")):
+		"mother": return "Mother"
+		"father": return "Father"
+	match String(info.get("id", "")):
+		"smith": return "Blacksmith"
+		"innkeeper": return "Innkeeper"
+		"herbalist": return "Herbalist"
+		"trader": return "Trader"
+		"receptionist": return "Rogue_Hooded"
+	return "Rogue_Hooded"
 
 
 ## Family/courtship actions layered on top of the dialogue file's own choices
@@ -1262,6 +1539,9 @@ func _add_courtship_options(opts: Array, info: Dictionary) -> void:
 
 
 func _choose(c: Dictionary) -> String:
+	var hero := get_tree().get_first_node_in_group("player")
+	if hero != null and hero.has_method("face_say"):
+		hero.call("face_say", String(c.get("text", "")), "neutral")
 	var msg := _do_actions(c.get("do", []))
 	if not hud.is_menu_open() or _talk.is_empty():
 		return msg
@@ -1347,6 +1627,7 @@ func _give(info: Dictionary, item: String) -> String:
 	if r.get("ok", false):
 		Life.take(item)
 		Life.record("gave_gift", 0.5)
+		(load("res://scripts/population/presence_live.gd") as GDScript).call("report_player", 11, 0.8, 8.0)   # Stim.KINDNESS
 	_back_to_talk(info)
 	_talk["line"] = "%s\n(%s)" % [r["text"], ("opinion %+d" % int(r["delta"])) if r.get("ok", false) else "no gift given"]
 	return ""

@@ -49,6 +49,8 @@ shader_parameter/tail_len = 0.55
 shader_parameter/pulse = null
 shader_parameter/pulse_speed = null
 shader_parameter/heat_scale = null
+shader_parameter/soft_edge = null
+shader_parameter/ring_soft = null
 
 [sub_resource type="ArrayMesh" id="ArrayMesh_md71d"]
 _surfaces = [{
@@ -103,13 +105,13 @@ color_ramp = SubResource("GradientTexture1D_bpupw")
 material = ExtResource("5_34ecb")
 size = Vector2(0.8333334, 0.96344084)
 
-[node name="Light_Slash Fist" type="Node3D" unique_id=1026941244]
+[node name="Light_Slash Fist" type="Node3D" unique_id=1667500478]
 script = ExtResource("1_2h38y")
 duration = 0.5
 kind = &"slash_fist"
 element = &"light"
 
-[node name="Arc" type="MeshInstance3D" parent="." unique_id=1286022603]
+[node name="Arc" type="MeshInstance3D" parent="." unique_id=1039163402]
 transform = Transform3D(-1, 0, -8.742278e-08, 0, 1, 0, 8.742278e-08, 0, -1, 0, 0, 0.2)
 material_override = SubResource("ShaderMaterial_tvxj6")
 cast_shadow = 0
@@ -132,7 +134,7 @@ metadata/anims = [{
 "t1": 0.36
 }]
 
-[node name="Star" type="MeshInstance3D" parent="." unique_id=141592583]
+[node name="Star" type="MeshInstance3D" parent="." unique_id=1007053143]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, -1.05)
 material_override = SubResource("ShaderMaterial_p7xox")
 cast_shadow = 0
@@ -155,7 +157,7 @@ metadata/anims = [{
 "t1": 0.32
 }]
 
-[node name="Sparks" type="GPUParticles3D" parent="." unique_id=1447696515]
+[node name="Sparks" type="GPUParticles3D" parent="." unique_id=8121899]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, -1.05)
 cast_shadow = 0
 gi_mode = 0

@@ -142,4 +142,5 @@ for i in range(16):
 for a in (0.7, 2.4, 4.1):   # weed tufts at the foot of the shaft
     k.bush(math.cos(a) * 0.9, math.sin(a) * 0.9, r=0.1, c=hexc("56803a"))
 
+k.pbr = dict(size=512, seed=12, ao_dist=0.4, cage=0.03, ray=0.08)   # high-to-low PBR bake (pbr_kit.py)
 k.finish_checked((2.5, 2.5), 3000, cam_dir=(1.1, -1.5, 0.8), fit=0.98)

@@ -1,0 +1,131 @@
+{
+ "id": "ashford_light_on_the_scales",
+ "title": "Light on the Scales",
+ "summary": "The stores of Ashford are missing a few sacks of milled flour. Sander Stooks wants to know whether it is carelessness or a person.",
+ "giver": {
+  "npc": "sander_stooks",
+  "name": "Sander Stooks",
+  "place": "ashford"
+ },
+ "requires": [
+  "ashford_split_logs_for_the_blacksmith"
+ ],
+ "offer_text": "\"I am missing a few sacks of milled flour from the stores and I have counted twice. Look around the doors in town. Someone was careless, or someone was not.\"",
+ "stages": [
+  {
+   "id": "look",
+   "title": "Look for signs",
+   "mode": "all",
+   "objectives": [
+    {
+     "id": "clues",
+     "type": "investigate",
+     "clues": [
+      "ashford/clue/c1",
+      "ashford/clue/c2",
+      "ashford/clue/c3"
+     ],
+     "count": 3,
+     "text": "Search the doors around town for signs"
+    }
+   ]
+  },
+  {
+   "id": "question",
+   "title": "Ask Colm",
+   "mode": "all",
+   "objectives": [
+    {
+     "id": "question",
+     "type": "talk_to",
+     "npc": "colm_peverell",
+     "text": "Ask Colm Peverell what they know"
+    }
+   ]
+  },
+  {
+   "id": "decide",
+   "title": "Decide what to do",
+   "mode": "all",
+   "objectives": [
+    {
+     "id": "verdict",
+     "type": "choose",
+     "npc": "sander_stooks",
+     "options": [
+      {
+       "id": "report",
+       "text": "Tell Sander what you found",
+       "say": "Sander nods slowly. \"Then it is on the record.\""
+      },
+      {
+       "id": "quiet",
+       "text": "Take Colm's quiet word and say nothing",
+       "say": "Colm presses a few coins into your hand. \"Good sense.\""
+      }
+     ]
+    }
+   ],
+   "branches": {
+    "report": "reported",
+    "quiet": "hushed"
+   }
+  },
+  {
+   "id": "reported",
+   "title": "Sander hears it",
+   "mode": "all",
+   "objectives": [
+    {
+     "id": "told",
+     "type": "talk_to",
+     "npc": "sander_stooks",
+     "text": "Tell Sander Stooks who it was"
+    }
+   ],
+   "end": true,
+   "rewards": {
+    "gold": 20,
+    "rep": {
+     "ashford": 6
+    },
+    "relationship": [
+     {
+      "npc": "sander_stooks",
+      "label": "Told the truth about the theft",
+      "value": 12,
+      "days": 90
+     }
+    ]
+   }
+  },
+  {
+   "id": "hushed",
+   "title": "Collect the hush money",
+   "mode": "all",
+   "objectives": [
+    {
+     "id": "quiet",
+     "type": "talk_to",
+     "npc": "colm_peverell",
+     "text": "Collect Colm's thanks"
+    }
+   ],
+   "end": true,
+   "rewards": {
+    "gold": 27,
+    "rep": {
+     "ashford": -6
+    },
+    "relationship": [
+     {
+      "npc": "sander_stooks",
+      "label": "Heard you looked the other way",
+      "value": -12,
+      "days": 90
+     }
+    ]
+   }
+  }
+ ]
+}

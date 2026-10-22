@@ -1,0 +1,352 @@
+{
+ "note": "Player light combo L1-L4 (directional: L1 right->left rising, L2 left->right backhand, L3 right->left descending, L4 thrust). Polished from Quaternius UAL2 (CC0): strike + its _Rec recovery joined, retimed for anticipation / 2-4 fast frames / overshoot, kinetic-chain overlap, edge alignment. Played at rate 1.0 in game (the game speed-ups are baked in).",
+ "clips": [
+  {
+   "name": "Sword_Combo_L1",
+   "src_glb": "res://assets/incoming/quaternius/universal-animation-library-2/Unreal-Godot/UAL2_Standard.glb",
+   "sources": [
+    [
+     "Sword_Regular_A",
+     0,
+     13
+    ],
+    [
+     "Sword_Regular_A_Rec",
+     0,
+     null
+    ]
+   ],
+   "retime": [
+    [
+     0,
+     0,
+     "lin"
+    ],
+    [
+     3,
+     1.2,
+     "out2"
+    ],
+    [
+     4,
+     2.4,
+     "in2"
+    ],
+    [
+     7,
+     8,
+     "in"
+    ],
+    [
+     8,
+     9.5,
+     "out2"
+    ],
+    [
+     12,
+     13.5,
+     "out2"
+    ],
+    [
+     35,
+     42,
+     "smooth"
+    ]
+   ],
+   "chain": {
+    "window": [
+     3,
+     9
+    ],
+    "ramp": 2,
+    "bones": {
+     "pelvis": -1.5,
+     "spine_01": -1.0,
+     "spine_02": -0.7,
+     "spine_03": -0.3,
+     "upperarm_r": 0.4,
+     "lowerarm_r": 0.8,
+     "hand_r": 1.3
+    }
+   },
+   "overshoot": {
+    "at": 8,
+    "rise": 2,
+    "fall": 5,
+    "amount": 0.45,
+    "bones": [
+     "spine_03",
+     "clavicle_r",
+     "upperarm_r",
+     "lowerarm_r",
+     "hand_r"
+    ]
+   },
+   "auto_edge": {
+    "window": [
+     4,
+     9
+    ],
+    "ramp": 2,
+    "max_deg": 40
+   }
+  },
+  {
+   "name": "Sword_Combo_L2",
+   "src_glb": "res://assets/incoming/quaternius/universal-animation-library-2/Unreal-Godot/UAL2_Standard.glb",
+   "sources": [
+    [
+     "Sword_Regular_B",
+     0,
+     16
+    ],
+    [
+     "Sword_Regular_B_Rec",
+     0,
+     null
+    ]
+   ],
+   "retime": [
+    [
+     0,
+     0,
+     "lin"
+    ],
+    [
+     4,
+     4.5,
+     "out2"
+    ],
+    [
+     6,
+     5.5,
+     "out"
+    ],
+    [
+     8,
+     8,
+     "in2"
+    ],
+    [
+     9,
+     9.5,
+     "out2"
+    ],
+    [
+     13,
+     14,
+     "out2"
+    ],
+    [
+     36,
+     47,
+     "smooth"
+    ]
+   ],
+   "chain": {
+    "window": [
+     5,
+     10
+    ],
+    "ramp": 2,
+    "bones": {
+     "pelvis": -1.5,
+     "spine_01": -1.0,
+     "spine_02": -0.7,
+     "spine_03": -0.3,
+     "upperarm_r": 0.4,
+     "lowerarm_r": 0.8,
+     "hand_r": 1.3
+    }
+   },
+   "overshoot": {
+    "at": 9,
+    "rise": 2,
+    "fall": 5,
+    "amount": 0.45,
+    "bones": [
+     "spine_03",
+     "clavicle_r",
+     "upperarm_r",
+     "lowerarm_r",
+     "hand_r"
+    ]
+   },
+   "auto_edge": {
+    "window": [
+     6,
+     10
+    ],
+    "ramp": 2,
+    "max_deg": 40
+   }
+  },
+  {
+   "name": "Sword_Combo_L3",
+   "src_glb": "res://assets/incoming/quaternius/universal-animation-library-2/Unreal-Godot/UAL2_Standard.glb",
+   "retime": [
+    [
+     0,
+     0,
+     "lin"
+    ],
+    [
+     8,
+     14,
+     "out2"
+    ],
+    [
+     9,
+     14.6,
+     "out"
+    ],
+    [
+     11,
+     17,
+     "in2"
+    ],
+    [
+     12,
+     18.5,
+     "lin"
+    ],
+    [
+     13,
+     19.5,
+     "out2"
+    ],
+    [
+     17,
+     24,
+     "out2"
+    ],
+    [
+     38,
+     62,
+     "smooth"
+    ]
+   ],
+   "chain": {
+    "window": [
+     8,
+     14
+    ],
+    "ramp": 2,
+    "bones": {
+     "pelvis": -1.5,
+     "spine_01": -1.0,
+     "spine_02": -0.7,
+     "spine_03": -0.3,
+     "upperarm_r": 0.4,
+     "lowerarm_r": 0.8,
+     "hand_r": 1.3
+    }
+   },
+   "overshoot": {
+    "at": 13,
+    "rise": 2,
+    "fall": 5,
+    "amount": 0.45,
+    "bones": [
+     "spine_03",
+     "clavicle_r",
+     "upperarm_r",
+     "lowerarm_r",
+     "hand_r"
+    ]
+   },
+   "auto_edge": {
+    "window": [
+     9,
+     14
+    ],
+    "ramp": 2,
+    "max_deg": 40
+   },
+   "sources": [
+    [
+     "Sword_Regular_Combo",
+     28,
+     90
+    ]
+   ]
+  },
+  {
+   "name": "Sword_Combo_L4",
+   "src_glb": "res://assets/incoming/quaternius/universal-animation-library/Unreal-Godot/UAL1_Standard.glb",
+   "src": "Sword_Attack",
+   "retime": [
+    [
+     0,
+     0,
+     "lin"
+    ],
+    [
+     6,
+     7,
+     "out2"
+    ],
+    [
+     8,
+     7.6,
+     "lin"
+    ],
+    [
+     9,
+     9,
+     "in2"
+    ],
+    [
+     11,
+     12,
+     "in"
+    ],
+    [
+     12,
+     13.5,
+     "out2"
+    ],
+    [
+     16,
+     17,
+     "out2"
+    ],
+    [
+     38,
+     46,
+     "smooth"
+    ]
+   ],
+   "chain": {
+    "window": [
+     7,
+     13
+    ],
+    "ramp": 2,
+    "bones": {
+     "pelvis": -1.5,
+     "spine_01": -1.0,
+     "spine_02": -0.7,
+     "spine_03": -0.3,
+     "upperarm_r": 0.4,
+     "lowerarm_r": 0.8,
+     "hand_r": 1.3
+    }
+   },
+   "overshoot": {
+    "at": 12,
+    "rise": 2,
+    "fall": 6,
+    "amount": 0.5,
+    "bones": [
+     "spine_02",
+     "spine_03",
+     "clavicle_r",
+     "upperarm_r",
+     "lowerarm_r",
+     "hand_r"
+    ]
+   }
+  }
+ ]
+}

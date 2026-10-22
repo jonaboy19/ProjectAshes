@@ -44,4 +44,5 @@ k.sack(-0.68, -0.15, rz=0.4, c=hexc("c2ad84"))
 k.sack(-0.9, 0.12, s=0.82, rz=1.2, c=hexc("b09d74"))
 k.sack(-0.62, 0.22, z=0.0, s=0.62, rz=2.0, c=hexc("a8966e"))
 
+k.pbr = dict(size=512, seed=27, ao_dist=0.3, cage=0.03, ray=0.08)   # high-to-low PBR bake (pbr_kit.py)
 k.finish_checked((1.9, 1.75), 2000, cam_dir=(1.0, -1.5, 0.7), fit=1.05)

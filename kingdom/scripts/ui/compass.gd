@@ -8,6 +8,8 @@ extends Control
 ## color, hostile}]) and `quest_target` (Vector2, or null for none).
 
 const MapIcons := preload("res://scripts/ui/map_icons.gd")
+const AF := preload("res://scripts/ui/ashes_frame.gd")
+const HudArt := preload("res://scripts/ui/hud_art.gd")
 
 signal tapped
 
@@ -39,11 +41,12 @@ var _press := Vector2.INF
 func _ready() -> void:
 	mouse_filter = Control.MOUSE_FILTER_STOP
 	custom_minimum_size = Vector2(320, BAR_HEIGHT + 22)
-	_letter_font = UITheme.title_font_weight(700)
-	_font = ThemeDB.fallback_font
-	_bg = UITheme.pill(UITheme.BG, UITheme.STROKE, int(BAR_HEIGHT * 0.5))
-	_bg.shadow_color = Color(0, 0, 0, 0.3)
-	_bg.shadow_size = 10
+	_letter_font = AF.wfont(700)
+	_font = AF.font()
+	_bg = HudArt.card_box(0.8, 0)
+	_bg.set_corner_radius_all(int(BAR_HEIGHT * 0.5))
+	_bg.border_color = Color(AF.GOLD, 0.85)
+	_bg.set_border_width_all(1)
 
 
 ## Heading of a camera: radians clockwise from north (north = -z).
@@ -116,15 +119,15 @@ func _draw() -> void:
 		if dm % 45 == 0:
 			var label: String = ["N", "NE", "E", "SE", "S", "SW", "W", "NW"][dm / 45]
 			var cardinal := dm % 90 == 0
-			var fs := 20 if cardinal else 13
-			var col := UITheme.ACCENT if dm == 0 else (UITheme.TEXT if cardinal else UITheme.TEXT_DIM)
+			var fs := 24 if dm == 0 else (20 if cardinal else 13)
+			var col := AF.GOLD_BRIGHT if dm == 0 else (HudArt.IVORY if cardinal else AF.TEXT_DIM)
 			var tw := _letter_font.get_string_size(label, HORIZONTAL_ALIGNMENT_LEFT, -1, fs).x
 			draw_string(_letter_font, Vector2(x - tw * 0.5, cy + fs * 0.36), label, HORIZONTAL_ALIGNMENT_LEFT, -1, fs,
 				Color(col, col.a * a))
 		else:
 			var tall := dm % 15 == 0
 			var th := 9.0 if tall else 5.0
-			draw_line(Vector2(x, BAR_HEIGHT - 6.0 - th), Vector2(x, BAR_HEIGHT - 6.0), Color(1, 1, 1, (0.5 if tall else 0.28) * a), 1.0)
+			draw_line(Vector2(x, BAR_HEIGHT - 6.0 - th), Vector2(x, BAR_HEIGHT - 6.0), Color(HudArt.IVORY, (0.55 if tall else 0.28) * a), 1.0)
 	# Places, then hostiles, then the quest marker on top.
 	var order := markers.duplicate()
 	order.sort_custom(func(m1: Dictionary, m2: Dictionary) -> bool:
@@ -149,11 +152,14 @@ func _draw() -> void:
 		var qa := 0.65 if off else 1.0
 		MapIcons.draw(self, "quest", Vector2(x, cy), ICON + 4.0, MapIcons.QUEST, qa)
 		var txt := "%d m" % int(qd) if qd < 1000.0 else "%.1f km" % (qd / 1000.0)
-		var tw := _font.get_string_size(txt, HORIZONTAL_ALIGNMENT_LEFT, -1, 13).x
+		var tw := _font.get_string_size(txt, HORIZONTAL_ALIGNMENT_LEFT, -1, 14).x
 		var tx := clampf(x - tw * 0.5, 2.0, w - tw - 2.0)
-		draw_string(_font, Vector2(tx, BAR_HEIGHT + 15.0), txt, HORIZONTAL_ALIGNMENT_LEFT, -1, 13, Color(0, 0, 0, 0.6 * qa))
-		draw_string(_font, Vector2(tx, BAR_HEIGHT + 14.0), txt, HORIZONTAL_ALIGNMENT_LEFT, -1, 13, Color(MapIcons.QUEST, qa))
-	# Centre caret.
+		draw_string_outline(_font, Vector2(tx, BAR_HEIGHT + 15.0), txt, HORIZONTAL_ALIGNMENT_LEFT, -1, 14, 4, Color(0, 0, 0, 0.7 * qa))
+		draw_string(_font, Vector2(tx, BAR_HEIGHT + 15.0), txt, HORIZONTAL_ALIGNMENT_LEFT, -1, 14, Color(MapIcons.QUEST, qa))
+	# Centre marker: a gold diamond on the rim and a short pointer, like the template's crest pin.
 	var c := w * 0.5
-	draw_colored_polygon(PackedVector2Array([Vector2(c - 6, 0), Vector2(c + 6, 0), Vector2(c, 7)]), UITheme.ACCENT)
-	draw_line(Vector2(c, BAR_HEIGHT - 4.0), Vector2(c, BAR_HEIGHT + 2.0), UITheme.ACCENT, 2.0)
+	HudArt.diamond(self, Vector2(c, 1.0), 6.0, AF.GOLD_BRIGHT)
+	draw_line(Vector2(c, BAR_HEIGHT - 5.0), Vector2(c, BAR_HEIGHT - 1.0), AF.GOLD_BRIGHT, 2.0)
+	# Small diamonds cap both ends of the bar.
+	HudArt.diamond(self, Vector2(8.0, cy), 2.6, Color(AF.GOLD, 0.8))
+	HudArt.diamond(self, Vector2(w - 8.0, cy), 2.6, Color(AF.GOLD, 0.8))

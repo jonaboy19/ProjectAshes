@@ -1,0 +1,5 @@
+{
+	"_comment": "The Wyrm's Ribs ridge north of Highwatch Keep: a long grassy whaleback the bones lie along (type hill). See docs/regions/LOOK_R1.md.",
+	"id": "wyrm_ridge", "type": "hill", "center": [-60, -1700], "radius": [120, 52], "yaw": 0,
+	"height": 17.0, "top": 0.35, "noise": 0.08, "wobble": 0.14, "clear_top": 0.9, "cell": 3.0
+}

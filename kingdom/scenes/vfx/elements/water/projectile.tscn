@@ -49,6 +49,8 @@ shader_parameter/tail_len = null
 shader_parameter/pulse = null
 shader_parameter/pulse_speed = null
 shader_parameter/heat_scale = 0.6
+shader_parameter/soft_edge = null
+shader_parameter/ring_soft = null
 
 [sub_resource type="SphereMesh" id="SphereMesh_3d0c4"]
 radius = 0.23
@@ -99,6 +101,8 @@ shader_parameter/tail_len = null
 shader_parameter/pulse = null
 shader_parameter/pulse_speed = null
 shader_parameter/heat_scale = 0.7
+shader_parameter/soft_edge = 0.85
+shader_parameter/ring_soft = null
 
 [sub_resource type="CylinderMesh" id="CylinderMesh_kds25"]
 top_radius = 0.0
@@ -152,21 +156,21 @@ shader_parameter/spin = 0.0
 [sub_resource type="QuadMesh" id="QuadMesh_xqe3k"]
 size = Vector2(0.9, 0.9)
 
-[node name="Water_Projectile" type="Node3D" unique_id=1292600036]
+[node name="Water_Projectile" type="Node3D" unique_id=2037148671]
 script = ExtResource("1_wbdq2")
 duration = 0.0
 fade_out = 0.15
 kind = &"projectile"
 element = &"water"
 
-[node name="Orb" type="MeshInstance3D" parent="." unique_id=1590151625]
+[node name="Orb" type="MeshInstance3D" parent="." unique_id=1758637588]
 material_override = SubResource("ShaderMaterial_mym8m")
 cast_shadow = 0
 extra_cull_margin = 2.0
 gi_mode = 0
 mesh = SubResource("SphereMesh_3d0c4")
 
-[node name="Trail" type="MeshInstance3D" parent="." unique_id=1224192620]
+[node name="Trail" type="MeshInstance3D" parent="." unique_id=302618341]
 transform = Transform3D(1, 0, 0, 0, -4.371139e-08, -1, 0, 1, -4.371139e-08, 0, 0, 0.75)
 material_override = SubResource("ShaderMaterial_xuyl3")
 cast_shadow = 0
@@ -174,7 +178,7 @@ extra_cull_margin = 2.0
 gi_mode = 0
 mesh = SubResource("CylinderMesh_kds25")
 
-[node name="Drops" type="GPUParticles3D" parent="." unique_id=466473667]
+[node name="Drops" type="GPUParticles3D" parent="." unique_id=903454669]
 cast_shadow = 0
 gi_mode = 0
 emitting = false
@@ -186,7 +190,7 @@ transform_align = 1
 process_material = SubResource("ParticleProcessMaterial_rwym1")
 draw_pass_1 = SubResource("QuadMesh_icrxk")
 
-[node name="Glow" type="MeshInstance3D" parent="." unique_id=527121337]
+[node name="Glow" type="MeshInstance3D" parent="." unique_id=102738576]
 material_override = SubResource("ShaderMaterial_ygmka")
 cast_shadow = 0
 extra_cull_margin = 2.0

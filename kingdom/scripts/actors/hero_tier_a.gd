@@ -1,0 +1,491 @@
+extends RefCounted
+## Tier-A hero upgrade (skill ashes-hero-character). Call AFTER HeroOutfit.dress(model):
+##   HeroTierA.upgrade(model)
+## - swaps the 488-tri G6 head + helmet hair for the Tier-A head (assets/generated/characters/hero_tier_a/hero_head_tier_a.glb,
+##   built by tools/blender/hero_tier_a/build_head.py from the MakeHuman face): own 1024 face texture, real eyeballs,
+##   lashes/brows cards, scalp cap + 3 layers of hair cards, shape keys Blink_L/R, Smile, Jaw_Open, Brow_Up.
+##   The head is RETARGETED at load onto the hero's existing skeleton (per-vertex: target rest * source bind), so the UAL
+##   bones are untouched and every Codex clip drives it.
+## - face/hands get hero_skin (faked SSS, flush, roughness zones, pores), eyes hero_eye, hair hero_hair (anisotropic).
+## - drops HeroOutfit's old hair tufts; adds HeroFaceDriver (blink, expressions, hair/hood/satchel/skirt sway).
+## Companions: same call works on any UAL character (G6 or MakeHuman) - the head GLB is the per-character asset.
+
+const HEAD_GLB := "res://assets/generated/characters/hero_tier_a/hero_head_tier_a.glb"
+const TEX := "res://assets/generated/characters/hero_tier_a/"
+const SH := "res://shaders/hero/"
+const Driver := preload("res://scripts/actors/hero_face_driver.gd")
+
+
+static func upgrade(model: Node3D, head_glb := HEAD_GLB, hair_root := Color(0.17, 0.10, 0.06), hair_tip := Color(0.45, 0.29, 0.16)) -> Node:
+	var sks := model.find_children("*", "Skeleton3D", true, false)
+	if sks.is_empty() or not ResourceLoader.exists(head_glb):
+		return null
+	var sk := sks[0] as Skeleton3D
+	if sk.has_node("HeroFaceDriver"):
+		return sk.get_node("HeroFaceDriver")
+	var noise: Texture2D = (load("res://scripts/actors/hero_outfit.gd") as GDScript).call("noise_texture")
+	# 1. hide the G6 head + hair; skin shader on the hands
+	var skin_tint := Color(1.0, 0.94, 0.9)
+	for n in model.find_children("*", "MeshInstance3D", true, false):
+		var m := n as MeshInstance3D
+		var nm := String(m.name).to_lower()
+		if nm.contains("_head_") or nm.contains("_hair_") or nm.contains("eyebrow"):
+			m.visible = false
+		elif nm.contains("hands"):
+			var src := m.get_active_material(0)
+			var hm := _mat("hero_skin", noise)
+			hm.set_shader_parameter("use_masks", false)
+			hm.set_shader_parameter("pore_scale", 40.0)
+			if src is BaseMaterial3D:
+				hm.set_shader_parameter("albedo_tex", (src as BaseMaterial3D).albedo_texture)
+				hm.set_shader_parameter("tint", (src as BaseMaterial3D).albedo_color)
+			elif src is ShaderMaterial and (src as ShaderMaterial).get_shader_parameter("albedo_tex"):
+				hm.set_shader_parameter("albedo_tex", (src as ShaderMaterial).get_shader_parameter("albedo_tex"))
+			m.material_override = hm
+	# 2. strip the old hair tufts (UV2.x == HAIR) out of the HeroOutfit mesh
+	var outfit: MeshInstance3D = sk.get_node_or_null("HeroOutfit")
+	if outfit:
+		_strip_material_id(outfit, 5)
+	# 3. retarget + attach the Tier-A head parts
+	var src_root: Node = (load(head_glb) as PackedScene).instantiate()
+	var src_sk := src_root.find_children("*", "Skeleton3D", true, false)[0] as Skeleton3D
+	var parts := {}
+	for n in src_root.find_children("*", "MeshInstance3D", true, false):
+		var smi := n as MeshInstance3D
+		var mi := _retarget(smi, src_sk, sk)
+		if mi == null:
+			continue
+		parts[String(smi.name)] = mi
+		var mat: ShaderMaterial
+		match String(smi.name):
+			"FaceSkin":
+				mat = _mat("hero_skin", noise)
+				mat.set_shader_parameter("albedo_tex", load(TEX + "hero_face_albedo.png"))
+				mat.set_shader_parameter("tint", skin_tint)
+			"Eyes":
+				mat = _mat("hero_eye", noise)
+			"LashesBrows":
+				mat = _mat("hero_hair", noise)
+				mat.set_shader_parameter("strand_tex", load(TEX + "hero_lash_brow.png"))
+				mat.set_shader_parameter("lash", true)
+			"HairCards":
+				mat = _mat("hero_hair", noise)
+				mat.set_shader_parameter("strand_tex", load(TEX + "hero_hair_strands.png"))
+			"HairCap":
+				mat = _mat("hero_hair", noise)
+				mat.set_shader_parameter("cap", true)
+		if mat and String(smi.name).begins_with("Hair"):
+			mat.set_shader_parameter("root_color", hair_root)
+			mat.set_shader_parameter("tip_color", hair_tip)
+		mi.material_override = mat
+		mi.set_meta("role", "hero_tier_a")
+	src_root.free()
+	# 4. driver: blink, expressions, secondary motion
+	var drv: Node = Driver.new()
+	drv.name = "HeroFaceDriver"
+	sk.add_child(drv)
+	drv.call("setup", sk, parts, outfit)
+	return drv
+
+
+static func _mat(shader: String, noise: Texture2D) -> ShaderMaterial:
+	var m := ShaderMaterial.new()
+	m.shader = load(SH + shader + ".gdshader")
+	m.set_shader_parameter("noise_tex", noise)
+	return m
+
+
+## Copies a skinned mesh from the head GLB onto `dst` skeleton: v' = sum_i w_i * dst_rest(bone_i) * src_bind_i * v.
+## Blend shapes are transformed the same way, so Blink/Smile stay aligned. The skin is rebuilt from dst rest transforms.
+static func _retarget(smi: MeshInstance3D, src_sk: Skeleton3D, dst: Skeleton3D) -> MeshInstance3D:
+	if smi.mesh == null or smi.skin == null:
+		return null
+	var skin := smi.skin
+	var bind_xf: Array[Transform3D] = []
+	var bind_dst: PackedInt32Array = []
+	for b in skin.get_bind_count():
+		var bn := skin.get_bind_name(b)
+		if bn == &"" and skin.get_bind_bone(b) >= 0:
+			bn = src_sk.get_bone_name(skin.get_bind_bone(b))
+		var di := dst.find_bone(bn)
+		bind_dst.append(maxi(di, 0))
+		bind_xf.append((dst.get_bone_global_rest(di) if di >= 0 else Transform3D()) * skin.get_bind_pose(b))
+	var src_mesh := smi.mesh as ArrayMesh
+	var out := ArrayMesh.new()
+	for bi in src_mesh.get_blend_shape_count():
+		out.add_blend_shape(src_mesh.get_blend_shape_name(bi))
+	out.blend_shape_mode = src_mesh.blend_shape_mode
+	for si in src_mesh.get_surface_count():
+		var arr := src_mesh.surface_get_arrays(si)
+		var bones: PackedInt32Array = arr[Mesh.ARRAY_BONES]
+		var weights: PackedFloat32Array = arr[Mesh.ARRAY_WEIGHTS]
+		var verts: PackedVector3Array = arr[Mesh.ARRAY_VERTEX]
+		var nk := bones.size() / maxi(1, verts.size())
+		var xfs: Array[Transform3D] = []
+		xfs.resize(verts.size())
+		for v in verts.size():
+			var acc := Transform3D(Basis(Vector3.ZERO, Vector3.ZERO, Vector3.ZERO), Vector3.ZERO)
+			var tw := 0.0
+			for k in nk:
+				var w := weights[v * nk + k]
+				if w <= 0.0:
+					continue
+				var t := bind_xf[bones[v * nk + k]]
+				acc.basis = Basis(acc.basis.x + t.basis.x * w, acc.basis.y + t.basis.y * w, acc.basis.z + t.basis.z * w)
+				acc.origin += t.origin * w
+				tw += w
+			xfs[v] = acc if tw > 0.0 else Transform3D()
+		arr[Mesh.ARRAY_VERTEX] = _xf_points(verts, xfs)
+		if arr[Mesh.ARRAY_NORMAL] != null:
+			arr[Mesh.ARRAY_NORMAL] = _xf_dirs(arr[Mesh.ARRAY_NORMAL], xfs)
+		if arr[Mesh.ARRAY_TANGENT] != null:
+			var tg: PackedFloat32Array = arr[Mesh.ARRAY_TANGENT]
+			for v in verts.size():
+				var d := (xfs[v].basis * Vector3(tg[v * 4], tg[v * 4 + 1], tg[v * 4 + 2])).normalized()
+				tg[v * 4] = d.x; tg[v * 4 + 1] = d.y; tg[v * 4 + 2] = d.z
+			arr[Mesh.ARRAY_TANGENT] = tg
+		for i in bones.size():
+			bones[i] = bind_dst[bones[i]]
+		arr[Mesh.ARRAY_BONES] = bones
+		var bsa: Array = []
+		for bs in src_mesh.surface_get_blend_shape_arrays(si):
+			var b2: Array = bs
+			b2[Mesh.ARRAY_VERTEX] = _xf_points(b2[Mesh.ARRAY_VERTEX], xfs)
+			if b2[Mesh.ARRAY_NORMAL] != null:
+				b2[Mesh.ARRAY_NORMAL] = _xf_dirs(b2[Mesh.ARRAY_NORMAL], xfs)
+			if b2[Mesh.ARRAY_TANGENT] != null:
+				b2[Mesh.ARRAY_TANGENT] = arr[Mesh.ARRAY_TANGENT]
+			bsa.append(b2)
+		var fl := Mesh.ARRAY_FLAG_USE_8_BONE_WEIGHTS if nk == 8 else 0
+		out.add_surface_from_arrays(Mesh.PRIMITIVE_TRIANGLES, arr, bsa, {}, fl)
+	var mi := MeshInstance3D.new()
+	mi.name = "TierA_" + String(smi.name)
+	mi.mesh = out
+	dst.add_child(mi)
+	mi.skeleton = NodePath("..")
+	mi.skin = dst.create_skin_from_rest_transforms()
+	return mi
+
+
+static func _xf_points(p: PackedVector3Array, xfs: Array[Transform3D]) -> PackedVector3Array:
+	var o := PackedVector3Array()
+	o.resize(p.size())
+	for i in p.size():
+		o[i] = xfs[i] * p[i]
+	return o
+
+
+static func _xf_dirs(p: PackedVector3Array, xfs: Array[Transform3D]) -> PackedVector3Array:
+	var o := PackedVector3Array()
+	o.resize(p.size())
+	for i in p.size():
+		o[i] = (xfs[i].basis * p[i]).normalized()
+	return o
+
+
+## Removes every triangle whose UV2.x == id from a non-indexed SurfaceTool mesh (HeroOutfit).
+static func _strip_material_id(mi: MeshInstance3D, id: int) -> void:
+	var src := mi.mesh as ArrayMesh
+	var arr := src.surface_get_arrays(0)
+	var uv2: PackedVector2Array = arr[Mesh.ARRAY_TEX_UV2] if arr[Mesh.ARRAY_TEX_UV2] != null else PackedVector2Array()
+	if uv2.is_empty() or arr[Mesh.ARRAY_INDEX] != null:
+		return
+	var keep := PackedInt32Array()
+	for t in uv2.size() / 3:
+		if int(round(uv2[t * 3].x)) != id:
+			keep.append(t)
+	var per := {Mesh.ARRAY_VERTEX: 1, Mesh.ARRAY_NORMAL: 1, Mesh.ARRAY_TANGENT: 4, Mesh.ARRAY_COLOR: 1, Mesh.ARRAY_TEX_UV: 1,
+		Mesh.ARRAY_TEX_UV2: 1, Mesh.ARRAY_BONES: 4, Mesh.ARRAY_WEIGHTS: 4}
+	for k in per:
+		var a = arr[k]
+		if a == null:
+			continue
+		var n: int = per[k]
+		var o = a.duplicate()
+		o.resize(keep.size() * 3 * n)
+		var j := 0
+		for t in keep:
+			for q in 3 * n:
+				o[j] = a[t * 3 * n + q]
+				j += 1
+		arr[k] = o
+	var m := ArrayMesh.new()
+	m.add_surface_from_arrays(Mesh.PRIMITIVE_TRIANGLES, arr)
+	mi.mesh = m
+
+
+## Tier-A material pass for a single-atlas Meshy character already re-rigged to UAL (the chosen hero base
+## assets/generated/characters/hero_tier_a/hero_meshy.glb, built by tools/blender/hero_tier_a/smooth_lods.py) or any
+## Tier-B companion from meshy_dl3/characters_ual. Classifies the atlas per texel (skin / hair / linen / wool / leather /
+## metal) in hero_character.gdshader. No bone or mesh changes; returns the material (shared per atlas texture).
+static var _char_mats := {}
+static func upgrade_meshy(model: Node3D, saturation := 0.92) -> ShaderMaterial:
+	var sks := model.find_children("*", "Skeleton3D", true, false)
+	if sks.is_empty():
+		return null
+	var sk := sks[0] as Skeleton3D
+	var head := sk.find_bone("Head")
+	var neck_y := sk.get_bone_global_rest(head).origin.y - 0.1 if head >= 0 else 1.45
+	var noise: Texture2D = (load("res://scripts/actors/hero_outfit.gd") as GDScript).call("noise_texture")
+	var out: ShaderMaterial = null
+	for n in model.find_children("*", "MeshInstance3D", true, false):
+		var m := n as MeshInstance3D
+		if m.mesh == null or m.mesh.get_surface_count() == 0:
+			continue
+		var src := m.get_active_material(0)
+		var tex: Texture2D = (src as BaseMaterial3D).albedo_texture if src is BaseMaterial3D else null
+		if tex == null:
+			continue
+		var key := "%d|%.2f|%.3f" % [tex.get_instance_id(), saturation, neck_y]
+		if not _char_mats.has(key):
+			var sm := _mat("hero_character", noise)
+			sm.set_shader_parameter("albedo_tex", tex)
+			sm.set_shader_parameter("neck_y", neck_y)
+			sm.set_shader_parameter("saturation", saturation)
+			sm.set_shader_parameter("detail_scale", float(tex.get_width()) / 2048.0)
+			_char_mats[key] = sm
+		out = _char_mats[key]
+		m.material_override = out
+	return out
+
+
+## LOD switch distances (metres from the camera) for the hero's skinned body: the shoulder cam sits at 3.9 m, dialogue and the
+## creator at 1-2 m, so LOD0 (17k) is kept to 12 m; LOD1 (3.4k) to 30 m; LOD2 (3k, simplest weights) beyond. No fade (two skinned draws
+## would cost more than the pop), 1.5-3 m hysteresis margins.
+const LOD_FAR := [12.0, 30.0]
+const LOD_PATH := "res://assets/generated/characters/hero_tier_a/hero_meshy3"
+
+
+## Moves the body meshes of hero_meshy3_lod1/_lod2 under the hero's skeleton (same bones, same clips) with visibility ranges.
+static func attach_lods(model: Node3D, sk: Skeleton3D) -> void:
+	var lod0 := model.find_children("*base_body*", "MeshInstance3D", true, false)
+	if lod0.is_empty() or sk.has_node("LOD1_body"):
+		return
+	_set_range(lod0[0] as MeshInstance3D, 0.0, LOD_FAR[0], 1.5)
+	for i in 2:
+		var path: String = "%s_lod%d.glb" % [LOD_PATH, i + 1]
+		if not ResourceLoader.exists(path):
+			continue
+		var src: Node = (load(path) as PackedScene).instantiate()
+		for n in src.find_children("*base_body*", "MeshInstance3D", true, false):
+			var mi := n as MeshInstance3D
+			mi.get_parent().remove_child(mi)
+			mi.name = "LOD%d_body" % (i + 1)
+			sk.add_child(mi)
+			mi.skeleton = NodePath("..")
+			_set_range(mi, LOD_FAR[i], LOD_FAR[i + 1] if i == 0 else 0.0, 3.0 if i == 0 else 5.0)
+		src.free()
+
+
+static func _set_range(mi: MeshInstance3D, from: float, to: float, margin: float) -> void:
+	mi.visibility_range_begin = from
+	mi.visibility_range_begin_margin = margin if from > 0.0 else 0.0
+	mi.visibility_range_end = to
+	mi.visibility_range_end_margin = margin if to > 0.0 else 0.0
+	mi.visibility_range_fade_mode = GeometryInstance3D.VISIBILITY_RANGE_FADE_DISABLED
+
+
+## Full Tier-A Meshy hero: material pass + hood/satchel/strap/belt from HeroOutfit + blink lids + sway driver.
+## `look` (character creator, optional): skin / hair_color indices tint the skin and hair texels, `hood` puts the hood up.
+static func dress_meshy_hero(model: Node3D, look := {}) -> Node:
+	var sk0 := model.find_children("*", "Skeleton3D", true, false)
+	if not sk0.is_empty():
+		attach_lods(model, sk0[0] as Skeleton3D)      # before the material pass: every LOD gets its atlas material
+	var body_mat := upgrade_meshy(model)
+	var hand_tint := HAND_TINT
+	if not look.is_empty() and body_mat != null:
+		var tints := _creator_tints(look)
+		hand_tint = Color(HAND_TINT.r * tints[0].r, HAND_TINT.g * tints[0].g, HAND_TINT.b * tints[0].b)
+		var seen := {}
+		for n in model.find_children("*", "MeshInstance3D", true, false):
+			var mo := (n as MeshInstance3D).material_override
+			if mo is ShaderMaterial and (mo as ShaderMaterial).shader == body_mat.shader:
+				if not seen.has(mo):
+					var dup := (mo as ShaderMaterial).duplicate() as ShaderMaterial      # the cached material is shared by every hero
+					dup.set_shader_parameter("skin_tint", tints[0])
+					dup.set_shader_parameter("hair_tint", tints[1])
+					seen[mo] = dup
+				(n as MeshInstance3D).material_override = seen[mo]
+	var outfit: MeshInstance3D = (load("res://scripts/actors/hero_outfit.gd") as GDScript).call("dress", model, ["satchel", "strap", "belt"])   # fitted hood: WIP (shards at the chest), off
+	var sk := model.find_children("*", "Skeleton3D", true, false)[0] as Skeleton3D
+	var noise: Texture2D = (load("res://scripts/actors/hero_outfit.gd") as GDScript).call("noise_texture")
+	# hood: the separate cloth shell from hero_fix.py (offset from the body, same weights) in wool
+	for n in model.find_children("Hood*", "MeshInstance3D", true, false):
+		var hm := ShaderMaterial.new()
+		hm.shader = load(SH + "hero_garment.gdshader")
+		hm.set_shader_parameter("noise_tex", noise)
+		hm.set_shader_parameter("has_uv2", false)
+		hm.set_shader_parameter("asset_kind", 1)
+		hm.set_shader_parameter("use_vertex_color", false)
+		hm.set_shader_parameter("base_color", Color(0.2, 0.13, 0.08))
+		hm.set_shader_parameter("flutter", 0.0)
+		(n as MeshInstance3D).material_override = hm
+		(n as MeshInstance3D).visible = SHOW_HOOD_SHELL
+	# hands: the Meshy mitts are cut at the wrist; the G6 hands (real finger bones) are retargeted onto this skeleton
+	attach_hands(sk, noise, hand_tint)
+	regrip(model, sk)
+	if bool(look.get("hood", false)):
+		add_hood_up(sk, noise)
+	var parts := {}
+	# face: the LOD0 body gets its OWN material copy so the brow uniform never reaches the shared _char_mats cache
+	for n in model.find_children("*base_body*", "MeshInstance3D", true, false):
+		var bm := n as MeshInstance3D
+		if bm.visibility_range_begin == 0.0 and bm.material_override is ShaderMaterial:
+			bm.material_override = (bm.material_override as ShaderMaterial).duplicate()
+			parts["BodyMat"] = bm.material_override
+			break
+	for n in model.find_children("*Lids*", "MeshInstance3D", true, false):
+		parts["Lids"] = n
+		var lm := ShaderMaterial.new()
+		lm.shader = load(SH + "hero_lid.gdshader")
+		var cm := (n as MeshInstance3D).material_override as ShaderMaterial
+		if cm:
+			lm.set_shader_parameter("albedo_tex", cm.get_shader_parameter("albedo_tex"))
+		(n as MeshInstance3D).material_override = lm
+		(n as MeshInstance3D).visible = false
+	var drv: Node = Driver.new()
+	drv.name = "HeroFaceDriver"
+	sk.add_child(drv)
+	drv.call("setup", sk, parts, outfit)
+	return drv
+
+
+## The grown hood shell still shows slab edges at the front shoulders in close-up (m12): hidden until it is remodelled.
+const SHOW_HOOD_SHELL := false
+const G6_ALL := "res://assets/incoming/characters/g6-ual/g6_m_modular_all.glb"
+## Retargets the G6 male hands (740 tris, 15 finger bones per hand) onto any UAL skeleton: clip finger curls = real grip.
+const HAND_TINT := Color(0.765, 0.736, 0.838)    # measured in the turnaround (same light): hands were darker and yellower than the face
+static func attach_hands(sk: Skeleton3D, noise: Texture2D, tint := HAND_TINT) -> MeshInstance3D:
+	if sk.has_node("TierA_human_male_hands_default"):
+		return sk.get_node("TierA_human_male_hands_default")
+	var src: Node = (load(G6_ALL) as PackedScene).instantiate()
+	var src_sk := src.find_children("*", "Skeleton3D", true, false)[0] as Skeleton3D
+	var mi: MeshInstance3D = null
+	for n in src.find_children("*hands_default*", "MeshInstance3D", true, false):
+		mi = _retarget(n as MeshInstance3D, src_sk, sk)
+		# same shader + grade as the Meshy body; tint = Meshy skin mean / G6 hand texture mean (measured on the atlases)
+		var hm := _mat("hero_character", noise)
+		var sm := (n as MeshInstance3D).get_active_material(0)
+		if sm is BaseMaterial3D:
+			hm.set_shader_parameter("albedo_tex", (sm as BaseMaterial3D).albedo_texture)
+		hm.set_shader_parameter("tint", tint)
+		hm.set_shader_parameter("neck_y", -10.0)
+		hm.set_shader_parameter("use_mask", false)          # whole mesh uses the head-band (lenient) skin classification
+		hm.set_shader_parameter("detail_scale", 0.5)
+		mi.material_override = hm
+		break
+	src.free()
+	return mi
+
+
+## Puts the handle of every prop on hand_r INTO the fist: grip point = midway between the curled middle finger and the
+## thumb in the Sword_Idle pose (hand-local), handle centre = 10 % of the prop length up from its lower end.
+static func regrip(model: Node3D, sk: Skeleton3D, clip := "Sword_Idle") -> void:
+	var hand := sk.find_bone("hand_r")
+	var m2 := sk.find_bone("middle_02_r")
+	var t2 := sk.find_bone("thumb_02_r")
+	if hand < 0 or m2 < 0 or t2 < 0:
+		return
+	var ap := Assets.animation_player(model)
+	if ap and ap.has_animation(clip):
+		ap.play(clip)
+		ap.seek(0.3, true)
+	var hx := sk.get_bone_global_pose(hand)
+	var g := hx.affine_inverse() * ((sk.get_bone_global_pose(m2).origin + sk.get_bone_global_pose(t2).origin) * 0.5)
+	if ap:
+		ap.stop()
+	for att in sk.get_children():
+		if not (att is BoneAttachment3D) or (att as BoneAttachment3D).bone_name != "hand_r":
+			continue
+		for prop in att.get_children():
+			var p3 := prop as Node3D
+			var box := Assets.visual_aabb(p3)
+			var lo := box.position.y
+			var ln := box.size.y
+			var centre := Vector3(0, lo + ln * 0.1, 0)
+			p3.position = g - p3.transform.basis * centre
+
+
+## Character creator colours -> [skin ratio, hair ratio] against the baked Meshy skin / brown hair (index 1 of each list = untouched).
+static func _creator_tints(look: Dictionary) -> Array[Color]:
+	var cc := load("res://scripts/ui/character_creation.gd") as GDScript
+	var skins: Array = cc.get("SKINS")
+	var hairs: Array = cc.get("HAIR_TINTS")
+	var s: Color = skins[clampi(int(look.get("skin", 1)), 0, skins.size() - 1)]
+	var sb: Color = skins[1]
+	var h: Color = hairs[clampi(int(look.get("hair_color", 1)), 0, hairs.size() - 1)]
+	var hb: Color = hairs[1]
+	return [Color(s.r / sb.r, s.g / sb.g, s.b / sb.b), Color(minf(h.r / hb.r, 3.0), minf(h.g / hb.g, 3.0), minf(h.b / hb.b, 3.0))]
+
+
+const V2_PATH := "res://assets/generated/characters/hero_tier_a/hero_meshy3"
+## The v2 hero for the character creator (male looks with "v2": true): same body, rig, hands and blink as the default hero,
+## tinted by the creator's skin / hair colour, hood up when look["hood"].
+static func build_v2(look: Dictionary, height: float, keep: Array[String]) -> Node3D:
+	var body := Assets.mh_character(V2_PATH, height, keep)
+	dress_meshy_hero(body, look)
+	return body
+
+
+## Hood-up variant: a rigid cowl on the Head bone (ellipsoid shell with a face opening and a flared collar), wool material.
+static func add_hood_up(sk: Skeleton3D, noise: Texture2D) -> MeshInstance3D:
+	var head := sk.find_bone("Head")
+	if head < 0:
+		return null
+	var att := BoneAttachment3D.new()
+	att.name = "HoodUpAttach"
+	att.bone_name = "Head"
+	sk.add_child(att)
+	var rings := 24
+	var segs := 36
+	var verts := PackedVector3Array()
+	var idx := PackedInt32Array()
+	var ctr := Vector3(0, 0.108, 0.0)
+	var rad := Vector3(0.128, 0.148, 0.152)
+	for r in rings + 1:
+		var th := PI * float(r) / rings
+		for sgi in segs:
+			var ph := TAU * float(sgi) / segs
+			var p := Vector3(sin(th) * sin(ph), cos(th), sin(th) * cos(ph))     # unit sphere, +Z = forward
+			var v := ctr + p * rad
+			var low := 0.02 - v.y
+			if low > 0.0:                                  # collar: flares out and hangs onto the shoulders
+				v.x *= 1.0 + low * 2.6
+				v.z = (v.z + 0.01) * (1.0 + low * 1.6)
+				v.y -= low * 0.85
+			verts.append(v)
+	for r in rings:
+		for sgi in segs:
+			var a := r * segs + sgi
+			var b := r * segs + (sgi + 1) % segs
+			var c := (r + 1) * segs + sgi
+			var d := (r + 1) * segs + (sgi + 1) % segs
+			for tri in [[a, c, b], [b, c, d]]:
+				var cen := (verts[tri[0]] + verts[tri[1]] + verts[tri[2]]) / 3.0
+				var hole := pow(cen.x / 0.092, 2.0) + pow((cen.y - 0.05) / 0.1, 2.0) < 1.0 and cen.z > 0.0   # the face opening
+				if not hole:
+					idx.append_array(PackedInt32Array(tri))
+	var arr := []
+	arr.resize(Mesh.ARRAY_MAX)
+	arr[Mesh.ARRAY_VERTEX] = verts
+	arr[Mesh.ARRAY_INDEX] = idx
+	var am := ArrayMesh.new()
+	am.add_surface_from_arrays(Mesh.PRIMITIVE_TRIANGLES, arr)
+	var st := SurfaceTool.new()
+	st.create_from(am, 0)
+	st.generate_normals()
+	var mesh := st.commit()
+	var mi := MeshInstance3D.new()
+	mi.name = "HoodUp"
+	mi.mesh = mesh
+	var hm := ShaderMaterial.new()
+	hm.shader = load(SH + "hero_garment.gdshader")
+	hm.set_shader_parameter("noise_tex", noise)
+	hm.set_shader_parameter("has_uv2", false)
+	hm.set_shader_parameter("asset_kind", 1)
+	hm.set_shader_parameter("use_vertex_color", false)
+	hm.set_shader_parameter("base_color", Color(0.36, 0.25, 0.16))
+	hm.set_shader_parameter("flutter", 0.0)
+	mi.material_override = hm
+	att.add_child(mi)
+	return mi

@@ -24,6 +24,7 @@
 			"angle": 30.0,
 			"knockback": 3.0,
 			"anim": [
+				"Water_SpinReach_L",
 				"Magic_Cast_R",
 				"G6_cast_unarmed_magic_2"
 			],
@@ -31,7 +32,8 @@
 			"hit_time": 0.22,
 			"vfx": "water_whip",
 			"element": "water",
-			"max_rank": 3
+			"max_rank": 3,
+			"anim_mode": "upper"
 		},
 		{
 			"id": "water_mending_tide",
@@ -49,6 +51,7 @@
 				"heal": 25
 			},
 			"anim": [
+				"Water_Flow_SunSalute",
 				"Magic_Casting",
 				"G6_channel_unarmed_magic"
 			],
@@ -104,7 +107,10 @@
 				"slow": 4.0,
 				"reveal": 8.0
 			},
-			"anim": "Meditate",
+			"anim": [
+				"Water_Lean_Sway_B",
+				"Meditate"
+			],
 			"anim_mode": "full",
 			"anim_speed": 1.5,
 			"hit_time": 0.4,
@@ -133,7 +139,10 @@
 			"range": 8.0,
 			"angle": 80.0,
 			"knockback": 10.0,
-			"anim": "G6_cast_two_handed_staff",
+			"anim": [
+				"Water_Dance_ArmsHigh",
+				"G6_cast_two_handed_staff"
+			],
 			"anim_mode": "full",
 			"anim_speed": 1.2,
 			"hit_time": 0.45,
@@ -168,6 +177,7 @@
 				"slow": 3.0
 			},
 			"anim": [
+				"Water_Whirl",
 				"Magic_Casting",
 				"G6_channel_two_handed_staff"
 			],

@@ -3,8 +3,8 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://bs51e1foh4lsg"
-path.s3tc="res://.godot/imported/soil.png-6f66c662ac7a89659b383d9a98bfd9d5.s3tc.ctex"
-path.etc2="res://.godot/imported/soil.png-6f66c662ac7a89659b383d9a98bfd9d5.etc2.ctex"
+path.bptc="res://.godot/imported/soil.png-6f66c662ac7a89659b383d9a98bfd9d5.bptc.ctex"
+path.astc="res://.godot/imported/soil.png-6f66c662ac7a89659b383d9a98bfd9d5.astc.ctex"
 metadata={
 "imported_formats": ["s3tc_bptc", "etc2_astc"],
 "vram_texture": true
@@ -13,12 +13,12 @@ metadata={
 [deps]
 
 source_file="res://assets/generated/region/textures/soil.png"
-dest_files=["res://.godot/imported/soil.png-6f66c662ac7a89659b383d9a98bfd9d5.s3tc.ctex", "res://.godot/imported/soil.png-6f66c662ac7a89659b383d9a98bfd9d5.etc2.ctex"]
+dest_files=["res://.godot/imported/soil.png-6f66c662ac7a89659b383d9a98bfd9d5.bptc.ctex", "res://.godot/imported/soil.png-6f66c662ac7a89659b383d9a98bfd9d5.astc.ctex"]
 
 [params]
 
 compress/mode=2
-compress/high_quality=false
+compress/high_quality=true
 compress/lossy_quality=0.7
 compress/uastc_level=0
 compress/rdo_quality_loss=0.0

@@ -31,31 +31,42 @@ Run any demo: `Godot --path kingdom --rendering-method mobile res://tools_qa/add
 | Material Footsteps: grass > stone > wood detected | `footsteps_1..3.png`, `footsteps_perf.txt` |
 | SimpleGrassTextured | `grass_1.png`, `grass_2_high.png`, `grass_perf.txt` |
 | VoronoiShatter | `shatter_1_intact_pieces.png`, `shatter_2_exploding.png`, `shatter_3_settled.png`, `shatter_perf.txt` |
-| Octahedral impostors | `impostors_forest_{mesh,impostor,hybrid}.png`, `impostors_forest_hybrid_lowcam.png`, `impostors_compare_row.png`, `impostors_perf.txt`; atlases in `kingdom/assets/generated/impostors/*_octa.png` |
+| Octahedral impostors | `impostors_forest_{mesh,impostor,hybrid}.png`, `crossfade_zoom_fade_vs_hard.png`, `crossfade_{fade,hard}/`, `impostors_forest_hybrid_lowcam.png`, `impostors_compare_row.png`, `impostors_perf.txt`; atlases in `kingdom/assets/generated/impostors/*_octa.png` |
 
 ## Impostors (biggest win for mobile fps)
 The two GitHub baker addons (wojtekpil, MIT, Godot 3 era; belzecue's "initial porting attempt" for 4.0) still contain Godot 3 code
 (`idle_frame`, `Texture.flags`, `.completed`) and don't run on 4.6, so I wrote our own baker (`kingdom/tools/impostors/impostor_baker.gd`)
-and shader (`kingdom/assets/generated/impostors/impostor_octa.gdshader`): 8x8 hemi-octahedral views, 128 px tiles (1024x1024 atlas,
-about 350 KB PNG), albedo + alpha, 4-frame bilinear blend, lit at runtime with an up-biased normal so sun colour and day/night still apply.
-It works per instance, so MultiMesh is fine. Baked 6 assets, each down to 2 tris: `oak1` (6265 tris), `oak4` (4066), `twisted` (9564),
-`village_house` (8684), `chapel` (11371), `bell_tower` (10459).
+and shader (`kingdom/assets/generated/impostors/impostor_octa.gdshader`): hemi-octahedral views into one albedo + alpha atlas, 4-frame
+bilinear blend, lit at runtime with an up-biased normal so sun colour and day/night still apply. It works per instance, so MultiMesh is fine.
+Baked 6 assets, each down to 2 tris: `oak1` (6265 tris), `oak4` (4066), `twisted` (9564), `village_house` (8684), `chapel` (11371), `bell_tower` (10459).
 
-Dense scene: 3000 trees + 80 houses (3071 instances in 32 m cell MultiMeshes so cells are frustum-culled), mobile renderer, 1280x720, RTX 4070 Laptop:
+### Edge quality pass (2026-09-29)
+Before: 8x8 views of 128 px (1024 px atlas, hard 1-bit alpha, blocky when magnified, stored uncompressed, 4 MB each).
+After:
+- **Texel density**: trees 7x7 views of 176 px (1232 px atlas), buildings 6x6 views of 208 px (1248 px atlas). Imported as VRAM-compressed with mipmaps: **2.03 MB per tree species and 2.08 MB per building species in ETC2** (measured `.etc2.ctex` sizes, mips included; ASTC 4x4 has the same 8 bpp, ASTC 8x8 would be 4x smaller). Tile 176-208 px is about 1:1 with the on-screen size of a tree impostor at 45 m on a 1080p screen (about 190 px), the old 128 px tile was magnified 1.5x.
+- **Anti-aliased alpha**: each view is rendered at 3x and resolved on the GPU (`tools/impostors/impostor_resolve.gdshader`) with a coverage-weighted box filter.
+- **Dilated colour**: transparent texels take the colour of the nearest opaque texel of the same tile (12 px ring search, never crosses a tile border), so bilinear, mip and ETC2 blocks never bleed dark fringes.
+- **Edge in the shader**: `alpha_to_coverage_and_one` (uses the project's 4x MSAA; without MSAA it degrades to a hard cut at 0.5), alpha contrast that grows with the mip level (thin trunks and canopy gaps lose alpha in mips otherwise), texture LOD bias -1, optional dithered cut-off (`edge_dither`, interleaved gradient noise) for renderers without MSAA.
+- Before/after: `docs/addons/impostors_compare_row.png` (new bake, read it: silhouettes are smooth, trunks solid); the old image is in git history (`git show 9d2c8770:docs/addons/impostors_compare_row.png`).
+
+### Crossfade mesh <-> impostor (about 5 m, dithered)
+- `impostor_octa.gdshader`: `fade_in_end` / `fade_in_len` (per instance, camera distance to the bounding-sphere centre, interleaved-gradient-noise dither).
+- `tools_qa/addons_demo/mesh_fade.gdshader`: the full-mesh side, complementary noise (mesh keeps a pixel while noise < keep, the impostor keeps the rest), so no hole and no double draw. Demo: `impostor_forest.gd --fly=fade|hard` (camera flies through the 45 m switch, crossfade centred on 45 m, 42.5 to 47.5 m). `hard` is the old hard switch for comparison.
+- **Godot's own `visibility_range` fade (FADE_SELF) did not fade MultiMesh cells in the Mobile renderer**: even with a 20 m margin the switch was instant (verified frame by frame), so the game must use this shader pair (or per-object visibility ranges on single MeshInstances). Any GLB material has to be wrapped into `mesh_fade.gdshader` (albedo texture, colour, vertex colour, roughness) for the fade to apply; other material features (normal maps, emission) are not carried.
+- Frame evidence: `docs/addons/crossfade_zoom_fade_vs_hard.png` (top row fade, bottom row hard, consecutive frames of one tree: the hard switch jumps from light impostor to dark mesh in one frame, the fade gets there gradually), `docs/addons/crossfade_{fade,hard}/sheet_*.png` (30 fps window around the switch). The generic `motion.png` difference strip is not sensitive enough for a small far object, so it is not used as proof. The wrapped mesh renders lighter than the game's lit mesh (no shadow terms in the wrapper), so the fade row looks pop-free partly because of that; wrap the real material in the game.
+
+### Numbers
+Dense scene: 3000 trees + 80 houses (3071 instances in 32 m cell MultiMeshes so cells are frustum-culled), mobile renderer, 1280x720, RTX 4070 Laptop, measured 2026-09-29 with the machine otherwise idle (`impostors_perf.txt`):
 
 | Mode | Frame | FPS | GPU ms | Render-CPU ms | Draw calls | Triangles |
 |---|---:|---:|---:|---:|---:|---:|
-| all full meshes | 13.38 ms | 75 | 12.44 | 2.92 | 441 | 2,006,738 |
-| all impostors | 4.67 ms | 214 | 0.47 | 1.04 | 242 | 5,538 |
-| hybrid (full < 45 m, impostor beyond) | 7.04 ms | 142 | 2.86 | 1.86 | 280 | 423,688 |
+| all full meshes | 8.58 ms | 117 | 7.33 | 1.99 | 441 | 2,006,738 |
+| all impostors | 4.26 ms | 235 | 0.64 | 1.15 | 242 | 5,538 |
+| hybrid (full < 45 m, impostor beyond) | 4.74 ms | 211 | 1.90 | 1.44 | 280 | 423,688 |
 
-Hybrid gives 1.9x the fps and cuts GPU time 4.3x; triangles fall from 2.0M to 0.42M (mobile budget: 1.5M). Frame time also contains the
-game's autoloads (about 3.5 ms CPU), so the GPU column is the honest comparison. Limits: the bake is unlit albedo (no baked AO,
-emissive windows are baked as colour), impostors don't cast shadows, frame blending "swims" slightly up close, so keep the switch
-distance at 40 m or more for trees and 60 m or more for buildings; near-top-down frames use a fallback up vector.
-Integration plan: (1) tree/building scatter keeps the LOD0 GLB within about 45 m and the `*_octa.tscn` quad beyond; (2) use the same 32 m
-cell MultiMesh scheme; (3) compare against the existing 4-tri `_lod2` cross cards of generated trees and use whichever looks better;
-(4) bake more kinds with `impostor_baker.tscn -- --jobs=name:res://path.glb,...`; (5) a `Quality` tier switch distance (LOW: 30 m).
+Hybrid gives 1.8x the fps of full meshes and 3.9x less GPU time; triangles fall from 2.0M to 0.42M (mobile budget: 1.5M). The earlier table (75 / 214 / 142 fps) was taken while other sessions loaded the GPU; the new impostor GPU cost (0.64 ms, was 0.47 ms) includes alpha-to-coverage and the alpha sharpening. Frame time also contains the game's autoloads (about 3.5 ms CPU), so the GPU column is the honest comparison. Limits: the bake is unlit albedo (no baked AO, emissive windows are baked as colour), impostors don't cast shadows, frame blending "swims" slightly up close and blends the thin trunk of `twisted` into a faint ghost at some angles, so keep the switch distance at 40 m or more for trees and 60 m or more for buildings; near-top-down frames use a fallback up vector. Not tested on a phone: alpha-to-coverage needs MSAA (LOW tier without MSAA gets the hard 0.5 cut, still supersampled).
+Re-bake: `Godot --path kingdom --rendering-method mobile res://tools/impostors/impostor_baker.tscn -- --jobs=oak1:res://.../CommonTree_1.gltf,chapel:res://assets/generated/chapel.glb@6@208` (needs a GPU, not `--headless`; then run `--import`).
+Integration plan: (1) tree/building scatter keeps the LOD0 GLB within about 45 m and the `*_octa.tscn` quad beyond, with the crossfade shader pair; (2) use the same 32 m cell MultiMesh scheme, with hard `visibility_range` values only for culling (mesh end = 45 + 2.5 + 24 m, impostor begin = 45 - 2.5 - 24 m from the cell centre); (3) compare against the existing 4-tri `_lod2` cross cards of generated trees and use whichever looks better; (4) bake more kinds with the baker; (5) a `Quality` tier switch distance (LOW: 30 m).
 
 ## Integration plans and notes per addon
 - **Phantom Camera**: `PhantomCameraHost` as child of the game's `Camera3D`, one `PhantomCamera3D` (THIRD_PERSON or SIMPLE follow) for the

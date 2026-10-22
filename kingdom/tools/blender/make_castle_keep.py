@@ -252,4 +252,5 @@ with k.side("front", HK, HK):
         banner(bx, 0.0, 15.2, w=1.5, h=5.0)
 
 k.stage("fore")
+k.pbr = dict(size=1024, lod1_size=512, orm_div=2, seed=20, ao_dist=1.4)   # high-to-low PBR bake (pbr_kit.py)
 k.finish_checked((30.0, 30.0), 25000, cam_dir=(1.0, -1.45, 0.62), fit=0.92)

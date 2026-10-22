@@ -47,6 +47,8 @@ shader_parameter/tail_len = null
 shader_parameter/pulse = null
 shader_parameter/pulse_speed = null
 shader_parameter/heat_scale = 1.0
+shader_parameter/soft_edge = 0.85
+shader_parameter/ring_soft = null
 
 [sub_resource type="CylinderMesh" id="CylinderMesh_3llma"]
 top_radius = 0.42
@@ -100,6 +102,8 @@ shader_parameter/tail_len = null
 shader_parameter/pulse = null
 shader_parameter/pulse_speed = null
 shader_parameter/heat_scale = 1.0
+shader_parameter/soft_edge = 0.85
+shader_parameter/ring_soft = null
 
 [sub_resource type="CylinderMesh" id="CylinderMesh_1mcax"]
 top_radius = 0.4
@@ -139,14 +143,14 @@ color_ramp = SubResource("GradientTexture1D_r3ms4")
 material = ExtResource("3_datqg")
 size = Vector2(0.6666667, 1.1010753)
 
-[node name="Wind_Status" type="Node3D" unique_id=179427970]
+[node name="Wind_Status" type="Node3D" unique_id=1532634540]
 script = ExtResource("1_8s03l")
 duration = 0.0
 fade_out = 0.4
 kind = &"status"
 element = &"wind"
 
-[node name="Ankles" type="MeshInstance3D" parent="." unique_id=1904344579]
+[node name="Ankles" type="MeshInstance3D" parent="." unique_id=234659371]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.22, 0)
 material_override = SubResource("ShaderMaterial_cnllg")
 cast_shadow = 0
@@ -154,7 +158,7 @@ extra_cull_margin = 2.0
 gi_mode = 0
 mesh = SubResource("CylinderMesh_3llma")
 
-[node name="Waist" type="MeshInstance3D" parent="." unique_id=1908709615]
+[node name="Waist" type="MeshInstance3D" parent="." unique_id=717948569]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1, 0)
 material_override = SubResource("ShaderMaterial_gx4j1")
 cast_shadow = 0
@@ -163,7 +167,7 @@ gi_mode = 0
 mesh = SubResource("CylinderMesh_1mcax")
 metadata/tier_min = 1
 
-[node name="Streaks" type="GPUParticles3D" parent="." unique_id=272264300]
+[node name="Streaks" type="GPUParticles3D" parent="." unique_id=1501126177]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.6, 0)
 cast_shadow = 0
 gi_mode = 0

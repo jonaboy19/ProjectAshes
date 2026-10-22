@@ -1,0 +1,336 @@
+{
+	"entries": {
+		"adventurer_guild:lod2": {
+			"off": [
+				0.001953125,
+				0.001953125
+			],
+			"scale": 0.12109375,
+			"src": "guild_lod2_guild_lod2_bake.jpg"
+		},
+		"adventurer_guild:lod3": {
+			"off": [
+				0.126953125,
+				0.001953125
+			],
+			"scale": 0.12109375,
+			"src": "guild_lod3_guild_lod3_bake.jpg"
+		},
+		"blacksmith:lod2": {
+			"off": [
+				0.876953125,
+				0.376953125
+			],
+			"scale": 0.12109375,
+			"src": "blacksmith_lod2_blacksmith_lod2_bake.jpg"
+		},
+		"blacksmith:lod3": {
+			"off": [
+				0.001953125,
+				0.501953125
+			],
+			"scale": 0.12109375,
+			"src": "blacksmith_lod3_blacksmith_lod3_bake.jpg"
+		},
+		"chapel:lod2": {
+			"off": [
+				0.251953125,
+				0.501953125
+			],
+			"scale": 0.12109375,
+			"src": "chapel_lod2_chapel_lod2_bake.jpg"
+		},
+		"healer_house:lod2": {
+			"off": [
+				0.251953125,
+				0.001953125
+			],
+			"scale": 0.12109375,
+			"src": "healer_lod2_healer_lod2_bake.jpg"
+		},
+		"healer_house:lod3": {
+			"off": [
+				0.376953125,
+				0.001953125
+			],
+			"scale": 0.12109375,
+			"src": "healer_lod3_healer_lod3_bake.jpg"
+		},
+		"house_10:lod2": {
+			"off": [
+				0.626953125,
+				0.126953125
+			],
+			"scale": 0.12109375,
+			"src": "village_house_b_3_lod2_village_house_b_3_lod2_bake.jpg"
+		},
+		"house_11:lod2": {
+			"off": [
+				0.751953125,
+				0.126953125
+			],
+			"scale": 0.12109375,
+			"src": "village_house_c_3_lod2_village_house_c_3_lod2_bake.jpg"
+		},
+		"house_12:lod2": {
+			"off": [
+				0.876953125,
+				0.126953125
+			],
+			"scale": 0.12109375,
+			"src": "village_house_d_3_lod2_village_house_d_3_lod2_bake.jpg"
+		},
+		"house_13:lod2": {
+			"off": [
+				0.001953125,
+				0.251953125
+			],
+			"scale": 0.12109375,
+			"src": "village_house_a_4_lod2_village_house_a_4_lod2_bake.jpg"
+		},
+		"house_14:lod2": {
+			"off": [
+				0.126953125,
+				0.251953125
+			],
+			"scale": 0.12109375,
+			"src": "village_house_b_4_lod2_village_house_b_4_lod2_bake.jpg"
+		},
+		"house_15:lod2": {
+			"off": [
+				0.251953125,
+				0.251953125
+			],
+			"scale": 0.12109375,
+			"src": "village_house_c_4_lod2_village_house_c_4_lod2_bake.jpg"
+		},
+		"house_16:lod2": {
+			"off": [
+				0.376953125,
+				0.251953125
+			],
+			"scale": 0.12109375,
+			"src": "village_house_d_4_lod2_village_house_d_4_lod2_bake.jpg"
+		},
+		"house_1:lod2": {
+			"off": [
+				0.501953125,
+				0.001953125
+			],
+			"scale": 0.12109375,
+			"src": "village_house_a_lod2_village_house_a_lod2_bake.jpg"
+		},
+		"house_2:lod2": {
+			"off": [
+				0.626953125,
+				0.001953125
+			],
+			"scale": 0.12109375,
+			"src": "village_house_b_lod2_village_house_b_lod2_bake.jpg"
+		},
+		"house_3:lod2": {
+			"off": [
+				0.751953125,
+				0.001953125
+			],
+			"scale": 0.12109375,
+			"src": "village_house_c_lod2_village_house_c_lod2_bake.jpg"
+		},
+		"house_4:lod2": {
+			"off": [
+				0.876953125,
+				0.001953125
+			],
+			"scale": 0.12109375,
+			"src": "village_house_d_lod2_village_house_d_lod2_bake.jpg"
+		},
+		"house_5:lod2": {
+			"off": [
+				0.001953125,
+				0.126953125
+			],
+			"scale": 0.12109375,
+			"src": "village_house_a_2_lod2_village_house_a_2_lod2_bake.jpg"
+		},
+		"house_6:lod2": {
+			"off": [
+				0.126953125,
+				0.126953125
+			],
+			"scale": 0.12109375,
+			"src": "village_house_b_2_lod2_village_house_b_2_lod2_bake.jpg"
+		},
+		"house_7:lod2": {
+			"off": [
+				0.251953125,
+				0.126953125
+			],
+			"scale": 0.12109375,
+			"src": "village_house_c_2_lod2_village_house_c_2_lod2_bake.jpg"
+		},
+		"house_8:lod2": {
+			"off": [
+				0.376953125,
+				0.126953125
+			],
+			"scale": 0.12109375,
+			"src": "village_house_d_2_lod2_village_house_d_2_lod2_bake.jpg"
+		},
+		"house_9:lod2": {
+			"off": [
+				0.501953125,
+				0.126953125
+			],
+			"scale": 0.12109375,
+			"src": "village_house_a_3_lod2_village_house_a_3_lod2_bake.jpg"
+		},
+		"house_town_a:lod2": {
+			"off": [
+				0.626953125,
+				0.501953125
+			],
+			"scale": 0.12109375,
+			"src": "townhouse_a_lod2_th_a_lod2_bake.jpg"
+		},
+		"house_town_b:lod2": {
+			"off": [
+				0.751953125,
+				0.501953125
+			],
+			"scale": 0.12109375,
+			"src": "townhouse_b_lod2_th_b_lod2_bake.jpg"
+		},
+		"house_town_c:lod2": {
+			"off": [
+				0.876953125,
+				0.501953125
+			],
+			"scale": 0.12109375,
+			"src": "townhouse_c_lod2_th_c_lod2_bake.jpg"
+		},
+		"house_town_d:lod2": {
+			"off": [
+				0.001953125,
+				0.626953125
+			],
+			"scale": 0.12109375,
+			"src": "townhouse_d_lod2_th_d_lod2_bake.jpg"
+		},
+		"inn:lod2": {
+			"off": [
+				0.626953125,
+				0.376953125
+			],
+			"scale": 0.12109375,
+			"src": "inn_lod2_inn_lod2_bake.jpg"
+		},
+		"inn:lod3": {
+			"off": [
+				0.751953125,
+				0.376953125
+			],
+			"scale": 0.12109375,
+			"src": "inn_lod3_inn_lod3_bake.jpg"
+		},
+		"market_stand_1:lod1": {
+			"off": [
+				0.376953125,
+				0.501953125
+			],
+			"scale": 0.12109375,
+			"src": "stall_produce_lod1_texture_0.jpg"
+		},
+		"market_stand_2:lod1": {
+			"off": [
+				0.501953125,
+				0.501953125
+			],
+			"scale": 0.12109375,
+			"src": "stall_cloth_lod1_texture_0.jpg"
+		},
+		"mhouse_family:lod2": {
+			"off": [
+				0.876953125,
+				0.251953125
+			],
+			"scale": 0.12109375,
+			"src": "house_family_lod2_house_family_lod2_bake.jpg"
+		},
+		"mhouse_family:lod3": {
+			"off": [
+				0.001953125,
+				0.376953125
+			],
+			"scale": 0.12109375,
+			"src": "house_family_lod3_house_family_lod3_bake.jpg"
+		},
+		"mhouse_manor:lod2": {
+			"off": [
+				0.376953125,
+				0.376953125
+			],
+			"scale": 0.12109375,
+			"src": "house_manor_lod2_house_manor_lod2_bake.jpg"
+		},
+		"mhouse_manor:lod3": {
+			"off": [
+				0.501953125,
+				0.376953125
+			],
+			"scale": 0.12109375,
+			"src": "house_manor_lod3_house_manor_lod3_bake.jpg"
+		},
+		"mhouse_peasant_a:lod2": {
+			"off": [
+				0.501953125,
+				0.251953125
+			],
+			"scale": 0.12109375,
+			"src": "house_peasant_a_lod3_house_peasant_a_lod3_bake.jpg"
+		},
+		"mhouse_peasant_b:lod2": {
+			"off": [
+				0.626953125,
+				0.251953125
+			],
+			"scale": 0.12109375,
+			"src": "house_peasant_b_lod2_house_peasant_b_lod2_bake.jpg"
+		},
+		"mhouse_peasant_b:lod3": {
+			"off": [
+				0.751953125,
+				0.251953125
+			],
+			"scale": 0.12109375,
+			"src": "house_peasant_b_lod3_house_peasant_b_lod3_bake.jpg"
+		},
+		"mhouse_trader:lod2": {
+			"off": [
+				0.126953125,
+				0.376953125
+			],
+			"scale": 0.12109375,
+			"src": "house_trader_lod2_house_trader_lod2_bake.jpg"
+		},
+		"mhouse_trader:lod3": {
+			"off": [
+				0.251953125,
+				0.376953125
+			],
+			"scale": 0.12109375,
+			"src": "house_trader_lod3_house_trader_lod3_bake.jpg"
+		},
+		"stable:lod2": {
+			"off": [
+				0.126953125,
+				0.501953125
+			],
+			"scale": 0.12109375,
+			"src": "village_barn_lod2_village_barn_lod2_bake.jpg"
+		}
+	},
+	"gutter": 4,
+	"page": "res://assets/baked/atlas/town_far.png",
+	"size": 2048,
+	"tile": 256
+}

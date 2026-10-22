@@ -1,0 +1,144 @@
+{
+ "id": "ravenscar_goods_without_a_count",
+ "title": "Goods Without a Count",
+ "summary": "Goods are passing Ravenscar at night without a count. Rolf Slater knows, and Dane Plover can show where it goes.",
+ "giver": {
+  "npc": "rolf_slater",
+  "name": "Rolf Slater",
+  "place": "ravenscar"
+ },
+ "requires": [
+  "ravenscar_carry_it_over"
+ ],
+ "offer_text": "\"Goods come through at night and nobody counts them. Dane Plover says Dane can point at the road. See what is left on it, then decide what it is worth.\"",
+ "stages": [
+  {
+   "id": "tip",
+   "title": "Hear the tip",
+   "mode": "all",
+   "objectives": [
+    {
+     "id": "tip",
+     "type": "talk_to",
+     "npc": "dane_plover",
+     "text": "Hear what Dane Plover has to sell"
+    }
+   ]
+  },
+  {
+   "id": "watch",
+   "title": "Watch the edge",
+   "mode": "all",
+   "objectives": [
+    {
+     "id": "edge",
+     "type": "goto",
+     "place": "ravenscar_outskirts",
+     "text": "Go to the edge of Ravenscar where the carts do not stop"
+    }
+   ]
+  },
+  {
+   "id": "find",
+   "title": "Find what was left",
+   "mode": "all",
+   "objectives": [
+    {
+     "id": "clues",
+     "type": "investigate",
+     "clues": [
+      "ravenscar/clue/o1",
+      "ravenscar/clue/o2",
+      "ravenscar/clue/c3"
+     ],
+     "count": 2,
+     "text": "Find two signs of what passed through"
+    }
+   ]
+  },
+  {
+   "id": "decide",
+   "title": "Decide what it is worth",
+   "mode": "all",
+   "objectives": [
+    {
+     "id": "verdict",
+     "type": "choose",
+     "npc": "rolf_slater",
+     "options": [
+      {
+       "id": "turn_in",
+       "text": "Tell Rolf what you found",
+       "say": "Rolf writes it down. \"This will matter.\""
+      },
+      {
+       "id": "cut",
+       "text": "Take Dane's cut and forget the road",
+       "say": "Dane pays you without counting. \"Obliged.\""
+      }
+     ]
+    }
+   ],
+   "branches": {
+    "turn_in": "filed",
+    "cut": "cut"
+   }
+  },
+  {
+   "id": "filed",
+   "title": "Rolf has it",
+   "mode": "all",
+   "objectives": [
+    {
+     "id": "filed",
+     "type": "talk_to",
+     "npc": "rolf_slater",
+     "text": "Tell Rolf Slater who is behind it"
+    }
+   ],
+   "end": true,
+   "rewards": {
+    "gold": 26,
+    "rep": {
+     "ravenscar": 6
+    },
+    "relationship": [
+     {
+      "npc": "rolf_slater",
+      "label": "Reported the contraband",
+      "value": 12,
+      "days": 90
+     }
+    ]
+   }
+  },
+  {
+   "id": "cut",
+   "title": "Take your share",
+   "mode": "all",
+   "objectives": [
+    {
+     "id": "share",
+     "type": "talk_to",
+     "npc": "dane_plover",
+     "text": "Collect your share from Dane Plover"
+    }
+   ],
+   "end": true,
+   "rewards": {
+    "gold": 35,
+    "rep": {
+     "ravenscar": -7
+    },
+    "relationship": [
+     {
+      "npc": "rolf_slater",
+      "label": "Heard you took a cut",
+      "value": -14,
+      "days": 90
+     }
+    ]
+   }
+  }
+ ]
+}

@@ -1530,7 +1530,7 @@ class Interior:
             for m in o.data.materials:
                 nt = m.node_tree
                 b = nt.nodes["Principled BSDF"]
-                if m.name.startswith("RA_Ember"):
+                if m.name.startswith(("RA_Ember", "RA_Rune", "RA_Sun")):
                     b.inputs["Emission Strength"].default_value = 2.5
                     continue
                 src = b.inputs["Base Color"].links[0].from_socket if b.inputs["Base Color"].links else None

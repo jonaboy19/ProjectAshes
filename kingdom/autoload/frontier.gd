@@ -16,11 +16,24 @@ var _last_day := -1
 
 
 func _ready() -> void:
+	_new_state()
+	WorldSim.hour_changed.connect(_on_hour)
+
+
+func _new_state() -> void:
 	threat = RAThreatMap.new(runestones, ecology)
 	_seed_frontier()
-	WorldSim.hour_changed.connect(_on_hour)
 	ecology.migration.connect(func(den: Dictionary, from_pos: Vector2, to_pos: Vector2) -> void:
 		frontier_event.emit("Wolves are moving %s." % _compass(to_pos - from_pos), to_pos))
+
+
+## Back to the freshly seeded frontier of a new game (runestones, dens, threat map).
+func reset() -> void:
+	runestones = RARunestoneNetwork.new()
+	ecology = RAMonsterEcology.new()
+	rift_instability = 0.1
+	_last_day = -1
+	_new_state()
 
 
 func _seed_frontier() -> void:
@@ -55,6 +68,45 @@ func _seed_frontier() -> void:
 			continue
 		ecology.add_den("wolf", p, rng.randi_range(4, 9))
 		placed += 1
+	_seed_far_dens()
+
+
+## The rest of the 12 x 12 km map (was 8 x 8): dens in the far woods, more of them and deadlier the further
+## they sit from Kingsreach (bands of [min, max] metres, den count, species, pack size).
+## Their own RNG stream, so the valley's eight dens above are exactly where they always were.
+## The 12 x 12 km world (2.25x the area) has ~2.25x the dens: the two outer bands are the new ring.
+const FAR_DEN_BANDS := [
+	[1400.0, 2500.0, 8, "wolf", Vector2i(5, 10)],
+	[2500.0, 3400.0, 10, "wolf", Vector2i(8, 13)],
+	[3400.0, 4600.0, 9, "corrupted_wolf", Vector2i(4, 8)],
+	[4600.0, 9000.0, 10, "corrupted_wolf", Vector2i(6, 10)],
+]
+
+
+func _seed_far_dens() -> void:
+	var capital := Vector2.ZERO
+	for s: Dictionary in WorldGen.settlements:
+		if s["kind"] == "castle":
+			capital = s["pos"]
+			break
+	var rng := RandomNumberGenerator.new()
+	rng.seed = 78
+	var lim := WorldGen.WORLD_HALF - 300.0
+	for band: Array in FAR_DEN_BANDS:
+		var placed := 0
+		var tries := 0
+		while placed < int(band[2]) and tries < 3000:
+			tries += 1
+			var p := Vector2(rng.randf_range(-lim, lim), rng.randf_range(-lim, lim))
+			var d := p.distance_to(capital)
+			if d < float(band[0]) or d >= float(band[1]) or WorldGen.forest_density(p.x, p.y) < 0.45 or runestones.coverage(p) > 0.05:
+				continue
+			var near := WorldGen.nearest_settlement(p)
+			if not near.is_empty() and p.distance_to(near["pos"]) < float(near["radius"]) * 1.8 + 150.0:
+				continue
+			var pack: Vector2i = band[4]
+			ecology.add_den(String(band[3]), p, rng.randi_range(pack.x, pack.y))
+			placed += 1
 
 
 func _on_hour(_hour: int) -> void:
@@ -65,7 +117,7 @@ func _on_hour(_hour: int) -> void:
 
 func advance_day(day: int) -> void:
 	runestones.tick_day(day)
-	ecology.tick_day(runestones.coverage, rift_instability, false)
+	ecology.tick_day(runestones.coverage, rift_instability, WorldSim.season == "winter")
 	_maybe_apex_moves_in(day)
 	threat.expire(day)
 	for s in runestones.stones:
@@ -89,7 +141,7 @@ func _maybe_apex_moves_in(day: int) -> void:
 	var c: Vector2 = WorldGen.settlements[0]["pos"]
 	for _t in 60:
 		var ang := rng.randf() * TAU
-		var p := c + Vector2(cos(ang), sin(ang)) * rng.randf_range(900.0, 1700.0)
+		var p := c + Vector2(cos(ang), sin(ang)) * rng.randf_range(900.0, 3800.0)
 		if WorldGen.forest_density(p.x, p.y) < 0.4 or runestones.coverage(p) > 0.02:
 			continue
 		ecology.spawn_apex("troll" if rng.randf() < 0.4 else "bear", p, ecology.current_day())
@@ -121,7 +173,8 @@ func danger_mult(hour: float) -> float:
 
 
 func serialize() -> Dictionary:
-	return {"runestones": runestones.serialize(), "dens": ecology.serialize(), "eco": ecology.serialize_state(), "rift": rift_instability}
+	# "eco" already carries the dens (deserialize falls back to a legacy top-level "dens" list only when "eco" is absent).
+	return {"runestones": runestones.serialize(), "eco": ecology.serialize_state(), "rift": rift_instability}
 
 
 func deserialize(d: Dictionary) -> void:

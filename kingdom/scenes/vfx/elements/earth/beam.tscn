@@ -48,6 +48,8 @@ shader_parameter/tail_len = null
 shader_parameter/pulse = null
 shader_parameter/pulse_speed = null
 shader_parameter/heat_scale = 0.55
+shader_parameter/soft_edge = null
+shader_parameter/ring_soft = null
 
 [sub_resource type="CylinderMesh" id="CylinderMesh_t31wg"]
 top_radius = 0.0
@@ -99,6 +101,8 @@ shader_parameter/tail_len = null
 shader_parameter/pulse = null
 shader_parameter/pulse_speed = null
 shader_parameter/heat_scale = 0.55
+shader_parameter/soft_edge = null
+shader_parameter/ring_soft = null
 
 [sub_resource type="CylinderMesh" id="CylinderMesh_aqg4x"]
 top_radius = 0.0
@@ -150,6 +154,8 @@ shader_parameter/tail_len = null
 shader_parameter/pulse = null
 shader_parameter/pulse_speed = null
 shader_parameter/heat_scale = 0.55
+shader_parameter/soft_edge = null
+shader_parameter/ring_soft = null
 
 [sub_resource type="CylinderMesh" id="CylinderMesh_fwsfk"]
 top_radius = 0.0
@@ -201,6 +207,8 @@ shader_parameter/tail_len = null
 shader_parameter/pulse = null
 shader_parameter/pulse_speed = null
 shader_parameter/heat_scale = 0.55
+shader_parameter/soft_edge = null
+shader_parameter/ring_soft = null
 
 [sub_resource type="CylinderMesh" id="CylinderMesh_mfvmd"]
 top_radius = 0.0
@@ -252,6 +260,8 @@ shader_parameter/tail_len = null
 shader_parameter/pulse = null
 shader_parameter/pulse_speed = null
 shader_parameter/heat_scale = 0.55
+shader_parameter/soft_edge = null
+shader_parameter/ring_soft = null
 
 [sub_resource type="CylinderMesh" id="CylinderMesh_va5lv"]
 top_radius = 0.0
@@ -303,6 +313,8 @@ shader_parameter/tail_len = null
 shader_parameter/pulse = null
 shader_parameter/pulse_speed = null
 shader_parameter/heat_scale = 0.55
+shader_parameter/soft_edge = null
+shader_parameter/ring_soft = null
 
 [sub_resource type="CylinderMesh" id="CylinderMesh_fvrgr"]
 top_radius = 0.0
@@ -354,6 +366,8 @@ shader_parameter/tail_len = null
 shader_parameter/pulse = null
 shader_parameter/pulse_speed = null
 shader_parameter/heat_scale = 0.55
+shader_parameter/soft_edge = null
+shader_parameter/ring_soft = null
 
 [sub_resource type="CylinderMesh" id="CylinderMesh_8764d"]
 top_radius = 0.0
@@ -405,6 +419,8 @@ shader_parameter/tail_len = null
 shader_parameter/pulse = null
 shader_parameter/pulse_speed = null
 shader_parameter/heat_scale = 0.55
+shader_parameter/soft_edge = null
+shader_parameter/ring_soft = null
 
 [sub_resource type="CylinderMesh" id="CylinderMesh_wnrie"]
 top_radius = 0.0
@@ -456,6 +472,8 @@ shader_parameter/tail_len = null
 shader_parameter/pulse = null
 shader_parameter/pulse_speed = null
 shader_parameter/heat_scale = 0.55
+shader_parameter/soft_edge = null
+shader_parameter/ring_soft = null
 
 [sub_resource type="CylinderMesh" id="CylinderMesh_h374g"]
 top_radius = 0.0
@@ -520,7 +538,7 @@ color_ramp = SubResource("GradientTexture1D_4fs8h")
 material = ExtResource("4_5upaf")
 size = Vector2(0.26459947, 0.27526882)
 
-[node name="Earth_Beam" type="Node3D" unique_id=261462908]
+[node name="Earth_Beam" type="Node3D" unique_id=1314658409]
 script = ExtResource("1_h625e")
 duration = 1.7
 fade_out = 0.3
@@ -528,10 +546,10 @@ kind = &"beam"
 element = &"earth"
 metadata/beam_len = 6.0
 
-[node name="S0_p" type="Node3D" parent="." unique_id=1397757978]
-transform = Transform3D(0.5743089, -0.11393249, -0.81067175, 0, 0.99026805, -0.1391731, 0.8186387, 0.079928346, 0.56871974, 0.12, 0, -0.5)
+[node name="S0_p" type="Node3D" parent="." unique_id=1215490967]
+transform = Transform3D(0.4363354, -0.12522575, -0.89102745, 0, 0.99026805, -0.1391731, 0.8997841, 0.060726155, 0.43208903, 0.12, 0, -0.5)
 
-[node name="S0" type="MeshInstance3D" parent="S0_p" unique_id=209299085]
+[node name="S0" type="MeshInstance3D" parent="S0_p" unique_id=1053934697]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.575, 0)
 material_override = SubResource("ShaderMaterial_ot3du")
 cast_shadow = 0
@@ -554,10 +572,10 @@ metadata/anims = [{
 "t1": 1.55
 }]
 
-[node name="S1_p" type="Node3D" parent="." unique_id=2055880517]
-transform = Transform3D(-0.8463232, 0.07413331, 0.52748585, 0, 0.99026805, -0.1391731, -0.5326698, -0.117785424, -0.83808684, -0.12, 0, -1.12)
+[node name="S1_p" type="Node3D" parent="." unique_id=832969365]
+transform = Transform3D(-0.86477375, 0.06988741, 0.49727473, 0, 0.99026805, -0.1391731, -0.50216174, -0.12035325, -0.8563578, -0.12, 0, -1.12)
 
-[node name="S1" type="MeshInstance3D" parent="S1_p" unique_id=414085656]
+[node name="S1" type="MeshInstance3D" parent="S1_p" unique_id=230342508]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.79080236, 0)
 material_override = SubResource("ShaderMaterial_qpk8n")
 cast_shadow = 0
@@ -580,10 +598,10 @@ metadata/anims = [{
 "t1": 1.58
 }]
 
-[node name="S2_p" type="Node3D" parent="." unique_id=1840449386]
-transform = Transform3D(-0.9441549, -0.0458578, -0.32629517, 0, 0.99026805, -0.1391731, 0.32950187, -0.13140097, -0.93496644, 0.12, 0, -1.74)
+[node name="S2_p" type="Node3D" parent="." unique_id=330024131]
+transform = Transform3D(0.21397243, 0.13594982, 0.96733314, 0, 0.99026805, -0.1391731, -0.9768397, 0.029779209, 0.21189007, 0.12, 0, -1.74)
 
-[node name="S2" type="MeshInstance3D" parent="S2_p" unique_id=1998321383]
+[node name="S2" type="MeshInstance3D" parent="S2_p" unique_id=453511410]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.35710606, 0)
 material_override = SubResource("ShaderMaterial_jf1nh")
 cast_shadow = 0
@@ -606,10 +624,10 @@ metadata/anims = [{
 "t1": 1.61
 }]
 
-[node name="S3_p" type="Node3D" parent="." unique_id=133224122]
-transform = Transform3D(0.029453741, 0.13911273, 0.9898384, 0, 0.99026805, -0.1391731, -0.99956614, 0.004099169, 0.029167099, -0.12, 0, -2.36)
+[node name="S3_p" type="Node3D" parent="." unique_id=1586260775]
+transform = Transform3D(-0.5871935, 0.1126532, 0.80156916, 0, 0.99026805, -0.1391731, -0.80944663, -0.081721544, -0.58147895, -0.12, 0, -2.36)
 
-[node name="S3" type="MeshInstance3D" parent="S3_p" unique_id=1474370805]
+[node name="S3" type="MeshInstance3D" parent="S3_p" unique_id=1764679184]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.5792035, 0)
 material_override = SubResource("ShaderMaterial_epxkf")
 cast_shadow = 0
@@ -632,10 +650,10 @@ metadata/anims = [{
 "t1": 1.6400000000000001
 }]
 
-[node name="S4_p" type="Node3D" parent="." unique_id=1822495945]
-transform = Transform3D(-0.031021787, 0.13910612, 0.98979145, 0, 0.99026805, -0.1391731, -0.9995187, -0.004317398, -0.030719884, 0.12, 0, -2.98)
+[node name="S4_p" type="Node3D" parent="." unique_id=162123010]
+transform = Transform3D(0.7651538, -0.08960626, -0.63758165, 0, 0.99026805, -0.1391731, 0.6438475, 0.10648883, 0.7577074, 0.12, 0, -2.98)
 
-[node name="S4" type="MeshInstance3D" parent="S4_p" unique_id=1518473782]
+[node name="S4" type="MeshInstance3D" parent="S4_p" unique_id=966781883]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.78864974, 0)
 material_override = SubResource("ShaderMaterial_cv614")
 cast_shadow = 0
@@ -658,10 +676,10 @@ metadata/anims = [{
 "t1": 1.67
 }]
 
-[node name="S5_p" type="Node3D" parent="." unique_id=1419651969]
-transform = Transform3D(0.78676844, 0.08590436, 0.6112413, 0, 0.99026805, -0.1391731, -0.6172483, 0.109497, 0.7791116, -0.12, 0, -3.6)
+[node name="S5_p" type="Node3D" parent="." unique_id=1691900803]
+transform = Transform3D(-0.8609294, -0.07080075, -0.5037735, 0, 0.99026805, -0.1391731, 0.5087244, -0.119818226, -0.8525509, -0.12, 0, -3.6)
 
-[node name="S5" type="MeshInstance3D" parent="S5_p" unique_id=593485333]
+[node name="S5" type="MeshInstance3D" parent="S5_p" unique_id=82083659]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.35507607, 0)
 material_override = SubResource("ShaderMaterial_yob1b")
 cast_shadow = 0
@@ -684,10 +702,10 @@ metadata/anims = [{
 "t1": 1.7
 }]
 
-[node name="S6_p" type="Node3D" parent="." unique_id=239189042]
-transform = Transform3D(0.7830942, -0.08655218, -0.61585075, 0, 0.99026805, -0.1391731, 0.62190306, 0.108985655, 0.7754732, 0.12, 0, -4.22)
+[node name="S6_p" type="Node3D" parent="." unique_id=1800410712]
+transform = Transform3D(0.9624881, -0.03776098, -0.2686833, 0, 0.99026805, -0.1391731, 0.27132383, 0.13395245, 0.95312124, 0.12, 0, -4.22)
 
-[node name="S6" type="MeshInstance3D" parent="S6_p" unique_id=1509473168]
+[node name="S6" type="MeshInstance3D" parent="S6_p" unique_id=223412482]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.58340573, 0)
 material_override = SubResource("ShaderMaterial_8x4ur")
 cast_shadow = 0
@@ -710,10 +728,10 @@ metadata/anims = [{
 "t1": 1.73
 }]
 
-[node name="S7_p" type="Node3D" parent="." unique_id=320863042]
-transform = Transform3D(-0.39136714, -0.1280719, -0.91127896, 0, 0.99026805, -0.1391731, 0.9202346, -0.05446778, -0.38755837, -0.12, 0, -4.84)
+[node name="S7_p" type="Node3D" parent="." unique_id=1203660573]
+transform = Transform3D(-0.9946747, -0.014343758, -0.10206114, 0, 0.99026805, -0.1391731, 0.10306415, -0.13843197, -0.98499453, -0.12, 0, -4.84)
 
-[node name="S7" type="MeshInstance3D" parent="S7_p" unique_id=192302645]
+[node name="S7" type="MeshInstance3D" parent="S7_p" unique_id=1377125140]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.78643674, 0)
 material_override = SubResource("ShaderMaterial_kgw6a")
 cast_shadow = 0
@@ -736,10 +754,10 @@ metadata/anims = [{
 "t1": 1.76
 }]
 
-[node name="S8_p" type="Node3D" parent="." unique_id=1404939151]
-transform = Transform3D(-0.79291785, 0.08480215, 0.6033986, 0, 0.99026805, -0.1391731, -0.60932857, -0.11035284, -0.7852012, 0.12, 0, -5.46)
+[node name="S8_p" type="Node3D" parent="." unique_id=1989898038]
+transform = Transform3D(0.99999607, 0.0003894543, 0.0027711112, 0, 0.99026805, -0.1391731, -0.0027983445, 0.13917255, 0.9902642, 0.12, 0, -5.46)
 
-[node name="S8" type="MeshInstance3D" parent="S8_p" unique_id=169009866]
+[node name="S8" type="MeshInstance3D" parent="S8_p" unique_id=262554365]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.35310823, 0)
 material_override = SubResource("ShaderMaterial_xmdaq")
 cast_shadow = 0
@@ -762,7 +780,7 @@ metadata/anims = [{
 "t1": 1.79
 }]
 
-[node name="Dust" type="GPUParticles3D" parent="." unique_id=312276281]
+[node name="Dust" type="GPUParticles3D" parent="." unique_id=2036569566]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.2, -3)
 cast_shadow = 0
 gi_mode = 0
@@ -778,7 +796,7 @@ process_material = SubResource("ParticleProcessMaterial_4pyjv")
 draw_pass_1 = SubResource("QuadMesh_qd7nu")
 metadata/tier_min = 1
 
-[node name="Chips" type="GPUParticles3D" parent="." unique_id=149964447]
+[node name="Chips" type="GPUParticles3D" parent="." unique_id=1719063109]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.2, -3)
 cast_shadow = 0
 gi_mode = 0

@@ -1,0 +1,5 @@
+source: /c/tmp_pa/fr/cow_brown_0_eat_side
+duration_s: 1.200000
+sample_fps: 6
+frames_per_sheet: 12  (= 2 s per sheet)
+sheets: 3

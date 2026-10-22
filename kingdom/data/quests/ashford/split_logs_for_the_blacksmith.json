@@ -1,0 +1,80 @@
+{
+ "id": "ashford_split_logs_for_the_blacksmith",
+ "title": "Split Logs for the Blacksmith",
+ "summary": "Sander Stooks wants 4 split logs from the great oak taken to Cordell Lathom before the rain turns the lane to soup, and then a word.",
+ "giver": {
+  "npc": "sander_stooks",
+  "name": "Sander Stooks",
+  "place": "ashford"
+ },
+ "offer_text": "\"We need split logs, and what is stacked at the great oak is the town's to take. Carry it to Cordell Lathom before the rain turns the lane to soup, then come and tell me.\"",
+ "turn_in_text": "\"Good. That is one thing in Ashford that goes right.\"",
+ "stages": [
+  {
+   "id": "fetch",
+   "title": "Fetch the stock",
+   "mode": "sequence",
+   "objectives": [
+    {
+     "id": "reach",
+     "type": "goto",
+     "place": "ashford_works",
+     "text": "Go to the great oak"
+    },
+    {
+     "id": "gather",
+     "type": "collect",
+     "item": "firewood",
+     "count": 4,
+     "text": "Take 4 split logs from the pile"
+    }
+   ]
+  },
+  {
+   "id": "deliver",
+   "title": "Take it to Cordell Lathom",
+   "mode": "all",
+   "objectives": [
+    {
+     "id": "hand_over",
+     "type": "deliver",
+     "item": "firewood",
+     "count": 4,
+     "to": "cordell_lathom",
+     "text": "Hand the split logs to Cordell Lathom"
+    }
+   ]
+  },
+  {
+   "id": "report",
+   "title": "Tell Sander",
+   "mode": "all",
+   "objectives": [
+    {
+     "id": "report",
+     "type": "talk_to",
+     "npc": "sander_stooks",
+     "text": "Tell Sander Stooks it is done"
+    }
+   ],
+   "end": true
+  }
+ ],
+ "rewards": {
+  "gold": 14,
+  "rep": {
+   "ashford": 3
+  },
+  "relationship": [
+   {
+    "npc": "sander_stooks",
+    "label": "Ran an errand for the town",
+    "value": 8,
+    "days": 45
+   }
+  ],
+  "items": {
+   "bread": 2
+  }
+ }
+}

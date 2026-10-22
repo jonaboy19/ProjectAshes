@@ -1,0 +1,17 @@
+[gd_scene load_steps=3 format=3]
+
+[ext_resource type="Texture2D" path="res://assets/incoming/region1/rift/decals/rift_decal_patch_a.png" id="1"]
+[ext_resource type="Texture2D" path="res://assets/incoming/region1/rift/decals/rift_decal_patch_a_em.png" id="2"]
+
+[node name="RiftDecal" type="Decal"]
+size = Vector3(5, 2, 5)
+texture_albedo = ExtResource("1")
+texture_emission = ExtResource("2")
+emission_energy = 1.1
+albedo_mix = 0.9
+upper_fade = 0.3
+lower_fade = 0.3
+distance_fade_enabled = true
+distance_fade_begin = 70.0
+distance_fade_length = 20.0
+cull_mask = 1

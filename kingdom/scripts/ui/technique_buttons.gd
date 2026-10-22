@@ -12,7 +12,12 @@ extends Control
 ##   controls.add_child(tb)
 
 signal open_skills_requested
+## A slot was held for LONG_PRESS seconds: the HUD opens the technique wheel (scripts/ui/technique_wheel.gd).
+signal wheel_requested(at: Vector2)
 
+const LONG_PRESS := 0.38    # s a slot is held before the wheel replaces the tap-to-cast
+
+const HudArt := preload("res://scripts/ui/hud_art.gd")
 const Skills := preload("res://scripts/sim/skills.gd")
 const Caster := preload("res://scripts/actors/technique_caster.gd")
 const SLOT_SIZE := 72
@@ -28,6 +33,17 @@ const TREE_ICONS := {"swordsmanship": "broadsword", "iaido": "broadsword", "comm
 
 var caster: Node
 var skills: RefCounted
+## HUD combat fade 0..1: the ring is hidden (and cannot be tapped) in the calm exploration layout.
+var fade := 1.0:
+	set(v):
+		fade = v
+		_apply_fade()
+## Safe-area inset of the bottom-right corner (HUD sets it): the ring hangs off the attack button.
+var inset := Vector2.ZERO:
+	set(v):
+		inset = v
+		if is_inside_tree() and not _slots.is_empty():
+			_layout()
 
 var _slots: Array[TouchScreenButton] = []
 var _glyphs: Array[Label] = []
@@ -39,6 +55,8 @@ var _seal_buttons: Array[TouchScreenButton] = []
 var _seal_chips: HBoxContainer
 var _seal_title: Label
 var _tex_cache := {}
+var _down := -1                 # slot being held (cast on release unless it turned into a wheel)
+var _down_ms := 0
 var _font: Font
 
 
@@ -58,6 +76,7 @@ func _ready() -> void:
 	_shown.resize(Skills.ACTIVE_SLOTS)
 	_shown.fill(null)
 	_layout()
+	_apply_fade()
 
 
 func _process(_delta: float) -> void:
@@ -65,6 +84,10 @@ func _process(_delta: float) -> void:
 		caster = _find_caster()
 		if caster:
 			_bind_caster()
+	if _down >= 0 and Time.get_ticks_msec() - _down_ms >= int(LONG_PRESS * 1000.0):
+		var at := slot_centre(_down)
+		_down = -1
+		wheel_requested.emit(at)
 	if skills == null:
 		return
 	if _shown != skills.loadout:
@@ -101,14 +124,15 @@ func _build_slot(i: int) -> void:
 	circle.radius = SLOT_SIZE * 0.5
 	b.shape = circle
 	b.shape_centered = true
-	b.pressed.connect(_on_slot.bind(i))
+	b.pressed.connect(_on_slot_down.bind(i))
+	b.released.connect(_on_slot_up.bind(i))
 	var glyph := Label.new()
 	glyph.size = Vector2(SLOT_SIZE, SLOT_SIZE)
 	glyph.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	glyph.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
 	glyph.add_theme_font_override("font", UITheme.title_font_weight(700))
 	glyph.add_theme_font_size_override("font_size", 22)
-	glyph.add_theme_color_override("font_color", UITheme.TEXT)
+	glyph.add_theme_color_override("font_color", HudArt.IVORY)
 	glyph.add_theme_color_override("font_shadow_color", Color(0, 0, 0, 0.6))
 	glyph.add_theme_constant_override("shadow_outline_size", 4)
 	glyph.mouse_filter = Control.MOUSE_FILTER_IGNORE
@@ -132,12 +156,24 @@ func _build_slot(i: int) -> void:
 
 func _layout() -> void:
 	var s := get_viewport_rect().size
-	var c := s - ATTACK_CENTER
+	var c := s - ATTACK_CENTER - inset
 	for i in _slots.size():
 		var a := deg_to_rad(float(RING_ANGLES[i]))
 		var centre := c + Vector2(-cos(a), -sin(a)) * RING_RADIUS
 		_slots[i].position = centre - Vector2(SLOT_SIZE, SLOT_SIZE) * 0.5
 	_layout_seal_pad()
+
+
+## Empty slots stay hidden (the Skills entry of the menu equips them); the rest fade with the combat layout.
+func _apply_fade() -> void:
+	if _slots.is_empty():
+		return
+	for i in _slots.size():
+		var id := String(skills.loadout[i]) if skills != null and i < skills.loadout.size() else ""
+		_slots[i].visible = id != "" and fade > 0.02
+		_slots[i].modulate.a = fade
+	if _overlay:
+		_overlay.modulate.a = fade
 
 
 func slot_centre(i: int) -> Vector2:
@@ -148,12 +184,13 @@ func _refresh() -> void:
 	if skills == null:
 		return
 	_shown = skills.loadout.duplicate()
+	_apply_fade()
 	for i in _slots.size():
 		var id := String(_shown[i]) if i < _shown.size() else ""
 		var b := _slots[i]
 		if id == "":
-			b.texture_normal = _face(UITheme.ACTION_UTIL.darkened(0.3), "")
-			b.texture_pressed = _face(UITheme.ACTION_UTIL, "", true)
+			b.texture_normal = _face(Color(0.5, 0.5, 0.55), "")
+			b.texture_pressed = _face(Color(0.5, 0.5, 0.55), "", true)
 			_glyphs[i].text = "+"
 			_captions[i].text = ""
 			continue
@@ -169,7 +206,11 @@ func _refresh() -> void:
 func _face(col: Color, icon_name: String, pressed := false) -> Texture2D:
 	var key := "%s|%s|%s" % [col.to_html(), icon_name, pressed]
 	if not _tex_cache.has(key):
-		_tex_cache[key] = UITheme.round_button(SLOT_SIZE, col.darkened(0.15), UITheme.icon(icon_name) if icon_name != "" else null, pressed)
+		var res := HudArt.resolve_icon(icon_name)
+		var fill := Color(0.07, 0.06, 0.055).lerp(col.darkened(0.35), 0.5)
+		if pressed:
+			fill = fill.lightened(0.25)
+		_tex_cache[key] = HudArt.round_face(SLOT_SIZE, fill, res[0], res[1], 0.6)
 	return _tex_cache[key]
 
 
@@ -179,6 +220,23 @@ static func initials(n: String) -> String:
 	if words.size() >= 2:
 		return (words[0].left(1) + words[1].left(1)).to_upper()
 	return n.left(2)
+
+
+## Empty slots open the skills screen at once; a filled slot casts on release, so a long press can open the wheel instead.
+func _on_slot_down(i: int) -> void:
+	if skills == null or caster == null:
+		return
+	if String(skills.loadout[i]) == "":
+		open_skills_requested.emit()
+		return
+	_down = i
+	_down_ms = Time.get_ticks_msec()
+
+
+func _on_slot_up(i: int) -> void:
+	if _down == i:
+		_down = -1
+		_on_slot(i)
 
 
 func _on_slot(i: int) -> void:
@@ -259,8 +317,8 @@ func _build_seal_pad() -> void:
 	head.add_child(_seal_chips)
 	for seal: String in Skills.SEALS:
 		var b := TouchScreenButton.new()
-		b.texture_normal = UITheme.round_button(SEAL_SIZE, SEAL_COLOR)
-		b.texture_pressed = UITheme.round_button(SEAL_SIZE, SEAL_COLOR, null, true)
+		b.texture_normal = HudArt.round_face(SEAL_SIZE, Color(0.07, 0.06, 0.055).lerp(SEAL_COLOR.darkened(0.4), 0.5))
+		b.texture_pressed = HudArt.round_face(SEAL_SIZE, Color(0.07, 0.06, 0.055).lerp(SEAL_COLOR, 0.5))
 		var circle := CircleShape2D.new()
 		circle.radius = SEAL_SIZE * 0.5
 		b.shape = circle

@@ -1,0 +1,15 @@
+{
+ "name": "peasant_hooded",
+ "height_m": 1.7,
+ "lod0_tris": 7000,
+ "lod1_tris": 2910,
+ "model_units_top": 1.9063,
+ "model_units_top_all": 1.9063,
+ "head_bone_z": 1.572,
+ "pelvis_z": 0.9167,
+ "mh_character_height_param": 1.542,
+ "forearm_radius": 0.101,
+ "skirt_verts": 2520,
+ "head_rigid_verts": 738,
+ "heat_missed": 106
+}

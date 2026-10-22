@@ -75,6 +75,8 @@ shader_parameter/tail_len = null
 shader_parameter/pulse = null
 shader_parameter/pulse_speed = null
 shader_parameter/heat_scale = 0.55
+shader_parameter/soft_edge = null
+shader_parameter/ring_soft = null
 
 [sub_resource type="CylinderMesh" id="CylinderMesh_woyqn"]
 top_radius = 0.0
@@ -126,6 +128,8 @@ shader_parameter/tail_len = null
 shader_parameter/pulse = null
 shader_parameter/pulse_speed = null
 shader_parameter/heat_scale = 0.55
+shader_parameter/soft_edge = null
+shader_parameter/ring_soft = null
 
 [sub_resource type="CylinderMesh" id="CylinderMesh_bsx5g"]
 top_radius = 0.0
@@ -177,6 +181,8 @@ shader_parameter/tail_len = null
 shader_parameter/pulse = null
 shader_parameter/pulse_speed = null
 shader_parameter/heat_scale = 0.55
+shader_parameter/soft_edge = null
+shader_parameter/ring_soft = null
 
 [sub_resource type="CylinderMesh" id="CylinderMesh_blq6h"]
 top_radius = 0.0
@@ -228,6 +234,8 @@ shader_parameter/tail_len = null
 shader_parameter/pulse = null
 shader_parameter/pulse_speed = null
 shader_parameter/heat_scale = 0.55
+shader_parameter/soft_edge = null
+shader_parameter/ring_soft = null
 
 [sub_resource type="CylinderMesh" id="CylinderMesh_ak34p"]
 top_radius = 0.0
@@ -279,6 +287,8 @@ shader_parameter/tail_len = null
 shader_parameter/pulse = null
 shader_parameter/pulse_speed = null
 shader_parameter/heat_scale = 0.55
+shader_parameter/soft_edge = null
+shader_parameter/ring_soft = null
 
 [sub_resource type="CylinderMesh" id="CylinderMesh_q5v2c"]
 top_radius = 0.0
@@ -330,6 +340,8 @@ shader_parameter/tail_len = null
 shader_parameter/pulse = null
 shader_parameter/pulse_speed = null
 shader_parameter/heat_scale = 0.55
+shader_parameter/soft_edge = null
+shader_parameter/ring_soft = null
 
 [sub_resource type="CylinderMesh" id="CylinderMesh_rru0c"]
 top_radius = 0.0
@@ -450,12 +462,12 @@ color_ramp = SubResource("GradientTexture1D_midiu")
 material = ExtResource("7_c7u0w")
 size = Vector2(0.6660162, 0.6660162)
 
-[node name="Ice_Impact" type="Node3D" unique_id=606116556]
+[node name="Ice_Impact" type="Node3D" unique_id=346151661]
 script = ExtResource("1_7gqf1")
 kind = &"impact"
 element = &"ice"
 
-[node name="Star" type="MeshInstance3D" parent="." unique_id=1057639186]
+[node name="Star" type="MeshInstance3D" parent="." unique_id=1025296398]
 material_override = SubResource("ShaderMaterial_ekkj3")
 cast_shadow = 0
 extra_cull_margin = 2.0
@@ -477,7 +489,7 @@ metadata/anims = [{
 "t1": 0.3
 }]
 
-[node name="Ring" type="MeshInstance3D" parent="." unique_id=683566196]
+[node name="Ring" type="MeshInstance3D" parent="." unique_id=1874983994]
 material_override = SubResource("ShaderMaterial_2b4qg")
 cast_shadow = 0
 extra_cull_margin = 2.0
@@ -499,7 +511,7 @@ metadata/anims = [{
 "t1": 0.45
 }]
 
-[node name="Burst0" type="MeshInstance3D" parent="." unique_id=594969123]
+[node name="Burst0" type="MeshInstance3D" parent="." unique_id=2048334137]
 transform = Transform3D(0.10289915, 0.17149858, 0, -0.17149858, 0.10289915, 0, 0, 0, 0.2, 0.2572479, 0.15434875, 0)
 material_override = SubResource("ShaderMaterial_rex8i")
 cast_shadow = 0
@@ -522,7 +534,7 @@ metadata/anims = [{
 "t1": 0.7
 }]
 
-[node name="Burst1" type="MeshInstance3D" parent="." unique_id=1194939257]
+[node name="Burst1" type="MeshInstance3D" parent="." unique_id=2081215971]
 transform = Transform3D(0.15595727, 0.09928769, -0.07628426, -0.09928769, 0.023829056, -0.1719713, -0.07628426, 0.1719713, 0.0678718, 0.14893153, 0.035743568, 0.25795698)
 material_override = SubResource("ShaderMaterial_0lybi")
 cast_shadow = 0
@@ -545,7 +557,7 @@ metadata/anims = [{
 "t1": 0.7
 }]
 
-[node name="Burst2" type="MeshInstance3D" parent="." unique_id=532396945]
+[node name="Burst2" type="MeshInstance3D" parent="." unique_id=927947831]
 transform = Transform3D(0.17572479, -0.08574929, 0.042045902, 0.08574929, 0.10289915, -0.14852212, 0.042045902, 0.14852212, 0.12717436, -0.12862395, 0.15434875, 0.2227832)
 material_override = SubResource("ShaderMaterial_ias2s")
 cast_shadow = 0
@@ -568,7 +580,7 @@ metadata/anims = [{
 "t1": 0.7
 }]
 
-[node name="Burst3" type="MeshInstance3D" parent="." unique_id=1594117948]
+[node name="Burst3" type="MeshInstance3D" parent="." unique_id=1633555863]
 transform = Transform3D(0.023829032, -0.19857538, 2.1574009e-17, 0.19857538, 0.023829032, -2.4317667e-17, 2.1574009e-17, 2.4317667e-17, 0.2, -0.29786307, 0.035743568, 3.6476498e-17)
 material_override = SubResource("ShaderMaterial_ep2yw")
 cast_shadow = 0
@@ -591,7 +603,7 @@ metadata/anims = [{
 "t1": 0.7
 }]
 
-[node name="Burst4" type="MeshInstance3D" parent="." unique_id=150155829]
+[node name="Burst4" type="MeshInstance3D" parent="." unique_id=251639498]
 transform = Transform3D(0.17572479, -0.08574929, -0.042045902, 0.08574929, 0.10289915, 0.14852212, -0.042045902, -0.14852212, 0.12717436, -0.12862395, 0.15434875, -0.2227832)
 material_override = SubResource("ShaderMaterial_e7ssa")
 cast_shadow = 0
@@ -614,7 +626,7 @@ metadata/anims = [{
 "t1": 0.7
 }]
 
-[node name="Burst5" type="MeshInstance3D" parent="." unique_id=541214558]
+[node name="Burst5" type="MeshInstance3D" parent="." unique_id=979550867]
 transform = Transform3D(0.15595727, 0.09928769, 0.07628426, -0.09928769, 0.023829056, 0.1719713, 0.07628426, -0.1719713, 0.0678718, 0.14893153, 0.035743568, -0.25795698)
 material_override = SubResource("ShaderMaterial_rgujh")
 cast_shadow = 0
@@ -637,7 +649,7 @@ metadata/anims = [{
 "t1": 0.7
 }]
 
-[node name="Shards" type="GPUParticles3D" parent="." unique_id=39224800]
+[node name="Shards" type="GPUParticles3D" parent="." unique_id=145291245]
 cast_shadow = 0
 gi_mode = 0
 emitting = false
@@ -650,7 +662,7 @@ visibility_aabb = AABB(-6, -3, -6, 12, 9.6, 12)
 process_material = SubResource("ParticleProcessMaterial_mhunt")
 draw_pass_1 = SubResource("CylinderMesh_ae6sk")
 
-[node name="Mist" type="GPUParticles3D" parent="." unique_id=1305616451]
+[node name="Mist" type="GPUParticles3D" parent="." unique_id=2051020441]
 cast_shadow = 0
 gi_mode = 0
 emitting = false
@@ -665,7 +677,7 @@ process_material = SubResource("ParticleProcessMaterial_rl17q")
 draw_pass_1 = SubResource("QuadMesh_btoew")
 metadata/tier_min = 1
 
-[node name="Glints" type="GPUParticles3D" parent="." unique_id=702552195]
+[node name="Glints" type="GPUParticles3D" parent="." unique_id=1870566180]
 cast_shadow = 0
 gi_mode = 0
 emitting = false
@@ -679,7 +691,7 @@ transform_align = 1
 process_material = SubResource("ParticleProcessMaterial_0vpaq")
 draw_pass_1 = SubResource("QuadMesh_freql")
 
-[node name="Flash" type="OmniLight3D" parent="." unique_id=29233694]
+[node name="Flash" type="OmniLight3D" parent="." unique_id=167799165]
 light_color = Color(0.58, 0.86, 1, 1)
 light_energy = 3.0
 omni_range = 6.0

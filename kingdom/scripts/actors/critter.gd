@@ -1,5 +1,6 @@
 class_name Critter
 extends Node3D
+const ContactBlobS := preload("res://scripts/actors/contact_blob.gd")
 ## An ordinary animal (CC0, incoming/animals): wanders around a home spot,
 ## grazes or pecks, and the skittish ones bolt when the player comes close.
 ## No physics or navigation: it follows the terrain, like wolves and soldiers,
@@ -15,6 +16,7 @@ extends Node3D
 ## the player has noise_radius(), notice range scales with it (crouch to stalk).
 
 const Gathering := preload("res://scripts/sim/gathering_items.gd")
+const NodePool := preload("res://scripts/core/node_pool.gd")
 const DIR := "res://assets/incoming/animals/"
 ## Game joins team1 inside this distance to the player (melee reach is 2.6 m,
 ## target assist 3.8 m in player.gd).
@@ -80,11 +82,35 @@ const KINDS := {
 	"deer": ["quaternius/deer.glb", 0.9, 6.0, 18.0, 16.0],
 	"stag": ["quaternius/stag.glb", 0.9, 6.2, 18.0, 18.0],
 	"fox": ["res://assets/generated/animals/fox_gallop.glb", 0.8, 5.0, 14.0, 9.0],
+	# Meshy free pack farm animals (rigged: lowercase idle/walk/eat clips, aliased to the Idle/Walk/Eat names below) and two Quaternius
+	# originals that had no converted copy (clips Idle/Walk/Gallop/Eating, aliased): docs/qa/ASSET_AUDIT.md "use the unused models".
+	"cow_brown_a": ["res://assets/incoming/meshy_free/farm/rigged/cow_brown_a_rigged.glb", 0.7, 2.0, 9.0, 0.0],
+	"cow_brown_b": ["res://assets/incoming/meshy_free/farm/rigged/cow_brown_b_rigged.glb", 0.7, 2.0, 9.0, 0.0],
+	"cow_spotted": ["res://assets/incoming/meshy_free/farm/rigged/cow_spotted_rigged.glb", 0.7, 2.0, 9.0, 0.0],
+	"hen_meshy": ["res://assets/incoming/meshy_free/farm/rigged/chicken_hen_rigged.glb", 0.6, 2.2, 5.0, 2.5],
+	"rooster_meshy": ["res://assets/incoming/meshy_free/farm/rigged/chicken_rooster_rigged.glb", 0.6, 2.2, 5.0, 2.5],
+	"horse_white": ["res://assets/incoming/quaternius/ultimate-animated-animals/glTF/Horse_White.gltf", 0.9, 5.0, 4.0, 0.0],
+	"husky": ["res://assets/incoming/quaternius/ultimate-animated-animals/glTF/Husky.gltf", 1.1, 4.0, 12.0, 0.0],
 }
+## Clip names of the pieces above -> the names this script plays.
+const CLIP_ALIASES := {"Idle": ["idle"], "Walk": ["walk"], "Run": ["run", "Gallop", "walk"], "Eat": ["eat", "Eating"], "Death": ["death"], "Hit": ["hit", "Idle_HitReact1"]}
 
 var kind := "chicken"
 var home := Vector2.ZERO
 var _anim: AnimationPlayer
+## AAA pass 2026-10-06: town horses are the textured riding horse (HorseRig: painted coat, bridle, 50 real gaits) instead of
+## the flat-shaded Quaternius low-poly ones. The Quaternius entries above stay as the fallback when the rig assets are absent.
+const RIG_COATS := {"horse": "bay", "horse_grey": "grey", "horse_white": "dappled"}
+var _rig: Node3D
+var _model: Node3D
+## Visual cull (perf pass 2026-09-29): a city has 100+ hens; beyond CULL_SMALL /
+## CULL_BIG (scaled by the tier's visibility-range multiplier) the model is hidden
+## and its AnimationPlayer paused, so nobody pays skinning or clip sampling for
+## animals too small to see. Behaviour keeps running at the far LOD rate.
+const SMALL := ["chicken", "rooster", "duck", "goose", "pigeon", "crow", "rabbit", "cat", "cat_ginger", "hen_meshy", "rooster_meshy"]
+const CULL_SMALL := 40.0   # round 2: was 60 (LOW 22 m)
+const CULL_BIG := 100.0
+var _culled := false
 var _target := Vector2.ZERO
 var _pause := 0.0
 var _fleeing := 0.0
@@ -103,6 +129,7 @@ var _flee_speed := 0.0
 const RIDER_DESPAWN := 250.0
 var claimed := false
 var rider_owned := false
+var _death_tweens: Array[Tween] = []   # F12 pooling: killed by reset()
 
 
 func _ready() -> void:
@@ -113,10 +140,28 @@ func _ready() -> void:
 	if not ResourceLoader.exists(path):
 		queue_free()
 		return
+	if RIG_COATS.has(kind) and Quality.tier > 0 and ResourceLoader.exists("res://assets/generated/horses/horse_riding.glb"):     # LOW keeps the 1-draw Quaternius horse
+		_rig = HorseRig.new()
+		_rig.set("coat", RIG_COATS[kind])
+		var tack: Array[String] = ["bridle"]
+		_rig.set("tack", tack)
+		add_child(_rig)
+		_model = _rig
+		var blob: MeshInstance3D = ContactBlobS.attach(self, 0.9)
+		blob.scale = Vector3(1.0, 1.0, 2.4)
+		_anim = null
+		huntable = false
+		add_to_group("interactable")
+		rotation.y = randf() * TAU
+		_pause = randf_range(0.0, 4.0)
+		_pick()
+		return
 	var model: Node3D = Assets.scene(path).instantiate()
 	add_child(model)
+	_model = model
 	_anim = Assets.animation_player(model)
 	if _anim:
+		_alias_clips()
 		for a in ["Idle", "Walk", "Run", "Eat", "Walk_Slow"]:
 			if _anim.has_animation(a):
 				_anim.get_animation(a).loop_mode = Animation.LOOP_LINEAR
@@ -130,6 +175,51 @@ func _ready() -> void:
 	rotation.y = randf() * TAU
 	_pause = randf_range(0.0, 4.0)
 	_pick()
+
+
+# --- pooling (F12, scripts/core/node_pool.gd) -----------------------------------------------------------
+
+func on_acquire() -> void:
+	pass
+
+
+func on_release() -> void:
+	pass
+
+
+## Back to a freshly spawned animal of the same kind: alive, unclaimed, unculled, upright, full size.
+func reset() -> void:
+	if _model == null:
+		return
+	for t in _death_tweens:
+		if t != null and t.is_valid():
+			t.kill()
+	_death_tweens.clear()
+	if is_in_group("team1"):
+		remove_from_group("team1")
+	dead = false
+	claimed = false
+	rider_owned = false
+	huntable = Gathering.is_game(kind)
+	health = int(Gathering.GAME_HEALTH.get(kind, 0))
+	_stagger = 0.0
+	_fleeing = 0.0
+	_flee_speed = 0.0
+	_move_speed = 0.0
+	_idle_clip = "Idle"
+	_lod_tick = -1
+	_lod_acc = 0.0
+	home = Vector2.ZERO
+	scale = Vector3.ONE
+	rotation = Vector3(0.0, randf() * TAU, 0.0)
+	_culled = false
+	_model.visible = true
+	if _anim:
+		_anim.active = true
+		_anim.speed_scale = 1.0
+	_pause = randf_range(0.0, 4.0)
+	_target = Vector2.ZERO
+	_play("Idle")
 
 
 func _pick() -> void:
@@ -170,10 +260,12 @@ func _physics_process(delta: float) -> void:
 			return
 		delta = _lod_acc
 	_lod_acc = 0.0
+	if pl and not rider_owned:
+		_update_visual_lod(pl.global_position.distance_to(global_position))
 	if rider_owned:
 		var rider := _the_player(get_tree())
 		if rider and rider.global_position.distance_squared_to(global_position) > RIDER_DESPAWN * RIDER_DESPAWN:
-			queue_free()
+			NodePool.recycle(self)
 			return
 	var here := Vector2(global_position.x, global_position.z)
 	var shy: float = _cfg[4]
@@ -231,8 +323,46 @@ func _physics_process(delta: float) -> void:
 		_play(_idle_clip)
 
 
+func _update_visual_lod(dist: float) -> void:
+	if _model == null:
+		return
+	var limit := (CULL_SMALL if kind in SMALL else CULL_BIG) * clampf(Quality.value("range"), 0.5, 1.0)
+	var want_cull := dist > limit * 0.9 if _culled else dist > limit * 1.1
+	if want_cull == _culled:
+		return
+	_culled = want_cull
+	_model.visible = not _culled
+	if _rig != null:
+		var ap: AnimationPlayer = _rig.get("anim")
+		if ap:
+			ap.active = not _culled
+	if _anim:
+		_anim.active = not _culled
+
+
+## Pieces whose clips are named differently (Meshy rigs, Quaternius originals) get the Idle/Walk/Run/Eat names played here.
+func _alias_clips() -> void:
+	var lib := _anim.get_animation_library(&"")
+	if lib == null:
+		return
+	for want: String in CLIP_ALIASES:
+		if lib.has_animation(want):
+			continue
+		for have: String in CLIP_ALIASES[want]:
+			if lib.has_animation(have):
+				lib.add_animation(want, lib.get_animation(have).duplicate())
+				break
+
+
 func _play(n: String, rate := 1.0) -> void:
-	if _anim == null:
+	if _rig != null:
+		if _culled:
+			return
+		var mps := float(ANIM_GROUND_SPEEDS.get(kind, ANIM_GROUND_SPEEDS["horse"]).get(n, 0.0)) * rate
+		_rig.call("set_mode", "graze" if n == "Eat" else "")
+		_rig.call("drive", mps, 0.0, 0.0)
+		return
+	if _anim == null or _culled:
 		return
 	_anim.speed_scale = rate
 	if _anim.has_animation(n) and _anim.current_animation != n:
@@ -350,6 +480,7 @@ func _die(from: Node) -> void:
 		if _anim:
 			_anim.pause()
 		var t := create_tween()
+		_death_tweens.append(t)
 		t.tween_property(self, "rotation:z", PI * 0.5, 0.45).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_IN)
 	var by_player := from != null and (from.is_in_group("player") or from.is_in_group("team0"))
 	if by_player:
@@ -358,6 +489,7 @@ func _die(from: Node) -> void:
 		if got != "":
 			Game.say("%s down. %s" % [kind.capitalize(), got])
 	var fade := create_tween()
+	_death_tweens.append(fade)
 	fade.tween_interval(CORPSE_SECONDS)
 	fade.tween_property(self, "scale", Vector3(1, 0.01, 1), 0.6)
-	fade.tween_callback(queue_free)
+	fade.tween_callback(NodePool.recycle.bind(self))

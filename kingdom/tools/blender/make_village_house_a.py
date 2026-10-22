@@ -29,6 +29,7 @@ PAL = {
                box="natural"),
 }[V]
 k = VK("VillageHouseA" + ("" if V == 1 else f"_{V}"), seed=101 + V * 17, pal=PAL)
+k.pbr = dict(size=1024, lod1_size=512, orm_div=2, seed=V * 11 + 3, ao_dist=0.7)   # high-to-low PBR bake (pbr_kit.py)
 
 HX, HY = 2.7, 2.1
 F0, SK, WT = 0.25, 0.75, 3.3          # floor, top of stone skirt, wall top

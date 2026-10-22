@@ -1,0 +1,1571 @@
+{
+ "id": "magic",
+ "name": "Magic",
+ "tradition": "academy",
+ "element": "qi",
+ "resource_name": "Mana",
+ "blurb": "Cultivate a mana core and widen its circles. Every spell is chanted at first; speaking without voice is an advanced art.",
+ "levels": [
+  {
+   "level": 1,
+   "name": "Novice"
+  },
+  {
+   "level": 5,
+   "name": "Apprentice"
+  },
+  {
+   "level": 10,
+   "name": "Adept"
+  },
+  {
+   "level": 15,
+   "name": "Circle-mage"
+  },
+  {
+   "level": 20,
+   "name": "Master"
+  },
+  {
+   "level": 25,
+   "name": "Archmage"
+  },
+  {
+   "level": 30,
+   "name": "Sage"
+  }
+ ],
+ "subpath_slots": [
+  [
+   1,
+   1
+  ],
+  [
+   2,
+   2
+  ],
+  [
+   3,
+   3
+  ]
+ ],
+ "chant": {
+  "shorten_per_level": 0.03,
+  "min_factor": 0.35,
+  "tiers": [
+   {
+    "id": "novice",
+    "min_level": 1,
+    "name": "Full chant"
+   },
+   {
+    "id": "adept",
+    "min_level": 10,
+    "name": "Short chant"
+   },
+   {
+    "id": "master",
+    "min_level": 20,
+    "name": "Whispered chant"
+   }
+  ]
+ },
+ "chantless_gate": {
+  "path_level": 20,
+  "theory": 0.7,
+  "milestones": 3,
+  "realm": 4,
+  "stage": 1,
+  "milestone_ids": [
+   "first_circle",
+   "theory_exam",
+   "duel_won",
+   "rift_study",
+   "tower_trial",
+   "archmage_audience"
+  ],
+  "note": "Chantless casting: Master level, 70% spell-theory, three milestones, Core Formation."
+ },
+ "milestones": [
+  {
+   "id": "first_circle",
+   "name": "First circle drawn",
+   "desc": "Reach Mana Awakening."
+  },
+  {
+   "id": "theory_exam",
+   "name": "Passed the theory exam",
+   "desc": "Academy examiners sign your thesis."
+  },
+  {
+   "id": "duel_won",
+   "name": "Won a mage duel",
+   "desc": "Beat a rival caster in a sanctioned duel."
+  },
+  {
+   "id": "rift_study",
+   "name": "Studied a rift",
+   "desc": "Record a rift's mana flow without being burned."
+  },
+  {
+   "id": "tower_trial",
+   "name": "Cleared a tower trial",
+   "desc": "Finish a tower floor with spells alone."
+  },
+  {
+   "id": "archmage_audience",
+   "name": "Audience with an archmage",
+   "desc": "Earn a master's recognition."
+  },
+  {
+   "id": "second_path_trial",
+   "name": "Trial of the second path",
+   "desc": "Prove your discipline before widening it."
+  }
+ ],
+ "subpaths": [
+  {
+   "id": "fire",
+   "name": "Fire",
+   "element": "fire",
+   "desc": "Flamecanting: hunger given shape."
+  },
+  {
+   "id": "water",
+   "name": "Water",
+   "element": "water",
+   "desc": "Tide magic: slow, mend, drown."
+  },
+  {
+   "id": "wind",
+   "name": "Wind",
+   "element": "wind",
+   "desc": "Blades of air and quick steps."
+  },
+  {
+   "id": "earth",
+   "name": "Earth",
+   "element": "earth",
+   "desc": "Stone skin, spikes, patience."
+  },
+  {
+   "id": "lightning",
+   "name": "Lightning",
+   "element": "lightning",
+   "desc": "Chains and thunder, fast and brittle."
+  }
+ ],
+ "techniques": [
+  {
+   "id": "mg_spark",
+   "name": "Mana Spark",
+   "subpath": "core",
+   "tier": 1,
+   "kind": "attack",
+   "desc": "Chanted bolt of raw mana.",
+   "req": {
+    "path_level": 1,
+    "realm": 1,
+    "stage": 4,
+    "manual": [
+     "m_mg1"
+    ]
+   },
+   "ability": {
+    "costs": {
+     "magicules": 4
+    },
+    "cooldown": 2.2,
+    "windup": 0.25,
+    "targeting": {
+     "kind": "projectile",
+     "range": 16,
+     "speed": 22
+    },
+    "damage": 18,
+    "effects": [],
+    "vfx": "qi_bolt",
+    "anim": [
+     "Magic_Cast_R",
+     "Spell_Simple_Shoot"
+    ],
+    "anim_speed": 1.0,
+    "anim_mode": "upper",
+    "cast": {
+     "kind": "chant",
+     "seals": [
+      "tiger",
+      "rat"
+     ],
+     "chant_time": 1.4,
+     "chantless_req": "magic"
+    },
+    "element": "qi"
+   }
+  },
+  {
+   "id": "mg_ward",
+   "name": "Chanted Ward",
+   "subpath": "core",
+   "tier": 1,
+   "kind": "defense",
+   "desc": "A short chant raises a barrier that soaks a blow.",
+   "req": {
+    "path_level": 2,
+    "realm": 1,
+    "stage": 7,
+    "manual": [
+     "m_mg1"
+    ]
+   },
+   "ability": {
+    "costs": {
+     "magicules": 6
+    },
+    "cooldown": 14,
+    "windup": 0.3,
+    "targeting": {
+     "kind": "self"
+    },
+    "damage": 0,
+    "effects": [
+     {
+      "type": "ward",
+      "family": "ward",
+      "magnitude": 30,
+      "duration": 10,
+      "rule": "replace_if_stronger"
+     }
+    ],
+    "vfx": "qi_shield",
+    "anim": [
+     "G6_cast_off_hand_shield",
+     "Spell_Simple_Shoot"
+    ],
+    "anim_speed": 1.0,
+    "anim_mode": "upper",
+    "cast": {
+     "kind": "chant",
+     "seals": [
+      "tiger",
+      "rat"
+     ],
+     "chant_time": 1.4,
+     "chantless_req": "magic"
+    },
+    "element": "qi"
+   }
+  },
+  {
+   "id": "mg_circle_bolt",
+   "name": "Circle Bolt",
+   "subpath": "core",
+   "tier": 2,
+   "kind": "attack",
+   "desc": "A piercing bolt shaped by your first circle.",
+   "req": {
+    "path_level": 6,
+    "realm": 2,
+    "stage": 3,
+    "manual": [
+     "m_mg2"
+    ],
+    "teacher": [
+     "academy_magister"
+    ],
+    "prereq": [
+     "mg_spark"
+    ]
+   },
+   "ability": {
+    "costs": {
+     "magicules": 8
+    },
+    "cooldown": 3.5,
+    "windup": 0.25,
+    "targeting": {
+     "kind": "projectile",
+     "range": 18,
+     "speed": 24,
+     "pierce": true
+    },
+    "damage": 28,
+    "effects": [],
+    "vfx": "qi_bolt",
+    "anim": [
+     "Magic_Cast_R",
+     "Spell_Simple_Shoot"
+    ],
+    "anim_speed": 1.0,
+    "anim_mode": "upper",
+    "cast": {
+     "kind": "chant",
+     "seals": [
+      "tiger",
+      "dragon",
+      "rat"
+     ],
+     "chant_time": 2.0,
+     "chantless_req": "magic"
+    },
+    "element": "qi"
+   }
+  },
+  {
+   "id": "mg_flow",
+   "name": "Mana Flow",
+   "subpath": "core",
+   "tier": 2,
+   "kind": "utility",
+   "desc": "Steady your circles: spells cost less for a while.",
+   "req": {
+    "path_level": 7,
+    "realm": 2,
+    "stage": 7,
+    "manual": [
+     "m_mg2"
+    ]
+   },
+   "ability": {
+    "costs": {
+     "magicules": 4
+    },
+    "cooldown": 30,
+    "windup": 0.6,
+    "targeting": {
+     "kind": "self"
+    },
+    "damage": 0,
+    "effects": [
+     {
+      "type": "buff",
+      "family": "mana_flow",
+      "stats": {
+       "magicules_cost": -0.15
+      },
+      "duration": 20,
+      "rule": "refresh"
+     }
+    ],
+    "vfx": "qi_aura",
+    "anim": [
+     "G6_power_up",
+     "Spell_Simple_Shoot"
+    ],
+    "anim_speed": 1.0,
+    "anim_mode": "full",
+    "cast": {
+     "kind": "chant",
+     "seals": [
+      "tiger",
+      "rat"
+     ],
+     "chant_time": 1.4,
+     "chantless_req": "magic"
+    },
+    "element": "qi"
+   }
+  },
+  {
+   "id": "mg_weave",
+   "name": "Lesser Weave",
+   "subpath": "core",
+   "tier": 3,
+   "kind": "attack",
+   "desc": "Three bolts woven in one breath.",
+   "req": {
+    "path_level": 12,
+    "realm": 3,
+    "stage": 4,
+    "manual": [
+     "m_mg3"
+    ],
+    "prereq": [
+     "mg_circle_bolt"
+    ],
+    "theory": 0.3
+   },
+   "ability": {
+    "costs": {
+     "magicules": 14
+    },
+    "cooldown": 6,
+    "windup": 0.25,
+    "targeting": {
+     "kind": "projectile",
+     "range": 18,
+     "speed": 22,
+     "count": 3,
+     "spread": 0.2
+    },
+    "damage": 22,
+    "effects": [],
+    "vfx": "qi_bolt",
+    "anim": [
+     "G6_cast_unarmed_magic",
+     "Spell_Simple_Shoot"
+    ],
+    "anim_speed": 1.0,
+    "anim_mode": "upper",
+    "cast": {
+     "kind": "chant",
+     "seals": [
+      "snake",
+      "dragon",
+      "bird",
+      "tiger"
+     ],
+     "chant_time": 2.8,
+     "chantless_req": "magic"
+    },
+    "element": "qi"
+   }
+  },
+  {
+   "id": "mg_greater_ward",
+   "name": "Circle Ward",
+   "subpath": "core",
+   "tier": 3,
+   "kind": "defense",
+   "desc": "A ward of two circles that soaks a heavy blow.",
+   "req": {
+    "path_level": 13,
+    "realm": 3,
+    "stage": 8,
+    "manual": [
+     "m_mg_ward3"
+    ],
+    "teacher": [
+     "academy_magister"
+    ],
+    "theory": 0.35,
+    "prereq": [
+     "mg_ward"
+    ]
+   },
+   "ability": {
+    "costs": {
+     "magicules": 18
+    },
+    "cooldown": 22,
+    "windup": 0.4,
+    "targeting": {
+     "kind": "self"
+    },
+    "damage": 0,
+    "effects": [
+     {
+      "type": "ward",
+      "family": "ward",
+      "magnitude": 80,
+      "duration": 14,
+      "rule": "replace_if_stronger"
+     }
+    ],
+    "vfx": "qi_shield",
+    "anim": [
+     "G6_cast_off_hand_shield",
+     "Spell_Simple_Shoot"
+    ],
+    "anim_speed": 1.0,
+    "anim_mode": "upper",
+    "cast": {
+     "kind": "chant",
+     "seals": [
+      "snake",
+      "dragon",
+      "bird",
+      "tiger"
+     ],
+     "chant_time": 2.8,
+     "chantless_req": "magic"
+    },
+    "element": "qi"
+   }
+  },
+  {
+   "id": "mg_chantless",
+   "name": "Speaking Without Voice",
+   "subpath": "core",
+   "tier": 4,
+   "kind": "passive",
+   "desc": "The circle answers thought alone: advanced spells may be cast chantless.",
+   "req": {
+    "path_level": 20,
+    "realm": 4,
+    "stage": 1,
+    "manual": [
+     "m_mg4"
+    ],
+    "theory": 0.7,
+    "milestone": [
+     "first_circle",
+     "theory_exam",
+     "duel_won"
+    ]
+   },
+   "ability": {
+    "unlocks": "chantless"
+   },
+   "region": 2,
+   "passive": {
+    "chantless": 1
+   }
+  },
+  {
+   "id": "mg_core_burst",
+   "name": "Core Burst",
+   "subpath": "core",
+   "tier": 4,
+   "kind": "attack",
+   "desc": "Detonate the mana core's edge.",
+   "req": {
+    "path_level": 21,
+    "realm": 4,
+    "stage": 5,
+    "manual": [
+     "m_mg4"
+    ],
+    "theory": 0.75
+   },
+   "ability": {
+    "costs": {
+     "magicules": 40
+    },
+    "cooldown": 18,
+    "windup": 0.5,
+    "targeting": {
+     "kind": "aoe",
+     "radius": 6
+    },
+    "damage": 90,
+    "effects": [],
+    "vfx": "qi_nova",
+    "anim": [
+     "G6_cast_two_handed_staff",
+     "Spell_Simple_Shoot"
+    ],
+    "anim_speed": 1.0,
+    "anim_mode": "upper",
+    "cast": {
+     "kind": "chant",
+     "seals": [
+      "dragon",
+      "bird",
+      "tiger",
+      "snake"
+     ],
+     "chant_time": 3.4,
+     "chantless_req": "magic"
+    },
+    "element": "qi"
+   },
+   "region": 2
+  },
+  {
+   "id": "mg_fire_ember",
+   "name": "Ember Orb",
+   "subpath": "fire",
+   "tier": 1,
+   "kind": "attack",
+   "desc": "Hurl a ball of fire that bursts on contact.",
+   "req": {
+    "path_level": 1,
+    "realm": 1,
+    "stage": 5,
+    "manual": [
+     "m_mg_fire1"
+    ]
+   },
+   "ability": {
+    "costs": {
+     "magicules": 5
+    },
+    "cooldown": 2.5,
+    "windup": 0.25,
+    "targeting": {
+     "kind": "projectile",
+     "range": 18,
+     "radius": 1.5,
+     "speed": 18
+    },
+    "damage": 22,
+    "effects": [
+     {
+      "type": "dot",
+      "family": "burn",
+      "duration": 3,
+      "dps_ratio": 0.08,
+      "rule": "stack",
+      "max_stacks": 8,
+      "tags": [
+       "fire"
+      ]
+     }
+    ],
+    "vfx": "fireball",
+    "anim": [
+     "Magic_Cast_R",
+     "Spell_Simple_Shoot"
+    ],
+    "anim_speed": 1.0,
+    "anim_mode": "upper",
+    "cast": {
+     "kind": "chant",
+     "seals": [
+      "tiger",
+      "rat"
+     ],
+     "chant_time": 1.4,
+     "chantless_req": "magic"
+    }
+   }
+  },
+  {
+   "id": "mg_fire_wave",
+   "name": "Flame Wave",
+   "subpath": "fire",
+   "tier": 2,
+   "kind": "attack",
+   "desc": "A sweeping fan of fire.",
+   "req": {
+    "path_level": 6,
+    "realm": 2,
+    "stage": 4,
+    "manual": [
+     "m_mg_fire2"
+    ],
+    "teacher": [
+     "academy_magister"
+    ],
+    "prereq": [
+     "mg_fire_ember"
+    ]
+   },
+   "ability": {
+    "costs": {
+     "magicules": 9
+    },
+    "cooldown": 6,
+    "windup": 0.25,
+    "targeting": {
+     "kind": "cone",
+     "range": 6,
+     "angle": 70
+    },
+    "damage": 30,
+    "effects": [
+     {
+      "type": "dot",
+      "family": "burn",
+      "duration": 3,
+      "dps_ratio": 0.08,
+      "rule": "stack",
+      "max_stacks": 8,
+      "tags": [
+       "fire"
+      ]
+     }
+    ],
+    "vfx": "flame_wave",
+    "anim": [
+     "Magic_Cast_L",
+     "G6_cast_unarmed_magic"
+    ],
+    "anim_speed": 1.0,
+    "anim_mode": "upper",
+    "cast": {
+     "kind": "chant",
+     "seals": [
+      "tiger",
+      "dragon",
+      "rat"
+     ],
+     "chant_time": 2.0,
+     "chantless_req": "magic"
+    }
+   }
+  },
+  {
+   "id": "mg_fire_pillar",
+   "name": "Pillar of Flame",
+   "subpath": "fire",
+   "tier": 3,
+   "kind": "attack",
+   "desc": "A column of fire beneath your foe.",
+   "req": {
+    "path_level": 11,
+    "realm": 3,
+    "stage": 3,
+    "manual": [
+     "m_mg_fire3"
+    ],
+    "prereq": [
+     "mg_fire_wave"
+    ],
+    "theory": 0.3
+   },
+   "ability": {
+    "costs": {
+     "magicules": 14
+    },
+    "cooldown": 9,
+    "windup": 0.25,
+    "targeting": {
+     "kind": "target_aoe",
+     "range": 14,
+     "radius": 3
+    },
+    "damage": 48,
+    "effects": [
+     {
+      "type": "dot",
+      "family": "burn",
+      "duration": 4,
+      "dps_ratio": 0.08,
+      "rule": "stack",
+      "max_stacks": 8,
+      "tags": [
+       "fire"
+      ]
+     }
+    ],
+    "vfx": "fire_pillar",
+    "anim": [
+     "G6_cast_two_handed_staff",
+     "Spell_Simple_Shoot"
+    ],
+    "anim_speed": 1.0,
+    "anim_mode": "upper",
+    "cast": {
+     "kind": "chant",
+     "seals": [
+      "snake",
+      "dragon",
+      "bird",
+      "tiger"
+     ],
+     "chant_time": 2.8,
+     "chantless_req": "magic"
+    }
+   }
+  },
+  {
+   "id": "mg_water_lance",
+   "name": "Ice Lance",
+   "subpath": "water",
+   "tier": 1,
+   "kind": "attack",
+   "desc": "A shard of ice that numbs.",
+   "req": {
+    "path_level": 1,
+    "realm": 1,
+    "stage": 5,
+    "manual": [
+     "m_mg_water1"
+    ]
+   },
+   "ability": {
+    "costs": {
+     "magicules": 6
+    },
+    "cooldown": 2.8,
+    "windup": 0.25,
+    "targeting": {
+     "kind": "projectile",
+     "range": 18,
+     "speed": 22
+    },
+    "damage": 20,
+    "effects": [
+     {
+      "type": "slow",
+      "duration": 2.5,
+      "magnitude": 0.4
+     }
+    ],
+    "vfx": "ice_lance",
+    "anim": [
+     "Magic_Cast_R",
+     "Spell_Simple_Shoot"
+    ],
+    "anim_speed": 1.0,
+    "anim_mode": "upper",
+    "cast": {
+     "kind": "chant",
+     "seals": [
+      "tiger",
+      "rat"
+     ],
+     "chant_time": 1.4,
+     "chantless_req": "magic"
+    }
+   }
+  },
+  {
+   "id": "mg_water_mend",
+   "name": "Mending Tide",
+   "subpath": "water",
+   "tier": 2,
+   "kind": "support",
+   "desc": "Water closes wounds.",
+   "req": {
+    "path_level": 6,
+    "realm": 2,
+    "stage": 4,
+    "manual": [
+     "m_mg_water2"
+    ],
+    "teacher": [
+     "academy_magister"
+    ],
+    "prereq": [
+     "mg_water_lance"
+    ]
+   },
+   "ability": {
+    "costs": {
+     "magicules": 8
+    },
+    "cooldown": 12,
+    "windup": 0.4,
+    "targeting": {
+     "kind": "self"
+    },
+    "damage": 0,
+    "effects": [
+     {
+      "type": "heal",
+      "magnitude": 30
+     }
+    ],
+    "vfx": "water_heal",
+    "anim": [
+     "G6_pray",
+     "Spell_Simple_Shoot"
+    ],
+    "anim_speed": 1.0,
+    "anim_mode": "full",
+    "cast": {
+     "kind": "chant",
+     "seals": [
+      "tiger",
+      "dragon",
+      "rat"
+     ],
+     "chant_time": 2.0,
+     "chantless_req": "magic"
+    }
+   }
+  },
+  {
+   "id": "mg_tidal_crash",
+   "name": "Tidal Crash",
+   "subpath": "water",
+   "tier": 3,
+   "kind": "attack",
+   "desc": "A wave that slams and drags.",
+   "req": {
+    "path_level": 11,
+    "realm": 3,
+    "stage": 3,
+    "manual": [
+     "m_mg_water3"
+    ],
+    "prereq": [
+     "mg_water_mend"
+    ],
+    "theory": 0.3
+   },
+   "ability": {
+    "costs": {
+     "magicules": 16
+    },
+    "cooldown": 8,
+    "windup": 0.25,
+    "targeting": {
+     "kind": "cone",
+     "range": 7,
+     "angle": 80
+    },
+    "damage": 44,
+    "effects": [
+     {
+      "type": "slow",
+      "duration": 3,
+      "magnitude": 0.4
+     }
+    ],
+    "vfx": "tidal_wave",
+    "anim": [
+     "G6_cast_unarmed_magic_2",
+     "Spell_Simple_Shoot"
+    ],
+    "anim_speed": 1.0,
+    "anim_mode": "upper",
+    "cast": {
+     "kind": "chant",
+     "seals": [
+      "snake",
+      "dragon",
+      "bird",
+      "tiger"
+     ],
+     "chant_time": 2.8,
+     "chantless_req": "magic"
+    }
+   }
+  },
+  {
+   "id": "mg_wind_blade",
+   "name": "Wind Blade",
+   "subpath": "wind",
+   "tier": 1,
+   "kind": "attack",
+   "desc": "A fast, thin blade of air.",
+   "req": {
+    "path_level": 1,
+    "realm": 1,
+    "stage": 6,
+    "manual": [
+     "m_mg_wind1"
+    ]
+   },
+   "ability": {
+    "costs": {
+     "magicules": 4
+    },
+    "cooldown": 2.0,
+    "windup": 0.25,
+    "targeting": {
+     "kind": "projectile",
+     "range": 20,
+     "speed": 30,
+     "pierce": true
+    },
+    "damage": 16,
+    "effects": [],
+    "vfx": "wind_blade",
+    "anim": [
+     "Magic_Cast_R",
+     "Spell_Simple_Shoot"
+    ],
+    "anim_speed": 1.0,
+    "anim_mode": "upper",
+    "cast": {
+     "kind": "chant",
+     "seals": [
+      "tiger",
+      "rat"
+     ],
+     "chant_time": 1.4,
+     "chantless_req": "magic"
+    }
+   }
+  },
+  {
+   "id": "mg_wind_step",
+   "name": "Gale Step",
+   "subpath": "wind",
+   "tier": 2,
+   "kind": "mobility",
+   "desc": "Ride a gust forward.",
+   "req": {
+    "path_level": 6,
+    "realm": 2,
+    "stage": 4,
+    "manual": [
+     "m_mg_wind2"
+    ],
+    "teacher": [
+     "academy_magister"
+    ],
+    "prereq": [
+     "mg_wind_blade"
+    ]
+   },
+   "ability": {
+    "costs": {
+     "magicules": 6
+    },
+    "cooldown": 7,
+    "windup": 0.15,
+    "targeting": {
+     "kind": "dash",
+     "range": 7
+    },
+    "damage": 0,
+    "effects": [],
+    "vfx": "wind_trail",
+    "anim": [
+     "Sword_Dash",
+     "Spell_Simple_Shoot"
+    ],
+    "anim_speed": 1.0,
+    "anim_mode": "full",
+    "cast": {
+     "kind": "chant",
+     "seals": [
+      "tiger",
+      "rat"
+     ],
+     "chant_time": 1.4,
+     "chantless_req": "magic"
+    }
+   }
+  },
+  {
+   "id": "mg_gale_burst",
+   "name": "Gale Burst",
+   "subpath": "wind",
+   "tier": 3,
+   "kind": "attack",
+   "desc": "Air bursts outward and drags foes in.",
+   "req": {
+    "path_level": 11,
+    "realm": 3,
+    "stage": 3,
+    "manual": [
+     "m_mg_wind3"
+    ],
+    "prereq": [
+     "mg_wind_step"
+    ],
+    "theory": 0.3
+   },
+   "ability": {
+    "costs": {
+     "magicules": 16
+    },
+    "cooldown": 9,
+    "windup": 0.25,
+    "targeting": {
+     "kind": "aoe",
+     "radius": 5
+    },
+    "damage": 36,
+    "effects": [
+     {
+      "type": "pull",
+      "duration": 2.0,
+      "magnitude": 1.0
+     }
+    ],
+    "vfx": "whirlwind",
+    "anim": [
+     "G6_cast_unarmed_magic_2",
+     "Spell_Simple_Shoot"
+    ],
+    "anim_speed": 1.0,
+    "anim_mode": "upper",
+    "cast": {
+     "kind": "chant",
+     "seals": [
+      "snake",
+      "dragon",
+      "bird",
+      "tiger"
+     ],
+     "chant_time": 2.8,
+     "chantless_req": "magic"
+    }
+   }
+  },
+  {
+   "id": "mg_stone_bullet",
+   "name": "Stone Bullet",
+   "subpath": "earth",
+   "tier": 1,
+   "kind": "attack",
+   "desc": "A hurled stone.",
+   "req": {
+    "path_level": 1,
+    "realm": 1,
+    "stage": 5,
+    "manual": [
+     "m_mg_earth1"
+    ]
+   },
+   "ability": {
+    "costs": {
+     "magicules": 4
+    },
+    "cooldown": 2.2,
+    "windup": 0.25,
+    "targeting": {
+     "kind": "projectile",
+     "range": 16,
+     "speed": 20
+    },
+    "damage": 20,
+    "effects": [],
+    "vfx": "stone_bullet",
+    "anim": [
+     "Magic_Cast_R",
+     "Spell_Simple_Shoot"
+    ],
+    "anim_speed": 1.0,
+    "anim_mode": "upper",
+    "cast": {
+     "kind": "chant",
+     "seals": [
+      "tiger",
+      "rat"
+     ],
+     "chant_time": 1.4,
+     "chantless_req": "magic"
+    }
+   }
+  },
+  {
+   "id": "mg_stone_skin",
+   "name": "Stone Skin",
+   "subpath": "earth",
+   "tier": 2,
+   "kind": "defense",
+   "desc": "Skin like quarried rock.",
+   "req": {
+    "path_level": 6,
+    "realm": 2,
+    "stage": 4,
+    "manual": [
+     "m_mg_earth2"
+    ],
+    "teacher": [
+     "academy_magister"
+    ],
+    "prereq": [
+     "mg_stone_bullet"
+    ]
+   },
+   "ability": {
+    "costs": {
+     "magicules": 10
+    },
+    "cooldown": 20,
+    "windup": 0.3,
+    "targeting": {
+     "kind": "self"
+    },
+    "damage": 0,
+    "effects": [
+     {
+      "type": "buff",
+      "family": "stone_skin",
+      "stats": {
+       "damage_taken": -0.35
+      },
+      "duration": 8,
+      "rule": "refresh"
+     }
+    ],
+    "vfx": "stone_skin",
+    "anim": [
+     "G6_power_up",
+     "Spell_Simple_Shoot"
+    ],
+    "anim_speed": 1.0,
+    "anim_mode": "full",
+    "cast": {
+     "kind": "chant",
+     "seals": [
+      "tiger",
+      "dragon",
+      "rat"
+     ],
+     "chant_time": 2.0,
+     "chantless_req": "magic"
+    }
+   }
+  },
+  {
+   "id": "mg_earth_spike",
+   "name": "Earth Spike",
+   "subpath": "earth",
+   "tier": 3,
+   "kind": "attack",
+   "desc": "Stone erupts under the target.",
+   "req": {
+    "path_level": 11,
+    "realm": 3,
+    "stage": 3,
+    "manual": [
+     "m_mg_earth3"
+    ],
+    "prereq": [
+     "mg_stone_skin"
+    ],
+    "theory": 0.3
+   },
+   "ability": {
+    "costs": {
+     "magicules": 12
+    },
+    "cooldown": 8,
+    "windup": 0.25,
+    "targeting": {
+     "kind": "target_aoe",
+     "range": 14,
+     "radius": 2.5
+    },
+    "damage": 46,
+    "effects": [
+     {
+      "type": "stun",
+      "duration": 0.6,
+      "magnitude": 1.0
+     }
+    ],
+    "vfx": "earth_spike",
+    "anim": [
+     "G6_cast_two_handed_staff",
+     "Spell_Simple_Shoot"
+    ],
+    "anim_speed": 1.0,
+    "anim_mode": "upper",
+    "cast": {
+     "kind": "chant",
+     "seals": [
+      "snake",
+      "dragon",
+      "bird",
+      "tiger"
+     ],
+     "chant_time": 2.8,
+     "chantless_req": "magic"
+    }
+   }
+  },
+  {
+   "id": "mg_spark_chain",
+   "name": "Spark Chain",
+   "subpath": "lightning",
+   "tier": 1,
+   "kind": "attack",
+   "desc": "A spark that leaps between foes.",
+   "req": {
+    "path_level": 1,
+    "realm": 1,
+    "stage": 6,
+    "manual": [
+     "m_mg_lightning1"
+    ]
+   },
+   "ability": {
+    "costs": {
+     "magicules": 5
+    },
+    "cooldown": 2.5,
+    "windup": 0.25,
+    "targeting": {
+     "kind": "chain",
+     "range": 14,
+     "chains": 2
+    },
+    "damage": 17,
+    "effects": [
+     {
+      "type": "stun",
+      "duration": 0.2,
+      "magnitude": 1.0
+     }
+    ],
+    "vfx": "lightning_chain",
+    "anim": [
+     "Magic_Cast_L",
+     "Spell_Simple_Shoot"
+    ],
+    "anim_speed": 1.0,
+    "anim_mode": "upper",
+    "cast": {
+     "kind": "chant",
+     "seals": [
+      "tiger",
+      "rat"
+     ],
+     "chant_time": 1.4,
+     "chantless_req": "magic"
+    }
+   }
+  },
+  {
+   "id": "mg_thunderstep",
+   "name": "Thunderstep",
+   "subpath": "lightning",
+   "tier": 2,
+   "kind": "mobility",
+   "desc": "Blink along a line of lightning.",
+   "req": {
+    "path_level": 6,
+    "realm": 2,
+    "stage": 4,
+    "manual": [
+     "m_mg_lightning2"
+    ],
+    "teacher": [
+     "academy_magister"
+    ],
+    "prereq": [
+     "mg_spark_chain"
+    ]
+   },
+   "ability": {
+    "costs": {
+     "magicules": 10
+    },
+    "cooldown": 9,
+    "windup": 0.15,
+    "targeting": {
+     "kind": "dash",
+     "range": 8
+    },
+    "damage": 18,
+    "effects": [
+     {
+      "type": "stun",
+      "duration": 0.4,
+      "magnitude": 1.0
+     }
+    ],
+    "vfx": "lightning_trail",
+    "anim": [
+     "Sword_Dash",
+     "Spell_Simple_Shoot"
+    ],
+    "anim_speed": 1.0,
+    "anim_mode": "full",
+    "cast": {
+     "kind": "chant",
+     "seals": [
+      "tiger",
+      "dragon",
+      "rat"
+     ],
+     "chant_time": 2.0,
+     "chantless_req": "magic"
+    }
+   }
+  },
+  {
+   "id": "mg_storm_call",
+   "name": "Storm Call",
+   "subpath": "lightning",
+   "tier": 3,
+   "kind": "attack",
+   "desc": "Call a bolt down on the target.",
+   "req": {
+    "path_level": 11,
+    "realm": 3,
+    "stage": 3,
+    "manual": [
+     "m_mg_lightning3"
+    ],
+    "prereq": [
+     "mg_thunderstep"
+    ],
+    "theory": 0.3
+   },
+   "ability": {
+    "costs": {
+     "magicules": 20
+    },
+    "cooldown": 10,
+    "windup": 0.25,
+    "targeting": {
+     "kind": "target_aoe",
+     "range": 16,
+     "radius": 3
+    },
+    "damage": 52,
+    "effects": [
+     {
+      "type": "stun",
+      "duration": 1.0,
+      "magnitude": 1.0
+     }
+    ],
+    "vfx": "thunder_strike",
+    "anim": [
+     "G6_cast_two_handed_staff",
+     "Spell_Simple_Shoot"
+    ],
+    "anim_speed": 1.0,
+    "anim_mode": "upper",
+    "cast": {
+     "kind": "chant",
+     "seals": [
+      "snake",
+      "dragon",
+      "bird",
+      "tiger"
+     ],
+     "chant_time": 2.8,
+     "chantless_req": "magic"
+    }
+   }
+  }
+ ],
+ "manuals": [
+  {
+   "id": "m_mg_fire1",
+   "name": "Primer of Fire",
+   "realm": 1,
+   "source": "academy",
+   "techniques": [
+    "mg_fire_ember"
+   ],
+   "desc": "A first text on fire magic."
+  },
+  {
+   "id": "m_mg_fire2",
+   "name": "Lessons in Fire",
+   "realm": 2,
+   "source": "teacher",
+   "techniques": [
+    "mg_fire_wave"
+   ],
+   "desc": "A second text on fire magic."
+  },
+  {
+   "id": "m_mg_fire3",
+   "name": "Grimoire of Fire",
+   "realm": 3,
+   "source": "dungeon",
+   "techniques": [
+    "mg_fire_pillar"
+   ],
+   "desc": "A third text on fire magic."
+  },
+  {
+   "id": "m_mg_water1",
+   "name": "Primer of Water",
+   "realm": 1,
+   "source": "academy",
+   "techniques": [
+    "mg_water_lance"
+   ],
+   "desc": "A first text on water magic."
+  },
+  {
+   "id": "m_mg_water2",
+   "name": "Lessons in Water",
+   "realm": 2,
+   "source": "teacher",
+   "techniques": [
+    "mg_water_mend"
+   ],
+   "desc": "A second text on water magic."
+  },
+  {
+   "id": "m_mg_water3",
+   "name": "Grimoire of Water",
+   "realm": 3,
+   "source": "dungeon",
+   "techniques": [
+    "mg_tidal_crash"
+   ],
+   "desc": "A third text on water magic."
+  },
+  {
+   "id": "m_mg_wind1",
+   "name": "Primer of Wind",
+   "realm": 1,
+   "source": "academy",
+   "techniques": [
+    "mg_wind_blade"
+   ],
+   "desc": "A first text on wind magic."
+  },
+  {
+   "id": "m_mg_wind2",
+   "name": "Lessons in Wind",
+   "realm": 2,
+   "source": "teacher",
+   "techniques": [
+    "mg_wind_step"
+   ],
+   "desc": "A second text on wind magic."
+  },
+  {
+   "id": "m_mg_wind3",
+   "name": "Grimoire of Wind",
+   "realm": 3,
+   "source": "dungeon",
+   "techniques": [
+    "mg_gale_burst"
+   ],
+   "desc": "A third text on wind magic."
+  },
+  {
+   "id": "m_mg_earth1",
+   "name": "Primer of Earth",
+   "realm": 1,
+   "source": "academy",
+   "techniques": [
+    "mg_stone_bullet"
+   ],
+   "desc": "A first text on earth magic."
+  },
+  {
+   "id": "m_mg_earth2",
+   "name": "Lessons in Earth",
+   "realm": 2,
+   "source": "teacher",
+   "techniques": [
+    "mg_stone_skin"
+   ],
+   "desc": "A second text on earth magic."
+  },
+  {
+   "id": "m_mg_earth3",
+   "name": "Grimoire of Earth",
+   "realm": 3,
+   "source": "dungeon",
+   "techniques": [
+    "mg_earth_spike"
+   ],
+   "desc": "A third text on earth magic."
+  },
+  {
+   "id": "m_mg_lightning1",
+   "name": "Primer of Lightning",
+   "realm": 1,
+   "source": "academy",
+   "techniques": [
+    "mg_spark_chain"
+   ],
+   "desc": "A first text on lightning magic."
+  },
+  {
+   "id": "m_mg_lightning2",
+   "name": "Lessons in Lightning",
+   "realm": 2,
+   "source": "teacher",
+   "techniques": [
+    "mg_thunderstep"
+   ],
+   "desc": "A second text on lightning magic."
+  },
+  {
+   "id": "m_mg_lightning3",
+   "name": "Grimoire of Lightning",
+   "realm": 3,
+   "source": "dungeon",
+   "techniques": [
+    "mg_storm_call"
+   ],
+   "desc": "A third text on lightning magic."
+  },
+  {
+   "id": "m_mg_ward3",
+   "name": "Treatise on Circle Wards",
+   "realm": 3,
+   "source": "teacher",
+   "techniques": [
+    "mg_greater_ward"
+   ],
+   "desc": "Taught by a circle-mage."
+  }
+ ],
+ "version": 1
+}

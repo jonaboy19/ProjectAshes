@@ -23,9 +23,9 @@ Fonts: Cinzel by Natanael Gama, SIL OFL 1.1.
 - Camera shake (`scripts/actors/camera_shake.gd`) ported from **godotengine/tps-demo**, (c) 2018-present Juan Linietsky and Godot Engine contributors. MIT.
 - **GLoot** (c) Peter Kish, MIT. **Dialogue Manager** (c) 2022-present Nathan Hoad and contributors, MIT. **G.U.I.D.E** (c) 2024-present Jan Thomä, MIT.
 - **Quest Weaver** (Nexus Quest Weaver, github.com/undomick/godot_nexus_quest_weaver), MIT. **GodotGAS** (c) 2026 Matthew Janes (YulRun.dev), MIT.
-- **LimboAI** (c) 2023-2025 Serhii Snitsaruk and contributors, MIT. **Terrain3D** (c) 2023-2026 Cory Petkovsek, Roope Palmroos and contributors, MIT.
+- **LimboAI** (c) 2023-2025 Serhii Snitsaruk and contributors, MIT. **Terrain3D 1.0.2** (c) 2023-2026 Cory Petkovsek, Roope Palmroos and contributors, MIT (github.com/TokisanGames/Terrain3D; ground renderer of `terrain_backend=terrain3d`).
 - **Sky3D** (c) 2023-2025 Cory Petkovsek and contributors, (c) 2021 J. Cuéllar, MIT; moon map (c) 2019 GPoSM, MIT.
-- **Road Generator** (c) 2024 Moo-Ack! Productions, MIT. **ProtonScatter** (c) 2019 HungryProton, MIT.
+- **Road Generator** (c) 2024 Moo-Ack! Productions, MIT. **ProtonScatter 4.2.0** (c) 2019 HungryProton, MIT (github.com/HungryProton/scatter; forest/undergrowth/rock placement of `terrain_backend=terrain3d`). Ground textures for Terrain3D are repacked Poly Haven CC0 sets (leafy_grass, forest_ground_04, grass_path_2, rocky_terrain_02) plus the project's own cobblestone paint (`assets/terrain3d/ground/`).
 
 ## Audio (added 2026-09-27, see `assets/audio/README.md` for every file, source and licence)
 
@@ -80,6 +80,8 @@ CC0 / public domain (no attribution required; credited with thanks):
 
 - Souls-like combat, magic-casting, parry, roll and interaction animations (`assets/incoming/animations/souls_cat/`) and the foley SFX in `assets/audio/sfx_souls/` are from the **Modular Souls-like Template** by **Cat Prisbrey** (https://github.com/catprisbrey/Cats-Godot4-Modular-Souls-like-Template), Unlicense / CC0. Credit isn't required but is given with thanks. The clips were retargeted onto the UAL skeleton.
 - Karate, tai chi, swordplay, swimming, chore and lie-down motion (`assets/incoming/animations/cmu_mocap/`): "Motion capture data from the **CMU Graphics Lab Motion Capture Database** (mocap.cs.cmu.edu), created with funding from NSF EIA-0196217." BVH conversion by **Bruce Hahne** (cgspeed.com). Free for research and commercial use, with no restrictions; the credit line is the one CMU requests.
+- Bending clips (`assets/incoming/mocap/cmu/clips/UAL_CMU_Bending.glb`, 36 Water/Air/Earth/Fire/Lightning/guard clips): same CMU credit line as above, same terms (see `assets/incoming/mocap/cmu/LICENSE`). Not yet used in the game; list the line once they are.
+- Bending VFX lab (`scenes/vfx_lab/`): techniques re-written from the MIT-licensed sandbox `achrefelouafi/AvatarCastingAbilitiesThreeJS` (c) 2026 mohamedachrefelouafi (no code copied; courtesy credit, not required).
 
 ## Locomotion styles (added 2026-09-28)
 
@@ -118,6 +120,9 @@ CC0 / public domain (no attribution required; credited with thanks):
 CC0 (no attribution required; credited with thanks): 53 market props (39 + 14 pieces) from **Quaternius'** *Fantasy Props MegaKit* and *Ultimate Food Pack*
 (https://quaternius.com), re-authored into one warm-painted atlas (`assets/market_goods/`).
 
+## In-game tabbed menu icons (added 2026-09-29)
+- **Game icons** for the inventory, character, skills, quest, map and journal menu (assets/ui/icons/gm and assets/ui/icons/items) from game-icons.net, CC BY 3.0, recoloured to white. Authors: **Lorc**, **Delapouite**, **Skoll**, **Willdabeast**, **Caro Asercion**, **Irongamer**, **SBed**, **Seregacthtuf**, **Zeromancer**.
+
 ### Free addons added 2026-09-29 (local PC session; see `docs/addons/README.md`)
 - **Phantom Camera** (c) 2023-2026 Marcus Skov (ramokz), MIT (https://github.com/ramokz/phantom-camera), v0.11.0.3, `kingdom/addons/phantom_camera/`.
 - **Godot Debug Menu** (c) 2022-2025 Hugo Locurcio and contributors (Calinou), MIT (https://github.com/godot-extended-libraries/godot-debug-menu), `kingdom/addons/debug_menu/`.
@@ -126,3 +131,52 @@ CC0 (no attribution required; credited with thanks): 53 market props (39 + 14 pi
 - **VoronoiShatter** (c) Robert Varadan, MIT (https://github.com/robertvaradan/voronoishatter), v0.3, `kingdom/addons/voronoishatter/`.
 - **Sentry SDK for Godot** (c) Functional Software, Inc. dba Sentry, MIT (https://github.com/getsentry/sentry-godot), v2.2.0. Installed on demand by `tools/install_sentry.sh` (binaries are not committed); no data is sent without a DSN.
 - Octahedral impostors (`kingdom/tools/impostors/impostor_baker.gd`, `kingdom/assets/generated/impostors/impostor_octa.gdshader`) are our own implementation of the public octahedral-impostor technique (Ryan Brucks / Shaderbits, https://www.shaderbits.com/blog/octahedral-impostors); the MIT **Godot-Octahedral-Impostors** by wojtekpil (https://github.com/wojtekpil/Godot-Octahedral-Impostors) and its Godot 4.0 port (belzecue) were evaluated as references but not used (they don't run on 4.6). No code copied.
+- **KayKit Character Animations 1.1** (Kay Lousberg, https://kaylousberg.com), CC0 1.0. Clips retargeted to the UAL skeleton in `kingdom/assets/incoming/animations_free2/kaykit_*` (prefix `Kay_`); licence copy `animations_free2/LICENSE_KayKit.txt`. Credit optional: "Kay Lousberg, www.kaylousberg.com".
+- Traversal clips (ladder, wall, ledge, vault, horse riding) in `animations_free2/traversal_authored/` are our own Blender-IK authored work on the CC0 Quaternius UAL rig.
+
+## Region 1 art: stones and Highwatch Keep kit (added 2026-09-29, work packages L1 and L2)
+
+* `assets/incoming/region1/stones/` (Elder Stone, 4 road stones, ancestor-gold variants): built entirely in Blender by the local session
+  (`tools/blender/region1/*.py`); no third-party meshes or textures. Textures are procedurally painted by our scripts. Our own work, released CC0-style with the project.
+* `assets/incoming/region1/highwatch/` (Highwatch Keep kit): re-baked/re-graded from **Meshy community models, CC0 1.0** (see
+  `assets/incoming/meshy_free/CREDITS.md`; each verified `license: cc0` on its Meshy page): `gate_twin_towers_blue`, `tower_round`,
+  `watchtower_stone_small`, `keep_small_on_plinth` (castle), `weapon_rack_swords`, `weapon_racks_spears`, `armour_stand_knight` (interior),
+  `shield_dragon_heraldic`, `barrels_crates_stack`, `well_stone_roofed` (props), `torch_stake` (lighting), `hay_bale_lowpoly` (farm).
+  Modifications: uniform re-scale, one shared 2048 atlas, colour grading to the Highwatch palette (blue/gold recolour), LOD1 (shipped Meshy LOD1 or decimated).
+  Blender-built connectors (curtain wall, banners, conical roofs, training dummies, archery targets, yard, fence) are our own work with procedurally painted textures.
+  No attribution is required; credited with thanks to the anonymous Meshy community authors.
+## Region 1 audio (added 2026-09-29, L17; full table in `assets/audio/region1/LICENSES.md`)
+
+Credit required (CC BY 4.0, https://creativecommons.org/licenses/by/4.0/):
+
+- "Folk Round", "Minstrel Guild", "Achaidh Cheide", "Lost Time", "Suonatore di Liuto", "Crusade", "Bittersweet", "Skye Cuillin" and "Long Road Ahead" Kevin MacLeod (incompetech.com), Licensed under Creative Commons: By Attribution 4.0 License. Region 1 village/farm, guild town, Stagborn glade, rift-touched wilds, night and Antlered Warden boss themes, plus the Region 1 story cues (lament, Kindling Night, finale).
+- "Medieval Chateau" by Alexander Nakarada (CreatorChords) | https://creatorchords.com , Royalty Free Music by https://www.free-stock-music.com , Creative Commons / Attribution 4.0 International (CC BY 4.0) https://creativecommons.org/licenses/by/4.0/ . Highwatch Keep theme.
+
+CC0 (credited with thanks):
+
+- Region 1 male barks: "Voice Clip Pack - Male Adventurer RPG" by wolfwoot (Brandon Song), https://opengameart.org/content/voice-clip-pack-male-adventurer-rpg
+- Region 1 female barks: "Female RPG Voice Starter Pack" by cicifyre, https://opengameart.org/content/female-rpg-voice-starter-pack
+- Stagborn calls layered from Joseph Sardin (BigSoundBank) recordings and the ward-break glass from rubberduck's "100 CC0 SFX".
+- Rune hum, ward activate, glyph carve and the Ashen Scar ambience are synthesised for the game (no third-party audio).
+
+### VFX tools added 2026-09-29 (local PC session; see `docs/art/vfx_tools/README.md`)
+- **Effekseer for Godot 4** (c) 2020 Effekseer Project, MIT (https://github.com/effekseer/EffekseerForGodot4), v1.80.5.1, `kingdom/addons/effekseer/` (Windows x64 and Android arm32/arm64 binaries only; iOS/macOS/Linux/Web libraries left out, see `tools/vfx/README.md`). Not enabled as an editor plugin, not used by gameplay code.
+- **Effekseer sample effect "Aura01"** (Effekseer editor 1.80.7, `Sample/00_Version16`), CC0, credit to Effekseer, `kingdom/assets/vfx/effekseer/`.
+- Six baked VFX flipbooks in `kingdom/assets/vfx/flipbooks/` are original project work (Blender + numpy scripts in `tools/vfx/`), no third-party content.
+## Stagborn elk and Antlered Warden (added 2026-09-29, L5; see `assets/incoming/ai3d/meshy/creatures/stagborn_README.md`)
+- **Quaternius**, *Ultimate Animated Animals* **Stag** (mesh, rig and stock clips: idle, walk, gallop, headbutt, kick, hit, death, eating), **CC0 1.0** (https://quaternius.com, https://creativecommons.org/publicdomain/zero/1.0/; licence file `assets/incoming/quaternius/ultimate-animated-animals/License.txt`). No attribution required; credited with thanks.
+- Customisation (Warden antlers, mane, body proportions, painted and rune-emissive textures, authored `attack`, `run_charge` and `roar` clips, retiming, LOD1): own work for Rising Ashes. No Meshy credits and no other third-party material were used.
+
+## Region 1 art: Silverford guild hall, Dawn Throne chapel, rift kit (added 2026-09-29, work packages L3 and L4)
+
+* `assets/incoming/region1/silverford/`: re-graded from **Meshy community models, CC0 1.0** (`meshy_free/buildings/house_two_story_shingle`, `meshy_free/churches/church_white_red_spire`; each verified `license: cc0`, see `assets/incoming/meshy_free/CREDITS.md`). Modifications: HSV recolour of the baked texture (royal-blue roof; white stone with gold roofs), added hand-built banners, sign and Dawn Throne sun emblem, uniform re-scale, LOD1 from the shipped Meshy LOD1. Scripts: `tools/blender/make_r1_exteriors.py`.
+* `scenes/interiors/guildhall_interior.tscn`, `chapel_interior.tscn` and their GLBs: Blender-built with the project interior kit; furniture pieces from **Quaternius Fantasy Props MegaKit, CC0 1.0** (already credited above). Everything else is our own work.
+* `assets/incoming/region1/rift/`: textures are recolours of the project's own region nature atlases and of the Meshy-generated wolf and boar textures (our own work / the paid Meshy plan, no attribution needed); `crystals/` are re-cut and re-tinted from **Meshy community models, CC0 1.0** (`meshy_free/magic/crystal_purple_pedestal`, `crystal_cyan_pedestal`, `crystal_ice_shard`, pedestals removed); decals are procedural (own work). Scripts: `tools/blender/make_rift_*.py`, `make_scar_crystals.py`.
+
+## Horses and riding (added 2026-09-30; see `docs/anim/horses/HANDOFF.md`)
+- **Mesh2Motion** horse mesh (`assets/incoming/characters/mesh2motion/horse-animations.glb`, Scott Petrovic), **CC0** (https://github.com/Mesh2Motion/mesh2motion-app): body shape of the riding horse. Re-welded, subdivided and decimated, old tail removed; new mane, tail, skeleton, skinning, coats, tack, LODs and all 50 horse clips and 57 rider clips are own work (procedural Blender pipeline in `tools/anim/horse/`).
+- Skeleton layout from the **Rigify** horse metarig (Blender, GPL tool; generated rigs and output are unencumbered). Gait timings follow published equine biomechanics (footfall order and duty factors), no mocap.
+
+* `assets/incoming/meshy_dl3/` (97 GLBs: town houses, castles, props, magic items, elementals, horse, rigged and static medieval characters): **owner-downloaded Meshy models, licence per the owner's Meshy plan**; re-baked/decimated, rigs kept. See `assets/incoming/meshy_dl3/CREDITS.md` and `docs/art/meshy_dl3/README.md`.
+- Poly Haven `rock_face` (CC0) - Rift / cave rock shells (shaders/environment/cave_rock.gdshader)
+* `assets/incoming/meshy_dl3/characters_ual/` (7 villager, traveller, merchant, hunter and knight characters, 2026-10-05): the Meshy batch 3 rigged bipeds above, **re-rigged in Blender onto the Quaternius UAL skeleton** (Quaternius Universal Animation Library, CC0, as the armored humanoids in `assets/incoming/ai3d/meshy/armored/`) with `tools/meshy/armored_rig/meshy3_rerig.py`; meshes/textures remain **owner-downloaded Meshy models, licence per the owner's Meshy plan**. Used as the `Meshy_Villager`, `Meshy_Traveller`, `Meshy_Knight` looks and extra `Rogue_Hooded`, `Barbarian`, `Hunter`, `Trader`, `Bandit`, `Plate_Knight` picks (`Assets.MH_LOOKS`). Placed models of the batch: `data/region1/world/meshy3_sites.json` and `thornfield_wilds.json` "extras".

@@ -167,4 +167,5 @@ k.wheel(4.4, -HY - 0.18, r=0.55, rz=0.0, lean=0.2)
 k.sack(-1.95, 2.3, s=0.9)
 k.stage("props")
 
+k.pbr = dict(size=1024, lod1_size=512, orm_div=2, seed=V * 11 + 7, ao_dist=0.8)   # high-to-low PBR bake (pbr_kit.py)
 k.finish_checked((12.0, 8.0), 12000, cam_dir=(0.9, -1.5, 0.55), fit=0.95)

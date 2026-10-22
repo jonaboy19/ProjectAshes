@@ -1,0 +1,86 @@
+{
+ "id": "dunhallow_word_from_darby",
+ "title": "Word from Darby",
+ "summary": "Darby Sumner has seen wolves at the edge of Dunhallow, and Elfrida Shuttle wants someone to act before the town hears it from the wolves.",
+ "giver": {
+  "npc": "elfrida_shuttle",
+  "name": "Elfrida Shuttle",
+  "place": "dunhallow"
+ },
+ "requires": [
+  "dunhallow_the_missing_bolt"
+ ],
+ "offer_text": "\"Darby Sumner has been out past the last house and does not like what they saw. Hear it, go and look, and thin the pack out.\"",
+ "turn_in_text": "\"Good. Now the rest of the town can sleep.\"",
+ "stages": [
+  {
+   "id": "hear",
+   "title": "Hear the warning",
+   "mode": "all",
+   "objectives": [
+    {
+     "id": "warning",
+     "type": "talk_to",
+     "npc": "darby_sumner",
+     "text": "Hear what Darby Sumner has seen"
+    }
+   ]
+  },
+  {
+   "id": "edge",
+   "title": "Go and see",
+   "mode": "all",
+   "objectives": [
+    {
+     "id": "reach",
+     "type": "goto",
+     "place": "dunhallow_outskirts",
+     "text": "Go to the tree line"
+    }
+   ]
+  },
+  {
+   "id": "hunt",
+   "title": "Put them down",
+   "mode": "all",
+   "objectives": [
+    {
+     "id": "hunt",
+     "type": "kill",
+     "target": "wolf",
+     "place": "dunhallow_outskirts",
+     "count": 2,
+     "text": "Kill 2 wolves near Dunhallow"
+    }
+   ]
+  },
+  {
+   "id": "report",
+   "title": "Tell Elfrida",
+   "mode": "all",
+   "objectives": [
+    {
+     "id": "report",
+     "type": "talk_to",
+     "npc": "elfrida_shuttle",
+     "text": "Tell Elfrida Shuttle it is done"
+    }
+   ],
+   "end": true
+  }
+ ],
+ "rewards": {
+  "gold": 28,
+  "rep": {
+   "dunhallow": 6
+  },
+  "relationship": [
+   {
+    "npc": "elfrida_shuttle",
+    "label": "Acted on the warning",
+    "value": 11,
+    "days": 60
+   }
+  ]
+ }
+}

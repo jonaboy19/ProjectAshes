@@ -117,8 +117,7 @@ func _unhandled_input(e: InputEvent) -> void:
 
 func _layout() -> void:
 	var vw := get_viewport().get_visible_rect().size
-	position = Vector2.ZERO
-	size = vw
+	# (full-rect anchors from _ready already size this root; assigning size warned)
 	var panel: Control = get_child(1)
 	var w := clampf(vw.x * 0.94, 320.0, 820.0)
 	var h := vw.y * 0.92
@@ -195,7 +194,7 @@ func _person_row(lc: LifeCourses, id: int, day: int) -> PanelContainer:
 	var settlement_name := "the village"
 	var sidx := int(p.get("settlement", -1))
 	if sidx >= 0 and sidx < WorldGen.settlements.size():
-		settlement_name = String(WorldGen.settlements[sidx]["name"])
+		settlement_name = WorldGen.display_name(String(WorldGen.settlements[sidx]["name"]))
 	var occ := String(p.get("occupation", ""))
 	var rank := String(p.get("rank", ""))
 	var role_text := ("%s, %s" % [rank.capitalize(), occ]) if rank != "" else occ.capitalize()

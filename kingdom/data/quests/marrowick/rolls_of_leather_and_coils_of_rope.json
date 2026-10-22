@@ -1,0 +1,89 @@
+{
+ "id": "marrowick_rolls_of_leather_and_coils_of_rope",
+ "title": "Rolls of Leather and Coils of Rope",
+ "summary": "Two loads wait in Marrowick: rolls of leather for Jory Mossop and coils of rope for Silas Pickering. Larkin Fenwick wants them moved before the next cart goes through.",
+ "giver": {
+  "npc": "larkin_fenwick",
+  "name": "Larkin Fenwick",
+  "place": "marrowick"
+ },
+ "offer_text": "\"Two things are late and both are mine to answer for. Jory Mossop waits on rolls of leather and Silas Pickering on coils of rope. Fetch them in any order, before the next cart goes through.\"",
+ "turn_in_text": "\"Both in. I shall sleep tonight, which is rare.\"",
+ "stages": [
+  {
+   "id": "gather",
+   "title": "Gather both loads",
+   "mode": "all",
+   "objectives": [
+    {
+     "id": "load1",
+     "type": "collect",
+     "item": "leather",
+     "count": 3,
+     "text": "Take 3 rolls of leather from the tannery yard"
+    },
+    {
+     "id": "load2",
+     "type": "collect",
+     "item": "rope",
+     "count": 3,
+     "text": "Take 3 coils of rope from the second stack"
+    }
+   ]
+  },
+  {
+   "id": "deliver",
+   "title": "Deliver them",
+   "mode": "all",
+   "objectives": [
+    {
+     "id": "to1",
+     "type": "deliver",
+     "item": "leather",
+     "count": 3,
+     "to": "jory_mossop",
+     "text": "Hand the rolls of leather to Jory Mossop"
+    },
+    {
+     "id": "to2",
+     "type": "deliver",
+     "item": "rope",
+     "count": 3,
+     "to": "silas_pickering",
+     "text": "Hand the coils of rope to Silas Pickering"
+    }
+   ]
+  },
+  {
+   "id": "report",
+   "title": "Tell Larkin",
+   "mode": "all",
+   "objectives": [
+    {
+     "id": "report",
+     "type": "talk_to",
+     "npc": "larkin_fenwick",
+     "text": "Tell Larkin Fenwick both are in"
+    }
+   ],
+   "end": true
+  }
+ ],
+ "rewards": {
+  "gold": 20,
+  "rep": {
+   "marrowick": 4
+  },
+  "relationship": [
+   {
+    "npc": "larkin_fenwick",
+    "label": "Cleared two late loads",
+    "value": 9,
+    "days": 60
+   }
+  ],
+  "items": {
+   "ale": 1
+  }
+ }
+}

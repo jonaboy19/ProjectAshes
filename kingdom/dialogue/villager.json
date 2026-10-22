@@ -8,6 +8,7 @@
         {"text": "\"You again. Say what you want and be quick about it.\"", "if": {"tier": "rival"}, "p": 5},
         {"text": "\"You've a nerve, talking to me after what you said.\"", "if": {"event": "insulted", "tier_not": ["friend", "close_friend"]}, "p": 6},
 
+        {"text": "\"I remember the gift you brought me.\"", "if": {"event": "gifted_recently"}, "p": 4},
         {"text": "\"There's my helper! My back still thanks you for yesterday.\"", "if": {"event": "helped_recently", "min_tier": "acquaintance"}, "p": 4},
         {"text": "\"Word is you sorted out that business for us. Ashford owes you a drink.\"", "if": {"event": "quest_done"}, "p": 4},
         {"text": "\"Gods, you're bleeding. Get yourself to the herbalist before you fall over.\"", "if": {"event": "injured"}, "p": 4},
@@ -27,6 +28,7 @@
         {"text": "\"Ah, it's you. Pull up a barrel, I was just about to stop for a breather.\"", "if": {"tier": "friend", "time": ["afternoon", "evening"]}, "p": 2},
         {"text": "\"If it isn't my favourite {kid} in Ashford. What's the news?\"", "if": {"tier": "close_friend"}, "p": 2},
         {"text": "\"{player}. I was hoping you'd come by. Walk with me a moment?\"", "if": {"tier": "close_friend", "child": false}, "p": 2},
+        {"text": "\"We've talked about the Crown already. What do you want to know this time?\"", "if": {"event": "discussed:villager:crown", "chance": 0.5}, "p": 3},
 
         {"text": "\"Soaked to the bone. Rain's good for the fields and bad for everything else.\"", "if": {"weather": ["rain", "storm"], "tier_not": ["enemy", "rival"], "chance": 0.5}, "p": 2},
         {"text": "\"Can't see the end of the lane in this fog. Don't wander off the road.\"", "if": {"weather": "fog", "tier_not": ["enemy", "rival"]}, "p": 2},
@@ -98,6 +100,8 @@
     "gossip": {
       "lines": [
         {"text": "\"Not much to tell. Sheep, rain, taxes. The usual.\""},
+        {"text": "\"We spoke about village gossip before, didn't we? Here's what people are saying now: {rumour}\"", "if": {"event": "discussed:villager:gossip", "has": "rumour"}, "p": 1},
+        {"text": "\"We've already had a turn at gossip, haven't we? Nothing else worth passing on just now.\"", "if": {"event": "discussed:villager:gossip", "not_has": "rumour"}},
         {"text": "\"{rumour}\"", "if": {"has": "rumour"}, "p": 1},
         {"text": "{first} lowers their voice. \"{hint}\"", "if": {"has": "hint", "min_tier": "acquaintance", "chance": 0.6}, "p": 2, "do": [["tell_hint"]]},
         {"text": "{first} leans in close. \"I shouldn't say, but you're a friend. {hint}\"", "if": {"has": "hint", "min_tier": "friend"}, "p": 3, "do": [["tell_hint"]]},

@@ -145,7 +145,7 @@ func test_first_region_layout() -> void:
 	assert_int(ps.size()).is_greater_equal(10)
 	for p: Dictionary in ps:
 		var pos: Vector2 = p["pos"]
-		assert_bool(absf(pos.x) <= 2000.0 and absf(pos.y) <= 2000.0).override_failure_message(p["id"]).is_true()
+		assert_bool(absf(pos.x) <= WorldGen.WORLD_HALF and absf(pos.y) <= WorldGen.WORLD_HALF).override_failure_message(p["id"]).is_true()
 	for kind: String in ["village", "lake", "river", "forest", "orc_village", "goblin_warren", "ruined_shrine", "waystation", "road"]:
 		assert_array(lore.places_in_region(kind)).override_failure_message("no " + kind).is_not_empty()
 	var ashford: Vector2 = lore.place("ashford")["pos"]

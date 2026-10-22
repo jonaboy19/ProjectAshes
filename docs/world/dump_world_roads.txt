@@ -1,0 +1,29 @@
+ 0-1  Ashford      - Kingsreach   kingdom    700 m
+ 1-6  Kingsreach   - Thornfield   kingdom    962 m
+ 1-5  Kingsreach   - Redwater     kingdom   1000 m
+ 5-9  Redwater     - Highcliff    rural      834 m
+ 6-2  Thornfield   - Millbrook    rural     1121 m
+ 2-4  Millbrook    - Eastmere     frontier   561 m
+ 4-7  Eastmere     - Greywatch    frontier   565 m
+ 4-10 Eastmere     - Brackenmoor  frontier   585 m
+10-11 Brackenmoor  - Westfen      frontier   343 m
+11-3  Westfen      - Stonehollow  frontier   489 m
+ 0-8  Ashford      - Oakvale      frontier  1135 m
+ 5-12 Redwater     - Ironmarch    rural     1423 m
+12-19 Ironmarch    - Ravenscar    rural     1753 m
+ 8-15 Oakvale      - Dunhallow    frontier  1803 m
+11-17 Westfen      - Harrowgate   frontier  1803 m
+17-18 Harrowgate   - Emberfall    frontier  1770 m
+ 6-16 Thornfield   - Wolfsend     rural     1881 m
+18-14 Emberfall    - Cindermoor   frontier  1890 m
+18-13 Emberfall    - Saltwick     frontier  1940 m
+16-28 Wolfsend     - Hollowmere   frontier  1756 m
+17-25 Harrowgate   - Thistledown  frontier  1757 m
+12-27 Ironmarch    - Coldharbor   rural     1849 m
+25-23 Thistledown  - Amberley     frontier  1855 m
+15-26 Dunhallow    - Marrowick    frontier  1948 m
+26-24 Marrowick    - Skarholm     frontier  1914 m
+17-29 Harrowgate   - Duskwater    frontier  1960 m
+23-20 Amberley     - Longmeadow   rural     2097 m
+26-22 Marrowick    - Frostmere    frontier  2205 m
+13-21 Saltwick     - Blackwater   frontier  2500 m

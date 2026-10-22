@@ -1,0 +1,40 @@
+{
+  "_doc": "Traversal (F2). Heights are metres above the player's feet, depths metres across the obstacle top. Times are seconds from docs/anim/traversal_v2_HANDOFF.md (30 fps frame / 30). scripts/actors/traversal.gd reads this.",
+  "bands": {
+    "vault": {"min": 0.5, "max": 1.1, "max_depth": 0.8},
+    "mantle_low": {"min": 0.6, "max": 1.2, "min_depth": 0.5},
+    "mantle_high": {"min": 1.2, "max": 2.0, "min_depth": 0.5},
+    "ledge": {"min": 2.0, "max": 2.6, "min_depth": 0.5}
+  },
+  "probe": {
+    "low_ray_height": 0.45,
+    "reach": 1.3,
+    "button_range": 1.2,
+    "max_wall_angle_deg": 55.0,
+    "top_flat_normal_y": 0.7,
+    "depth_step": 0.15,
+    "depth_max": 1.5,
+    "depth_flat_tol": 0.12,
+    "land_offset": 0.55,
+    "land_below_max": 0.8,
+    "land_above_max": 0.4,
+    "clear_radius": 0.3,
+    "clear_height": 1.7,
+    "clear_lift": 0.06,
+    "top_inset": 0.4,
+    "mask": 1
+  },
+  "auto_vault": {"enabled": true, "min_speed": 4.5, "min_align": 0.7, "reach_per_speed": 0.25, "reach_min": 0.9, "reach_max": 1.6, "cooldown": 0.6},
+  "vault": {"clip": "Vault_Low", "clip_b": "Vault_Low_B", "touch_down": 1.1, "handover": 1.667, "min_cover": 0.55, "exit_speed_cap": 4.5, "exit_speed_min": 2.4, "apex_clear": 0.1, "stamina": 6.0},
+  "mantle_low": {"clip": "Mantle_Low", "start_dist": 0.85, "approach": 0.12, "rise_end": 0.77, "move_end": 1.33, "handover": 1.4, "stamina": 8.0},
+  "mantle_high": {"clip": "Mantle_High", "start_dist": 0.6, "approach": 0.12, "rise_end": 1.17, "move_end": 1.8, "handover": 1.85, "stamina": 12.0},
+  "ledge": {
+    "grab_clip": "Ledge_Grab", "hang_clip": "Ledge_Hang_Idle", "climb_clip": "Ledge_Climb_Up", "drop_clip": "Ledge_Drop_Down",
+    "hang_dist": 0.2, "hang_height": 2.12, "approach": 0.3, "hands_contact": 0.5, "grab_end": 1.33,
+    "climb_rise": [0.23, 1.37], "climb_move": [0.8, 1.53], "climb_handover": 1.62,
+    "drop_release": 0.2, "drop_back": 0.25, "drop_handover": 0.55, "stamina": 12.0, "hang_drain": 0.0,
+    "pull_back_dot": 0.5
+  },
+  "ladder": {"up_clip": "Ladder_Climb_Up", "down_clip": "Ladder_Climb_Down", "clip_speed": 0.5, "speed": 1.2, "align_time": 0.25, "exit_time": 0.35, "min_time": 0.8},
+  "step": {"max_height": 0.35, "min_height": 0.04, "probe_dist": 0.45, "min_depth": 0.3, "min_floor_normal_y": 0.85, "min_speed": 0.5, "camera_recover": 6.0, "cooldown": 0.05}
+}

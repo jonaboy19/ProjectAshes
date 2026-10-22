@@ -3,8 +3,8 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://3xb5wews150y"
-path.s3tc="res://.godot/imported/g6_f_hunter_leather_tex_human_female_medium_boots.png-29eef04acedb357af5ac9d1b7d181c0c.s3tc.ctex"
-path.etc2="res://.godot/imported/g6_f_hunter_leather_tex_human_female_medium_boots.png-29eef04acedb357af5ac9d1b7d181c0c.etc2.ctex"
+path.bptc="res://.godot/imported/g6_f_hunter_leather_tex_human_female_medium_boots.png-29eef04acedb357af5ac9d1b7d181c0c.bptc.ctex"
+path.astc="res://.godot/imported/g6_f_hunter_leather_tex_human_female_medium_boots.png-29eef04acedb357af5ac9d1b7d181c0c.astc.ctex"
 metadata={
 "imported_formats": ["s3tc_bptc", "etc2_astc"],
 "vram_texture": true
@@ -16,12 +16,12 @@ generator_parameters={
 [deps]
 
 source_file="res://assets/incoming/characters/g6-ual/g6_f_hunter_leather_tex_human_female_medium_boots.png"
-dest_files=["res://.godot/imported/g6_f_hunter_leather_tex_human_female_medium_boots.png-29eef04acedb357af5ac9d1b7d181c0c.s3tc.ctex", "res://.godot/imported/g6_f_hunter_leather_tex_human_female_medium_boots.png-29eef04acedb357af5ac9d1b7d181c0c.etc2.ctex"]
+dest_files=["res://.godot/imported/g6_f_hunter_leather_tex_human_female_medium_boots.png-29eef04acedb357af5ac9d1b7d181c0c.bptc.ctex", "res://.godot/imported/g6_f_hunter_leather_tex_human_female_medium_boots.png-29eef04acedb357af5ac9d1b7d181c0c.astc.ctex"]
 
 [params]
 
 compress/mode=2
-compress/high_quality=false
+compress/high_quality=true
 compress/lossy_quality=0.7
 compress/uastc_level=0
 compress/rdo_quality_loss=0.0

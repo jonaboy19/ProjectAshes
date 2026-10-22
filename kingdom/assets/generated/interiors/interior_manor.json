@@ -1,0 +1,49 @@
+{
+ "name": "manor",
+ "stats": {
+  "room_tris": 48099,
+  "prop_tris": 0,
+  "total": 48099,
+  "materials": [
+   "RA_Wood_hp",
+   "RA_Plaster",
+   "RA_Ember"
+  ],
+  "size_mb": 6.026104
+ },
+ "markers": [
+  [
+   "NPC_Lord_Aethelgard",
+   [
+    -1.2,
+    0,
+    -0.2
+   ],
+   -2.0344439357957027,
+   {
+    "look": "Knight_Male",
+    "height": 1.75,
+    "anim": "Idle",
+    "role": "manor_lord"
+   }
+  ]
+ ],
+ "spawn": [
+  [
+   0.0,
+   0.05,
+   2.25
+  ],
+  0.0
+ ],
+ "lights": [
+  [
+   "GrandFireLight",
+   [
+    0.0,
+    0.550000011920929,
+    -3.0
+   ]
+  ]
+ ]
+}
