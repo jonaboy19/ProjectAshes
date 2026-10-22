@@ -34,9 +34,10 @@ func exclusion_kind() -> String:
 ## Whether the world allows `role` at (x, z) (no randomness; the keep_chance roll comes after).
 func allows(x: float, z: float) -> bool:
 	var h := WorldGen.height(x, z)
-	if h > 115.0:
+	var biome := WorldBiomes.at(x, z)   # LEGACY (-1) unless the Valencious macro is on: then the biome sets the height cap and tree share
+	if h > WorldBiomes.max_height(role, biome):
 		return false
-	var density := WorldGen.forest_density(x, z)
+	var density := WorldBiomes.tree_density(biome, WorldGen.forest_density(x, z))
 	match role:
 		"tree":
 			if density < 0.02:
@@ -68,11 +69,19 @@ func _process_transforms(transforms, _domain, random_seed: int) -> void:
 		var s := rng.randf_range(scale_min, scale_max)
 		if not allows(x, z):
 			continue
-		var density := WorldGen.forest_density(x, z)
+		var biome := WorldBiomes.at(x, z)
+		var density := WorldBiomes.tree_density(biome, WorldGen.forest_density(x, z))
 		if role == "tree" and roll >= density:
 			continue
-		if role != "tree" and roll >= keep_chance:
-			continue
+		if role != "tree":
+			var keep := keep_chance
+			if biome >= 0:
+				var scar := 1.0
+				if biome == WorldBiomes.RIFT and role != "meadow":
+					scar += WorldBiomes.scar_boost(x, z) * 1.5      # scar slot: more dead wood and rock round the breaches
+				keep = minf(1.0, keep * WorldBiomes.keep_mult(role, biome) * scar)
+			if roll >= keep:
+				continue
 		var h := WorldGen.height(x, z)
 		var slope := absf(WorldGen.height(x + 0.6, z) - h) + absf(WorldGen.height(x, z + 0.6) - h)
 		var sink := 0.15 + minf(slope * 0.7, 0.55)

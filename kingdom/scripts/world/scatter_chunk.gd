@@ -27,7 +27,7 @@ const ROLES := {
 }
 const SALT := {"tree": 0x5eed, "undergrowth": 0x0a11, "meadow": 0x0be5, "rock": 0x0c0c}
 ## Kinds that only matter close to the camera (same list as TerrainStreamer.FLOOR_NEAR's prefixes).
-const NEAR_ONLY := [REGION + "fern", REGION + "grass_tall", REGION + "flowers", "Mushroom"]
+const NEAR_ONLY := [REGION + "fern", REGION + "grass_", REGION + "flowers", "Mushroom"]
 
 signal finished                     ## every role has produced its MultiMeshes
 
@@ -133,17 +133,20 @@ func _on_built(tl, s: ProtonScatter, role: String) -> void:
 	# _update_multimeshes); read the list itself, not the MultiMesh (a headless/dummy renderer does not keep instance data).
 	var by_kind: Dictionary = {}
 	var all: Array = tl.list if tl else []
-	var offset := 0
-	for item in s.items:
-		var count := int(round(float(item.proportion) / s.total_item_proportion * all.size()))
-		var kind: String = item.get_meta("kind")
-		var list: Array[Transform3D] = by_kind.get(kind, [] as Array[Transform3D])
-		for i in count:
-			if offset + i >= all.size():
-				break
-			list.append(item.process_transform(all[offset + i]))
-		by_kind[kind] = list
-		offset += count
+	if WorldBiomes.active():
+		_split_by_biome(role, all, s, by_kind)
+	else:
+		var offset := 0
+		for item in s.items:
+			var count := int(round(float(item.proportion) / s.total_item_proportion * all.size()))
+			var kind: String = item.get_meta("kind")
+			var list: Array[Transform3D] = by_kind.get(kind, [] as Array[Transform3D])
+			for i in count:
+				if offset + i >= all.size():
+					break
+				list.append(item.process_transform(all[offset + i]))
+			by_kind[kind] = list
+			offset += count
 	var holder: Node3D = get_parent() if get_parent() else self
 	for kind: String in by_kind:
 		var list: Array[Transform3D] = by_kind[kind]
@@ -154,6 +157,31 @@ func _on_built(tl, s: ProtonScatter, role: String) -> void:
 		bucket.append_array(list)
 		_render(holder, kind, list)
 	_role_done(role)
+
+
+## Valencious macro on: the kind of every point comes from the biome under it (WorldBiomes tables, by ground height) instead of from its
+## index in the list. Biomes without a table for the role fall back to the legacy proportions of the role. Deterministic per point.
+func _split_by_biome(role: String, all: Array, s: ProtonScatter, by_kind: Dictionary) -> void:
+	var legacy: Array = ROLES[role]["items"]
+	var legacy_total := 0
+	for it: Array in legacy:
+		legacy_total += int(it[1])
+	var salt := int(SALT[role])
+	for t: Transform3D in all:
+		var x := t.origin.x
+		var z := t.origin.z
+		var biome := WorldBiomes.at(x, z)
+		var u := WorldBiomes.pick_u(x, z, salt)
+		var kind := WorldBiomes.pick(role, biome, WorldGen.height(x, z), u)
+		if kind == "":
+			var r := u * float(legacy_total)
+			kind = String((legacy[legacy.size() - 1] as Array)[0])
+			for it: Array in legacy:
+				r -= float(it[1])
+				if r < 0.0:
+					kind = String(it[0])
+					break
+		(by_kind.get_or_add(kind, [] as Array[Transform3D]) as Array[Transform3D]).append(t)
 
 
 func _role_done(role: String) -> void:

@@ -60,6 +60,9 @@ func _configure_material() -> void:
 	if mat:
 		mat.world_background = 0               # NONE beyond the streamed regions
 		mat.texture_filtering = 0              # LINEAR
+	var look := Terrain3DLook.apply(terrain)     # W3: weather / season / snow / scar-tide on the Terrain3D ground
+	if look:
+		add_child(look)
 
 
 func _exit_tree() -> void:
