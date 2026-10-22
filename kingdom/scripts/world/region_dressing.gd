@@ -127,6 +127,8 @@ func _drain_queue() -> void:
 			var _pp := Probe.t()
 			_build_part(root, site, part)
 			Probe.add("region.part", _pp)
+			if Probe.on and Time.get_ticks_usec() - _pp > 40000:
+				print("RPART_SLOW %s %.0f ms (site %s kind %s)" % [part[0], (Time.get_ticks_usec() - _pp) / 1000.0, site.get("id"), site.get("kind")])
 		else:
 			_build_light(root, site["lights"][item[3]])
 		_queue.pop_front()
@@ -258,20 +260,29 @@ func _build_part_node(root: Node3D, site: Dictionary, part: Array) -> void:
 	var basis := Basis(Vector3.UP, float(site["yaw"]))
 	var off: Vector2 = part[1]
 	var world := root.global_position + basis * Vector3(off.x, 0.0, off.y)
+	var _q := Probe.t()
 	var n := _spawn(String(part[0]))
+	Probe.add("rpart.spawn", _q)
 	if n == null:
 		return
+	_q = Probe.t()
 	root.add_child(n)
+	Probe.add("rpart.add_child", _q)
 	n.rotation.y = float(part[2])
 	n.set_meta("bakeable", not String(part[0]).begins_with("nature:") and not (String(part[0]).begins_with("props/") and Breakable.is_breakable(String(part[0]).trim_prefix("props/"))))
 	# Settle on the lowest ground under the footprint so nothing floats on a slope.
+	_q = Probe.t()
 	var box := Assets.visual_aabb(n)
+	Probe.add("rpart.aabb", _q)
 	var pbasis := basis * Basis(Vector3.UP, float(part[2]))
 	if String(part[0]).begins_with("farm/crop_") and _ground_spread(world, pbasis, box) > CROP_MAX_SPREAD:
 		root.remove_child(n)      # a field tile on a hillside is buried by the lowest-corner snap (lint): leave that tile out
 		n.free()
 		return
+	_q = Probe.t()
 	var ground := _footprint_ground(world, pbasis, box)
+	Probe.add("rpart.ground", _q)
+	_q = Probe.t()
 	n.global_position = Vector3(world.x, ground + (float(part[4]) if part.size() > 4 else 0.0), world.z)
 	var prop := String(part[0]).trim_prefix("props/")
 	if String(part[0]).begins_with("props/") and Breakable.is_breakable(prop):
@@ -280,10 +291,13 @@ func _build_part_node(root: Node3D, site: Dictionary, part: Array) -> void:
 		n.add_child(b)
 	elif bool(part[3]):
 		_collider(n, box)
+	Probe.add("rpart.collider", _q)
 	if String(part[0]) == "farm/windmill":
 		_add_sails(n)
+	_q = Probe.t()
 	if not String(part[0]).begins_with("props/"):
 		_base_clutter(root, world, basis * Basis(Vector3.UP, float(part[2])), box)
+	Probe.add("rpart.clutter", _q)
 
 
 var _bake_cache: Dictionary = {}     # site id -> {range key: ArrayMesh}, so a rebuilt site costs no merge

@@ -9,6 +9,7 @@ extends RefCounted
 ##   StyleG.make_fill()                           # warm bounce light (no shadow) from below/side; add once
 ##   StyleG.material_for("gate_stone")            # role -> Material (orig = the asset's BaseMaterial3D for atlas roles)
 
+const Probe := preload("res://scripts/core/perf_probe.gd")
 const SH := "res://shaders/style_lab/"
 const PH := "res://assets/incoming/polyhaven/textures/%s/%s_%s_%s.jpg"
 
@@ -582,11 +583,19 @@ static func _polished(role: String, orig: Material, skin_kind: int, tier: String
 
 
 ## Double-sided variant of a shader (leaf cards, banners, gate walls with hand-built winding).
+## One double-sided Shader per source Shader (keyed by the source's instance id): every restyled surface used to build and
+## compile its own copy of the same big shader text (124 ms each on the main thread, the freeze whenever a new prop kind streamed in).
+static var _ds_shaders := {}
+
+
 static func double_sided(sm: ShaderMaterial) -> ShaderMaterial:
 	var d := sm.duplicate() as ShaderMaterial
-	var sh := Shader.new()
-	sh.code = sm.shader.code.replace("cull_back", "cull_disabled")
-	d.shader = sh
+	var key := sm.shader.get_instance_id()
+	if not _ds_shaders.has(key) or not is_instance_valid(_ds_shaders[key]):
+		var sh := Shader.new()
+		sh.code = sm.shader.code.replace("cull_back", "cull_disabled")
+		_ds_shaders[key] = sh
+	d.shader = _ds_shaders[key]
 	return d
 
 
@@ -760,7 +769,9 @@ static func restyle_mesh(mesh: ArrayMesh, key: String, tier := "", role := "") -
 		var src: Material = orig
 		var fmt_col := (mesh.surface_get_format(i) & Mesh.ARRAY_FORMAT_COLOR) != 0
 		if not b.vertex_color_use_as_albedo and not fmt_col:
+			var _pv := Probe.t()
 			src = _vcol_copy(b)                     # no baked colours: let instance colours tint it (town identity)
+			Probe.add("styleg.vcol_copy", _pv)
 		var r := role
 		var by_name := role_for_material(b.resource_name)
 		if by_name != "":
@@ -771,17 +782,25 @@ static func restyle_mesh(mesh: ArrayMesh, key: String, tier := "", role := "") -
 		if role == "stone" and tier != "low" and key.get_slice(":lod", 0).begins_with("wall"):
 			m = _gate_stone_game()
 		else:
+			var _pmf := Probe.t()
 			m = material_for(r, src, 1, tier, true)
+			Probe.add("styleg.material_for", _pmf)
+		var _pd := Probe.t()
 		if m is ShaderMaterial and b.cull_mode == BaseMaterial3D.CULL_DISABLED and not (m as ShaderMaterial).shader.code.contains("cull_disabled"):
 			var dk := "ds|%d" % m.get_instance_id()          # leaf cards / banners are double sided
 			if not _cache.has(dk):
 				_cache[dk] = double_sided(m as ShaderMaterial)
 			m = _cache[dk]
+		Probe.add("styleg.double_sided", _pd)
 		if m != null:
+			_pd = Probe.t()
 			mesh.surface_set_material(i, m)
+			Probe.add("styleg.set_material", _pd)
 	if tier != "high" or not key.begins_with("nature/"):      # trees keep their bark/leaf split on HIGH
 		# fewer surfaces = fewer draws; HIGH near stage keeps lit windows and lamps
+		var _pcl := Probe.t()
 		load("res://scripts/world/surface_collapse.gd").collapse(mesh, tier, tier == "high" and not key.contains(":lod"))
+		Probe.add("styleg.collapse", _pcl)
 	return mesh
 
 

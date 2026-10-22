@@ -38,6 +38,8 @@ var tot_us := {}
 var worst_us := {}
 var approach := 0.0           # --approach=METRES: start that far beyond the Kingsreach gate and walk in (streams like play; no synchronous town build)
 var stand_leg := 7
+var prof_after := 0.0         # --after=SECONDS: PROF/PROBE tables and stall counts only cover route time >= this (steady state)
+var _reset_done := false
 var stand := false            # --stand: teleport to the Kingsreach market and stand still
 var csv_path := ""           # --hitchcsv=PATH: every frame's delta + counters
 var csv: PackedStringArray = PackedStringArray()
@@ -59,6 +61,8 @@ func run(m: Node) -> void:
 			uncap = true
 		elif a.begins_with("--approach="):
 			approach = float(a.get_slice("=", 1))
+		elif a.begins_with("--after="):
+			prof_after = float(a.get_slice("=", 1))
 		elif a == "--prof":
 			prof = true
 		elif a == "--stand":
@@ -125,8 +129,8 @@ func _build_route() -> void:
 		legs.push_front([g0 + gdir * approach, g0, "approach"])
 		stand_leg += 1
 		if stand:
-			legs = [legs[0], legs[stand_leg]]
-			stand_leg = 1
+			legs = [legs[0], legs[stand_leg - 1], legs[stand_leg]]      # approach -> gate -> market, contiguous: no teleport
+			stand_leg = 2
 	print("ROUTE legs=%d meshy_sites=%d" % [legs.size(), mini(3, sites.size())])
 
 
@@ -190,7 +194,7 @@ func _process(delta: float) -> void:
 		return
 	_record(delta)
 	win.append(delta * 1000.0)
-	cpu.append(Performance.get_monitor(Performance.TIME_PROCESS) * 1000.0)
+	cpu.append(RenderingServer.viewport_get_measured_render_time_cpu(main.viewport.get_viewport_rid()) + RenderingServer.get_frame_setup_time_cpu())   # render-thread CPU ms
 	gpu.append(RenderingServer.viewport_get_measured_render_time_gpu(main.viewport.get_viewport_rid()))
 	all.append(delta * 1000.0)
 	var dr := int(Performance.get_monitor(Performance.RENDER_TOTAL_DRAW_CALLS_IN_FRAME))
@@ -208,7 +212,7 @@ func _process(delta: float) -> void:
 		_census(nm)
 	win_t += delta
 	if win_t >= 10.0:
-		print("ROUTE t=%d leg=%s %s cpu=%.1f gpu=%.1f" % [int(t), nm, _summary(win), _mean(cpu), _mean(gpu)])
+		print("ROUTE t=%d leg=%s %s rcpu=%.1f gpu=%.1f" % [int(t), nm, _summary(win), _mean(cpu), _mean(gpu)])
 		win.clear()
 		cpu.clear()
 		gpu.clear()
@@ -223,14 +227,14 @@ func _process(delta: float) -> void:
 		var mx := 0.0
 		for v: float in all:
 			mx = maxf(mx, v)
-		print("STALL_SUM n_gt50=%d max=%.0f per_min=%.1f max_frame=%.0f" % [stalls.size(), mx, stalls.size() * 60.0 / dur, mx])
+		print("STALL_SUM n_gt50=%d max=%.0f per_min=%.1f max_frame=%.0f" % [stalls.size(), mx, stalls.size() * 60.0 / maxf(1.0, t - maxf(6.0, prof_after)), mx])
 		var tk := tot_us.keys()
 		tk.sort_custom(func(a, b) -> bool: return tot_us[a] > tot_us[b])
 		for k in tk.slice(0, 25):
 			print("PROF %-60s avg=%.2fms worst=%.1fms" % [k, float(tot_us[k]) / 1000.0 / maxi(1, samples), float(worst_us[k]) / 1000.0])
 		var pk := Probe.us.keys()
 		pk.sort_custom(func(a, b) -> bool: return int(Probe.us[a]) > int(Probe.us[b]))
-		for k in pk.slice(0, 40):
+		for k in pk.slice(0, 120):
 			print("PROBE %-34s total=%.0fms calls=%d avg=%.2fms worst=%.1fms" % [k, float(Probe.us[k]) / 1000.0, int(Probe.calls[k]), float(Probe.us[k]) / 1000.0 / maxi(1, int(Probe.calls[k])), float(Probe.worst[k]) / 1000.0])
 		if csv_path != "":
 			var f := FileAccess.open(csv_path, FileAccess.WRITE)
@@ -282,7 +286,7 @@ func _record(delta: float) -> void:
 		csv.append("%.3f,%.3f,%.3f,%.3f,%d,%d,%d,%d" % [t, ms, Performance.get_monitor(Performance.TIME_PROCESS) * 1000.0,
 			Performance.get_monitor(Performance.TIME_PHYSICS_PROCESS) * 1000.0, nodes, objs, res, mem])
 	if ms > 50.0:
-		print("STALL t=%.2f ms=%.0f proc=%.1f phys=%.1f setup=%.1f dnodes=%d dobjs=%d dres=%d dmemKB=%d draws=%d" % [t, ms,
+		print("STALL t=%.2f ms=%.0f rcpu=%.1f rgpu=%.1f proc=%.1f phys=%.1f setup=%.1f dnodes=%d dobjs=%d dres=%d dmemKB=%d draws=%d" % [t, ms, RenderingServer.viewport_get_measured_render_time_cpu(main.viewport.get_viewport_rid()) + RenderingServer.get_frame_setup_time_cpu(), RenderingServer.viewport_get_measured_render_time_gpu(main.viewport.get_viewport_rid()),
 			Performance.get_monitor(Performance.TIME_PROCESS) * 1000.0, Performance.get_monitor(Performance.TIME_PHYSICS_PROCESS) * 1000.0,
 			RenderingServer.get_frame_setup_time_cpu(), nodes - _prev[0], objs - _prev[1], res - _prev[2], mem - _prev[3],
 			int(Performance.get_monitor(Performance.RENDER_TOTAL_DRAW_CALLS_IN_FRAME))])
@@ -301,6 +305,15 @@ func _record(delta: float) -> void:
 		print("STALL_SCRIPTS%s" % ftop)
 	_prev = [nodes, objs, res, mem]
 	Probe.events.clear()
+	if t < prof_after:
+		frame_us.clear()
+		return
+	if not _reset_done:
+		_reset_done = true
+		Probe.reset()
+		samples = 0
+		stalls.clear()
+		all.clear()
 	for k: String in frame_us:
 		tot_us[k] = int(tot_us.get(k, 0)) + int(frame_us[k])
 		worst_us[k] = maxi(int(worst_us.get(k, 0)), int(frame_us[k]))

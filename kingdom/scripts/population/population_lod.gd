@@ -146,17 +146,19 @@ func _process(delta: float) -> void:
 	_tick_presence(delta)
 	_timer -= delta
 	_refresh_elapsed += delta
-	if _timer <= 0.0:
+	if not _sj.is_empty():
+		_sprite_job_step(SPRITE_SLICE_US)
+	if _timer <= 0.0 and _sj.is_empty():
 		_timer = 0.25
 		var step := _refresh_elapsed
 		_refresh_elapsed = 0.0
 		if NpcWorld.profile:
 			var t0 := Time.get_ticks_usec()
-			refresh(step)
+			refresh(step, true)
 			NpcWorld.prof_lod_usec += Time.get_ticks_usec() - t0
 			NpcWorld.prof_lod_calls += 1
 		else:
-			refresh(step)
+			refresh(step, true)
 
 
 func _tick_presence(delta: float) -> void:
@@ -215,7 +217,9 @@ func queued_spawns() -> int:
 	return _spawn_queue.size()
 
 
-func refresh(step_delta := 0.25) -> void:
+func refresh(step_delta := 0.25, spread := false) -> void:
+	if not _sj.is_empty():
+		_sprite_job_step(0)        # a sync caller (teleport, tool): finish the pass in flight first
 	var _pt := Probe.t()
 	var skipped := _clock_skipped()
 	if skipped:
@@ -352,25 +356,65 @@ func refresh(step_delta := 0.25) -> void:
 
 	Probe.add("pop.physics_pick", _pt)
 	_pt = Probe.t()
+	_sprite_job_begin(dists, step_delta)
+	if spread:
+		_sprite_job_step(SPRITE_SLICE_US)      # the rest runs from _process, a slice per frame
+	else:
+		_sprite_job_step(0)
+	Probe.add("pop.sprites", _pt)
+
+
+## The sprite pass of refresh() as a resumable job: 100+ residents were placed in one go (27 ms avg, 60-125 ms worst, 4x a second in a
+## capital), now a slice of SPRITE_SLICE_US per frame. Same loop, same results; only the frame the last sprite lands in moves.
+const SPRITE_SLICE_US := 4000
+var _sj: Dictionary = {}
+
+
+func _sprite_job_begin(dists: Array, step_delta: float) -> void:
 	var used := {}
 	for look in _multimeshes:
 		used[look] = 0
-	var sprite_budget: int = mini(MAX_SPRITES, Quality.npc_sprites)
-	var sprite_total := 0
-	var active_sprite_ids := {}
-	var vat_r2 := VAT_RANGE * VAT_RANGE
 	if _vat:
 		_vat.begin()
 	if _sprite_hidden.size() > 4000:
 		_sprite_hidden.clear()
+	_sj = {"dists": dists, "i": 0, "used": used, "total": 0, "active": {}, "step": step_delta}
+
+
+func sprite_job_busy() -> bool:
+	return not _sj.is_empty()
+
+
+## Runs the pending sprite pass for at most slice_us (0 = to the end). Returns true when it finished.
+func _sprite_job_step(slice_us: int) -> bool:
+	if _sj.is_empty():
+		return true
+	var _pt := Probe.t()
+	var t_start := Time.get_ticks_usec()
+	var dists: Array = _sj["dists"]
+	var dn := dists.size()
+	var i: int = _sj["i"]
+	var used: Dictionary = _sj["used"]
+	var sprite_total: int = _sj["total"]
+	var active_sprite_ids: Dictionary = _sj["active"]
+	var step_delta: float = _sj["step"]
+	var sprite_budget: int = mini(MAX_SPRITES, Quality.npc_sprites)
+	var vat_r2 := VAT_RANGE * VAT_RANGE
 	var enter_r2 := SPRITE_MIN_DIST * SPRITE_MIN_DIST
 	var release_r2 := SPRITE_MIN_DIST_RELEASE * SPRITE_MIN_DIST_RELEASE
-	for entry in dists:
+	var break_early := false
+	while i < dn:
+		var entry: Array = dists[i]
+		i += 1
+		if slice_us > 0 and (i & 7) == 0 and Time.get_ticks_usec() - t_start > slice_us:
+			break_early = true
+			break
 		# dists is sorted nearest-first, so once the budget is spent everyone
 		# further away is skipped: the crowd is capped in total, not per look.
 		var id: int = entry[1]
 		var vat_ok: bool = _vat != null and entry[0] < vat_r2
 		if sprite_total >= sprite_budget and not vat_ok:
+			i = dn
 			break
 		if _full.has(id):
 			_sprite_hidden.erase(id)
@@ -430,6 +474,12 @@ func refresh(step_delta := 0.25) -> void:
 		(_multimeshes[look] as MultiMesh).set_instance_transform(n, t)
 		used[look] = n + 1
 		sprite_total += 1
+	_sj["i"] = i
+	_sj["total"] = sprite_total
+	if break_early:
+		Probe.add("pop.sprites_slice", _pt)
+		return false
+	_sj = {}
 	if _vat:
 		_vat.end()
 	for id in _sprite_routes.keys():
@@ -439,7 +489,8 @@ func refresh(step_delta := 0.25) -> void:
 	for look in _multimeshes:
 		(_multimeshes[look] as MultiMesh).visible_instance_count = used[look]
 		sprite_count += used[look]
-	Probe.add("pop.sprites", _pt)
+	Probe.add("pop.sprites_slice", _pt)
+	return true
 
 
 ## Use the home's street graph only while this resident is near that settlement.
