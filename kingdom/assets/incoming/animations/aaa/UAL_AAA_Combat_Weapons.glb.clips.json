@@ -1,0 +1,215 @@
+[
+ {
+  "name": "2H_Greatsword_Overhead_Chop",
+  "loop": false,
+  "seconds": 1.63,
+  "frames": 50,
+  "keys": 537,
+  "source": "Melee_2H_Attack_Chop",
+  "range_s": [
+   null,
+   null
+  ],
+  "autotrim": null,
+  "loop_pts": null,
+  "floor_fix_m": 0.0,
+  "contact_lift_m": 0.372,
+  "min_foot_m": -0.02,
+  "travel_m": 0.09,
+  "hip_scale": 1.3364
+ },
+ {
+  "name": "2H_Greatsword_Slash_Horizontal",
+  "loop": false,
+  "seconds": 1.1,
+  "frames": 34,
+  "keys": 484,
+  "source": "Melee_2H_Attack_Slice",
+  "range_s": [
+   null,
+   null
+  ],
+  "autotrim": null,
+  "loop_pts": null,
+  "floor_fix_m": 0.0,
+  "contact_lift_m": 0.365,
+  "min_foot_m": -0.02,
+  "travel_m": 0.04,
+  "hip_scale": 1.3364
+ },
+ {
+  "name": "2H_Greatsword_Spin_Cleave",
+  "loop": false,
+  "seconds": 2.4,
+  "frames": 73,
+  "keys": 686,
+  "source": "Melee_2H_Attack_Spin",
+  "range_s": [
+   null,
+   null
+  ],
+  "autotrim": null,
+  "loop_pts": null,
+  "floor_fix_m": 0.0,
+  "contact_lift_m": 0.371,
+  "min_foot_m": -0.02,
+  "travel_m": 0.04,
+  "hip_scale": 1.3364
+ },
+ {
+  "name": "2H_Greatsword_Thrust_Lunge",
+  "loop": false,
+  "seconds": 1.6,
+  "frames": 49,
+  "keys": 445,
+  "source": "Melee_2H_Attack_Stab",
+  "range_s": [
+   null,
+   null
+  ],
+  "autotrim": null,
+  "loop_pts": null,
+  "floor_fix_m": 0.0,
+  "contact_lift_m": 0.39,
+  "min_foot_m": -0.02,
+  "travel_m": 0.07,
+  "hip_scale": 1.3364
+ },
+ {
+  "name": "2H_Greatsword_Guard_Block",
+  "loop": false,
+  "seconds": 1.07,
+  "frames": 33,
+  "keys": 277,
+  "source": "Melee_Block",
+  "range_s": [
+   null,
+   null
+  ],
+  "autotrim": null,
+  "loop_pts": null,
+  "floor_fix_m": 0.0,
+  "contact_lift_m": 0.37,
+  "min_foot_m": -0.02,
+  "travel_m": 0.09,
+  "hip_scale": 1.3364
+ },
+ {
+  "name": "DualDaggers_Flurry_Chop",
+  "loop": false,
+  "seconds": 1.27,
+  "frames": 39,
+  "keys": 562,
+  "source": "Melee_Dualwield_Attack_Chop",
+  "range_s": [
+   null,
+   null
+  ],
+  "autotrim": null,
+  "loop_pts": null,
+  "floor_fix_m": 0.0,
+  "contact_lift_m": 0.379,
+  "min_foot_m": -0.02,
+  "travel_m": 0.05,
+  "hip_scale": 1.3364
+ },
+ {
+  "name": "DualDaggers_Cross_Slice",
+  "loop": false,
+  "seconds": 1.17,
+  "frames": 36,
+  "keys": 484,
+  "source": "Melee_Dualwield_Attack_Slice",
+  "range_s": [
+   null,
+   null
+  ],
+  "autotrim": null,
+  "loop_pts": null,
+  "floor_fix_m": 0.0,
+  "contact_lift_m": 0.375,
+  "min_foot_m": -0.02,
+  "travel_m": 0.09,
+  "hip_scale": 1.3364
+ },
+ {
+  "name": "DualDaggers_Thrust_Stab",
+  "loop": false,
+  "seconds": 1.6,
+  "frames": 49,
+  "keys": 481,
+  "source": "Melee_Dualwield_Attack_Stab",
+  "range_s": [
+   null,
+   null
+  ],
+  "autotrim": null,
+  "loop_pts": null,
+  "floor_fix_m": 0.0,
+  "contact_lift_m": 0.366,
+  "min_foot_m": -0.02,
+  "travel_m": 0.07,
+  "hip_scale": 1.3364
+ },
+ {
+  "name": "Bow_Draw",
+  "loop": false,
+  "seconds": 1.33,
+  "frames": 41,
+  "keys": 389,
+  "source": "Ranged_Bow_Draw",
+  "range_s": [
+   null,
+   null
+  ],
+  "autotrim": null,
+  "loop_pts": null,
+  "floor_fix_m": 0.0,
+  "contact_lift_m": 0.381,
+  "min_foot_m": -0.02,
+  "travel_m": 0.08,
+  "hip_scale": 1.3364
+ },
+ {
+  "name": "Bow_Aim_Idle_Loop",
+  "loop": true,
+  "seconds": 1.37,
+  "frames": 42,
+  "keys": 190,
+  "source": "Ranged_Bow_Aiming_Idle",
+  "range_s": [
+   null,
+   null
+  ],
+  "autotrim": null,
+  "loop_pts": [
+   0.23,
+   1.6,
+   0.02
+  ],
+  "floor_fix_m": 0.0,
+  "contact_lift_m": 0.379,
+  "min_foot_m": -0.02,
+  "travel_m": 0.0,
+  "hip_scale": 1.3364
+ },
+ {
+  "name": "Bow_Release_Recoil",
+  "loop": false,
+  "seconds": 1.33,
+  "frames": 41,
+  "keys": 390,
+  "source": "Ranged_Bow_Release",
+  "range_s": [
+   null,
+   null
+  ],
+  "autotrim": null,
+  "loop_pts": null,
+  "floor_fix_m": 0.0,
+  "contact_lift_m": 0.382,
+  "min_foot_m": -0.02,
+  "travel_m": 0.02,
+  "hip_scale": 1.3364
+ }
+]

@@ -1,0 +1,610 @@
+[
+ {
+  "name": "Tavern_Sit_Idle",
+  "loop": true,
+  "seconds": 3.7,
+  "frames": 112,
+  "keys": 911,
+  "source": "013/13_04.bvh",
+  "range_s": [
+   2.5,
+   7.0
+  ],
+  "autotrim": null,
+  "loop_pts": [
+   0.8,
+   4.5,
+   6.26
+  ],
+  "floor_fix_m": 0.0,
+  "contact_lift_m": 0.0,
+  "min_foot_m": 0.038,
+  "travel_m": 0.0,
+  "hip_scale": 0.0486
+ },
+ {
+  "name": "Tavern_Sit_LegSwing",
+  "loop": true,
+  "seconds": 4.27,
+  "frames": 129,
+  "keys": 1446,
+  "source": "014/14_29.bvh",
+  "range_s": [
+   2.5,
+   7.5
+  ],
+  "autotrim": null,
+  "loop_pts": [
+   0.23,
+   4.5,
+   11.87
+  ],
+  "floor_fix_m": -0.017,
+  "contact_lift_m": 0.0,
+  "min_foot_m": -0.0,
+  "travel_m": 0.42,
+  "hip_scale": 0.0515
+ },
+ {
+  "name": "Tavern_Sit_Fidget_Ponder",
+  "loop": true,
+  "seconds": 3.57,
+  "frames": 108,
+  "keys": 1098,
+  "source": "013/13_05.bvh",
+  "range_s": [
+   2.0,
+   6.5
+  ],
+  "autotrim": null,
+  "loop_pts": [
+   0.8,
+   4.37,
+   11.21
+  ],
+  "floor_fix_m": -0.005,
+  "contact_lift_m": 0.0,
+  "min_foot_m": 0.038,
+  "travel_m": 0.02,
+  "hip_scale": 0.0486
+ },
+ {
+  "name": "Tavern_Stand_To_Sit",
+  "loop": false,
+  "seconds": 3.5,
+  "frames": 106,
+  "keys": 851,
+  "source": "013/13_02.bvh",
+  "range_s": [
+   4.5,
+   8.0
+  ],
+  "autotrim": null,
+  "loop_pts": null,
+  "floor_fix_m": -0.029,
+  "contact_lift_m": 0.0,
+  "min_foot_m": -0.0,
+  "travel_m": 0.01,
+  "hip_scale": 0.0486
+ },
+ {
+  "name": "Tavern_Sit_To_Stand",
+  "loop": false,
+  "seconds": 3.5,
+  "frames": 106,
+  "keys": 1141,
+  "source": "013/13_01.bvh",
+  "range_s": [
+   10.0,
+   13.5
+  ],
+  "autotrim": null,
+  "loop_pts": null,
+  "floor_fix_m": -0.004,
+  "contact_lift_m": 0.0,
+  "min_foot_m": -0.0,
+  "travel_m": 0.53,
+  "hip_scale": 0.0486
+ },
+ {
+  "name": "Tavern_Chug_Beer",
+  "loop": false,
+  "seconds": 4.0,
+  "frames": 121,
+  "keys": 945,
+  "source": "079/79_33.bvh",
+  "range_s": [
+   0.5,
+   4.5
+  ],
+  "autotrim": null,
+  "loop_pts": null,
+  "floor_fix_m": -0.039,
+  "contact_lift_m": 0.0,
+  "min_foot_m": -0.001,
+  "travel_m": 0.03,
+  "hip_scale": 0.051
+ },
+ {
+  "name": "Tavern_Eat_Dinner",
+  "loop": true,
+  "seconds": 4.27,
+  "frames": 129,
+  "keys": 902,
+  "source": "079/79_12.bvh",
+  "range_s": [
+   1.0,
+   5.5
+  ],
+  "autotrim": null,
+  "loop_pts": [
+   0.23,
+   4.5,
+   0.92
+  ],
+  "floor_fix_m": -0.059,
+  "contact_lift_m": 0.0,
+  "min_foot_m": -0.0,
+  "travel_m": 0.0,
+  "hip_scale": 0.051
+ },
+ {
+  "name": "Tavern_Drunk_Stumble",
+  "loop": true,
+  "seconds": 3.93,
+  "frames": 119,
+  "keys": 1411,
+  "source": "091/91_09.bvh",
+  "range_s": [
+   1.0,
+   6.0
+  ],
+  "autotrim": null,
+  "loop_pts": [
+   0.73,
+   4.67,
+   4.44
+  ],
+  "floor_fix_m": 0.016,
+  "contact_lift_m": 0.0,
+  "min_foot_m": -0.001,
+  "travel_m": 0.72,
+  "hip_scale": 0.0579
+ },
+ {
+  "name": "Social_Laugh_Banter",
+  "loop": true,
+  "seconds": 2.93,
+  "frames": 89,
+  "keys": 1143,
+  "source": "013/13_14.bvh",
+  "range_s": [
+   1.5,
+   5.5
+  ],
+  "autotrim": null,
+  "loop_pts": [
+   0.8,
+   3.73,
+   5.31
+  ],
+  "floor_fix_m": -0.016,
+  "contact_lift_m": 0.0,
+  "min_foot_m": -0.002,
+  "travel_m": 0.14,
+  "hip_scale": 0.0486
+ },
+ {
+  "name": "Social_Handshake",
+  "loop": false,
+  "seconds": 3.4,
+  "frames": 103,
+  "keys": 1020,
+  "source": "079/79_06.bvh",
+  "range_s": [
+   0.8,
+   4.2
+  ],
+  "autotrim": null,
+  "loop_pts": null,
+  "floor_fix_m": -0.059,
+  "contact_lift_m": 0.0,
+  "min_foot_m": -0.0,
+  "travel_m": 0.01,
+  "hip_scale": 0.051
+ },
+ {
+  "name": "Village_Bard_Violin",
+  "loop": true,
+  "seconds": 4.0,
+  "frames": 121,
+  "keys": 814,
+  "source": "079/79_17.bvh",
+  "range_s": [
+   1.0,
+   6.0
+  ],
+  "autotrim": null,
+  "loop_pts": [
+   0.43,
+   4.43,
+   1.75
+  ],
+  "floor_fix_m": -0.058,
+  "contact_lift_m": 0.0,
+  "min_foot_m": 0.0,
+  "travel_m": 0.01,
+  "hip_scale": 0.051
+ },
+ {
+  "name": "Peasant_Grief_Mourn",
+  "loop": true,
+  "seconds": 4.47,
+  "frames": 135,
+  "keys": 1467,
+  "source": "022/22_03.bvh",
+  "range_s": [
+   1.0,
+   6.0
+  ],
+  "autotrim": null,
+  "loop_pts": [
+   0.27,
+   4.73,
+   1.24
+  ],
+  "floor_fix_m": -0.032,
+  "contact_lift_m": 0.0,
+  "min_foot_m": -0.001,
+  "travel_m": 0.0,
+  "hip_scale": 0.0507
+ },
+ {
+  "name": "Blacksmith_Hammer_Anvil",
+  "loop": true,
+  "seconds": 4.17,
+  "frames": 126,
+  "keys": 1149,
+  "source": "062/62_07.bvh",
+  "range_s": [
+   1.0,
+   6.0
+  ],
+  "autotrim": null,
+  "loop_pts": [
+   0.8,
+   4.97,
+   4.24
+  ],
+  "floor_fix_m": 0.001,
+  "contact_lift_m": 0.0,
+  "min_foot_m": -0.001,
+  "travel_m": 0.1,
+  "hip_scale": 0.052
+ },
+ {
+  "name": "Woodcutter_Chop_Axe",
+  "loop": true,
+  "seconds": 2.63,
+  "frames": 80,
+  "keys": 1067,
+  "source": "079/79_01.bvh",
+  "range_s": [
+   0.5,
+   4.5
+  ],
+  "autotrim": null,
+  "loop_pts": [
+   0.8,
+   3.43,
+   3.74
+  ],
+  "floor_fix_m": -0.018,
+  "contact_lift_m": 0.0,
+  "min_foot_m": -0.005,
+  "travel_m": 0.05,
+  "hip_scale": 0.051
+ },
+ {
+  "name": "Peasant_Sweep_Floor",
+  "loop": true,
+  "seconds": 3.63,
+  "frames": 110,
+  "keys": 1696,
+  "source": "079/79_55.bvh",
+  "range_s": [
+   0.5,
+   4.8
+  ],
+  "autotrim": null,
+  "loop_pts": [
+   0.53,
+   4.17,
+   2.15
+  ],
+  "floor_fix_m": -0.035,
+  "contact_lift_m": 0.0,
+  "min_foot_m": -0.003,
+  "travel_m": 0.02,
+  "hip_scale": 0.051
+ },
+ {
+  "name": "Peasant_Dig_Ground",
+  "loop": true,
+  "seconds": 3.87,
+  "frames": 117,
+  "keys": 1341,
+  "source": "079/79_04.bvh",
+  "range_s": [
+   1.0,
+   5.5
+  ],
+  "autotrim": null,
+  "loop_pts": [
+   0.23,
+   4.1,
+   2.44
+  ],
+  "floor_fix_m": -0.053,
+  "contact_lift_m": 0.0,
+  "min_foot_m": -0.001,
+  "travel_m": 0.03,
+  "hip_scale": 0.051
+ },
+ {
+  "name": "Peasant_Rake_Leaves",
+  "loop": true,
+  "seconds": 3.9,
+  "frames": 118,
+  "keys": 1666,
+  "source": "079/79_87.bvh",
+  "range_s": [
+   0.5,
+   5.0
+  ],
+  "autotrim": null,
+  "loop_pts": [
+   0.6,
+   4.5,
+   7.01
+  ],
+  "floor_fix_m": -0.03,
+  "contact_lift_m": 0.0,
+  "min_foot_m": -0.001,
+  "travel_m": 0.05,
+  "hip_scale": 0.051
+ },
+ {
+  "name": "Worker_Carry_Cargo",
+  "loop": true,
+  "seconds": 2.2,
+  "frames": 67,
+  "keys": 715,
+  "source": "070/70_01.bvh",
+  "range_s": [
+   0.5,
+   3.5
+  ],
+  "autotrim": null,
+  "loop_pts": [
+   0.23,
+   2.43,
+   3.37
+  ],
+  "floor_fix_m": -0.016,
+  "contact_lift_m": 0.0,
+  "min_foot_m": 0.003,
+  "travel_m": 0.63,
+  "hip_scale": 0.0525
+ },
+ {
+  "name": "Worker_Move_Heavy_Box",
+  "loop": false,
+  "seconds": 4.0,
+  "frames": 121,
+  "keys": 1071,
+  "source": "079/79_25.bvh",
+  "range_s": [
+   0.5,
+   4.5
+  ],
+  "autotrim": null,
+  "loop_pts": null,
+  "floor_fix_m": -0.041,
+  "contact_lift_m": 0.0,
+  "min_foot_m": -0.001,
+  "travel_m": 0.02,
+  "hip_scale": 0.051
+ },
+ {
+  "name": "River_Fishing_Cast_Reel",
+  "loop": true,
+  "seconds": 4.0,
+  "frames": 121,
+  "keys": 1015,
+  "source": "079/79_34.bvh",
+  "range_s": [
+   1.0,
+   5.5
+  ],
+  "autotrim": null,
+  "loop_pts": [
+   0.23,
+   4.23,
+   4.19
+  ],
+  "floor_fix_m": -0.047,
+  "contact_lift_m": 0.0,
+  "min_foot_m": -0.003,
+  "travel_m": 0.03,
+  "hip_scale": 0.051
+ },
+ {
+  "name": "NPC_Direct_Point_Wave",
+  "loop": false,
+  "seconds": 5.0,
+  "frames": 151,
+  "keys": 2113,
+  "source": "013/13_27.bvh",
+  "range_s": [
+   1.5,
+   6.5
+  ],
+  "autotrim": null,
+  "loop_pts": null,
+  "floor_fix_m": -0.012,
+  "contact_lift_m": 0.0,
+  "min_foot_m": -0.001,
+  "travel_m": 0.18,
+  "hip_scale": 0.0486
+ },
+ {
+  "name": "Vendor_Wave_Greeting",
+  "loop": false,
+  "seconds": 4.0,
+  "frames": 121,
+  "keys": 1265,
+  "source": "014/14_24.bvh",
+  "range_s": [
+   1.0,
+   5.0
+  ],
+  "autotrim": null,
+  "loop_pts": null,
+  "floor_fix_m": -0.02,
+  "contact_lift_m": 0.0,
+  "min_foot_m": -0.0,
+  "travel_m": 0.11,
+  "hip_scale": 0.0515
+ },
+ {
+  "name": "Market_Trade_Inspect",
+  "loop": false,
+  "seconds": 4.0,
+  "frames": 121,
+  "keys": 889,
+  "source": "079/79_16.bvh",
+  "range_s": [
+   0.5,
+   4.5
+  ],
+  "autotrim": null,
+  "loop_pts": null,
+  "floor_fix_m": -0.058,
+  "contact_lift_m": 0.0,
+  "min_foot_m": -0.0,
+  "travel_m": 0.01,
+  "hip_scale": 0.051
+ },
+ {
+  "name": "Guard_Look_Around_Scan",
+  "loop": true,
+  "seconds": 4.6,
+  "frames": 139,
+  "keys": 1740,
+  "source": "139/139_01.bvh",
+  "range_s": [
+   1.0,
+   6.5
+  ],
+  "autotrim": null,
+  "loop_pts": [
+   0.33,
+   4.93,
+   3.1
+  ],
+  "floor_fix_m": -0.032,
+  "contact_lift_m": 0.0,
+  "min_foot_m": -0.002,
+  "travel_m": 0.01,
+  "hip_scale": 0.0555
+ },
+ {
+  "name": "Standing_Shift_Weight_Idle",
+  "loop": true,
+  "seconds": 4.2,
+  "frames": 127,
+  "keys": 1106,
+  "source": "139/139_02.bvh",
+  "range_s": [
+   1.0,
+   6.0
+  ],
+  "autotrim": null,
+  "loop_pts": [
+   0.27,
+   4.47,
+   1.92
+  ],
+  "floor_fix_m": -0.03,
+  "contact_lift_m": 0.0,
+  "min_foot_m": -0.0,
+  "travel_m": 0.06,
+  "hip_scale": 0.0555
+ },
+ {
+  "name": "Cold_Shiver_Campfire",
+  "loop": true,
+  "seconds": 3.47,
+  "frames": 105,
+  "keys": 1296,
+  "source": "079/79_68.bvh",
+  "range_s": [
+   1.0,
+   5.5
+  ],
+  "autotrim": null,
+  "loop_pts": [
+   0.8,
+   4.27,
+   3.3
+  ],
+  "floor_fix_m": -0.037,
+  "contact_lift_m": 0.0,
+  "min_foot_m": -0.002,
+  "travel_m": 0.02,
+  "hip_scale": 0.051
+ },
+ {
+  "name": "Wounded_Limp_Walk",
+  "loop": true,
+  "seconds": 1.9,
+  "frames": 58,
+  "keys": 955,
+  "source": "077/77_19.bvh",
+  "range_s": [
+   0.5,
+   3.5
+  ],
+  "autotrim": null,
+  "loop_pts": [
+   0.53,
+   2.43,
+   3.15
+  ],
+  "floor_fix_m": -0.007,
+  "contact_lift_m": 0.0,
+  "min_foot_m": 0.003,
+  "travel_m": 1.09,
+  "hip_scale": 0.0555
+ },
+ {
+  "name": "Brawler_Tavern_Jab",
+  "loop": false,
+  "seconds": 3.5,
+  "frames": 106,
+  "keys": 1637,
+  "source": "014/14_01.bvh",
+  "range_s": [
+   1.0,
+   4.5
+  ],
+  "autotrim": null,
+  "loop_pts": null,
+  "floor_fix_m": -0.02,
+  "contact_lift_m": 0.0,
+  "min_foot_m": -0.003,
+  "travel_m": 0.34,
+  "hip_scale": 0.0515
+ }
+]

@@ -1,0 +1,99 @@
+{
+ "source_type": "bvh",
+ "bvh_dir": "${ANIM_SRC}/cmu-mocap/data",
+ "ual": "../../assets/incoming/quaternius/universal-animation-library/Unreal-Godot/UAL1_Standard.glb",
+ "out": "../../assets/incoming/animations/aaa/UAL_AAA_Magic_Chantless.glb",
+ "smooth": 0.012,
+ "fingers": "open",
+ "finger_poses": {
+  "relaxed": [
+   "Idle_Loop",
+   0.0
+  ],
+  "fist": [
+   "Punch_Jab",
+   0.4
+  ],
+  "open": [
+   "Idle_Loop",
+   0.0
+  ]
+ },
+ "map": {
+  "pelvis": "Hips",
+  "spine_01": "LowerBack",
+  "spine_02": "Spine",
+  "spine_03": "Spine1",
+  "neck_01": "Neck",
+  "Head": "Head",
+  "clavicle_l": "LeftShoulder",
+  "upperarm_l": "LeftArm",
+  "lowerarm_l": "LeftForeArm",
+  "hand_l": "LeftHand",
+  "clavicle_r": "RightShoulder",
+  "upperarm_r": "RightArm",
+  "lowerarm_r": "RightForeArm",
+  "hand_r": "RightHand",
+  "thigh_l": "LeftUpLeg",
+  "calf_l": "LeftLeg",
+  "foot_l": "LeftFoot",
+  "ball_l": "LeftToeBase",
+  "thigh_r": "RightUpLeg",
+  "calf_r": "RightLeg",
+  "foot_r": "RightFoot",
+  "ball_r": "RightToeBase"
+ },
+ "check_directions": true,
+ "heading": "strike",
+ "clips": [
+  {
+   "name": "Cast_Chantless_Palm_Blast",
+   "file": "002/02_07.bvh",
+   "start": 0.5,
+   "end": 1.8,
+   "fingers": "open",
+   "heading": "strike"
+  },
+  {
+   "name": "Cast_Chantless_Telekinesis_Lift",
+   "file": "087/87_01.bvh",
+   "start": 0.4,
+   "end": 2.2,
+   "fingers": "open",
+   "heading": "strike"
+  },
+  {
+   "name": "Cast_Chantless_Barrier_Conjure",
+   "file": "144/144_07.bvh",
+   "start": 0.24,
+   "end": 1.4,
+   "fingers": "open",
+   "heading": "mean"
+  },
+  {
+   "name": "Cast_Chantless_Ground_Eruption",
+   "file": "140/140_01.bvh",
+   "start": 1.8,
+   "end": 3.2,
+   "fingers": "fist",
+   "heading": "start"
+  },
+  {
+   "name": "Cast_Chantless_Siphon_Drain",
+   "file": "002/02_07.bvh",
+   "start": 4.2,
+   "end": 5.8,
+   "loop": true,
+   "fingers": "open",
+   "heading": "strike"
+  },
+  {
+   "name": "Cast_Chantless_Blink_Step",
+   "file": "127/127_05.bvh",
+   "start": 0.4,
+   "end": 1.6,
+   "fingers": "relaxed",
+   "heading": "start"
+  }
+ ]
+}

@@ -61,7 +61,12 @@ func test_profiles_route_buildings_to_layout_kinds() -> void:
 	assert_bool((Layouts.HOUSE as Array).has(BuildingProfiles.layout_for("house_3", id))).is_true()
 	assert_bool((Layouts.TAVERN as Array).has(BuildingProfiles.layout_for("inn", id))).is_true()
 	assert_str(BuildingProfiles.layout_for("blacksmith", id)).is_empty()     # the smithy keeps its hand-made interior
-	assert_str(BuildingProfiles.interior_scene("mhouse_trader", id)).contains("/modular/")
+	# manor and the ordinary trader's house use their hand-made scenes; slice-tagged shops keep the generated layout
+	assert_str(BuildingProfiles.interior_scene("mhouse_trader", id)).is_equal(BuildingProfiles.INTERIORS["mhouse_trader"])
+	assert_str(BuildingProfiles.interior_scene("mhouse_manor", id)).is_equal(BuildingProfiles.INTERIORS["mhouse_manor"])
+	assert_str(BuildingProfiles.interior_scene("mhouse_trader", id, "general_shop")).contains("/modular/")
+	assert_bool(ResourceLoader.exists(BuildingProfiles.INTERIORS["mhouse_manor"])).is_true()
+	assert_bool(ResourceLoader.exists(BuildingProfiles.INTERIORS["mhouse_trader"])).is_true()
 	assert_str(BuildingProfiles.interior_scene("blacksmith", id)).is_equal(BuildingProfiles.INTERIORS["blacksmith"])
 	assert_str(BuildingProfiles.interior_scene("mhouse_family")).is_equal(BuildingProfiles.HOUSE_INTERIOR)    # no id: old behaviour
 	for lid: String in Layouts.all_ids():
