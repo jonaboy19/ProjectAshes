@@ -3,9 +3,11 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://bygcysbmhyfgf"
-path="res://.godot/imported/shield_round_wood_lod0_lod_bake.jpg-7614adbc53f82f5a7f015f2ddae507e2.ctex"
+path.s3tc="res://.godot/imported/shield_round_wood_lod0_lod_bake.jpg-7614adbc53f82f5a7f015f2ddae507e2.s3tc.ctex"
+path.etc2="res://.godot/imported/shield_round_wood_lod0_lod_bake.jpg-7614adbc53f82f5a7f015f2ddae507e2.etc2.ctex"
 metadata={
-"vram_texture": false
+"imported_formats": ["s3tc_bptc", "etc2_astc"],
+"vram_texture": true
 }
 generator_parameters={
 "md5": "cb58a6496577517d2ab68df484f4ce99"
@@ -14,11 +16,11 @@ generator_parameters={
 [deps]
 
 source_file="res://assets/incoming/meshy_dl3/props/shield_round_wood_lod0_lod_bake.jpg"
-dest_files=["res://.godot/imported/shield_round_wood_lod0_lod_bake.jpg-7614adbc53f82f5a7f015f2ddae507e2.ctex"]
+dest_files=["res://.godot/imported/shield_round_wood_lod0_lod_bake.jpg-7614adbc53f82f5a7f015f2ddae507e2.s3tc.ctex", "res://.godot/imported/shield_round_wood_lod0_lod_bake.jpg-7614adbc53f82f5a7f015f2ddae507e2.etc2.ctex"]
 
 [params]
 
-compress/mode=0
+compress/mode=2
 compress/high_quality=false
 compress/lossy_quality=0.7
 compress/uastc_level=0

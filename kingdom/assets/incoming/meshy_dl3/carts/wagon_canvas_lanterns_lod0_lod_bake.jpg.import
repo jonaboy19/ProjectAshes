@@ -3,9 +3,11 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://s6vcqakfq4se"
-path="res://.godot/imported/wagon_canvas_lanterns_lod0_lod_bake.jpg-efb63a05eba3e4a5cf2778d54b4e4079.ctex"
+path.s3tc="res://.godot/imported/wagon_canvas_lanterns_lod0_lod_bake.jpg-efb63a05eba3e4a5cf2778d54b4e4079.s3tc.ctex"
+path.etc2="res://.godot/imported/wagon_canvas_lanterns_lod0_lod_bake.jpg-efb63a05eba3e4a5cf2778d54b4e4079.etc2.ctex"
 metadata={
-"vram_texture": false
+"imported_formats": ["s3tc_bptc", "etc2_astc"],
+"vram_texture": true
 }
 generator_parameters={
 "md5": "77aabf4d7ad04d43042e9220ee7774fe"
@@ -14,11 +16,11 @@ generator_parameters={
 [deps]
 
 source_file="res://assets/incoming/meshy_dl3/carts/wagon_canvas_lanterns_lod0_lod_bake.jpg"
-dest_files=["res://.godot/imported/wagon_canvas_lanterns_lod0_lod_bake.jpg-efb63a05eba3e4a5cf2778d54b4e4079.ctex"]
+dest_files=["res://.godot/imported/wagon_canvas_lanterns_lod0_lod_bake.jpg-efb63a05eba3e4a5cf2778d54b4e4079.s3tc.ctex", "res://.godot/imported/wagon_canvas_lanterns_lod0_lod_bake.jpg-efb63a05eba3e4a5cf2778d54b4e4079.etc2.ctex"]
 
 [params]
 
-compress/mode=0
+compress/mode=2
 compress/high_quality=false
 compress/lossy_quality=0.7
 compress/uastc_level=0

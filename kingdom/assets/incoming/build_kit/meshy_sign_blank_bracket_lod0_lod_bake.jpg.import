@@ -3,9 +3,11 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://bher073ea355s"
-path="res://.godot/imported/meshy_sign_blank_bracket_lod0_lod_bake.jpg-0db8e60d437e5ec026c2cb0656f63c4d.ctex"
+path.s3tc="res://.godot/imported/meshy_sign_blank_bracket_lod0_lod_bake.jpg-0db8e60d437e5ec026c2cb0656f63c4d.s3tc.ctex"
+path.etc2="res://.godot/imported/meshy_sign_blank_bracket_lod0_lod_bake.jpg-0db8e60d437e5ec026c2cb0656f63c4d.etc2.ctex"
 metadata={
-"vram_texture": false
+"imported_formats": ["s3tc_bptc", "etc2_astc"],
+"vram_texture": true
 }
 generator_parameters={
 "md5": "20953fb75a80f7b4b36f6304f70e666a"
@@ -14,11 +16,11 @@ generator_parameters={
 [deps]
 
 source_file="res://assets/incoming/build_kit/meshy_sign_blank_bracket_lod0_lod_bake.jpg"
-dest_files=["res://.godot/imported/meshy_sign_blank_bracket_lod0_lod_bake.jpg-0db8e60d437e5ec026c2cb0656f63c4d.ctex"]
+dest_files=["res://.godot/imported/meshy_sign_blank_bracket_lod0_lod_bake.jpg-0db8e60d437e5ec026c2cb0656f63c4d.s3tc.ctex", "res://.godot/imported/meshy_sign_blank_bracket_lod0_lod_bake.jpg-0db8e60d437e5ec026c2cb0656f63c4d.etc2.ctex"]
 
 [params]
 
-compress/mode=0
+compress/mode=2
 compress/high_quality=false
 compress/lossy_quality=0.7
 compress/uastc_level=0

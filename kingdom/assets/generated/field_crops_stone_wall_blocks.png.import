@@ -3,9 +3,11 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://bodw4qofyrwrp"
-path="res://.godot/imported/field_crops_stone_wall_blocks.png-5c0687dbfa506bae292a05d0113b7b6e.ctex"
+path.s3tc="res://.godot/imported/field_crops_stone_wall_blocks.png-5c0687dbfa506bae292a05d0113b7b6e.s3tc.ctex"
+path.etc2="res://.godot/imported/field_crops_stone_wall_blocks.png-5c0687dbfa506bae292a05d0113b7b6e.etc2.ctex"
 metadata={
-"vram_texture": false
+"imported_formats": ["s3tc_bptc", "etc2_astc"],
+"vram_texture": true
 }
 generator_parameters={
 "md5": "b3ea70ce432ebe45d5e3342c5722fee3"
@@ -14,11 +16,11 @@ generator_parameters={
 [deps]
 
 source_file="res://assets/generated/field_crops_stone_wall_blocks.png"
-dest_files=["res://.godot/imported/field_crops_stone_wall_blocks.png-5c0687dbfa506bae292a05d0113b7b6e.ctex"]
+dest_files=["res://.godot/imported/field_crops_stone_wall_blocks.png-5c0687dbfa506bae292a05d0113b7b6e.s3tc.ctex", "res://.godot/imported/field_crops_stone_wall_blocks.png-5c0687dbfa506bae292a05d0113b7b6e.etc2.ctex"]
 
 [params]
 
-compress/mode=0
+compress/mode=2
 compress/high_quality=false
 compress/lossy_quality=0.7
 compress/uastc_level=0

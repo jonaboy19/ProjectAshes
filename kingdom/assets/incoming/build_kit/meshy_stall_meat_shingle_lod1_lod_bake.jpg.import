@@ -3,9 +3,11 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://j528nx3rxrho"
-path="res://.godot/imported/meshy_stall_meat_shingle_lod1_lod_bake.jpg-8a854839e6b86529b9c4fce037e39eaa.ctex"
+path.s3tc="res://.godot/imported/meshy_stall_meat_shingle_lod1_lod_bake.jpg-8a854839e6b86529b9c4fce037e39eaa.s3tc.ctex"
+path.etc2="res://.godot/imported/meshy_stall_meat_shingle_lod1_lod_bake.jpg-8a854839e6b86529b9c4fce037e39eaa.etc2.ctex"
 metadata={
-"vram_texture": false
+"imported_formats": ["s3tc_bptc", "etc2_astc"],
+"vram_texture": true
 }
 generator_parameters={
 "md5": "02e4af940ef80044907925e9eb40caa4"
@@ -14,11 +16,11 @@ generator_parameters={
 [deps]
 
 source_file="res://assets/incoming/build_kit/meshy_stall_meat_shingle_lod1_lod_bake.jpg"
-dest_files=["res://.godot/imported/meshy_stall_meat_shingle_lod1_lod_bake.jpg-8a854839e6b86529b9c4fce037e39eaa.ctex"]
+dest_files=["res://.godot/imported/meshy_stall_meat_shingle_lod1_lod_bake.jpg-8a854839e6b86529b9c4fce037e39eaa.s3tc.ctex", "res://.godot/imported/meshy_stall_meat_shingle_lod1_lod_bake.jpg-8a854839e6b86529b9c4fce037e39eaa.etc2.ctex"]
 
 [params]
 
-compress/mode=0
+compress/mode=2
 compress/high_quality=false
 compress/lossy_quality=0.7
 compress/uastc_level=0

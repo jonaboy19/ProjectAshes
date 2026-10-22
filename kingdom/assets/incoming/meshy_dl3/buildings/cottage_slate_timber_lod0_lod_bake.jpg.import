@@ -3,9 +3,11 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://bvwvjifvxl3nl"
-path="res://.godot/imported/cottage_slate_timber_lod0_lod_bake.jpg-d618fb116cab0be75d3de3996d5963fa.ctex"
+path.s3tc="res://.godot/imported/cottage_slate_timber_lod0_lod_bake.jpg-d618fb116cab0be75d3de3996d5963fa.s3tc.ctex"
+path.etc2="res://.godot/imported/cottage_slate_timber_lod0_lod_bake.jpg-d618fb116cab0be75d3de3996d5963fa.etc2.ctex"
 metadata={
-"vram_texture": false
+"imported_formats": ["s3tc_bptc", "etc2_astc"],
+"vram_texture": true
 }
 generator_parameters={
 "md5": "85565b7cb025cacbbd692f5ddd0fe576"
@@ -14,11 +16,11 @@ generator_parameters={
 [deps]
 
 source_file="res://assets/incoming/meshy_dl3/buildings/cottage_slate_timber_lod0_lod_bake.jpg"
-dest_files=["res://.godot/imported/cottage_slate_timber_lod0_lod_bake.jpg-d618fb116cab0be75d3de3996d5963fa.ctex"]
+dest_files=["res://.godot/imported/cottage_slate_timber_lod0_lod_bake.jpg-d618fb116cab0be75d3de3996d5963fa.s3tc.ctex", "res://.godot/imported/cottage_slate_timber_lod0_lod_bake.jpg-d618fb116cab0be75d3de3996d5963fa.etc2.ctex"]
 
 [params]
 
-compress/mode=0
+compress/mode=2
 compress/high_quality=false
 compress/lossy_quality=0.7
 compress/uastc_level=0

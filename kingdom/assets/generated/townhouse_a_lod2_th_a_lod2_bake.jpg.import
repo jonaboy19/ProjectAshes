@@ -3,9 +3,11 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://2ars6ch5t3ci"
-path="res://.godot/imported/townhouse_a_lod2_th_a_lod2_bake.jpg-8d205a35c1f859411abb7abef0238c2f.ctex"
+path.s3tc="res://.godot/imported/townhouse_a_lod2_th_a_lod2_bake.jpg-8d205a35c1f859411abb7abef0238c2f.s3tc.ctex"
+path.etc2="res://.godot/imported/townhouse_a_lod2_th_a_lod2_bake.jpg-8d205a35c1f859411abb7abef0238c2f.etc2.ctex"
 metadata={
-"vram_texture": false
+"imported_formats": ["s3tc_bptc", "etc2_astc"],
+"vram_texture": true
 }
 generator_parameters={
 "md5": "24f1fbd99bafae4c73f2909b4ad16916"
@@ -14,11 +16,11 @@ generator_parameters={
 [deps]
 
 source_file="res://assets/generated/townhouse_a_lod2_th_a_lod2_bake.jpg"
-dest_files=["res://.godot/imported/townhouse_a_lod2_th_a_lod2_bake.jpg-8d205a35c1f859411abb7abef0238c2f.ctex"]
+dest_files=["res://.godot/imported/townhouse_a_lod2_th_a_lod2_bake.jpg-8d205a35c1f859411abb7abef0238c2f.s3tc.ctex", "res://.godot/imported/townhouse_a_lod2_th_a_lod2_bake.jpg-8d205a35c1f859411abb7abef0238c2f.etc2.ctex"]
 
 [params]
 
-compress/mode=0
+compress/mode=2
 compress/high_quality=false
 compress/lossy_quality=0.7
 compress/uastc_level=0

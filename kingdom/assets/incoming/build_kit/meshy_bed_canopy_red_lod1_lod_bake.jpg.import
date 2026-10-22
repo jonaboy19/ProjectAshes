@@ -3,9 +3,11 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://ctpoh4y4mv3qh"
-path="res://.godot/imported/meshy_bed_canopy_red_lod1_lod_bake.jpg-8a6f1aa155e0c25df0d82e2cd8806c46.ctex"
+path.s3tc="res://.godot/imported/meshy_bed_canopy_red_lod1_lod_bake.jpg-8a6f1aa155e0c25df0d82e2cd8806c46.s3tc.ctex"
+path.etc2="res://.godot/imported/meshy_bed_canopy_red_lod1_lod_bake.jpg-8a6f1aa155e0c25df0d82e2cd8806c46.etc2.ctex"
 metadata={
-"vram_texture": false
+"imported_formats": ["s3tc_bptc", "etc2_astc"],
+"vram_texture": true
 }
 generator_parameters={
 "md5": "c25a3fd6985fd778d1ae5bd49fd9c595"
@@ -14,11 +16,11 @@ generator_parameters={
 [deps]
 
 source_file="res://assets/incoming/build_kit/meshy_bed_canopy_red_lod1_lod_bake.jpg"
-dest_files=["res://.godot/imported/meshy_bed_canopy_red_lod1_lod_bake.jpg-8a6f1aa155e0c25df0d82e2cd8806c46.ctex"]
+dest_files=["res://.godot/imported/meshy_bed_canopy_red_lod1_lod_bake.jpg-8a6f1aa155e0c25df0d82e2cd8806c46.s3tc.ctex", "res://.godot/imported/meshy_bed_canopy_red_lod1_lod_bake.jpg-8a6f1aa155e0c25df0d82e2cd8806c46.etc2.ctex"]
 
 [params]
 
-compress/mode=0
+compress/mode=2
 compress/high_quality=false
 compress/lossy_quality=0.7
 compress/uastc_level=0

@@ -3,9 +3,11 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://c1cuj674inbyj"
-path="res://.godot/imported/peasant_hooded_lod1_peasant_hooded_tex.jpg-e19fafba8e78ec330652344a014b258d.ctex"
+path.s3tc="res://.godot/imported/peasant_hooded_lod1_peasant_hooded_tex.jpg-e19fafba8e78ec330652344a014b258d.s3tc.ctex"
+path.etc2="res://.godot/imported/peasant_hooded_lod1_peasant_hooded_tex.jpg-e19fafba8e78ec330652344a014b258d.etc2.ctex"
 metadata={
-"vram_texture": false
+"imported_formats": ["s3tc_bptc", "etc2_astc"],
+"vram_texture": true
 }
 generator_parameters={
 "md5": "ae061941f0e428b5322979f05df59f43"
@@ -14,11 +16,11 @@ generator_parameters={
 [deps]
 
 source_file="res://assets/incoming/meshy_dl3/characters_ual/peasant_hooded_lod1_peasant_hooded_tex.jpg"
-dest_files=["res://.godot/imported/peasant_hooded_lod1_peasant_hooded_tex.jpg-e19fafba8e78ec330652344a014b258d.ctex"]
+dest_files=["res://.godot/imported/peasant_hooded_lod1_peasant_hooded_tex.jpg-e19fafba8e78ec330652344a014b258d.s3tc.ctex", "res://.godot/imported/peasant_hooded_lod1_peasant_hooded_tex.jpg-e19fafba8e78ec330652344a014b258d.etc2.ctex"]
 
 [params]
 
-compress/mode=0
+compress/mode=2
 compress/high_quality=false
 compress/lossy_quality=0.7
 compress/uastc_level=0

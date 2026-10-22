@@ -3,9 +3,11 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://b6oi8pveplhd5"
-path="res://.godot/imported/tent_shop_conical_lod1_lod_bake.jpg-ba336049c51f93b315b42eb663dc57a8.ctex"
+path.s3tc="res://.godot/imported/tent_shop_conical_lod1_lod_bake.jpg-ba336049c51f93b315b42eb663dc57a8.s3tc.ctex"
+path.etc2="res://.godot/imported/tent_shop_conical_lod1_lod_bake.jpg-ba336049c51f93b315b42eb663dc57a8.etc2.ctex"
 metadata={
-"vram_texture": false
+"imported_formats": ["s3tc_bptc", "etc2_astc"],
+"vram_texture": true
 }
 generator_parameters={
 "md5": "958c621cd7dfee154f61ce7c87d121a7"
@@ -14,11 +16,11 @@ generator_parameters={
 [deps]
 
 source_file="res://assets/incoming/meshy_dl3/camp/tent_shop_conical_lod1_lod_bake.jpg"
-dest_files=["res://.godot/imported/tent_shop_conical_lod1_lod_bake.jpg-ba336049c51f93b315b42eb663dc57a8.ctex"]
+dest_files=["res://.godot/imported/tent_shop_conical_lod1_lod_bake.jpg-ba336049c51f93b315b42eb663dc57a8.s3tc.ctex", "res://.godot/imported/tent_shop_conical_lod1_lod_bake.jpg-ba336049c51f93b315b42eb663dc57a8.etc2.ctex"]
 
 [params]
 
-compress/mode=0
+compress/mode=2
 compress/high_quality=false
 compress/lossy_quality=0.7
 compress/uastc_level=0

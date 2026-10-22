@@ -3,9 +3,11 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://hcwvl4y8bnx7"
-path="res://.godot/imported/merchant_cloaked_merchant_cloaked_tex.jpg-fdeb7e27a9ccd7b32af1aec16c870857.ctex"
+path.s3tc="res://.godot/imported/merchant_cloaked_merchant_cloaked_tex.jpg-fdeb7e27a9ccd7b32af1aec16c870857.s3tc.ctex"
+path.etc2="res://.godot/imported/merchant_cloaked_merchant_cloaked_tex.jpg-fdeb7e27a9ccd7b32af1aec16c870857.etc2.ctex"
 metadata={
-"vram_texture": false
+"imported_formats": ["s3tc_bptc", "etc2_astc"],
+"vram_texture": true
 }
 generator_parameters={
 "md5": "bbcd2ae5c07ee990575d753c864c5244"
@@ -14,11 +16,11 @@ generator_parameters={
 [deps]
 
 source_file="res://assets/incoming/meshy_dl3/characters_ual/merchant_cloaked_merchant_cloaked_tex.jpg"
-dest_files=["res://.godot/imported/merchant_cloaked_merchant_cloaked_tex.jpg-fdeb7e27a9ccd7b32af1aec16c870857.ctex"]
+dest_files=["res://.godot/imported/merchant_cloaked_merchant_cloaked_tex.jpg-fdeb7e27a9ccd7b32af1aec16c870857.s3tc.ctex", "res://.godot/imported/merchant_cloaked_merchant_cloaked_tex.jpg-fdeb7e27a9ccd7b32af1aec16c870857.etc2.ctex"]
 
 [params]
 
-compress/mode=0
+compress/mode=2
 compress/high_quality=false
 compress/lossy_quality=0.7
 compress/uastc_level=0

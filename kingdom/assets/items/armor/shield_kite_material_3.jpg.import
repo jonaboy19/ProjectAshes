@@ -3,9 +3,11 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://bdwwk1oexug5d"
-path="res://.godot/imported/shield_kite_material_3.jpg-b4bd0c22baa3ed629beb4054b608d31d.ctex"
+path.s3tc="res://.godot/imported/shield_kite_material_3.jpg-b4bd0c22baa3ed629beb4054b608d31d.s3tc.ctex"
+path.etc2="res://.godot/imported/shield_kite_material_3.jpg-b4bd0c22baa3ed629beb4054b608d31d.etc2.ctex"
 metadata={
-"vram_texture": false
+"imported_formats": ["s3tc_bptc", "etc2_astc"],
+"vram_texture": true
 }
 generator_parameters={
 "md5": "b8fdf89763689ed7d64f2d63948ea0d2"
@@ -14,11 +16,11 @@ generator_parameters={
 [deps]
 
 source_file="res://assets/items/armor/shield_kite_material_3.jpg"
-dest_files=["res://.godot/imported/shield_kite_material_3.jpg-b4bd0c22baa3ed629beb4054b608d31d.ctex"]
+dest_files=["res://.godot/imported/shield_kite_material_3.jpg-b4bd0c22baa3ed629beb4054b608d31d.s3tc.ctex", "res://.godot/imported/shield_kite_material_3.jpg-b4bd0c22baa3ed629beb4054b608d31d.etc2.ctex"]
 
 [params]
 
-compress/mode=0
+compress/mode=2
 compress/high_quality=false
 compress/lossy_quality=0.7
 compress/uastc_level=0

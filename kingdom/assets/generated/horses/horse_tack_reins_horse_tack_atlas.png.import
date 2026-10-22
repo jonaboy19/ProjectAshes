@@ -3,9 +3,11 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://db8mikpdf2gw5"
-path="res://.godot/imported/horse_tack_reins_horse_tack_atlas.png-551b25f98fcd22831bd455e8e952ecb7.ctex"
+path.s3tc="res://.godot/imported/horse_tack_reins_horse_tack_atlas.png-551b25f98fcd22831bd455e8e952ecb7.s3tc.ctex"
+path.etc2="res://.godot/imported/horse_tack_reins_horse_tack_atlas.png-551b25f98fcd22831bd455e8e952ecb7.etc2.ctex"
 metadata={
-"vram_texture": false
+"imported_formats": ["s3tc_bptc", "etc2_astc"],
+"vram_texture": true
 }
 generator_parameters={
 "md5": "195c138c2b9f7bef616e7810e5323b3b"
@@ -14,11 +16,11 @@ generator_parameters={
 [deps]
 
 source_file="res://assets/generated/horses/horse_tack_reins_horse_tack_atlas.png"
-dest_files=["res://.godot/imported/horse_tack_reins_horse_tack_atlas.png-551b25f98fcd22831bd455e8e952ecb7.ctex"]
+dest_files=["res://.godot/imported/horse_tack_reins_horse_tack_atlas.png-551b25f98fcd22831bd455e8e952ecb7.s3tc.ctex", "res://.godot/imported/horse_tack_reins_horse_tack_atlas.png-551b25f98fcd22831bd455e8e952ecb7.etc2.ctex"]
 
 [params]
 
-compress/mode=0
+compress/mode=2
 compress/high_quality=false
 compress/lossy_quality=0.7
 compress/uastc_level=0

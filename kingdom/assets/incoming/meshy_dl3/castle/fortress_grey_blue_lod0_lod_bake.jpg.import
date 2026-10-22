@@ -3,9 +3,11 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://cs5e8veqvq180"
-path="res://.godot/imported/fortress_grey_blue_lod0_lod_bake.jpg-63ac2cc672bb26f359bb8f5a9db09cb6.ctex"
+path.s3tc="res://.godot/imported/fortress_grey_blue_lod0_lod_bake.jpg-63ac2cc672bb26f359bb8f5a9db09cb6.s3tc.ctex"
+path.etc2="res://.godot/imported/fortress_grey_blue_lod0_lod_bake.jpg-63ac2cc672bb26f359bb8f5a9db09cb6.etc2.ctex"
 metadata={
-"vram_texture": false
+"imported_formats": ["s3tc_bptc", "etc2_astc"],
+"vram_texture": true
 }
 generator_parameters={
 "md5": "2b5a61e5e3d3427ebcedcea296654388"
@@ -14,11 +16,11 @@ generator_parameters={
 [deps]
 
 source_file="res://assets/incoming/meshy_dl3/castle/fortress_grey_blue_lod0_lod_bake.jpg"
-dest_files=["res://.godot/imported/fortress_grey_blue_lod0_lod_bake.jpg-63ac2cc672bb26f359bb8f5a9db09cb6.ctex"]
+dest_files=["res://.godot/imported/fortress_grey_blue_lod0_lod_bake.jpg-63ac2cc672bb26f359bb8f5a9db09cb6.s3tc.ctex", "res://.godot/imported/fortress_grey_blue_lod0_lod_bake.jpg-63ac2cc672bb26f359bb8f5a9db09cb6.etc2.ctex"]
 
 [params]
 
-compress/mode=0
+compress/mode=2
 compress/high_quality=false
 compress/lossy_quality=0.7
 compress/uastc_level=0

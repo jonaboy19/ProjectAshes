@@ -3,9 +3,11 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://d2diniwywn157"
-path="res://.godot/imported/meshy_sign_shop_lion_lod1_lod_bake.jpg-44f06d28c1f4ccfd9416adf365daa10e.ctex"
+path.s3tc="res://.godot/imported/meshy_sign_shop_lion_lod1_lod_bake.jpg-44f06d28c1f4ccfd9416adf365daa10e.s3tc.ctex"
+path.etc2="res://.godot/imported/meshy_sign_shop_lion_lod1_lod_bake.jpg-44f06d28c1f4ccfd9416adf365daa10e.etc2.ctex"
 metadata={
-"vram_texture": false
+"imported_formats": ["s3tc_bptc", "etc2_astc"],
+"vram_texture": true
 }
 generator_parameters={
 "md5": "15d854b6dd943c9c307282e56b35e6a9"
@@ -14,11 +16,11 @@ generator_parameters={
 [deps]
 
 source_file="res://assets/incoming/build_kit/meshy_sign_shop_lion_lod1_lod_bake.jpg"
-dest_files=["res://.godot/imported/meshy_sign_shop_lion_lod1_lod_bake.jpg-44f06d28c1f4ccfd9416adf365daa10e.ctex"]
+dest_files=["res://.godot/imported/meshy_sign_shop_lion_lod1_lod_bake.jpg-44f06d28c1f4ccfd9416adf365daa10e.s3tc.ctex", "res://.godot/imported/meshy_sign_shop_lion_lod1_lod_bake.jpg-44f06d28c1f4ccfd9416adf365daa10e.etc2.ctex"]
 
 [params]
 
-compress/mode=0
+compress/mode=2
 compress/high_quality=false
 compress/lossy_quality=0.7
 compress/uastc_level=0

@@ -3,19 +3,21 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://bhn330e6m8bto"
-path="res://.godot/imported/weapons_bits_texture.png-6bd3a438b4a4786eeb29a3e84b533dcb.ctex"
+path.s3tc="res://.godot/imported/weapons_bits_texture.png-6bd3a438b4a4786eeb29a3e84b533dcb.s3tc.ctex"
+path.etc2="res://.godot/imported/weapons_bits_texture.png-6bd3a438b4a4786eeb29a3e84b533dcb.etc2.ctex"
 metadata={
-"vram_texture": false
+"imported_formats": ["s3tc_bptc", "etc2_astc"],
+"vram_texture": true
 }
 
 [deps]
 
 source_file="res://assets/items/weapons/weapons_bits_texture.png"
-dest_files=["res://.godot/imported/weapons_bits_texture.png-6bd3a438b4a4786eeb29a3e84b533dcb.ctex"]
+dest_files=["res://.godot/imported/weapons_bits_texture.png-6bd3a438b4a4786eeb29a3e84b533dcb.s3tc.ctex", "res://.godot/imported/weapons_bits_texture.png-6bd3a438b4a4786eeb29a3e84b533dcb.etc2.ctex"]
 
 [params]
 
-compress/mode=0
+compress/mode=2
 compress/high_quality=false
 compress/lossy_quality=0.7
 compress/uastc_level=0
@@ -23,7 +25,7 @@ compress/rdo_quality_loss=0.0
 compress/hdr_compression=1
 compress/normal_map=0
 compress/channel_pack=0
-mipmaps/generate=false
+mipmaps/generate=true
 mipmaps/limit=-1
 roughness/mode=0
 roughness/src_normal=""

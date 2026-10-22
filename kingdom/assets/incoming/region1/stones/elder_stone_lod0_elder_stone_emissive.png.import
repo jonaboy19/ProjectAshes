@@ -3,9 +3,11 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://diom37wu4hsya"
-path="res://.godot/imported/elder_stone_lod0_elder_stone_emissive.png-1560e2f134fd69e645b6a3da30d75da4.ctex"
+path.s3tc="res://.godot/imported/elder_stone_lod0_elder_stone_emissive.png-1560e2f134fd69e645b6a3da30d75da4.s3tc.ctex"
+path.etc2="res://.godot/imported/elder_stone_lod0_elder_stone_emissive.png-1560e2f134fd69e645b6a3da30d75da4.etc2.ctex"
 metadata={
-"vram_texture": false
+"imported_formats": ["s3tc_bptc", "etc2_astc"],
+"vram_texture": true
 }
 generator_parameters={
 "md5": "26c9d875661ae3bf4eeffaa3e890b2af"
@@ -14,11 +16,11 @@ generator_parameters={
 [deps]
 
 source_file="res://assets/incoming/region1/stones/elder_stone_lod0_elder_stone_emissive.png"
-dest_files=["res://.godot/imported/elder_stone_lod0_elder_stone_emissive.png-1560e2f134fd69e645b6a3da30d75da4.ctex"]
+dest_files=["res://.godot/imported/elder_stone_lod0_elder_stone_emissive.png-1560e2f134fd69e645b6a3da30d75da4.s3tc.ctex", "res://.godot/imported/elder_stone_lod0_elder_stone_emissive.png-1560e2f134fd69e645b6a3da30d75da4.etc2.ctex"]
 
 [params]
 
-compress/mode=0
+compress/mode=2
 compress/high_quality=false
 compress/lossy_quality=0.7
 compress/uastc_level=0

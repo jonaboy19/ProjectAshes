@@ -3,9 +3,11 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://cem3c22bqfgt2"
-path="res://.godot/imported/chest_iron_banded_lod0_lod_bake.jpg-d73bde7562b4ad909c5b8927c88e1aae.ctex"
+path.s3tc="res://.godot/imported/chest_iron_banded_lod0_lod_bake.jpg-d73bde7562b4ad909c5b8927c88e1aae.s3tc.ctex"
+path.etc2="res://.godot/imported/chest_iron_banded_lod0_lod_bake.jpg-d73bde7562b4ad909c5b8927c88e1aae.etc2.ctex"
 metadata={
-"vram_texture": false
+"imported_formats": ["s3tc_bptc", "etc2_astc"],
+"vram_texture": true
 }
 generator_parameters={
 "md5": "52123f0d1503025f4ff4181074b8e878"
@@ -14,11 +16,11 @@ generator_parameters={
 [deps]
 
 source_file="res://assets/incoming/meshy_dl3/props/chest_iron_banded_lod0_lod_bake.jpg"
-dest_files=["res://.godot/imported/chest_iron_banded_lod0_lod_bake.jpg-d73bde7562b4ad909c5b8927c88e1aae.ctex"]
+dest_files=["res://.godot/imported/chest_iron_banded_lod0_lod_bake.jpg-d73bde7562b4ad909c5b8927c88e1aae.s3tc.ctex", "res://.godot/imported/chest_iron_banded_lod0_lod_bake.jpg-d73bde7562b4ad909c5b8927c88e1aae.etc2.ctex"]
 
 [params]
 
-compress/mode=0
+compress/mode=2
 compress/high_quality=false
 compress/lossy_quality=0.7
 compress/uastc_level=0

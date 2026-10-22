@@ -3,9 +3,11 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://ddxovsr41a3hi"
-path="res://.godot/imported/tent_shop_canopy_lod0_lod_bake.jpg-a075b5d5dad99cbb4748cfb1efc0e3df.ctex"
+path.s3tc="res://.godot/imported/tent_shop_canopy_lod0_lod_bake.jpg-a075b5d5dad99cbb4748cfb1efc0e3df.s3tc.ctex"
+path.etc2="res://.godot/imported/tent_shop_canopy_lod0_lod_bake.jpg-a075b5d5dad99cbb4748cfb1efc0e3df.etc2.ctex"
 metadata={
-"vram_texture": false
+"imported_formats": ["s3tc_bptc", "etc2_astc"],
+"vram_texture": true
 }
 generator_parameters={
 "md5": "ae7e8192308758799f655d345ecb6c82"
@@ -14,11 +16,11 @@ generator_parameters={
 [deps]
 
 source_file="res://assets/incoming/meshy_dl3/camp/tent_shop_canopy_lod0_lod_bake.jpg"
-dest_files=["res://.godot/imported/tent_shop_canopy_lod0_lod_bake.jpg-a075b5d5dad99cbb4748cfb1efc0e3df.ctex"]
+dest_files=["res://.godot/imported/tent_shop_canopy_lod0_lod_bake.jpg-a075b5d5dad99cbb4748cfb1efc0e3df.s3tc.ctex", "res://.godot/imported/tent_shop_canopy_lod0_lod_bake.jpg-a075b5d5dad99cbb4748cfb1efc0e3df.etc2.ctex"]
 
 [params]
 
-compress/mode=0
+compress/mode=2
 compress/high_quality=false
 compress/lossy_quality=0.7
 compress/uastc_level=0

@@ -3,27 +3,29 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://bs13k2o3yscil"
-path="res://.godot/imported/rock_face_nor_gl_1k.jpg-2350b81520af372e3f5335fc10689b7f.ctex"
+path.s3tc="res://.godot/imported/rock_face_nor_gl_1k.jpg-2350b81520af372e3f5335fc10689b7f.s3tc.ctex"
+path.etc2="res://.godot/imported/rock_face_nor_gl_1k.jpg-2350b81520af372e3f5335fc10689b7f.etc2.ctex"
 metadata={
-"vram_texture": false
+"imported_formats": ["s3tc_bptc", "etc2_astc"],
+"vram_texture": true
 }
 
 [deps]
 
 source_file="res://assets/incoming/polyhaven/textures/rock_face/rock_face_nor_gl_1k.jpg"
-dest_files=["res://.godot/imported/rock_face_nor_gl_1k.jpg-2350b81520af372e3f5335fc10689b7f.ctex"]
+dest_files=["res://.godot/imported/rock_face_nor_gl_1k.jpg-2350b81520af372e3f5335fc10689b7f.s3tc.ctex", "res://.godot/imported/rock_face_nor_gl_1k.jpg-2350b81520af372e3f5335fc10689b7f.etc2.ctex"]
 
 [params]
 
-compress/mode=0
+compress/mode=2
 compress/high_quality=false
 compress/lossy_quality=0.7
 compress/uastc_level=0
 compress/rdo_quality_loss=0.0
 compress/hdr_compression=1
-compress/normal_map=0
+compress/normal_map=1
 compress/channel_pack=0
-mipmaps/generate=false
+mipmaps/generate=true
 mipmaps/limit=-1
 roughness/mode=0
 roughness/src_normal=""

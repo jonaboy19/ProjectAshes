@@ -3,9 +3,11 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://cl80rf42ikhy4"
-path="res://.godot/imported/castle_small_towers_lod1_lod_bake.jpg-d804be90afecc2a34d134055d2f5ef9f.ctex"
+path.s3tc="res://.godot/imported/castle_small_towers_lod1_lod_bake.jpg-d804be90afecc2a34d134055d2f5ef9f.s3tc.ctex"
+path.etc2="res://.godot/imported/castle_small_towers_lod1_lod_bake.jpg-d804be90afecc2a34d134055d2f5ef9f.etc2.ctex"
 metadata={
-"vram_texture": false
+"imported_formats": ["s3tc_bptc", "etc2_astc"],
+"vram_texture": true
 }
 generator_parameters={
 "md5": "2ee9afb123dea2f82b6df4d3f2639636"
@@ -14,11 +16,11 @@ generator_parameters={
 [deps]
 
 source_file="res://assets/incoming/meshy_dl3/castle/castle_small_towers_lod1_lod_bake.jpg"
-dest_files=["res://.godot/imported/castle_small_towers_lod1_lod_bake.jpg-d804be90afecc2a34d134055d2f5ef9f.ctex"]
+dest_files=["res://.godot/imported/castle_small_towers_lod1_lod_bake.jpg-d804be90afecc2a34d134055d2f5ef9f.s3tc.ctex", "res://.godot/imported/castle_small_towers_lod1_lod_bake.jpg-d804be90afecc2a34d134055d2f5ef9f.etc2.ctex"]
 
 [params]
 
-compress/mode=0
+compress/mode=2
 compress/high_quality=false
 compress/lossy_quality=0.7
 compress/uastc_level=0

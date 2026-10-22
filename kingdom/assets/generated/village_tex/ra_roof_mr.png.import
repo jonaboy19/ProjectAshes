@@ -3,8 +3,8 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://c8hb8v2dttekl"
-path.s3tc="res://.godot/imported/ra_roof_mr.png-82cb06cefc6c6686f865b5ecc8902c7f.s3tc.ctex"
-path.etc2="res://.godot/imported/ra_roof_mr.png-82cb06cefc6c6686f865b5ecc8902c7f.etc2.ctex"
+path.bptc="res://.godot/imported/ra_roof_mr.png-82cb06cefc6c6686f865b5ecc8902c7f.bptc.ctex"
+path.astc="res://.godot/imported/ra_roof_mr.png-82cb06cefc6c6686f865b5ecc8902c7f.astc.ctex"
 metadata={
 "imported_formats": ["s3tc_bptc", "etc2_astc"],
 "vram_texture": true
@@ -13,12 +13,12 @@ metadata={
 [deps]
 
 source_file="res://assets/generated/village_tex/ra_roof_mr.png"
-dest_files=["res://.godot/imported/ra_roof_mr.png-82cb06cefc6c6686f865b5ecc8902c7f.s3tc.ctex", "res://.godot/imported/ra_roof_mr.png-82cb06cefc6c6686f865b5ecc8902c7f.etc2.ctex"]
+dest_files=["res://.godot/imported/ra_roof_mr.png-82cb06cefc6c6686f865b5ecc8902c7f.bptc.ctex", "res://.godot/imported/ra_roof_mr.png-82cb06cefc6c6686f865b5ecc8902c7f.astc.ctex"]
 
 [params]
 
 compress/mode=2
-compress/high_quality=false
+compress/high_quality=true
 compress/lossy_quality=0.7
 compress/uastc_level=0
 compress/rdo_quality_loss=0.0

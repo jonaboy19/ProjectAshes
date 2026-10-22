@@ -3,9 +3,11 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://csyi546aay6lc"
-path="res://.godot/imported/Ghost_Skull_Atlas_Monsters.png-d71d19b0d08c8cd3fbaa7d5070984d9c.ctex"
+path.s3tc="res://.godot/imported/Ghost_Skull_Atlas_Monsters.png-d71d19b0d08c8cd3fbaa7d5070984d9c.s3tc.ctex"
+path.etc2="res://.godot/imported/Ghost_Skull_Atlas_Monsters.png-d71d19b0d08c8cd3fbaa7d5070984d9c.etc2.ctex"
 metadata={
-"vram_texture": false
+"imported_formats": ["s3tc_bptc", "etc2_astc"],
+"vram_texture": true
 }
 generator_parameters={
 "md5": "19edfe03ec2ac473b0a20d5684c8b79c"
@@ -14,11 +16,11 @@ generator_parameters={
 [deps]
 
 source_file="res://assets/incoming/monsters/quaternius/ultimate/Ghost_Skull_Atlas_Monsters.png"
-dest_files=["res://.godot/imported/Ghost_Skull_Atlas_Monsters.png-d71d19b0d08c8cd3fbaa7d5070984d9c.ctex"]
+dest_files=["res://.godot/imported/Ghost_Skull_Atlas_Monsters.png-d71d19b0d08c8cd3fbaa7d5070984d9c.s3tc.ctex", "res://.godot/imported/Ghost_Skull_Atlas_Monsters.png-d71d19b0d08c8cd3fbaa7d5070984d9c.etc2.ctex"]
 
 [params]
 
-compress/mode=0
+compress/mode=2
 compress/high_quality=false
 compress/lossy_quality=0.7
 compress/uastc_level=0

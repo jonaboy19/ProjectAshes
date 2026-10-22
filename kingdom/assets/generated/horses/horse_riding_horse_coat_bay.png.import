@@ -3,9 +3,11 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://uixtwskuv41a"
-path="res://.godot/imported/horse_riding_horse_coat_bay.png-bac9fa60a56dfb1e491fd8beafcdda82.ctex"
+path.s3tc="res://.godot/imported/horse_riding_horse_coat_bay.png-bac9fa60a56dfb1e491fd8beafcdda82.s3tc.ctex"
+path.etc2="res://.godot/imported/horse_riding_horse_coat_bay.png-bac9fa60a56dfb1e491fd8beafcdda82.etc2.ctex"
 metadata={
-"vram_texture": false
+"imported_formats": ["s3tc_bptc", "etc2_astc"],
+"vram_texture": true
 }
 generator_parameters={
 "md5": "65958caf706754bbc8e2076427d6ff7d"
@@ -14,11 +16,11 @@ generator_parameters={
 [deps]
 
 source_file="res://assets/generated/horses/horse_riding_horse_coat_bay.png"
-dest_files=["res://.godot/imported/horse_riding_horse_coat_bay.png-bac9fa60a56dfb1e491fd8beafcdda82.ctex"]
+dest_files=["res://.godot/imported/horse_riding_horse_coat_bay.png-bac9fa60a56dfb1e491fd8beafcdda82.s3tc.ctex", "res://.godot/imported/horse_riding_horse_coat_bay.png-bac9fa60a56dfb1e491fd8beafcdda82.etc2.ctex"]
 
 [params]
 
-compress/mode=0
+compress/mode=2
 compress/high_quality=false
 compress/lossy_quality=0.7
 compress/uastc_level=0

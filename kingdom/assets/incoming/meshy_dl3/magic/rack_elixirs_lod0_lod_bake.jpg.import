@@ -3,9 +3,11 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://cnioexy44tyfk"
-path="res://.godot/imported/rack_elixirs_lod0_lod_bake.jpg-e87f36f9b692c03a6e48e0a5d13a1b94.ctex"
+path.s3tc="res://.godot/imported/rack_elixirs_lod0_lod_bake.jpg-e87f36f9b692c03a6e48e0a5d13a1b94.s3tc.ctex"
+path.etc2="res://.godot/imported/rack_elixirs_lod0_lod_bake.jpg-e87f36f9b692c03a6e48e0a5d13a1b94.etc2.ctex"
 metadata={
-"vram_texture": false
+"imported_formats": ["s3tc_bptc", "etc2_astc"],
+"vram_texture": true
 }
 generator_parameters={
 "md5": "d28fbae597ba9bc162820e3f79b4f3b0"
@@ -14,11 +16,11 @@ generator_parameters={
 [deps]
 
 source_file="res://assets/incoming/meshy_dl3/magic/rack_elixirs_lod0_lod_bake.jpg"
-dest_files=["res://.godot/imported/rack_elixirs_lod0_lod_bake.jpg-e87f36f9b692c03a6e48e0a5d13a1b94.ctex"]
+dest_files=["res://.godot/imported/rack_elixirs_lod0_lod_bake.jpg-e87f36f9b692c03a6e48e0a5d13a1b94.s3tc.ctex", "res://.godot/imported/rack_elixirs_lod0_lod_bake.jpg-e87f36f9b692c03a6e48e0a5d13a1b94.etc2.ctex"]
 
 [params]
 
-compress/mode=0
+compress/mode=2
 compress/high_quality=false
 compress/lossy_quality=0.7
 compress/uastc_level=0

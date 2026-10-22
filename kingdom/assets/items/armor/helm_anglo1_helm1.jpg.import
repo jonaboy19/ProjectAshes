@@ -3,9 +3,11 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://80rgedwoc7at"
-path="res://.godot/imported/helm_anglo1_helm1.jpg-ab24b8f54e5a5f846b1d5fa5e2ceb4c7.ctex"
+path.s3tc="res://.godot/imported/helm_anglo1_helm1.jpg-ab24b8f54e5a5f846b1d5fa5e2ceb4c7.s3tc.ctex"
+path.etc2="res://.godot/imported/helm_anglo1_helm1.jpg-ab24b8f54e5a5f846b1d5fa5e2ceb4c7.etc2.ctex"
 metadata={
-"vram_texture": false
+"imported_formats": ["s3tc_bptc", "etc2_astc"],
+"vram_texture": true
 }
 generator_parameters={
 "md5": "a15bd10cdd27f893cc9b79d032b2c318"
@@ -14,11 +16,11 @@ generator_parameters={
 [deps]
 
 source_file="res://assets/items/armor/helm_anglo1_helm1.jpg"
-dest_files=["res://.godot/imported/helm_anglo1_helm1.jpg-ab24b8f54e5a5f846b1d5fa5e2ceb4c7.ctex"]
+dest_files=["res://.godot/imported/helm_anglo1_helm1.jpg-ab24b8f54e5a5f846b1d5fa5e2ceb4c7.s3tc.ctex", "res://.godot/imported/helm_anglo1_helm1.jpg-ab24b8f54e5a5f846b1d5fa5e2ceb4c7.etc2.ctex"]
 
 [params]
 
-compress/mode=0
+compress/mode=2
 compress/high_quality=false
 compress/lossy_quality=0.7
 compress/uastc_level=0

@@ -3,9 +3,11 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://b6lx4yww0x6q7"
-path="res://.godot/imported/shield_tower_BarrelRingsUV.jpg-ce2c59253fa741b7052077518da36cbb.ctex"
+path.s3tc="res://.godot/imported/shield_tower_BarrelRingsUV.jpg-ce2c59253fa741b7052077518da36cbb.s3tc.ctex"
+path.etc2="res://.godot/imported/shield_tower_BarrelRingsUV.jpg-ce2c59253fa741b7052077518da36cbb.etc2.ctex"
 metadata={
-"vram_texture": false
+"imported_formats": ["s3tc_bptc", "etc2_astc"],
+"vram_texture": true
 }
 generator_parameters={
 "md5": "a924d25704bfd06993c39610a95c4b70"
@@ -14,11 +16,11 @@ generator_parameters={
 [deps]
 
 source_file="res://assets/items/armor/shield_tower_BarrelRingsUV.jpg"
-dest_files=["res://.godot/imported/shield_tower_BarrelRingsUV.jpg-ce2c59253fa741b7052077518da36cbb.ctex"]
+dest_files=["res://.godot/imported/shield_tower_BarrelRingsUV.jpg-ce2c59253fa741b7052077518da36cbb.s3tc.ctex", "res://.godot/imported/shield_tower_BarrelRingsUV.jpg-ce2c59253fa741b7052077518da36cbb.etc2.ctex"]
 
 [params]
 
-compress/mode=0
+compress/mode=2
 compress/high_quality=false
 compress/lossy_quality=0.7
 compress/uastc_level=0

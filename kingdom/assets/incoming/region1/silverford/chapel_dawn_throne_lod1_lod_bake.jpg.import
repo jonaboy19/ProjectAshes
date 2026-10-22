@@ -3,9 +3,11 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://v1hglth5d8fq"
-path="res://.godot/imported/chapel_dawn_throne_lod1_lod_bake.jpg-697e4abb4c6b50c0544bec1f10ae64d0.ctex"
+path.s3tc="res://.godot/imported/chapel_dawn_throne_lod1_lod_bake.jpg-697e4abb4c6b50c0544bec1f10ae64d0.s3tc.ctex"
+path.etc2="res://.godot/imported/chapel_dawn_throne_lod1_lod_bake.jpg-697e4abb4c6b50c0544bec1f10ae64d0.etc2.ctex"
 metadata={
-"vram_texture": false
+"imported_formats": ["s3tc_bptc", "etc2_astc"],
+"vram_texture": true
 }
 generator_parameters={
 "md5": "109c82e43665c0a702d8cd09dd3e71dd"
@@ -14,11 +16,11 @@ generator_parameters={
 [deps]
 
 source_file="res://assets/incoming/region1/silverford/chapel_dawn_throne_lod1_lod_bake.jpg"
-dest_files=["res://.godot/imported/chapel_dawn_throne_lod1_lod_bake.jpg-697e4abb4c6b50c0544bec1f10ae64d0.ctex"]
+dest_files=["res://.godot/imported/chapel_dawn_throne_lod1_lod_bake.jpg-697e4abb4c6b50c0544bec1f10ae64d0.s3tc.ctex", "res://.godot/imported/chapel_dawn_throne_lod1_lod_bake.jpg-697e4abb4c6b50c0544bec1f10ae64d0.etc2.ctex"]
 
 [params]
 
-compress/mode=0
+compress/mode=2
 compress/high_quality=false
 compress/lossy_quality=0.7
 compress/uastc_level=0

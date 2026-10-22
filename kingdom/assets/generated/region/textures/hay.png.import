@@ -3,8 +3,8 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://dyvn2cpb4gsbv"
-path.s3tc="res://.godot/imported/hay.png-26634c34ee6d6a470d9719e268668361.s3tc.ctex"
-path.etc2="res://.godot/imported/hay.png-26634c34ee6d6a470d9719e268668361.etc2.ctex"
+path.bptc="res://.godot/imported/hay.png-26634c34ee6d6a470d9719e268668361.bptc.ctex"
+path.astc="res://.godot/imported/hay.png-26634c34ee6d6a470d9719e268668361.astc.ctex"
 metadata={
 "imported_formats": ["s3tc_bptc", "etc2_astc"],
 "vram_texture": true
@@ -13,12 +13,12 @@ metadata={
 [deps]
 
 source_file="res://assets/generated/region/textures/hay.png"
-dest_files=["res://.godot/imported/hay.png-26634c34ee6d6a470d9719e268668361.s3tc.ctex", "res://.godot/imported/hay.png-26634c34ee6d6a470d9719e268668361.etc2.ctex"]
+dest_files=["res://.godot/imported/hay.png-26634c34ee6d6a470d9719e268668361.bptc.ctex", "res://.godot/imported/hay.png-26634c34ee6d6a470d9719e268668361.astc.ctex"]
 
 [params]
 
 compress/mode=2
-compress/high_quality=false
+compress/high_quality=true
 compress/lossy_quality=0.7
 compress/uastc_level=0
 compress/rdo_quality_loss=0.0

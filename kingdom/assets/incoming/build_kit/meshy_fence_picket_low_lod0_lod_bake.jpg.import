@@ -3,9 +3,11 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://du0jeb7t7vhpm"
-path="res://.godot/imported/meshy_fence_picket_low_lod0_lod_bake.jpg-91d8f40dc8e78cbaac8dc56d0e1c5ac7.ctex"
+path.s3tc="res://.godot/imported/meshy_fence_picket_low_lod0_lod_bake.jpg-91d8f40dc8e78cbaac8dc56d0e1c5ac7.s3tc.ctex"
+path.etc2="res://.godot/imported/meshy_fence_picket_low_lod0_lod_bake.jpg-91d8f40dc8e78cbaac8dc56d0e1c5ac7.etc2.ctex"
 metadata={
-"vram_texture": false
+"imported_formats": ["s3tc_bptc", "etc2_astc"],
+"vram_texture": true
 }
 generator_parameters={
 "md5": "ee23ec5627f9792845af7aafdf02ef1c"
@@ -14,11 +16,11 @@ generator_parameters={
 [deps]
 
 source_file="res://assets/incoming/build_kit/meshy_fence_picket_low_lod0_lod_bake.jpg"
-dest_files=["res://.godot/imported/meshy_fence_picket_low_lod0_lod_bake.jpg-91d8f40dc8e78cbaac8dc56d0e1c5ac7.ctex"]
+dest_files=["res://.godot/imported/meshy_fence_picket_low_lod0_lod_bake.jpg-91d8f40dc8e78cbaac8dc56d0e1c5ac7.s3tc.ctex", "res://.godot/imported/meshy_fence_picket_low_lod0_lod_bake.jpg-91d8f40dc8e78cbaac8dc56d0e1c5ac7.etc2.ctex"]
 
 [params]
 
-compress/mode=0
+compress/mode=2
 compress/high_quality=false
 compress/lossy_quality=0.7
 compress/uastc_level=0

@@ -3,9 +3,11 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://d4e8wwrtk0k"
-path="res://.godot/imported/knight_plate_a_knight_plate_a_tex.jpg-8961490a2b932d4c77734022d10e1de1.ctex"
+path.s3tc="res://.godot/imported/knight_plate_a_knight_plate_a_tex.jpg-8961490a2b932d4c77734022d10e1de1.s3tc.ctex"
+path.etc2="res://.godot/imported/knight_plate_a_knight_plate_a_tex.jpg-8961490a2b932d4c77734022d10e1de1.etc2.ctex"
 metadata={
-"vram_texture": false
+"imported_formats": ["s3tc_bptc", "etc2_astc"],
+"vram_texture": true
 }
 generator_parameters={
 "md5": "642d2920a23b462a7c3782a81dd8250f"
@@ -14,11 +16,11 @@ generator_parameters={
 [deps]
 
 source_file="res://assets/incoming/meshy_dl3/characters_ual/knight_plate_a_knight_plate_a_tex.jpg"
-dest_files=["res://.godot/imported/knight_plate_a_knight_plate_a_tex.jpg-8961490a2b932d4c77734022d10e1de1.ctex"]
+dest_files=["res://.godot/imported/knight_plate_a_knight_plate_a_tex.jpg-8961490a2b932d4c77734022d10e1de1.s3tc.ctex", "res://.godot/imported/knight_plate_a_knight_plate_a_tex.jpg-8961490a2b932d4c77734022d10e1de1.etc2.ctex"]
 
 [params]
 
-compress/mode=0
+compress/mode=2
 compress/high_quality=false
 compress/lossy_quality=0.7
 compress/uastc_level=0

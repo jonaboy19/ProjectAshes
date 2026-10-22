@@ -3,19 +3,21 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://c8qchj7pbnvux"
-path="res://.godot/imported/ShapePattern01_T.png-e3f8b4a82e26dde47905f41d7a0ee17f.ctex"
+path.s3tc="res://.godot/imported/ShapePattern01_T.png-e3f8b4a82e26dde47905f41d7a0ee17f.s3tc.ctex"
+path.etc2="res://.godot/imported/ShapePattern01_T.png-e3f8b4a82e26dde47905f41d7a0ee17f.etc2.ctex"
 metadata={
-"vram_texture": false
+"imported_formats": ["s3tc_bptc", "etc2_astc"],
+"vram_texture": true
 }
 
 [deps]
 
 source_file="res://assets/vfx/effekseer/00_Version16/Textures/ShapePattern01_T.png"
-dest_files=["res://.godot/imported/ShapePattern01_T.png-e3f8b4a82e26dde47905f41d7a0ee17f.ctex"]
+dest_files=["res://.godot/imported/ShapePattern01_T.png-e3f8b4a82e26dde47905f41d7a0ee17f.s3tc.ctex", "res://.godot/imported/ShapePattern01_T.png-e3f8b4a82e26dde47905f41d7a0ee17f.etc2.ctex"]
 
 [params]
 
-compress/mode=0
+compress/mode=2
 compress/high_quality=false
 compress/lossy_quality=0.7
 compress/uastc_level=0
@@ -23,7 +25,7 @@ compress/rdo_quality_loss=0.0
 compress/hdr_compression=1
 compress/normal_map=0
 compress/channel_pack=0
-mipmaps/generate=false
+mipmaps/generate=true
 mipmaps/limit=-1
 roughness/mode=0
 roughness/src_normal=""

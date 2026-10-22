@@ -3,9 +3,11 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://d02r5rydp4238"
-path="res://.godot/imported/shield_tower_WoodPlanksBareWindmillCap.jpg-e1182fbec8ad39609750da9b73a40bb2.ctex"
+path.s3tc="res://.godot/imported/shield_tower_WoodPlanksBareWindmillCap.jpg-e1182fbec8ad39609750da9b73a40bb2.s3tc.ctex"
+path.etc2="res://.godot/imported/shield_tower_WoodPlanksBareWindmillCap.jpg-e1182fbec8ad39609750da9b73a40bb2.etc2.ctex"
 metadata={
-"vram_texture": false
+"imported_formats": ["s3tc_bptc", "etc2_astc"],
+"vram_texture": true
 }
 generator_parameters={
 "md5": "8ea30572cbe1b34691676e6396ee7470"
@@ -14,11 +16,11 @@ generator_parameters={
 [deps]
 
 source_file="res://assets/items/armor/shield_tower_WoodPlanksBareWindmillCap.jpg"
-dest_files=["res://.godot/imported/shield_tower_WoodPlanksBareWindmillCap.jpg-e1182fbec8ad39609750da9b73a40bb2.ctex"]
+dest_files=["res://.godot/imported/shield_tower_WoodPlanksBareWindmillCap.jpg-e1182fbec8ad39609750da9b73a40bb2.s3tc.ctex", "res://.godot/imported/shield_tower_WoodPlanksBareWindmillCap.jpg-e1182fbec8ad39609750da9b73a40bb2.etc2.ctex"]
 
 [params]
 
-compress/mode=0
+compress/mode=2
 compress/high_quality=false
 compress/lossy_quality=0.7
 compress/uastc_level=0

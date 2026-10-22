@@ -3,9 +3,11 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://cclia36xuj15"
-path="res://.godot/imported/wagon_shields_covered_lod0_lod_bake.jpg-a5fcb1d4fb2bacdff1e9575dcb3041b7.ctex"
+path.s3tc="res://.godot/imported/wagon_shields_covered_lod0_lod_bake.jpg-a5fcb1d4fb2bacdff1e9575dcb3041b7.s3tc.ctex"
+path.etc2="res://.godot/imported/wagon_shields_covered_lod0_lod_bake.jpg-a5fcb1d4fb2bacdff1e9575dcb3041b7.etc2.ctex"
 metadata={
-"vram_texture": false
+"imported_formats": ["s3tc_bptc", "etc2_astc"],
+"vram_texture": true
 }
 generator_parameters={
 "md5": "f919e5e07548bbbddc4f9bc51cce1bae"
@@ -14,11 +16,11 @@ generator_parameters={
 [deps]
 
 source_file="res://assets/incoming/meshy_dl3/carts/wagon_shields_covered_lod0_lod_bake.jpg"
-dest_files=["res://.godot/imported/wagon_shields_covered_lod0_lod_bake.jpg-a5fcb1d4fb2bacdff1e9575dcb3041b7.ctex"]
+dest_files=["res://.godot/imported/wagon_shields_covered_lod0_lod_bake.jpg-a5fcb1d4fb2bacdff1e9575dcb3041b7.s3tc.ctex", "res://.godot/imported/wagon_shields_covered_lod0_lod_bake.jpg-a5fcb1d4fb2bacdff1e9575dcb3041b7.etc2.ctex"]
 
 [params]
 
-compress/mode=0
+compress/mode=2
 compress/high_quality=false
 compress/lossy_quality=0.7
 compress/uastc_level=0

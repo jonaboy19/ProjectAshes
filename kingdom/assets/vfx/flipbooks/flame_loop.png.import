@@ -3,19 +3,21 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://b1tcdj3q6cyme"
-path="res://.godot/imported/flame_loop.png-efe6d1d4fa6355b92eac223035a88e22.ctex"
+path.s3tc="res://.godot/imported/flame_loop.png-efe6d1d4fa6355b92eac223035a88e22.s3tc.ctex"
+path.etc2="res://.godot/imported/flame_loop.png-efe6d1d4fa6355b92eac223035a88e22.etc2.ctex"
 metadata={
-"vram_texture": false
+"imported_formats": ["s3tc_bptc", "etc2_astc"],
+"vram_texture": true
 }
 
 [deps]
 
 source_file="res://assets/vfx/flipbooks/flame_loop.png"
-dest_files=["res://.godot/imported/flame_loop.png-efe6d1d4fa6355b92eac223035a88e22.ctex"]
+dest_files=["res://.godot/imported/flame_loop.png-efe6d1d4fa6355b92eac223035a88e22.s3tc.ctex", "res://.godot/imported/flame_loop.png-efe6d1d4fa6355b92eac223035a88e22.etc2.ctex"]
 
 [params]
 
-compress/mode=0
+compress/mode=2
 compress/high_quality=false
 compress/lossy_quality=0.7
 compress/uastc_level=0
@@ -23,7 +25,7 @@ compress/rdo_quality_loss=0.0
 compress/hdr_compression=1
 compress/normal_map=0
 compress/channel_pack=0
-mipmaps/generate=false
+mipmaps/generate=true
 mipmaps/limit=-1
 roughness/mode=0
 roughness/src_normal=""

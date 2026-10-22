@@ -3,9 +3,11 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://b45xr23k15ple"
-path="res://.godot/imported/stagborn_elk_lod1_stagborn_elk_a_512.jpg-fecdce4bdc7ee2e36ccc22c8b6bbaa3f.ctex"
+path.s3tc="res://.godot/imported/stagborn_elk_lod1_stagborn_elk_a_512.jpg-fecdce4bdc7ee2e36ccc22c8b6bbaa3f.s3tc.ctex"
+path.etc2="res://.godot/imported/stagborn_elk_lod1_stagborn_elk_a_512.jpg-fecdce4bdc7ee2e36ccc22c8b6bbaa3f.etc2.ctex"
 metadata={
-"vram_texture": false
+"imported_formats": ["s3tc_bptc", "etc2_astc"],
+"vram_texture": true
 }
 generator_parameters={
 "md5": "9d05af21edd09945f8a290f4d7919976"
@@ -14,11 +16,11 @@ generator_parameters={
 [deps]
 
 source_file="res://assets/incoming/ai3d/meshy/creatures/stagborn_elk_lod1_stagborn_elk_a_512.jpg"
-dest_files=["res://.godot/imported/stagborn_elk_lod1_stagborn_elk_a_512.jpg-fecdce4bdc7ee2e36ccc22c8b6bbaa3f.ctex"]
+dest_files=["res://.godot/imported/stagborn_elk_lod1_stagborn_elk_a_512.jpg-fecdce4bdc7ee2e36ccc22c8b6bbaa3f.s3tc.ctex", "res://.godot/imported/stagborn_elk_lod1_stagborn_elk_a_512.jpg-fecdce4bdc7ee2e36ccc22c8b6bbaa3f.etc2.ctex"]
 
 [params]
 
-compress/mode=0
+compress/mode=2
 compress/high_quality=false
 compress/lossy_quality=0.7
 compress/uastc_level=0
