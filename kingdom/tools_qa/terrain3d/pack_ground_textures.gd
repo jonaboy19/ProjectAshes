@@ -15,7 +15,7 @@ const LAYERS := {
 	"grass": ["leafy_grass", "disp"], "forest": ["forest_ground_04", "disp"], "path": ["grass_path_2", "disp"],
 	"rock": ["rocky_terrain_02", "disp"],
 	# W1d (Valencious macro biomes): existing Poly Haven sets only, graded to Style G (warm, painterly)
-	"meadow": ["sparse_grass", "disp"], "farmland": ["dirt", "disp"], "marsh": ["brown_mud_02", "disp"],
+	"meadow": ["leafy_grass", "disp"], "farmland": ["dirt", "disp"], "marsh": ["brown_mud_02", "disp"],
 	"rift": ["rocky_terrain_02", "disp"], "snow": ["rocky_terrain_02", "disp"],
 }
 const GRADE := ["meadow", "farmland", "marsh", "rift", "snow"]
@@ -30,10 +30,10 @@ func _grade(layer: String, im: Image) -> void:
 			var l := c.get_luminance()
 			var o := c
 			match layer:
-				"meadow": o = Color(c.r * 1.06, c.g * 1.02, c.b * 0.80)
-				"farmland": o = Color(l * 0.95 + 0.10, l * 0.70 + 0.06, l * 0.45 + 0.03)
+				"meadow": o = Color(c.r * 1.14, c.g * 1.04, c.b * 0.62)
+				"farmland": o = Color(l * 0.72 + 0.10, l * 0.66 + 0.10, l * 0.36 + 0.04)
 				"marsh": o = Color(c.r * 0.70, c.g * 0.78, c.b * 0.52)
-				"rift": o = Color(l * 0.50 + 0.05, l * 0.32 + 0.03, l * 0.62 + 0.09)
+				"rift": o = Color(l * 0.44 + 0.07, l * 0.38 + 0.06, l * 0.50 + 0.09)
 				"snow": o = Color(0.78 + l * 0.20, 0.82 + l * 0.17, 0.90 + l * 0.10)
 			im.set_pixel(x, y, Color(clampf(o.r, 0, 1), clampf(o.g, 0, 1), clampf(o.b, 0, 1), c.a))
 

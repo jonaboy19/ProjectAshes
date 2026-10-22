@@ -177,11 +177,20 @@ static func biome_at(x: float, z: float) -> int:
 	return _biome[v * BIOME_SIZE + u]
 
 
-## Splat weights (meadow, farmland, marsh, rift ash), each 0..1, at (x, z); zero when not loaded.
+## Splat weights (meadow, farmland, marsh, rift ash), each 0..1, bilinear between the 12 m cells; zero when not loaded.
 static func splat_at(x: float, z: float) -> Color:
 	if _splat.is_empty():
 		return Color(0, 0, 0, 0)
-	var u := clampi(int(floorf((x + HALF) / BIOME_MPP)), 0, BIOME_SIZE - 1)
-	var v := clampi(int(floorf((z + HALF) / BIOME_MPP)), 0, BIOME_SIZE - 1)
-	var o := (v * BIOME_SIZE + u) * 4
-	return Color(_splat[o] / 255.0, _splat[o + 1] / 255.0, _splat[o + 2] / 255.0, _splat[o + 3] / 255.0)
+	var u := clampf((x + HALF) / BIOME_MPP - 0.5, 0.0, BIOME_SIZE - 1.001)
+	var v := clampf((z + HALF) / BIOME_MPP - 0.5, 0.0, BIOME_SIZE - 1.001)
+	var iu := int(u)
+	var iv := int(v)
+	var fu := u - iu
+	var fv := v - iv
+	var o := (iv * BIOME_SIZE + iu) * 4
+	var r := Color(0, 0, 0, 0)
+	for c in 4:
+		var a0 := lerpf(float(_splat[o + c]), float(_splat[o + 4 + c]), fu)
+		var a1 := lerpf(float(_splat[o + BIOME_SIZE * 4 + c]), float(_splat[o + BIOME_SIZE * 4 + 4 + c]), fu)
+		r[c] = lerpf(a0, a1, fv) / 255.0
+	return r
