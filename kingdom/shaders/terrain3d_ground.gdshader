@@ -7,6 +7,7 @@ shader_type spatial;
 render_mode blend_mix,depth_draw_opaque,cull_back,diffuse_burley,specular_schlick_ggx,skip_vertex_transform;
 
 // ---- WORLD FX (W3): uniforms ported from shaders/terrain.gdshader ----
+uniform float lush : hint_range(0.0, 1.0) = 0.0;           // W5 Style G grade for open ground (macro mode): richer, greener, never touches rock / rift ash / snow
 uniform float wetness : hint_range(0.0, 1.0) = 0.0;       // rain soak, driven by scripts/world/weather.gd
 global uniform vec3 season_tint;
 global uniform float autumn_amount;
@@ -571,6 +572,15 @@ void fragment() {
 			float puddle = clamp(wetness * wetness * flat_amt * hollow * mix(0.35, 1.0, hard), 0.0, 1.0);
 			albedo *= mix(1.0, 0.8, puddle);
 			rough = mix(rough, 0.05, puddle);
+		}
+		if (lush > 0.0) {
+			// Style G reference: saturated lush green meadows. The scanned grass/meadow sets read olive-brown in daylight.
+			float l = dot(albedo, vec3(0.299, 0.587, 0.114));
+			float violet = smoothstep(0.0, 0.04, albedo.b - albedo.g);
+			float bright = smoothstep(0.4, 0.65, l);
+			float k = lush * (1.0 - hard) * (1.0 - violet) * (1.0 - bright);
+			vec3 rich = mix(vec3(l), albedo, 1.55) * vec3(0.78, 1.18, 0.74);
+			albedo = mix(albedo, rich, k);
 		}
 		albedo *= season_tint;
 		if (autumn_amount > 0.0) {

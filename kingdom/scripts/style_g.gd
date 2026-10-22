@@ -134,7 +134,7 @@ static func _game_environment(env: Environment, tier: String) -> void:
 	env.fog_density = 0.0021     # pass 12: 0.0027 washed the aerial view out
 	env.fog_aerial_perspective = 0.45
 	env.fog_sky_affect = 0.0
-	env.volumetric_fog_albedo = Color("f2e2c0")
+	env.volumetric_fog_albedo = Color("dde2f4")      # W5: blue-violet like the depth fog (was warm f2e2c0)
 	env.volumetric_fog_density = 0.0015
 	env.volumetric_fog_length = 64.0
 	env.reflected_light_source = Environment.REFLECTION_SOURCE_SKY

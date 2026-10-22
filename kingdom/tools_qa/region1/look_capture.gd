@@ -17,6 +17,7 @@ var weather_arg := "clear"   # QA captures pin the weather (the daily schedule c
 var _env_saved: Dictionary = {}
 var _t3d_saved: Dictionary = {}
 var _mat_saved: Dictionary = {}
+var aa_arg := 0
 var only: PackedStringArray = []
 var budget_s := 900
 var main: Node
@@ -108,8 +109,23 @@ func _next() -> void:
 	var v: Dictionary = views[idx]
 	_clear_overlays()
 	root.get_node("WorldSim").set("time_of_day", float(v.get("hour", 16.2)))
-	var at := Vector2(float(v["at"][0]), float(v["at"][1]))
-	var look := Vector2(float(v["look"][0]), float(v["look"][1]))
+	var at := Vector2(float(v.get("at", [0, 0])[0]), float(v.get("at", [0, 0])[1]))
+	var look := Vector2(float(v.get("look", [0, 0])[0]), float(v.get("look", [0, 0])[1]))
+	if v.has("gate"):
+		# Kingsreach gate market (the owner's reference view): `in` metres inside the first gate of settlement `gate`, looking out of the gate.
+		var gs: Dictionary = WorldGen.settlements[int(v["gate"])]
+		var ga: float = gs["plan"]["gates"][0]
+		var gd := Vector2(cos(ga), sin(ga))
+		at = (gs["pos"] as Vector2) + gd * (float(gs["radius"]) - float(v.get("in", 42.0)))
+		look = at + gd * 80.0
+	if v.has("site"):
+		for st: Dictionary in WorldGen.sites:
+			if String(st.get("r1id", "")).begins_with(String(v["site"])):
+				var sp: Vector2 = st["pos"]
+				var so: Array = v.get("site_at", [0.0, 14.0])
+				var sl: Array = v.get("site_look", [0.0, 5.2])
+				at = sp + Vector2(float(so[0]), float(so[1]))
+				look = sp + Vector2(float(sl[0]), float(sl[1]))
 	var player: Node3D = main.get("player")
 	# Stream the world around the camera spot: the game follows the player.
 	main.call("_teleport", at, 0.0)
@@ -137,6 +153,17 @@ func _next() -> void:
 				region.call("_build_part", item[0], item[1], item[1]["parts"][item[3]])
 			else:
 				region.call("_build_light", item[0], item[1]["lights"][item[3]])
+	# Towns build their props in slices around the focus: finish them so a view near a settlement is complete.
+	var setl: Node = main.get("settlements")
+	var near_town := v.has("gate")
+	for st in WorldGen.settlements:
+		if at.distance_to(st["pos"]) < float(st["radius"]) + 60.0:
+			near_town = true
+	if setl and near_town:     # (costs 1-2 min per view on a loaded machine: only where a town is really in view)
+		setl.set("focus", player.global_position)
+		for _i in 4:
+			setl.call("update_now")
+		setl.call("finish_prop_jobs")
 	var gy := WorldGen.height(at.x, at.y)
 	var ly := WorldGen.height(look.x, look.y)
 	var lv := WorldGen.water_level_at(look.x, look.y)
@@ -212,7 +239,7 @@ func _next() -> void:
 		(hzn.get("horizon") as Node3D).visible = not bool(v.get("nohorizon", false))
 	phase = 0
 	wait = int(v.get("warm", 150))
-	print("[look] view ", v["name"], " at ", at)
+	print("[look] view ", v["name"], " at ", at, " look ", look, " t=", (Time.get_ticks_msec() - t0) / 1000)
 
 
 ## Look-dev shots are of the world: HUD, cutscene captions,
@@ -255,7 +282,7 @@ func _save() -> void:
 		rv.get_render_info(Viewport.RENDER_INFO_TYPE_VISIBLE, Viewport.RENDER_INFO_OBJECTS_IN_FRAME)]
 	perf_lines.append(line)
 	print("[perf] ", line)
-	print("SAVED ", p)
+	print("SAVED ", p, " t=", (Time.get_ticks_msec() - t0) / 1000)
 
 
 func _finish() -> void:

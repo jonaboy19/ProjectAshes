@@ -22,6 +22,7 @@ static func apply(terrain: Terrain3D) -> Terrain3DLook:
 	var mat := terrain.material
 	mat.shader_override_enabled = true
 	mat.shader_override = shader
+	mat.set_shader_param("lush", 1.0 if WorldMacro.wants() else 0.0)
 	var look := Terrain3DLook.new()
 	look.name = "Terrain3DLook"
 	look._mat = mat

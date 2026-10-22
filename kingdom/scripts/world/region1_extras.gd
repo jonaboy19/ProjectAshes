@@ -118,9 +118,10 @@ static func _label(root: Node3D, lab: Dictionary) -> void:
 		var sub := String(lab.get("sub", ""))
 		if sub != "":
 			var s := Label3D.new()
+			var sfit := _fit_title(sub, 40, 0.0100, 4.2)
 			s.text = sub
 			s.font_size = 40
-			s.pixel_size = 0.0100
+			s.pixel_size = float(sfit["px"])
 			s.outline_size = 0
 			s.modulate = Color(0.85, 0.75, 0.55)
 			s.shaded = false

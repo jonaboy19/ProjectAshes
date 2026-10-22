@@ -296,7 +296,12 @@ func _take(loc: Vector2i) -> Array:
 	return m
 
 
+## [regions added, total main-thread microseconds in add_region, worst single add] (perf QA: the "region bake hitch").
+static var add_stats := [0, 0, 0]
+
+
 func _add_region(loc: Vector2i, maps: Array) -> void:
+	var t0 := Time.get_ticks_usec()
 	var r := Terrain3DRegion.new()
 	r.region_size = REGION_SIZE
 	r.vertex_spacing = SPACING
@@ -307,6 +312,8 @@ func _add_region(loc: Vector2i, maps: Array) -> void:
 	r.calc_height_range()
 	terrain.data.add_region(r, true)
 	_regions[loc] = r
+	var dt := Time.get_ticks_usec() - t0
+	add_stats = [int(add_stats[0]) + 1, int(add_stats[1]) + dt, maxi(int(add_stats[2]), dt)]
 
 
 ## Builds every region around `at` right now (spawn/teleport), in parallel on the worker pool.
