@@ -41,13 +41,16 @@ def lattice_noise(n, period_px, seed, shape=None):
     """Smooth zero-mean unit-ish noise on an n x n grid: a random lattice (one value per `period_px`) cubic-upsampled.
     Deterministic for a given (n, period_px, seed)."""
     shape = shape or (n, n)
+    py, px = (period_px if isinstance(period_px, tuple) else (period_px, period_px))
+    py = int(round(py))
+    px = int(round(px))
     rng = np.random.default_rng(seed)
-    ly = int(np.ceil(shape[0] / period_px)) + 4
-    lx = int(np.ceil(shape[1] / period_px)) + 4
+    ly = int(np.ceil(shape[0] / py)) + 4
+    lx = int(np.ceil(shape[1] / px)) + 4
     lat = rng.standard_normal((ly, lx)).astype(np.float32)
-    big = ndimage.zoom(lat, period_px, order=3, mode="reflect", grid_mode=True)
-    oy = int(period_px * 1.5)
-    ox = int(period_px * 1.5)
+    big = ndimage.zoom(lat, (py, px), order=3, mode="reflect", grid_mode=True)
+    oy = int(py * 1.5)
+    ox = int(px * 1.5)
     out = big[oy:oy + shape[0], ox:ox + shape[1]]
     return out.astype(np.float32)
 
@@ -69,8 +72,8 @@ def fbm(n, base_period_px, octaves, seed, gain=0.5, shape=None):
     return acc / (tot * 0.55)
 
 
-def ridged(n, base_period_px, octaves, seed, shape=None):
-    """Ridged multifractal in 0..1 (sharp crests)."""
+def ridged(n, base_period_px, octaves, seed, shape=None, aniso=1.0):
+    """Ridged multifractal in 0..1 (sharp crests). aniso > 1 stretches the features along x (east-west ranges)."""
     shape = shape or (n, n)
     acc = np.zeros(shape, np.float32)
     amp = 1.0
@@ -80,7 +83,7 @@ def ridged(n, base_period_px, octaves, seed, shape=None):
     for o in range(octaves):
         if p < 1.5:
             break
-        s = lattice_noise(n, p, seed + 211 * o, shape)
+        s = lattice_noise(n, (p, p * aniso), seed + 211 * o, shape)
         r = 1.0 - np.abs(np.tanh(s * 0.9))
         r = r * r
         r = r * weight
