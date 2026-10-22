@@ -188,3 +188,106 @@ static func grass_kind(biome: int, r: float) -> String:
 	if r < float(mix[0]) + float(mix[1]):
 		return "grass_clump_tall"
 	return "flowers_a"
+
+
+# ---- soft ground weights (Terrain3D control + colour map, W3) -------------------------------------------------------------------------
+## data/world/macro/biome_soft_{a,b}.png (tools/world/make_biome_soft.py): per-biome weights blurred by a 150 m Gaussian, 48 m cells, sampled
+## bilinearly at a noise-warped position, so ground and tint never meet along a hard biome border.
+const SOFT_A := "res://data/world/macro/biome_soft_a.png"
+const SOFT_B := "res://data/world/macro/biome_soft_b.png"
+const SOFT_N := 256
+const HALF := 6144.0
+const WARP_M := 70.0
+## Ground mix of each biome over [grass(rest), forest litter, meadow, farmland, marsh, rift, snow, highland]. Grass/meadow stay the base
+## everywhere except real forest floor, marsh, rift and snow; farmland dirt is a soft patch (<= 25 %).
+const MIX_FOREST := 0.45
+const MIX_FARM := 0.15
+const MIX_MARSH := 0.7
+const MIX_RIFT := 0.8
+const MIX_SNOW := 0.8
+const MIX_HIGH := 0.6
+## Colour-map tint per biome (multiplies the albedo): lush Style G green on open ground, deeper under trees, dry gold on the highlands.
+const TINT := [Color(0.86, 1.0, 0.73), Color(0.84, 1.0, 0.68), Color(0.88, 1.0, 0.71), Color(0.95, 1.0, 0.77),
+	Color(0.88, 1.0, 0.8), Color(1.0, 1.0, 0.84), Color(1.0, 0.96, 1.0), Color(1.0, 1.0, 1.0)]    # <= 1: the 8-bit colour map cannot brighten
+
+static var _soft := PackedByteArray()        # SOFT_N^2 * 8
+static var _soft_ok := false
+static var _soft_mutex := Mutex.new()
+static var _warp: FastNoiseLite
+
+
+static func _soft_load() -> void:
+	_soft_mutex.lock()
+	if not _soft_ok:
+		var a := Image.load_from_file(ProjectSettings.globalize_path(SOFT_A))
+		var b := Image.load_from_file(ProjectSettings.globalize_path(SOFT_B))
+		if a != null and b != null and a.get_size() == Vector2i(SOFT_N, SOFT_N):
+			a.convert(Image.FORMAT_RGBA8)
+			b.convert(Image.FORMAT_RGBA8)
+			var da := a.get_data()
+			var db := b.get_data()
+			_soft.resize(SOFT_N * SOFT_N * 8)
+			for i in SOFT_N * SOFT_N:
+				for c in 4:
+					_soft[i * 8 + c] = da[i * 4 + c]
+					_soft[i * 8 + 4 + c] = db[i * 4 + c]
+		_warp = FastNoiseLite.new()
+		_warp.seed = 1066
+		_warp.frequency = 0.0035
+		_soft_ok = true
+	_soft_mutex.unlock()
+
+
+## Smooth biome weights (8 floats summing ~1) at (x, z). All zero when the macro is not loaded.
+static func soft_weights(x: float, z: float) -> PackedFloat32Array:
+	var out := PackedFloat32Array()
+	out.resize(8)
+	if not active():
+		return out
+	if not _soft_ok:
+		_soft_load()
+	if _soft.is_empty():
+		var b := at(x, z)
+		out[b] = 1.0
+		return out
+	var wx := x + _warp.get_noise_2d(x, z) * WARP_M
+	var wz := z + _warp.get_noise_2d(x + 311.0, z - 177.0) * WARP_M
+	var cell := HALF * 2.0 / SOFT_N
+	var u := clampf((wx + HALF) / cell - 0.5, 0.0, SOFT_N - 1.001)
+	var v := clampf((wz + HALF) / cell - 0.5, 0.0, SOFT_N - 1.001)
+	var iu := int(u)
+	var iv := int(v)
+	var fu := u - iu
+	var fv := v - iv
+	for c in 8:
+		var p00 := float(_soft[(iv * SOFT_N + iu) * 8 + c])
+		var p10 := float(_soft[(iv * SOFT_N + iu + 1) * 8 + c])
+		var p01 := float(_soft[((iv + 1) * SOFT_N + iu) * 8 + c])
+		var p11 := float(_soft[((iv + 1) * SOFT_N + iu + 1) * 8 + c])
+		out[c] = lerpf(lerpf(p00, p10, fu), lerpf(p01, p11, fu), fv) / 255.0
+	return out
+
+
+## Ground slot weights for the Terrain3D control map: [forest litter, meadow, farmland, marsh, rift, snow, highland] (grass = the rest).
+## `patch` 0..1 is a low-frequency noise value that breaks the mixes into soft patches.
+static func ground_mix(sw: PackedFloat32Array, patch: float) -> PackedFloat32Array:
+	var m := PackedFloat32Array()
+	m.resize(7)
+	var vary := 0.7 + 0.6 * patch
+	m[0] = sw[FOREST] * MIX_FOREST * vary
+	m[1] = sw[MEADOW] * 0.8 + sw[GRASS] * 0.15 + sw[FARMLAND] * 0.35 + sw[HIGHLAND] * 0.1 + sw[FOREST] * 0.0
+	m[2] = sw[FARMLAND] * MIX_FARM * smoothstep(0.35, 0.7, patch) * 1.6
+	m[3] = sw[MARSH] * MIX_MARSH
+	m[4] = sw[RIFT] * MIX_RIFT
+	m[5] = sw[SNOW] * MIX_SNOW
+	m[6] = sw[HIGHLAND] * MIX_HIGH * vary
+	return m
+
+
+static func tint(sw: PackedFloat32Array) -> Color:
+	var c := Color(0, 0, 0, 0)
+	var t := 0.0
+	for i in 8:
+		c += (TINT[i] as Color) * sw[i]
+		t += sw[i]
+	return (c / t) if t > 0.001 else Color(1, 1, 1, 1)

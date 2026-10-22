@@ -164,7 +164,8 @@
    "up": 120,
    "look_up": 0,
    "hour": 12.0,
-   "fov": 60
+   "fov": 60,
+   "warm": 500
   },
   {
    "name": "w06_rift_marches_ground",
@@ -179,7 +180,8 @@
    "up": 1.7,
    "look_up": 1.5,
    "hour": 15.0,
-   "fov": 60
+   "fov": 60,
+   "warm": 500
   },
   {
    "name": "w07_ashen_scar_aerial",
@@ -344,7 +346,8 @@
    "up": 120,
    "look_up": 0,
    "hour": 12.0,
-   "fov": 60
+   "fov": 60,
+   "warm": 500
   },
   {
    "name": "w12_harrowgate_steppe_ground",
@@ -359,7 +362,8 @@
    "up": 1.7,
    "look_up": 1.5,
    "hour": 15.0,
-   "fov": 60
+   "fov": 60,
+   "warm": 500
   }
  ]
 }

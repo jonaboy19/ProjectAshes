@@ -88,6 +88,9 @@ func _ready() -> void:
 	_t3d = TerrainBackend.is_terrain3d()
 	# Biome-aware grass (Valencious macro only) scales with the tier's grass_mul: PC_HIGH 1.5x, PC_ULTRA 2x. Read here, on the main thread.
 	WorldBiomes.grass_scale = float(Quality.value("grass_mul")) if Quality.has_value("grass_mul") else 1.0
+	for a in OS.get_cmdline_user_args() + OS.get_cmdline_args():
+		if a.begins_with("--grass_scale="):          # QA: PC_HIGH density on a profile that cannot run the PC tiers (FSR2 + Terrain3D crash)
+			WorldBiomes.grass_scale = float(a.get_slice("=", 1))
 	if _t3d:
 		_bridge = Terrain3DBridge.new()
 		_bridge.name = "Terrain3DBridge"

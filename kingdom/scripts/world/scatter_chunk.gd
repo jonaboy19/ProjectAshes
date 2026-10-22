@@ -31,6 +31,10 @@ const NEAR_ONLY := [REGION + "fern", REGION + "grass_", REGION + "flowers", "Mus
 
 signal finished                     ## every role has produced its MultiMeshes
 
+## Diagnostics (perf pass W3): wall-clock ms from attach to `finished`, per chunk. [count, total_ms, max_ms]
+static var stats := [0, 0.0, 0.0]
+var _t0_us := 0
+
 var key := Vector2i.ZERO
 var roles_done := 0
 ## kind -> total instance count produced (tests/diagnostics).
@@ -52,6 +56,7 @@ static func attach(chunk: Node3D, chunk_key: Vector2i) -> ScatterChunk:
 
 
 func _ready() -> void:
+	_t0_us = Time.get_ticks_usec()
 	var origin := Vector2(key.x * CHUNK, key.y * CHUNK)
 	for role: String in ROLES:
 		_scatters.append(_make_scatter(role, origin))
@@ -191,6 +196,10 @@ func _role_done(role: String) -> void:
 	roles_done += 1
 	if roles_done >= ROLES.size():
 		set_process(false)
+		var ms := (Time.get_ticks_usec() - _t0_us) / 1000.0
+		stats[0] += 1
+		stats[1] += ms
+		stats[2] = maxf(stats[2], ms)
 		finished.emit()
 
 
