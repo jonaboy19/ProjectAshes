@@ -7,6 +7,7 @@ were still Lossless: on a phone that is 4 bytes/px uncompressed RGBA in VRAM
 
   py tools/qa/texture_vram.py            # dry run: list what would change
   py tools/qa/texture_vram.py --write    # rewrite the .import files
+  py tools/qa/texture_vram.py --pc       # PC build: same, plus compress/high_quality=true (BC7) for HERO paths
   then: godot --headless --path kingdom --import
 
 Scope: texture .import files under kingdom/assets/ that the Android export ships
@@ -21,6 +22,12 @@ import fnmatch, os, re, sys
 HERE = os.path.dirname(os.path.abspath(__file__))
 KINGDOM = os.path.normpath(os.path.join(HERE, "..", "..", "kingdom"))
 SKIP_PREFIX = ("res://assets/ui/", "res://assets/generated/app_icon/", "res://assets/audio/")
+# PC mode: keep in sync with mobile_texture_export.gd HERO (these get BC7/BPTC high quality).
+HERO = ("res://assets/generated/characters/", "res://assets/incoming/characters/", "res://assets/art/textures/",
+        "res://assets/generated/region/textures/", "res://assets/generated/village_tex/")
+# PC mode: raw Meshy working folders are not shipped.
+PC_SKIP = ("res://assets/incoming/ai3d/meshy/_work", "res://assets/incoming/ai3d/meshy/_previews",
+           "res://assets/incoming/ai3d/meshy/_input")
 NORMAL = re.compile(r"(_nor(_gl|_dx)?[_.]|normal|_n\.)", re.I)
 
 
@@ -32,6 +39,7 @@ def exclude_filters():
 
 def main():
     write = "--write" in sys.argv
+    pc = "--pc" in sys.argv
     filters = exclude_filters()
     changed = 0
     for dp, _dn, fn in os.walk(os.path.join(KINGDOM, "assets")):
@@ -42,6 +50,8 @@ def main():
             res = "res://" + os.path.relpath(path, KINGDOM).replace(os.sep, "/")[:-len(".import")]
             if res.startswith(SKIP_PREFIX) or res.lower().endswith((".hdr", ".exr", ".svg")):
                 continue
+            if pc and res.startswith(PC_SKIP):
+                continue
             if any(fnmatch.fnmatch(res, flt) for flt in filters):
                 continue
             s = open(path, encoding="utf-8").read()
@@ -51,6 +61,8 @@ def main():
             new = re.sub(r"^mipmaps/generate=\w+", "mipmaps/generate=true", new, flags=re.M)
             if NORMAL.search(os.path.basename(res)):
                 new = re.sub(r"^compress/normal_map=\d", "compress/normal_map=1", new, flags=re.M)
+            if pc and res.startswith(HERO):
+                new = re.sub(r"^compress/high_quality=\w+", "compress/high_quality=true", new, flags=re.M)
             if new != s:
                 changed += 1
                 print(("write " if write else "would ") + res)
