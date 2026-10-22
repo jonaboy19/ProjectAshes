@@ -29,24 +29,24 @@
  "height_stats_m": {
   "min": -12.636606216430664,
   "max": 300.0,
-  "mean": 57.596534729003906,
+  "mean": 57.628787994384766,
   "p5": 8.677196502685547,
-  "p50": 49.913177490234375,
-  "p95": 143.71099853515625,
-  "pct_above_snow": 3.0918341042509003
+  "p50": 49.976654052734375,
+  "p95": 143.72442626953125,
+  "pct_above_snow": 3.0926860346387746
  },
  "mere_floor_m": 1.2000000476837158,
  "inputs_sha256": {
   "docs/world/valencious_places.json": "56ffa06f2cfab404c79e89f9c05e4062a92c804344b5be511089aa461695c50a",
   "kingdom/data/world/valencious_regions.json": "777cb2896baa2e5bd2aba25718f75072ff700a8f82e834ab1c3693bdc39396ac",
   "kingdom/data/world/macro/raw_core.json": "32a20c65190bc806fcc943508e89340899d07606dfd22f2f8b2a9fa69ec00680",
-  "kingdom/tools/world/gen_valencious.py": "49f2818e18157523ab8f2a35504dc79b2d11b1b0981c72cf4e073183bdccb685",
+  "kingdom/tools/world/gen_valencious.py": "b66a9dfe715aef3029784d16ce897372c622e49bb872f49a71f3a4515670cca7",
   "kingdom/tools/world/valencious_common.py": "2db0b48102fdfd214211b3ab18479f98ef9d742d6f6b68e3ab27bb49057bc85d"
  },
  "outputs_sha256": {
-  "height_16.png": "1f6e14e2648b3e07238c88c2a09f8f9d19804b55004e4503e095e2ce1e897e0b",
-  "biome_ids.png": "04ee81488590f61669a695366370bc61ae33e3f13341e5d99ba41014763668b2",
-  "splat_weights.png": "a4b47a4098a2b82e76f4ff0ed843dace7fdb17c6ab9b3022c53e57d585c5ed6d",
-  "preview.png": "e65de6d868278f43366e642ec3a9adb99802d961f998fea733362e9c87dd0055"
+  "height_16.png": "884723991138f7abdc66b28359aa0f68a06214001ada1ca974afe9f44a6c67d9",
+  "biome_ids.png": "318e6e1f977f17fd6dce9ede0120a470419bad9871c8b7897aadab28b79fe1c5",
+  "splat_weights.png": "7ba972528504524262cf4f82fc1497bd899b86b3f48824750dc035940ecd29c0",
+  "preview.png": "e88d7c86a9ec1926d85673448e201195e740e6eb35d85742179aecb6d6c4c4b9"
  }
 }

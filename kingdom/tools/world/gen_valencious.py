@@ -168,7 +168,7 @@ def generate():
     r_scar = np.hypot(X - SCAR_POS[0], Z - SCAR_POS[1])
     H -= 16.0 * np.exp(-np.square(r_scar / 300.0)) - 7.0 * np.exp(-np.square((r_scar - 460.0) / 110.0))
     gul = vc.ridged(NC, 7, 3, SEED + 12)
-    H -= 5.0 * smoothstep(0.42, 0.78, gul) * W[[i for i, r in enumerate(regions) if r["id"] == "ashen_scar"][0]] * (1.0 - 0.7 * np.exp(-np.square(r_scar / 250.0)))
+    H -= 5.0 * smoothstep(0.58, 0.85, gul) * W[[i for i, r in enumerate(regions) if r["id"] == "ashen_scar"][0]] * (1.0 - 0.7 * np.exp(-np.square(r_scar / 250.0)))
 
     # ---- grand tilt: the Northern Ridge and the NE highlands are the 'high' of the world; the SW river country the low ----
     Hbase = H.copy()
