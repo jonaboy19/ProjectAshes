@@ -62,3 +62,8 @@ All in `docs/world/plans/`:
 - `player.gd` and `hero_face_driver.gd` are CRLF; keep them CRLF.
 - Disk was nearly full twice; check `df -h /c` before importing or copying `.godot` (~14 GB per worktree).
 - Never spend Meshy credits without the owner's OK in chat.
+
+## Other local work pushed for this handoff (2026-10-22)
+- `antigravity/aaa-mocap-animations` — Antigravity's branch in the main `C:\Users\Jonna\Documents\ProjectAshes` checkout: its last 3 local commits are now pushed (world viewer, Blender continent render, Grand Tournament arenas, 10 walk-in interiors, PC Master tier settings — note `b8a8c505` also edits PC world settings; reconcile with `PC_TIERS`).
+- `antigravity/uncommitted-snapshot-2026-10-22` (`afc1b2fd`) — snapshot of ~140 uncommitted files in that checkout (VFX research doc, Valencious images, Blender interior/arena previews, in-game renders, perf_visual captures, the removed `terrain_3d/.gdignore` and a `project.godot` edit). Not reviewed; the working tree itself was left untouched.
+- `C:\Users\Jonna\Documents\PA_wt_mcp` (branch `claude/mcp-editor`, locked) is a half-finished Godot-MCP setup copy with only copied assets; nothing unique in it — safe to remove with `git worktree remove --force`.
