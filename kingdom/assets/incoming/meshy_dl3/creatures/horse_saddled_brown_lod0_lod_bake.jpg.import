@@ -3,9 +3,11 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://81x6g2ymp22h"
-path="res://.godot/imported/horse_saddled_brown_lod0_lod_bake.jpg-c391baa24beb60f6f7c9ce856413c26e.ctex"
+path.s3tc="res://.godot/imported/horse_saddled_brown_lod0_lod_bake.jpg-c391baa24beb60f6f7c9ce856413c26e.s3tc.ctex"
+path.etc2="res://.godot/imported/horse_saddled_brown_lod0_lod_bake.jpg-c391baa24beb60f6f7c9ce856413c26e.etc2.ctex"
 metadata={
-"vram_texture": false
+"imported_formats": ["s3tc_bptc", "etc2_astc"],
+"vram_texture": true
 }
 generator_parameters={
 "md5": "23a1c170c2fc0931350bb93f9d23c178"
@@ -14,11 +16,11 @@ generator_parameters={
 [deps]
 
 source_file="res://assets/incoming/meshy_dl3/creatures/horse_saddled_brown_lod0_lod_bake.jpg"
-dest_files=["res://.godot/imported/horse_saddled_brown_lod0_lod_bake.jpg-c391baa24beb60f6f7c9ce856413c26e.ctex"]
+dest_files=["res://.godot/imported/horse_saddled_brown_lod0_lod_bake.jpg-c391baa24beb60f6f7c9ce856413c26e.s3tc.ctex", "res://.godot/imported/horse_saddled_brown_lod0_lod_bake.jpg-c391baa24beb60f6f7c9ce856413c26e.etc2.ctex"]
 
 [params]
 
-compress/mode=0
+compress/mode=2
 compress/high_quality=false
 compress/lossy_quality=0.7
 compress/uastc_level=0

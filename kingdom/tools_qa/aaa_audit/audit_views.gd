@@ -102,7 +102,7 @@ func _bench(name: String) -> void:
 	var n := deltas.size()
 	var rv: Callable = main.viewport.get_render_info
 	var q: Node = get_node_or_null("/root/Quality")
-	print("AUDITPERF %s tier=%s profile=%s renderer=%s fps_avg=%.1f ft_p50=%.2fms ft_p95=%.2fms ft_p99=%.2fms vram_mb=%.0f tex_mb=%.0f draws=%d prims=%d gpu=%s" % [name,
+	print("AUDITPERF %s tier=%s profile=%s renderer=%s fps_avg=%.1f ft_p50=%.2fms ft_p95=%.2fms ft_p99=%.2fms vram_mb=%.0f tex_mb=%.0f draws=%d prims=%d gpu=%s cpu_setup=%.2fms proc=%.2fms phys=%.2fms" % [name,
 		str(q.call("tier_name")) if q != null and q.has_method("tier_name") else "n/a",
 		str(q.get("profile")) if q != null and q.get("profile") != null else "n/a",
 		RenderingServer.get_current_rendering_method(),
@@ -110,7 +110,9 @@ func _bench(name: String) -> void:
 		vram_peak / 1048576.0, Performance.get_monitor(Performance.RENDER_TEXTURE_MEM_USED) / 1048576.0,
 		rv.call(Viewport.RENDER_INFO_TYPE_VISIBLE, Viewport.RENDER_INFO_DRAW_CALLS_IN_FRAME),
 		rv.call(Viewport.RENDER_INFO_TYPE_VISIBLE, Viewport.RENDER_INFO_PRIMITIVES_IN_FRAME),
-		RenderingServer.get_video_adapter_name()])
+		RenderingServer.get_video_adapter_name(),
+		RenderingServer.get_frame_setup_time_cpu(), Performance.get_monitor(Performance.TIME_PROCESS) * 1000.0,
+		Performance.get_monitor(Performance.TIME_PHYSICS_PROCESS) * 1000.0])
 
 
 static func yaw_for(d: Vector2) -> float:

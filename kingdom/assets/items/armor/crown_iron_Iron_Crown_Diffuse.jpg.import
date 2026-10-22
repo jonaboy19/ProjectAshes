@@ -3,9 +3,11 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://b2p6cu7q7v8ra"
-path="res://.godot/imported/crown_iron_Iron_Crown_Diffuse.jpg-13377de8b4d8b437e2031234e391e851.ctex"
+path.s3tc="res://.godot/imported/crown_iron_Iron_Crown_Diffuse.jpg-13377de8b4d8b437e2031234e391e851.s3tc.ctex"
+path.etc2="res://.godot/imported/crown_iron_Iron_Crown_Diffuse.jpg-13377de8b4d8b437e2031234e391e851.etc2.ctex"
 metadata={
-"vram_texture": false
+"imported_formats": ["s3tc_bptc", "etc2_astc"],
+"vram_texture": true
 }
 generator_parameters={
 "md5": "8eabe4f5cb2ebbffdfc5fddab3994c0c"
@@ -14,11 +16,11 @@ generator_parameters={
 [deps]
 
 source_file="res://assets/items/armor/crown_iron_Iron_Crown_Diffuse.jpg"
-dest_files=["res://.godot/imported/crown_iron_Iron_Crown_Diffuse.jpg-13377de8b4d8b437e2031234e391e851.ctex"]
+dest_files=["res://.godot/imported/crown_iron_Iron_Crown_Diffuse.jpg-13377de8b4d8b437e2031234e391e851.s3tc.ctex", "res://.godot/imported/crown_iron_Iron_Crown_Diffuse.jpg-13377de8b4d8b437e2031234e391e851.etc2.ctex"]
 
 [params]
 
-compress/mode=0
+compress/mode=2
 compress/high_quality=false
 compress/lossy_quality=0.7
 compress/uastc_level=0

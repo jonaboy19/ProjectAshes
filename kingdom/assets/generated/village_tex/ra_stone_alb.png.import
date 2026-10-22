@@ -3,8 +3,8 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://dlpu435ctwgld"
-path.s3tc="res://.godot/imported/ra_stone_alb.png-da5eab17fbca0cf7bd9c281bbb0c45ba.s3tc.ctex"
-path.etc2="res://.godot/imported/ra_stone_alb.png-da5eab17fbca0cf7bd9c281bbb0c45ba.etc2.ctex"
+path.bptc="res://.godot/imported/ra_stone_alb.png-da5eab17fbca0cf7bd9c281bbb0c45ba.bptc.ctex"
+path.astc="res://.godot/imported/ra_stone_alb.png-da5eab17fbca0cf7bd9c281bbb0c45ba.astc.ctex"
 metadata={
 "imported_formats": ["s3tc_bptc", "etc2_astc"],
 "vram_texture": true
@@ -13,12 +13,12 @@ metadata={
 [deps]
 
 source_file="res://assets/generated/village_tex/ra_stone_alb.png"
-dest_files=["res://.godot/imported/ra_stone_alb.png-da5eab17fbca0cf7bd9c281bbb0c45ba.s3tc.ctex", "res://.godot/imported/ra_stone_alb.png-da5eab17fbca0cf7bd9c281bbb0c45ba.etc2.ctex"]
+dest_files=["res://.godot/imported/ra_stone_alb.png-da5eab17fbca0cf7bd9c281bbb0c45ba.bptc.ctex", "res://.godot/imported/ra_stone_alb.png-da5eab17fbca0cf7bd9c281bbb0c45ba.astc.ctex"]
 
 [params]
 
 compress/mode=2
-compress/high_quality=false
+compress/high_quality=true
 compress/lossy_quality=0.7
 compress/uastc_level=0
 compress/rdo_quality_loss=0.0

@@ -3,9 +3,11 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://dy0sun5k8cqv"
-path="res://.godot/imported/firewood_stack_oven_lod0_lod_bake.jpg-4e17e80e5814332987cc4f4c0777d356.ctex"
+path.s3tc="res://.godot/imported/firewood_stack_oven_lod0_lod_bake.jpg-4e17e80e5814332987cc4f4c0777d356.s3tc.ctex"
+path.etc2="res://.godot/imported/firewood_stack_oven_lod0_lod_bake.jpg-4e17e80e5814332987cc4f4c0777d356.etc2.ctex"
 metadata={
-"vram_texture": false
+"imported_formats": ["s3tc_bptc", "etc2_astc"],
+"vram_texture": true
 }
 generator_parameters={
 "md5": "0ae240900a86865fdfeed05b882dc9fd"
@@ -14,11 +16,11 @@ generator_parameters={
 [deps]
 
 source_file="res://assets/incoming/meshy_dl3/props/firewood_stack_oven_lod0_lod_bake.jpg"
-dest_files=["res://.godot/imported/firewood_stack_oven_lod0_lod_bake.jpg-4e17e80e5814332987cc4f4c0777d356.ctex"]
+dest_files=["res://.godot/imported/firewood_stack_oven_lod0_lod_bake.jpg-4e17e80e5814332987cc4f4c0777d356.s3tc.ctex", "res://.godot/imported/firewood_stack_oven_lod0_lod_bake.jpg-4e17e80e5814332987cc4f4c0777d356.etc2.ctex"]
 
 [params]
 
-compress/mode=0
+compress/mode=2
 compress/high_quality=false
 compress/lossy_quality=0.7
 compress/uastc_level=0

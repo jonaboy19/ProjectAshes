@@ -3,9 +3,11 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://d163718xvfj1i"
-path="res://.godot/imported/Skeleton_Rogue_skeleton_texture.png-66736e0c34eeb03bca127fcbc0312762.ctex"
+path.s3tc="res://.godot/imported/Skeleton_Rogue_skeleton_texture.png-66736e0c34eeb03bca127fcbc0312762.s3tc.ctex"
+path.etc2="res://.godot/imported/Skeleton_Rogue_skeleton_texture.png-66736e0c34eeb03bca127fcbc0312762.etc2.ctex"
 metadata={
-"vram_texture": false
+"imported_formats": ["s3tc_bptc", "etc2_astc"],
+"vram_texture": true
 }
 generator_parameters={
 "md5": "661544b1e8ba10b5a0c98b638eae6d0b"
@@ -14,11 +16,11 @@ generator_parameters={
 [deps]
 
 source_file="res://assets/kaykit/skeletons/Skeleton_Rogue_skeleton_texture.png"
-dest_files=["res://.godot/imported/Skeleton_Rogue_skeleton_texture.png-66736e0c34eeb03bca127fcbc0312762.ctex"]
+dest_files=["res://.godot/imported/Skeleton_Rogue_skeleton_texture.png-66736e0c34eeb03bca127fcbc0312762.s3tc.ctex", "res://.godot/imported/Skeleton_Rogue_skeleton_texture.png-66736e0c34eeb03bca127fcbc0312762.etc2.ctex"]
 
 [params]
 
-compress/mode=0
+compress/mode=2
 compress/high_quality=false
 compress/lossy_quality=0.7
 compress/uastc_level=0

@@ -3,9 +3,11 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://b15jhx5g3xcjy"
-path="res://.godot/imported/meshy_chair_simple_a_lod0_lod_bake.jpg-04895c36a2a564dd289765fba8378ce2.ctex"
+path.s3tc="res://.godot/imported/meshy_chair_simple_a_lod0_lod_bake.jpg-04895c36a2a564dd289765fba8378ce2.s3tc.ctex"
+path.etc2="res://.godot/imported/meshy_chair_simple_a_lod0_lod_bake.jpg-04895c36a2a564dd289765fba8378ce2.etc2.ctex"
 metadata={
-"vram_texture": false
+"imported_formats": ["s3tc_bptc", "etc2_astc"],
+"vram_texture": true
 }
 generator_parameters={
 "md5": "c7086b5dbe1c103f8c7830575901cd5c"
@@ -14,11 +16,11 @@ generator_parameters={
 [deps]
 
 source_file="res://assets/incoming/build_kit/meshy_chair_simple_a_lod0_lod_bake.jpg"
-dest_files=["res://.godot/imported/meshy_chair_simple_a_lod0_lod_bake.jpg-04895c36a2a564dd289765fba8378ce2.ctex"]
+dest_files=["res://.godot/imported/meshy_chair_simple_a_lod0_lod_bake.jpg-04895c36a2a564dd289765fba8378ce2.s3tc.ctex", "res://.godot/imported/meshy_chair_simple_a_lod0_lod_bake.jpg-04895c36a2a564dd289765fba8378ce2.etc2.ctex"]
 
 [params]
 
-compress/mode=0
+compress/mode=2
 compress/high_quality=false
 compress/lossy_quality=0.7
 compress/uastc_level=0

@@ -3,9 +3,11 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://chpqiwd4y7isy"
-path="res://.godot/imported/guildhall_silverford_lod0_lod_bake.jpg-02a4e7352e916b8cb2370b25d5f18b46.ctex"
+path.s3tc="res://.godot/imported/guildhall_silverford_lod0_lod_bake.jpg-02a4e7352e916b8cb2370b25d5f18b46.s3tc.ctex"
+path.etc2="res://.godot/imported/guildhall_silverford_lod0_lod_bake.jpg-02a4e7352e916b8cb2370b25d5f18b46.etc2.ctex"
 metadata={
-"vram_texture": false
+"imported_formats": ["s3tc_bptc", "etc2_astc"],
+"vram_texture": true
 }
 generator_parameters={
 "md5": "4d6669ce122bb23bdfe728f8ba3bdf26"
@@ -14,11 +16,11 @@ generator_parameters={
 [deps]
 
 source_file="res://assets/incoming/region1/silverford/guildhall_silverford_lod0_lod_bake.jpg"
-dest_files=["res://.godot/imported/guildhall_silverford_lod0_lod_bake.jpg-02a4e7352e916b8cb2370b25d5f18b46.ctex"]
+dest_files=["res://.godot/imported/guildhall_silverford_lod0_lod_bake.jpg-02a4e7352e916b8cb2370b25d5f18b46.s3tc.ctex", "res://.godot/imported/guildhall_silverford_lod0_lod_bake.jpg-02a4e7352e916b8cb2370b25d5f18b46.etc2.ctex"]
 
 [params]
 
-compress/mode=0
+compress/mode=2
 compress/high_quality=false
 compress/lossy_quality=0.7
 compress/uastc_level=0

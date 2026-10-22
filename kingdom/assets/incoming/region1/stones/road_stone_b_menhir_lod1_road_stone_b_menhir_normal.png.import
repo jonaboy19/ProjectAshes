@@ -3,9 +3,11 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://di1go4y1bmbkt"
-path="res://.godot/imported/road_stone_b_menhir_lod1_road_stone_b_menhir_normal.png-98d064d55b2927a974af580b401013b3.ctex"
+path.s3tc="res://.godot/imported/road_stone_b_menhir_lod1_road_stone_b_menhir_normal.png-98d064d55b2927a974af580b401013b3.s3tc.ctex"
+path.etc2="res://.godot/imported/road_stone_b_menhir_lod1_road_stone_b_menhir_normal.png-98d064d55b2927a974af580b401013b3.etc2.ctex"
 metadata={
-"vram_texture": false
+"imported_formats": ["s3tc_bptc", "etc2_astc"],
+"vram_texture": true
 }
 generator_parameters={
 "md5": "afc32dd75bf69d86e1fe2e00ba4078ed"
@@ -14,17 +16,17 @@ generator_parameters={
 [deps]
 
 source_file="res://assets/incoming/region1/stones/road_stone_b_menhir_lod1_road_stone_b_menhir_normal.png"
-dest_files=["res://.godot/imported/road_stone_b_menhir_lod1_road_stone_b_menhir_normal.png-98d064d55b2927a974af580b401013b3.ctex"]
+dest_files=["res://.godot/imported/road_stone_b_menhir_lod1_road_stone_b_menhir_normal.png-98d064d55b2927a974af580b401013b3.s3tc.ctex", "res://.godot/imported/road_stone_b_menhir_lod1_road_stone_b_menhir_normal.png-98d064d55b2927a974af580b401013b3.etc2.ctex"]
 
 [params]
 
-compress/mode=0
+compress/mode=2
 compress/high_quality=false
 compress/lossy_quality=0.7
 compress/uastc_level=0
 compress/rdo_quality_loss=0.0
 compress/hdr_compression=1
-compress/normal_map=0
+compress/normal_map=1
 compress/channel_pack=0
 mipmaps/generate=true
 mipmaps/limit=-1

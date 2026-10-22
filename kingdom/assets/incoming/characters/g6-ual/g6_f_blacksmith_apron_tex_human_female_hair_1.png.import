@@ -3,8 +3,8 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://cnegok0w7k1ob"
-path.s3tc="res://.godot/imported/g6_f_blacksmith_apron_tex_human_female_hair_1.png-b0f2b9fbd8e47391bff944cdff75afa2.s3tc.ctex"
-path.etc2="res://.godot/imported/g6_f_blacksmith_apron_tex_human_female_hair_1.png-b0f2b9fbd8e47391bff944cdff75afa2.etc2.ctex"
+path.bptc="res://.godot/imported/g6_f_blacksmith_apron_tex_human_female_hair_1.png-b0f2b9fbd8e47391bff944cdff75afa2.bptc.ctex"
+path.astc="res://.godot/imported/g6_f_blacksmith_apron_tex_human_female_hair_1.png-b0f2b9fbd8e47391bff944cdff75afa2.astc.ctex"
 metadata={
 "imported_formats": ["s3tc_bptc", "etc2_astc"],
 "vram_texture": true
@@ -16,12 +16,12 @@ generator_parameters={
 [deps]
 
 source_file="res://assets/incoming/characters/g6-ual/g6_f_blacksmith_apron_tex_human_female_hair_1.png"
-dest_files=["res://.godot/imported/g6_f_blacksmith_apron_tex_human_female_hair_1.png-b0f2b9fbd8e47391bff944cdff75afa2.s3tc.ctex", "res://.godot/imported/g6_f_blacksmith_apron_tex_human_female_hair_1.png-b0f2b9fbd8e47391bff944cdff75afa2.etc2.ctex"]
+dest_files=["res://.godot/imported/g6_f_blacksmith_apron_tex_human_female_hair_1.png-b0f2b9fbd8e47391bff944cdff75afa2.bptc.ctex", "res://.godot/imported/g6_f_blacksmith_apron_tex_human_female_hair_1.png-b0f2b9fbd8e47391bff944cdff75afa2.astc.ctex"]
 
 [params]
 
 compress/mode=2
-compress/high_quality=false
+compress/high_quality=true
 compress/lossy_quality=0.7
 compress/uastc_level=0
 compress/rdo_quality_loss=0.0

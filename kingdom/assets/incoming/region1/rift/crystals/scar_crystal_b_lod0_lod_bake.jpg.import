@@ -3,9 +3,11 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://be0jiby8i4opr"
-path="res://.godot/imported/scar_crystal_b_lod0_lod_bake.jpg-ed1b4bf5e3f8320c904fde5b8c484922.ctex"
+path.s3tc="res://.godot/imported/scar_crystal_b_lod0_lod_bake.jpg-ed1b4bf5e3f8320c904fde5b8c484922.s3tc.ctex"
+path.etc2="res://.godot/imported/scar_crystal_b_lod0_lod_bake.jpg-ed1b4bf5e3f8320c904fde5b8c484922.etc2.ctex"
 metadata={
-"vram_texture": false
+"imported_formats": ["s3tc_bptc", "etc2_astc"],
+"vram_texture": true
 }
 generator_parameters={
 "md5": "cc48df86cc8458c468fe65e201a9adba"
@@ -14,11 +16,11 @@ generator_parameters={
 [deps]
 
 source_file="res://assets/incoming/region1/rift/crystals/scar_crystal_b_lod0_lod_bake.jpg"
-dest_files=["res://.godot/imported/scar_crystal_b_lod0_lod_bake.jpg-ed1b4bf5e3f8320c904fde5b8c484922.ctex"]
+dest_files=["res://.godot/imported/scar_crystal_b_lod0_lod_bake.jpg-ed1b4bf5e3f8320c904fde5b8c484922.s3tc.ctex", "res://.godot/imported/scar_crystal_b_lod0_lod_bake.jpg-ed1b4bf5e3f8320c904fde5b8c484922.etc2.ctex"]
 
 [params]
 
-compress/mode=0
+compress/mode=2
 compress/high_quality=false
 compress/lossy_quality=0.7
 compress/uastc_level=0

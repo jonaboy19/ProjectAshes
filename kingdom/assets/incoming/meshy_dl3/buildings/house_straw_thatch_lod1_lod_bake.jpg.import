@@ -3,9 +3,11 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://d2atpc8u760k2"
-path="res://.godot/imported/house_straw_thatch_lod1_lod_bake.jpg-47c44b03749f90d01821362d6291e67f.ctex"
+path.s3tc="res://.godot/imported/house_straw_thatch_lod1_lod_bake.jpg-47c44b03749f90d01821362d6291e67f.s3tc.ctex"
+path.etc2="res://.godot/imported/house_straw_thatch_lod1_lod_bake.jpg-47c44b03749f90d01821362d6291e67f.etc2.ctex"
 metadata={
-"vram_texture": false
+"imported_formats": ["s3tc_bptc", "etc2_astc"],
+"vram_texture": true
 }
 generator_parameters={
 "md5": "0fc04ab3536bc4a07d315e44b30b55c7"
@@ -14,11 +16,11 @@ generator_parameters={
 [deps]
 
 source_file="res://assets/incoming/meshy_dl3/buildings/house_straw_thatch_lod1_lod_bake.jpg"
-dest_files=["res://.godot/imported/house_straw_thatch_lod1_lod_bake.jpg-47c44b03749f90d01821362d6291e67f.ctex"]
+dest_files=["res://.godot/imported/house_straw_thatch_lod1_lod_bake.jpg-47c44b03749f90d01821362d6291e67f.s3tc.ctex", "res://.godot/imported/house_straw_thatch_lod1_lod_bake.jpg-47c44b03749f90d01821362d6291e67f.etc2.ctex"]
 
 [params]
 
-compress/mode=0
+compress/mode=2
 compress/high_quality=false
 compress/lossy_quality=0.7
 compress/uastc_level=0

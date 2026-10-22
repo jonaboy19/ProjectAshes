@@ -1,0 +1,78 @@
+[
+ {
+  "name": "Knockback_Heavy_Slide_Brake",
+  "loop": false,
+  "seconds": 1.6,
+  "frames": 49,
+  "keys": 738,
+  "source": "127/127_05.bvh",
+  "range_s": [
+   0.4,
+   2.0
+  ],
+  "autotrim": null,
+  "loop_pts": null,
+  "floor_fix_m": 0.024,
+  "contact_lift_m": 0.0,
+  "min_foot_m": -0.0,
+  "travel_m": 1.88,
+  "hip_scale": 0.0502
+ },
+ {
+  "name": "Knockback_Airborne_Blowback",
+  "loop": false,
+  "seconds": 2.0,
+  "frames": 61,
+  "keys": 786,
+  "source": "090/90_17.bvh",
+  "range_s": [
+   1.0,
+   3.0
+  ],
+  "autotrim": null,
+  "loop_pts": null,
+  "floor_fix_m": -0.12,
+  "contact_lift_m": 0.0,
+  "min_foot_m": -0.002,
+  "travel_m": 1.12,
+  "hip_scale": 0.0502
+ },
+ {
+  "name": "Knockback_3Step_Stumble_Recoil",
+  "loop": false,
+  "seconds": 1.6,
+  "frames": 49,
+  "keys": 939,
+  "source": "014/14_03.bvh",
+  "range_s": [
+   3.2,
+   4.8
+  ],
+  "autotrim": null,
+  "loop_pts": null,
+  "floor_fix_m": -0.027,
+  "contact_lift_m": 0.0,
+  "min_foot_m": -0.002,
+  "travel_m": 0.33,
+  "hip_scale": 0.0515
+ },
+ {
+  "name": "Guard_Impact_Heavy_Stagger",
+  "loop": false,
+  "seconds": 1.6,
+  "frames": 49,
+  "keys": 689,
+  "source": "144/144_07.bvh",
+  "range_s": [
+   1.8,
+   3.4
+  ],
+  "autotrim": null,
+  "loop_pts": null,
+  "floor_fix_m": -0.015,
+  "contact_lift_m": 0.0,
+  "min_foot_m": -0.001,
+  "travel_m": 0.13,
+  "hip_scale": 0.0583
+ }
+]

@@ -1,0 +1,299 @@
+[
+ {
+  "name": "Walk_Natural",
+  "loop": true,
+  "seconds": 4.87,
+  "frames": 147,
+  "keys": 4012,
+  "source": "104/104_02.bvh",
+  "range_s": [
+   0.8,
+   6.8
+  ],
+  "autotrim": null,
+  "loop_pts": [
+   0.57,
+   5.43,
+   3.79
+  ],
+  "floor_fix_m": 0.009,
+  "contact_lift_m": 0.0,
+  "min_foot_m": -0.016,
+  "travel_m": 3.44,
+  "hip_scale": 0.0535
+ },
+ {
+  "name": "Run_Natural",
+  "loop": true,
+  "seconds": 0.8,
+  "frames": 25,
+  "keys": 1026,
+  "source": "143/143_01.bvh",
+  "range_s": [
+   0.0,
+   0.8
+  ],
+  "autotrim": null,
+  "loop_pts": null,
+  "floor_fix_m": -0.006,
+  "contact_lift_m": 0.008,
+  "min_foot_m": -0.02,
+  "travel_m": 3.47,
+  "hip_scale": 0.0592
+ },
+ {
+  "name": "Run_Stop_Plant",
+  "loop": false,
+  "seconds": 1.4,
+  "frames": 43,
+  "keys": 1545,
+  "source": "143/143_02.bvh",
+  "range_s": [
+   0.2,
+   1.6
+  ],
+  "autotrim": null,
+  "loop_pts": null,
+  "floor_fix_m": -0.02,
+  "contact_lift_m": 0.0,
+  "min_foot_m": -0.004,
+  "travel_m": 2.15,
+  "hip_scale": 0.0592
+ },
+ {
+  "name": "Run_Quick_Stop",
+  "loop": false,
+  "seconds": 1.8,
+  "frames": 55,
+  "keys": 1324,
+  "source": "127/127_05.bvh",
+  "range_s": [
+   0.4,
+   2.2
+  ],
+  "autotrim": null,
+  "loop_pts": null,
+  "floor_fix_m": 0.024,
+  "contact_lift_m": 0.0,
+  "min_foot_m": -0.0,
+  "travel_m": 1.97,
+  "hip_scale": 0.0502
+ },
+ {
+  "name": "Run_Turn_Bank_L",
+  "loop": false,
+  "seconds": 1.1,
+  "frames": 34,
+  "keys": 1230,
+  "source": "127/127_15.bvh",
+  "range_s": [
+   0.2,
+   1.3
+  ],
+  "autotrim": null,
+  "loop_pts": null,
+  "floor_fix_m": 0.003,
+  "contact_lift_m": 0.0,
+  "min_foot_m": -0.007,
+  "travel_m": 2.45,
+  "hip_scale": 0.0502
+ },
+ {
+  "name": "March_Soldier_Loop",
+  "loop": true,
+  "seconds": 2.5,
+  "frames": 76,
+  "keys": 2083,
+  "source": "138/138_01.bvh",
+  "range_s": [
+   0.5,
+   3.8
+  ],
+  "autotrim": null,
+  "loop_pts": [
+   0.7,
+   3.2,
+   8.94
+  ],
+  "floor_fix_m": 0.003,
+  "contact_lift_m": 0.0,
+  "min_foot_m": 0.002,
+  "travel_m": 1.76,
+  "hip_scale": 0.0514
+ },
+ {
+  "name": "Jump_Leap_Takeoff",
+  "loop": false,
+  "seconds": 1.1,
+  "frames": 34,
+  "keys": 613,
+  "source": "140/140_01.bvh",
+  "range_s": [
+   1.8,
+   2.9
+  ],
+  "autotrim": null,
+  "loop_pts": null,
+  "floor_fix_m": 0.0,
+  "contact_lift_m": 0.043,
+  "min_foot_m": 0.019,
+  "travel_m": 0.33,
+  "hip_scale": 0.057
+ },
+ {
+  "name": "Jump_Land_Soft",
+  "loop": false,
+  "seconds": 1.2,
+  "frames": 37,
+  "keys": 1128,
+  "source": "140/140_01.bvh",
+  "range_s": [
+   2.8,
+   4.0
+  ],
+  "autotrim": null,
+  "loop_pts": null,
+  "floor_fix_m": -0.054,
+  "contact_lift_m": 0.0,
+  "min_foot_m": -0.0,
+  "travel_m": 0.52,
+  "hip_scale": 0.057
+ },
+ {
+  "name": "Vault_Hurdle_Mocap",
+  "loop": false,
+  "seconds": 1.5,
+  "frames": 46,
+  "keys": 1526,
+  "source": "127/127_25.bvh",
+  "range_s": [
+   0.3,
+   1.8
+  ],
+  "autotrim": null,
+  "loop_pts": null,
+  "floor_fix_m": 0.001,
+  "contact_lift_m": 0.003,
+  "min_foot_m": -0.02,
+  "travel_m": 2.94,
+  "hip_scale": 0.0502
+ },
+ {
+  "name": "Ladder_Climb_Mocap",
+  "loop": true,
+  "seconds": 2.3,
+  "frames": 70,
+  "keys": 1895,
+  "source": "013/13_33.bvh",
+  "range_s": [
+   1.5,
+   5.0
+  ],
+  "autotrim": null,
+  "loop_pts": [
+   0.8,
+   3.1,
+   11.8
+  ],
+  "floor_fix_m": -0.021,
+  "contact_lift_m": 0.0,
+  "min_foot_m": 0.103,
+  "travel_m": 0.17,
+  "hip_scale": 0.0486
+ },
+ {
+  "name": "Sword_Slash_Combo_A",
+  "loop": false,
+  "seconds": 3.3,
+  "frames": 100,
+  "keys": 1142,
+  "source": "002/02_07.bvh",
+  "range_s": [
+   0.5,
+   3.8
+  ],
+  "autotrim": null,
+  "loop_pts": null,
+  "floor_fix_m": 0.01,
+  "contact_lift_m": 0.0,
+  "min_foot_m": -0.001,
+  "travel_m": 0.12,
+  "hip_scale": 0.0515
+ },
+ {
+  "name": "Sword_Slash_Combo_B",
+  "loop": false,
+  "seconds": 3.3,
+  "frames": 100,
+  "keys": 1213,
+  "source": "002/02_07.bvh",
+  "range_s": [
+   4.2,
+   7.5
+  ],
+  "autotrim": null,
+  "loop_pts": null,
+  "floor_fix_m": 0.002,
+  "contact_lift_m": 0.0,
+  "min_foot_m": -0.002,
+  "travel_m": 0.03,
+  "hip_scale": 0.0515
+ },
+ {
+  "name": "Hit_React_Chest_Mocap",
+  "loop": false,
+  "seconds": 1.2,
+  "frames": 37,
+  "keys": 738,
+  "source": "014/14_03.bvh",
+  "range_s": [
+   3.2,
+   4.4
+  ],
+  "autotrim": null,
+  "loop_pts": null,
+  "floor_fix_m": -0.026,
+  "contact_lift_m": 0.0,
+  "min_foot_m": -0.001,
+  "travel_m": 0.11,
+  "hip_scale": 0.0515
+ },
+ {
+  "name": "Combat_Duck_Dodge",
+  "loop": false,
+  "seconds": 2.4,
+  "frames": 73,
+  "keys": 1011,
+  "source": "077/77_09.bvh",
+  "range_s": [
+   0.8,
+   3.2
+  ],
+  "autotrim": null,
+  "loop_pts": null,
+  "floor_fix_m": -0.032,
+  "contact_lift_m": 0.0,
+  "min_foot_m": -0.001,
+  "travel_m": 0.05,
+  "hip_scale": 0.0555
+ },
+ {
+  "name": "Combat_Shield_Block",
+  "loop": false,
+  "seconds": 3.5,
+  "frames": 106,
+  "keys": 1397,
+  "source": "144/144_07.bvh",
+  "range_s": [
+   1.5,
+   5.0
+  ],
+  "autotrim": null,
+  "loop_pts": null,
+  "floor_fix_m": -0.014,
+  "contact_lift_m": 0.0,
+  "min_foot_m": -0.001,
+  "travel_m": 0.01,
+  "hip_scale": 0.0583
+ }
+]

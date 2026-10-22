@@ -3,9 +3,11 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://d2w24k245j6xg"
-path="res://.godot/imported/cottage_orange_roof_lod0_lod_bake.jpg-61a2915a0a8880e7cbd1bbb35691024d.ctex"
+path.s3tc="res://.godot/imported/cottage_orange_roof_lod0_lod_bake.jpg-61a2915a0a8880e7cbd1bbb35691024d.s3tc.ctex"
+path.etc2="res://.godot/imported/cottage_orange_roof_lod0_lod_bake.jpg-61a2915a0a8880e7cbd1bbb35691024d.etc2.ctex"
 metadata={
-"vram_texture": false
+"imported_formats": ["s3tc_bptc", "etc2_astc"],
+"vram_texture": true
 }
 generator_parameters={
 "md5": "348eb92d6b51f90c96e60398ed0e63d3"
@@ -14,11 +16,11 @@ generator_parameters={
 [deps]
 
 source_file="res://assets/incoming/meshy_dl3/buildings/cottage_orange_roof_lod0_lod_bake.jpg"
-dest_files=["res://.godot/imported/cottage_orange_roof_lod0_lod_bake.jpg-61a2915a0a8880e7cbd1bbb35691024d.ctex"]
+dest_files=["res://.godot/imported/cottage_orange_roof_lod0_lod_bake.jpg-61a2915a0a8880e7cbd1bbb35691024d.s3tc.ctex", "res://.godot/imported/cottage_orange_roof_lod0_lod_bake.jpg-61a2915a0a8880e7cbd1bbb35691024d.etc2.ctex"]
 
 [params]
 
-compress/mode=0
+compress/mode=2
 compress/high_quality=false
 compress/lossy_quality=0.7
 compress/uastc_level=0

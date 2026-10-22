@@ -3,9 +3,11 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://xbo8e25421oc"
-path="res://.godot/imported/meshy_well_stone_roofed_lod1_lod_bake.jpg-389a412a12e28489e943cc4a0edee366.ctex"
+path.s3tc="res://.godot/imported/meshy_well_stone_roofed_lod1_lod_bake.jpg-389a412a12e28489e943cc4a0edee366.s3tc.ctex"
+path.etc2="res://.godot/imported/meshy_well_stone_roofed_lod1_lod_bake.jpg-389a412a12e28489e943cc4a0edee366.etc2.ctex"
 metadata={
-"vram_texture": false
+"imported_formats": ["s3tc_bptc", "etc2_astc"],
+"vram_texture": true
 }
 generator_parameters={
 "md5": "bb3108b04480c1f11a8d36fc20fae26f"
@@ -14,11 +16,11 @@ generator_parameters={
 [deps]
 
 source_file="res://assets/incoming/build_kit/meshy_well_stone_roofed_lod1_lod_bake.jpg"
-dest_files=["res://.godot/imported/meshy_well_stone_roofed_lod1_lod_bake.jpg-389a412a12e28489e943cc4a0edee366.ctex"]
+dest_files=["res://.godot/imported/meshy_well_stone_roofed_lod1_lod_bake.jpg-389a412a12e28489e943cc4a0edee366.s3tc.ctex", "res://.godot/imported/meshy_well_stone_roofed_lod1_lod_bake.jpg-389a412a12e28489e943cc4a0edee366.etc2.ctex"]
 
 [params]
 
-compress/mode=0
+compress/mode=2
 compress/high_quality=false
 compress/lossy_quality=0.7
 compress/uastc_level=0

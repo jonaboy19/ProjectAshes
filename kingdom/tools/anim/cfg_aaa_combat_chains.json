@@ -1,0 +1,159 @@
+{
+ "source_type": "bvh",
+ "bvh_dir": "${ANIM_SRC}/cmu-mocap/data",
+ "ual": "../../assets/incoming/quaternius/universal-animation-library/Unreal-Godot/UAL1_Standard.glb",
+ "out": "../../assets/incoming/animations/aaa/UAL_AAA_Combat_Chains.glb",
+ "smooth": 0.012,
+ "fingers": "relaxed",
+ "finger_poses": {
+  "relaxed": [
+   "Idle_Loop",
+   0.0
+  ],
+  "fist": [
+   "Punch_Jab",
+   0.4
+  ]
+ },
+ "map": {
+  "pelvis": "Hips",
+  "spine_01": "LowerBack",
+  "spine_02": "Spine",
+  "spine_03": "Spine1",
+  "neck_01": "Neck",
+  "Head": "Head",
+  "clavicle_l": "LeftShoulder",
+  "upperarm_l": "LeftArm",
+  "lowerarm_l": "LeftForeArm",
+  "hand_l": "LeftHand",
+  "clavicle_r": "RightShoulder",
+  "upperarm_r": "RightArm",
+  "lowerarm_r": "RightForeArm",
+  "hand_r": "RightHand",
+  "thigh_l": "LeftUpLeg",
+  "calf_l": "LeftLeg",
+  "foot_l": "LeftFoot",
+  "ball_l": "LeftToeBase",
+  "thigh_r": "RightUpLeg",
+  "calf_r": "RightLeg",
+  "foot_r": "RightFoot",
+  "ball_r": "RightToeBase"
+ },
+ "check_directions": true,
+ "heading": "strike",
+ "clips": [
+  {
+   "name": "Sword_Light_Attack_01",
+   "file": "002/02_07.bvh",
+   "start": 0.5,
+   "end": 1.7,
+   "fingers": "fist",
+   "heading": "strike"
+  },
+  {
+   "name": "Sword_Light_Attack_02",
+   "file": "002/02_07.bvh",
+   "start": 1.7,
+   "end": 2.8,
+   "fingers": "fist",
+   "heading": "strike"
+  },
+  {
+   "name": "Sword_Light_Attack_03",
+   "file": "002/02_07.bvh",
+   "start": 4.2,
+   "end": 5.6,
+   "fingers": "fist",
+   "heading": "strike"
+  },
+  {
+   "name": "Sword_Light_Attack_04",
+   "file": "087/87_01.bvh",
+   "start": 0.5,
+   "end": 2.2,
+   "fingers": "fist",
+   "heading": "strike"
+  },
+  {
+   "name": "Sword_Heavy_Charge_Chop",
+   "file": "002/02_07.bvh",
+   "start": 5.6,
+   "end": 7.4,
+   "fingers": "fist",
+   "heading": "strike"
+  },
+  {
+   "name": "Sword_Sprint_Dash_Attack",
+   "file": "127/127_05.bvh",
+   "start": 0.4,
+   "end": 1.8,
+   "fingers": "fist",
+   "heading": "start"
+  },
+  {
+   "name": "Sword_Roll_Counter_Poke",
+   "file": "140/140_01.bvh",
+   "start": 2.4,
+   "end": 3.8,
+   "fingers": "fist",
+   "heading": "start"
+  },
+  {
+   "name": "Sword_Plunge_Aerial_Attack",
+   "file": "140/140_01.bvh",
+   "start": 1.8,
+   "end": 3.0,
+   "fingers": "fist",
+   "heading": "start"
+  },
+  {
+   "name": "Parry_Left_Deflect",
+   "file": "144/144_07.bvh",
+   "start": 0.24,
+   "end": 1.4,
+   "mirror": true,
+   "fingers": "fist",
+   "heading": "mean"
+  },
+  {
+   "name": "Parry_Right_Deflect",
+   "file": "144/144_07.bvh",
+   "start": 0.24,
+   "end": 1.4,
+   "fingers": "fist",
+   "heading": "mean"
+  },
+  {
+   "name": "Guard_Break_Stumble",
+   "file": "014/14_03.bvh",
+   "start": 3.2,
+   "end": 4.5,
+   "fingers": "relaxed",
+   "heading": "start"
+  },
+  {
+   "name": "Blade_Clash_Lock",
+   "file": "144/144_07.bvh",
+   "start": 1.8,
+   "end": 3.4,
+   "fingers": "fist",
+   "heading": "mean"
+  },
+  {
+   "name": "Combat_Roll_Forward",
+   "file": "140/140_01.bvh",
+   "start": 2.2,
+   "end": 3.6,
+   "fingers": "relaxed",
+   "heading": "start"
+  },
+  {
+   "name": "Combat_Backstep_Hop",
+   "file": "127/127_15.bvh",
+   "start": 0.2,
+   "end": 1.2,
+   "fingers": "relaxed",
+   "heading": "start"
+  }
+ ]
+}

@@ -3,9 +3,11 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://biq2gl7lsfgdi"
-path="res://.godot/imported/hat_barbarian_barbarian_texture.png-a913462daea97212e1a4e60c8cf43b9e.ctex"
+path.s3tc="res://.godot/imported/hat_barbarian_barbarian_texture.png-a913462daea97212e1a4e60c8cf43b9e.s3tc.ctex"
+path.etc2="res://.godot/imported/hat_barbarian_barbarian_texture.png-a913462daea97212e1a4e60c8cf43b9e.etc2.ctex"
 metadata={
-"vram_texture": false
+"imported_formats": ["s3tc_bptc", "etc2_astc"],
+"vram_texture": true
 }
 generator_parameters={
 "md5": "83d6b4bac34e374b539a370c36e1837f"
@@ -14,11 +16,11 @@ generator_parameters={
 [deps]
 
 source_file="res://assets/items/armor/hat_barbarian_barbarian_texture.png"
-dest_files=["res://.godot/imported/hat_barbarian_barbarian_texture.png-a913462daea97212e1a4e60c8cf43b9e.ctex"]
+dest_files=["res://.godot/imported/hat_barbarian_barbarian_texture.png-a913462daea97212e1a4e60c8cf43b9e.s3tc.ctex", "res://.godot/imported/hat_barbarian_barbarian_texture.png-a913462daea97212e1a4e60c8cf43b9e.etc2.ctex"]
 
 [params]
 
-compress/mode=0
+compress/mode=2
 compress/high_quality=false
 compress/lossy_quality=0.7
 compress/uastc_level=0

@@ -3,9 +3,11 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://yvdk5x0sukts"
-path="res://.godot/imported/tavern_red_roof_lod1_lod_bake.jpg-3b8abfa8bebe1792f09ee1c25e0fd9ce.ctex"
+path.s3tc="res://.godot/imported/tavern_red_roof_lod1_lod_bake.jpg-3b8abfa8bebe1792f09ee1c25e0fd9ce.s3tc.ctex"
+path.etc2="res://.godot/imported/tavern_red_roof_lod1_lod_bake.jpg-3b8abfa8bebe1792f09ee1c25e0fd9ce.etc2.ctex"
 metadata={
-"vram_texture": false
+"imported_formats": ["s3tc_bptc", "etc2_astc"],
+"vram_texture": true
 }
 generator_parameters={
 "md5": "de6bed8ed405671014ca723d65654091"
@@ -14,11 +16,11 @@ generator_parameters={
 [deps]
 
 source_file="res://assets/incoming/meshy_dl3/buildings/tavern_red_roof_lod1_lod_bake.jpg"
-dest_files=["res://.godot/imported/tavern_red_roof_lod1_lod_bake.jpg-3b8abfa8bebe1792f09ee1c25e0fd9ce.ctex"]
+dest_files=["res://.godot/imported/tavern_red_roof_lod1_lod_bake.jpg-3b8abfa8bebe1792f09ee1c25e0fd9ce.s3tc.ctex", "res://.godot/imported/tavern_red_roof_lod1_lod_bake.jpg-3b8abfa8bebe1792f09ee1c25e0fd9ce.etc2.ctex"]
 
 [params]
 
-compress/mode=0
+compress/mode=2
 compress/high_quality=false
 compress/lossy_quality=0.7
 compress/uastc_level=0

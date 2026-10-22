@@ -3,19 +3,21 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://bivyalmhpkia6"
-path="res://.godot/imported/rift_foliage_atlas.png-d754d2939f5e734c2bde9d1be002d08a.ctex"
+path.s3tc="res://.godot/imported/rift_foliage_atlas.png-d754d2939f5e734c2bde9d1be002d08a.s3tc.ctex"
+path.etc2="res://.godot/imported/rift_foliage_atlas.png-d754d2939f5e734c2bde9d1be002d08a.etc2.ctex"
 metadata={
-"vram_texture": false
+"imported_formats": ["s3tc_bptc", "etc2_astc"],
+"vram_texture": true
 }
 
 [deps]
 
 source_file="res://assets/incoming/region1/rift/textures/rift_foliage_atlas.png"
-dest_files=["res://.godot/imported/rift_foliage_atlas.png-d754d2939f5e734c2bde9d1be002d08a.ctex"]
+dest_files=["res://.godot/imported/rift_foliage_atlas.png-d754d2939f5e734c2bde9d1be002d08a.s3tc.ctex", "res://.godot/imported/rift_foliage_atlas.png-d754d2939f5e734c2bde9d1be002d08a.etc2.ctex"]
 
 [params]
 
-compress/mode=0
+compress/mode=2
 compress/high_quality=false
 compress/lossy_quality=0.7
 compress/uastc_level=0
@@ -23,7 +25,7 @@ compress/rdo_quality_loss=0.0
 compress/hdr_compression=1
 compress/normal_map=0
 compress/channel_pack=0
-mipmaps/generate=false
+mipmaps/generate=true
 mipmaps/limit=-1
 roughness/mode=0
 roughness/src_normal=""

@@ -3,9 +3,11 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://diiywrtrax23a"
-path="res://.godot/imported/road_stone_a_slab_lod1_road_stone_a_slab_emissive.png-f044586da32cd2597d2b35d3bf37c391.ctex"
+path.s3tc="res://.godot/imported/road_stone_a_slab_lod1_road_stone_a_slab_emissive.png-f044586da32cd2597d2b35d3bf37c391.s3tc.ctex"
+path.etc2="res://.godot/imported/road_stone_a_slab_lod1_road_stone_a_slab_emissive.png-f044586da32cd2597d2b35d3bf37c391.etc2.ctex"
 metadata={
-"vram_texture": false
+"imported_formats": ["s3tc_bptc", "etc2_astc"],
+"vram_texture": true
 }
 generator_parameters={
 "md5": "194b551a0f8e5e3475bc641c197ad3d4"
@@ -14,11 +16,11 @@ generator_parameters={
 [deps]
 
 source_file="res://assets/incoming/region1/stones/road_stone_a_slab_lod1_road_stone_a_slab_emissive.png"
-dest_files=["res://.godot/imported/road_stone_a_slab_lod1_road_stone_a_slab_emissive.png-f044586da32cd2597d2b35d3bf37c391.ctex"]
+dest_files=["res://.godot/imported/road_stone_a_slab_lod1_road_stone_a_slab_emissive.png-f044586da32cd2597d2b35d3bf37c391.s3tc.ctex", "res://.godot/imported/road_stone_a_slab_lod1_road_stone_a_slab_emissive.png-f044586da32cd2597d2b35d3bf37c391.etc2.ctex"]
 
 [params]
 
-compress/mode=0
+compress/mode=2
 compress/high_quality=false
 compress/lossy_quality=0.7
 compress/uastc_level=0

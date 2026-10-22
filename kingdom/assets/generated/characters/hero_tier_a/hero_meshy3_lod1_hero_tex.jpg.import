@@ -3,9 +3,11 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://q81rlgqahoa8"
-path="res://.godot/imported/hero_meshy3_lod1_hero_tex.jpg-2a2aeb58d983f355346576aa44ceaa50.ctex"
+path.bptc="res://.godot/imported/hero_meshy3_lod1_hero_tex.jpg-2a2aeb58d983f355346576aa44ceaa50.bptc.ctex"
+path.astc="res://.godot/imported/hero_meshy3_lod1_hero_tex.jpg-2a2aeb58d983f355346576aa44ceaa50.astc.ctex"
 metadata={
-"vram_texture": false
+"imported_formats": ["s3tc_bptc", "etc2_astc"],
+"vram_texture": true
 }
 generator_parameters={
 "md5": "a1d02ab8ee8406499299c19c60c94fb7"
@@ -14,12 +16,12 @@ generator_parameters={
 [deps]
 
 source_file="res://assets/generated/characters/hero_tier_a/hero_meshy3_lod1_hero_tex.jpg"
-dest_files=["res://.godot/imported/hero_meshy3_lod1_hero_tex.jpg-2a2aeb58d983f355346576aa44ceaa50.ctex"]
+dest_files=["res://.godot/imported/hero_meshy3_lod1_hero_tex.jpg-2a2aeb58d983f355346576aa44ceaa50.bptc.ctex", "res://.godot/imported/hero_meshy3_lod1_hero_tex.jpg-2a2aeb58d983f355346576aa44ceaa50.astc.ctex"]
 
 [params]
 
-compress/mode=0
-compress/high_quality=false
+compress/mode=2
+compress/high_quality=true
 compress/lossy_quality=0.7
 compress/uastc_level=0
 compress/rdo_quality_loss=0.0

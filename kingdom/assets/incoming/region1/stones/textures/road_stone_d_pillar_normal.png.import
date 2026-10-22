@@ -3,27 +3,29 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://d3o6cpf68ri6s"
-path="res://.godot/imported/road_stone_d_pillar_normal.png-f689a2b1b6f5307db310d49b2c55903a.ctex"
+path.s3tc="res://.godot/imported/road_stone_d_pillar_normal.png-f689a2b1b6f5307db310d49b2c55903a.s3tc.ctex"
+path.etc2="res://.godot/imported/road_stone_d_pillar_normal.png-f689a2b1b6f5307db310d49b2c55903a.etc2.ctex"
 metadata={
-"vram_texture": false
+"imported_formats": ["s3tc_bptc", "etc2_astc"],
+"vram_texture": true
 }
 
 [deps]
 
 source_file="res://assets/incoming/region1/stones/textures/road_stone_d_pillar_normal.png"
-dest_files=["res://.godot/imported/road_stone_d_pillar_normal.png-f689a2b1b6f5307db310d49b2c55903a.ctex"]
+dest_files=["res://.godot/imported/road_stone_d_pillar_normal.png-f689a2b1b6f5307db310d49b2c55903a.s3tc.ctex", "res://.godot/imported/road_stone_d_pillar_normal.png-f689a2b1b6f5307db310d49b2c55903a.etc2.ctex"]
 
 [params]
 
-compress/mode=0
+compress/mode=2
 compress/high_quality=false
 compress/lossy_quality=0.7
 compress/uastc_level=0
 compress/rdo_quality_loss=0.0
 compress/hdr_compression=1
-compress/normal_map=0
+compress/normal_map=1
 compress/channel_pack=0
-mipmaps/generate=false
+mipmaps/generate=true
 mipmaps/limit=-1
 roughness/mode=0
 roughness/src_normal=""

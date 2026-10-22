@@ -3,9 +3,11 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://cissf2ratnoxh"
-path="res://.godot/imported/cottage_blue_roof_lod0_lod_bake.jpg-55264c4b7f5468c4f49e670e69140bf4.ctex"
+path.s3tc="res://.godot/imported/cottage_blue_roof_lod0_lod_bake.jpg-55264c4b7f5468c4f49e670e69140bf4.s3tc.ctex"
+path.etc2="res://.godot/imported/cottage_blue_roof_lod0_lod_bake.jpg-55264c4b7f5468c4f49e670e69140bf4.etc2.ctex"
 metadata={
-"vram_texture": false
+"imported_formats": ["s3tc_bptc", "etc2_astc"],
+"vram_texture": true
 }
 generator_parameters={
 "md5": "b8da1924d1bf696f2565d0d93561573f"
@@ -14,11 +16,11 @@ generator_parameters={
 [deps]
 
 source_file="res://assets/incoming/meshy_dl3/buildings/cottage_blue_roof_lod0_lod_bake.jpg"
-dest_files=["res://.godot/imported/cottage_blue_roof_lod0_lod_bake.jpg-55264c4b7f5468c4f49e670e69140bf4.ctex"]
+dest_files=["res://.godot/imported/cottage_blue_roof_lod0_lod_bake.jpg-55264c4b7f5468c4f49e670e69140bf4.s3tc.ctex", "res://.godot/imported/cottage_blue_roof_lod0_lod_bake.jpg-55264c4b7f5468c4f49e670e69140bf4.etc2.ctex"]
 
 [params]
 
-compress/mode=0
+compress/mode=2
 compress/high_quality=false
 compress/lossy_quality=0.7
 compress/uastc_level=0

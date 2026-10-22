@@ -3,9 +3,11 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://i4vd6ohx51wm"
-path="res://.godot/imported/villager_white_shirt_villager_white_shirt_tex.jpg-0a8fc125e5a84b2eaa25ed861131f282.ctex"
+path.s3tc="res://.godot/imported/villager_white_shirt_villager_white_shirt_tex.jpg-0a8fc125e5a84b2eaa25ed861131f282.s3tc.ctex"
+path.etc2="res://.godot/imported/villager_white_shirt_villager_white_shirt_tex.jpg-0a8fc125e5a84b2eaa25ed861131f282.etc2.ctex"
 metadata={
-"vram_texture": false
+"imported_formats": ["s3tc_bptc", "etc2_astc"],
+"vram_texture": true
 }
 generator_parameters={
 "md5": "80d64fddc7767294a9aec5b996b4bbf3"
@@ -14,11 +16,11 @@ generator_parameters={
 [deps]
 
 source_file="res://assets/incoming/meshy_dl3/characters_ual/villager_white_shirt_villager_white_shirt_tex.jpg"
-dest_files=["res://.godot/imported/villager_white_shirt_villager_white_shirt_tex.jpg-0a8fc125e5a84b2eaa25ed861131f282.ctex"]
+dest_files=["res://.godot/imported/villager_white_shirt_villager_white_shirt_tex.jpg-0a8fc125e5a84b2eaa25ed861131f282.s3tc.ctex", "res://.godot/imported/villager_white_shirt_villager_white_shirt_tex.jpg-0a8fc125e5a84b2eaa25ed861131f282.etc2.ctex"]
 
 [params]
 
-compress/mode=0
+compress/mode=2
 compress/high_quality=false
 compress/lossy_quality=0.7
 compress/uastc_level=0

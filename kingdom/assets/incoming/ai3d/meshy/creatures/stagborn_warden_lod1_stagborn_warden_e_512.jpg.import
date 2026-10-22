@@ -3,9 +3,11 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://dipkuoldq2w11"
-path="res://.godot/imported/stagborn_warden_lod1_stagborn_warden_e_512.jpg-bfa7c14c560a2a532dcc8f0a52153784.ctex"
+path.s3tc="res://.godot/imported/stagborn_warden_lod1_stagborn_warden_e_512.jpg-bfa7c14c560a2a532dcc8f0a52153784.s3tc.ctex"
+path.etc2="res://.godot/imported/stagborn_warden_lod1_stagborn_warden_e_512.jpg-bfa7c14c560a2a532dcc8f0a52153784.etc2.ctex"
 metadata={
-"vram_texture": false
+"imported_formats": ["s3tc_bptc", "etc2_astc"],
+"vram_texture": true
 }
 generator_parameters={
 "md5": "681aa4b38e5aef3a9e34c77bd6486227"
@@ -14,11 +16,11 @@ generator_parameters={
 [deps]
 
 source_file="res://assets/incoming/ai3d/meshy/creatures/stagborn_warden_lod1_stagborn_warden_e_512.jpg"
-dest_files=["res://.godot/imported/stagborn_warden_lod1_stagborn_warden_e_512.jpg-bfa7c14c560a2a532dcc8f0a52153784.ctex"]
+dest_files=["res://.godot/imported/stagborn_warden_lod1_stagborn_warden_e_512.jpg-bfa7c14c560a2a532dcc8f0a52153784.s3tc.ctex", "res://.godot/imported/stagborn_warden_lod1_stagborn_warden_e_512.jpg-bfa7c14c560a2a532dcc8f0a52153784.etc2.ctex"]
 
 [params]
 
-compress/mode=0
+compress/mode=2
 compress/high_quality=false
 compress/lossy_quality=0.7
 compress/uastc_level=0

@@ -3,9 +3,11 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://duq35adnsfu67"
-path="res://.godot/imported/road_stone_d_pillar_lod1_road_stone_d_pillar_albedo.jpg-e4548a4089fdbeb00d8cc07ea0666c47.ctex"
+path.s3tc="res://.godot/imported/road_stone_d_pillar_lod1_road_stone_d_pillar_albedo.jpg-e4548a4089fdbeb00d8cc07ea0666c47.s3tc.ctex"
+path.etc2="res://.godot/imported/road_stone_d_pillar_lod1_road_stone_d_pillar_albedo.jpg-e4548a4089fdbeb00d8cc07ea0666c47.etc2.ctex"
 metadata={
-"vram_texture": false
+"imported_formats": ["s3tc_bptc", "etc2_astc"],
+"vram_texture": true
 }
 generator_parameters={
 "md5": "1023b7e720c51fbc6188a3209d9b8fca"
@@ -14,11 +16,11 @@ generator_parameters={
 [deps]
 
 source_file="res://assets/incoming/region1/stones/road_stone_d_pillar_lod1_road_stone_d_pillar_albedo.jpg"
-dest_files=["res://.godot/imported/road_stone_d_pillar_lod1_road_stone_d_pillar_albedo.jpg-e4548a4089fdbeb00d8cc07ea0666c47.ctex"]
+dest_files=["res://.godot/imported/road_stone_d_pillar_lod1_road_stone_d_pillar_albedo.jpg-e4548a4089fdbeb00d8cc07ea0666c47.s3tc.ctex", "res://.godot/imported/road_stone_d_pillar_lod1_road_stone_d_pillar_albedo.jpg-e4548a4089fdbeb00d8cc07ea0666c47.etc2.ctex"]
 
 [params]
 
-compress/mode=0
+compress/mode=2
 compress/high_quality=false
 compress/lossy_quality=0.7
 compress/uastc_level=0

@@ -1,8 +1,9 @@
 """Turn a raw Meshy GLB (often millions of triangles) into mobile-ready LOD GLBs.
 
 Usage (headless Blender 5.x):
-  blender -b --python tools/meshy/optimize_glb.py -- <raw.glb> <out_dir> <name> <budget>
+  blender -b --python tools/meshy/optimize_glb.py -- <raw.glb> <out_dir> <name> <budget> [--pc]
 
+Append `--pc` after <budget> to use BUDGETS_PC (bigger textures, same triangle counts) for PC-only content.
 <budget> picks the triangle/texture tiers below. Output: <name>_lod0.glb, <name>_lod1.glb
 Textures are embedded as JPEG; Godot re-compresses them to VRAM formats (ETC2/ASTC) on import.
 """
@@ -21,7 +22,23 @@ BUDGETS = {
     "creature": [("lod0", 15000, 1024), ("lod1", 5000, 512)],     # rigged mobs (rig lod0 first)
 }
 
-src, outdir, name, budget = sys.argv[-4:]
+# PC-only texture budgets (same triangle counts as BUDGETS, larger textures). Used via a trailing `--pc`.
+BUDGETS_PC = {
+    "hero":     [("lod0", 40000, 4096), ("lod1", 12000, 2048)],
+    "house":    [("lod0", 20000, 2048), ("lod1", 6000, 1024)],
+    "prop":     [("lod0", 4000, 1024),  ("lod1", 1200, 512)],
+    "small":    [("lod0", 1500, 1024),  ("lod1", 500, 512)],
+    "thin":     [("lod0", 4000, 2048),  ("lod1", 4000, 512)],
+    "landmark": [("lod0", 8000, 2048),  ("lod1", 2500, 1024)],
+    "creature": [("lod0", 15000, 2048), ("lod1", 5000, 1024)],
+}
+
+_args = sys.argv[sys.argv.index("--") + 1:] if "--" in sys.argv else sys.argv[-4:]
+_pc = "--pc" in _args
+_args = [a for a in _args if a != "--pc"]
+src, outdir, name, budget = _args[-4:]
+if _pc:
+    BUDGETS = BUDGETS_PC
 bpy.ops.wm.read_factory_settings(use_empty=True)
 bpy.ops.import_scene.gltf(filepath=src)
 meshes = [o for o in bpy.data.objects if o.type == 'MESH']

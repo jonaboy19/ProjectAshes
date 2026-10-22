@@ -3,19 +3,21 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://ce204gbrhu1f2"
-path="res://.godot/imported/biome_map.png-653214066e34e39ca84598d06c4b459c.ctex"
+path.s3tc="res://.godot/imported/biome_map.png-653214066e34e39ca84598d06c4b459c.s3tc.ctex"
+path.etc2="res://.godot/imported/biome_map.png-653214066e34e39ca84598d06c4b459c.etc2.ctex"
 metadata={
-"vram_texture": false
+"imported_formats": ["s3tc_bptc", "etc2_astc"],
+"vram_texture": true
 }
 
 [deps]
 
 source_file="res://assets/incoming/region1/terrain/biome_map.png"
-dest_files=["res://.godot/imported/biome_map.png-653214066e34e39ca84598d06c4b459c.ctex"]
+dest_files=["res://.godot/imported/biome_map.png-653214066e34e39ca84598d06c4b459c.s3tc.ctex", "res://.godot/imported/biome_map.png-653214066e34e39ca84598d06c4b459c.etc2.ctex"]
 
 [params]
 
-compress/mode=0
+compress/mode=2
 compress/high_quality=false
 compress/lossy_quality=0.7
 compress/uastc_level=0

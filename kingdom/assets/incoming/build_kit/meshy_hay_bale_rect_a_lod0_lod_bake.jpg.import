@@ -3,9 +3,11 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://bs0b56vuibhgu"
-path="res://.godot/imported/meshy_hay_bale_rect_a_lod0_lod_bake.jpg-0fc1fdacb954dc18ea008914f2bb35e2.ctex"
+path.s3tc="res://.godot/imported/meshy_hay_bale_rect_a_lod0_lod_bake.jpg-0fc1fdacb954dc18ea008914f2bb35e2.s3tc.ctex"
+path.etc2="res://.godot/imported/meshy_hay_bale_rect_a_lod0_lod_bake.jpg-0fc1fdacb954dc18ea008914f2bb35e2.etc2.ctex"
 metadata={
-"vram_texture": false
+"imported_formats": ["s3tc_bptc", "etc2_astc"],
+"vram_texture": true
 }
 generator_parameters={
 "md5": "e081359868d661835783bc4aa1e75a3a"
@@ -14,11 +16,11 @@ generator_parameters={
 [deps]
 
 source_file="res://assets/incoming/build_kit/meshy_hay_bale_rect_a_lod0_lod_bake.jpg"
-dest_files=["res://.godot/imported/meshy_hay_bale_rect_a_lod0_lod_bake.jpg-0fc1fdacb954dc18ea008914f2bb35e2.ctex"]
+dest_files=["res://.godot/imported/meshy_hay_bale_rect_a_lod0_lod_bake.jpg-0fc1fdacb954dc18ea008914f2bb35e2.s3tc.ctex", "res://.godot/imported/meshy_hay_bale_rect_a_lod0_lod_bake.jpg-0fc1fdacb954dc18ea008914f2bb35e2.etc2.ctex"]
 
 [params]
 
-compress/mode=0
+compress/mode=2
 compress/high_quality=false
 compress/lossy_quality=0.7
 compress/uastc_level=0

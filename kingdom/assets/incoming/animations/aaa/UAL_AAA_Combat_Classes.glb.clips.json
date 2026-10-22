@@ -1,0 +1,177 @@
+[
+ {
+  "name": "Knight_Greatshield_Guard_Stance",
+  "loop": true,
+  "seconds": 1.13,
+  "frames": 35,
+  "keys": 487,
+  "source": "144/144_07.bvh",
+  "range_s": [
+   0.24,
+   1.4
+  ],
+  "autotrim": null,
+  "loop_pts": null,
+  "floor_fix_m": -0.015,
+  "contact_lift_m": 0.0,
+  "min_foot_m": -0.0,
+  "travel_m": 0.23,
+  "hip_scale": 0.0583
+ },
+ {
+  "name": "Knight_Shield_Rush_Charge",
+  "loop": true,
+  "seconds": 0.8,
+  "frames": 25,
+  "keys": 552,
+  "source": "143/143_01.bvh",
+  "range_s": [
+   0.0,
+   0.8
+  ],
+  "autotrim": null,
+  "loop_pts": null,
+  "floor_fix_m": -0.007,
+  "contact_lift_m": 0.011,
+  "min_foot_m": -0.02,
+  "travel_m": 3.48,
+  "hip_scale": 0.0592
+ },
+ {
+  "name": "Knight_Pommel_Strike_Stun",
+  "loop": false,
+  "seconds": 1.2,
+  "frames": 37,
+  "keys": 495,
+  "source": "002/02_07.bvh",
+  "range_s": [
+   0.5,
+   1.7
+  ],
+  "autotrim": null,
+  "loop_pts": null,
+  "floor_fix_m": 0.01,
+  "contact_lift_m": 0.0,
+  "min_foot_m": -0.002,
+  "travel_m": 0.11,
+  "hip_scale": 0.0515
+ },
+ {
+  "name": "Knight_Decapitation_Execution",
+  "loop": false,
+  "seconds": 1.8,
+  "frames": 55,
+  "keys": 759,
+  "source": "002/02_07.bvh",
+  "range_s": [
+   5.6,
+   7.4
+  ],
+  "autotrim": null,
+  "loop_pts": null,
+  "floor_fix_m": 0.004,
+  "contact_lift_m": 0.0,
+  "min_foot_m": -0.001,
+  "travel_m": 0.04,
+  "hip_scale": 0.0515
+ },
+ {
+  "name": "Assassin_Shadow_Crouch_Creep",
+  "loop": true,
+  "seconds": 1.2,
+  "frames": 37,
+  "keys": 583,
+  "source": "104/104_02.bvh",
+  "range_s": [
+   0.8,
+   2.6
+  ],
+  "autotrim": null,
+  "loop_pts": [
+   0.37,
+   1.57,
+   2.12
+  ],
+  "floor_fix_m": 0.003,
+  "contact_lift_m": 0.0,
+  "min_foot_m": -0.0,
+  "travel_m": 1.02,
+  "hip_scale": 0.0535
+ },
+ {
+  "name": "Assassin_Throat_Slit_Sneak",
+  "loop": false,
+  "seconds": 1.5,
+  "frames": 46,
+  "keys": 586,
+  "source": "002/02_07.bvh",
+  "range_s": [
+   1.7,
+   3.2
+  ],
+  "autotrim": null,
+  "loop_pts": null,
+  "floor_fix_m": 0.011,
+  "contact_lift_m": 0.0,
+  "min_foot_m": -0.0,
+  "travel_m": 0.11,
+  "hip_scale": 0.0515
+ },
+ {
+  "name": "Assassin_Ledge_Pull_Down",
+  "loop": false,
+  "seconds": 1.6,
+  "frames": 49,
+  "keys": 661,
+  "source": "140/140_01.bvh",
+  "range_s": [
+   1.8,
+   3.4
+  ],
+  "autotrim": null,
+  "loop_pts": null,
+  "floor_fix_m": 0.0,
+  "contact_lift_m": 0.043,
+  "min_foot_m": 0.02,
+  "travel_m": 0.6,
+  "hip_scale": 0.057
+ },
+ {
+  "name": "Assassin_Aerial_Drop_Impale",
+  "loop": false,
+  "seconds": 1.2,
+  "frames": 37,
+  "keys": 511,
+  "source": "140/140_01.bvh",
+  "range_s": [
+   1.8,
+   3.0
+  ],
+  "autotrim": null,
+  "loop_pts": null,
+  "floor_fix_m": 0.0,
+  "contact_lift_m": 0.043,
+  "min_foot_m": 0.02,
+  "travel_m": 0.4,
+  "hip_scale": 0.057
+ },
+ {
+  "name": "Assassin_Smoke_Vanish_Drop",
+  "loop": false,
+  "seconds": 1.2,
+  "frames": 37,
+  "keys": 634,
+  "source": "127/127_05.bvh",
+  "range_s": [
+   0.4,
+   1.6
+  ],
+  "autotrim": null,
+  "loop_pts": null,
+  "floor_fix_m": 0.024,
+  "contact_lift_m": 0.0,
+  "min_foot_m": -0.0,
+  "travel_m": 1.66,
+  "hip_scale": 0.0502
+ }
+]

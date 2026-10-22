@@ -3,9 +3,11 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://b6toh3kk8ba7q"
-path="res://.godot/imported/swords_scabbards_trio_lod0_lod_bake.jpg-a388d37d57bca8877da5e67f2378b68b.ctex"
+path.s3tc="res://.godot/imported/swords_scabbards_trio_lod0_lod_bake.jpg-a388d37d57bca8877da5e67f2378b68b.s3tc.ctex"
+path.etc2="res://.godot/imported/swords_scabbards_trio_lod0_lod_bake.jpg-a388d37d57bca8877da5e67f2378b68b.etc2.ctex"
 metadata={
-"vram_texture": false
+"imported_formats": ["s3tc_bptc", "etc2_astc"],
+"vram_texture": true
 }
 generator_parameters={
 "md5": "5590627130a38f201a5e52313ef877fd"
@@ -14,11 +16,11 @@ generator_parameters={
 [deps]
 
 source_file="res://assets/incoming/meshy_dl3/props/swords_scabbards_trio_lod0_lod_bake.jpg"
-dest_files=["res://.godot/imported/swords_scabbards_trio_lod0_lod_bake.jpg-a388d37d57bca8877da5e67f2378b68b.ctex"]
+dest_files=["res://.godot/imported/swords_scabbards_trio_lod0_lod_bake.jpg-a388d37d57bca8877da5e67f2378b68b.s3tc.ctex", "res://.godot/imported/swords_scabbards_trio_lod0_lod_bake.jpg-a388d37d57bca8877da5e67f2378b68b.etc2.ctex"]
 
 [params]
 
-compress/mode=0
+compress/mode=2
 compress/high_quality=false
 compress/lossy_quality=0.7
 compress/uastc_level=0

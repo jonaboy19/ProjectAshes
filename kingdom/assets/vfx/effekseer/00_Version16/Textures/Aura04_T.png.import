@@ -3,19 +3,21 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://uxmiip47xbvk"
-path="res://.godot/imported/Aura04_T.png-a40c8c335772f0dba6032a2ecba2dffc.ctex"
+path.s3tc="res://.godot/imported/Aura04_T.png-a40c8c335772f0dba6032a2ecba2dffc.s3tc.ctex"
+path.etc2="res://.godot/imported/Aura04_T.png-a40c8c335772f0dba6032a2ecba2dffc.etc2.ctex"
 metadata={
-"vram_texture": false
+"imported_formats": ["s3tc_bptc", "etc2_astc"],
+"vram_texture": true
 }
 
 [deps]
 
 source_file="res://assets/vfx/effekseer/00_Version16/Textures/Aura04_T.png"
-dest_files=["res://.godot/imported/Aura04_T.png-a40c8c335772f0dba6032a2ecba2dffc.ctex"]
+dest_files=["res://.godot/imported/Aura04_T.png-a40c8c335772f0dba6032a2ecba2dffc.s3tc.ctex", "res://.godot/imported/Aura04_T.png-a40c8c335772f0dba6032a2ecba2dffc.etc2.ctex"]
 
 [params]
 
-compress/mode=0
+compress/mode=2
 compress/high_quality=false
 compress/lossy_quality=0.7
 compress/uastc_level=0
@@ -23,7 +25,7 @@ compress/rdo_quality_loss=0.0
 compress/hdr_compression=1
 compress/normal_map=0
 compress/channel_pack=0
-mipmaps/generate=false
+mipmaps/generate=true
 mipmaps/limit=-1
 roughness/mode=0
 roughness/src_normal=""

@@ -3,9 +3,11 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://cuhdyv7em65c5"
-path="res://.godot/imported/stall_rug_wood_lod0_lod_bake.jpg-86e5465aa8429b48223a3b2fc3ff762a.ctex"
+path.s3tc="res://.godot/imported/stall_rug_wood_lod0_lod_bake.jpg-86e5465aa8429b48223a3b2fc3ff762a.s3tc.ctex"
+path.etc2="res://.godot/imported/stall_rug_wood_lod0_lod_bake.jpg-86e5465aa8429b48223a3b2fc3ff762a.etc2.ctex"
 metadata={
-"vram_texture": false
+"imported_formats": ["s3tc_bptc", "etc2_astc"],
+"vram_texture": true
 }
 generator_parameters={
 "md5": "eb9316cb48089da8ba9b8a443d7f8878"
@@ -14,11 +16,11 @@ generator_parameters={
 [deps]
 
 source_file="res://assets/incoming/meshy_dl3/market/stall_rug_wood_lod0_lod_bake.jpg"
-dest_files=["res://.godot/imported/stall_rug_wood_lod0_lod_bake.jpg-86e5465aa8429b48223a3b2fc3ff762a.ctex"]
+dest_files=["res://.godot/imported/stall_rug_wood_lod0_lod_bake.jpg-86e5465aa8429b48223a3b2fc3ff762a.s3tc.ctex", "res://.godot/imported/stall_rug_wood_lod0_lod_bake.jpg-86e5465aa8429b48223a3b2fc3ff762a.etc2.ctex"]
 
 [params]
 
-compress/mode=0
+compress/mode=2
 compress/high_quality=false
 compress/lossy_quality=0.7
 compress/uastc_level=0

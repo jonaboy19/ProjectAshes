@@ -1,0 +1,410 @@
+{
+  "world_size_km": 32,
+  "world_half_m": 16000,
+  "regions": [
+    {
+      "id": "ashford_vale",
+      "name": "The Ashford Vale (Caldrenn)",
+      "center": [
+        0,
+        0
+      ],
+      "bounds": [
+        -2000,
+        -2000,
+        2000,
+        2000
+      ],
+      "culture": "Caldric (Earth / Stonesetting)",
+      "color": "#38bdf8",
+      "description": "The home region of the Caldrenn Kingdom. Rolling pastoral hills, snowmelt rivers, ancient runestone wards, and fertile farmsteads.",
+      "places": [
+        {
+          "id": "ashford",
+          "name": "Ashford Village",
+          "kind": "settlement",
+          "pos": [
+            0,
+            0
+          ],
+          "elevation": 18.5,
+          "radius": 60,
+          "model": "guild_lod0.glb, inn_lod0.glb, blacksmith_lod0.glb, landmark_runestone_lod0.glb",
+          "render": "render_ashford_village_square.png",
+          "desc": "Home village: timber-and-thatch cottages surrounding the ancient Runestone circle, mill, inn, smithy, and adventurer guild."
+        },
+        {
+          "id": "kingsreach",
+          "name": "Kingsreach Royal Capital",
+          "kind": "capital",
+          "pos": [
+            560,
+            -420
+          ],
+          "elevation": 42.0,
+          "radius": 175,
+          "model": "landmark_watchfort_lod0.glb, castle walls, cathedral",
+          "render": "render_ashford_vale_regional_map.png",
+          "desc": "The royal castle-city of Caldrenn. High limestone bluffs, royal palaces, grand paved boulevards, and the Royal Ember Academy."
+        },
+        {
+          "id": "emberglass_mere",
+          "name": "Emberglass Mere",
+          "kind": "water",
+          "pos": [
+            -420,
+            300
+          ],
+          "elevation": 4.5,
+          "radius": 90,
+          "model": "water_plane, jetty, reed_roof",
+          "render": "render_ashford_vale_regional_map.png",
+          "desc": "Deep glacial lake south-west of Ashford. At dusk the water reflects like burning embers. Fishers keep an eastern jetty."
+        },
+        {
+          "id": "ashrun_bridge",
+          "name": "Ashrun Stone Bridge",
+          "kind": "landmark",
+          "pos": [
+            -318,
+            -214
+          ],
+          "elevation": 14.0,
+          "radius": 15,
+          "model": "bridge_stone.glb",
+          "render": "render_ashford_vale_regional_map.png",
+          "desc": "Heavy stone arch bridge spanning the cold snowmelt Ashrun River on the Oakvale highway."
+        },
+        {
+          "id": "duskbriar_wood",
+          "name": "Duskbriar Wood",
+          "kind": "forest",
+          "pos": [
+            380,
+            480
+          ],
+          "elevation": 24.0,
+          "radius": 330,
+          "model": "oak_a.glb, dark_oak.glb, pine_scots.glb, boulder_large.glb",
+          "render": "render_ashford_vale_regional_map.png",
+          "desc": "Ancient canopy of black oak, spruce, and briar. Home to timber wolves and goblin scout parties."
+        },
+        {
+          "id": "tuskridge_hold",
+          "name": "Tuskridge Hold",
+          "kind": "orc_village",
+          "pos": [
+            300,
+            930
+          ],
+          "elevation": 56.0,
+          "radius": 50,
+          "model": "orc_longhouses, earthworks, bone totems, orc_warchief.glb",
+          "render": "render_orc_evolution_lineup.png",
+          "desc": "Ring of timber longhouses on a fortified hilltop. Exiled Tuskridge Clan led by Chief Harrok Ashmaw."
+        },
+        {
+          "id": "mossfang_warren",
+          "name": "Mossfang Warren",
+          "kind": "camp",
+          "pos": [
+            560,
+            250
+          ],
+          "elevation": 22.0,
+          "radius": 30,
+          "model": "bandit_lean_to.glb, goblin_totem_a.glb",
+          "render": "render_ashford_vale_regional_map.png",
+          "desc": "Subterranean burrows under tangled roots on Duskbriar's northern edge. Goblin ambush outpost."
+        },
+        {
+          "id": "shrine_sleeping_flame",
+          "name": "Shrine of the Sleeping Flame",
+          "kind": "ruins",
+          "pos": [
+            -700,
+            -160
+          ],
+          "elevation": 38.0,
+          "radius": 25,
+          "model": "overgrown_shrine.glb, collapsed_tower.glb",
+          "render": "render_ashford_vale_regional_map.png",
+          "desc": "Ancient ruined temple with cracked marble brazier. Relighting it awakens the slumbering fire soulbeast."
+        },
+        {
+          "id": "cinderpost",
+          "name": "Cinderpost Waystation",
+          "kind": "waystation",
+          "pos": [
+            288,
+            -199
+          ],
+          "elevation": 21.0,
+          "radius": 25,
+          "model": "caravan_wagon.glb, roadside_inn.glb, milestone.glb",
+          "render": "render_ashford_vale_regional_map.png",
+          "desc": "Bustling merchant waystation on the King's Road. Heavy wagons, stables, guard post, and notice board."
+        },
+        {
+          "id": "valley_farm",
+          "name": "Millbrook Valley Farm",
+          "kind": "farm",
+          "pos": [
+            450,
+            -120
+          ],
+          "elevation": 16.0,
+          "radius": 60,
+          "model": "windmill.glb, barn.glb, hay_wagon.glb, crop_wheat.glb",
+          "render": "render_ashford_vale_regional_map.png",
+          "desc": "Active agricultural estate with rotating windmill, granary, timber barn, and golden wheat fields."
+        },
+        {
+          "id": "iron_mine",
+          "name": "Deep Iron Crag Mine",
+          "kind": "mine",
+          "pos": [
+            -850,
+            420
+          ],
+          "elevation": 68.0,
+          "radius": 45,
+          "model": "mine_entrance.glb, mine_cart.glb, miners_hut.glb, ore_pile_iron.glb",
+          "render": "render_ashford_vale_regional_map.png",
+          "desc": "High-altitude iron mine excavated into limestone cliff face with rail tracks, winches, and ore carts."
+        }
+      ]
+    },
+    {
+      "id": "olympian_rome",
+      "name": "Aegis-Roman Marble Empire (Aethelgard)",
+      "center": [
+        -7500,
+        6000
+      ],
+      "bounds": [
+        -10000,
+        4000,
+        -5000,
+        8000
+      ],
+      "culture": "Imperial Latin (Light / Sunforums)",
+      "color": "#f59e0b",
+      "description": "Gleaming white marble metropolis: colosseums, arched aqueducts, sun gods, legionary cohorts, and coastal trading galleys.",
+      "places": [
+        {
+          "id": "aethelgard_colosseum",
+          "name": "Grand Colosseum of Aethelgard",
+          "kind": "capital",
+          "pos": [
+            -7500,
+            6000
+          ],
+          "elevation": 50.0,
+          "radius": 280,
+          "model": "marble_colosseum, roman_aqueduct, triumphal_arch",
+          "desc": "Colossal tiered marble arena where champion gladiators and beastmasters duel before the Emperor."
+        },
+        {
+          "id": "aethelgard_aqueduct",
+          "name": "Great Aqueduct of Sol",
+          "kind": "landmark",
+          "pos": [
+            -6200,
+            5100
+          ],
+          "elevation": 65.0,
+          "radius": 80,
+          "model": "three_tiered_aqueduct_arches",
+          "desc": "Spectacular 4km multi-tiered stone aqueduct carrying fresh snowmelt from the mountain peaks into public baths."
+        }
+      ]
+    },
+    {
+      "id": "kemetic_delta",
+      "name": "Kemetic Sun Delta Empire (Osoris)",
+      "center": [
+        8500,
+        7000
+      ],
+      "bounds": [
+        6000,
+        5000,
+        11000,
+        9000
+      ],
+      "culture": "Solenne Kemetic (Fire / Dawnflame)",
+      "color": "#eab308",
+      "description": "Ancient golden desert delta with towering sandstone ziggurats, carved obelisks, date palm oases, and sacred river barges.",
+      "places": [
+        {
+          "id": "osoris_ziggurat",
+          "name": "Great Ziggurat of the Dawnflame",
+          "kind": "capital",
+          "pos": [
+            8500,
+            7000
+          ],
+          "elevation": 85.0,
+          "radius": 320,
+          "model": "stepped_sandstone_pyramid, lotus_pylon_gate",
+          "desc": "Massive stepped pyramid crowned by the eternal white Dawnflame fire, watched by hawk-headed high priests."
+        },
+        {
+          "id": "osoris_oasis",
+          "name": "Sun Gate Palm Oasis",
+          "kind": "water",
+          "pos": [
+            7200,
+            6200
+          ],
+          "elevation": 12.0,
+          "radius": 150,
+          "model": "palm_oasis, sandstone_bazaar",
+          "desc": "Lush emerald oasis fed by underground thermal springs amidst shifting crimson dunes."
+        }
+      ]
+    },
+    {
+      "id": "wuxia_taiyun",
+      "name": "Mount Taiyun Cultivation Peaks (Shenlu)",
+      "center": [
+        7000,
+        -7500
+      ],
+      "bounds": [
+        5000,
+        -10000,
+        9000,
+        -5000
+      ],
+      "culture": "Shenlu Mountain Cultivation (Qi / Thunderstep)",
+      "color": "#a855f7",
+      "description": "Towering mist-shrouded karst mountain needles connected by iron chain bridges, lacquer pavilions, and flying sword arenas.",
+      "places": [
+        {
+          "id": "heavenly_mist_sect",
+          "name": "Heavenly Mist Sword Sect",
+          "kind": "academy",
+          "pos": [
+            7000,
+            -7500
+          ],
+          "elevation": 240.0,
+          "radius": 220,
+          "model": "nine_tier_lacquer_pagoda, iron_chain_bridge, pill_pavilion",
+          "desc": "Legendary cultivation sect perched on the highest mountain needle above the cloud ocean. Students practice chantless sword qi."
+        },
+        {
+          "id": "dragon_breath_falls",
+          "name": "Dragon's Breath Cloud Waterfall",
+          "kind": "landmark",
+          "pos": [
+            6100,
+            -6800
+          ],
+          "elevation": 180.0,
+          "radius": 90,
+          "model": "cliff_waterfall, meditation_cave",
+          "desc": "A 500-meter sheer cataract falling through perpetual rainbows into the Bamboo Sea."
+        }
+      ]
+    },
+    {
+      "id": "shinto_citadel",
+      "name": "Cherry Blossom Shinto Citadel (Seirune)",
+      "center": [
+        -7000,
+        -6500
+      ],
+      "bounds": [
+        -9500,
+        -8500,
+        -4500,
+        -4500
+      ],
+      "culture": "Seirune Stormstitch (Tideweaving / Blade)",
+      "color": "#ec4899",
+      "description": "Feudal coastal citadel with dark timber tenshu keeps, cascading pink cherry blossoms, vermilion torii water gates, and dojos.",
+      "places": [
+        {
+          "id": "tenshu_shrine_castle",
+          "name": "White Heron Tenshu Citadel",
+          "kind": "capital",
+          "pos": [
+            -7000,
+            -6500
+          ],
+          "elevation": 45.0,
+          "radius": 210,
+          "model": "five_story_tenshu_castle, vermilion_torii_gate, dojo",
+          "desc": "Impenetrable feudal stone fortress guarded by elite Stormstitch blademasters. Overlooks the tranquil Sakura bay."
+        }
+      ]
+    },
+    {
+      "id": "sky_islands",
+      "name": "Aetheria Celestial Sky Islands",
+      "center": [
+        -11000,
+        -11000
+      ],
+      "bounds": [
+        -14000,
+        -14000,
+        -8000,
+        -8000
+      ],
+      "culture": "Celestial Aether (Inverted Gravity / Skyships)",
+      "color": "#38bdf8",
+      "description": "Massive floating landmasses hovering 1,200m above the sea, bound by titan chains, propelled by glowing cyan aether crystals.",
+      "places": [
+        {
+          "id": "skyship_harbor",
+          "name": "Aether Spire & Skyship Galleon Dock",
+          "kind": "capital",
+          "pos": [
+            -11000,
+            -11000
+          ],
+          "elevation": 1200.0,
+          "radius": 350,
+          "model": "crystal_spire, floating_harbor, skyship_hull",
+          "desc": "Mooring harbor for wing-sailed sky galleons. Crystal conduits pulse with raw arcane levitation energy."
+        }
+      ]
+    },
+    {
+      "id": "dwarven_caverns",
+      "name": "Gundarak Subterranean Dwarven Caverns",
+      "center": [
+        0,
+        -11000
+      ],
+      "bounds": [
+        -3000,
+        -13500,
+        3000,
+        -8500
+      ],
+      "culture": "Durrow Deepforged (Magma / Runesteam)",
+      "color": "#ef4444",
+      "description": "10km-wide vaulted underworld city hollowed out of black granite, heated by flowing magma canals and powered by geothermal steam engines.",
+      "places": [
+        {
+          "id": "great_forge_crucible",
+          "name": "The Great Magma Forge & Hall of Ancestors",
+          "kind": "capital",
+          "pos": [
+            0,
+            -11000
+          ],
+          "elevation": -850.0,
+          "radius": 400,
+          "model": "titanic_stone_kings, magma_sluice_gate, steam_piston_foundry",
+          "desc": "The heart of Dwarven civilization. 80-meter carved stone dwarf kings flank a glowing molten bronze crucible."
+        }
+      ]
+    }
+  ]
+}

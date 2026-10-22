@@ -3,9 +3,11 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://e8pooh4cnsvq"
-path="res://.godot/imported/meshy_tower_octagon_wall_lod1_lod_bake.jpg-49fb9c50283bde799d3ea6a9b3feb2ce.ctex"
+path.s3tc="res://.godot/imported/meshy_tower_octagon_wall_lod1_lod_bake.jpg-49fb9c50283bde799d3ea6a9b3feb2ce.s3tc.ctex"
+path.etc2="res://.godot/imported/meshy_tower_octagon_wall_lod1_lod_bake.jpg-49fb9c50283bde799d3ea6a9b3feb2ce.etc2.ctex"
 metadata={
-"vram_texture": false
+"imported_formats": ["s3tc_bptc", "etc2_astc"],
+"vram_texture": true
 }
 generator_parameters={
 "md5": "822d57f141623a712a04cc07e9b16341"
@@ -14,11 +16,11 @@ generator_parameters={
 [deps]
 
 source_file="res://assets/incoming/build_kit/meshy_tower_octagon_wall_lod1_lod_bake.jpg"
-dest_files=["res://.godot/imported/meshy_tower_octagon_wall_lod1_lod_bake.jpg-49fb9c50283bde799d3ea6a9b3feb2ce.ctex"]
+dest_files=["res://.godot/imported/meshy_tower_octagon_wall_lod1_lod_bake.jpg-49fb9c50283bde799d3ea6a9b3feb2ce.s3tc.ctex", "res://.godot/imported/meshy_tower_octagon_wall_lod1_lod_bake.jpg-49fb9c50283bde799d3ea6a9b3feb2ce.etc2.ctex"]
 
 [params]
 
-compress/mode=0
+compress/mode=2
 compress/high_quality=false
 compress/lossy_quality=0.7
 compress/uastc_level=0

@@ -1,0 +1,158 @@
+[
+ {
+  "name": "Hit_React_Head_Flinch_R",
+  "loop": false,
+  "seconds": 1.4,
+  "frames": 43,
+  "keys": 708,
+  "source": "014/14_01.bvh",
+  "range_s": [
+   6.0,
+   7.4
+  ],
+  "autotrim": null,
+  "loop_pts": null,
+  "floor_fix_m": -0.015,
+  "contact_lift_m": 0.0,
+  "min_foot_m": -0.0,
+  "travel_m": 0.13,
+  "hip_scale": 0.0515
+ },
+ {
+  "name": "Hit_React_Head_Flinch_L",
+  "loop": false,
+  "seconds": 1.4,
+  "frames": 43,
+  "keys": 708,
+  "source": "014/14_01.bvh",
+  "range_s": [
+   6.0,
+   7.4
+  ],
+  "autotrim": null,
+  "loop_pts": null,
+  "floor_fix_m": -0.015,
+  "contact_lift_m": 0.0,
+  "min_foot_m": -0.0,
+  "travel_m": 0.13,
+  "hip_scale": 0.0515
+ },
+ {
+  "name": "Hit_React_Gut_Wind_Knockout",
+  "loop": false,
+  "seconds": 1.3,
+  "frames": 40,
+  "keys": 790,
+  "source": "014/14_03.bvh",
+  "range_s": [
+   3.2,
+   4.5
+  ],
+  "autotrim": null,
+  "loop_pts": null,
+  "floor_fix_m": -0.026,
+  "contact_lift_m": 0.0,
+  "min_foot_m": -0.001,
+  "travel_m": 0.15,
+  "hip_scale": 0.0515
+ },
+ {
+  "name": "Hit_React_Leg_Sweep_Trip",
+  "loop": false,
+  "seconds": 1.8,
+  "frames": 55,
+  "keys": 809,
+  "source": "090/90_18.bvh",
+  "range_s": [
+   0.6,
+   2.4
+  ],
+  "autotrim": null,
+  "loop_pts": null,
+  "floor_fix_m": -0.175,
+  "contact_lift_m": 0.042,
+  "min_foot_m": -0.067,
+  "travel_m": 0.03,
+  "hip_scale": 0.0502
+ },
+ {
+  "name": "Knockdown_Hard_Landing",
+  "loop": false,
+  "seconds": 2.2,
+  "frames": 67,
+  "keys": 908,
+  "source": "090/90_17.bvh",
+  "range_s": [
+   1.0,
+   3.2
+  ],
+  "autotrim": null,
+  "loop_pts": null,
+  "floor_fix_m": -0.117,
+  "contact_lift_m": 0.0,
+  "min_foot_m": -0.013,
+  "travel_m": 1.34,
+  "hip_scale": 0.0502
+ },
+ {
+  "name": "Knockdown_Ground_Lie_Idle",
+  "loop": true,
+  "seconds": 1.0,
+  "frames": 31,
+  "keys": 550,
+  "source": "090/90_17.bvh",
+  "range_s": [
+   3.0,
+   4.8
+  ],
+  "autotrim": null,
+  "loop_pts": [
+   0.73,
+   1.73,
+   6.49
+  ],
+  "floor_fix_m": -0.105,
+  "contact_lift_m": 0.0,
+  "min_foot_m": 0.493,
+  "travel_m": 0.12,
+  "hip_scale": 0.0502
+ },
+ {
+  "name": "Knockdown_Roll_Getup",
+  "loop": false,
+  "seconds": 3.0,
+  "frames": 91,
+  "keys": 1210,
+  "source": "140/140_01.bvh",
+  "range_s": [
+   1.6,
+   4.6
+  ],
+  "autotrim": null,
+  "loop_pts": null,
+  "floor_fix_m": -0.041,
+  "contact_lift_m": 0.103,
+  "min_foot_m": -0.002,
+  "travel_m": 1.01,
+  "hip_scale": 0.057
+ },
+ {
+  "name": "Wall_Impact_Splat_Bounce",
+  "loop": false,
+  "seconds": 1.8,
+  "frames": 55,
+  "keys": 1066,
+  "source": "090/90_16.bvh",
+  "range_s": [
+   2.2,
+   4.0
+  ],
+  "autotrim": null,
+  "loop_pts": null,
+  "floor_fix_m": -0.13,
+  "contact_lift_m": 0.051,
+  "min_foot_m": -0.006,
+  "travel_m": 0.14,
+  "hip_scale": 0.0502
+ }
+]

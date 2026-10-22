@@ -3,9 +3,11 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://cv4plvmxpu58v"
-path="res://.godot/imported/meshy_banner_stand_iron_frame_lod1_lod_bake.jpg-d9fd08913f10b55e28f310aa4ec147da.ctex"
+path.s3tc="res://.godot/imported/meshy_banner_stand_iron_frame_lod1_lod_bake.jpg-d9fd08913f10b55e28f310aa4ec147da.s3tc.ctex"
+path.etc2="res://.godot/imported/meshy_banner_stand_iron_frame_lod1_lod_bake.jpg-d9fd08913f10b55e28f310aa4ec147da.etc2.ctex"
 metadata={
-"vram_texture": false
+"imported_formats": ["s3tc_bptc", "etc2_astc"],
+"vram_texture": true
 }
 generator_parameters={
 "md5": "488189d7e65bca5f0f9cee1ae5c8bb08"
@@ -14,11 +16,11 @@ generator_parameters={
 [deps]
 
 source_file="res://assets/incoming/build_kit/meshy_banner_stand_iron_frame_lod1_lod_bake.jpg"
-dest_files=["res://.godot/imported/meshy_banner_stand_iron_frame_lod1_lod_bake.jpg-d9fd08913f10b55e28f310aa4ec147da.ctex"]
+dest_files=["res://.godot/imported/meshy_banner_stand_iron_frame_lod1_lod_bake.jpg-d9fd08913f10b55e28f310aa4ec147da.s3tc.ctex", "res://.godot/imported/meshy_banner_stand_iron_frame_lod1_lod_bake.jpg-d9fd08913f10b55e28f310aa4ec147da.etc2.ctex"]
 
 [params]
 
-compress/mode=0
+compress/mode=2
 compress/high_quality=false
 compress/lossy_quality=0.7
 compress/uastc_level=0

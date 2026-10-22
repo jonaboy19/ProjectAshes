@@ -3,9 +3,11 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://8b73liuuq6nm"
-path="res://.godot/imported/elemental_earth_golem_lod1_lod_bake.jpg-a1263c88c2bd81e1d0139d63f1f32840.ctex"
+path.s3tc="res://.godot/imported/elemental_earth_golem_lod1_lod_bake.jpg-a1263c88c2bd81e1d0139d63f1f32840.s3tc.ctex"
+path.etc2="res://.godot/imported/elemental_earth_golem_lod1_lod_bake.jpg-a1263c88c2bd81e1d0139d63f1f32840.etc2.ctex"
 metadata={
-"vram_texture": false
+"imported_formats": ["s3tc_bptc", "etc2_astc"],
+"vram_texture": true
 }
 generator_parameters={
 "md5": "b63ccb430f210de69efaa783dcb664fc"
@@ -14,11 +16,11 @@ generator_parameters={
 [deps]
 
 source_file="res://assets/incoming/meshy_dl3/creatures/elemental_earth_golem_lod1_lod_bake.jpg"
-dest_files=["res://.godot/imported/elemental_earth_golem_lod1_lod_bake.jpg-a1263c88c2bd81e1d0139d63f1f32840.ctex"]
+dest_files=["res://.godot/imported/elemental_earth_golem_lod1_lod_bake.jpg-a1263c88c2bd81e1d0139d63f1f32840.s3tc.ctex", "res://.godot/imported/elemental_earth_golem_lod1_lod_bake.jpg-a1263c88c2bd81e1d0139d63f1f32840.etc2.ctex"]
 
 [params]
 
-compress/mode=0
+compress/mode=2
 compress/high_quality=false
 compress/lossy_quality=0.7
 compress/uastc_level=0

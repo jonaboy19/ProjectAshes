@@ -3,9 +3,11 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://hcj8iswo84ey"
-path="res://.godot/imported/table_long_wood_lod0_lod_bake.jpg-db3db1de9f16a8afc9c04a5e34a64f0d.ctex"
+path.s3tc="res://.godot/imported/table_long_wood_lod0_lod_bake.jpg-db3db1de9f16a8afc9c04a5e34a64f0d.s3tc.ctex"
+path.etc2="res://.godot/imported/table_long_wood_lod0_lod_bake.jpg-db3db1de9f16a8afc9c04a5e34a64f0d.etc2.ctex"
 metadata={
-"vram_texture": false
+"imported_formats": ["s3tc_bptc", "etc2_astc"],
+"vram_texture": true
 }
 generator_parameters={
 "md5": "018f715067a02cf213e902441f137479"
@@ -14,11 +16,11 @@ generator_parameters={
 [deps]
 
 source_file="res://assets/incoming/meshy_dl3/furniture/table_long_wood_lod0_lod_bake.jpg"
-dest_files=["res://.godot/imported/table_long_wood_lod0_lod_bake.jpg-db3db1de9f16a8afc9c04a5e34a64f0d.ctex"]
+dest_files=["res://.godot/imported/table_long_wood_lod0_lod_bake.jpg-db3db1de9f16a8afc9c04a5e34a64f0d.s3tc.ctex", "res://.godot/imported/table_long_wood_lod0_lod_bake.jpg-db3db1de9f16a8afc9c04a5e34a64f0d.etc2.ctex"]
 
 [params]
 
-compress/mode=0
+compress/mode=2
 compress/high_quality=false
 compress/lossy_quality=0.7
 compress/uastc_level=0

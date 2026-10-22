@@ -5,6 +5,7 @@ extends EditorExportPlugin
 ## PortableCompressedTexture2D. The editor and desktop exports keep the imported
 ## full-size textures, so HIGH/ULTRA on PC stay sharp while a 3 GB phone gets
 ## 1024 px (4x less VRAM than 2048) and 512 px for small clutter.
+## PC exports (custom feature pc_build) are never capped.
 ## Rules: MAX_PX by default, SMALL_PX for paths in SMALL. HDR/float textures and
 ## UI are left alone. Change the numbers, then re-export (the export cache keys on
 ## _get_customization_configuration_hash).
@@ -30,7 +31,7 @@ func _get_name() -> String:
 
 
 func _begin_customize_resources(platform: EditorExportPlatform, features: PackedStringArray) -> bool:
-	_active = features.has("android") or features.has("ios")
+	_active = (features.has("android") or features.has("ios")) and not features.has("pc_build")
 	_mode = PortableCompressedTexture2D.COMPRESSION_MODE_ETC2
 	if features.has("ios") and ClassDB.class_has_integer_constant("PortableCompressedTexture2D", "COMPRESSION_MODE_ASTC"):
 		_mode = ClassDB.class_get_integer_constant("PortableCompressedTexture2D", "COMPRESSION_MODE_ASTC")

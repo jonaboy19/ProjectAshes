@@ -3,9 +3,11 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://bi6cksho48qgg"
-path="res://.godot/imported/house_gable_porch_a_lod0_lod_bake.jpg-3f5f6ef9a957879dd1bac3787c1df655.ctex"
+path.s3tc="res://.godot/imported/house_gable_porch_a_lod0_lod_bake.jpg-3f5f6ef9a957879dd1bac3787c1df655.s3tc.ctex"
+path.etc2="res://.godot/imported/house_gable_porch_a_lod0_lod_bake.jpg-3f5f6ef9a957879dd1bac3787c1df655.etc2.ctex"
 metadata={
-"vram_texture": false
+"imported_formats": ["s3tc_bptc", "etc2_astc"],
+"vram_texture": true
 }
 generator_parameters={
 "md5": "6a1d67b136f986b02d7686513f8bfd57"
@@ -14,11 +16,11 @@ generator_parameters={
 [deps]
 
 source_file="res://assets/incoming/meshy_dl3/buildings/house_gable_porch_a_lod0_lod_bake.jpg"
-dest_files=["res://.godot/imported/house_gable_porch_a_lod0_lod_bake.jpg-3f5f6ef9a957879dd1bac3787c1df655.ctex"]
+dest_files=["res://.godot/imported/house_gable_porch_a_lod0_lod_bake.jpg-3f5f6ef9a957879dd1bac3787c1df655.s3tc.ctex", "res://.godot/imported/house_gable_porch_a_lod0_lod_bake.jpg-3f5f6ef9a957879dd1bac3787c1df655.etc2.ctex"]
 
 [params]
 
-compress/mode=0
+compress/mode=2
 compress/high_quality=false
 compress/lossy_quality=0.7
 compress/uastc_level=0

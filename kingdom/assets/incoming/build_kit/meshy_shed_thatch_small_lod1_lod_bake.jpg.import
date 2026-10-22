@@ -3,9 +3,11 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://bj54rwlymd8lc"
-path="res://.godot/imported/meshy_shed_thatch_small_lod1_lod_bake.jpg-fc60156272f3fe0ba95f3e02fa7a6ffd.ctex"
+path.s3tc="res://.godot/imported/meshy_shed_thatch_small_lod1_lod_bake.jpg-fc60156272f3fe0ba95f3e02fa7a6ffd.s3tc.ctex"
+path.etc2="res://.godot/imported/meshy_shed_thatch_small_lod1_lod_bake.jpg-fc60156272f3fe0ba95f3e02fa7a6ffd.etc2.ctex"
 metadata={
-"vram_texture": false
+"imported_formats": ["s3tc_bptc", "etc2_astc"],
+"vram_texture": true
 }
 generator_parameters={
 "md5": "a8574241da00097ac2b6eb181e371b84"
@@ -14,11 +16,11 @@ generator_parameters={
 [deps]
 
 source_file="res://assets/incoming/build_kit/meshy_shed_thatch_small_lod1_lod_bake.jpg"
-dest_files=["res://.godot/imported/meshy_shed_thatch_small_lod1_lod_bake.jpg-fc60156272f3fe0ba95f3e02fa7a6ffd.ctex"]
+dest_files=["res://.godot/imported/meshy_shed_thatch_small_lod1_lod_bake.jpg-fc60156272f3fe0ba95f3e02fa7a6ffd.s3tc.ctex", "res://.godot/imported/meshy_shed_thatch_small_lod1_lod_bake.jpg-fc60156272f3fe0ba95f3e02fa7a6ffd.etc2.ctex"]
 
 [params]
 
-compress/mode=0
+compress/mode=2
 compress/high_quality=false
 compress/lossy_quality=0.7
 compress/uastc_level=0

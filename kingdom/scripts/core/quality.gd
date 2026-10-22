@@ -206,6 +206,7 @@ func _ready() -> void:
 		for k: String in GROUPS[g]:
 			_group_of[k] = g
 	profile = _resolve_profile()
+	_parse_qset()
 	ram8 = (OS.get_cmdline_user_args() + OS.get_cmdline_args() + qa_file_args()).has("--ram8")
 	_load()
 	var forced := _cmdline_tier()
@@ -228,6 +229,8 @@ func _ready() -> void:
 
 
 func value(key: String) -> Variant:
+	if _qset.has(key):
+		return _qset[key]
 	var t := tier
 	if _group_of.has(key):
 		var o: int = overrides[_group_of[key]]
@@ -242,6 +245,27 @@ func value(key: String) -> Variant:
 		if RAM8_OFF.has(key):
 			return false
 	return v
+
+
+## QA debug: --qset=sdfgi=false,shadow=2,scale=0.67,scaling=fsr overrides single row keys (typed from the row's own value).
+var _qset := {}
+
+
+func _parse_qset() -> void:
+	for arg in OS.get_cmdline_user_args() + OS.get_cmdline_args() + qa_file_args():
+		if not arg.begins_with("--qset="):
+			continue
+		var tbl: Array = _table()
+		for pair in arg.substr(7).split(",", false):
+			var kv := pair.split("=", false, 1)
+			if kv.size() != 2 or not tbl[0].has(kv[0]):
+				continue
+			var cur: Variant = tbl[0][kv[0]]
+			match typeof(cur):
+				TYPE_BOOL: _qset[kv[0]] = kv[1] == "true" or kv[1] == "1"
+				TYPE_INT: _qset[kv[0]] = int(kv[1])
+				TYPE_FLOAT: _qset[kv[0]] = float(kv[1])
+				_: _qset[kv[0]] = kv[1]
 
 
 func is_pc() -> bool:
@@ -746,6 +770,10 @@ func _apply_viewport_pc(v: Viewport) -> void:
 			mode = "fsr2"
 			taa = false
 			fxaa = false
+	# Terrain3D 1.0.2 crashes with FSR2 (motion vectors / depth), so use FSR1 + TAA on that backend.
+	if mode == "fsr2" and TerrainBackend.is_terrain3d():
+		mode = "fsr"
+		taa = true
 	sc = clampf(sc * render_scale, 0.5, 1.0)
 	v.scaling_3d_scale = sc
 	var fsr2 := false
