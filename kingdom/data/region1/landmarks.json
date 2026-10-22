@@ -986,9 +986,114 @@
 					"yaw": 20,
 					"water": true,
 					"y": 0.1
+				},
+				{
+					"a": "free:water/dock_weathered_pier",
+					"w": [
+						-341,
+						300
+					],
+					"h": 1.6,
+					"yaw": 270,
+					"water": true,
+					"y": -0.5
+				},
+				{
+					"a": "free:water/boat_rowing",
+					"w": [
+						-349,
+						306
+					],
+					"h": 1.1,
+					"yaw": 200,
+					"water": true,
+					"y": -0.35
+				},
+				{
+					"a": "free:lighting/lantern_post_wood",
+					"w": [
+						-326,
+						308
+					],
+					"h": 3.2,
+					"yaw": 270
+				},
+				{
+					"a": "free:lighting/lantern_post_wood",
+					"w": [
+						-326,
+						292
+					],
+					"h": 3.2,
+					"yaw": 270
+				},
+				{
+					"a": "res://assets/generated/props/crate_stack.glb",
+					"w": [
+						-319,
+						296
+					],
+					"h": 1.6,
+					"yaw": -15
+				},
+				{
+					"a": "res://assets/generated/props/sack_pile.glb",
+					"w": [
+						-318,
+						305
+					],
+					"h": 1,
+					"yaw": 110
+				},
+				{
+					"a": "res://assets/generated/props/signpost.glb",
+					"w": [
+						-314,
+						311
+					],
+					"h": 2.6,
+					"yaw": 260
+				},
+				{
+					"a": "free:lighting/lantern_hanging_green",
+					"w": [
+						-326.2,
+						308.6
+					],
+					"h": 0.7,
+					"yaw": 0,
+					"y": 2.5
+				},
+				{
+					"a": "free:lighting/lantern_hanging_blue",
+					"w": [
+						-326.0,
+						291.6
+					],
+					"h": 0.7,
+					"yaw": 0,
+					"y": 2.5
 				}
 			],
 			"lights": [
+				{
+					"w": [
+						-326,
+						308
+					],
+					"y": 3,
+					"color": "ffb35c",
+					"range": 10
+				},
+				{
+					"w": [
+						-334,
+						300
+					],
+					"y": 2.8,
+					"color": "7fb8ff",
+					"range": 8
+				},
 				{
 					"w": [
 						-547,
