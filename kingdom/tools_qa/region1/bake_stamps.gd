@@ -26,7 +26,7 @@ func _initialize() -> void:
 		elif a.begins_with("--preview="): preview = a.substr(10)
 		elif a.begins_with("--only="): only = a.substr(7).split(",", false)
 	D = JSON.parse_string(FileAccess.get_file_as_string(design))
-	Region1Terrain.enabled = false          # sample the untouched ground
+	Region1Terrain.skip_late = true         # sample the ground without the stamps being baked (the older stamps stay on: site planning depends on them)
 	WorldMacro.override = mode
 	n_a.seed = 411; n_a.frequency = 0.045; n_a.fractal_octaves = 3
 	n_b.seed = 412; n_b.frequency = 0.011; n_b.fractal_octaves = 2
@@ -196,7 +196,8 @@ func _exclusions(st: Dictionary, M: Dictionary, box: Rect2) -> void:
 	var wide := box.grow(120.0)
 	for s: Dictionary in WorldGen.sites:
 		var p: Vector2 = s["pos"]
-		if wide.has_point(p) and not _is_own(p) and float(s["clear"]) > 0.0:
+		# Only flattened pads need protecting (a `clear` alone just removes trees, and the look landmarks share ground with the mines).
+		if wide.has_point(p) and not _is_own(p) and float(s["clear"]) > 0.0 and bool(s["flatten"]):
 			sites_near.append({"p": p, "r": float(s["clear"])})
 	for s in WorldGen.settlements:
 		if wide.grow(200.0).has_point(s["pos"]):
@@ -208,7 +209,7 @@ func _mask(p: Vector2, road_gap: float) -> float:
 	var m := 1.0
 	for e: Dictionary in sites_near:
 		var d := p.distance_to(e["p"])
-		m = minf(m, smoothstep(float(e["r"]) + 4.0, float(e["r"]) + 22.0, d))
+		m = minf(m, smoothstep(float(e["r"]) + 2.0, float(e["r"]) * 1.8 + 6.0, d))
 		if m <= 0.0:
 			return 0.0
 	var rd := WorldGen.road_distance(p.x, p.y)
@@ -234,6 +235,8 @@ func _rift(M: Dictionary, ctx: Dictionary, p: Vector2) -> PackedFloat32Array:
 	var u := q.x * cos(ang) + q.y * sin(ang)
 	var v := -q.x * sin(ang) + q.y * cos(ang)
 	var joff := 28.0 * sin(u / 57.0) + 17.0 * sin(u / 23.0 + 1.3) + 9.0 * sin(u / 11.0 + 0.4)
+	if bool(M.get("center_on_site", false)):      # the trench passes through the centre (the Rift object sits in it) instead of the macro's own axis
+		joff -= 17.0 * sin(1.3) + 9.0 * sin(0.4)
 	var jag := float(M.get("jag", 0.3))
 	var wid := (float(M["wid"]) + 6.0 * sin(u / 37.0 + 2.0)) * (1.0 + jag * n_a.get_noise_2d(u * 0.9, 17.0))
 	var endf := 1.0 - smoothstep(float(M.get("len_full", 160.0)), float(M.get("len_end", 300.0)), absf(u))
@@ -288,7 +291,7 @@ func _portal(M: Dictionary, ctx: Dictionary, p: Vector2, base: float) -> PackedF
 	var wu := 1.0 - smoothstep(half, half + feather, u)
 	var ws := smoothstep(-2.0, -0.5, s) * (1.0 - smoothstep(s_end, s_end + feather, s))
 	var wa := wu * ws
-	var delta := (bench - base) * wa
+	var delta := clampf(bench - base, -4.0, 6.0) * wa      # a steep slope gets a sloping bench rather than a 10 m spoil wall
 	# Headwall brow behind the portal.
 	var bh := float(M.get("brow", 4.5))
 	var rise := smoothstep(-2.4, -6.0, s)                      # steep face right behind the frame

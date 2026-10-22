@@ -4,7 +4,7 @@
 		{
 			"id": "rift_trench", "type": "rift_trench", "center": [1130.2, 1004.4], "extent": 330, "cell": 3, "own": ["The Rift"], "road_gap": 8,
 			"modes": {
-				"noise": {"angle": 25, "depth": 15.0, "wid": 16.0, "jag": 0.3, "floor": 0.5, "ledges": 0.45, "lip": 2.5, "len_full": 160, "len_end": 300},
+				"noise": {"angle": 25, "center_on_site": true, "depth": 15.0, "wid": 16.0, "jag": 0.3, "floor": 0.5, "ledges": 0.45, "lip": 2.5, "len_full": 160, "len_end": 300},
 				"valencious": {"angle": 25, "depth": 7.0, "wid": 8.0, "jag": 0.45, "floor": 0.35, "ledges": 0.55, "lip": 0.0, "len_full": 150, "len_end": 290}
 			}
 		},
@@ -13,6 +13,13 @@
 			"modes": {
 				"noise": {"main_r": 92, "main_depth": 11.0, "main_rim": 3.5, "main_flat": 0.38, "satellites": 9, "sat_min_dist": 140, "sat_max_dist": 340, "sat_r": [14, 38], "sat_depth": [3.0, 7.0]},
 				"valencious": {"main_r": 84, "main_depth": 7.0, "main_rim": 3.0, "main_flat": 0.4, "satellites": 8, "sat_min_dist": 140, "sat_max_dist": 340, "sat_r": [14, 36], "sat_depth": [2.5, 5.0]}
+			}
+		},
+		{
+			"id": "grimfen_pass_cut", "type": "pass_cut", "site": "Grimfen Pass", "axis": [1, 0], "extent": 130, "cell": 2,
+			"modes": {
+				"noise": {"floor_half": 15.0, "depth": 7.0, "len_half": 85.0, "wall": 12.0},
+				"valencious": {"floor_half": 15.0, "depth": 5.0, "len_half": 85.0, "wall": 12.0}
 			}
 		},
 		{"id": "mine_greyseam", "type": "portal", "site": "Greyseam Mine", "cell": 1.5, "modes": {"noise": {}, "valencious": {}}},

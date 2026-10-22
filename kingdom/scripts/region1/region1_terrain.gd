@@ -23,6 +23,9 @@ static var _stamps: Array[Dictionary] = []
 ## Stamps flagged "late" in the index (W4 landmark stamps): loaded here, switched on by activate_late() once RegionSites has planned, so
 ## no site, road or pad is ever planned on the stamped ground (no id or position moves). Same layout as _stamps.
 static var _late: Array[Dictionary] = []
+## Tools (bake_stamps.gd) switch this on to sample the ground WITHOUT the late stamps they are about to replace, while the older stamps stay on
+## (site planning, e.g. the Greyseam Mine, depends on them).
+static var skip_late := false
 ## [{pts: PackedVector2Array, half: float, box: Rect2, soft: float}]
 static var _trails: Array[Dictionary] = []
 static var _box := Rect2()
@@ -76,6 +79,8 @@ static func setup() -> void:
 
 ## Switches the late (W4) stamps on. RegionSites.plan() calls it as its last step; a no-op when stamps are disabled or already on.
 static func activate_late() -> void:
+	if skip_late:
+		_late.clear()
 	if _late.is_empty():
 		return
 	_stamps.append_array(_late)

@@ -4,6 +4,7 @@ extends GdUnitTestSuite
 
 const W4 := preload("res://scripts/world/region1_w4.gd")
 const World := preload("res://scripts/world/region1_world.gd")
+const Landmarks := preload("res://scripts/region1/region1_landmarks.gd")
 
 ## The inventory ids (PA_plans/W4_LANDMARK_INVENTORY.md) with no or partial body before W4: each must be covered by a W4 site or be an alias.
 const NO_OR_PARTIAL := ["parchment:", "ashford_ring", "greenhollow_south_fields", "proposed:silverford", "rift_mouth",
@@ -79,7 +80,7 @@ func test_every_no_or_partial_place_has_a_body_or_an_alias() -> void:
 
 func test_emberglass_east_landing_has_a_dock_and_a_boat() -> void:
 	var lm: Dictionary = {}
-	for l: Dictionary in Region1Landmarks.data().get("landmarks", []):
+	for l: Dictionary in Landmarks.data().get("landmarks", []):
 		if l["id"] == "emberglass_ferry":
 			lm = l
 	assert_dict(lm).is_not_empty()
@@ -113,7 +114,7 @@ func test_w4_sites_are_planned_last_and_on_dry_ground() -> void:
 	# They are the tail of WorldGen.sites: no earlier id moved.
 	var first := WorldGen.sites.size() - sites.size()
 	for i in sites.size():
-		assert_str(String(WorldGen.sites[first + i].get("r1id", ""))).begins_with("w4_")
+		assert_bool(String(WorldGen.sites[first + i].get("r1id", "")).begins_with("w4_")).is_true()
 	for s in sites:
 		var p: Vector2 = s["pos"]
 		assert_bool(WorldGen.is_water(p.x, p.y)).override_failure_message("%s stands in water" % s["name"]).is_false()
@@ -167,6 +168,19 @@ func _site_pos(name: String) -> Vector2:
 	return Vector2.INF
 
 
+## Metres added by the W4 stamps alone (the older stamps - Hollin's Reach, Crownstead, the Wyrm's Ridge - have their own tests).
+func _w4(x: float, z: float) -> float:
+	var d := 0.0
+	for e: Dictionary in Region1Terrain._stamps:
+		var id := String(e.get("id", ""))
+		if not (id.ends_with("_noise") or id.ends_with("_valencious")):
+			continue
+		if x <= e["x0"] or z <= e["z0"] or x >= e["x1"] or z >= e["z1"]:
+			continue
+		d += Region1Terrain._sample(e, x, z, 0)
+	return d
+
+
 func _check_stamps(mode: String) -> void:
 	WorldMacro.override = mode
 	Region1Terrain.enabled = true
@@ -176,19 +190,21 @@ func _check_stamps(mode: String) -> void:
 	var ids: Array = []
 	for e: Dictionary in Region1Terrain._stamps:
 		ids.append(String(e.get("id", "")))
-	for id in ["rift_trench", "ashen_scar", "mine_greyseam", "mine_deepvein", "mine_coldseam", "mine_ironroot"]:
+	for id in ["rift_trench", "ashen_scar", "mine_greyseam", "mine_deepvein", "mine_coldseam", "mine_ironroot", "grimfen_pass_cut"]:
 		assert_array(ids).override_failure_message(tag + "stamp not loaded: " + id + " in " + str(ids)).contains([id + "_" + mode])
 		var other := "valencious" if mode == "noise" else "noise"
 		assert_array(ids).override_failure_message(tag + "wrong-mode stamp loaded: " + id).not_contains([id + "_" + other])
 	# The Rift: a trench, and the pad of the Rift Edge Camp and every other site is untouched.
 	var rift := _site_pos("The Rift")
-	var rd := Region1Terrain.stamp(rift.x, rift.y, 0.0)
+	# The noise variant runs its trench through the Rift; the valencious variant follows the macro's own trench axis, which is 20 m off it.
+	var rc := Vector2.ZERO if mode == "noise" else 19.9 * Vector2(-sin(deg_to_rad(25.0)), cos(deg_to_rad(25.0)))
+	var rd := _w4(rift.x + rc.x, rift.y + rc.y)
 	assert_float(rd).override_failure_message(tag + "Rift floor delta %.2f" % rd).is_less(-4.0 if mode == "valencious" else -10.0)
 	# The Ashen Scar: the Rift Mouth sits at the bottom of the crater.
 	var mouth := W4.site("w4_rift_mouth")["pos"] as Vector2
-	var cd := Region1Terrain.stamp(mouth.x, mouth.y, 0.0)
+	var cd := _w4(mouth.x, mouth.y)
 	assert_float(cd).override_failure_message(tag + "crater floor delta %.2f" % cd).is_less(-5.0)
-	assert_float(Region1Terrain.stamp(mouth.x + 150.0, mouth.y, 0.0)).override_failure_message(tag + "crater rim").is_greater(-4.0)
+	assert_float(_w4(mouth.x + 150.0, mouth.y)).override_failure_message(tag + "crater rim").is_greater(-4.0)
 	# Mine portals: a raised brow behind the entrance.
 	for mn in ["Greyseam Mine", "Deepvein Mine", "Coldseam Mine", "Ironroot Mine"]:
 		var site: Dictionary = {}
@@ -198,27 +214,25 @@ func _check_stamps(mode: String) -> void:
 		assert_dict(site).is_not_empty()
 		var f := Vector2(sin(float(site["yaw"])), cos(float(site["yaw"])))
 		var behind: Vector2 = site["pos"] - f * 9.0
-		var brow := Region1Terrain.stamp(behind.x, behind.y, 0.0)
+		var brow := _w4(behind.x, behind.y)
 		assert_float(brow).override_failure_message("%s%s brow %.2f" % [tag, mn, brow]).is_greater(1.5)
 		# The portal itself keeps its ground (the entrance stands where it did).
 		var at: Vector2 = site["pos"]
-		assert_float(absf(Region1Terrain.stamp(at.x, at.y, 0.0))).override_failure_message("%s%s portal moved %.2f" % [tag, mn, Region1Terrain.stamp(at.x, at.y, 0.0)]).is_less(0.6)
+		assert_float(absf(_w4(at.x, at.y))).override_failure_message("%s%s portal moved %.2f" % [tag, mn, _w4(at.x, at.y)]).is_less(0.6)
 	# No planned site pad (other than the stamps' own) is touched, nor any settlement centre, nor a road bed.
 	var moved: Array[String] = []
 	for s in WorldGen.sites:
 		var p: Vector2 = s["pos"]
-		if float(s["clear"]) <= 0.0 or String(s["name"]) in ["The Rift", "The Rift Mouth"]:
+		if float(s["clear"]) <= 0.0 or not bool(s["flatten"]) or String(s["name"]) in ["The Rift", "The Rift Mouth", "Grimfen Pass"]:
 			continue
-		if String(s["kind"]) == "mine":
-			continue
-		var d := Region1Terrain.stamp(p.x, p.y, 0.0)
+		var d := _w4(p.x, p.y)
 		if absf(d) > 0.05:
 			moved.append("%s %.2f" % [s["name"], d])
 	assert_array(moved).override_failure_message(tag + "stamps move site pads: " + str(moved)).is_empty()
 	for st in WorldGen.settlements:
-		assert_float(absf(Region1Terrain.stamp(st["pos"].x, st["pos"].y, 0.0))).is_less(0.01)
+		assert_float(absf(_w4(st["pos"].x, st["pos"].y))).is_less(0.01)
 	# Far from every stamp the ground is untouched.
-	assert_float(Region1Terrain.stamp(0.0, 0.0, 12.5)).is_equal(12.5)
+	assert_float(_w4(0.0, 0.0)).is_equal(0.0)
 
 
 func test_stamps_on_the_noise_terrain() -> void:
