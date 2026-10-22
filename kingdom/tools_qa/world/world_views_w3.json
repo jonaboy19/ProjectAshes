@@ -1,0 +1,369 @@
+{
+ "_comment": "W3 views: per macro sub-region an aerial at 120 m and a ground view at 1.7 m. Run with tools_qa/region1/look_capture.gd --views=res://tools_qa/world/world_views_w3.json --quality=high",
+ "views": [
+  {
+   "name": "w01_heartvale_aerial",
+   "at": [
+    130,
+    230
+   ],
+   "look": [
+    480,
+    -250
+   ],
+   "up": 120,
+   "look_up": 0,
+   "hour": 12.0,
+   "fov": 60
+  },
+  {
+   "name": "w01_heartvale_ground",
+   "at": [
+    380,
+    -150
+   ],
+   "look": [
+    480,
+    -250
+   ],
+   "up": 1.7,
+   "look_up": 1.5,
+   "hour": 15.0,
+   "fov": 60
+  },
+  {
+   "name": "w02_northern_ridge_aerial",
+   "at": [
+    -190,
+    -1180
+   ],
+   "look": [
+    120,
+    -1673
+   ],
+   "up": 120,
+   "look_up": 0,
+   "hour": 12.0,
+   "fov": 60
+  },
+  {
+   "name": "w02_northern_ridge_ground",
+   "at": [
+    60,
+    -1560
+   ],
+   "look": [
+    120,
+    -1673
+   ],
+   "up": 1.7,
+   "look_up": 1.5,
+   "hour": 15.0,
+   "fov": 60
+  },
+  {
+   "name": "w03_ironmarch_highlands_aerial",
+   "at": [
+    2050,
+    -2120
+   ],
+   "look": [
+    2400,
+    -2650
+   ],
+   "up": 120,
+   "look_up": 0,
+   "hour": 12.0,
+   "fov": 60
+  },
+  {
+   "name": "w03_ironmarch_highlands_ground",
+   "at": [
+    2300,
+    -2500
+   ],
+   "look": [
+    2400,
+    -2650
+   ],
+   "up": 1.7,
+   "look_up": 1.5,
+   "hour": 15.0,
+   "fov": 60
+  },
+  {
+   "name": "w04_silverrun_valley_aerial",
+   "at": [
+    2400,
+    610
+   ],
+   "look": [
+    2700,
+    170
+   ],
+   "up": 120,
+   "look_up": 0,
+   "hour": 12.0,
+   "fov": 60
+  },
+  {
+   "name": "w04_silverrun_valley_ground",
+   "at": [
+    2650,
+    230
+   ],
+   "look": [
+    2700,
+    170
+   ],
+   "up": 1.7,
+   "look_up": 1.5,
+   "hour": 15.0,
+   "fov": 60
+  },
+  {
+   "name": "w05_duskbriar_wood_aerial",
+   "at": [
+    150,
+    900
+   ],
+   "look": [
+    450,
+    600
+   ],
+   "up": 120,
+   "look_up": 0,
+   "hour": 12.0,
+   "fov": 60
+  },
+  {
+   "name": "w05_duskbriar_wood_ground",
+   "at": [
+    400,
+    520
+   ],
+   "look": [
+    450,
+    600
+   ],
+   "up": 1.7,
+   "look_up": 1.5,
+   "hour": 15.0,
+   "fov": 60
+  },
+  {
+   "name": "w06_rift_marches_aerial",
+   "at": [
+    850,
+    1340
+   ],
+   "look": [
+    1130,
+    1004
+   ],
+   "up": 120,
+   "look_up": 0,
+   "hour": 12.0,
+   "fov": 60,
+   "warm": 500
+  },
+  {
+   "name": "w06_rift_marches_ground",
+   "at": [
+    1100,
+    960
+   ],
+   "look": [
+    1130,
+    1004
+   ],
+   "up": 1.7,
+   "look_up": 1.5,
+   "hour": 15.0,
+   "fov": 60,
+   "warm": 500
+  },
+  {
+   "name": "w07_ashen_scar_aerial",
+   "at": [
+    2210,
+    2800
+   ],
+   "look": [
+    2509,
+    2468
+   ],
+   "up": 120,
+   "look_up": 0,
+   "hour": 12.0,
+   "fov": 60
+  },
+  {
+   "name": "w07_ashen_scar_ground",
+   "at": [
+    2460,
+    2420
+   ],
+   "look": [
+    2509,
+    2468
+   ],
+   "up": 1.7,
+   "look_up": 1.5,
+   "hour": 15.0,
+   "fov": 60
+  },
+  {
+   "name": "w08_greywood_emberfall_aerial",
+   "at": [
+    -1750,
+    2130
+   ],
+   "look": [
+    -1450,
+    1830
+   ],
+   "up": 120,
+   "look_up": 0,
+   "hour": 12.0,
+   "fov": 60
+  },
+  {
+   "name": "w08_greywood_emberfall_ground",
+   "at": [
+    -1500,
+    1750
+   ],
+   "look": [
+    -1450,
+    1830
+   ],
+   "up": 1.7,
+   "look_up": 1.5,
+   "hour": 15.0,
+   "fov": 60
+  },
+  {
+   "name": "w09_westfen_marsh_aerial",
+   "at": [
+    -250,
+    1830
+   ],
+   "look": [
+    60,
+    1520
+   ],
+   "up": 120,
+   "look_up": 0,
+   "hour": 12.0,
+   "fov": 60
+  },
+  {
+   "name": "w09_westfen_marsh_ground",
+   "at": [
+    0,
+    1450
+   ],
+   "look": [
+    60,
+    1520
+   ],
+   "up": 1.7,
+   "look_up": 1.5,
+   "hour": 15.0,
+   "fov": 60
+  },
+  {
+   "name": "w10_mistwood_west_aerial",
+   "at": [
+    -3500,
+    -180
+   ],
+   "look": [
+    -3150,
+    -650
+   ],
+   "up": 120,
+   "look_up": 0,
+   "hour": 12.0,
+   "fov": 60
+  },
+  {
+   "name": "w10_mistwood_west_ground",
+   "at": [
+    -3250,
+    -560
+   ],
+   "look": [
+    -3150,
+    -650
+   ],
+   "up": 1.7,
+   "look_up": 1.5,
+   "hour": 15.0,
+   "fov": 60
+  },
+  {
+   "name": "w11_dunhallow_uplands_aerial",
+   "at": [
+    -3150,
+    -2770
+   ],
+   "look": [
+    -2800,
+    -3250
+   ],
+   "up": 120,
+   "look_up": 0,
+   "hour": 12.0,
+   "fov": 60
+  },
+  {
+   "name": "w11_dunhallow_uplands_ground",
+   "at": [
+    -2900,
+    -3150
+   ],
+   "look": [
+    -2800,
+    -3250
+   ],
+   "up": 1.7,
+   "look_up": 1.5,
+   "hour": 15.0,
+   "fov": 60
+  },
+  {
+   "name": "w12_harrowgate_steppe_aerial",
+   "at": [
+    -350,
+    3630
+   ],
+   "look": [
+    0,
+    3350
+   ],
+   "up": 120,
+   "look_up": 0,
+   "hour": 12.0,
+   "fov": 60,
+   "warm": 500
+  },
+  {
+   "name": "w12_harrowgate_steppe_ground",
+   "at": [
+    -100,
+    3250
+   ],
+   "look": [
+    0,
+    3350
+   ],
+   "up": 1.7,
+   "look_up": 1.5,
+   "hour": 15.0,
+   "fov": 60,
+   "warm": 500
+  }
+ ]
+}

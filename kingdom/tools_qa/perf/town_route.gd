@@ -158,6 +158,10 @@ func _process(delta: float) -> void:
 			var v: Array = leg_stats[k]
 			per += " %s:ms=%.1f,maxdraws=%d,maxprims=%d" % [k, float(v[2]) / maxi(1, int(v[3])), v[0], v[1]]
 		print("ROUTE_SUM %s avgdraws=%d avgprims=%d maxdraws=%d maxprims=%d legs:%s" % [_summary(all), int(sum_draws / maxi(1, samples)), int(sum_prims / maxi(1, samples)), max_draws, max_prims, per])
+		var ss: Array = ScatterChunk.stats
+		var ms: Array = ScatterWorldModifier.stats
+		print("SCATTER_MATHS passes=%d avg_ms=%.2f max_ms=%.2f candidates=%d" % [int(ms[0]), float(ms[1]) / 1000.0 / maxi(1, int(ms[0])), float(ms[2]) / 1000.0, int(ms[3])])
+		print("SCATTER chunks=%d avg_ms=%.1f max_ms=%.1f" % [int(ss[0]), float(ss[1]) / maxi(1, int(ss[0])), float(ss[2])])
 		legs.clear()
 		if quit_at_end:
 			get_tree().quit(0)

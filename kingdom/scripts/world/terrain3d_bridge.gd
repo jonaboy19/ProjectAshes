@@ -21,13 +21,13 @@ const LAST_LOC := 15
 ## Texture slot ids; packed textures come from tools_qa/terrain3d/pack_ground_textures.gd (existing Poly Haven CC0 PBR sets).
 ## Slots 0-4 are the legacy ground; 5-9 (W1d) are painted only with the Valencious macro (biome_ids/splat_weights): meadow, farmland,
 ## marsh mud, rift ash (violet-black), snow/scree. Packed by tools_qa/terrain3d/pack_ground_textures.gd.
-const SLOTS := ["grass", "forest", "path", "rock", "cobble", "meadow", "farmland", "marsh", "rift", "snow"]
+const SLOTS := ["grass", "forest", "path", "rock", "cobble", "meadow", "farmland", "marsh", "rift", "snow", "highland"]
 const SNOW_LINE := 180.0
 const TEX_DIR := "res://assets/terrain3d/ground/"
 ## Texture repeat per metre (legacy terrain.gdshader tile_size = 4 m -> 0.25), per slot. TUNE on the GPU.
-const UV_SCALE := {"grass": 0.25, "forest": 0.22, "path": 0.25, "rock": 0.2, "cobble": 0.3, "meadow": 0.25, "farmland": 0.2, "marsh": 0.22, "rift": 0.2, "snow": 0.18}
+const UV_SCALE := {"grass": 0.25, "forest": 0.22, "path": 0.25, "rock": 0.2, "cobble": 0.3, "meadow": 0.25, "farmland": 0.2, "marsh": 0.22, "rift": 0.2, "snow": 0.18, "highland": 0.22}
 ## Per slot: [normal_depth, ao_strength, roughness_offset]. TUNE on the GPU.
-const SLOT_LOOK := {"grass": [0.9, 0.6, 0.0], "forest": [1.0, 0.7, 0.0], "path": [0.8, 0.5, 0.0], "rock": [1.2, 0.8, 0.0], "cobble": [0.9, 0.6, 0.0], "meadow": [0.8, 0.6, 0.0], "farmland": [0.9, 0.7, 0.0], "marsh": [0.9, 0.6, 0.0], "rift": [1.2, 0.8, 0.0], "snow": [0.7, 0.4, 0.0]}
+const SLOT_LOOK := {"grass": [0.9, 0.6, 0.0], "forest": [1.0, 0.7, 0.0], "path": [0.8, 0.5, 0.0], "rock": [1.2, 0.8, 0.0], "cobble": [0.9, 0.6, 0.0], "meadow": [0.8, 0.6, 0.0], "farmland": [0.9, 0.7, 0.0], "marsh": [0.9, 0.6, 0.0], "rift": [1.2, 0.8, 0.0], "snow": [0.7, 0.4, 0.0], "highland": [1.0, 0.7, 0.0]}
 const GRASS_TINT := Color(0.88, 1.0, 0.76)     # legacy grass_tint (0.85, 1.0, 0.7) softened: the colour map multiplies albedo
 
 ## Regions kept around the focus (Chebyshev, in regions): 1 -> 3x3 (1.15 km span), 2 -> 5x5. Quality scales it.
@@ -67,6 +67,9 @@ func _configure_material() -> void:
 	if mat:
 		mat.world_background = 0               # NONE beyond the streamed regions
 		mat.texture_filtering = 0              # LINEAR
+	var look := Terrain3DLook.apply(terrain)     # W3: weather / season / snow / scar-tide on the Terrain3D ground
+	if look:
+		add_child(look)
 
 
 func _exit_tree() -> void:
@@ -140,12 +143,27 @@ static func _sum(ex: Array) -> float:
 	return t
 
 
-## Macro biome extras for a ground sample: [meadow, farmland, marsh, rift ash, snow] (empty without the macro, so legacy words are unchanged).
+## Macro biome extras for a ground sample: [meadow, farmland, marsh, rift ash, snow, highland, forest litter] (empty without the macro, so legacy words are unchanged).
+## W3: weights come from WorldBiomes' soft (>= 150 m, noise-warped) biome field, not the 12 m splat, so grass/meadow stay the base nearly everywhere
+## and farmland dirt / forest litter are only soft patches. `w.a` (forest litter) is rewritten here too.
 static func macro_extras(x: float, z: float, h: float, slope: float, w: Color) -> Array:
-	var sp := WorldMacro.splat_at(x, z)
+	var sw := WorldBiomes.soft_weights(x, z)
+	var patch := 0.5 + 0.5 * _patch_noise().get_noise_2d(x, z)
+	var m := WorldBiomes.ground_mix(sw, patch)
 	var free := clampf(1.0 - w.r - w.b - w.g, 0.0, 1.0)      # roads, cobble and rock faces keep priority
 	var snow := smoothstep(SNOW_LINE - 6.0, SNOW_LINE + 10.0, h) * (1.0 - smoothstep(0.55, 0.85, slope))
-	return [sp.r * free, sp.g * free, sp.b * free, sp.a * free, snow * free]
+	return [m[1] * free, m[2] * free, m[3] * free, m[4] * free, maxf(m[5], snow) * free, m[6] * free, m[0] * free]   # last = forest litter (-> w.a)
+
+
+static var _patch: FastNoiseLite
+
+
+static func _patch_noise() -> FastNoiseLite:
+	if _patch == null:
+		_patch = FastNoiseLite.new()
+		_patch.seed = 4077
+		_patch.frequency = 0.006
+	return _patch
 
 
 ## [height, control, colour] images of region `loc`. Pixel (i, j) sits at world origin + (i, j) * SPACING exactly.
@@ -174,13 +192,21 @@ static func build_maps(loc: Vector2i) -> Array[Image]:
 			var ex: Array = []
 			if WorldMacro.active:
 				ex = macro_extras(wx, wz, h, 1.0 - normal_y, w)
-				if WorldMacro.biome_at(wx, wz) != 1:
-					w.a *= 0.5                           # forest floor only where the biome is forest
+				w.a = float(ex.pop_back())               # forest litter weight from the soft biome field
 			cbytes.encode_u32((j * n + i) * 4, control_word(w, ex))
 	var himg := Image.create_from_data(n, n, false, Image.FORMAT_RF, hbytes)
 	var cimg := Image.create_from_data(n, n, false, Image.FORMAT_RF, cbytes)
 	var col := Image.create_empty(n, n, false, Image.FORMAT_RGBA8)
 	col.fill(Color(1.0, 1.0, 1.0, 0.5))
+	if WorldMacro.active:
+		# W3: lush Style G tint from the soft biome field, one sample per 4 px (bilinear in the shader's colour map)
+		for j in range(0, n, 4):
+			for i in range(0, n, 4):
+				var t := WorldBiomes.tint(WorldBiomes.soft_weights(o.x + i * SPACING, o.y + j * SPACING))
+				for dj in 4:
+					for di in 4:
+						if i + di < n and j + dj < n:
+							col.set_pixel(i + di, j + dj, Color(t.r, t.g, t.b, 0.5))
 	return [himg, cimg, col]
 
 

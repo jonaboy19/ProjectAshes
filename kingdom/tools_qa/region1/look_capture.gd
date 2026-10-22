@@ -19,7 +19,6 @@ var _t3d_saved: Dictionary = {}
 var _mat_saved: Dictionary = {}
 var only: PackedStringArray = []
 var budget_s := 900
-var aa_arg := 0
 var main: Node
 var cam: Camera3D
 var frame := 0

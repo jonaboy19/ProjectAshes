@@ -86,6 +86,11 @@ const LAYERS := {"grass": "leafy_grass", "forest": "forest_ground_04", "path": "
 
 func _ready() -> void:
 	_t3d = TerrainBackend.is_terrain3d()
+	# Biome-aware grass (Valencious macro only) scales with the tier's grass_mul: PC_HIGH 1.5x, PC_ULTRA 2x. Read here, on the main thread.
+	WorldBiomes.grass_scale = float(Quality.value("grass_mul")) if Quality.has_value("grass_mul") else 1.0
+	for a in OS.get_cmdline_user_args() + OS.get_cmdline_args():
+		if a.begins_with("--grass_scale="):          # QA: PC_HIGH density on a profile that cannot run the PC tiers (FSR2 + Terrain3D crash)
+			WorldBiomes.grass_scale = float(a.get_slice("=", 1))
 	if _t3d:
 		_bridge = Terrain3DBridge.new()
 		_bridge.name = "Terrain3DBridge"
@@ -677,7 +682,8 @@ func _plan_floor(key: Vector2i, origin: Vector2, buckets: Dictionary) -> void:
 		var x := origin.x + rng.randf() * CHUNK
 		var z := origin.y + rng.randf() * CHUNK
 		# Glades count as woodland at a lower weight; site clearings keep their own dressing.
-		var density := maxf(WorldGen.forest_density(x, z), WorldGen.woodland(x, z) * 0.6)
+		var biome := WorldBiomes.at(x, z)     # LEGACY unless the Valencious macro is on: floor cards follow the biome's tree share
+		var density := WorldBiomes.tree_density(biome, maxf(WorldGen.forest_density(x, z), WorldGen.woodland(x, z) * 0.6))
 		if density < 0.12 or rng.randf() > 0.25 + density * 0.75:
 			continue
 		if WorldGen.forest_density(x, z) < 0.05 and not WorldGen.clearings.is_empty() and _in_clearing(x, z):
