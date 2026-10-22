@@ -1,0 +1,2297 @@
+{
+ "version": 1,
+ "_doc": "W4 landmark/POI bodies (kingdom/tools/region1/gen_w4_sites.py writes this). Planned by scripts/world/region1_w4.gd after every other site (no id moves). Part = [asset, x, z, yaw_deg, collide, y].",
+ "aliases": {
+  "exit:harrow_arch": "site:Harrow Arch and Caravan Stage (landmark_harrowgate, 0.3 m apart): the exit record is the arch, no second body",
+  "exit:westfen_fen": "site:Westfen Herb Walk (landmark_westfen, 0.5 m apart): the exit record is the walk, no second body",
+  "lore:elden_road": "Elden Waymarks (region1_world._elden_road, every 70 m from the Shrine to the Elden Elder Stone) + w4_elden_marker",
+  "proposed:silverford": "parchment proposal only: the live Silverford is settlement:ironmarch (OWNER QUESTION, see docs/world/W4_LANDMARKS.md)",
+  "site:Solkar Caravan Camp:1991:-1831": "summer-only by design (sites.json season gate); its body appears in summer",
+  "scar_arena": "one record: the planner site moved to the canon point (2864.1, 2586.4) of data/world/first_region.json"
+ },
+ "relocate": [
+  {
+   "r1id": "scar_arena",
+   "to": [
+    2864.1,
+    2586.4
+   ],
+   "with_same_point": true
+  }
+ ],
+ "sites": [
+  {
+   "id": "w4_grove_duskbriar",
+   "name": "Duskbriar Old Oak",
+   "kind": "waystone",
+   "clear": 14,
+   "flatten": false,
+   "at": [
+    380,
+    480
+   ],
+   "snap": 140,
+   "slope": 0.16,
+   "covers": [
+    "lore:duskbriar_wood"
+   ],
+   "parts": [
+    [
+     "free:nature/tree_old_twisted@13",
+     0,
+     0,
+     20,
+     1,
+     0
+    ],
+    [
+     "nature:dark_oak",
+     7.5,
+     3.5,
+     40,
+     1,
+     0
+    ],
+    [
+     "nature:young_oak",
+     -6.0,
+     5.5,
+     200,
+     0,
+     0
+    ],
+    [
+     "r1:stones/road_stone_b_menhir@3.2",
+     4.2,
+     -5.6,
+     15,
+     1,
+     0
+    ],
+    [
+     "free:magic/runestone_ember@2.4",
+     -4.4,
+     -4.0,
+     160,
+     1,
+     0
+    ],
+    [
+     "nature:log_mossy",
+     -7.5,
+     -1.5,
+     80,
+     0,
+     0
+    ],
+    [
+     "nature:stump_mossy",
+     8.5,
+     -3.5,
+     0,
+     0,
+     0
+    ],
+    [
+     "nature:fern_a",
+     -3.0,
+     7.5,
+     0,
+     0,
+     0
+    ],
+    [
+     "nature:fern_b",
+     2.5,
+     8.5,
+     90,
+     0,
+     0
+    ],
+    [
+     "nature:dark_oak",
+     -9,
+     -6,
+     300,
+     1,
+     0
+    ],
+    [
+     "nature:bush_dark",
+     6,
+     8,
+     0,
+     0,
+     0
+    ],
+    [
+     "nature:bush_berry",
+     -8,
+     8,
+     50,
+     0,
+     0
+    ]
+   ],
+   "lights": [],
+   "x": {
+    "label": {
+     "text": "DUSKBRIAR OLD OAK",
+     "sub": "Edge of the runestone ward",
+     "at": [
+      0,
+      5.2
+     ],
+     "h": 2.4
+    }
+   }
+  },
+  {
+   "id": "w4_grove_duskfen",
+   "name": "Duskfen Black Pine",
+   "kind": "waystone",
+   "clear": 14,
+   "flatten": false,
+   "at": [
+    -768,
+    -4106
+   ],
+   "snap": 140,
+   "slope": 0.16,
+   "covers": [
+    "lore:duskfen_wood"
+   ],
+   "parts": [
+    [
+     "free:nature/tree_old_b@13",
+     0,
+     0,
+     20,
+     1,
+     0
+    ],
+    [
+     "nature:oak_b",
+     7.5,
+     3.5,
+     40,
+     1,
+     0
+    ],
+    [
+     "nature:young_oak",
+     -6.0,
+     5.5,
+     200,
+     0,
+     0
+    ],
+    [
+     "r1:stones/road_stone_b_menhir@3.2",
+     4.2,
+     -5.6,
+     15,
+     1,
+     0
+    ],
+    [
+     "free:magic/runestone_face_moss@2.3",
+     -4.4,
+     -4.0,
+     160,
+     1,
+     0
+    ],
+    [
+     "nature:log_mossy",
+     -7.5,
+     -1.5,
+     80,
+     0,
+     0
+    ],
+    [
+     "nature:stump_mossy",
+     8.5,
+     -3.5,
+     0,
+     0,
+     0
+    ],
+    [
+     "nature:fern_a",
+     -3.0,
+     7.5,
+     0,
+     0,
+     0
+    ],
+    [
+     "nature:fern_b",
+     2.5,
+     8.5,
+     90,
+     0,
+     0
+    ],
+    [
+     "nature:dead_snag",
+     -9,
+     -5,
+     20,
+     0,
+     0
+    ],
+    [
+     "nature:dead_snag",
+     9,
+     6,
+     150,
+     0,
+     0
+    ],
+    [
+     "nature:pine_scots",
+     -7,
+     9,
+     0,
+     1,
+     0
+    ]
+   ],
+   "lights": [],
+   "x": {
+    "label": {
+     "text": "DUSKFEN BLACK PINE",
+     "sub": "Pines and black water",
+     "at": [
+      0,
+      5.2
+     ],
+     "h": 2.4
+    }
+   }
+  },
+  {
+   "id": "w4_grove_greywood",
+   "name": "Greywood Elder Ash",
+   "kind": "waystone",
+   "clear": 14,
+   "flatten": false,
+   "at": [
+    -1494,
+    1789
+   ],
+   "snap": 140,
+   "slope": 0.16,
+   "covers": [
+    "lore:greywood"
+   ],
+   "parts": [
+    [
+     "free:nature/tree_old_a@14",
+     0,
+     0,
+     20,
+     1,
+     0
+    ],
+    [
+     "nature:oak_b",
+     7.5,
+     3.5,
+     40,
+     1,
+     0
+    ],
+    [
+     "nature:young_oak",
+     -6.0,
+     5.5,
+     200,
+     0,
+     0
+    ],
+    [
+     "r1:stones/road_stone_b_menhir@3.2",
+     4.2,
+     -5.6,
+     15,
+     1,
+     0
+    ],
+    [
+     "free:magic/runestone_face_moss@2.3",
+     -4.4,
+     -4.0,
+     160,
+     1,
+     0
+    ],
+    [
+     "nature:log_mossy",
+     -7.5,
+     -1.5,
+     80,
+     0,
+     0
+    ],
+    [
+     "nature:stump_mossy",
+     8.5,
+     -3.5,
+     0,
+     0,
+     0
+    ],
+    [
+     "nature:fern_a",
+     -3.0,
+     7.5,
+     0,
+     0,
+     0
+    ],
+    [
+     "nature:fern_b",
+     2.5,
+     8.5,
+     90,
+     0,
+     0
+    ],
+    [
+     "nature:rock_cluster",
+     8,
+     7,
+     30,
+     0,
+     0
+    ],
+    [
+     "nature:boulder_large",
+     -9,
+     -6,
+     100,
+     1,
+     0
+    ]
+   ],
+   "lights": [],
+   "x": {
+    "label": {
+     "text": "GREYWOOD ELDER ASH",
+     "sub": "Older than Ashford",
+     "at": [
+      0,
+      5.2
+     ],
+     "h": 2.4
+    }
+   }
+  },
+  {
+   "id": "w4_grove_hollowfang",
+   "name": "Hollowfang Ring Tree",
+   "kind": "waystone",
+   "clear": 14,
+   "flatten": false,
+   "at": [
+    1422,
+    3959
+   ],
+   "snap": 140,
+   "slope": 0.16,
+   "covers": [
+    "lore:hollowfang_wood"
+   ],
+   "parts": [
+    [
+     "free:nature/tree_old_twisted@12.5",
+     0,
+     0,
+     20,
+     1,
+     0
+    ],
+    [
+     "nature:dark_oak",
+     7.5,
+     3.5,
+     40,
+     1,
+     0
+    ],
+    [
+     "nature:young_oak",
+     -6.0,
+     5.5,
+     200,
+     0,
+     0
+    ],
+    [
+     "r1:stones/road_stone_b_menhir@3.2",
+     4.2,
+     -5.6,
+     15,
+     1,
+     0
+    ],
+    [
+     "free:magic/runestone_face_moss@2.3",
+     -4.4,
+     -4.0,
+     160,
+     1,
+     0
+    ],
+    [
+     "nature:log_mossy",
+     -7.5,
+     -1.5,
+     80,
+     0,
+     0
+    ],
+    [
+     "nature:stump_mossy",
+     8.5,
+     -3.5,
+     0,
+     0,
+     0
+    ],
+    [
+     "nature:fern_a",
+     -3.0,
+     7.5,
+     0,
+     0,
+     0
+    ],
+    [
+     "nature:fern_b",
+     2.5,
+     8.5,
+     90,
+     0,
+     0
+    ],
+    [
+     "free:nature/rock_limestone_tall@4.6",
+     9,
+     -2,
+     20,
+     1,
+     0
+    ],
+    [
+     "free:nature/rock_limestone_tall@3.8",
+     -9,
+     3,
+     200,
+     1,
+     0
+    ],
+    [
+     "free:nature/rock_limestone_tall@4.2",
+     1,
+     10,
+     110,
+     1,
+     0
+    ]
+   ],
+   "lights": [],
+   "x": {
+    "label": {
+     "text": "HOLLOWFANG RING TREE",
+     "sub": "The rings are older than the Long Dark",
+     "at": [
+      0,
+      5.2
+     ],
+     "h": 2.4
+    }
+   }
+  },
+  {
+   "id": "w4_grove_mistwood",
+   "name": "Mistwood Heart-Tree",
+   "kind": "waystone",
+   "clear": 14,
+   "flatten": false,
+   "at": [
+    -3221,
+    -614
+   ],
+   "snap": 140,
+   "slope": 0.16,
+   "covers": [
+    "lore:mistwood"
+   ],
+   "parts": [
+    [
+     "free:nature/tree_old_b@14",
+     0,
+     0,
+     20,
+     1,
+     0
+    ],
+    [
+     "nature:oak_b",
+     7.5,
+     3.5,
+     40,
+     1,
+     0
+    ],
+    [
+     "nature:young_oak",
+     -6.0,
+     5.5,
+     200,
+     0,
+     0
+    ],
+    [
+     "r1:stones/road_stone_b_menhir@3.2",
+     4.2,
+     -5.6,
+     15,
+     1,
+     0
+    ],
+    [
+     "free:magic/runestone_verdant@2.4",
+     -4.4,
+     -4.0,
+     160,
+     1,
+     0
+    ],
+    [
+     "nature:log_mossy",
+     -7.5,
+     -1.5,
+     80,
+     0,
+     0
+    ],
+    [
+     "nature:stump_mossy",
+     8.5,
+     -3.5,
+     0,
+     0,
+     0
+    ],
+    [
+     "nature:fern_a",
+     -3.0,
+     7.5,
+     0,
+     0,
+     0
+    ],
+    [
+     "nature:fern_b",
+     2.5,
+     8.5,
+     90,
+     0,
+     0
+    ],
+    [
+     "nature:fern_a",
+     9,
+     -7,
+     0,
+     0,
+     0
+    ],
+    [
+     "nature:fern_b",
+     -9,
+     8,
+     40,
+     0,
+     0
+    ]
+   ],
+   "lights": [],
+   "x": {
+    "label": {
+     "text": "MISTWOOD HEART-TREE",
+     "sub": "Fog-hung, western edge",
+     "at": [
+      0,
+      5.2
+     ],
+     "h": 2.4
+    }
+   }
+  },
+  {
+   "id": "w4_grove_thornwold",
+   "name": "Thornwold Gallows Oak",
+   "kind": "waystone",
+   "clear": 14,
+   "flatten": false,
+   "at": [
+    2908,
+    -1820
+   ],
+   "snap": 140,
+   "slope": 0.16,
+   "covers": [
+    "lore:thornwold"
+   ],
+   "parts": [
+    [
+     "free:nature/tree_old_a@12",
+     0,
+     0,
+     20,
+     1,
+     0
+    ],
+    [
+     "nature:oak_b",
+     7.5,
+     3.5,
+     40,
+     1,
+     0
+    ],
+    [
+     "nature:young_oak",
+     -6.0,
+     5.5,
+     200,
+     0,
+     0
+    ],
+    [
+     "r1:stones/road_stone_b_menhir@3.2",
+     4.2,
+     -5.6,
+     15,
+     1,
+     0
+    ],
+    [
+     "free:magic/runestone_face_moss@2.3",
+     -4.4,
+     -4.0,
+     160,
+     1,
+     0
+    ],
+    [
+     "nature:log_mossy",
+     -7.5,
+     -1.5,
+     80,
+     0,
+     0
+    ],
+    [
+     "nature:stump_mossy",
+     8.5,
+     -3.5,
+     0,
+     0,
+     0
+    ],
+    [
+     "nature:fern_a",
+     -3.0,
+     7.5,
+     0,
+     0,
+     0
+    ],
+    [
+     "nature:fern_b",
+     2.5,
+     8.5,
+     90,
+     0,
+     0
+    ],
+    [
+     "nature:bush_dark",
+     5,
+     8,
+     0,
+     0,
+     0
+    ],
+    [
+     "nature:bush_dark",
+     -6,
+     8,
+     90,
+     0,
+     0
+    ],
+    [
+     "nature:bush_dark",
+     9,
+     -2,
+     40,
+     0,
+     0
+    ],
+    [
+     "nature:dead_snag",
+     -9,
+     -6,
+     130,
+     0,
+     0
+    ]
+   ],
+   "lights": [],
+   "x": {
+    "label": {
+     "text": "THORNWOLD GALLOWS OAK",
+     "sub": "Black thorn, east of the Silverrun",
+     "at": [
+      0,
+      5.2
+     ],
+     "h": 2.4
+    }
+   }
+  },
+  {
+   "id": "w4_ashford_ring",
+   "name": "Ashford Runestone Circle",
+   "kind": "waystone",
+   "clear": 11,
+   "flatten": false,
+   "at": [
+    0,
+    12
+   ],
+   "fixed": true,
+   "covers": [
+    "ashford_ring"
+   ],
+   "parts": [
+    [
+     "r1:stones/road_stone_b_menhir@2.6",
+     8.33,
+     1.69,
+     -101.5,
+     1,
+     0
+    ],
+    [
+     "free:magic/runestone_face_moss@2.2",
+     4.7,
+     7.08,
+     -146.4,
+     1,
+     0
+    ],
+    [
+     "r1:stones/road_stone_b_menhir@2.6",
+     -1.69,
+     8.33,
+     168.5,
+     1,
+     0
+    ],
+    [
+     "free:magic/runestone_face_moss@2.2",
+     -7.08,
+     4.7,
+     123.6,
+     1,
+     0
+    ],
+    [
+     "r1:stones/road_stone_b_menhir@2.6",
+     -8.33,
+     -1.69,
+     78.5,
+     1,
+     0
+    ],
+    [
+     "free:magic/runestone_face_moss@2.2",
+     -4.7,
+     -7.08,
+     33.6,
+     1,
+     0
+    ],
+    [
+     "r1:stones/road_stone_b_menhir@2.6",
+     1.69,
+     -8.33,
+     -11.5,
+     1,
+     0
+    ],
+    [
+     "free:magic/runestone_face_moss@2.2",
+     7.08,
+     -4.7,
+     -56.4,
+     1,
+     0
+    ],
+    [
+     "r1:stones/road_stone_a_slab@0.7",
+     0,
+     0,
+     0,
+     0,
+     0
+    ],
+    [
+     "nature:flowers_warm",
+     2.0,
+     1.5,
+     0,
+     0,
+     0
+    ],
+    [
+     "nature:flowers_cool",
+     -2.2,
+     -1.2,
+     70,
+     0,
+     0
+    ]
+   ],
+   "lights": [
+    [
+     0,
+     2.6,
+     0,
+     [
+      0.55,
+      0.8,
+      1.0
+     ],
+     8,
+     false
+    ]
+   ],
+   "x": {
+    "label": {
+     "text": "ASHFORD RING",
+     "sub": "The ring of stones at the heart of Ashford",
+     "at": [
+      0,
+      4.6
+     ],
+     "h": 2.4
+    }
+   }
+  },
+  {
+   "id": "w4_elden_marker",
+   "name": "Elden Road Marker",
+   "kind": "waystone",
+   "clear": 8,
+   "flatten": false,
+   "at": [
+    -700,
+    -215
+   ],
+   "snap": 40,
+   "slope": 0.2,
+   "covers": [
+    "parchment:",
+    "lore:elden_road"
+   ],
+   "parts": [
+    [
+     "r1:stones/road_stone_d_pillar@3.6",
+     0,
+     0,
+     0,
+     1,
+     0
+    ],
+    [
+     "r1:stones/road_stone_c_squat@1.4",
+     3.2,
+     2.0,
+     40,
+     1,
+     0
+    ],
+    [
+     "r1:stones/road_stone_a_slab@1.0",
+     -3.0,
+     2.4,
+     100,
+     0,
+     0
+    ],
+    [
+     "nature:rock_cluster",
+     2.5,
+     -3.0,
+     0,
+     0,
+     0
+    ]
+   ],
+   "lights": [],
+   "x": {
+    "label": {
+     "text": "ELDEN ROAD",
+     "sub": "The old runestone road runs west from here",
+     "at": [
+      0,
+      4.6
+     ],
+     "h": 2.4
+    }
+   }
+  },
+  {
+   "id": "w4_millers_stone",
+   "name": "The Miller's Stone",
+   "kind": "waystone",
+   "clear": 3,
+   "flatten": false,
+   "at": [
+    123,
+    -14
+   ],
+   "snap": 26,
+   "slope": 0.3,
+   "covers": [
+    "miller_stone"
+   ],
+   "parts": [
+    [
+     "r1:stones/road_stone_a_slab@2.1",
+     0,
+     0,
+     20,
+     1,
+     0
+    ],
+    [
+     "nature:flowers_warm",
+     1.6,
+     1.2,
+     0,
+     0,
+     0
+    ],
+    [
+     "nature:rock_cluster",
+     -1.8,
+     0.8,
+     90,
+     0,
+     0
+    ]
+   ],
+   "lights": [],
+   "x": {}
+  },
+  {
+   "id": "w4_greenhollow_fields",
+   "name": "Greenhollow South Fields",
+   "kind": "roadside",
+   "clear": 13,
+   "flatten": true,
+   "at": [
+    -842.5,
+    -612.9
+   ],
+   "snap": 90,
+   "slope": 0.16,
+   "covers": [
+    "greenhollow_south_fields"
+   ],
+   "parts": [
+    [
+     "farm/crop_wheat",
+     -8.2,
+     -4.1,
+     270,
+     0,
+     0
+    ],
+    [
+     "farm/crop_wheat",
+     -8.2,
+     0.0,
+     180,
+     0,
+     0
+    ],
+    [
+     "farm/crop_wheat",
+     -8.2,
+     4.1,
+     90,
+     0,
+     0
+    ],
+    [
+     "farm/crop_wheat",
+     -4.1,
+     -4.1,
+     0,
+     0,
+     0
+    ],
+    [
+     "farm/crop_wheat",
+     -4.1,
+     0.0,
+     270,
+     0,
+     0
+    ],
+    [
+     "farm/crop_wheat",
+     -4.1,
+     4.1,
+     180,
+     0,
+     0
+    ],
+    [
+     "farm/crop_wheat",
+     0.0,
+     -4.1,
+     90,
+     0,
+     0
+    ],
+    [
+     "farm/crop_wheat",
+     0.0,
+     0.0,
+     0,
+     0,
+     0
+    ],
+    [
+     "farm/crop_wheat",
+     0.0,
+     4.1,
+     270,
+     0,
+     0
+    ],
+    [
+     "farm/crop_wheat",
+     4.1,
+     -4.1,
+     180,
+     0,
+     0
+    ],
+    [
+     "farm/crop_wheat",
+     4.1,
+     0.0,
+     90,
+     0,
+     0
+    ],
+    [
+     "farm/crop_wheat",
+     4.1,
+     4.1,
+     0,
+     0,
+     0
+    ],
+    [
+     "farm/crop_wheat",
+     8.2,
+     -4.1,
+     270,
+     0,
+     0
+    ],
+    [
+     "farm/crop_wheat",
+     8.2,
+     0.0,
+     180,
+     0,
+     0
+    ],
+    [
+     "farm/crop_wheat",
+     8.2,
+     4.1,
+     90,
+     0,
+     0
+    ],
+    [
+     "farm/scarecrow",
+     0.0,
+     0.0,
+     15,
+     0,
+     0
+    ],
+    [
+     "farm/fence_rail",
+     -8.2,
+     7.4,
+     0,
+     0,
+     0
+    ],
+    [
+     "farm/fence_rail",
+     -4.1,
+     7.4,
+     0,
+     0,
+     0
+    ],
+    [
+     "farm/fence_rail",
+     0.0,
+     7.4,
+     0,
+     0,
+     0
+    ],
+    [
+     "farm/fence_rail",
+     4.1,
+     7.4,
+     0,
+     0,
+     0
+    ],
+    [
+     "farm/fence_rail",
+     8.2,
+     7.4,
+     0,
+     0,
+     0
+    ],
+    [
+     "farm/fence_rail",
+     -10.8,
+     -4.1,
+     90,
+     0,
+     0
+    ],
+    [
+     "farm/fence_rail",
+     -10.8,
+     0.0,
+     90,
+     0,
+     0
+    ],
+    [
+     "farm/fence_rail",
+     -10.8,
+     4.1,
+     90,
+     0,
+     0
+    ],
+    [
+     "farm/fence_gate",
+     0,
+     7.4,
+     0,
+     0,
+     0
+    ],
+    [
+     "nature:dead_snag",
+     12,
+     -5,
+     30,
+     0,
+     0
+    ]
+   ],
+   "lights": [],
+   "x": {}
+  },
+  {
+   "id": "w4_rift_mouth",
+   "name": "The Rift Mouth",
+   "kind": "roadside",
+   "clear": 24,
+   "flatten": true,
+   "at": [
+    2699.9,
+    2513.4
+   ],
+   "fixed": true,
+   "covers": [
+    "rift_mouth"
+   ],
+   "parts": [
+    [
+     "meshy:landmark_rift@10",
+     0,
+     0,
+     0,
+     1,
+     0
+    ],
+    [
+     "nature:dead_snag",
+     12,
+     -6,
+     25,
+     0,
+     0
+    ],
+    [
+     "nature:dead_snag",
+     -13,
+     4,
+     120,
+     0,
+     0
+    ],
+    [
+     "nature:rock_cluster",
+     7,
+     9,
+     12,
+     0,
+     0
+    ],
+    [
+     "nature:boulder_large",
+     -8,
+     -9,
+     57,
+     1,
+     0
+    ],
+    [
+     "r1:rift/crystals/scar_crystal_a",
+     16,
+     3,
+     -80,
+     0,
+     0
+    ],
+    [
+     "r1:rift/crystals/scar_crystal_b",
+     -15,
+     -3,
+     100,
+     0,
+     0
+    ],
+    [
+     "r1:rift/crystals/scar_crystal_c",
+     3,
+     15,
+     200,
+     0,
+     0
+    ]
+   ],
+   "lights": [
+    [
+     0,
+     4.0,
+     0,
+     [
+      0.7,
+      0.35,
+      1.0
+     ],
+     22,
+     true
+    ]
+   ],
+   "x": {
+    "label": {
+     "text": "THE RIFT MOUTH",
+     "sub": "The violet mouth of the Ashen Scar",
+     "at": [
+      0,
+      8.0
+     ],
+     "h": 2.4
+    }
+   }
+  },
+  {
+   "id": "w4_greyseam_seam",
+   "name": "Lower Greyseam Rift Seam",
+   "kind": "waystone",
+   "clear": 4,
+   "flatten": false,
+   "at": [
+    -171,
+    -486
+   ],
+   "snap": 30,
+   "slope": 0.6,
+   "covers": [
+    "greyseam_seam"
+   ],
+   "parts": [
+    [
+     "r1:rift/crystals/scar_crystal_a",
+     0,
+     0,
+     20,
+     0,
+     0
+    ],
+    [
+     "r1:rift/crystals/scar_crystal_b",
+     2.6,
+     1.4,
+     130,
+     0,
+     0
+    ],
+    [
+     "r1:rift/crystals/scar_crystal_c",
+     -2.2,
+     1.9,
+     250,
+     0,
+     0
+    ],
+    [
+     "r1:rift/crystals/scar_crystal_b",
+     1.1,
+     -2.6,
+     60,
+     0,
+     0
+    ],
+    [
+     "nature:rock_slab",
+     -1.0,
+     -1.6,
+     15,
+     0,
+     0
+    ],
+    [
+     "nature:boulder_large",
+     4.5,
+     -1.5,
+     70,
+     1,
+     0
+    ]
+   ],
+   "lights": [
+    [
+     0,
+     1.6,
+     0.5,
+     [
+      0.7,
+      0.4,
+      1.0
+     ],
+     7,
+     true
+    ]
+   ],
+   "x": {}
+  },
+  {
+   "id": "w4_silverford_market",
+   "name": "Silverford Market Square",
+   "kind": "roadside",
+   "clear": 14,
+   "flatten": true,
+   "at": [
+    2066.2,
+    -1807.5
+   ],
+   "snap": 60,
+   "slope": 0.12,
+   "covers": [
+    "silverford_market"
+   ],
+   "parts": [
+    [
+     "free:props/well_stone_roofed@3.4",
+     0,
+     0,
+     0,
+     1,
+     0
+    ],
+    [
+     "free:market/stall_small_workshop@3.0",
+     -9.09,
+     -5.25,
+     60.0,
+     1,
+     0
+    ],
+    [
+     "free:market/stall_potion@3.0",
+     -3.59,
+     -9.87,
+     20.0,
+     1,
+     0
+    ],
+    [
+     "free:market/stall_apples@3.0",
+     3.59,
+     -9.87,
+     -20.0,
+     1,
+     0
+    ],
+    [
+     "free:market/stall_cheese_awning@3.0",
+     9.09,
+     -5.25,
+     -60.0,
+     1,
+     0
+    ],
+    [
+     "free:market/stall_blue_shields@3.0",
+     9.09,
+     5.25,
+     -120.0,
+     1,
+     0
+    ],
+    [
+     "free:market/stall_red_awning_goods@3.0",
+     3.59,
+     9.87,
+     -160.0,
+     1,
+     0
+    ],
+    [
+     "free:market/stall_meat_shingle@3.0",
+     -3.59,
+     9.87,
+     160.0,
+     1,
+     0
+    ],
+    [
+     "free:market/stall_potatoes@3.0",
+     -9.09,
+     5.25,
+     120.0,
+     1,
+     0
+    ],
+    [
+     "props/crate_stack",
+     4.5,
+     4.0,
+     30,
+     0,
+     0
+    ],
+    [
+     "props/crate_stack",
+     -4.5,
+     -4.5,
+     100,
+     0,
+     0
+    ],
+    [
+     "props/sack_pile",
+     -5,
+     4,
+     0,
+     0,
+     0
+    ],
+    [
+     "props/barrel",
+     5.5,
+     -4,
+     0,
+     0,
+     0
+    ],
+    [
+     "gen:bunting@1.0",
+     0,
+     7,
+     0,
+     0,
+     0
+    ],
+    [
+     "props/lamp_post",
+     7,
+     7,
+     0,
+     0,
+     0
+    ],
+    [
+     "props/lamp_post",
+     -7,
+     -7,
+     0,
+     0,
+     0
+    ],
+    [
+     "props/lamp_post",
+     -7,
+     7,
+     0,
+     0,
+     0
+    ],
+    [
+     "props/lamp_post",
+     7,
+     -7,
+     0,
+     0,
+     0
+    ]
+   ],
+   "lights": [
+    [
+     7,
+     3.4,
+     7,
+     [
+      1.0,
+      0.72,
+      0.4
+     ],
+     9,
+     true
+    ],
+    [
+     -7,
+     3.4,
+     -7,
+     [
+      1.0,
+      0.72,
+      0.4
+     ],
+     9,
+     true
+    ]
+   ],
+   "x": {
+    "label": {
+     "text": "SILVERFORD MARKET",
+     "sub": "The market before the Guild Hall",
+     "at": [
+      0,
+      6.0
+     ],
+     "h": 2.4
+    }
+   }
+  },
+  {
+   "id": "w4_ashrun_marker",
+   "name": "Ashrun Bank Stone",
+   "kind": "waystone",
+   "clear": 8,
+   "flatten": false,
+   "at": [
+    -400,
+    220
+   ],
+   "snap": 160,
+   "slope": 0.2,
+   "bank": true,
+   "covers": [
+    "lore:ashrun_river"
+   ],
+   "parts": [
+    [
+     "r1:stones/road_stone_d_pillar@3.4",
+     0,
+     0,
+     0,
+     1,
+     0
+    ],
+    [
+     "r1:stones/road_stone_c_squat@1.3",
+     2.6,
+     1.8,
+     40,
+     1,
+     0
+    ],
+    [
+     "nature:rock_cluster",
+     -2.6,
+     2.2,
+     0,
+     0,
+     0
+    ],
+    [
+     "free:lighting/lantern_post_wood@3.0",
+     4.2,
+     -0.5,
+     0,
+     0,
+     0
+    ],
+    [
+     "nature:fern_a",
+     -3.4,
+     -1.8,
+     0,
+     0,
+     0
+    ],
+    [
+     "nature:bush_hazel",
+     4.6,
+     3.2,
+     0,
+     0,
+     0
+    ]
+   ],
+   "lights": [
+    [
+     4.2,
+     2.8,
+     -0.5,
+     [
+      1.0,
+      0.7,
+      0.4
+     ],
+     7,
+     true
+    ]
+   ],
+   "x": {
+    "label": {
+     "text": "ASHRUN BANK STONE",
+     "sub": "Cold and clear, fed by snowmelt",
+     "at": [
+      0,
+      4.8
+     ],
+     "h": 2.4
+    }
+   }
+  },
+  {
+   "id": "w4_silverrun_marker",
+   "name": "Silverrun Ferry Stone",
+   "kind": "waystone",
+   "clear": 8,
+   "flatten": false,
+   "at": [
+    2640,
+    336
+   ],
+   "snap": 160,
+   "slope": 0.2,
+   "bank": true,
+   "covers": [
+    "lore:silverrun_river"
+   ],
+   "parts": [
+    [
+     "r1:stones/road_stone_d_pillar@3.4",
+     0,
+     0,
+     0,
+     1,
+     0
+    ],
+    [
+     "r1:stones/road_stone_c_squat@1.3",
+     2.6,
+     1.8,
+     40,
+     1,
+     0
+    ],
+    [
+     "nature:rock_cluster",
+     -2.6,
+     2.2,
+     0,
+     0,
+     0
+    ],
+    [
+     "free:lighting/lantern_post_wood@3.0",
+     4.2,
+     -0.5,
+     0,
+     0,
+     0
+    ],
+    [
+     "nature:fern_a",
+     -3.4,
+     -1.8,
+     0,
+     0,
+     0
+    ],
+    [
+     "nature:bush_hazel",
+     4.6,
+     3.2,
+     0,
+     0,
+     0
+    ]
+   ],
+   "lights": [
+    [
+     4.2,
+     2.8,
+     -0.5,
+     [
+      1.0,
+      0.7,
+      0.4
+     ],
+     7,
+     true
+    ]
+   ],
+   "x": {
+    "label": {
+     "text": "SILVERRUN FERRY STONE",
+     "sub": "Broad and silver-grey",
+     "at": [
+      0,
+      4.8
+     ],
+     "h": 2.4
+    }
+   }
+  },
+  {
+   "id": "w4_edge_west",
+   "name": "The Western Reaches",
+   "kind": "waystone",
+   "clear": 10,
+   "flatten": false,
+   "at": [
+    -5800,
+    0
+   ],
+   "snap": 150,
+   "slope": 0.3,
+   "covers": [
+    "edge:the_western_reaches"
+   ],
+   "parts": [
+    [
+     "r1:stones/road_stone_d_pillar@5.0",
+     -3.4,
+     0,
+     0,
+     1,
+     0
+    ],
+    [
+     "r1:stones/road_stone_d_pillar@5.0",
+     3.4,
+     0,
+     0,
+     1,
+     0
+    ],
+    [
+     "r1:stones/road_stone_b_menhir@3.0",
+     0,
+     4.0,
+     0,
+     1,
+     0
+    ],
+    [
+     "free:banners/banner_tall_cross@4.5",
+     0,
+     -1.5,
+     0,
+     0,
+     0
+    ],
+    [
+     "nature:rock_cluster",
+     -6,
+     3,
+     0,
+     0,
+     0
+    ],
+    [
+     "nature:boulder_large",
+     6.5,
+     3.5,
+     40,
+     1,
+     0
+    ],
+    [
+     "free:lighting/torch_stake@1.6",
+     -3.4,
+     2.4,
+     0,
+     0,
+     0
+    ],
+    [
+     "free:lighting/torch_stake@1.6",
+     3.4,
+     2.4,
+     0,
+     0,
+     0
+    ]
+   ],
+   "lights": [
+    [
+     0,
+     3.0,
+     2.4,
+     [
+      1.0,
+      0.7,
+      0.4
+     ],
+     8,
+     true
+    ]
+   ],
+   "x": {
+    "label": {
+     "text": "THE WESTERN REACHES",
+     "sub": "Edge of the Ashford Vale",
+     "at": [
+      0,
+      6.2
+     ],
+     "h": 2.4
+    }
+   }
+  },
+  {
+   "id": "w4_edge_east",
+   "name": "To the Aurelis Patriarchate",
+   "kind": "waystone",
+   "clear": 10,
+   "flatten": false,
+   "at": [
+    5800,
+    0
+   ],
+   "snap": 150,
+   "slope": 0.3,
+   "covers": [
+    "edge:to_the_aurelis_patriarchate"
+   ],
+   "parts": [
+    [
+     "r1:stones/road_stone_d_pillar@5.0",
+     -3.4,
+     0,
+     0,
+     1,
+     0
+    ],
+    [
+     "r1:stones/road_stone_d_pillar@5.0",
+     3.4,
+     0,
+     0,
+     1,
+     0
+    ],
+    [
+     "r1:stones/road_stone_b_menhir@3.0",
+     0,
+     4.0,
+     0,
+     1,
+     0
+    ],
+    [
+     "free:banners/banner_crossbar@4.0",
+     0,
+     -1.5,
+     0,
+     0,
+     0
+    ],
+    [
+     "nature:rock_cluster",
+     -6,
+     3,
+     0,
+     0,
+     0
+    ],
+    [
+     "nature:boulder_large",
+     6.5,
+     3.5,
+     40,
+     1,
+     0
+    ],
+    [
+     "free:lighting/torch_stake@1.6",
+     -3.4,
+     2.4,
+     0,
+     0,
+     0
+    ],
+    [
+     "free:lighting/torch_stake@1.6",
+     3.4,
+     2.4,
+     0,
+     0,
+     0
+    ]
+   ],
+   "lights": [
+    [
+     0,
+     3.0,
+     2.4,
+     [
+      1.0,
+      0.7,
+      0.4
+     ],
+     8,
+     true
+    ]
+   ],
+   "x": {
+    "label": {
+     "text": "TO THE AURELIS PATRIARCHATE",
+     "sub": "Edge of the Ashford Vale",
+     "at": [
+      0,
+      6.2
+     ],
+     "h": 2.4
+    }
+   }
+  },
+  {
+   "id": "w4_edge_north",
+   "name": "To the Frostcrown Holds",
+   "kind": "waystone",
+   "clear": 10,
+   "flatten": false,
+   "at": [
+    0,
+    -5800
+   ],
+   "snap": 150,
+   "slope": 0.3,
+   "covers": [
+    "edge:to_the_frostcrown_holds"
+   ],
+   "parts": [
+    [
+     "r1:stones/road_stone_d_pillar@5.0",
+     -3.4,
+     0,
+     0,
+     1,
+     0
+    ],
+    [
+     "r1:stones/road_stone_d_pillar@5.0",
+     3.4,
+     0,
+     0,
+     1,
+     0
+    ],
+    [
+     "r1:stones/road_stone_b_menhir@3.0",
+     0,
+     4.0,
+     0,
+     1,
+     0
+    ],
+    [
+     "free:banners/banner_stand_spear_flag@4.6",
+     0,
+     -1.5,
+     0,
+     0,
+     0
+    ],
+    [
+     "nature:rock_cluster",
+     -6,
+     3,
+     0,
+     0,
+     0
+    ],
+    [
+     "nature:boulder_large",
+     6.5,
+     3.5,
+     40,
+     1,
+     0
+    ],
+    [
+     "free:lighting/torch_stake@1.6",
+     -3.4,
+     2.4,
+     0,
+     0,
+     0
+    ],
+    [
+     "free:lighting/torch_stake@1.6",
+     3.4,
+     2.4,
+     0,
+     0,
+     0
+    ]
+   ],
+   "lights": [
+    [
+     0,
+     3.0,
+     2.4,
+     [
+      1.0,
+      0.7,
+      0.4
+     ],
+     8,
+     true
+    ]
+   ],
+   "x": {
+    "label": {
+     "text": "TO THE FROSTCROWN HOLDS",
+     "sub": "Edge of the Ashford Vale",
+     "at": [
+      0,
+      6.2
+     ],
+     "h": 2.4
+    }
+   }
+  },
+  {
+   "id": "w4_edge_south",
+   "name": "To the Solkar Dominion",
+   "kind": "waystone",
+   "clear": 10,
+   "flatten": false,
+   "at": [
+    0,
+    5800
+   ],
+   "snap": 150,
+   "slope": 0.3,
+   "covers": [
+    "edge:to_the_solkar_dominion"
+   ],
+   "parts": [
+    [
+     "r1:stones/road_stone_d_pillar@5.0",
+     -3.4,
+     0,
+     0,
+     1,
+     0
+    ],
+    [
+     "r1:stones/road_stone_d_pillar@5.0",
+     3.4,
+     0,
+     0,
+     1,
+     0
+    ],
+    [
+     "r1:stones/road_stone_b_menhir@3.0",
+     0,
+     4.0,
+     0,
+     1,
+     0
+    ],
+    [
+     "free:banners/banner_gold_finials@4.2",
+     0,
+     -1.5,
+     0,
+     0,
+     0
+    ],
+    [
+     "nature:rock_cluster",
+     -6,
+     3,
+     0,
+     0,
+     0
+    ],
+    [
+     "nature:boulder_large",
+     6.5,
+     3.5,
+     40,
+     1,
+     0
+    ],
+    [
+     "free:lighting/torch_stake@1.6",
+     -3.4,
+     2.4,
+     0,
+     0,
+     0
+    ],
+    [
+     "free:lighting/torch_stake@1.6",
+     3.4,
+     2.4,
+     0,
+     0,
+     0
+    ]
+   ],
+   "lights": [
+    [
+     0,
+     3.0,
+     2.4,
+     [
+      1.0,
+      0.7,
+      0.4
+     ],
+     8,
+     true
+    ]
+   ],
+   "x": {
+    "label": {
+     "text": "TO THE SOLKAR DOMINION",
+     "sub": "Edge of the Ashford Vale",
+     "at": [
+      0,
+      6.2
+     ],
+     "h": 2.4
+    }
+   }
+  },
+  {
+   "id": "w4_milestones_ember",
+   "name": "Ember Road Milestone",
+   "kind": "waystone",
+   "clear": 2,
+   "flatten": false,
+   "covers": [
+    "kings_ember_road"
+   ],
+   "milestones": {
+    "near": [
+     280,
+     -210
+    ],
+    "count": 7,
+    "spacing": 80,
+    "side": 5.5
+   },
+   "parts": [
+    [
+     "road/milestone",
+     0,
+     0,
+     0,
+     1,
+     0
+    ]
+   ],
+   "lights": [],
+   "x": {}
+  },
+  {
+   "id": "w4_milestones_greenhollow",
+   "name": "Greenhollow Road Milestone",
+   "kind": "waystone",
+   "clear": 2,
+   "flatten": false,
+   "covers": [
+    "greenhollow_road"
+   ],
+   "milestones": {
+    "near": [
+     -471,
+     -317
+    ],
+    "count": 7,
+    "spacing": 80,
+    "side": 5.5
+   },
+   "parts": [
+    [
+     "road/milestone",
+     0,
+     0,
+     0,
+     1,
+     0
+    ]
+   ],
+   "lights": [],
+   "x": {}
+  }
+ ]
+}
