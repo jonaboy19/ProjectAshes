@@ -40,6 +40,7 @@ BIOMES = ["grass", "forest", "meadow", "farmland", "marsh", "highland", "rift", 
 BID = {b: i for i, b in enumerate(BIOMES)}
 SEED = vc.SEED
 
+ROAD_GRADE = 0.085       # max road grade after grading (the probe measures at 8 m spacing, detail noise adds a little)
 RIFT_POS = (1130.0, 1004.0)
 SCAR_POS = (2509.0, 2468.0)
 MERE = (-420.0, 300.0)
@@ -232,6 +233,39 @@ def generate():
         elif p["kind"] in ("goblin_warren", "orc_village"):
             H = plateau(H, p["x"], p["z"], max(float(p.get("radius", 30.0)), 30.0) * 1.15, 1.0, 2.6)
 
+    # ---- road grading (W2): WorldGen roads are straight segments between settlement centres (topology and ids must not change), so
+    # instead of switchback waypoints the macro is cut/filled along each road to a grade <= ROAD_GRADE, with soft banks (the bed itself and
+    # its 0.4 m cut stay WorldGen's). Measured by tools_qa/world/w2_probe.gd.
+    spos = {p["settlement_id"]: (p["x"], p["z"]) for p in places["places"] if p["category"] == "settlement"}
+    for rd in places["roads"]:
+        ax, az = spos[rd["a"]]
+        bx, bz = spos[rd["b"]]
+        L = float(np.hypot(bx - ax, bz - az))
+        n = max(3, int(L / CM) + 1)
+        t = np.linspace(0.0, 1.0, n)
+        qx, qz = ax + (bx - ax) * t, az + (bz - az) * t
+        hh = ndimage.map_coordinates(H, [(qz + vc.HALF) / CM, (qx + vc.HALF) / CM], order=1, mode="nearest")
+        g = ndimage.gaussian_filter1d(hh, 1.5, mode="nearest")
+        ds = ROAD_GRADE * L / (n - 1)
+        for i in range(1, n):
+            g[i] = min(max(g[i], g[i - 1] - ds), g[i - 1] + ds)
+        for i in range(n - 2, -1, -1):
+            g[i] = min(max(g[i], g[i + 1] - ds), g[i + 1] + ds)
+        delta = g - hh
+        if np.abs(delta).max() < 0.05:
+            continue
+        pad = 120.0
+        i0 = int(max(0, (min(ax, bx) - pad + vc.HALF) / CM)); i1 = int(min(NC, (max(ax, bx) + pad + vc.HALF) / CM + 2))
+        j0 = int(max(0, (min(az, bz) - pad + vc.HALF) / CM)); j1 = int(min(NC, (max(az, bz) + pad + vc.HALF) / CM + 2))
+        Xs, Zs = X[j0:j1, i0:i1], Z[j0:j1, i0:i1]
+        abx, abz = bx - ax, bz - az
+        tt = np.clip(((Xs - ax) * abx + (Zs - az) * abz) / (L * L), 0.0, 1.0)
+        dd = np.hypot(Xs - (ax + abx * tt), Zs - (az + abz * tt))
+        dl = np.interp(tt * (n - 1), np.arange(n), delta)
+        w = 1.0 - smoothstep(9.0, 30.0 + 1.5 * np.abs(dl), dd)
+        w = w * smoothstep(100.0, 220.0, valley_d[j0:j1, i0:i1])    # river valleys (and their bridges) are left alone
+        H[j0:j1, i0:i1] += (dl * w).astype(np.float32)
+
     # ---- hold the two cores: raw noise terrain inside 600 m, blended (smoothstep 600..1600 m) into the macro, raw smoothed in the band ----
     for w in raw["windows"]:
         n = w["n"]
@@ -325,6 +359,8 @@ def generate():
     ids = np.argmax(bw, axis=0).astype(np.uint8)
     norm = np.maximum(bw.sum(0), 1e-6)
     sp = np.stack([bw[BID["meadow"]], bw[BID["farmland"]], bw[BID["marsh"]], bw[BID["rift"]]], -1) / norm[..., None]
+    sp[..., 3] *= 0.6            # rift ash: a tint around the Rift and Scar, not a solid violet floor
+    sp[..., 1] *= 0.35           # tilled soil only in patches: grass and meadow stay visible between the fields
     sp = ndimage.gaussian_filter(sp, (1.0, 1.0, 0.0), mode="nearest")
     splat = np.clip(sp * 255.0 * 1.15, 0, 255).astype(np.uint8)
     return Hf, ids, splat, (W, idx, mere_pen), places, regs

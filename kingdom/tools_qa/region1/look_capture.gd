@@ -15,6 +15,7 @@ var out_dir := ""
 var tag := ""
 var only: PackedStringArray = []
 var budget_s := 900
+var aa_arg := 0
 var main: Node
 var cam: Camera3D
 var frame := 0
@@ -35,6 +36,7 @@ func _initialize() -> void:
 		elif a.begins_with("--tag="): tag = a.substr(6)
 		elif a.begins_with("--only="): only = a.substr(7).split(",", false)
 		elif a.begins_with("--budget="): budget_s = int(a.substr(9))
+		elif a.begins_with("--aa="): aa_arg = int(a.substr(5))   # Quality.aa_mode: 0 tier default, 1 FXAA+FSR1, 2 TAA, 3 FSR2 (FSR2 + Terrain3D crashes on 4.6.3)
 	var parsed: Variant = JSON.parse_string(FileAccess.get_file_as_string(views_path))
 	for v: Dictionary in (parsed as Dictionary)["views"]:
 		if only.is_empty() or String(v["name"]) in only:
@@ -55,6 +57,8 @@ func _process(_dt: float) -> bool:
 	if frame < 600:
 		return false
 	if frame == 600:
+		if aa_arg > 0 and root.has_node("Quality"):
+			root.get_node("Quality").call("set_aa_mode", aa_arg)
 		DisplayServer.window_set_vsync_mode(DisplayServer.VSYNC_DISABLED)
 		Engine.max_fps = 0
 		var hud: Node = main.get("hud")

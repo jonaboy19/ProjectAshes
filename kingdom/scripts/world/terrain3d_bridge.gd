@@ -40,18 +40,26 @@ var _tasks: Dictionary = {}          # Vector2i -> task id
 var _maps: Dictionary = {}           # Vector2i -> Array[Image] (finished, guarded by _mutex)
 var _mutex := Mutex.new()
 var _loc_idle := Vector2i(1 << 30, 0)
+var _assets_frame := -1             # process frame at which the texture assets may be set (GPU only, see _ready)
 var _regions: Dictionary = {}        # Vector2i -> Terrain3DRegion currently added
 
 
 func _ready() -> void:
 	terrain = Terrain3D.new()
 	terrain.name = "Terrain3D"
-	# Not added to the tree until the first region exists: a Terrain3D with zero regions builds zero-sized texture arrays on the GPU
-	# ("Width must be equal or greater than 1 for all textures", then a crash: seen on the RTX 4070 Laptop, W1 captures).
 	terrain.vertex_spacing = SPACING
 	terrain.region_size = REGION_SIZE
 	terrain.collision_mode = 0                # DISABLED: TerrainStreamer's trimesh bodies (same WorldGen.height) stay the physics ground
 	terrain.render_layers = 1 | TownDecals.GROUND_LAYER      # ground decals (ruts, puddles) project onto it, as onto the legacy chunks
+	add_child(terrain)
+	_configure_material()
+	# Terrain3D 1.0.2 on Godot 4.6.3 (Forward+, RTX 4070 Laptop) crashes with signal 11 when texture assets and the first region are set in the
+	# frame the node enters the tree ("Width must be equal or greater than 1 for all textures"; found by W1 GPU captures, tools_qa/terrain3d/gpu_probe.gd).
+	# Regions first, assets two frames later. Headless (no GPU) has no such problem, so tests get them at once.
+	if DisplayServer.get_name() == "headless":
+		terrain.assets = _make_assets()
+	else:
+		_assets_frame = Engine.get_process_frames() + 2
 
 
 func _configure_material() -> void:
@@ -62,8 +70,6 @@ func _configure_material() -> void:
 
 
 func _exit_tree() -> void:
-	if terrain != null and terrain.get_parent() == null:
-		terrain.free()
 	for key: Vector2i in _tasks:
 		WorkerThreadPool.wait_for_task_completion(_tasks[key])
 	_tasks.clear()
@@ -192,6 +198,9 @@ func _wanted(center: Vector2i) -> Array:
 
 
 func _process(_delta: float) -> void:
+	if _assets_frame >= 0 and Engine.get_process_frames() >= _assets_frame and terrain.data != null and terrain.data.get_region_count() > 0:
+		terrain.assets = _make_assets()
+		_assets_frame = -1
 	update_streaming()
 
 
@@ -259,10 +268,6 @@ func _add_region(loc: Vector2i, maps: Array) -> void:
 	r.control_map = maps[1]
 	r.color_map = maps[2]
 	r.calc_height_range()
-	if terrain.get_parent() == null:
-		add_child(terrain)
-		terrain.assets = _make_assets()      # after entering the tree: Terrain3D resets `assets` on initialize
-		_configure_material()
 	terrain.data.add_region(r, true)
 	_regions[loc] = r
 

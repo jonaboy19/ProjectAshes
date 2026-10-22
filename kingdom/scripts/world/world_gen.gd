@@ -70,6 +70,8 @@ static var lake_level := 0.0
 ## River polylines, each {points: PackedVector2Array, level/width/depth: PackedFloat32Array}.
 ## Points run downstream: arm 0 = source -> lake, arm 1 = lake -> world edge.
 static var rivers: Array[Dictionary] = []
+## Valencious macro only (W2): the Westfen marsh pools [{pos, radius, level, depth, reach_sq}], placed by _place_pools() after the macro re-base.
+static var pools: Array[Dictionary] = []
 static var _shore := FastNoiseLite.new()
 static var _lake_reach_sq := 0.0
 static var _seg := PackedFloat32Array()          # stride 10 per segment: ax, az, bx, bz, la, lb, wa, wb, da, db
@@ -77,6 +79,7 @@ static var _river_grid: Dictionary = {}           # Vector2i -> PackedInt32Array
 
 
 static func setup(seed_value: int) -> void:
+	pools.clear()
 	var macro_on := WorldMacro.prepare()   # Valencious macro hook (scripts/world/world_macro.gd): load once, main thread
 	if macro_on:
 		WorldMacro.suspend()   # settlements, camps and sites are planned on the legacy noise so no id/position can move; re-based below
@@ -126,6 +129,53 @@ static func _rebase_to_macro(seed_value: int) -> void:
 	for c in clearings:
 		c["base_h"] = _raw_height(c["pos"].x, c["pos"].y)
 	_build_indexes()
+	_place_pools()
+
+
+## Westfen marsh pools (W2, macro on only; bible: the fen is wet, 0-6 m). Fixed spots (x, z, radius) so they never depend on RNG;
+## a spot is skipped when it would touch a road, a settlement or a site clearing. Same bowl-and-shelf profile as the Mere (_lake_profile).
+const POOL_SPOTS := [[-250.0, 1430.0, 38.0], [-420.0, 1480.0, 46.0], [-560.0, 1400.0, 34.0], [-130.0, 1560.0, 40.0], [130.0, 1420.0, 36.0],
+	[240.0, 1500.0, 42.0], [350.0, 1440.0, 34.0], [-330.0, 1320.0, 30.0]]
+
+
+static func _place_pools() -> void:
+	pools.clear()
+	for sp: Array in POOL_SPOTS:
+		var c := Vector2(float(sp[0]), float(sp[1]))
+		var r := float(sp[2])
+		if road_distance(c.x, c.y) < r * 1.6 + 25.0:
+			continue
+		if _raw_height(c.x, c.y) > 8.0:
+			continue        # only on the genuinely low fen ground (bible: Westfen marsh 0-6 m)
+		var ok := true
+		for st in settlements:
+			if c.distance_to(st["pos"]) < float(st["radius"]) * 1.8 + r * 1.6 + 20.0:
+				ok = false
+		for cl in clearings:
+			if c.distance_to(cl["pos"]) < float(cl["radius"]) * 1.8 + r * 1.6:
+				ok = false
+		if not ok:
+			continue
+		var ring := _ring_stats(c, r * 1.15)
+		var level := lerpf(ring.x, ring.y, 0.3) - 0.5
+		pools.append({"pos": c, "radius": r, "level": level, "depth": 1.8, "reach_sq": pow(r * 1.5 + 60.0, 2.0)})
+
+
+static func _pool_s(p: Vector2, pl: Dictionary) -> float:
+	var v := p - (pl["pos"] as Vector2)
+	var l := v.length()
+	if l < 0.001:
+		return 0.0
+	var dir := v / l
+	return l / (float(pl["radius"]) * (1.0 + 0.25 * _shore.get_noise_2d(dir.x * 0.9 + float(pl["pos"].x) * 0.013, dir.y * 0.9)))
+
+
+static func _pool_profile(s: float, pl: Dictionary) -> float:
+	var level: float = pl["level"]
+	var d: float = pl["depth"]
+	if s < 1.0:
+		return level + 0.2 - (d + 0.2) * (1.0 - smoothstep(0.3, 1.0, s))
+	return level + 0.2 + (s - 1.0) * float(pl["radius"]) * 0.06
 
 
 # --- Spatial index ------------------------------------------------------------------
@@ -275,6 +325,10 @@ static func height(x: float, z: float) -> float:
 	if p.distance_squared_to(lake_center) < _lake_reach_sq:
 		lake_s = _lake_s(p)
 		h = _carve(h, _lake_profile(lake_s), (lake_s - 1.0) * lake_radius, lake_radius * 0.3, 0.25)
+	for pl in pools:
+		if p.distance_squared_to(pl["pos"]) < float(pl["reach_sq"]):
+			var ps := _pool_s(p, pl)
+			h = _carve(h, _pool_profile(ps, pl), (ps - 1.0) * float(pl["radius"]), float(pl["radius"]) * 0.3, 0.25)
 	var rcell := Vector2i(floori(x / RIVER_CELL), floori(z / RIVER_CELL))
 	if _river_grid.has(rcell):
 		var q := _river_query(p, _river_grid[rcell])
@@ -302,6 +356,9 @@ static func water_level_at(x: float, z: float) -> float:
 	var p := Vector2(x, z)
 	if p.distance_squared_to(lake_center) < _lake_reach_sq and _lake_s(p) < 1.25:
 		return lake_level
+	for pl in pools:
+		if p.distance_squared_to(pl["pos"]) < float(pl["reach_sq"]) and _pool_s(p, pl) < 1.25:
+			return pl["level"]
 	var cell := Vector2i(floori(x / RIVER_CELL), floori(z / RIVER_CELL))
 	if _river_grid.has(cell):
 		var q := _river_query(p, _river_grid[cell])
@@ -351,6 +408,9 @@ static func shore_distance(x: float, z: float) -> float:
 	var best := INF
 	if p.distance_squared_to(lake_center) < _lake_reach_sq:
 		best = (_lake_s(p) - 1.0) * lake_radius
+	for pl in pools:
+		if p.distance_squared_to(pl["pos"]) < float(pl["reach_sq"]):
+			best = minf(best, (_pool_s(p, pl) - 1.0) * float(pl["radius"]))
 	var cell := Vector2i(floori(x / RIVER_CELL), floori(z / RIVER_CELL))
 	if _river_grid.has(cell):
 		var q := _river_query(p, _river_grid[cell])
