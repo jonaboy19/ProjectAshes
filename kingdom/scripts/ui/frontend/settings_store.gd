@@ -62,11 +62,42 @@ static func section_of(key: String) -> String:
 	return String(SECTION.get(key, "gameplay"))
 
 
+## get_value() is called from per-physics-tick code (the chase camera asks three settings every tick), so it must not parse
+## the cfg from disk each call (measured: 3.7 ms per tick, ~220 ms of every second at 60 Hz). The parsed file is cached and
+## re-checked against its modified time at most every 250 ms (other writers, e.g. Quality, are picked up); our own writers
+## drop the cache at once.
+static var _cache: ConfigFile = null
+static var _cache_ok := false
+static var _cache_check_ms := -100000
+static var _cache_mtime := -1
+static var _cache_lock := Mutex.new()      # get_value is also reached from worker threads: one reader/reloader at a time
+
+
+static func invalidate_cache() -> void:
+	_cache_lock.lock()
+	_cache = null
+	_cache_check_ms = -100000
+	_cache_lock.unlock()
+
+
+static func _cached() -> ConfigFile:
+	var now := Time.get_ticks_msec()
+	if _cache == null or now - _cache_check_ms >= 250:
+		_cache_check_ms = now
+		var mt := FileAccess.get_modified_time(PATH)
+		if _cache == null or mt != _cache_mtime:
+			_cache_mtime = mt
+			_cache = ConfigFile.new()
+			_cache_ok = _cache.load(PATH) == OK
+	return _cache if _cache_ok else null
+
+
 static func get_value(key: String) -> Variant:
-	var cf := ConfigFile.new()
-	if cf.load(PATH) != OK:
-		return DEFAULTS.get(key)
-	return cf.get_value(section_of(key), key, DEFAULTS.get(key))
+	_cache_lock.lock()
+	var cf := _cached()
+	var v: Variant = DEFAULTS.get(key) if cf == null else cf.get_value(section_of(key), key, DEFAULTS.get(key))
+	_cache_lock.unlock()
+	return v
 
 
 ## Reads every key (DEFAULTS + the Quality-owned preset) into one Dictionary.
@@ -104,6 +135,7 @@ static func write_all(vals: Dictionary) -> void:
 	cf.set_value("display", "aa_pc", true)
 	cf.set_value("display", "fps_v2", true)
 	cf.save(PATH)
+	invalidate_cache()
 
 
 ## Applies everything that can be applied outside a running world.
@@ -217,6 +249,7 @@ static func set_binding(action: String, keycode: int, save := true) -> void:
 		cf.load(PATH)
 		cf.set_value("controls", action, keycode)
 		cf.save(PATH)
+		invalidate_cache()
 
 
 static func reset_controls() -> void:
@@ -225,3 +258,4 @@ static func reset_controls() -> void:
 	if cf.has_section("controls"):
 		cf.erase_section("controls")
 		cf.save(PATH)
+		invalidate_cache()

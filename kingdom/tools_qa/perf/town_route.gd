@@ -1,4 +1,5 @@
 extends Node
+const Probe := preload("res://scripts/core/perf_probe.gd")
 ## Perf route (release QA): the same town walk on the PC and on the S22, so numbers compare.
 ## Walks the player (no input needed) through: Ashford's plaza ring -> Kingsreach from its gate into the
 ## market -> past the placed Meshy sites around Kingsreach, then loops until --seconds is up.
@@ -29,6 +30,19 @@ var quit_at_end := true
 var uncap := false
 var cpu := PackedFloat32Array()
 var gpu := PackedFloat32Array()
+var prof := false             # --prof: take over every script's _process/_physics_process and time it (per script + per stall frame)
+var reg := {}
+var scan_t := 0.0
+var frame_us := {}
+var tot_us := {}
+var worst_us := {}
+var approach := 0.0           # --approach=METRES: start that far beyond the Kingsreach gate and walk in (streams like play; no synchronous town build)
+var stand_leg := 7
+var stand := false            # --stand: teleport to the Kingsreach market and stand still
+var csv_path := ""           # --hitchcsv=PATH: every frame's delta + counters
+var csv: PackedStringArray = PackedStringArray()
+var _prev := [0, 0, 0, 0]
+var stalls := []
 var census_at: Array = []     # --census=20,40,65: route seconds at which to print a draw census
 
 
@@ -43,6 +57,14 @@ func run(m: Node) -> void:
 				census_at.append(float(v))
 		elif a == "--uncap":
 			uncap = true
+		elif a.begins_with("--approach="):
+			approach = float(a.get_slice("=", 1))
+		elif a == "--prof":
+			prof = true
+		elif a == "--stand":
+			stand = true
+		elif a.begins_with("--hitchcsv="):
+			csv_path = a.get_slice("=", 1)
 		elif a == "--noquit":
 			quit_at_end = false
 	if Array(Quality.qa_file_args()).has("--ablate") or OS.get_cmdline_user_args().has("--ablate"):
@@ -52,6 +74,9 @@ func run(m: Node) -> void:
 		set_process(false)
 		set_physics_process(false)
 		return
+	Probe.on = true
+	Probe.capture = true
+	Probe.min_us = 1500
 	WorldSim.time_of_day = 15.0
 	RenderingServer.viewport_set_measure_render_time(main.viewport.get_viewport_rid(), true)
 	_build_route()
@@ -91,6 +116,17 @@ func _build_route() -> void:
 		var p: Vector2 = s["pos"]
 		var side := (p - cp).normalized().orthogonal() * (float(s.get("clear", 10.0)) + 6.0)
 		legs.append([p - side * 2.0, p + side * 2.0, "meshy_site"])
+	for i in legs.size():
+		if legs[i][2] == "kingsreach_market":
+			stand_leg = i
+			break
+	if approach > 0.0:
+		var g0: Vector2 = legs[6][0]
+		legs.push_front([g0 + gdir * approach, g0, "approach"])
+		stand_leg += 1
+		if stand:
+			legs = [legs[0], legs[stand_leg]]
+			stand_leg = 1
 	print("ROUTE legs=%d meshy_sites=%d" % [legs.size(), mini(3, sites.size())])
 
 
@@ -106,6 +142,16 @@ func _start_leg(i: int) -> void:
 
 func _physics_process(delta: float) -> void:
 	if legs.is_empty():
+		return
+	if prof:
+		for id: int in reg:
+			var e: Array = reg[id]
+			if e[3] and is_instance_valid(e[0]) and (e[0] as Node).is_inside_tree() and (e[0] as Node).can_process():
+				var u := Time.get_ticks_usec()
+				(e[0] as Node).call("_physics_process", delta)
+				var k: String = "phys " + String(e[1])
+				frame_us[k] = int(frame_us.get(k, 0)) + Time.get_ticks_usec() - u
+	if stand and leg >= stand_leg:
 		return
 	var from: Vector2 = legs[leg][0]
 	var to: Vector2 = legs[leg][1]
@@ -126,8 +172,23 @@ func _process(delta: float) -> void:
 	t += delta
 	if uncap:
 		Engine.max_fps = 0
+	if stand and approach <= 0.0 and leg < stand_leg:
+		_start_leg(stand_leg)
+	if prof:
+		scan_t += delta
+		if scan_t > 2.0 or reg.is_empty():
+			scan_t = 0.0
+			_scan()
+		for id: int in reg:
+			var e: Array = reg[id]
+			if e[2] and is_instance_valid(e[0]) and (e[0] as Node).is_inside_tree() and (e[0] as Node).can_process():
+				var u := Time.get_ticks_usec()
+				(e[0] as Node).call("_process", delta)
+				var k: String = e[1]
+				frame_us[k] = int(frame_us.get(k, 0)) + Time.get_ticks_usec() - u
 	if t < 6.0:          # streaming settle after the first teleport
 		return
+	_record(delta)
 	win.append(delta * 1000.0)
 	cpu.append(Performance.get_monitor(Performance.TIME_PROCESS) * 1000.0)
 	gpu.append(RenderingServer.viewport_get_measured_render_time_gpu(main.viewport.get_viewport_rid()))
@@ -159,8 +220,91 @@ func _process(delta: float) -> void:
 			per += " %s:ms=%.1f,maxdraws=%d,maxprims=%d" % [k, float(v[2]) / maxi(1, int(v[3])), v[0], v[1]]
 		print("ROUTE_SUM %s avgdraws=%d avgprims=%d maxdraws=%d maxprims=%d legs:%s" % [_summary(all), int(sum_draws / maxi(1, samples)), int(sum_prims / maxi(1, samples)), max_draws, max_prims, per])
 		legs.clear()
+		var mx := 0.0
+		for v: float in all:
+			mx = maxf(mx, v)
+		print("STALL_SUM n_gt50=%d max=%.0f per_min=%.1f max_frame=%.0f" % [stalls.size(), mx, stalls.size() * 60.0 / dur, mx])
+		var tk := tot_us.keys()
+		tk.sort_custom(func(a, b) -> bool: return tot_us[a] > tot_us[b])
+		for k in tk.slice(0, 25):
+			print("PROF %-60s avg=%.2fms worst=%.1fms" % [k, float(tot_us[k]) / 1000.0 / maxi(1, samples), float(worst_us[k]) / 1000.0])
+		var pk := Probe.us.keys()
+		pk.sort_custom(func(a, b) -> bool: return int(Probe.us[a]) > int(Probe.us[b]))
+		for k in pk.slice(0, 40):
+			print("PROBE %-34s total=%.0fms calls=%d avg=%.2fms worst=%.1fms" % [k, float(Probe.us[k]) / 1000.0, int(Probe.calls[k]), float(Probe.us[k]) / 1000.0 / maxi(1, int(Probe.calls[k])), float(Probe.worst[k]) / 1000.0])
+		if csv_path != "":
+			var f := FileAccess.open(csv_path, FileAccess.WRITE)
+			f.store_string("t,ms,proc,phys,nodes,objs,res,memKB
+" + "
+".join(csv))
+			f.close()
 		if quit_at_end:
 			get_tree().quit(0)
+
+
+func _scan() -> void:
+	var seen := {}
+	for n in get_tree().root.find_children("*", "", true, false):
+		var node := n as Node
+		if node == self or node == main or node.get_script() == null or not node.is_inside_tree():
+			continue
+		var id := node.get_instance_id()
+		seen[id] = true
+		if reg.has(id):
+			var e: Array = reg[id]
+			if node.is_processing() and e[2]:
+				e[2] = false
+			if node.is_physics_processing() and e[3]:
+				e[3] = false
+			continue
+		var hp := node.is_processing() and node.has_method("_process")
+		var hy := node.is_physics_processing() and node.has_method("_physics_process")
+		if not hp and not hy:
+			continue
+		var sc: Script = node.get_script()
+		reg[id] = [node, sc.resource_path if sc.resource_path != "" else String(node.get_class()), hp, hy]
+		if hp:
+			node.set_process(false)
+		if hy:
+			node.set_physics_process(false)
+	for id: int in reg.keys():
+		if not seen.has(id) or not is_instance_valid(reg[id][0]):
+			reg.erase(id)
+
+
+func _record(delta: float) -> void:
+	var nodes := int(Performance.get_monitor(Performance.OBJECT_NODE_COUNT))
+	var objs := int(Performance.get_monitor(Performance.OBJECT_COUNT))
+	var res := int(Performance.get_monitor(Performance.OBJECT_RESOURCE_COUNT))
+	var mem := int(Performance.get_monitor(Performance.MEMORY_STATIC) / 1024.0)
+	var ms := delta * 1000.0
+	if csv_path != "":
+		csv.append("%.3f,%.3f,%.3f,%.3f,%d,%d,%d,%d" % [t, ms, Performance.get_monitor(Performance.TIME_PROCESS) * 1000.0,
+			Performance.get_monitor(Performance.TIME_PHYSICS_PROCESS) * 1000.0, nodes, objs, res, mem])
+	if ms > 50.0:
+		print("STALL t=%.2f ms=%.0f proc=%.1f phys=%.1f setup=%.1f dnodes=%d dobjs=%d dres=%d dmemKB=%d draws=%d" % [t, ms,
+			Performance.get_monitor(Performance.TIME_PROCESS) * 1000.0, Performance.get_monitor(Performance.TIME_PHYSICS_PROCESS) * 1000.0,
+			RenderingServer.get_frame_setup_time_cpu(), nodes - _prev[0], objs - _prev[1], res - _prev[2], mem - _prev[3],
+			int(Performance.get_monitor(Performance.RENDER_TOTAL_DRAW_CALLS_IN_FRAME))])
+		stalls.append(ms)
+		var ev: Array = Probe.events.duplicate()
+		ev.sort_custom(func(a: Array, b: Array) -> bool: return int(a[1]) > int(b[1]))
+		var top := ""
+		for e: Array in ev.slice(0, 6):
+			top += " %s=%.1f" % [e[0], float(e[1]) / 1000.0]
+		print("STALL_TOP%s" % top)
+		var fk := frame_us.keys()
+		fk.sort_custom(func(a, b) -> bool: return frame_us[a] > frame_us[b])
+		var ftop := ""
+		for k in fk.slice(0, 5):
+			ftop += " %s=%.1f" % [String(k).get_file(), float(frame_us[k]) / 1000.0]
+		print("STALL_SCRIPTS%s" % ftop)
+	_prev = [nodes, objs, res, mem]
+	Probe.events.clear()
+	for k: String in frame_us:
+		tot_us[k] = int(tot_us.get(k, 0)) + int(frame_us[k])
+		worst_us[k] = maxi(int(worst_us.get(k, 0)), int(frame_us[k]))
+	frame_us.clear()
 
 
 func _summary(ft: PackedFloat32Array) -> String:

@@ -1,0 +1,774 @@
+Godot Engine v4.6.3.stable.official.7d41c59c4 - https://godotengine.org
+Vulkan 1.4.341 - Forward+ - Using Device #0: NVIDIA - NVIDIA GeForce RTX 4070 Laptop GPU
+
+Quality: High (forced)
+[audio] mood silence -> wilderness (threat 0, hostiles 0, interior )
+ERROR: Cannot convert to (or from) compressed formats. Use compress() and decompress() instead.
+   at: convert (core/io/image.cpp:571)
+   GDScript backtrace (most recent call first):
+       [0] round_face (res://scripts/ui/hud_art.gd:133)
+       [1] _make_button (res://scripts/ui/hud.gd:478)
+       [2] _button (res://scripts/ui/hud.gd:472)
+       [3] _ready (res://scripts/ui/hud.gd:224)
+       [4] _ready (res://scripts/core/main.gd:93)
+ERROR: Cannot resize in compressed image formats.
+   at: resize (core/io/image.cpp:1257)
+   GDScript backtrace (most recent call first):
+       [0] round_face (res://scripts/ui/hud_art.gd:135)
+       [1] _make_button (res://scripts/ui/hud.gd:478)
+       [2] _button (res://scripts/ui/hud.gd:472)
+       [3] _ready (res://scripts/ui/hud.gd:224)
+       [4] _ready (res://scripts/core/main.gd:93)
+ERROR: Condition "format != p_src->format" is true.
+   at: blend_rect (core/io/image.cpp:3201)
+   GDScript backtrace (most recent call first):
+       [0] round_face (res://scripts/ui/hud_art.gd:142)
+       [1] _make_button (res://scripts/ui/hud.gd:478)
+       [2] _button (res://scripts/ui/hud.gd:472)
+       [3] _ready (res://scripts/ui/hud.gd:224)
+       [4] _ready (res://scripts/core/main.gd:93)
+ERROR: Cannot convert to (or from) compressed formats. Use compress() and decompress() instead.
+   at: convert (core/io/image.cpp:571)
+   GDScript backtrace (most recent call first):
+       [0] round_face (res://scripts/ui/hud_art.gd:133)
+       [1] _make_button (res://scripts/ui/hud.gd:478)
+       [2] _button (res://scripts/ui/hud.gd:472)
+       [3] _ready (res://scripts/ui/hud.gd:228)
+       [4] _ready (res://scripts/core/main.gd:93)
+ERROR: Cannot resize in compressed image formats.
+   at: resize (core/io/image.cpp:1257)
+   GDScript backtrace (most recent call first):
+       [0] round_face (res://scripts/ui/hud_art.gd:135)
+       [1] _make_button (res://scripts/ui/hud.gd:478)
+       [2] _button (res://scripts/ui/hud.gd:472)
+       [3] _ready (res://scripts/ui/hud.gd:228)
+       [4] _ready (res://scripts/core/main.gd:93)
+ERROR: Condition "format != p_src->format" is true.
+   at: blend_rect (core/io/image.cpp:3201)
+   GDScript backtrace (most recent call first):
+       [0] round_face (res://scripts/ui/hud_art.gd:142)
+       [1] _make_button (res://scripts/ui/hud.gd:478)
+       [2] _button (res://scripts/ui/hud.gd:472)
+       [3] _ready (res://scripts/ui/hud.gd:228)
+       [4] _ready (res://scripts/core/main.gd:93)
+ERROR: Cannot convert to (or from) compressed formats. Use compress() and decompress() instead.
+   at: convert (core/io/image.cpp:571)
+   GDScript backtrace (most recent call first):
+       [0] round_face (res://scripts/ui/hud_art.gd:133)
+       [1] _make_button (res://scripts/ui/hud.gd:478)
+       [2] _button (res://scripts/ui/hud.gd:472)
+       [3] _ready (res://scripts/ui/hud.gd:246)
+       [4] _ready (res://scripts/core/main.gd:93)
+ERROR: Cannot resize in compressed image formats.
+   at: resize (core/io/image.cpp:1257)
+   GDScript backtrace (most recent call first):
+       [0] round_face (res://scripts/ui/hud_art.gd:135)
+       [1] _make_button (res://scripts/ui/hud.gd:478)
+       [2] _button (res://scripts/ui/hud.gd:472)
+       [3] _ready (res://scripts/ui/hud.gd:246)
+       [4] _ready (res://scripts/core/main.gd:93)
+ERROR: Condition "format != p_src->format" is true.
+   at: blend_rect (core/io/image.cpp:3201)
+   GDScript backtrace (most recent call first):
+       [0] round_face (res://scripts/ui/hud_art.gd:142)
+       [1] _make_button (res://scripts/ui/hud.gd:478)
+       [2] _button (res://scripts/ui/hud.gd:472)
+       [3] _ready (res://scripts/ui/hud.gd:246)
+       [4] _ready (res://scripts/core/main.gd:93)
+ERROR: Cannot convert to (or from) compressed formats. Use compress() and decompress() instead.
+   at: convert (core/io/image.cpp:571)
+   GDScript backtrace (most recent call first):
+       [0] round_face (res://scripts/ui/hud_art.gd:133)
+       [1] _make_button (res://scripts/ui/hud.gd:478)
+       [2] _button (res://scripts/ui/hud.gd:472)
+       [3] _ready (res://scripts/ui/hud.gd:249)
+       [4] _ready (res://scripts/core/main.gd:93)
+ERROR: Cannot resize in compressed image formats.
+   at: resize (core/io/image.cpp:1257)
+   GDScript backtrace (most recent call first):
+       [0] round_face (res://scripts/ui/hud_art.gd:135)
+       [1] _make_button (res://scripts/ui/hud.gd:478)
+       [2] _button (res://scripts/ui/hud.gd:472)
+       [3] _ready (res://scripts/ui/hud.gd:249)
+       [4] _ready (res://scripts/core/main.gd:93)
+ERROR: Condition "format != p_src->format" is true.
+   at: blend_rect (core/io/image.cpp:3201)
+   GDScript backtrace (most recent call first):
+       [0] round_face (res://scripts/ui/hud_art.gd:142)
+       [1] _make_button (res://scripts/ui/hud.gd:478)
+       [2] _button (res://scripts/ui/hud.gd:472)
+       [3] _ready (res://scripts/ui/hud.gd:249)
+       [4] _ready (res://scripts/core/main.gd:93)
+ERROR: Cannot convert to (or from) compressed formats. Use compress() and decompress() instead.
+   at: convert (core/io/image.cpp:571)
+   GDScript backtrace (most recent call first):
+       [0] round_face (res://scripts/ui/hud_art.gd:133)
+       [1] _make_button (res://scripts/ui/hud.gd:478)
+       [2] _button (res://scripts/ui/hud.gd:472)
+       [3] _ready (res://scripts/ui/hud.gd:250)
+       [4] _ready (res://scripts/core/main.gd:93)
+ERROR: Cannot resize in compressed image formats.
+   at: resize (core/io/image.cpp:1257)
+   GDScript backtrace (most recent call first):
+       [0] round_face (res://scripts/ui/hud_art.gd:135)
+       [1] _make_button (res://scripts/ui/hud.gd:478)
+       [2] _button (res://scripts/ui/hud.gd:472)
+       [3] _ready (res://scripts/ui/hud.gd:250)
+       [4] _ready (res://scripts/core/main.gd:93)
+ERROR: Condition "format != p_src->format" is true.
+   at: blend_rect (core/io/image.cpp:3201)
+   GDScript backtrace (most recent call first):
+       [0] round_face (res://scripts/ui/hud_art.gd:142)
+       [1] _make_button (res://scripts/ui/hud.gd:478)
+       [2] _button (res://scripts/ui/hud.gd:472)
+       [3] _ready (res://scripts/ui/hud.gd:250)
+       [4] _ready (res://scripts/core/main.gd:93)
+ERROR: Cannot convert to (or from) compressed formats. Use compress() and decompress() instead.
+   at: convert (core/io/image.cpp:571)
+   GDScript backtrace (most recent call first):
+       [0] round_face (res://scripts/ui/hud_art.gd:133)
+       [1] _make_button (res://scripts/ui/hud.gd:478)
+       [2] _button (res://scripts/ui/hud.gd:472)
+       [3] _ready (res://scripts/ui/hud.gd:251)
+       [4] _ready (res://scripts/core/main.gd:93)
+ERROR: Cannot resize in compressed image formats.
+   at: resize (core/io/image.cpp:1257)
+   GDScript backtrace (most recent call first):
+       [0] round_face (res://scripts/ui/hud_art.gd:135)
+       [1] _make_button (res://scripts/ui/hud.gd:478)
+       [2] _button (res://scripts/ui/hud.gd:472)
+       [3] _ready (res://scripts/ui/hud.gd:251)
+       [4] _ready (res://scripts/core/main.gd:93)
+ERROR: Condition "format != p_src->format" is true.
+   at: blend_rect (core/io/image.cpp:3201)
+   GDScript backtrace (most recent call first):
+       [0] round_face (res://scripts/ui/hud_art.gd:142)
+       [1] _make_button (res://scripts/ui/hud.gd:478)
+       [2] _button (res://scripts/ui/hud.gd:472)
+       [3] _ready (res://scripts/ui/hud.gd:251)
+       [4] _ready (res://scripts/core/main.gd:93)
+ERROR: Cannot convert to (or from) compressed formats. Use compress() and decompress() instead.
+   at: convert (core/io/image.cpp:571)
+   GDScript backtrace (most recent call first):
+       [0] round_face (res://scripts/ui/hud_art.gd:133)
+       [1] _make_button (res://scripts/ui/hud.gd:478)
+       [2] _button (res://scripts/ui/hud.gd:472)
+       [3] _ready (res://scripts/ui/hud.gd:252)
+       [4] _ready (res://scripts/core/main.gd:93)
+ERROR: Cannot resize in compressed image formats.
+   at: resize (core/io/image.cpp:1257)
+   GDScript backtrace (most recent call first):
+       [0] round_face (res://scripts/ui/hud_art.gd:135)
+       [1] _make_button (res://scripts/ui/hud.gd:478)
+       [2] _button (res://scripts/ui/hud.gd:472)
+       [3] _ready (res://scripts/ui/hud.gd:252)
+       [4] _ready (res://scripts/core/main.gd:93)
+ERROR: Condition "format != p_src->format" is true.
+   at: blend_rect (core/io/image.cpp:3201)
+   GDScript backtrace (most recent call first):
+       [0] round_face (res://scripts/ui/hud_art.gd:142)
+       [1] _make_button (res://scripts/ui/hud.gd:478)
+       [2] _button (res://scripts/ui/hud.gd:472)
+       [3] _ready (res://scripts/ui/hud.gd:252)
+       [4] _ready (res://scripts/core/main.gd:93)
+ERROR: Cannot convert to (or from) compressed formats. Use compress() and decompress() instead.
+   at: convert (core/io/image.cpp:571)
+   GDScript backtrace (most recent call first):
+       [0] round_face (res://scripts/ui/hud_art.gd:133)
+       [1] _make_button (res://scripts/ui/hud.gd:478)
+       [2] _button (res://scripts/ui/hud.gd:472)
+       [3] _ready (res://scripts/ui/hud.gd:261)
+       [4] _ready (res://scripts/core/main.gd:93)
+ERROR: Cannot resize in compressed image formats.
+   at: resize (core/io/image.cpp:1257)
+   GDScript backtrace (most recent call first):
+       [0] round_face (res://scripts/ui/hud_art.gd:135)
+       [1] _make_button (res://scripts/ui/hud.gd:478)
+       [2] _button (res://scripts/ui/hud.gd:472)
+       [3] _ready (res://scripts/ui/hud.gd:261)
+       [4] _ready (res://scripts/core/main.gd:93)
+ERROR: Condition "format != p_src->format" is true.
+   at: blend_rect (core/io/image.cpp:3201)
+   GDScript backtrace (most recent call first):
+       [0] round_face (res://scripts/ui/hud_art.gd:142)
+       [1] _make_button (res://scripts/ui/hud.gd:478)
+       [2] _button (res://scripts/ui/hud.gd:472)
+       [3] _ready (res://scripts/ui/hud.gd:261)
+       [4] _ready (res://scripts/core/main.gd:93)
+ERROR: Cannot convert to (or from) compressed formats. Use compress() and decompress() instead.
+   at: convert (core/io/image.cpp:571)
+   GDScript backtrace (most recent call first):
+       [0] round_face (res://scripts/ui/hud_art.gd:133)
+       [1] _make_button (res://scripts/ui/hud.gd:478)
+       [2] _button (res://scripts/ui/hud.gd:472)
+       [3] _ready (res://scripts/ui/hud.gd:277)
+       [4] _ready (res://scripts/core/main.gd:93)
+ERROR: Cannot resize in compressed image formats.
+   at: resize (core/io/image.cpp:1257)
+   GDScript backtrace (most recent call first):
+       [0] round_face (res://scripts/ui/hud_art.gd:135)
+       [1] _make_button (res://scripts/ui/hud.gd:478)
+       [2] _button (res://scripts/ui/hud.gd:472)
+       [3] _ready (res://scripts/ui/hud.gd:277)
+       [4] _ready (res://scripts/core/main.gd:93)
+ERROR: Condition "format != p_src->format" is true.
+   at: blend_rect (core/io/image.cpp:3201)
+   GDScript backtrace (most recent call first):
+       [0] round_face (res://scripts/ui/hud_art.gd:142)
+       [1] _make_button (res://scripts/ui/hud.gd:478)
+       [2] _button (res://scripts/ui/hud.gd:472)
+       [3] _ready (res://scripts/ui/hud.gd:277)
+       [4] _ready (res://scripts/core/main.gd:93)
+ERROR: Cannot convert to (or from) compressed formats. Use compress() and decompress() instead.
+   at: convert (core/io/image.cpp:571)
+   GDScript backtrace (most recent call first):
+       [0] round_face (res://scripts/ui/hud_art.gd:133)
+       [1] _make_button (res://scripts/ui/hud.gd:478)
+       [2] _button (res://scripts/ui/hud.gd:472)
+       [3] _ready (res://scripts/ui/hud.gd:277)
+       [4] _ready (res://scripts/core/main.gd:93)
+ERROR: Cannot resize in compressed image formats.
+   at: resize (core/io/image.cpp:1257)
+   GDScript backtrace (most recent call first):
+       [0] round_face (res://scripts/ui/hud_art.gd:135)
+       [1] _make_button (res://scripts/ui/hud.gd:478)
+       [2] _button (res://scripts/ui/hud.gd:472)
+       [3] _ready (res://scripts/ui/hud.gd:277)
+       [4] _ready (res://scripts/core/main.gd:93)
+ERROR: Condition "format != p_src->format" is true.
+   at: blend_rect (core/io/image.cpp:3201)
+   GDScript backtrace (most recent call first):
+       [0] round_face (res://scripts/ui/hud_art.gd:142)
+       [1] _make_button (res://scripts/ui/hud.gd:478)
+       [2] _button (res://scripts/ui/hud.gd:472)
+       [3] _ready (res://scripts/ui/hud.gd:277)
+       [4] _ready (res://scripts/core/main.gd:93)
+ERROR: Cannot convert to (or from) compressed formats. Use compress() and decompress() instead.
+   at: convert (core/io/image.cpp:571)
+   GDScript backtrace (most recent call first):
+       [0] round_face (res://scripts/ui/hud_art.gd:133)
+       [1] _make_button (res://scripts/ui/hud.gd:478)
+       [2] add_action_button (res://scripts/ui/hud.gd:1181)
+       [3] _build_navigation (res://scripts/ui/hud.gd:1233)
+       [4] _ready (res://scripts/ui/hud.gd:376)
+       [5] _ready (res://scripts/core/main.gd:93)
+ERROR: Cannot resize in compressed image formats.
+   at: resize (core/io/image.cpp:1257)
+   GDScript backtrace (most recent call first):
+       [0] round_face (res://scripts/ui/hud_art.gd:135)
+       [1] _make_button (res://scripts/ui/hud.gd:478)
+       [2] add_action_button (res://scripts/ui/hud.gd:1181)
+       [3] _build_navigation (res://scripts/ui/hud.gd:1233)
+       [4] _ready (res://scripts/ui/hud.gd:376)
+       [5] _ready (res://scripts/core/main.gd:93)
+ERROR: Condition "format != p_src->format" is true.
+   at: blend_rect (core/io/image.cpp:3201)
+   GDScript backtrace (most recent call first):
+       [0] round_face (res://scripts/ui/hud_art.gd:142)
+       [1] _make_button (res://scripts/ui/hud.gd:478)
+       [2] add_action_button (res://scripts/ui/hud.gd:1181)
+       [3] _build_navigation (res://scripts/ui/hud.gd:1233)
+       [4] _ready (res://scripts/ui/hud.gd:376)
+       [5] _ready (res://scripts/core/main.gd:93)
+ERROR: Cannot convert to (or from) compressed formats. Use compress() and decompress() instead.
+   at: convert (core/io/image.cpp:571)
+   GDScript backtrace (most recent call first):
+       [0] round_face (res://scripts/ui/hud_art.gd:133)
+       [1] _make_button (res://scripts/ui/hud.gd:478)
+       [2] add_action_button (res://scripts/ui/hud.gd:1181)
+       [3] _ready (res://scripts/core/main.gd:97)
+ERROR: Cannot resize in compressed image formats.
+   at: resize (core/io/image.cpp:1257)
+   GDScript backtrace (most recent call first):
+       [0] round_face (res://scripts/ui/hud_art.gd:135)
+       [1] _make_button (res://scripts/ui/hud.gd:478)
+       [2] add_action_button (res://scripts/ui/hud.gd:1181)
+       [3] _ready (res://scripts/core/main.gd:97)
+ERROR: Condition "format != p_src->format" is true.
+   at: blend_rect (core/io/image.cpp:3201)
+   GDScript backtrace (most recent call first):
+       [0] round_face (res://scripts/ui/hud_art.gd:142)
+       [1] _make_button (res://scripts/ui/hud.gd:478)
+       [2] add_action_button (res://scripts/ui/hud.gd:1181)
+       [3] _ready (res://scripts/core/main.gd:97)
+WARNING: Screen-space reflections are not supported in viewports with a transparent background. Disabling SSR in transparent viewport.
+   at: _render_scene (servers/rendering/renderer_rd/forward_clustered/render_forward_clustered.cpp:1851)
+ERROR: Condition "p_job.uavMip[i] >= mip_slice_rids.size()" is true. Returning: FFX_ERROR_INVALID_ARGUMENT
+   at: execute_gpu_job_compute_rd (servers/rendering/renderer_rd/effects/fsr2.cpp:418)
+[audio] music silence -> wild_b (mood wilderness, intensity 0.00)
+ERROR: Condition "p_job.uavMip[i] >= mip_slice_rids.size()" is true. Returning: FFX_ERROR_INVALID_ARGUMENT
+   at: execute_gpu_job_compute_rd (servers/rendering/renderer_rd/effects/fsr2.cpp:418)
+ERROR: Condition "p_job.uavMip[i] >= mip_slice_rids.size()" is true. Returning: FFX_ERROR_INVALID_ARGUMENT
+   at: execute_gpu_job_compute_rd (servers/rendering/renderer_rd/effects/fsr2.cpp:418)
+ERROR: Condition "p_job.uavMip[i] >= mip_slice_rids.size()" is true. Returning: FFX_ERROR_INVALID_ARGUMENT
+   at: execute_gpu_job_compute_rd (servers/rendering/renderer_rd/effects/fsr2.cpp:418)
+ERROR: Condition "p_job.uavMip[i] >= mip_slice_rids.size()" is true. Returning: FFX_ERROR_INVALID_ARGUMENT
+   at: execute_gpu_job_compute_rd (servers/rendering/renderer_rd/effects/fsr2.cpp:418)
+ERROR: Condition "p_job.uavMip[i] >= mip_slice_rids.size()" is true. Returning: FFX_ERROR_INVALID_ARGUMENT
+   at: execute_gpu_job_compute_rd (servers/rendering/renderer_rd/effects/fsr2.cpp:418)
+ERROR: Condition "p_job.uavMip[i] >= mip_slice_rids.size()" is true. Returning: FFX_ERROR_INVALID_ARGUMENT
+   at: execute_gpu_job_compute_rd (servers/rendering/renderer_rd/effects/fsr2.cpp:418)
+ERROR: Condition "p_job.uavMip[i] >= mip_slice_rids.size()" is true. Returning: FFX_ERROR_INVALID_ARGUMENT
+   at: execute_gpu_job_compute_rd (servers/rendering/renderer_rd/effects/fsr2.cpp:418)
+ERROR: Condition "p_job.uavMip[i] >= mip_slice_rids.size()" is true. Returning: FFX_ERROR_INVALID_ARGUMENT
+   at: execute_gpu_job_compute_rd (servers/rendering/renderer_rd/effects/fsr2.cpp:418)
+ERROR: Condition "p_job.uavMip[i] >= mip_slice_rids.size()" is true. Returning: FFX_ERROR_INVALID_ARGUMENT
+   at: execute_gpu_job_compute_rd (servers/rendering/renderer_rd/effects/fsr2.cpp:418)
+ERROR: Condition "p_job.uavMip[i] >= mip_slice_rids.size()" is true. Returning: FFX_ERROR_INVALID_ARGUMENT
+   at: execute_gpu_job_compute_rd (servers/rendering/renderer_rd/effects/fsr2.cpp:418)
+ERROR: Condition "p_job.uavMip[i] >= mip_slice_rids.size()" is true. Returning: FFX_ERROR_INVALID_ARGUMENT
+   at: execute_gpu_job_compute_rd (servers/rendering/renderer_rd/effects/fsr2.cpp:418)
+ERROR: Condition "p_job.uavMip[i] >= mip_slice_rids.size()" is true. Returning: FFX_ERROR_INVALID_ARGUMENT
+   at: execute_gpu_job_compute_rd (servers/rendering/renderer_rd/effects/fsr2.cpp:418)
+ERROR: Condition "p_job.uavMip[i] >= mip_slice_rids.size()" is true. Returning: FFX_ERROR_INVALID_ARGUMENT
+   at: execute_gpu_job_compute_rd (servers/rendering/renderer_rd/effects/fsr2.cpp:418)
+ERROR: Condition "p_job.uavMip[i] >= mip_slice_rids.size()" is true. Returning: FFX_ERROR_INVALID_ARGUMENT
+   at: execute_gpu_job_compute_rd (servers/rendering/renderer_rd/effects/fsr2.cpp:418)
+ERROR: Condition "p_job.uavMip[i] >= mip_slice_rids.size()" is true. Returning: FFX_ERROR_INVALID_ARGUMENT
+   at: execute_gpu_job_compute_rd (servers/rendering/renderer_rd/effects/fsr2.cpp:418)
+ERROR: Condition "p_job.uavMip[i] >= mip_slice_rids.size()" is true. Returning: FFX_ERROR_INVALID_ARGUMENT
+   at: execute_gpu_job_compute_rd (servers/rendering/renderer_rd/effects/fsr2.cpp:418)
+ERROR: Condition "p_job.uavMip[i] >= mip_slice_rids.size()" is true. Returning: FFX_ERROR_INVALID_ARGUMENT
+   at: execute_gpu_job_compute_rd (servers/rendering/renderer_rd/effects/fsr2.cpp:418)
+ERROR: Condition "p_job.uavMip[i] >= mip_slice_rids.size()" is true. Returning: FFX_ERROR_INVALID_ARGUMENT
+   at: execute_gpu_job_compute_rd (servers/rendering/renderer_rd/effects/fsr2.cpp:418)
+ERROR: Condition "p_job.uavMip[i] >= mip_slice_rids.size()" is true. Returning: FFX_ERROR_INVALID_ARGUMENT
+   at: execute_gpu_job_compute_rd (servers/rendering/renderer_rd/effects/fsr2.cpp:418)
+ERROR: Condition "p_job.uavMip[i] >= mip_slice_rids.size()" is true. Returning: FFX_ERROR_INVALID_ARGUMENT
+   at: execute_gpu_job_compute_rd (servers/rendering/renderer_rd/effects/fsr2.cpp:418)
+ERROR: Condition "p_job.uavMip[i] >= mip_slice_rids.size()" is true. Returning: FFX_ERROR_INVALID_ARGUMENT
+   at: execute_gpu_job_compute_rd (servers/rendering/renderer_rd/effects/fsr2.cpp:418)
+ERROR: Condition "p_job.uavMip[i] >= mip_slice_rids.size()" is true. Returning: FFX_ERROR_INVALID_ARGUMENT
+   at: execute_gpu_job_compute_rd (servers/rendering/renderer_rd/effects/fsr2.cpp:418)
+ERROR: Condition "p_job.uavMip[i] >= mip_slice_rids.size()" is true. Returning: FFX_ERROR_INVALID_ARGUMENT
+   at: execute_gpu_job_compute_rd (servers/rendering/renderer_rd/effects/fsr2.cpp:418)
+ERROR: Condition "p_job.uavMip[i] >= mip_slice_rids.size()" is true. Returning: FFX_ERROR_INVALID_ARGUMENT
+   at: execute_gpu_job_compute_rd (servers/rendering/renderer_rd/effects/fsr2.cpp:418)
+ERROR: Condition "p_job.uavMip[i] >= mip_slice_rids.size()" is true. Returning: FFX_ERROR_INVALID_ARGUMENT
+   at: execute_gpu_job_compute_rd (servers/rendering/renderer_rd/effects/fsr2.cpp:418)
+ERROR: Condition "p_job.uavMip[i] >= mip_slice_rids.size()" is true. Returning: FFX_ERROR_INVALID_ARGUMENT
+   at: execute_gpu_job_compute_rd (servers/rendering/renderer_rd/effects/fsr2.cpp:418)
+ERROR: Condition "p_job.uavMip[i] >= mip_slice_rids.size()" is true. Returning: FFX_ERROR_INVALID_ARGUMENT
+   at: execute_gpu_job_compute_rd (servers/rendering/renderer_rd/effects/fsr2.cpp:418)
+ERROR: Condition "p_job.uavMip[i] >= mip_slice_rids.size()" is true. Returning: FFX_ERROR_INVALID_ARGUMENT
+   at: execute_gpu_job_compute_rd (servers/rendering/renderer_rd/effects/fsr2.cpp:418)
+ERROR: Condition "p_job.uavMip[i] >= mip_slice_rids.size()" is true. Returning: FFX_ERROR_INVALID_ARGUMENT
+   at: execute_gpu_job_compute_rd (servers/rendering/renderer_rd/effects/fsr2.cpp:418)
+ERROR: Condition "p_job.uavMip[i] >= mip_slice_rids.size()" is true. Returning: FFX_ERROR_INVALID_ARGUMENT
+   at: execute_gpu_job_compute_rd (servers/rendering/renderer_rd/effects/fsr2.cpp:418)
+ERROR: Condition "p_job.uavMip[i] >= mip_slice_rids.size()" is true. Returning: FFX_ERROR_INVALID_ARGUMENT
+   at: execute_gpu_job_compute_rd (servers/rendering/renderer_rd/effects/fsr2.cpp:418)
+ERROR: Condition "p_job.uavMip[i] >= mip_slice_rids.size()" is true. Returning: FFX_ERROR_INVALID_ARGUMENT
+   at: execute_gpu_job_compute_rd (servers/rendering/renderer_rd/effects/fsr2.cpp:418)
+ERROR: Condition "p_job.uavMip[i] >= mip_slice_rids.size()" is true. Returning: FFX_ERROR_INVALID_ARGUMENT
+   at: execute_gpu_job_compute_rd (servers/rendering/renderer_rd/effects/fsr2.cpp:418)
+ERROR: Condition "p_job.uavMip[i] >= mip_slice_rids.size()" is true. Returning: FFX_ERROR_INVALID_ARGUMENT
+   at: execute_gpu_job_compute_rd (servers/rendering/renderer_rd/effects/fsr2.cpp:418)
+ERROR: Condition "p_job.uavMip[i] >= mip_slice_rids.size()" is true. Returning: FFX_ERROR_INVALID_ARGUMENT
+   at: execute_gpu_job_compute_rd (servers/rendering/renderer_rd/effects/fsr2.cpp:418)
+ERROR: Condition "p_job.uavMip[i] >= mip_slice_rids.size()" is true. Returning: FFX_ERROR_INVALID_ARGUMENT
+   at: execute_gpu_job_compute_rd (servers/rendering/renderer_rd/effects/fsr2.cpp:418)
+ERROR: Condition "p_job.uavMip[i] >= mip_slice_rids.size()" is true. Returning: FFX_ERROR_INVALID_ARGUMENT
+   at: execute_gpu_job_compute_rd (servers/rendering/renderer_rd/effects/fsr2.cpp:418)
+ERROR: Condition "p_job.uavMip[i] >= mip_slice_rids.size()" is true. Returning: FFX_ERROR_INVALID_ARGUMENT
+   at: execute_gpu_job_compute_rd (servers/rendering/renderer_rd/effects/fsr2.cpp:418)
+ERROR: Condition "p_job.uavMip[i] >= mip_slice_rids.size()" is true. Returning: FFX_ERROR_INVALID_ARGUMENT
+   at: execute_gpu_job_compute_rd (servers/rendering/renderer_rd/effects/fsr2.cpp:418)
+ERROR: Condition "p_job.uavMip[i] >= mip_slice_rids.size()" is true. Returning: FFX_ERROR_INVALID_ARGUMENT
+   at: execute_gpu_job_compute_rd (servers/rendering/renderer_rd/effects/fsr2.cpp:418)
+ERROR: Condition "p_job.uavMip[i] >= mip_slice_rids.size()" is true. Returning: FFX_ERROR_INVALID_ARGUMENT
+   at: execute_gpu_job_compute_rd (servers/rendering/renderer_rd/effects/fsr2.cpp:418)
+ERROR: Condition "p_job.uavMip[i] >= mip_slice_rids.size()" is true. Returning: FFX_ERROR_INVALID_ARGUMENT
+   at: execute_gpu_job_compute_rd (servers/rendering/renderer_rd/effects/fsr2.cpp:418)
+ERROR: Condition "p_job.uavMip[i] >= mip_slice_rids.size()" is true. Returning: FFX_ERROR_INVALID_ARGUMENT
+   at: execute_gpu_job_compute_rd (servers/rendering/renderer_rd/effects/fsr2.cpp:418)
+ERROR: Condition "p_job.uavMip[i] >= mip_slice_rids.size()" is true. Returning: FFX_ERROR_INVALID_ARGUMENT
+   at: execute_gpu_job_compute_rd (servers/rendering/renderer_rd/effects/fsr2.cpp:418)
+ERROR: Condition "p_job.uavMip[i] >= mip_slice_rids.size()" is true. Returning: FFX_ERROR_INVALID_ARGUMENT
+   at: execute_gpu_job_compute_rd (servers/rendering/renderer_rd/effects/fsr2.cpp:418)
+ERROR: Condition "p_job.uavMip[i] >= mip_slice_rids.size()" is true. Returning: FFX_ERROR_INVALID_ARGUMENT
+   at: execute_gpu_job_compute_rd (servers/rendering/renderer_rd/effects/fsr2.cpp:418)
+ERROR: Condition "p_job.uavMip[i] >= mip_slice_rids.size()" is true. Returning: FFX_ERROR_INVALID_ARGUMENT
+   at: execute_gpu_job_compute_rd (servers/rendering/renderer_rd/effects/fsr2.cpp:418)
+ERROR: Condition "p_job.uavMip[i] >= mip_slice_rids.size()" is true. Returning: FFX_ERROR_INVALID_ARGUMENT
+   at: execute_gpu_job_compute_rd (servers/rendering/renderer_rd/effects/fsr2.cpp:418)
+ERROR: Condition "p_job.uavMip[i] >= mip_slice_rids.size()" is true. Returning: FFX_ERROR_INVALID_ARGUMENT
+   at: execute_gpu_job_compute_rd (servers/rendering/renderer_rd/effects/fsr2.cpp:418)
+ERROR: Condition "p_job.uavMip[i] >= mip_slice_rids.size()" is true. Returning: FFX_ERROR_INVALID_ARGUMENT
+   at: execute_gpu_job_compute_rd (servers/rendering/renderer_rd/effects/fsr2.cpp:418)
+ERROR: Condition "p_job.uavMip[i] >= mip_slice_rids.size()" is true. Returning: FFX_ERROR_INVALID_ARGUMENT
+   at: execute_gpu_job_compute_rd (servers/rendering/renderer_rd/effects/fsr2.cpp:418)
+ERROR: Condition "p_job.uavMip[i] >= mip_slice_rids.size()" is true. Returning: FFX_ERROR_INVALID_ARGUMENT
+   at: execute_gpu_job_compute_rd (servers/rendering/renderer_rd/effects/fsr2.cpp:418)
+ERROR: Condition "p_job.uavMip[i] >= mip_slice_rids.size()" is true. Returning: FFX_ERROR_INVALID_ARGUMENT
+   at: execute_gpu_job_compute_rd (servers/rendering/renderer_rd/effects/fsr2.cpp:418)
+ERROR: Condition "p_job.uavMip[i] >= mip_slice_rids.size()" is true. Returning: FFX_ERROR_INVALID_ARGUMENT
+   at: execute_gpu_job_compute_rd (servers/rendering/renderer_rd/effects/fsr2.cpp:418)
+ERROR: Condition "p_job.uavMip[i] >= mip_slice_rids.size()" is true. Returning: FFX_ERROR_INVALID_ARGUMENT
+   at: execute_gpu_job_compute_rd (servers/rendering/renderer_rd/effects/fsr2.cpp:418)
+ERROR: Condition "p_job.uavMip[i] >= mip_slice_rids.size()" is true. Returning: FFX_ERROR_INVALID_ARGUMENT
+   at: execute_gpu_job_compute_rd (servers/rendering/renderer_rd/effects/fsr2.cpp:418)
+ERROR: Condition "p_job.uavMip[i] >= mip_slice_rids.size()" is true. Returning: FFX_ERROR_INVALID_ARGUMENT
+   at: execute_gpu_job_compute_rd (servers/rendering/renderer_rd/effects/fsr2.cpp:418)
+ERROR: Condition "p_job.uavMip[i] >= mip_slice_rids.size()" is true. Returning: FFX_ERROR_INVALID_ARGUMENT
+   at: execute_gpu_job_compute_rd (servers/rendering/renderer_rd/effects/fsr2.cpp:418)
+ERROR: Condition "p_job.uavMip[i] >= mip_slice_rids.size()" is true. Returning: FFX_ERROR_INVALID_ARGUMENT
+   at: execute_gpu_job_compute_rd (servers/rendering/renderer_rd/effects/fsr2.cpp:418)
+ERROR: Condition "p_job.uavMip[i] >= mip_slice_rids.size()" is true. Returning: FFX_ERROR_INVALID_ARGUMENT
+   at: execute_gpu_job_compute_rd (servers/rendering/renderer_rd/effects/fsr2.cpp:418)
+ERROR: Condition "p_job.uavMip[i] >= mip_slice_rids.size()" is true. Returning: FFX_ERROR_INVALID_ARGUMENT
+   at: execute_gpu_job_compute_rd (servers/rendering/renderer_rd/effects/fsr2.cpp:418)
+ERROR: Condition "p_job.uavMip[i] >= mip_slice_rids.size()" is true. Returning: FFX_ERROR_INVALID_ARGUMENT
+   at: execute_gpu_job_compute_rd (servers/rendering/renderer_rd/effects/fsr2.cpp:418)
+ERROR: Condition "p_job.uavMip[i] >= mip_slice_rids.size()" is true. Returning: FFX_ERROR_INVALID_ARGUMENT
+   at: execute_gpu_job_compute_rd (servers/rendering/renderer_rd/effects/fsr2.cpp:418)
+ERROR: Condition "p_job.uavMip[i] >= mip_slice_rids.size()" is true. Returning: FFX_ERROR_INVALID_ARGUMENT
+   at: execute_gpu_job_compute_rd (servers/rendering/renderer_rd/effects/fsr2.cpp:418)
+ERROR: Condition "p_job.uavMip[i] >= mip_slice_rids.size()" is true. Returning: FFX_ERROR_INVALID_ARGUMENT
+   at: execute_gpu_job_compute_rd (servers/rendering/renderer_rd/effects/fsr2.cpp:418)
+ERROR: Condition "p_job.uavMip[i] >= mip_slice_rids.size()" is true. Returning: FFX_ERROR_INVALID_ARGUMENT
+   at: execute_gpu_job_compute_rd (servers/rendering/renderer_rd/effects/fsr2.cpp:418)
+ERROR: Condition "p_job.uavMip[i] >= mip_slice_rids.size()" is true. Returning: FFX_ERROR_INVALID_ARGUMENT
+   at: execute_gpu_job_compute_rd (servers/rendering/renderer_rd/effects/fsr2.cpp:418)
+ERROR: Condition "p_job.uavMip[i] >= mip_slice_rids.size()" is true. Returning: FFX_ERROR_INVALID_ARGUMENT
+   at: execute_gpu_job_compute_rd (servers/rendering/renderer_rd/effects/fsr2.cpp:418)
+ERROR: Condition "p_job.uavMip[i] >= mip_slice_rids.size()" is true. Returning: FFX_ERROR_INVALID_ARGUMENT
+   at: execute_gpu_job_compute_rd (servers/rendering/renderer_rd/effects/fsr2.cpp:418)
+ERROR: Condition "p_job.uavMip[i] >= mip_slice_rids.size()" is true. Returning: FFX_ERROR_INVALID_ARGUMENT
+   at: execute_gpu_job_compute_rd (servers/rendering/renderer_rd/effects/fsr2.cpp:418)
+ERROR: Condition "p_job.uavMip[i] >= mip_slice_rids.size()" is true. Returning: FFX_ERROR_INVALID_ARGUMENT
+   at: execute_gpu_job_compute_rd (servers/rendering/renderer_rd/effects/fsr2.cpp:418)
+ERROR: Condition "p_job.uavMip[i] >= mip_slice_rids.size()" is true. Returning: FFX_ERROR_INVALID_ARGUMENT
+   at: execute_gpu_job_compute_rd (servers/rendering/renderer_rd/effects/fsr2.cpp:418)
+ERROR: This function should never be used outside the editor, it can severely damage performance.
+   at: global_shader_parameter_get_list (servers/rendering/renderer_rd/storage_rd/material_storage.cpp:1665)
+   GDScript backtrace (most recent call first):
+       [0] ensure_global (res://scripts/living_world/vat_crowd.gd:47)
+       [1] _init (res://scripts/living_world/vat_crowd.gd:52)
+       [2] _ready (res://scripts/living_world/vat_residents.gd:48)
+       [3] setup (res://scripts/population/population_lod.gd:133)
+       [4] _ready (res://scripts/core/main.gd:122)
+WARNING: 'res://assets/generated/village_house_a_3_lod1.glb': In external resource #3, invalid UID: 'uid://bv0rc2ksgjc4x' - using text path instead: 'res://assets/generated/pbr/window_alb.png'.
+   at: open (core/io/resource_format_binary.cpp:1089)
+   GDScript backtrace (most recent call first):
+       [0] scene (res://scripts/world/assets.gd:254)
+       [1] merged_mesh (res://scripts/world/assets.gd:845)
+       [2] building_mesh (res://scripts/world/assets.gd:763)
+       [3] building_lod_mesh (res://scripts/world/assets.gd:731)
+       [4] _build_co (res://scripts/world/settlement_builder.gd:238)
+       [5] update_now (res://scripts/world/settlement_builder.gd:139)
+       [6] _process (res://scripts/world/settlement_builder.gd:84)
+WARNING: 'res://assets/generated/village_house_a_3_lod1.glb': In external resource #4, invalid UID: 'uid://be5wotbwlb4j5' - using text path instead: 'res://assets/generated/pbr/window_emit.png'.
+   at: open (core/io/resource_format_binary.cpp:1089)
+   GDScript backtrace (most recent call first):
+       [0] scene (res://scripts/world/assets.gd:254)
+       [1] merged_mesh (res://scripts/world/assets.gd:845)
+       [2] building_mesh (res://scripts/world/assets.gd:763)
+       [3] building_lod_mesh (res://scripts/world/assets.gd:731)
+       [4] _build_co (res://scripts/world/settlement_builder.gd:238)
+       [5] update_now (res://scripts/world/settlement_builder.gd:139)
+       [6] _process (res://scripts/world/settlement_builder.gd:84)
+WARNING: 'res://assets/generated/village_house_a_3_lod1.glb': In external resource #5, invalid UID: 'uid://cs87ialbkqn1b' - using text path instead: 'res://assets/generated/pbr/window_nrm.png'.
+   at: open (core/io/resource_format_binary.cpp:1089)
+   GDScript backtrace (most recent call first):
+       [0] scene (res://scripts/world/assets.gd:254)
+       [1] merged_mesh (res://scripts/world/assets.gd:845)
+       [2] building_mesh (res://scripts/world/assets.gd:763)
+       [3] building_lod_mesh (res://scripts/world/assets.gd:731)
+       [4] _build_co (res://scripts/world/settlement_builder.gd:238)
+       [5] update_now (res://scripts/world/settlement_builder.gd:139)
+       [6] _process (res://scripts/world/settlement_builder.gd:84)
+WARNING: 'res://assets/generated/village_house_a_3.glb': In external resource #3, invalid UID: 'uid://bv0rc2ksgjc4x' - using text path instead: 'res://assets/generated/pbr/window_alb.png'.
+   at: open (core/io/resource_format_binary.cpp:1089)
+   GDScript backtrace (most recent call first):
+       [0] scene (res://scripts/world/assets.gd:254)
+       [1] merged_mesh (res://scripts/world/assets.gd:845)
+       [2] building_mesh (res://scripts/world/assets.gd:763)
+       [3] _footprint (res://scripts/world/settlement_builder.gd:798)
+       [4] _build_co (res://scripts/world/settlement_builder.gd:247)
+       [5] update_now (res://scripts/world/settlement_builder.gd:139)
+       [6] _process (res://scripts/world/settlement_builder.gd:84)
+WARNING: 'res://assets/generated/village_house_a_3.glb': In external resource #4, invalid UID: 'uid://be5wotbwlb4j5' - using text path instead: 'res://assets/generated/pbr/window_emit.png'.
+   at: open (core/io/resource_format_binary.cpp:1089)
+   GDScript backtrace (most recent call first):
+       [0] scene (res://scripts/world/assets.gd:254)
+       [1] merged_mesh (res://scripts/world/assets.gd:845)
+       [2] building_mesh (res://scripts/world/assets.gd:763)
+       [3] _footprint (res://scripts/world/settlement_builder.gd:798)
+       [4] _build_co (res://scripts/world/settlement_builder.gd:247)
+       [5] update_now (res://scripts/world/settlement_builder.gd:139)
+       [6] _process (res://scripts/world/settlement_builder.gd:84)
+WARNING: 'res://assets/generated/village_house_a_3.glb': In external resource #5, invalid UID: 'uid://cs87ialbkqn1b' - using text path instead: 'res://assets/generated/pbr/window_nrm.png'.
+   at: open (core/io/resource_format_binary.cpp:1089)
+   GDScript backtrace (most recent call first):
+       [0] scene (res://scripts/world/assets.gd:254)
+       [1] merged_mesh (res://scripts/world/assets.gd:845)
+       [2] building_mesh (res://scripts/world/assets.gd:763)
+       [3] _footprint (res://scripts/world/settlement_builder.gd:798)
+       [4] _build_co (res://scripts/world/settlement_builder.gd:247)
+       [5] update_now (res://scripts/world/settlement_builder.gd:139)
+       [6] _process (res://scripts/world/settlement_builder.gd:84)
+WARNING: 'res://assets/generated/village_house_a_lod1.glb': In external resource #3, invalid UID: 'uid://bv0rc2ksgjc4x' - using text path instead: 'res://assets/generated/pbr/window_alb.png'.
+   at: open (core/io/resource_format_binary.cpp:1089)
+   GDScript backtrace (most recent call first):
+       [0] scene (res://scripts/world/assets.gd:254)
+       [1] merged_mesh (res://scripts/world/assets.gd:845)
+       [2] building_mesh (res://scripts/world/assets.gd:763)
+       [3] building_lod_mesh (res://scripts/world/assets.gd:731)
+       [4] _build_co (res://scripts/world/settlement_builder.gd:238)
+       [5] update_now (res://scripts/world/settlement_builder.gd:139)
+       [6] _process (res://scripts/world/settlement_builder.gd:84)
+WARNING: 'res://assets/generated/village_house_a_lod1.glb': In external resource #4, invalid UID: 'uid://be5wotbwlb4j5' - using text path instead: 'res://assets/generated/pbr/window_emit.png'.
+   at: open (core/io/resource_format_binary.cpp:1089)
+   GDScript backtrace (most recent call first):
+       [0] scene (res://scripts/world/assets.gd:254)
+       [1] merged_mesh (res://scripts/world/assets.gd:845)
+       [2] building_mesh (res://scripts/world/assets.gd:763)
+       [3] building_lod_mesh (res://scripts/world/assets.gd:731)
+       [4] _build_co (res://scripts/world/settlement_builder.gd:238)
+       [5] update_now (res://scripts/world/settlement_builder.gd:139)
+       [6] _process (res://scripts/world/settlement_builder.gd:84)
+WARNING: 'res://assets/generated/village_house_a_lod1.glb': In external resource #5, invalid UID: 'uid://cs87ialbkqn1b' - using text path instead: 'res://assets/generated/pbr/window_nrm.png'.
+   at: open (core/io/resource_format_binary.cpp:1089)
+   GDScript backtrace (most recent call first):
+       [0] scene (res://scripts/world/assets.gd:254)
+       [1] merged_mesh (res://scripts/world/assets.gd:845)
+       [2] building_mesh (res://scripts/world/assets.gd:763)
+       [3] building_lod_mesh (res://scripts/world/assets.gd:731)
+       [4] _build_co (res://scripts/world/settlement_builder.gd:238)
+       [5] update_now (res://scripts/world/settlement_builder.gd:139)
+       [6] _process (res://scripts/world/settlement_builder.gd:84)
+WARNING: 'res://assets/generated/village_house_a.glb': In external resource #3, invalid UID: 'uid://bv0rc2ksgjc4x' - using text path instead: 'res://assets/generated/pbr/window_alb.png'.
+   at: open (core/io/resource_format_binary.cpp:1089)
+   GDScript backtrace (most recent call first):
+       [0] scene (res://scripts/world/assets.gd:254)
+       [1] merged_mesh (res://scripts/world/assets.gd:845)
+       [2] building_mesh (res://scripts/world/assets.gd:763)
+       [3] _footprint (res://scripts/world/settlement_builder.gd:798)
+       [4] _build_co (res://scripts/world/settlement_builder.gd:247)
+       [5] update_now (res://scripts/world/settlement_builder.gd:139)
+       [6] _process (res://scripts/world/settlement_builder.gd:84)
+WARNING: 'res://assets/generated/village_house_a.glb': In external resource #4, invalid UID: 'uid://be5wotbwlb4j5' - using text path instead: 'res://assets/generated/pbr/window_emit.png'.
+   at: open (core/io/resource_format_binary.cpp:1089)
+   GDScript backtrace (most recent call first):
+       [0] scene (res://scripts/world/assets.gd:254)
+       [1] merged_mesh (res://scripts/world/assets.gd:845)
+       [2] building_mesh (res://scripts/world/assets.gd:763)
+       [3] _footprint (res://scripts/world/settlement_builder.gd:798)
+       [4] _build_co (res://scripts/world/settlement_builder.gd:247)
+       [5] update_now (res://scripts/world/settlement_builder.gd:139)
+       [6] _process (res://scripts/world/settlement_builder.gd:84)
+WARNING: 'res://assets/generated/village_house_a.glb': In external resource #5, invalid UID: 'uid://cs87ialbkqn1b' - using text path instead: 'res://assets/generated/pbr/window_nrm.png'.
+   at: open (core/io/resource_format_binary.cpp:1089)
+   GDScript backtrace (most recent call first):
+       [0] scene (res://scripts/world/assets.gd:254)
+       [1] merged_mesh (res://scripts/world/assets.gd:845)
+       [2] building_mesh (res://scripts/world/assets.gd:763)
+       [3] _footprint (res://scripts/world/settlement_builder.gd:798)
+       [4] _build_co (res://scripts/world/settlement_builder.gd:247)
+       [5] update_now (res://scripts/world/settlement_builder.gd:139)
+       [6] _process (res://scripts/world/settlement_builder.gd:84)
+WARNING: 'res://assets/generated/village_house_a_2_lod1.glb': In external resource #3, invalid UID: 'uid://bv0rc2ksgjc4x' - using text path instead: 'res://assets/generated/pbr/window_alb.png'.
+   at: open (core/io/resource_format_binary.cpp:1089)
+   GDScript backtrace (most recent call first):
+       [0] scene (res://scripts/world/assets.gd:254)
+       [1] merged_mesh (res://scripts/world/assets.gd:845)
+       [2] building_mesh (res://scripts/world/assets.gd:763)
+       [3] building_lod_mesh (res://scripts/world/assets.gd:731)
+       [4] _build_co (res://scripts/world/settlement_builder.gd:238)
+       [5] update_now (res://scripts/world/settlement_builder.gd:139)
+       [6] _process (res://scripts/world/settlement_builder.gd:84)
+WARNING: 'res://assets/generated/village_house_a_2_lod1.glb': In external resource #4, invalid UID: 'uid://cs87ialbkqn1b' - using text path instead: 'res://assets/generated/pbr/window_nrm.png'.
+   at: open (core/io/resource_format_binary.cpp:1089)
+   GDScript backtrace (most recent call first):
+       [0] scene (res://scripts/world/assets.gd:254)
+       [1] merged_mesh (res://scripts/world/assets.gd:845)
+       [2] building_mesh (res://scripts/world/assets.gd:763)
+       [3] building_lod_mesh (res://scripts/world/assets.gd:731)
+       [4] _build_co (res://scripts/world/settlement_builder.gd:238)
+       [5] update_now (res://scripts/world/settlement_builder.gd:139)
+       [6] _process (res://scripts/world/settlement_builder.gd:84)
+WARNING: 'res://assets/generated/village_house_a_2_lod1.glb': In external resource #5, invalid UID: 'uid://be5wotbwlb4j5' - using text path instead: 'res://assets/generated/pbr/window_emit.png'.
+   at: open (core/io/resource_format_binary.cpp:1089)
+   GDScript backtrace (most recent call first):
+       [0] scene (res://scripts/world/assets.gd:254)
+       [1] merged_mesh (res://scripts/world/assets.gd:845)
+       [2] building_mesh (res://scripts/world/assets.gd:763)
+       [3] building_lod_mesh (res://scripts/world/assets.gd:731)
+       [4] _build_co (res://scripts/world/settlement_builder.gd:238)
+       [5] update_now (res://scripts/world/settlement_builder.gd:139)
+       [6] _process (res://scripts/world/settlement_builder.gd:84)
+WARNING: 'res://assets/generated/village_house_a_2.glb': In external resource #3, invalid UID: 'uid://bv0rc2ksgjc4x' - using text path instead: 'res://assets/generated/pbr/window_alb.png'.
+   at: open (core/io/resource_format_binary.cpp:1089)
+   GDScript backtrace (most recent call first):
+       [0] scene (res://scripts/world/assets.gd:254)
+       [1] merged_mesh (res://scripts/world/assets.gd:845)
+       [2] building_mesh (res://scripts/world/assets.gd:763)
+       [3] _footprint (res://scripts/world/settlement_builder.gd:798)
+       [4] _build_co (res://scripts/world/settlement_builder.gd:247)
+       [5] update_now (res://scripts/world/settlement_builder.gd:139)
+       [6] _process (res://scripts/world/settlement_builder.gd:84)
+WARNING: 'res://assets/generated/village_house_a_2.glb': In external resource #4, invalid UID: 'uid://cs87ialbkqn1b' - using text path instead: 'res://assets/generated/pbr/window_nrm.png'.
+   at: open (core/io/resource_format_binary.cpp:1089)
+   GDScript backtrace (most recent call first):
+       [0] scene (res://scripts/world/assets.gd:254)
+       [1] merged_mesh (res://scripts/world/assets.gd:845)
+       [2] building_mesh (res://scripts/world/assets.gd:763)
+       [3] _footprint (res://scripts/world/settlement_builder.gd:798)
+       [4] _build_co (res://scripts/world/settlement_builder.gd:247)
+       [5] update_now (res://scripts/world/settlement_builder.gd:139)
+       [6] _process (res://scripts/world/settlement_builder.gd:84)
+WARNING: 'res://assets/generated/village_house_a_2.glb': In external resource #5, invalid UID: 'uid://be5wotbwlb4j5' - using text path instead: 'res://assets/generated/pbr/window_emit.png'.
+   at: open (core/io/resource_format_binary.cpp:1089)
+   GDScript backtrace (most recent call first):
+       [0] scene (res://scripts/world/assets.gd:254)
+       [1] merged_mesh (res://scripts/world/assets.gd:845)
+       [2] building_mesh (res://scripts/world/assets.gd:763)
+       [3] _footprint (res://scripts/world/settlement_builder.gd:798)
+       [4] _build_co (res://scripts/world/settlement_builder.gd:247)
+       [5] update_now (res://scripts/world/settlement_builder.gd:139)
+       [6] _process (res://scripts/world/settlement_builder.gd:84)
+WARNING: 'res://assets/generated/village_house_a_4_lod1.glb': In external resource #3, invalid UID: 'uid://bv0rc2ksgjc4x' - using text path instead: 'res://assets/generated/pbr/window_alb.png'.
+   at: open (core/io/resource_format_binary.cpp:1089)
+   GDScript backtrace (most recent call first):
+       [0] scene (res://scripts/world/assets.gd:254)
+       [1] merged_mesh (res://scripts/world/assets.gd:845)
+       [2] building_mesh (res://scripts/world/assets.gd:763)
+       [3] building_lod_mesh (res://scripts/world/assets.gd:731)
+       [4] _build_co (res://scripts/world/settlement_builder.gd:238)
+       [5] update_now (res://scripts/world/settlement_builder.gd:139)
+       [6] _process (res://scripts/world/settlement_builder.gd:84)
+WARNING: 'res://assets/generated/village_house_a_4_lod1.glb': In external resource #4, invalid UID: 'uid://be5wotbwlb4j5' - using text path instead: 'res://assets/generated/pbr/window_emit.png'.
+   at: open (core/io/resource_format_binary.cpp:1089)
+   GDScript backtrace (most recent call first):
+       [0] scene (res://scripts/world/assets.gd:254)
+       [1] merged_mesh (res://scripts/world/assets.gd:845)
+       [2] building_mesh (res://scripts/world/assets.gd:763)
+       [3] building_lod_mesh (res://scripts/world/assets.gd:731)
+       [4] _build_co (res://scripts/world/settlement_builder.gd:238)
+       [5] update_now (res://scripts/world/settlement_builder.gd:139)
+       [6] _process (res://scripts/world/settlement_builder.gd:84)
+WARNING: 'res://assets/generated/village_house_a_4_lod1.glb': In external resource #5, invalid UID: 'uid://cs87ialbkqn1b' - using text path instead: 'res://assets/generated/pbr/window_nrm.png'.
+   at: open (core/io/resource_format_binary.cpp:1089)
+   GDScript backtrace (most recent call first):
+       [0] scene (res://scripts/world/assets.gd:254)
+       [1] merged_mesh (res://scripts/world/assets.gd:845)
+       [2] building_mesh (res://scripts/world/assets.gd:763)
+       [3] building_lod_mesh (res://scripts/world/assets.gd:731)
+       [4] _build_co (res://scripts/world/settlement_builder.gd:238)
+       [5] update_now (res://scripts/world/settlement_builder.gd:139)
+       [6] _process (res://scripts/world/settlement_builder.gd:84)
+WARNING: 'res://assets/generated/village_house_a_4.glb': In external resource #3, invalid UID: 'uid://bv0rc2ksgjc4x' - using text path instead: 'res://assets/generated/pbr/window_alb.png'.
+   at: open (core/io/resource_format_binary.cpp:1089)
+   GDScript backtrace (most recent call first):
+       [0] scene (res://scripts/world/assets.gd:254)
+       [1] merged_mesh (res://scripts/world/assets.gd:845)
+       [2] building_mesh (res://scripts/world/assets.gd:763)
+       [3] _footprint (res://scripts/world/settlement_builder.gd:798)
+       [4] _build_co (res://scripts/world/settlement_builder.gd:247)
+       [5] update_now (res://scripts/world/settlement_builder.gd:139)
+       [6] _process (res://scripts/world/settlement_builder.gd:84)
+WARNING: 'res://assets/generated/village_house_a_4.glb': In external resource #4, invalid UID: 'uid://be5wotbwlb4j5' - using text path instead: 'res://assets/generated/pbr/window_emit.png'.
+   at: open (core/io/resource_format_binary.cpp:1089)
+   GDScript backtrace (most recent call first):
+       [0] scene (res://scripts/world/assets.gd:254)
+       [1] merged_mesh (res://scripts/world/assets.gd:845)
+       [2] building_mesh (res://scripts/world/assets.gd:763)
+       [3] _footprint (res://scripts/world/settlement_builder.gd:798)
+       [4] _build_co (res://scripts/world/settlement_builder.gd:247)
+       [5] update_now (res://scripts/world/settlement_builder.gd:139)
+       [6] _process (res://scripts/world/settlement_builder.gd:84)
+WARNING: 'res://assets/generated/village_house_a_4.glb': In external resource #5, invalid UID: 'uid://cs87ialbkqn1b' - using text path instead: 'res://assets/generated/pbr/window_nrm.png'.
+   at: open (core/io/resource_format_binary.cpp:1089)
+   GDScript backtrace (most recent call first):
+       [0] scene (res://scripts/world/assets.gd:254)
+       [1] merged_mesh (res://scripts/world/assets.gd:845)
+       [2] building_mesh (res://scripts/world/assets.gd:763)
+       [3] _footprint (res://scripts/world/settlement_builder.gd:798)
+       [4] _build_co (res://scripts/world/settlement_builder.gd:247)
+       [5] update_now (res://scripts/world/settlement_builder.gd:139)
+       [6] _process (res://scripts/world/settlement_builder.gd:84)
+WARNING: 'res://assets/generated/village_house_b_2_lod1.glb': In external resource #3, invalid UID: 'uid://bv0rc2ksgjc4x' - using text path instead: 'res://assets/generated/pbr/window_alb.png'.
+   at: open (core/io/resource_format_binary.cpp:1089)
+   GDScript backtrace (most recent call first):
+       [0] scene (res://scripts/world/assets.gd:254)
+       [1] merged_mesh (res://scripts/world/assets.gd:845)
+       [2] building_mesh (res://scripts/world/assets.gd:763)
+       [3] building_lod_mesh (res://scripts/world/assets.gd:731)
+       [4] _build_co (res://scripts/world/settlement_builder.gd:238)
+       [5] update_now (res://scripts/world/settlement_builder.gd:139)
+       [6] _process (res://scripts/world/settlement_builder.gd:84)
+WARNING: 'res://assets/generated/village_house_b_2_lod1.glb': In external resource #4, invalid UID: 'uid://be5wotbwlb4j5' - using text path instead: 'res://assets/generated/pbr/window_emit.png'.
+   at: open (core/io/resource_format_binary.cpp:1089)
+   GDScript backtrace (most recent call first):
+       [0] scene (res://scripts/world/assets.gd:254)
+       [1] merged_mesh (res://scripts/world/assets.gd:845)
+       [2] building_mesh (res://scripts/world/assets.gd:763)
+       [3] building_lod_mesh (res://scripts/world/assets.gd:731)
+       [4] _build_co (res://scripts/world/settlement_builder.gd:238)
+       [5] update_now (res://scripts/world/settlement_builder.gd:139)
+       [6] _process (res://scripts/world/settlement_builder.gd:84)
+WARNING: 'res://assets/generated/village_house_b_2_lod1.glb': In external resource #5, invalid UID: 'uid://cs87ialbkqn1b' - using text path instead: 'res://assets/generated/pbr/window_nrm.png'.
+   at: open (core/io/resource_format_binary.cpp:1089)
+   GDScript backtrace (most recent call first):
+       [0] scene (res://scripts/world/assets.gd:254)
+       [1] merged_mesh (res://scripts/world/assets.gd:845)
+       [2] building_mesh (res://scripts/world/assets.gd:763)
+       [3] building_lod_mesh (res://scripts/world/assets.gd:731)
+       [4] _build_co (res://scripts/world/settlement_builder.gd:238)
+       [5] update_now (res://scripts/world/settlement_builder.gd:139)
+       [6] _process (res://scripts/world/settlement_builder.gd:84)
+WARNING: 'res://assets/generated/village_house_b_2.glb': In external resource #3, invalid UID: 'uid://bv0rc2ksgjc4x' - using text path instead: 'res://assets/generated/pbr/window_alb.png'.
+   at: open (core/io/resource_format_binary.cpp:1089)
+   GDScript backtrace (most recent call first):
+       [0] scene (res://scripts/world/assets.gd:254)
+       [1] merged_mesh (res://scripts/world/assets.gd:845)
+       [2] building_mesh (res://scripts/world/assets.gd:763)
+       [3] _footprint (res://scripts/world/settlement_builder.gd:798)
+       [4] _build_co (res://scripts/world/settlement_builder.gd:247)
+       [5] update_now (res://scripts/world/settlement_builder.gd:139)
+       [6] _process (res://scripts/world/settlement_builder.gd:84)
+WARNING: 'res://assets/generated/village_house_b_2.glb': In external resource #4, invalid UID: 'uid://be5wotbwlb4j5' - using text path instead: 'res://assets/generated/pbr/window_emit.png'.
+   at: open (core/io/resource_format_binary.cpp:1089)
+   GDScript backtrace (most recent call first):
+       [0] scene (res://scripts/world/assets.gd:254)
+       [1] merged_mesh (res://scripts/world/assets.gd:845)
+       [2] building_mesh (res://scripts/world/assets.gd:763)
+       [3] _footprint (res://scripts/world/settlement_builder.gd:798)
+       [4] _build_co (res://scripts/world/settlement_builder.gd:247)
+       [5] update_now (res://scripts/world/settlement_builder.gd:139)
+       [6] _process (res://scripts/world/settlement_builder.gd:84)
+WARNING: 'res://assets/generated/village_house_b_2.glb': In external resource #5, invalid UID: 'uid://cs87ialbkqn1b' - using text path instead: 'res://assets/generated/pbr/window_nrm.png'.
+   at: open (core/io/resource_format_binary.cpp:1089)
+   GDScript backtrace (most recent call first):
+       [0] scene (res://scripts/world/assets.gd:254)
+       [1] merged_mesh (res://scripts/world/assets.gd:845)
+       [2] building_mesh (res://scripts/world/assets.gd:763)
+       [3] _footprint (res://scripts/world/settlement_builder.gd:798)
+       [4] _build_co (res://scripts/world/settlement_builder.gd:247)
+       [5] update_now (res://scripts/world/settlement_builder.gd:139)
+       [6] _process (res://scripts/world/settlement_builder.gd:84)
+WARNING: 'res://assets/generated/bell_tower.glb': In external resource #3, invalid UID: 'uid://bv0rc2ksgjc4x' - using text path instead: 'res://assets/generated/pbr/window_alb.png'.
+   at: open (core/io/resource_format_binary.cpp:1089)
+   GDScript backtrace (most recent call first):
+       [0] scene (res://scripts/world/assets.gd:254)
+       [1] merged_mesh (res://scripts/world/assets.gd:845)
+       [2] building_mesh (res://scripts/world/assets.gd:763)
+       [3] _mesh_size (res://scripts/population/street_graph.gd:202)
+       [4] _setup (res://scripts/population/street_graph.gd:140)
+       [5] for_settlement (res://scripts/population/street_graph.gd:78)
+       [6] _sprite_route_graph (res://scripts/population/population_lod.gd:456)
+       [7] refresh (res://scripts/population/population_lod.gd:392)
+       [8] _process (res://scripts/population/population_lod.gd:159)
+WARNING: 'res://assets/generated/bell_tower.glb': In external resource #4, invalid UID: 'uid://cs87ialbkqn1b' - using text path instead: 'res://assets/generated/pbr/window_nrm.png'.
+   at: open (core/io/resource_format_binary.cpp:1089)
+   GDScript backtrace (most recent call first):
+       [0] scene (res://scripts/world/assets.gd:254)
+       [1] merged_mesh (res://scripts/world/assets.gd:845)
+       [2] building_mesh (res://scripts/world/assets.gd:763)
+       [3] _mesh_size (res://scripts/population/street_graph.gd:202)
+       [4] _setup (res://scripts/population/street_graph.gd:140)
+       [5] for_settlement (res://scripts/population/street_graph.gd:78)
+       [6] _sprite_route_graph (res://scripts/population/population_lod.gd:456)
+       [7] refresh (res://scripts/population/population_lod.gd:392)
+       [8] _process (res://scripts/population/population_lod.gd:159)

@@ -16,6 +16,7 @@ extends Node
 ## Everything here is optional at runtime: a module that is not registered (disabled in
 ## data/region1/modules.json) simply leaves its part of the game as it was.
 
+const Probe := preload("res://scripts/core/perf_probe.gd")
 const Places := preload("res://scripts/region1/region1_places.gd")
 const SeasonsRef := preload("res://scripts/sim/seasons.gd")
 const Director := preload("res://scripts/region1/r1_story_director.gd")
@@ -1212,8 +1213,12 @@ func _on_tick() -> void:
 		return
 	if Frontier.runestones != _net:
 		_rebind_network()
+	var _pt := Probe.t()
 	_upload_mask()
+	Probe.add("r1glue.upload_mask", _pt)
+	_pt = Probe.t()
 	_update_hum()
+	Probe.add("r1glue.hum", _pt)
 	if tutorial != null and tutorial.director != null:
 		var tips := bool(preload("res://scripts/ui/frontend/settings_store.gd").get_value("tutorial_tips"))
 		if tips != tutorial.director.enabled:
