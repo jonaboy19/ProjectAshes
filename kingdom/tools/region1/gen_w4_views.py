@@ -30,10 +30,10 @@ for rid, s in by_r1.items():
     if not rid.startswith("w4_") or "milestone" in rid:
         continue
     grove = "grove" in rid
-    d = 30 if grove else (22 if "edge" in rid or "market" in rid else 18)
+    d = 15 if grove else (22 if "edge" in rid or "market" in rid else 18)
     if rid == "w4_greenhollow_fields":
         d = 26
-    v("site_" + rid[3:], front(s, d), (s["x"], s["z"]), up=4.0 if grove else 3.2, look_up=6.0 if grove else 2.0, fov=62)
+    v("site_" + rid[3:], front(s, d), (s["x"], s["z"]), up=7.0 if grove else 3.2, look_up=5.0 if grove else 2.0, fov=62)
 for rid in ["w4_milestones_ember_1", "w4_milestones_greenhollow_3"]:
     s = by_r1[rid]
     v("site_" + rid[3:], front(s, 14, 0.3), (s["x"], s["z"]), up=2.4, look_up=1.2)
