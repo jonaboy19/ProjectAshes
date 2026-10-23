@@ -86,7 +86,7 @@ const KEYS := {
 	"world_map": [KEY_M], "photo_mode": [KEY_P],
 	"lock_on": [KEY_Q], "crouch": [KEY_C], "ability_dash": [KEY_R],
 	"order_follow": [KEY_1], "order_hold": [KEY_2], "order_charge": [KEY_3],
-	"order_retreat": [KEY_G], "order_formation": [KEY_B],
+	"order_retreat": [KEY_G], "order_formation": [KEY_B], "call_followers": [KEY_N],
 	"technique_wheel": [KEY_T], "technique_1": [KEY_U], "technique_2": [KEY_Y], "technique_3": [KEY_O], "technique_4": [KEY_H],
 	"seal_1": [KEY_4], "seal_2": [KEY_5], "seal_3": [KEY_6], "seal_4": [KEY_7], "seal_5": [KEY_8], "seal_6": [KEY_9],
 }

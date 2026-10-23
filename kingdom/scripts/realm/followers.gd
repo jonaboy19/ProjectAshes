@@ -5,6 +5,7 @@ extends "res://scripts/realm/realm_module.gd"
 ## Followers have agency: they can refuse a summon, disapprove of decisions,
 ## demand pay, quarrel with each other and leave. Pure data, JSON-safe save.
 
+const Brain := preload("res://scripts/actors/follower_brain.gd")
 const TRAITS := ["brave", "cautious", "greedy", "honorable", "merciful", "ruthless", "devout", "curious",
 	"stubborn", "loyal", "lazy", "hot_headed"]
 ## trait -> value axes in -1..1 (what they approve of in the player's choices).
@@ -31,6 +32,10 @@ const LAST := ["Ashdown", "Brack", "Coldwater", "Dunmere", "Eastwick", "Fell", "
 const ORIGINS := ["Ashford farmstead", "Kingsreach barracks", "the Millbrook mill", "a mountain hold", "the river folk", "a wandering caravan", "the frontier"]
 const AMBITIONS := ["earn a captaincy", "save for a farm", "avenge a burned home", "see the Rift", "find a wife", "win renown", "repay a debt"]
 const MEMBER_STATES := ["present", "traveling"]
+## C6: a follower nobody revived is "dead" (gone for good) or, on Story difficulty, injured for INJURY_DAYS game days
+## (flags.injured_until = the day they are fit again). A body that is Down carries flags.down = seconds left, so a
+## save made mid-fight comes back Down. Dead followers stay as records (fallen()), out of every roster and party.
+const INJURY_DAYS := Brain.INJURY_DAYS
 const DISPUTE_MAX := 6
 ## Old "left" records (R§1): the newest LEFT_KEEP stay as full records, older ones are dropped and leave one summary
 ## line (at most LOG_MAX lines, then only the count), so a long game's save does not grow with every hire.
@@ -173,7 +178,7 @@ func list(status := "") -> Array:
 	ids.sort_custom(func(a: String, b: String) -> bool: return int(a.substr(1)) < int(b.substr(1)))
 	for id in ids:
 		var f: Dictionary = _f[id]
-		if status == "" and f["status"] in ["candidate", "left"]:
+		if status == "" and f["status"] in ["candidate", "left", "dead"]:
 			continue
 		if status == "" or f["status"] == status:
 			out.append(f)
@@ -186,6 +191,96 @@ func get_follower(fid: String) -> Dictionary:
 
 func party() -> Array:
 	return _party_ids().map(func(i: String) -> Dictionary: return _f[i])
+
+
+# --------------------------------------------------------------- Down, injury, death, the Call (C6)
+
+## The follower's body hit 0 HP: Down for `seconds` (persisted so a save mid-fight comes back Down).
+func mark_down(fid: String, seconds: float) -> bool:
+	var f: Dictionary = _f.get(fid, {})
+	if f.is_empty() or f["status"] not in MEMBER_STATES:
+		return false
+	f["flags"]["down"] = maxf(seconds, 0.1)
+	return true
+
+
+func is_down(fid: String) -> bool:
+	return float(_f.get(fid, {}).get("flags", {}).get("down", 0.0)) > 0.0
+
+
+func down_left(fid: String) -> float:
+	return float(_f.get(fid, {}).get("flags", {}).get("down", 0.0))
+
+
+## The body ticks the remaining Down time back so it survives a save.
+func set_down_left(fid: String, seconds: float) -> void:
+	var f: Dictionary = _f.get(fid, {})
+	if not f.is_empty() and f["flags"].has("down"):
+		f["flags"]["down"] = maxf(seconds, 0.1)
+
+
+## Hold-E revive. True when they were Down.
+func revive(fid: String) -> bool:
+	var f: Dictionary = _f.get(fid, {})
+	if f.is_empty() or not f["flags"].has("down"):
+		return false
+	f["flags"].erase("down")
+	f["morale"] = clampf(float(f["morale"]) + 0.05, 0.0, 1.0)
+	return true
+
+
+## Nobody came: the Down timer ran out. `difficulty` is the SettingsStore index or a name. Returns
+## {ok, outcome: "dead"|"injured", until, name}. Story difficulty: hurt for INJURY_DAYS days; otherwise gone for good.
+func resolve_down(fid: String, difficulty: Variant) -> Dictionary:
+	var f: Dictionary = _f.get(fid, {})
+	if f.is_empty() or f["status"] not in MEMBER_STATES:
+		return {"ok": false, "outcome": "", "until": 0, "name": ""}
+	f["flags"].erase("down")
+	if Brain.down_outcome(difficulty) == Brain.OUTCOME_INJURED:
+		f["flags"]["injured_until"] = _day + INJURY_DAYS
+		return {"ok": true, "outcome": "injured", "until": _day + INJURY_DAYS, "name": f["name"]}
+	f["status"] = "dead"
+	f["flags"].erase("injured_until")
+	_temps.erase(fid)
+	for i in range(_summons.size() - 1, -1, -1):
+		if _summons[i]["fid"] == fid:
+			_summons.remove_at(i)
+	return {"ok": true, "outcome": "dead", "until": 0, "name": f["name"]}
+
+
+func is_injured(fid: String) -> bool:
+	return int(_f.get(fid, {}).get("flags", {}).get("injured_until", 0)) > _day
+
+
+func injury_days_left(fid: String) -> int:
+	return maxi(0, int(_f.get(fid, {}).get("flags", {}).get("injured_until", 0)) - _day)
+
+
+## Followers who died in your service, oldest first.
+func fallen() -> Array:
+	var out: Array = []
+	for f: Dictionary in list("dead"):
+		out.append(f)
+	return out
+
+
+## The Call: every member who is fit (not Down, not injured, not already there) is sent for with the usual summon
+## (so each answers in character and the road takes its hours). Returns {called: [fid], responses: [String],
+## eta: longest hours, refused: [fid]}.
+func call_party(dest: Variant) -> Dictionary:
+	var out := {"called": [], "responses": [], "eta": 0.0, "refused": []}
+	for fid: String in _party_ids():
+		if is_down(fid) or is_injured(fid) or _f[fid]["status"] != "present":
+			continue
+		var r := summon(fid, dest)
+		if bool(r["ok"]) and float(r["eta"]) > 0.0:
+			(out["called"] as Array).append(fid)
+			out["eta"] = maxf(float(out["eta"]), float(r["eta"]))
+		elif not bool(r["ok"]) and String(r["response"]) != "":
+			(out["refused"] as Array).append(fid)
+		if String(r["response"]) != "":
+			(out["responses"] as Array).append(String(r["response"]))
+	return out
 
 
 func _party_ids() -> Array:

@@ -343,7 +343,7 @@ func _end(fid: String, st: String, ev: String) -> void:
 	_hist(c, ev)
 	Events.log_to(hub, "contract", "", ["fo:" + fid, "rc:" + String(c["id"])], st, "contract " + st, 2)
 	var f: Dictionary = _fol().get_follower(fid)
-	if not f.is_empty():
+	if not f.is_empty() and f["status"] != "dead":
 		f["status"] = "left"
 	e["g"] = ""
 	e["mgr"] = ""
@@ -354,6 +354,13 @@ func _end(fid: String, st: String, ev: String) -> void:
 	var row := int(f.get("person", -1))
 	if row >= 0 and _by_row.get(row, "") == fid:
 		_by_row.erase(row)
+
+
+## A recruit died (followers.resolve_down): their contract ends now and the person is no longer on the roster.
+func report_death(fid: String) -> void:
+	var e: Dictionary = _r.get(fid, {})
+	if not e.is_empty() and _c.get(e["c"], {}).get("st", "") == "active":
+		_end(fid, "broken", "died")
 
 
 # --------------------------------------------------------------- chains and resigning
@@ -990,8 +997,8 @@ func _chunk_agency(day: int) -> Array:
 		if c["st"] != "active":
 			continue
 		var f: Dictionary = fol.get_follower(fid)
-		if f.is_empty() or f["status"] == "left":
-			_end(fid, "broken", "left")
+		if f.is_empty() or f["status"] in ["left", "dead"]:
+			_end(fid, "broken", "died" if f.get("status", "") == "dead" else "left")
 			continue
 		if f["status"] not in Fol.MEMBER_STATES:
 			continue
