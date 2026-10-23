@@ -1,0 +1,17 @@
+{
+ "_doc": "Ready v1 C13. Danger tiers of the threat badge/compass (scripts/sim/threat_map.gd describe(); thresholds are the same 0..100 scale). `shield` is the pip value on the compass/HUD danger badge (1..5 pips). `level` is the player level the tier is balanced for: tools_qa/v1/duel_sim.gd must show a 70-85 % win rate for the `fights` of a tier at that level. Enemy levels are the Region 1 spawn levels the sim feeds CombatStats.stats().",
+ "tiers": [
+  {"id": "safe", "label": "Safe", "from": 0, "shield": 0, "level": 1},
+  {"id": "watchful", "label": "Watchful", "from": 10, "shield": 1, "level": 2},
+  {"id": "dangerous", "label": "Dangerous", "from": 30, "shield": 2, "level": 4},
+  {"id": "perilous", "label": "Perilous", "from": 55, "shield": 3, "level": 8},
+  {"id": "deadly", "label": "Deadly", "from": 80, "shield": 4, "level": 14}
+ ],
+ "fights": {
+  "wolf_pack": {"arch": "wolf", "count": 3, "enemy_level": 4, "recommended_level": 4, "tier": "dangerous"},
+  "bandit": {"arch": "bandit", "count": 1, "enemy_level": 5, "recommended_level": 5, "tier": "dangerous"},
+  "goblin": {"arch": "goblin", "count": 1, "enemy_level": 3, "recommended_level": 3, "tier": "watchful"}
+ },
+ "target_win": [0.70, 0.85],
+ "player": {"skill": 0.5}
+}

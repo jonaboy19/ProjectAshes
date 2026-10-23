@@ -719,3 +719,6 @@ AAA-review backlog from this task:
 
 ## 2026-10-06 baked quality phase 2
 LOW draws 172 -> 131, HIGH ~700 -> ~530 in the gate-market bench (targets 120 / 300 not met). See docs/art/baked_quality/README.md and skill ashes-baked-quality.
+
+## Ready v1 (cloud)
+- C13 combat balance (`claude/v1-balance`): `kingdom/tools_qa/v1/duel_sim.gd` (player level N vs wolf pack / bandit / goblin through combat_stats + hit_resolver) and `data/region1/danger_tiers.json` (tiers, shield pips, recommended levels). Wolf `dmg` 1.0 -> 4.1, goblin `dmg` 6.3 -> 6.6 in `archetypes.json`; win rate at the recommended level 75 / 77 / 77 % (band 70-85). `RAThreatMap` reads the tiers (`shield()` for the badge).
