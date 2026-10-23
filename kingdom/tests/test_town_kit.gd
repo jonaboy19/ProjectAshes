@@ -444,7 +444,7 @@ func test_people_who_work_at_a_yard_or_the_keep_gate_are_not_hidden_indoors() ->
 			var yard := TownLots.building(String(e["work"])).is_empty()
 			WorldSim.job[row] = int(e["job"])
 			WorldSim.phase[row] = 1
-			WorldSim.pos[row] = WorldSim.target[row]
+			WorldSim.set_pos(row, WorldSim.target[row])
 			# WorldSim keeps 3 in 4 craftsmen inside a building they work in (by row); a yard has no inside
 			if yard:
 				assert_bool(TownRoster.outdoor_work(row)).override_failure_message(String(e["id"])).is_true()

@@ -17,6 +17,7 @@ const TownMood := preload("res://scripts/population/town_mood.gd")
 const TownIdentity := preload("res://scripts/world/town_identity.gd")   # guard density per town
 const NeedRules := preload("res://scripts/sim/npc_need_rules.gd")
 const Probe := preload("res://scripts/core/perf_probe.gd")
+const ResidentIndex := preload("res://scripts/population/resident_index.gd")   # perf: 16 m cell grid per settlement over the rows
 const TownRoster := preload("res://scripts/world/town_kit/town_roster.gd")   # town kit: the named residents of every town with a data/region1/towns file
 
 const SEED := 1066
@@ -69,6 +70,8 @@ var npc_need_brain_owner := PackedByteArray()
 ## integrate a competing movement path behind that representation. The token
 ## makes delayed exits from replaced bodies unable to release a newer owner's claim.
 var external_position_owner := PackedInt64Array()
+## Spatial index over `pos` (cell grid per settlement). EVERY write to `pos` must go through set_pos() so it stays in step.
+var index := ResidentIndex.new()
 ## Per settlement: [first_person, end_person), treasury.
 var ranges: Array[Vector2i] = []
 var treasury := PackedInt32Array()
@@ -180,7 +183,7 @@ func kill_person(i: int, at := Vector2.INF) -> int:
 	preload("res://scripts/realm/events.gd").emit("death", "", ["ws:%d" % i], "killed", "%s was killed" % person_name(i), 3)
 	TownRoster.on_died(i)       # F8: the quest bus hears `died {actor}`
 	if at != Vector2.INF:
-		pos[i] = at
+		set_pos(i, at)
 		target[i] = at
 	var life := get_node_or_null("/root/Life")
 	var graph: Variant = life.get("npc_social_graph") if life else null
@@ -233,7 +236,7 @@ func set_external_position_owner(i: int, owner_id: int, owned: bool, resolved_po
 	if not owned and external_position_owner[i] != owner_id:
 		return
 	if resolved_position != Vector2.INF:
-		pos[i] = resolved_position
+		set_pos(i, resolved_position)
 	external_position_owner[i] = owner_id if owned else 0
 	npc_need_brain_owner[i] = 1 if owned and brain_owns_needs else 0
 
@@ -267,23 +270,28 @@ func set_person_needs(i: int, owner_id: int, values: PackedFloat32Array, hours: 
 	npc_need_valid[i] = 1
 
 
-## Indices of people within `radius` of p. Only settlements in range are scanned.
+## Write a row's position and keep the spatial index in step. Every writer of `pos` outside _step uses this.
+func set_pos(i: int, p: Vector2) -> void:
+	pos[i] = p
+	index.move(i, home[i], p)
+
+
+## Indices of living people within `radius` of p (ascending). Only settlements in range are visited, and only the grid cells
+## the circle touches (ResidentIndex), not every resident.
 func people_near(p: Vector2, radius: float) -> PackedInt32Array:
-	var out := PackedInt32Array()
-	var r2 := radius * radius
-	for s in WorldGen.settlements:
-		if p.distance_to(s["pos"]) > radius + s["radius"] * 2.0:
-			continue
-		var range_i: Vector2i = ranges[s["id"]]
-		for i in range(range_i.x, range_i.y):
-			if health[i] != 0 and pos[i].distance_squared_to(p) < r2:
-				out.append(i)
-	return out
+	return index.rows_in_circle(p, radius, WorldGen.settlements, health, pos)
+
+
+## The nearest `max_n` living people with r0 <= distance < r1 of p, nearest first (visits cells ring by ring, no full sort).
+func people_in_ring(p: Vector2, r0: float, r1: float, max_n: int) -> PackedInt32Array:
+	return index.rows_in_ring(p, r0, r1, max_n, WorldGen.settlements, health, pos)
 
 
 func _populate() -> void:
 	var rng := RandomNumberGenerator.new()
 	rng.seed = SEED
+	index = ResidentIndex.new()
+	index.clear(WorldGen.settlements.size())
 	for s in WorldGen.settlements:
 		var start := pos.size()
 		for n in int(s["population"]):
@@ -292,6 +300,7 @@ func _populate() -> void:
 			job.append(TownIdentity.adjust_job(_pick_job(rng, s["kind"]), s, n))    # fortress towns post more guards, criminal ones fewer
 			var spot := _spot(s, 0, i)
 			pos.append(spot)
+			index.add(i, s["id"], spot)
 			target.append(spot)
 			money.append(rng.randi_range(5, 120))
 			health.append(100)
@@ -365,7 +374,7 @@ func advance_hours(hours: float) -> void:
 		# Time skips settle data-only residents immediately. An embodied body
 		# keeps its resolved position and follows the newly selected target.
 		if external_position_owner[i] == 0:
-			pos[i] = target[i]
+			set_pos(i, target[i])
 		last_update[i] = _clock
 
 
@@ -600,6 +609,7 @@ func _step(i: int) -> void:
 	var dist := to.length()
 	if dist > 0.05:
 		pos[i] += to / dist * minf(dist, WALK_SPEED * dt)
+		index.move(i, home[i], pos[i])
 
 
 ## People of the settlements within NEAR_RADIUS of the player, rebuilt every 1.5 s.

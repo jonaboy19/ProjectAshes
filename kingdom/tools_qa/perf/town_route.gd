@@ -51,6 +51,7 @@ var csv_path := ""           # --hitchcsv=PATH: every frame's delta + counters
 var csv: PackedStringArray = PackedStringArray()
 var _prev := [0, 0, 0, 0]
 var stalls := []
+var shot_path := ""            # --censusshot=PATH.jpg: save the viewport at every census (suffix _t<sec>)
 var census_at: Array = []     # --census=20,40,65: route seconds at which to print a draw census
 
 
@@ -63,6 +64,8 @@ func run(m: Node) -> void:
 		elif a.begins_with("--census="):
 			for v in a.get_slice("=", 1).split(","):
 				census_at.append(float(v))
+		elif a.begins_with("--censusshot="):
+			shot_path = a.get_slice("=", 1)
 		elif a == "--uncap":
 			uncap = true
 		elif a == "--walkk":
@@ -433,6 +436,16 @@ func _census(tag: String) -> void:
 		var m: Array = mesh_d.get(k, [0, 0, 0])
 		mesh_d[k] = [m[0] + vis, m[1] + (tris * inst if inside else 0), m[2] + (surf if shadow else 0)]
 	print("CENSUS %s t=%d draws(surf)=%d tris=%d shadow_surf=%d (sun shadow %.0f m)" % [tag, int(t), tot[0], tot[1], tot[2], sd])
+	if shot_path != "":
+		var img: Image = main.viewport.get_texture().get_image()
+		if img != null:
+			img.save_jpg(shot_path.get_basename() + "_t%d." % int(t) + shot_path.get_extension(), 0.9)
+	var pls: Array = main.world.find_children("*", "PopulationLOD", true, false)
+	if not pls.is_empty():
+		var pl := pls[0] as PopulationLOD
+		var vat_n: int = pl._vat.count() if pl._vat != null else 0
+		print("CENSUS_NPC %s full=%d vat=%d sprites=%d critters=%d villager_group=%d" % [tag, pl.full_count, vat_n, pl.sprite_count,
+			main.world.find_children("*", "Critter", true, false).size(), get_tree().get_nodes_in_group("villager").size()])
 	var ks := own.keys()
 	ks.sort_custom(func(a, b) -> bool: return own[a][0] + own[a][2] > own[b][0] + own[b][2])
 	for k in ks.slice(0, 14):

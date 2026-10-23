@@ -50,7 +50,7 @@ func run(m: Node) -> void:
 		for row: Variant in Roster.bound_rows():
 			var a := float(k) * 0.9
 			var p := c + Vector2(cos(a), sin(a)) * (plaza_r * 0.55 + float(k % 3) * 2.0)
-			WorldSim.pos[int(row)] = p
+			WorldSim.set_pos(int(row), p)
 			WorldSim.target[int(row)] = p
 			WorldSim.phase[int(row)] = 2
 			k += 1
