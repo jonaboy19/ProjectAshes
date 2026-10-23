@@ -1,0 +1,350 @@
+{
+ "id": "companions/brannoc_tallow",
+ "start": "greet",
+ "_comment": "Brannoc Tallow, 34, a robber of the Ashen Hand spared on the road (Yield). Recruit by parole at the Ashford inn board. Flags: docs/regions/COMPANIONS_R1.md.",
+ "nodes": {
+  "greet": {
+   "speaker": "brannoc_tallow",
+   "lines": [
+    {
+     "text": "Hands where you can see them. That's manners, where I come from. Roads, mostly.",
+     "if": {
+      "no_flag": "companion.brannoc_tallow.recruit_yes"
+     },
+     "p": 1
+    },
+    {
+     "text": "Don't come up behind me. I'd rather not find out what I'd do.",
+     "if": {
+      "time": "night",
+      "no_flag": "companion.brannoc_tallow.recruit_yes"
+     },
+     "p": 2
+    },
+    {
+     "text": "Lead on. I'll count the exits so you don't have to.",
+     "if": {
+      "flag": "companion.brannoc_tallow.recruit_yes",
+      "no_flag": "companion.brannoc_tallow.done"
+     },
+     "p": 2
+    },
+    {
+     "text": "Mab's in Captain Hollis's cells and I slept all night. Nobody warned me that was possible.",
+     "if": {
+      "flag": "companion.brannoc_tallow.path_law"
+     },
+     "p": 3
+    },
+    {
+     "text": "Mab's ledger is ash. I'm not sure I'm proud. Walk on. I'll sort it out later.",
+     "if": {
+      "flag": "companion.brannoc_tallow.path_quiet"
+     },
+     "p": 3
+    },
+    {
+     "text": "You keep turning up. I've stopped pretending to be surprised.",
+     "if": {
+      "flag": "companion.brannoc_tallow.courting"
+     },
+     "p": 4
+    },
+    {
+     "text": "Friends. Good. I've been poor at it. I'd like to get better, with you.",
+     "if": {
+      "flag": "companion.brannoc_tallow.friends_only"
+     },
+     "p": 4
+    }
+   ],
+   "choices": [
+    {
+     "text": "Who are you?",
+     "goto": "bio",
+     "if": {
+      "no_flag": "companion.brannoc_tallow.recruit_yes"
+     }
+    },
+    {
+     "text": "Walk with me. On parole.",
+     "goto": "recruit",
+     "if": {
+      "no_flag": "companion.brannoc_tallow.recruit_yes"
+     }
+    },
+    {
+     "text": "Tell me about Hollin's Reach.",
+     "goto": "reach",
+     "if": {
+      "flag": "companion.brannoc_tallow.recruit_yes"
+     }
+    },
+    {
+     "text": "About that favour you mentioned...",
+     "goto": "favour_open",
+     "if": {
+      "flag": "companion.brannoc_tallow.recruit_yes",
+      "no_flag": "companion.brannoc_tallow.done"
+     }
+    },
+    {
+     "text": "Is there something between us?",
+     "goto": "courtship",
+     "if": {
+      "flag": [
+       "companion.brannoc_tallow.done",
+       "hero.female"
+      ],
+      "no_flag": [
+       "companion.brannoc_tallow.courting",
+       "companion.brannoc_tallow.friends_only"
+      ]
+     }
+    },
+    {
+     "text": "Good day.",
+     "goto": "@end"
+    }
+   ]
+  },
+  "bio": {
+   "speaker": "brannoc_tallow",
+   "lines": [
+    {
+     "text": "Brannoc Tallow. Thirty-four. Eleven years of the Ashen Hand, and one afternoon of you putting me in the dirt."
+    }
+   ],
+   "choices": [
+    {
+     "text": "And then?",
+     "goto": "bio_2"
+    }
+   ]
+  },
+  "bio_2": {
+   "speaker": "brannoc_tallow",
+   "lines": [
+    {
+     "text": "I was fifteen the winter Hollin's Reach went outside the ward. Forty graves. The Hand turned up with soup."
+    }
+   ],
+   "choices": [
+    {
+     "text": "Why tell me?",
+     "goto": "bio_3"
+    }
+   ]
+  },
+  "bio_3": {
+   "speaker": "brannoc_tallow",
+   "lines": [
+    {
+     "text": "Because you spared me, and I owe that to someone. A robber knows every road and every back door. I'm cheap."
+    }
+   ],
+   "choices": [
+    {
+     "text": "Walk with me. On parole.",
+     "goto": "recruit",
+     "if": {
+      "no_flag": "companion.brannoc_tallow.recruit_yes"
+     }
+    },
+    {
+     "text": "I will think on it.",
+     "goto": "@end"
+    }
+   ]
+  },
+  "recruit": {
+   "speaker": "brannoc_tallow",
+   "lines": [
+    {
+     "text": "Terms: no wage, a tenth of what we take, and you hang me yourself if I run. Ashford's cells are worse than the road."
+    }
+   ],
+   "choices": [
+    {
+     "text": "Those are fair terms.",
+     "goto": "recruit_yes"
+    },
+    {
+     "text": "Not yet.",
+     "goto": "recruit_no"
+    }
+   ]
+  },
+  "recruit_yes": {
+   "speaker": "brannoc_tallow",
+   "lines": [
+    {
+     "text": "Then I'm yours till the debt's paid. Mind: I'll never fight a man who's already down. Hand rules, even for the Hand."
+    }
+   ],
+   "choices": [
+    {
+     "text": "Walk with me.",
+     "goto": "@end",
+     "do": [
+      [
+       "flag",
+       "companion.brannoc_tallow.recruit_yes"
+      ]
+     ]
+    }
+   ]
+  },
+  "recruit_no": {
+   "speaker": "brannoc_tallow",
+   "lines": [
+    {
+     "text": "Take your time. I'm not going anywhere. Parole, remember. Mostly parole."
+    }
+   ],
+   "choices": [
+    {
+     "text": "I will.",
+     "goto": "@end"
+    }
+   ]
+  },
+  "favour_open": {
+   "speaker": "brannoc_tallow",
+   "lines": [
+    {
+     "text": "The old camp at Duskbriar. The ash there remembers me, and I'd like to know what it remembers about the fence."
+    }
+   ],
+   "choices": [
+    {
+     "text": "Tell me more.",
+     "goto": "favour_2"
+    },
+    {
+     "text": "Another day.",
+     "goto": "@end"
+    }
+   ]
+  },
+  "favour_2": {
+   "speaker": "brannoc_tallow",
+   "lines": [
+    {
+     "text": "Mab Larkin. She bought what we took and sold on to a hand that wrote neat. Nobody in the Hand writes neat."
+    }
+   ],
+   "choices": [
+    {
+     "text": "I will see to it.",
+     "goto": "@end",
+     "do": [
+      [
+       "flag",
+       "companion.brannoc_tallow.quest_asked"
+      ],
+      [
+       "quests"
+      ]
+     ]
+    }
+   ]
+  },
+  "courtship": {
+   "speaker": "brannoc_tallow",
+   "lines": [
+    {
+     "text": "There's a thing I haven't said. You make a man want to be someone his mother wouldn't have to apologise for."
+    }
+   ],
+   "choices": [
+    {
+     "text": "I'd like to walk beside you. Properly.",
+     "goto": "court_yes"
+    },
+    {
+     "text": "Friends is plenty.",
+     "goto": "court_friends"
+    },
+    {
+     "text": "Not now.",
+     "goto": "@end"
+    }
+   ]
+  },
+  "court_yes": {
+   "speaker": "brannoc_tallow",
+   "lines": [
+    {
+     "text": "Slow is fine. I've done fast. Fast ends in ditches."
+    }
+   ],
+   "choices": [
+    {
+     "text": "Then we go slowly.",
+     "goto": "@end",
+     "do": [
+      [
+       "flag",
+       "companion.brannoc_tallow.courting"
+      ]
+     ]
+    }
+   ]
+  },
+  "court_friends": {
+   "speaker": "brannoc_tallow",
+   "lines": [
+    {
+     "text": "Plenty. I've had less and called it plenty before. This time I mean it."
+    }
+   ],
+   "choices": [
+    {
+     "text": "Friends.",
+     "goto": "@end",
+     "do": [
+      [
+       "flag",
+       "companion.brannoc_tallow.friends_only"
+      ]
+     ]
+    }
+   ]
+  },
+  "reach": {
+   "speaker": "brannoc_tallow",
+   "lines": [
+    {
+     "text": "A hundred and ten souls and a mill. The Crown pulled the ward-line back a mile. It didn't tell anyone."
+    }
+   ],
+   "choices": [
+    {
+     "text": "Who did you lose?",
+     "goto": "reach_2"
+    }
+   ]
+  },
+  "reach_2": {
+   "speaker": "brannoc_tallow",
+   "lines": [
+    {
+     "text": "My sister, Pell. Nine. We kept her warm with every coat in the house. The dark doesn't care about coats."
+    }
+   ],
+   "choices": [
+    {
+     "text": "I'm sorry.",
+     "goto": "@end",
+     "do": [
+      [
+       "flag",
+       "companion.brannoc_tallow.told_reach"
+      ]
+     ]
+    }
+   ]
+  }
+ }
+}

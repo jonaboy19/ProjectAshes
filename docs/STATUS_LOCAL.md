@@ -719,3 +719,6 @@ AAA-review backlog from this task:
 
 ## 2026-10-06 baked quality phase 2
 LOW draws 172 -> 131, HIGH ~700 -> ~530 in the gate-market bench (targets 120 / 300 not met). See docs/art/baked_quality/README.md and skill ashes-baked-quality.
+
+## Ready v1 (cloud)
+- C7 named companions content (`claude/v1-companion-content`): Brannoc Tallow, Sister Oriel Vane, Hesk Ironbrow with bios, recruit dialogue and a 3-step personal quest each (`data/quests/companions/`, `dialogue/companions/`, `docs/regions/COMPANIONS_R1.md`); data only. Open hooks: set `hero.male`/`hero.female` in `Life.life_path` (courtship gate), place the `duskbriar/ash/*` clue props, read the `companion.<id>.*` flags in recruitment/follower code.

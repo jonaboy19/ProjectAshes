@@ -1,0 +1,133 @@
+{
+ "id": "companion_a_relic_unburned",
+ "title": "A Relic Unburned",
+ "summary": "Sister Oriel Vane was told to burn the ember-lamp of Saint Idony. She hid it in a milestone. Return it to the Dawn Throne or hide it among the Ashford stones.",
+ "giver": {
+  "npc": "oriel_vane",
+  "name": "Sister Oriel Vane",
+  "place": "kings_ember_road"
+ },
+ "offer_text": "I left the lamp in a milestone on the King's Ember Road. I should go back for it. I should not go alone.",
+ "stages": [
+  {
+   "id": "milestone",
+   "title": "The milestone",
+   "mode": "sequence",
+   "objectives": [
+    {
+     "id": "reach_road",
+     "type": "goto",
+     "place": "kings_ember_road",
+     "text": "Walk the King's Ember Road to Oriel's milestone"
+    },
+    {
+     "id": "hear_lucan",
+     "type": "talk_to",
+     "npc": "lucan",
+     "text": "Hear what Envoy Lucan asks of the lamp"
+    }
+   ]
+  },
+  {
+   "id": "choice",
+   "title": "Return it or hide it",
+   "mode": "all",
+   "objectives": [
+    {
+     "id": "lamp_fate",
+     "type": "choose",
+     "npc": "oriel_vane",
+     "options": [
+      {
+       "id": "return",
+       "text": "Carry the lamp to the Dawn Throne",
+       "say": "Oriel closes her hand on the brass. \"Then he will know I kept my vow. Even if I broke the other.\""
+      },
+      {
+       "id": "hide",
+       "text": "Set the lamp in an Ashford stone",
+       "say": "Oriel breathes out. \"Then it will not be alone. Stones keep company well.\""
+      }
+     ]
+    }
+   ],
+   "branches": {
+    "return": "return",
+    "hide": "hide"
+   }
+  },
+  {
+   "id": "return",
+   "title": "Into the sun's keeping",
+   "mode": "all",
+   "objectives": [
+    {
+     "id": "to_kingsreach",
+     "type": "goto",
+     "place": "kingsreach",
+     "text": "Carry Saint Idony's lamp to the envoy's chapel-house in Kingsreach"
+    }
+   ],
+   "end": true,
+   "rewards": {
+    "rep": {
+     "church": 12
+    },
+    "flags": [
+     "companion.oriel_vane.path_return"
+    ],
+    "relationship": [
+     {
+      "npc": "oriel_vane",
+      "label": "You gave the lamp back to the sun",
+      "value": 12,
+      "days": 120
+     }
+    ]
+   }
+  },
+  {
+   "id": "hide",
+   "title": "A stone for Idony",
+   "mode": "all",
+   "objectives": [
+    {
+     "id": "to_ring",
+     "type": "goto",
+     "place": "ashford_ring",
+     "text": "Set Saint Idony's lamp into the Ashford ring"
+    }
+   ],
+   "end": true,
+   "rewards": {
+    "rep": {
+     "church": -8,
+     "ashford": 4
+    },
+    "flags": [
+     "companion.oriel_vane.path_hide"
+    ],
+    "relationship": [
+     {
+      "npc": "oriel_vane",
+      "label": "You gave the lamp a stone to rest in",
+      "value": 16,
+      "days": 120
+     }
+    ]
+   }
+  }
+ ],
+ "rewards": {
+  "gold": 40,
+  "items": {
+   "healing_salve": 3,
+   "minor_healing_potion": 2
+  },
+  "flags": [
+   "companion.oriel_vane.done",
+   "companion.oriel_vane.healer_role",
+   "mechanic.church_standing_lever"
+  ]
+ }
+}
