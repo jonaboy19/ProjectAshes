@@ -25,6 +25,7 @@ const ITEMS := {
 	"deer_hide": {"name": "Deer Hide", "category": "material", "price": 9, "max_stack_size": 20},
 	"fox_pelt": {"name": "Fox Pelt", "category": "material", "price": 10, "max_stack_size": 20},
 	"boar_tusk": {"name": "Boar Tusk", "category": "material", "price": 7, "max_stack_size": 20},
+	"antler": {"name": "Antler", "category": "material", "price": 12, "max_stack_size": 20},     # skinned from stags (sim/hunting.gd)
 }
 
 ## item -> [base price, normal stock, made locally per day]. Fish and forage have
@@ -43,6 +44,7 @@ const MARKET := {
 	"deer_hide": [9, 6, 0],
 	"fox_pelt": [10, 4, 0],
 	"boar_tusk": [7, 4, 0],
+	"antler": [12, 3, 0],
 }
 
 # --- hunting --------------------------------------------------------------------

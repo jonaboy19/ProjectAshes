@@ -287,7 +287,6 @@ func _spawn_beast(g: Dictionary, kind: String, nodes: Array) -> void:
 	b.global_position = Vector3(q.x, WorldGen.height(q.x, q.y), q.y)
 	b.died.connect(func(dead_b: Wolf) -> void:
 		Life.on_monster_killed(dead_b.species)
-		var got := Gathering.give_drops(Life, dead_b.species)
-		if got != "":
-			Game.say("%s butchered. %s" % [dead_b.species.capitalize(), got]))
+		if CorpseLoot.attach_animal(dead_b, dead_b.species) != null:
+			Game.say("%s down. Hold to skin it." % dead_b.species.capitalize()))
 	nodes.append(b)

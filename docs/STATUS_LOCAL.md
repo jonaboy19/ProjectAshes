@@ -719,3 +719,6 @@ AAA-review backlog from this task:
 
 ## 2026-10-06 baked quality phase 2
 LOW draws 172 -> 131, HIGH ~700 -> ~530 in the gate-market bench (targets 120 / 300 not met). See docs/art/baked_quality/README.md and skill ashes-baked-quality.
+
+## Ready v1 (cloud)
+- C10 Hunting loop (claude/v1-hunting): kills leave a carcass; hold E "Skin" (`CorpseLoot.attach_animal`, rules in `sim/hunting.gd`) pays venison/hide/antler scaled by hunting mastery (hide-tearing under level 19), trains hunting; recipes `tan_hide`, `game_jerky`; guild "Hunter" posts; bot stage `v1_hunt`; test `tests/test_v1_hunting.gd`. v1 hook: `actors/critter.gd _die` (2 lines). Needs a GPU-session look at the skin hold prompt + a Skin clip.
