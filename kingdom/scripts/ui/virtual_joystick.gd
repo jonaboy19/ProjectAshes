@@ -19,7 +19,18 @@ var _knob := Vector2.ZERO
 var _rest_center := Vector2.ZERO
 
 
+## Touch-only widget: on PC (no --touch, not a phone) it never shows and never takes a click, whatever builds it.
+static func wanted() -> bool:
+	return preload("res://scripts/ui/hud_art.gd").touch_mode()
+
+
 func _ready() -> void:
+	if not wanted():
+		visible = false
+		mouse_filter = Control.MOUSE_FILTER_IGNORE
+		set_process_input(false)
+		set_process_unhandled_input(false)
+		return
 	mouse_filter = Control.MOUSE_FILTER_STOP
 	resized.connect(_reset)
 	_reset()

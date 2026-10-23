@@ -718,3 +718,6 @@ AAA-review backlog from this task:
 
 ## 2026-10-06 baked quality phase 2
 LOW draws 172 -> 131, HIGH ~700 -> ~530 in the gate-market bench (targets 120 / 300 not met). See docs/art/baked_quality/README.md and skill ashes-baked-quality.
+
+## Ready v1 (cloud)
+- C11 PC controls + prompts (`claude/v1-pc-controls`): Controls tab with grouped rows, conflict refusal, press-again-to-swap, reset to defaults, persisted in `[controls]`; `input_glyphs.gd` keyboard/mouse/gamepad glyphs for the HUD hint strip, interact key cap and tutorial prompts (dodge prompt said Space, key is K: fixed); `VirtualJoystick` touch-only. Tests `tests/test_v1_pc_controls.gd`. Pad rebinding not done.

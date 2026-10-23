@@ -88,3 +88,17 @@ depends on a keyboard.
 
 Settings > Controls lists the actions in `SettingsStore.ACTIONS` and saves them to `[controls]` in
 `user://settings.cfg`. Saved rebinds are re-applied at boot (`SettingsStore.apply_controls`).
+Rows are grouped (Movement, Combat, World, Menus, Techniques). Pick a row, press the new key; Esc cancels. A key that
+another action owns is refused with the name of that action; pressing the same key again on the same row swaps the two
+(`SettingsStore.try_bind(action, key, swap)`). Esc is reserved. Hotbar / army-order / seal digits may share keys. "Reset"
+on the Controls tab drops the saved rebinds and re-creates every action from `Game.KEYS` / `Game.PADS`. Gamepad
+buttons are not rebindable yet.
+
+## Prompts and glyphs
+
+`scripts/ui/input_glyphs.gd` returns the key / mouse button / pad button that triggers an action *now* (live InputMap, so
+rebinds show) for the last-used device (`IG.note_event` flips keyboard <-> gamepad). Used by the bottom-right hint strip
+(`hud.gd`), the key cap on the interact icon (`world_prompt_icon.gd`, `InteractLabel.with_glyph`) and the tutorial
+prompts (`tutorial_prompt_view.gd` `BINDS`: the key word in the localised line is replaced by the live glyph; on a pad
+"Walk with WASD" becomes "Walk with the left stick"). Touch layout (`--touch`, phones) keeps the gesture text.
+`VirtualJoystick` is touch-only: on PC it hides itself and ignores input.

@@ -20,6 +20,23 @@ const GOLD_BRIGHT := Color("f3cf7a")
 const TEXT := Color("ece3cf")
 const BODY_FONT := "res://assets/ui/fonts/IMFellEnglish-Regular.ttf"
 const HudLane := preload("res://scripts/ui/hud_lane.gd")
+const IG := preload("res://scripts/ui/input_glyphs.gd")
+## Keyboard / mouse prompts name the key in their (localised) text. The words that stand for it, and the action to read the
+## live glyph from, so a rebind or a gamepad shows the right button. `pad` replaces the whole line on a gamepad when the
+## verb differs ("Walk with WASD" -> left stick); "mouse" = no key, the line is rewritten for the pad only.
+const BINDS := {
+	"move": {"actions": IG.MOVE_ACTIONS, "tokens": ["WASD"], "pad": "Walk with the left stick"},
+	"look": {"pad": "Look with the right stick"},
+	"talk": {"actions": ["interact"], "tokens": ["E"]},
+	"interact": {"actions": ["interact"], "tokens": ["E"]},
+	"eat": {"actions": ["eat"], "tokens": ["F"]},
+	"sleep": {"actions": ["interact"], "tokens": ["E"]},
+	"fight": {"actions": ["attack"], "tokens": ["J"]},
+	"block": {"actions": ["block"], "tokens": ["L"]},
+	"dodge": {"actions": ["dodge"], "tokens": ["Space", "Spatie"]},
+	"map": {"actions": ["journal"], "tokens": ["Tab"]},
+	"ashsight": {"actions": ["interact"], "tokens": ["E"]},
+}
 const SKIP_SIZE := 30.0          # touch target (px at 1080p height, scaled below)
 const DEFAULT_ANCHORS := {
 	"left_stick": Vector2(0.13, 0.76), "screen_right": Vector2(0.70, 0.45),
@@ -105,14 +122,36 @@ func anchor_pos(anchor_name: String) -> Vector2:
 
 func show_prompt(_id: StringName, p: Dictionary) -> void:
 	prompt = p
-	var text := _tr(String(p.get("text_key", "")), String(p.get("text_en", "")))
-	_label.text = text
+	_label.text = _prompt_text()
 	_target_alpha = 1.0
 	_done_flash = 0.0
 	_t = 0.0
 	_pill.visible = true
 	set_process(true)
 	_layout()
+
+
+## The line for the current prompt and device. Phone layout keeps its gesture text; on PC the key words are swapped for the
+## live glyph of the bound action (or the gamepad button).
+func _prompt_text() -> String:
+	var text := _tr(String(prompt.get("text_key", "")), String(prompt.get("text_en", "")))
+	if bool(prompt.get("touch_mode", true)):
+		return text
+	var bind: Dictionary = BINDS.get(String(prompt.get("id", "")), {})
+	if bind.is_empty():
+		return text
+	if IG.device == IG.Device.GAMEPAD and bind.has("pad"):
+		return String(bind["pad"])
+	if bind.has("actions"):
+		return IG.relabel(text, bind["tokens"], IG.combo(bind["actions"]))
+	return text
+
+
+## A device flip (keyboard <-> gamepad) or a rebind re-words the line that is on screen.
+func _input(event: InputEvent) -> void:
+	if not prompt.is_empty() and _pill != null and _pill.visible and IG.note_event(event):
+		_label.text = _prompt_text()
+		_layout()
 
 
 func hide_prompt(_id: StringName, reason: StringName) -> void:

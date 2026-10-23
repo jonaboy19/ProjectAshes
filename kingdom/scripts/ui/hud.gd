@@ -170,8 +170,7 @@ var _touch := false
 var _pc := false
 var _hint: Label
 var _hint_pad := false
-const HINT_KB := "LMB attack   |   RMB block   |   Space jump   |   K dodge   |   E interact   |   Tab pack"
-const HINT_PAD := "X attack   |   LT block   |   A jump   |   B dodge   |   Y interact   |   Back pack"
+const IG := preload("res://scripts/ui/input_glyphs.gd")
 ## Anything with active_objective_position() -> Vector2|null (e.g. the radiant
 ## quest tracker: `hud.quest_source = services.radiant()`). Life.radiant is used
 ## automatically when Life owns one.
@@ -613,7 +612,7 @@ func _layout() -> void:
 
 func _build_hint() -> void:
 	_hint = Label.new()
-	_hint.text = HINT_KB
+	_hint.text = IG.hint_line(IG.Device.KEYBOARD)
 	_hint.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	_hint.add_theme_font_size_override("font_size", 15)
 	_hint.add_theme_color_override("font_color", Color(0.96, 0.93, 0.86, 0.92))
@@ -640,16 +639,17 @@ func _place_hint() -> void:
 func _input(event: InputEvent) -> void:
 	if not _pc or _hint == null:
 		return
-	var pad := event is InputEventJoypadButton or (event is InputEventJoypadMotion and absf((event as InputEventJoypadMotion).axis_value) > 0.5)
-	var kb := event is InputEventKey or event is InputEventMouseButton or (event is InputEventMouseMotion and (event as InputEventMouseMotion).relative.length() > 2.0)
-	if pad and not _hint_pad:
-		_hint_pad = true
-		_hint.text = HINT_PAD
-		_place_hint()
-	elif kb and _hint_pad:
-		_hint_pad = false
-		_hint.text = HINT_KB
-		_place_hint()
+	if IG.note_event(event):
+		_hint_pad = IG.device == IG.Device.GAMEPAD
+		_refresh_glyphs()
+
+
+## Re-words everything that names a key: the hint strip and the interact icon's key cap (on a keyboard <-> gamepad flip).
+func _refresh_glyphs() -> void:
+	_hint.text = IG.hint_line()
+	_place_hint()
+	if target_label.size() > 0:
+		_apply_label()
 
 
 func _place_pill() -> void:
@@ -1560,6 +1560,7 @@ func _apply_label() -> void:
 	_world_icon.set("face", small)
 	_world_icon.set("verb", String(target_label.get("verb", "")))
 	_world_icon.set("who", String(target_label.get("target", "")))
+	_world_icon.set("glyph", IG.glyph("interact") if _pc else "")
 	_interact_small.texture_normal = small
 	_interact_small.texture_pressed = small
 	(_interact_small.get_child(0) as Label).text = String(target_label.get("verb", "")).left(9)
