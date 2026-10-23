@@ -406,6 +406,11 @@ func click(c: Control, label := "") -> bool:
 				break
 			q = q.get_parent()
 		bug("ui-blocked", "button '%s' (layer %s) is covered by %s (%s) at %s%s" % [label if label != "" else (c as BaseButton).get("text"), _layer_of(c), hov.name, hov.get_class(), str(hov.get_path()), lay])
+	if is_headless() and c is BaseButton:
+		# no window: synthetic mouse buttons never reach the GUI, so press the (hover-checked) button directly
+		(c as BaseButton).pressed.emit()
+		await frames(2)
+		return true
 	for pressed in [true, false]:
 		var mb := InputEventMouseButton.new()
 		mb.button_index = MOUSE_BUTTON_LEFT
