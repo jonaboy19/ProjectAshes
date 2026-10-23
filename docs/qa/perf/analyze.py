@@ -27,7 +27,7 @@ def stats(t, ms):
 def main():
     runs = {}
     for f in sorted(glob.glob(os.path.join(RAW, "m_*.csv"))):
-        m = re.match(r"m_(([A-D])_.+?)_(legacy|fixed)_r(\d+)\.csv", os.path.basename(f))
+        m = re.match(r"m_(([A-D])_.+?)_(legacy|fixed|dens)_r(\d+)\.csv", os.path.basename(f))
         if not m:
             continue
         t, ms = load(f, AFTER[m[2]])

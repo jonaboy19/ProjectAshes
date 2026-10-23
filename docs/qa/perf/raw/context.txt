@@ -76,3 +76,7 @@ CTX m_D_t3d_stand_1440_legacy_r2 battery=2 godot_others=2 freeMB=2235 cpu=18
 CTX m_D_t3d_stand_1440_fixed_r2 battery=2 godot_others=2 freeMB=3762 cpu=68
 crash/timeout try 1
 crash/timeout try 2
+CTX d_A_r1 battery=2 godot_others=2 freeMB=4268 cpu=20
+CTX d_A_r2 battery=2 godot_others=2 freeMB=4436 cpu=20
+CTX m_A_stand_1440_dens_r1 battery=2 godot_others=2 freeMB=4385 cpu=16
+CTX m_A_stand_1440_dens_r2 battery=2 godot_others=0 freeMB=5457 cpu=6
