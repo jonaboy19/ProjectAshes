@@ -29,6 +29,7 @@ const HAIR := UBC + "Hairstyles/Rigged to Head Bone/glTF (Godot -Unreal)/"
 const UAL_ANIM_DIR := "res://assets/incoming/animations/"
 const UAL_LOCO_DIR := "res://assets/incoming/animations_free2/loco_transitions/"
 const UAL_TRAV_DIR := "res://assets/incoming/animations_free2/traversal_authored/"
+const AaaClipsScript := preload("res://scripts/actors/aaa_clips.gd")
 const UAL_FILES := [
 	# First match wins: this set's Jump_Start must precede UAL1's older clip.
 	UAL_LOCO_DIR + "UAL_Loco_Transitions.glb",
@@ -671,6 +672,8 @@ static func _ual_for(skeleton_path: NodePath) -> AnimationLibrary:
 			if not lib.has_animation(anim_name):
 				lib.add_animation(anim_name, a)
 		inst.free()
+	# Reviewed AAA mocap subset (data/anim/aaa_clips.json), after every other set so existing names win.
+	AaaClipsScript.merge_into(lib, sk)
 	for alias: String in UAL_ALIASES:
 		var target: String = UAL_ALIASES[alias]
 		if lib.has_animation(target) and not lib.has_animation(alias):

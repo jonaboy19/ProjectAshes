@@ -1,0 +1,71 @@
+[
+ {
+  "name": "Life_AAA_Sit_Idle",
+  "loop": true,
+  "seconds": 3.7,
+  "frames": 112,
+  "keys": 911,
+  "source": "013/13_04.bvh",
+  "range_s": [
+   2.5,
+   7.0
+  ],
+  "autotrim": null,
+  "loop_pts": [
+   0.8,
+   4.5,
+   6.26
+  ],
+  "floor_fix_m": 0.0,
+  "contact_lift_m": 0.0,
+  "min_foot_m": 0.038,
+  "travel_m": 0.0,
+  "hip_scale": 0.0486
+ },
+ {
+  "name": "Life_AAA_Sit_LegSwing",
+  "loop": true,
+  "seconds": 4.27,
+  "frames": 129,
+  "keys": 1446,
+  "source": "014/14_29.bvh",
+  "range_s": [
+   2.5,
+   7.5
+  ],
+  "autotrim": null,
+  "loop_pts": [
+   0.23,
+   4.5,
+   11.87
+  ],
+  "floor_fix_m": -0.017,
+  "contact_lift_m": 0.0,
+  "min_foot_m": -0.0,
+  "travel_m": 0.42,
+  "hip_scale": 0.0515
+ },
+ {
+  "name": "Life_AAA_Sit_Ponder",
+  "loop": true,
+  "seconds": 3.57,
+  "frames": 108,
+  "keys": 1098,
+  "source": "013/13_05.bvh",
+  "range_s": [
+   2.0,
+   6.5
+  ],
+  "autotrim": null,
+  "loop_pts": [
+   0.8,
+   4.37,
+   11.21
+  ],
+  "floor_fix_m": -0.005,
+  "contact_lift_m": 0.0,
+  "min_foot_m": 0.038,
+  "travel_m": 0.02,
+  "hip_scale": 0.0486
+ }
+]

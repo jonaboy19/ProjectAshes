@@ -141,7 +141,7 @@
   "hip_scale": 0.057
  },
  {
-  "name": "Jump_Land_Soft",
+  "name": "Jump_Land_Soft_Mocap",
   "loop": false,
   "seconds": 1.2,
   "frames": 37,
@@ -157,7 +157,8 @@
   "contact_lift_m": 0.0,
   "min_foot_m": -0.0,
   "travel_m": 0.52,
-  "hip_scale": 0.057
+  "hip_scale": 0.057,
+  "renamed_from": "Jump_Land_Soft"
  },
  {
   "name": "Vault_Hurdle_Mocap",

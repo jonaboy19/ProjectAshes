@@ -25,6 +25,7 @@ const CombatStats := preload("res://scripts/combat/combat_stats.gd")
 const NpcCaster := preload("res://scripts/combat/npc_caster.gd")
 const BendingLibrary := preload("res://scripts/actors/bending_library.gd")
 const EffectSet := preload("res://scripts/abilities/effect_set.gd")
+const SoldierAaaScript := preload("res://scripts/army/soldier_aaa.gd")      # AAA mocap swings / parry / head hits (docs/anim/aaa_wiring/)
 ## Pre-table soldier numbers. Army fights keep them: the table's HP/damage apply to duels with the player;
 ## blows between NPCs are multiplied by max_health / BASE_HP, so a 170-200 HP body loses the SAME FRACTION of its
 ## health per blow as the old 40 HP one (a battle lasts as long as before). The factor was inverted once
@@ -49,6 +50,7 @@ var _anim: AnimationPlayer
 var _animator: CharacterAnimator
 var _impulse := Vector3.ZERO
 var _guard := 0.0
+var _last_block_ms := -9999
 ## Chance to catch a hit on the shield.
 var block_chance := 0.3
 var _sprite: MeshInstance3D
@@ -280,6 +282,12 @@ func _attack() -> void:
 	# P9: rate = clip contact time / hit_delay lands the blade on the damage frame; a soldier standing still gets the full-body clip.
 	var swing_clip := "Sword_Light_%d" % (1 + randi() % 3)
 	var clip_hit := CombatMarkers.time_s(swing_clip, "hit", 1.0)
+	var aaa: Dictionary = SoldierAaaScript.swing(self, _cur_move, _keep, Time.get_ticks_msec() - _last_block_ms < 1500, randi())
+	if not aaa.is_empty():
+		swing_clip = aaa["clip"]
+		clip_hit = aaa["contact"]
+		hit_delay = maxf(hit_delay, clip_hit / 1.6)           # the clip is rated 1.6x at most: the contact (and the telegraph) follow it
+		_busy = maxf(_busy, hit_delay + 0.3)
 	_animator.play_attack(swing_clip, clampf((clip_hit if clip_hit > 0.0 else 0.3) / maxf(hit_delay, 0.1), 0.6, 1.6), _velocity.length() < 0.3)
 	var move := _cur_move
 	Telegraph.begin(self, move, move.reach if move != null else ATTACK_RANGE, hit_delay)
@@ -324,7 +332,8 @@ func take_damage(amount: int, from: Node = null, knockback := Vector3.ZERO) -> v
 	if from_front and _busy <= 0.0 and not _fighter.consider_reaction(Time.get_ticks_msec() * 0.001, block_chance).is_empty():
 		_guard = 0.6
 		_impulse = knockback * 0.4
-		_animator.play_upper("Block_Hit", 1.5)
+		_last_block_ms = Time.get_ticks_msec()
+		_animator.play_upper(SoldierAaaScript.block_clip(self, _keep), 1.5)
 		return
 	if squad:
 		amount = roundi(amount * squad.incoming_mult(self, from))
@@ -349,7 +358,17 @@ func take_damage(amount: int, from: Node = null, knockback := Vector3.ZERO) -> v
 		if knockback.length() > 4.0:
 			_animator.play_full("Hit_Heavy_" + _hit_side(from), 1.0)
 		else:
-			_animator.play_upper("Hit_Light_" + _hit_side(from), 1.0)
+			_animator.play_upper(SoldierAaaScript.light_hit(self, _hit_side(from), randf()), 1.0)
+
+
+## A heavy blow broke the guard (the player's guard-break attacks call this): a stumble instead of the block flinch.
+func break_guard(seconds: float) -> void:
+	if dead or _guard <= 0.0:
+		return
+	var t: float = SoldierAaaScript.guard_break(self, seconds)
+	if t > 0.0:
+		_guard = 0.0
+		_busy = maxf(_busy, t)
 
 
 func _hit_side(from: Node) -> String:

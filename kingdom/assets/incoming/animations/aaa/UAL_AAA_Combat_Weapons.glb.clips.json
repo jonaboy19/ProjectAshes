@@ -152,7 +152,7 @@
   "hip_scale": 1.3364
  },
  {
-  "name": "Bow_Draw",
+  "name": "Bow_Draw_Mocap",
   "loop": false,
   "seconds": 1.33,
   "frames": 41,
@@ -168,7 +168,8 @@
   "contact_lift_m": 0.381,
   "min_foot_m": -0.02,
   "travel_m": 0.08,
-  "hip_scale": 1.3364
+  "hip_scale": 1.3364,
+  "renamed_from": "Bow_Draw"
  },
  {
   "name": "Bow_Aim_Idle_Loop",

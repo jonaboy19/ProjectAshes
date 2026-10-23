@@ -107,7 +107,7 @@
   "hip_scale": 0.0486
  },
  {
-  "name": "Ledge_Shimmy_L",
+  "name": "Ledge_Shimmy_L_Mocap",
   "loop": true,
   "seconds": 1.1,
   "frames": 34,
@@ -126,7 +126,7 @@
   "hip_scale": 0.0502
  },
  {
-  "name": "Ledge_Shimmy_R",
+  "name": "Ledge_Shimmy_R_Mocap",
   "loop": true,
   "seconds": 1.1,
   "frames": 34,

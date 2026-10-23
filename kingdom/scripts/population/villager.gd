@@ -2129,6 +2129,7 @@ func take_damage(amount: int, from: Node = null, _knockback := Vector3.ZERO) -> 
 	if _hp <= 0:
 		go_down(Takedown.Kind.KILL)
 		return
+	_begin_oneshot(["Villager_Hit_Chest", "Idle_Hurt", "Hit_Light"], 0.9)      # AAA mocap stumble when the library has it
 	var now := Time.get_ticks_msec()
 	Perception.set_class_at_least(_slot, Perception.Cls.ALARMED, from_pos, now)
 	_crime_until = now + 25000

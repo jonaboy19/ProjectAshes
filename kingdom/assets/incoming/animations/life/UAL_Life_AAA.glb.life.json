@@ -1,0 +1,103 @@
+{
+ "library": "res://assets/incoming/animations/life/UAL_Life_AAA.glb",
+ "fps": 30,
+ "notes": [
+  "Source: CMU Graphics Lab Motion Capture Database (free for commercial use; see animations/cmu_mocap/LICENSE), BVH by Bruce Hahne / cgspeed; retargeted onto the Quaternius UAL rig (CC0).",
+  "Derived from animations/aaa/UAL_AAA_LivingWorld.glb: only the 3 sit clips that passed frame-sheet review (docs/anim/aaa_wiring/review/p16) are kept; the rest of that pack repeats BVHs UAL_Life_Mocap.glb already has or is not what its name says.",
+  "Rebuild: cp UAL_AAA_LivingWorld.glb UAL_Life_AAA.glb; python tools/anim/glb_edit_clips.py edit UAL_Life_AAA.glb <edits>; python tools/anim/aaa/make_life_aaa_sidecar.py"
+ ],
+ "clips": {
+  "Life_AAA_Sit_Idle": {
+   "category": "rest/sit",
+   "loop": true,
+   "layer": "full",
+   "props": [],
+   "enter": "Life_Mocap_Sit_Stool_Enter",
+   "exit": "Life_Mocap_Sit_Stool_Exit",
+   "blend_in": 0.25,
+   "blend_out": 0.3,
+   "events": {
+    "loop_seam": [
+     111
+    ]
+   },
+   "anchor": null,
+   "note": "seated idle on a stool or bench, seat ~0.45 m (pelvis 0.47-0.49 m); play the bench / stool Enter first",
+   "speed_mps": 0.0,
+   "pair": null,
+   "ik_l_on_prop": null,
+   "mask_from": null,
+   "tags": [
+    "cmu",
+    "mocap",
+    "sit",
+    "idle"
+   ],
+   "source": "CMU 13_04 2.5-7.0 s",
+   "frames": 112,
+   "seconds": 3.7
+  },
+  "Life_AAA_Sit_LegSwing": {
+   "category": "rest/sit",
+   "loop": true,
+   "layer": "full",
+   "props": [],
+   "enter": null,
+   "exit": null,
+   "blend_in": 0.25,
+   "blend_out": 0.3,
+   "events": {
+    "loop_seam": [
+     128
+    ]
+   },
+   "anchor": null,
+   "note": "seated, legs swinging, pelvis 0.78-0.93 m: needs a HIGH seat (~0.8 m); no such smart-object slot exists yet, so it is unused",
+   "speed_mps": 0.0,
+   "pair": null,
+   "ik_l_on_prop": null,
+   "mask_from": null,
+   "tags": [
+    "cmu",
+    "mocap",
+    "sit",
+    "high",
+    "legswing"
+   ],
+   "source": "CMU 14_29 2.5-7.5 s",
+   "frames": 129,
+   "seconds": 4.27
+  },
+  "Life_AAA_Sit_Ponder": {
+   "category": "rest/sit",
+   "loop": true,
+   "layer": "full",
+   "props": [],
+   "enter": "Life_Mocap_Sit_Stool_Enter",
+   "exit": "Life_Mocap_Sit_Stool_Exit",
+   "blend_in": 0.25,
+   "blend_out": 0.3,
+   "events": {
+    "loop_seam": [
+     107
+    ]
+   },
+   "anchor": null,
+   "note": "seated, leaning forward on a knee (thinking), seat ~0.45 m (pelvis 0.46-0.50 m)",
+   "speed_mps": 0.0,
+   "pair": null,
+   "ik_l_on_prop": null,
+   "mask_from": null,
+   "tags": [
+    "cmu",
+    "mocap",
+    "sit",
+    "ponder",
+    "fidget"
+   ],
+   "source": "CMU 13_05 2.0-6.5 s",
+   "frames": 108,
+   "seconds": 3.57
+  }
+ }
+}

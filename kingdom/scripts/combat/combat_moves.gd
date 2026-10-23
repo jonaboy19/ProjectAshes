@@ -50,7 +50,43 @@ const BOW_SHOT := {"id": "bow_shot", "style": "bow", "anim": "Bow_Loose", "damag
 	"active": 0.0, "recovery": 0.45, "hit_at": 0.0, "reach": 60.0, "ranged": true, "root_motion": false,
 	"poise_damage": 6.0, "knockback": 3.0, "telegraph": false}
 
+## AAA mocap swings for NPC fighters (docs/anim/aaa_wiring/; clips from data/anim/aaa_clips.json, markers in combat_markers.json).
+## Rows [anim, damage, lock, hit, speed, cost, knockback]: lock = clip length and hit = contact frame in seconds at speed 1.0
+## (from the markers); soldier.gd rates the clip so the contact lands on the move's own hit delay.
+const BANDIT_ROWS := [
+	["Bandit_Light_1", 10, 1.20, 0.867, 1.0, 0.0, 1.5],
+	["Bandit_Light_2", 10, 1.10, 0.733, 1.0, 0.0, 1.5],
+	["Bandit_Light_3", 8, 1.40, 1.067, 1.0, 0.0, 1.0],
+	["Bandit_Heavy_Chop", 18, 1.80, 1.700, 1.0, 0.0, 4.0],
+]
+## Two-hand greatsword rows (KayKit): soldiers whose `keep` list carries "2H_Sword".
+const BRUTE_ROWS := [
+	["GS_Overhead", 18, 1.63, 0.833, 1.0, 0.0, 4.0],
+	["GS_Slash", 14, 1.10, 0.533, 1.0, 0.0, 2.5],
+	["GS_Spin", 16, 2.40, 1.267, 1.0, 0.0, 3.0],
+	["GS_Thrust", 12, 1.60, 0.367, 1.0, 0.0, 1.5],
+]
+## Duel reactions: parry (a block reaction), riposte (the swing right after a block), guard-break stumble, head-hit flinches.
+const DUEL := {"parry": "Duel_Parry_High", "riposte": "Duel_Riposte", "lunge": "Duel_Lunge", "guard_break": "Guard_Break",
+	"head_hit": ["Hit_Head_R", "Hit_Head_L"], "two_hand_guard": "GS_Guard"}
+## Creature-table move id -> candidate clips (BANDIT_ROWS / DUEL names) and the two-hand version.
+const NPC_SWINGS := {
+	"bandit_slash": ["Bandit_Light_1", "Bandit_Light_2"], "bandit_thrust": ["Duel_Lunge"], "bandit_cleave": ["Bandit_Heavy_Chop"],
+	"guard_cut": ["Bandit_Light_1", "Bandit_Light_3"], "guard_thrust": ["Duel_Lunge"], "guard_bash": ["Bandit_Heavy_Chop"],
+}
+const NPC_SWINGS_2H := {
+	"bandit_slash": ["GS_Slash"], "bandit_thrust": ["GS_Thrust"], "bandit_cleave": ["GS_Overhead", "GS_Spin"],
+	"guard_cut": ["GS_Slash"], "guard_thrust": ["GS_Thrust"], "guard_bash": ["GS_Overhead"],
+}
+
 static var _cache := {}
+
+
+## The AAA clip for a creature-table move id (or "" when the move has none). `pick` varies the choice.
+static func npc_swing(move_id: String, two_hand: bool, pick: int) -> String:
+	var table: Dictionary = NPC_SWINGS_2H if two_hand else NPC_SWINGS
+	var list: Array = table.get(move_id, [])
+	return "" if list.is_empty() else String(list[absi(pick) % list.size()])
 
 
 static func _make(d: Dictionary) -> Resource:

@@ -1,0 +1,1040 @@
+{
+ "_doc": "AAA mocap wiring manifest (kingdom/tools/anim/aaa/build_manifest.py). status add = wired by AaaClips.merge_into under `as`; cmp = a game clip already exists, wired only with promote=true; skip = not wired (why). Frame-sheet review: docs/anim/aaa_wiring/review/.",
+ "packs": {
+  "res://assets/incoming/animations/aaa/UAL_AAA_Combat_Adv.glb": {
+   "Parry_High_Deflect": {
+    "status": "add",
+    "role": "soldier",
+    "why": "sheet p07: raised-forearm deflect; soldier block reaction",
+    "layer": "full",
+    "trim": [
+     0.9,
+     2.1
+    ],
+    "as": "Duel_Parry_High",
+    "loop": false,
+    "mirror_of": null,
+    "source": "002/02_08.bvh [0.5, 3.5]"
+   },
+   "Parry_Sword_Riposte": {
+    "status": "add",
+    "role": "soldier",
+    "why": "sheet p07: parry then counter thrust (final thrust)",
+    "layer": "full",
+    "trim": [
+     2.1,
+     3.4
+    ],
+    "as": "Duel_Riposte",
+    "loop": false,
+    "mirror_of": null,
+    "source": "002/02_08.bvh [4.0, 7.5]"
+   },
+   "Combat_Fencing_Lunge": {
+    "status": "add",
+    "role": "soldier",
+    "why": "sheet p07: forward lunge with front arm extended; bandit / guard thrust move",
+    "layer": "full",
+    "trim": [
+     0.9,
+     2.3
+    ],
+    "as": "Duel_Lunge",
+    "loop": false,
+    "mirror_of": null,
+    "source": "002/02_08.bvh [8.0, 11.5]"
+   },
+   "Combat_Shield_Bash_Stagger": {
+    "status": "skip",
+    "role": "",
+    "why": "sheet p08: arm sweep to the side, no forward bash",
+    "layer": "full",
+    "loop": false,
+    "mirror_of": null,
+    "source": "144/144_07.bvh [0.5, 3.0]"
+   },
+   "Combat_Dodge_Sidestep_L": {
+    "status": "skip",
+    "role": "",
+    "why": "sheet p08: 0.05 m travel, hand gestures, not a sidestep (144_11)",
+    "layer": "full",
+    "loop": false,
+    "mirror_of": null,
+    "source": "144/144_11.bvh [20.0, 22.5]"
+   },
+   "Combat_Dodge_Sidestep_R": {
+    "status": "skip",
+    "role": "",
+    "why": "same as Sidestep_L",
+    "layer": "full",
+    "loop": false,
+    "mirror_of": null,
+    "source": "144/144_11.bvh [23.0, 25.5]"
+   }
+  },
+  "res://assets/incoming/animations/aaa/UAL_AAA_Combat_Chains.glb": {
+   "Sword_Light_Attack_01": {
+    "status": "add",
+    "role": "soldier",
+    "why": "sheet p09: two-hand overhead chop",
+    "layer": "full",
+    "as": "Bandit_Light_1",
+    "loop": false,
+    "mirror_of": null,
+    "source": "002/02_07.bvh [0.5, 1.7]"
+   },
+   "Sword_Light_Attack_02": {
+    "status": "add",
+    "role": "soldier",
+    "why": "sheet p09: forward-leaning chop",
+    "layer": "full",
+    "as": "Bandit_Light_2",
+    "loop": false,
+    "mirror_of": null,
+    "source": "002/02_07.bvh [1.7, 2.8]"
+   },
+   "Sword_Light_Attack_03": {
+    "status": "add",
+    "role": "soldier",
+    "why": "sheet p09: cross-body slash",
+    "layer": "full",
+    "as": "Bandit_Light_3",
+    "loop": false,
+    "mirror_of": null,
+    "source": "002/02_07.bvh [4.2, 5.6]"
+   },
+   "Sword_Light_Attack_04": {
+    "status": "skip",
+    "role": "",
+    "why": "sheet p10: dance-like lunge with arms out (087_01), no strike",
+    "layer": "full",
+    "loop": false,
+    "mirror_of": null,
+    "source": "087/87_01.bvh [0.5, 2.2]"
+   },
+   "Sword_Heavy_Charge_Chop": {
+    "status": "add",
+    "role": "soldier",
+    "why": "sheet p10: wind-up with hands raised, overhead chop; drops the Knight_Decapitation duplicate",
+    "layer": "full",
+    "as": "Bandit_Heavy_Chop",
+    "loop": false,
+    "mirror_of": null,
+    "source": "002/02_07.bvh [5.6, 7.4]"
+   },
+   "Sword_Sprint_Dash_Attack": {
+    "status": "skip",
+    "role": "",
+    "why": "sheet p04: crouched skid with arms up, no strike (127_05)",
+    "layer": "full",
+    "loop": false,
+    "mirror_of": null,
+    "source": "127/127_05.bvh [0.4, 1.8]"
+   },
+   "Sword_Roll_Counter_Poke": {
+    "status": "skip",
+    "role": "",
+    "why": "sheet p04: ground crawl (140_01), no poke",
+    "layer": "full",
+    "loop": false,
+    "mirror_of": null,
+    "source": "140/140_01.bvh [2.4, 3.8]"
+   },
+   "Sword_Plunge_Aerial_Attack": {
+    "status": "skip",
+    "role": "",
+    "why": "duplicate of Assassin_Aerial_Drop_Impale (140_01 1.8-3.0); prone content",
+    "layer": "full",
+    "loop": false,
+    "mirror_of": null,
+    "source": "140/140_01.bvh [1.8, 3.0]"
+   },
+   "Parry_Left_Deflect": {
+    "status": "cmp",
+    "role": "soldier",
+    "why": "144_07 gesture take; sheet p14",
+    "layer": "full",
+    "as": "Guard_Deflect_L",
+    "loop": false,
+    "mirror_of": null,
+    "source": "144/144_07.bvh [0.24, 1.4]"
+   },
+   "Parry_Right_Deflect": {
+    "status": "skip",
+    "role": "",
+    "why": "identical source range to Parry_Left_Deflect (144_07 0.24-1.4)",
+    "layer": "full",
+    "loop": false,
+    "mirror_of": null,
+    "source": "144/144_07.bvh [0.24, 1.4]"
+   },
+   "Guard_Break_Stumble": {
+    "status": "add",
+    "role": "soldier",
+    "why": "sheet p10: stumbling back with hands up; replaces Block_Hit on a guard break",
+    "layer": "full",
+    "as": "Guard_Break",
+    "loop": false,
+    "mirror_of": null,
+    "source": "014/14_03.bvh [3.2, 4.5]"
+   },
+   "Blade_Clash_Lock": {
+    "status": "skip",
+    "role": "",
+    "why": "sheet p13: arm gesture, no block impact (144_07)",
+    "layer": "full",
+    "loop": false,
+    "mirror_of": null,
+    "source": "144/144_07.bvh [1.8, 3.4]"
+   },
+   "Combat_Roll_Forward": {
+    "status": "skip",
+    "role": "",
+    "why": "roll is tuned; 140_01 content is a prone get-up",
+    "layer": "full",
+    "loop": false,
+    "mirror_of": null,
+    "source": "140/140_01.bvh [2.2, 3.6]"
+   },
+   "Combat_Backstep_Hop": {
+    "status": "skip",
+    "role": "",
+    "why": "sheet p04: a running stride (127_15), not a backstep",
+    "layer": "full",
+    "loop": false,
+    "mirror_of": null,
+    "source": "127/127_15.bvh [0.2, 1.2]"
+   }
+  },
+  "res://assets/incoming/animations/aaa/UAL_AAA_Combat_Classes.glb": {
+   "Knight_Greatshield_Guard_Stance": {
+    "status": "skip",
+    "role": "",
+    "why": "duplicate of Parry_Left_Deflect range (144_07), marked loop but one-shot",
+    "layer": "full",
+    "loop": false,
+    "mirror_of": null,
+    "source": "144/144_07.bvh [0.24, 1.4]"
+   },
+   "Knight_Shield_Rush_Charge": {
+    "status": "skip",
+    "role": "",
+    "why": "duplicate of Run_Natural (143_01 0.0-0.8)",
+    "layer": "full",
+    "loop": false,
+    "mirror_of": null,
+    "source": "143/143_01.bvh [0.0, 0.8]"
+   },
+   "Knight_Pommel_Strike_Stun": {
+    "status": "skip",
+    "role": "",
+    "why": "duplicate of Sword_Light_Attack_01 (02_07 0.5-1.7); class-flavoured name",
+    "layer": "full",
+    "loop": false,
+    "mirror_of": null,
+    "source": "002/02_07.bvh [0.5, 1.7]"
+   },
+   "Knight_Decapitation_Execution": {
+    "status": "skip",
+    "role": "",
+    "why": "duplicate of Sword_Heavy_Charge_Chop; IP-flavoured name",
+    "layer": "full",
+    "loop": false,
+    "mirror_of": null,
+    "source": "002/02_07.bvh [5.6, 7.4]"
+   },
+   "Assassin_Shadow_Crouch_Creep": {
+    "status": "skip",
+    "role": "",
+    "why": "sheet p06: upright walk (104_02), not a crouch; Crouch_Fwd is better",
+    "layer": "full",
+    "loop": false,
+    "mirror_of": null,
+    "source": "104/104_02.bvh [0.8, 2.6]"
+   },
+   "Assassin_Throat_Slit_Sneak": {
+    "status": "skip",
+    "role": "",
+    "why": "02_07 1.7-3.2: overlaps Sword_Light_Attack_02",
+    "layer": "full",
+    "loop": false,
+    "mirror_of": null,
+    "source": "002/02_07.bvh [1.7, 3.2]"
+   },
+   "Assassin_Ledge_Pull_Down": {
+    "status": "skip",
+    "role": "",
+    "why": "140_01 prone get-up content",
+    "layer": "full",
+    "loop": false,
+    "mirror_of": null,
+    "source": "140/140_01.bvh [1.8, 3.4]"
+   },
+   "Assassin_Aerial_Drop_Impale": {
+    "status": "skip",
+    "role": "",
+    "why": "duplicate of Sword_Plunge_Aerial_Attack",
+    "layer": "full",
+    "loop": false,
+    "mirror_of": null,
+    "source": "140/140_01.bvh [1.8, 3.0]"
+   },
+   "Assassin_Smoke_Vanish_Drop": {
+    "status": "skip",
+    "role": "",
+    "why": "duplicate of Cast_Chantless_Blink_Step (127_05 0.4-1.6)",
+    "layer": "full",
+    "loop": false,
+    "mirror_of": null,
+    "source": "127/127_05.bvh [0.4, 1.6]"
+   }
+  },
+  "res://assets/incoming/animations/aaa/UAL_AAA_Combat_Knockbacks.glb": {
+   "Knockback_Heavy_Slide_Brake": {
+    "status": "skip",
+    "role": "",
+    "why": "127_05 skid family, duplicate content",
+    "layer": "full",
+    "loop": false,
+    "mirror_of": null,
+    "source": "127/127_05.bvh [0.4, 2.0]"
+   },
+   "Knockback_Airborne_Blowback": {
+    "status": "skip",
+    "role": "",
+    "why": "ragdoll owns launches; floor_fix -0.12",
+    "layer": "full",
+    "loop": false,
+    "mirror_of": null,
+    "source": "090/90_17.bvh [1.0, 3.0]"
+   },
+   "Knockback_3Step_Stumble_Recoil": {
+    "status": "cmp",
+    "role": "soldier",
+    "why": "CMP vs authored Stagger_Back, sheet p14",
+    "layer": "full",
+    "as": "Stagger_Back_Mocap",
+    "loop": false,
+    "mirror_of": null,
+    "source": "014/14_03.bvh [3.2, 4.8]"
+   },
+   "Guard_Impact_Heavy_Stagger": {
+    "status": "skip",
+    "role": "",
+    "why": "duplicate of Blade_Clash_Lock (144_07 1.8-3.4)",
+    "layer": "full",
+    "loop": false,
+    "mirror_of": null,
+    "source": "144/144_07.bvh [1.8, 3.4]"
+   }
+  },
+  "res://assets/incoming/animations/aaa/UAL_AAA_Combat_Reactions.glb": {
+   "Hit_React_Head_Flinch_R": {
+    "status": "add",
+    "role": "soldier",
+    "why": "sheet p13: head-snap rock with guard hands up; light-hit alternative",
+    "layer": "upper",
+    "as": "Hit_Head_R",
+    "loop": false,
+    "mirror_of": null,
+    "source": "014/14_01.bvh [6.0, 7.4]"
+   },
+   "Hit_React_Head_Flinch_L": {
+    "status": "add",
+    "role": "soldier",
+    "why": "same 14_01 6.0-7.4 range as _R (not a true mirror); kept so L/R picks exist",
+    "layer": "upper",
+    "as": "Hit_Head_L",
+    "loop": false,
+    "mirror_of": null,
+    "source": "014/14_01.bvh [6.0, 7.4]"
+   },
+   "Hit_React_Gut_Wind_Knockout": {
+    "status": "skip",
+    "role": "",
+    "why": "duplicate of Guard_Break_Stumble (14_03 3.2-4.5)",
+    "layer": "full",
+    "loop": false,
+    "mirror_of": null,
+    "source": "014/14_03.bvh [3.2, 4.5]"
+   },
+   "Hit_React_Leg_Sweep_Trip": {
+    "status": "skip",
+    "role": "",
+    "why": "foot 6.7 cm below floor (min_foot_m -0.067)",
+    "layer": "full",
+    "loop": false,
+    "mirror_of": null,
+    "source": "090/90_18.bvh [0.6, 2.4]"
+   },
+   "Knockdown_Hard_Landing": {
+    "status": "skip",
+    "role": "",
+    "why": "sheet p04: standing idle then a lean, not a knockdown (090_17)",
+    "layer": "full",
+    "loop": false,
+    "mirror_of": null,
+    "source": "090/90_17.bvh [1.0, 3.2]"
+   },
+   "Knockdown_Ground_Lie_Idle": {
+    "status": "skip",
+    "role": "",
+    "why": "min foot 0.49 m (airborne window), not a lie idle",
+    "layer": "full",
+    "loop": false,
+    "mirror_of": null,
+    "source": "090/90_17.bvh [3.0, 4.8]"
+   },
+   "Knockdown_Roll_Getup": {
+    "status": "skip",
+    "role": "",
+    "why": "sheet p05: prone-to-crouch get-up only valid face-down; ragdoll.gd owns the get-up and has no orientation hook",
+    "layer": "full",
+    "loop": false,
+    "mirror_of": null,
+    "source": "140/140_01.bvh [1.6, 4.6]"
+   },
+   "Wall_Impact_Splat_Bounce": {
+    "status": "skip",
+    "role": "",
+    "why": "sheet p04: jump with a flip (090_16), not a wall hit; floor_fix -0.13. Wall hit uses Hit_Heavy_Front",
+    "layer": "full",
+    "loop": false,
+    "mirror_of": null,
+    "source": "090/90_16.bvh [2.2, 4.0]"
+   }
+  },
+  "res://assets/incoming/animations/aaa/UAL_AAA_Combat_Weapons.glb": {
+   "2H_Greatsword_Overhead_Chop": {
+    "status": "add",
+    "role": "soldier",
+    "why": "sheet p11: KayKit two-hand chop; scale matches on the villager rig",
+    "layer": "full",
+    "as": "GS_Overhead",
+    "loop": false,
+    "mirror_of": null,
+    "source": "Melee_2H_Attack_Chop [None, None]"
+   },
+   "2H_Greatsword_Slash_Horizontal": {
+    "status": "add",
+    "role": "soldier",
+    "why": "sheet p11",
+    "layer": "full",
+    "as": "GS_Slash",
+    "loop": false,
+    "mirror_of": null,
+    "source": "Melee_2H_Attack_Slice [None, None]"
+   },
+   "2H_Greatsword_Spin_Cleave": {
+    "status": "add",
+    "role": "soldier",
+    "why": "sheet p11",
+    "layer": "full",
+    "as": "GS_Spin",
+    "loop": false,
+    "mirror_of": null,
+    "source": "Melee_2H_Attack_Spin [None, None]"
+   },
+   "2H_Greatsword_Thrust_Lunge": {
+    "status": "add",
+    "role": "soldier",
+    "why": "KayKit two-hand stab",
+    "layer": "full",
+    "as": "GS_Thrust",
+    "loop": false,
+    "mirror_of": null,
+    "source": "Melee_2H_Attack_Stab [None, None]"
+   },
+   "2H_Greatsword_Guard_Block": {
+    "status": "add",
+    "role": "soldier",
+    "why": "KayKit two-hand block",
+    "layer": "full",
+    "as": "GS_Guard",
+    "loop": false,
+    "mirror_of": null,
+    "source": "Melee_Block [None, None]"
+   },
+   "DualDaggers_Flurry_Chop": {
+    "status": "skip",
+    "role": "",
+    "why": "parked: sheet p12 fine, but no dual-dagger enemy exists",
+    "layer": "full",
+    "loop": false,
+    "mirror_of": null,
+    "source": "Melee_Dualwield_Attack_Chop [None, None]"
+   },
+   "DualDaggers_Cross_Slice": {
+    "status": "skip",
+    "role": "",
+    "why": "parked (see Flurry_Chop)",
+    "layer": "full",
+    "loop": false,
+    "mirror_of": null,
+    "source": "Melee_Dualwield_Attack_Slice [None, None]"
+   },
+   "DualDaggers_Thrust_Stab": {
+    "status": "skip",
+    "role": "",
+    "why": "parked (see Flurry_Chop)",
+    "layer": "full",
+    "loop": false,
+    "mirror_of": null,
+    "source": "Melee_Dualwield_Attack_Stab [None, None]"
+   },
+   "Bow_Draw_Mocap": {
+    "status": "skip",
+    "role": "",
+    "why": "authored bow set (the pack name Bow_Draw collided with the existing clip, renamed _Mocap)",
+    "layer": "full",
+    "loop": false,
+    "mirror_of": null,
+    "source": "Ranged_Bow_Draw [None, None]"
+   },
+   "Bow_Aim_Idle_Loop": {
+    "status": "skip",
+    "role": "",
+    "why": "authored bow set",
+    "layer": "full",
+    "loop": false,
+    "mirror_of": null,
+    "source": "Ranged_Bow_Aiming_Idle [None, None]"
+   },
+   "Bow_Release_Recoil": {
+    "status": "skip",
+    "role": "",
+    "why": "authored bow set",
+    "layer": "full",
+    "loop": false,
+    "mirror_of": null,
+    "source": "Ranged_Bow_Release [None, None]"
+   }
+  },
+  "res://assets/incoming/animations/aaa/UAL_AAA_LivingWorld.glb": {
+   "Tavern_Sit_Idle": {
+    "status": "add",
+    "role": "villager",
+    "why": "sheet p16: seated idle",
+    "layer": "full",
+    "life": "rest/sit",
+    "as": "Life_AAA_Sit_Idle",
+    "loop": true,
+    "mirror_of": null,
+    "source": "013/13_04.bvh [2.5, 7.0]"
+   },
+   "Tavern_Sit_LegSwing": {
+    "status": "add",
+    "role": "villager",
+    "why": "sheet p16: seated, legs swinging, higher seat",
+    "layer": "full",
+    "life": "rest/sit",
+    "as": "Life_AAA_Sit_LegSwing",
+    "loop": true,
+    "mirror_of": null,
+    "source": "014/14_29.bvh [2.5, 7.5]"
+   },
+   "Tavern_Sit_Fidget_Ponder": {
+    "status": "add",
+    "role": "villager",
+    "why": "sheet p16: seated, leaning forward on a knee",
+    "layer": "full",
+    "life": "rest/sit",
+    "as": "Life_AAA_Sit_Ponder",
+    "loop": true,
+    "mirror_of": null,
+    "source": "013/13_05.bvh [2.0, 6.5]"
+   },
+   "Tavern_Stand_To_Sit": {
+    "status": "skip",
+    "role": "",
+    "why": "sheet p17: foot-on-step pose, no seat contact",
+    "layer": "full",
+    "loop": false,
+    "mirror_of": null,
+    "source": "013/13_02.bvh [4.5, 8.0]"
+   },
+   "Tavern_Sit_To_Stand": {
+    "status": "skip",
+    "role": "",
+    "why": "sheet p17: bends forward standing, no rise from a seat",
+    "layer": "full",
+    "loop": false,
+    "mirror_of": null,
+    "source": "013/13_01.bvh [10.0, 13.5]"
+   },
+   "Tavern_Chug_Beer": {
+    "status": "skip",
+    "role": "",
+    "why": "same BVH as Life_Mocap_Chug (79_33)",
+    "layer": "full",
+    "loop": false,
+    "mirror_of": null,
+    "source": "079/79_33.bvh [0.5, 4.5]"
+   },
+   "Tavern_Eat_Dinner": {
+    "status": "skip",
+    "role": "",
+    "why": "same BVH as Life_Mocap_Eat_Table (79_12)",
+    "layer": "full",
+    "loop": false,
+    "mirror_of": null,
+    "source": "079/79_12.bvh [1.0, 5.5]"
+   },
+   "Tavern_Drunk_Stumble": {
+    "status": "cmp",
+    "role": "villager",
+    "why": "CMP vs Life_Walk_Drunk, sheet p21",
+    "layer": "full",
+    "life": "walk/style",
+    "as": "Life_AAA_Drunk_Stumble",
+    "loop": true,
+    "mirror_of": null,
+    "source": "091/91_09.bvh [1.0, 6.0]"
+   },
+   "Social_Laugh_Banter": {
+    "status": "skip",
+    "role": "",
+    "why": "sheet p17: boxing-like gestures; the life lib already found 13_14 is not a laugh",
+    "layer": "full",
+    "loop": false,
+    "mirror_of": null,
+    "source": "013/13_14.bvh [1.5, 5.5]"
+   },
+   "Social_Handshake": {
+    "status": "skip",
+    "role": "",
+    "why": "single-person 79_06; Life_Mocap_Handshake_A/B pair exists",
+    "layer": "full",
+    "loop": false,
+    "mirror_of": null,
+    "source": "079/79_06.bvh [0.8, 4.2]"
+   },
+   "Village_Bard_Violin": {
+    "status": "skip",
+    "role": "",
+    "why": "same BVH as Life_Mocap_Fiddle (79_17)",
+    "layer": "full",
+    "loop": false,
+    "mirror_of": null,
+    "source": "079/79_17.bvh [1.0, 6.0]"
+   },
+   "Peasant_Grief_Mourn": {
+    "status": "skip",
+    "role": "",
+    "why": "same BVH as Life_Mocap_Comfort_A (22_03)",
+    "layer": "full",
+    "loop": false,
+    "mirror_of": null,
+    "source": "022/22_03.bvh [1.0, 6.0]"
+   },
+   "Blacksmith_Hammer_Anvil": {
+    "status": "skip",
+    "role": "",
+    "why": "same BVH as Life_Mocap_Hammer_Nail (62_07)",
+    "layer": "full",
+    "loop": false,
+    "mirror_of": null,
+    "source": "062/62_07.bvh [1.0, 6.0]"
+   },
+   "Woodcutter_Chop_Axe": {
+    "status": "skip",
+    "role": "",
+    "why": "same BVH as Life_Mocap_Chop_Wood (79_01)",
+    "layer": "full",
+    "loop": false,
+    "mirror_of": null,
+    "source": "079/79_01.bvh [0.5, 4.5]"
+   },
+   "Peasant_Sweep_Floor": {
+    "status": "skip",
+    "role": "",
+    "why": "same BVH as Life_Mocap_Sweep (79_55)",
+    "layer": "full",
+    "loop": false,
+    "mirror_of": null,
+    "source": "079/79_55.bvh [0.5, 4.8]"
+   },
+   "Peasant_Dig_Ground": {
+    "status": "skip",
+    "role": "",
+    "why": "same BVH as Life_Mocap_Dig (79_04)",
+    "layer": "full",
+    "loop": false,
+    "mirror_of": null,
+    "source": "079/79_04.bvh [1.0, 5.5]"
+   },
+   "Peasant_Rake_Leaves": {
+    "status": "skip",
+    "role": "",
+    "why": "same BVH as Life_Mocap_Rake (79_87)",
+    "layer": "full",
+    "loop": false,
+    "mirror_of": null,
+    "source": "079/79_87.bvh [0.5, 5.0]"
+   },
+   "Worker_Carry_Cargo": {
+    "status": "skip",
+    "role": "",
+    "why": "sheet p18: walking with open arms, no load held (70_01); Life_Mocap_Carry_Heavy exists",
+    "layer": "full",
+    "loop": false,
+    "mirror_of": null,
+    "source": "070/70_01.bvh [0.5, 3.5]"
+   },
+   "Worker_Move_Heavy_Box": {
+    "status": "skip",
+    "role": "",
+    "why": "same BVH as Life_Mocap_Move_Box (79_25)",
+    "layer": "full",
+    "loop": false,
+    "mirror_of": null,
+    "source": "079/79_25.bvh [0.5, 4.5]"
+   },
+   "River_Fishing_Cast_Reel": {
+    "status": "skip",
+    "role": "",
+    "why": "same BVH as Life_Mocap_Fish (79_34)",
+    "layer": "full",
+    "loop": false,
+    "mirror_of": null,
+    "source": "079/79_34.bvh [1.0, 5.5]"
+   },
+   "NPC_Direct_Point_Wave": {
+    "status": "skip",
+    "role": "",
+    "why": "sheet p18: dance-like shrugs with arms up (13_27); the life lib replaced it with Life_Mocap_Direct_Wave",
+    "layer": "full",
+    "loop": false,
+    "mirror_of": null,
+    "source": "013/13_27.bvh [1.5, 6.5]"
+   },
+   "Vendor_Wave_Greeting": {
+    "status": "skip",
+    "role": "",
+    "why": "same BVH as Life_Mocap_Direct_Wave (14_24)",
+    "layer": "full",
+    "loop": false,
+    "mirror_of": null,
+    "source": "014/14_24.bvh [1.0, 5.0]"
+   },
+   "Market_Trade_Inspect": {
+    "status": "skip",
+    "role": "",
+    "why": "same BVH as Life_Mocap_Buy (79_16)",
+    "layer": "full",
+    "loop": false,
+    "mirror_of": null,
+    "source": "079/79_16.bvh [0.5, 4.5]"
+   },
+   "Guard_Look_Around_Scan": {
+    "status": "skip",
+    "role": "",
+    "why": "same BVH as Life_Mocap_Look_Around (139_01)",
+    "layer": "full",
+    "loop": false,
+    "mirror_of": null,
+    "source": "139/139_01.bvh [1.0, 6.5]"
+   },
+   "Standing_Shift_Weight_Idle": {
+    "status": "skip",
+    "role": "",
+    "why": "same BVH as Life_Mocap_Shift_Weight (139_02)",
+    "layer": "full",
+    "loop": false,
+    "mirror_of": null,
+    "source": "139/139_02.bvh [1.0, 6.0]"
+   },
+   "Cold_Shiver_Campfire": {
+    "status": "skip",
+    "role": "",
+    "why": "same BVH as Life_Mocap_Cold (79_68)",
+    "layer": "full",
+    "loop": false,
+    "mirror_of": null,
+    "source": "079/79_68.bvh [1.0, 5.5]"
+   },
+   "Wounded_Limp_Walk": {
+    "status": "cmp",
+    "role": "villager",
+    "why": "CMP vs Life_Walk_Limp, sheet p20",
+    "layer": "full",
+    "life": "walk/style",
+    "as": "Life_AAA_Limp_Walk",
+    "loop": true,
+    "mirror_of": null,
+    "source": "077/77_19.bvh [0.5, 3.5]"
+   },
+   "Brawler_Tavern_Jab": {
+    "status": "skip",
+    "role": "",
+    "why": "sheet p18: bouncing guard-up gestures, no jab (14_01 1.0-4.5)",
+    "layer": "full",
+    "loop": false,
+    "mirror_of": null,
+    "source": "014/14_01.bvh [1.0, 4.5]"
+   }
+  },
+  "res://assets/incoming/animations/aaa/UAL_AAA_Locomotion.glb": {
+   "Walk_Natural": {
+    "status": "skip",
+    "role": "",
+    "why": "plain walk with hands held in front (104_02); LivingWorld already has 11 Life_Walk_* styles",
+    "layer": "full",
+    "loop": false,
+    "mirror_of": null,
+    "source": "104/104_02.bvh [0.8, 6.8]"
+   },
+   "Run_Natural": {
+    "status": "skip",
+    "role": "",
+    "why": "flailing-arm run (143_01, 0.8 s); same range as Knight_Shield_Rush_Charge; no NPC charge consumer",
+    "layer": "full",
+    "loop": false,
+    "mirror_of": null,
+    "source": "143/143_01.bvh [0.0, 0.8]"
+   },
+   "Run_Stop_Plant": {
+    "status": "skip",
+    "role": "",
+    "why": "P5 Loco_RunStop_L/R are tuned and phase-matched; not compared",
+    "layer": "full",
+    "loop": false,
+    "mirror_of": null,
+    "source": "143/143_02.bvh [0.2, 1.6]"
+   },
+   "Run_Quick_Stop": {
+    "status": "skip",
+    "role": "",
+    "why": "127_05 family (crouched skid), uncertain",
+    "layer": "full",
+    "loop": false,
+    "mirror_of": null,
+    "source": "127/127_05.bvh [0.4, 2.2]"
+   },
+   "Run_Turn_Bank_L": {
+    "status": "skip",
+    "role": "",
+    "why": "real content is a banked run turn (sheet p01) but no NPC run-turn consumer exists; parked",
+    "layer": "full",
+    "loop": false,
+    "mirror_of": null,
+    "source": "127/127_15.bvh [0.2, 1.3]"
+   },
+   "March_Soldier_Loop": {
+    "status": "cmp",
+    "role": "soldier",
+    "why": "same 138_01 take as Life_Walk_March; CMP sheet p20",
+    "layer": "full",
+    "as": "Soldier_March",
+    "loop": true,
+    "mirror_of": null,
+    "source": "138/138_01.bvh [0.5, 3.8]"
+   },
+   "Jump_Leap_Takeoff": {
+    "status": "skip",
+    "role": "",
+    "why": "P7 jump set is tuned; name shadowed",
+    "layer": "full",
+    "loop": false,
+    "mirror_of": null,
+    "source": "140/140_01.bvh [1.8, 2.9]"
+   },
+   "Jump_Land_Soft_Mocap": {
+    "status": "skip",
+    "role": "",
+    "why": "same name as the existing Jump_Land_Soft before the rename (existing wins); P7 jump set is tuned",
+    "layer": "full",
+    "loop": false,
+    "mirror_of": null,
+    "source": "140/140_01.bvh [2.8, 4.0]"
+   },
+   "Vault_Hurdle_Mocap": {
+    "status": "add",
+    "role": "player",
+    "why": "sheet p01: a real hurdle (crouch, leap, tuck); player auto-vault at >= run_min_speed",
+    "layer": "full",
+    "as": "Vault_Run",
+    "loop": false,
+    "mirror_of": null,
+    "source": "127/127_25.bvh [0.3, 1.8]"
+   },
+   "Ladder_Climb_Mocap": {
+    "status": "cmp",
+    "role": "player",
+    "why": "CMP vs authored Ladder_Climb_Up, sheet p15",
+    "layer": "full",
+    "as": "Ladder_Climb_Up_Mocap",
+    "loop": true,
+    "mirror_of": null,
+    "source": "013/13_33.bvh [1.5, 5.0]"
+   },
+   "Sword_Slash_Combo_A": {
+    "status": "skip",
+    "role": "",
+    "why": "02_07 0.5-3.8 s: duplicate of Sword_Light_Attack_01+02 in one clip",
+    "layer": "full",
+    "loop": false,
+    "mirror_of": null,
+    "source": "002/02_07.bvh [0.5, 3.8]"
+   },
+   "Sword_Slash_Combo_B": {
+    "status": "skip",
+    "role": "",
+    "why": "02_07 4.2-7.5 s: duplicate of Sword_Light_Attack_03 + Heavy_Charge_Chop",
+    "layer": "full",
+    "loop": false,
+    "mirror_of": null,
+    "source": "002/02_07.bvh [4.2, 7.5]"
+   },
+   "Hit_React_Chest_Mocap": {
+    "status": "add",
+    "role": "villager",
+    "why": "sheet p13: stumbling step back, hands up; villager.gd take_damage one-shot",
+    "layer": "full",
+    "as": "Villager_Hit_Chest",
+    "loop": false,
+    "mirror_of": null,
+    "source": "014/14_03.bvh [3.2, 4.4]"
+   },
+   "Combat_Duck_Dodge": {
+    "status": "skip",
+    "role": "",
+    "why": "no soldier evade logic to consume it; parked",
+    "layer": "full",
+    "loop": false,
+    "mirror_of": null,
+    "source": "077/77_09.bvh [0.8, 3.2]"
+   },
+   "Combat_Shield_Block": {
+    "status": "skip",
+    "role": "",
+    "why": "3.5 s one-shot gesture (144_07); Idle_Shield exists",
+    "layer": "full",
+    "loop": false,
+    "mirror_of": null,
+    "source": "144/144_07.bvh [1.5, 5.0]"
+   }
+  },
+  "res://assets/incoming/animations/aaa/UAL_AAA_Magic_Chantless.glb": {
+   "Cast_Chantless_Palm_Blast": {
+    "status": "skip",
+    "role": "",
+    "why": "not casting: 02_07 sword take, relabelled",
+    "layer": "full",
+    "loop": false,
+    "mirror_of": null,
+    "source": "002/02_07.bvh [0.5, 1.8]"
+   },
+   "Cast_Chantless_Telekinesis_Lift": {
+    "status": "skip",
+    "role": "",
+    "why": "not casting: 087_01 dance take, relabelled",
+    "layer": "full",
+    "loop": false,
+    "mirror_of": null,
+    "source": "087/87_01.bvh [0.4, 2.2]"
+   },
+   "Cast_Chantless_Barrier_Conjure": {
+    "status": "skip",
+    "role": "",
+    "why": "not casting: 144_07 parry gesture, relabelled",
+    "layer": "full",
+    "loop": false,
+    "mirror_of": null,
+    "source": "144/144_07.bvh [0.24, 1.4]"
+   },
+   "Cast_Chantless_Ground_Eruption": {
+    "status": "skip",
+    "role": "",
+    "why": "not casting: 140_01 prone get-up, relabelled",
+    "layer": "full",
+    "loop": false,
+    "mirror_of": null,
+    "source": "140/140_01.bvh [1.8, 3.2]"
+   },
+   "Cast_Chantless_Siphon_Drain": {
+    "status": "skip",
+    "role": "",
+    "why": "not casting: 02_07 sword take, relabelled",
+    "layer": "full",
+    "loop": false,
+    "mirror_of": null,
+    "source": "002/02_07.bvh [4.2, 5.8]"
+   },
+   "Cast_Chantless_Blink_Step": {
+    "status": "skip",
+    "role": "",
+    "why": "not casting: 127_05 skid, relabelled",
+    "layer": "full",
+    "loop": false,
+    "mirror_of": null,
+    "source": "127/127_05.bvh [0.4, 1.6]"
+   }
+  },
+  "res://assets/incoming/animations/aaa/UAL_AAA_Traversal_Rooftops.glb": {
+   "Wall_Climb_Mantle": {
+    "status": "skip",
+    "role": "",
+    "why": "the vault clip again (127_25 0.3-1.8)",
+    "layer": "full",
+    "loop": false,
+    "mirror_of": null,
+    "source": "127/127_25.bvh [0.3, 1.8]"
+   },
+   "Roof_Gap_Leap_Roll": {
+    "status": "skip",
+    "role": "",
+    "why": "sheet p05: prone crawl-up (140_01), not a landing roll",
+    "layer": "full",
+    "loop": false,
+    "mirror_of": null,
+    "source": "140/140_01.bvh [1.8, 3.8]"
+   },
+   "Roof_Ridge_Balance_Walk": {
+    "status": "skip",
+    "role": "",
+    "why": "plain bent-arm walk (104_02); arms-out comes from the hand IK",
+    "layer": "full",
+    "loop": false,
+    "mirror_of": null,
+    "source": "104/104_02.bvh [0.8, 3.8]"
+   },
+   "Sloped_Roof_Tile_Slide": {
+    "status": "skip",
+    "role": "",
+    "why": "sheet p05: a hopping run (127_05), not a slide; UAL2 Slide_Loop is used",
+    "layer": "full",
+    "loop": false,
+    "mirror_of": null,
+    "source": "127/127_05.bvh [0.4, 1.8]"
+   },
+   "Ladder_Climb_Down_Loop": {
+    "status": "skip",
+    "role": "",
+    "why": "same 13_33 take as the up clip (climbs up), not a descent",
+    "layer": "full",
+    "loop": false,
+    "mirror_of": null,
+    "source": "013/13_33.bvh [1.5, 4.5]"
+   },
+   "Ledge_Shimmy_L_Mocap": {
+    "status": "skip",
+    "role": "",
+    "why": "a banked running turn (127_15), 2.45 m travel in 1.1 s, not a shimmy (renamed _Mocap: it collided with the authored Ledge_Shimmy_L)",
+    "layer": "full",
+    "loop": false,
+    "mirror_of": null,
+    "source": "127/127_15.bvh [0.2, 1.3]"
+   },
+   "Ledge_Shimmy_R_Mocap": {
+    "status": "skip",
+    "role": "",
+    "why": "same range as Ledge_Shimmy_L_Mocap",
+    "layer": "full",
+    "loop": false,
+    "mirror_of": null,
+    "source": "127/127_15.bvh [0.2, 1.3]"
+   }
+  }
+ }
+}
