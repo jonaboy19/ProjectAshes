@@ -718,3 +718,6 @@ AAA-review backlog from this task:
 
 ## 2026-10-06 baked quality phase 2
 LOW draws 172 -> 131, HIGH ~700 -> ~530 in the gate-market bench (targets 120 / 300 not met). See docs/art/baked_quality/README.md and skill ashes-baked-quality.
+
+## Ready v1 (cloud)
+- C16 doors (claude/v1-doors): InteriorDoor picker priority 2 so E at a doorstep beats an adjacent Station; headless `tools_qa/v1/door_check.gd` enters/leaves all 6 Ashford service doors.
