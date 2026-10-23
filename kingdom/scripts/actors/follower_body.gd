@@ -5,7 +5,9 @@ extends Node3D
 ##   follow   a formation slot beside and behind the player; runs to catch up; teleports after a fast travel or
 ##            when far behind; waits outside while the player is in an interior
 ##   fight    guard / escort / campaign duty (or a fighting trade) strikes foes near the player through an
-##            NpcFighter, like scripts/actors/squad_soldier.gd; hurt, they are knocked out for a while, never killed
+##            NpcFighter, like scripts/actors/squad_soldier.gd, preferring the foe the player has locked on to.
+##            At 0 HP they are Down for Brain.DOWN_SECONDS: the player can hold-E to revive them; if nobody does,
+##            `down_expired` is emitted and the manager resolves it (death, or a 3-day injury on Story difficulty).
 ##   wait     holds where it stands
 ##   home     walks home, then hands itself back to the village (`finished`)
 ##   work     walks to the assigned property / group and works at a smart-object spot (SmartObjects session), or
@@ -24,7 +26,19 @@ const NpcWorld := preload("res://scripts/population/npc_world.gd")
 
 const THINK_HZ := 4.0
 const SESSION_HZ := 10.0
-const DOWN_SECONDS := 40.0
+
+## Animation hooks for the local session (none of these need new code here, only clips): the body plays the first
+## clip of each list that exists in its library and always emits the signal.
+const CLIPS_DOWN := ["Lie_Down_Idle", "Idle_Hurt"]
+const CLIPS_GET_UP := ["Stand_Up", "Idle"]
+const CLIPS_CALLED := ["Wave", "Cheer", "Idle"]
+
+## Signals the manager listens to (follower_manager.gd): hit 0 HP, was revived, ran out of Down time, heard the Call.
+signal downed(fid: String)
+signal revived(fid: String)
+signal down_expired(fid: String)
+signal called(fid: String)
+
 const WORK_RANGE := 30.0
 const ARRIVE := 0.7
 const TURN_RATE := 6.0
@@ -42,6 +56,7 @@ var mode := Brain.Mode.FOLLOW
 var hp := 60
 var max_hp := 60
 var fighter_on := false
+var fallen := false                # Down time ran out and the manager took the body away
 
 var _ctx: Dictionary = {}
 var _occ := "mercenary"
@@ -55,6 +70,7 @@ var _foe: Node3D
 var _think := 0.0
 var _cool := 0.0
 var _down := 0.0
+var _revive_ui: Interactable
 var _heading := 0.0
 var _speed := 0.0
 var _walking := false
@@ -119,6 +135,9 @@ func _ready() -> void:
 	_tag.position.y = 1.95
 	_tag.text = _name
 	add_child(_tag)
+	_revive_ui = Interactable.attach(self, {"id": "follower/revive/%s" % fid, "verb": "Revive", "target": _name, "priority": 5,
+		"range": Brain.REVIVE_RANGE, "hold_time": Brain.REVIVE_HOLD, "can": func(_p: Node) -> bool: return _down > 0.0,
+		"do": func(_p: Node) -> void: revive()})
 	ContactBlobS.attach(self, 0.42)
 	_graph = StreetGraph.for_person(row) if row >= 0 else null
 	_think = float(absi(hash(fid)) % 250) / 1000.0
@@ -140,6 +159,49 @@ func is_down() -> bool:
 	return _down > 0.0
 
 
+func down_left() -> float:
+	return maxf(_down, 0.0)
+
+
+## Down for `seconds` (0 HP in a fight, or a save that was made while Down). Foes stop seeing a Down body.
+func go_down(seconds := Brain.DOWN_SECONDS) -> void:
+	if _down > 0.0:
+		return
+	hp = 0
+	_down = maxf(seconds, 0.1)
+	_foe = null
+	_so_leave()
+	_speed = 0.0
+	_walking = false
+	remove_from_group("team0")
+	remove_from_group("combatant")
+	_play_first(CLIPS_DOWN)
+	downed.emit(fid)
+
+
+## Hold-E (or a healer). Stands up with Brain.REVIVE_HP of max HP and rejoins the fight group.
+func revive() -> bool:
+	if _down <= 0.0:
+		return false
+	_down = 0.0
+	hp = Brain.revive_hp(max_hp)
+	if fighter_on:
+		add_to_group("team0")
+		add_to_group("combatant")
+	_play_first(CLIPS_GET_UP)
+	revived.emit(fid)
+	return true
+
+
+## The Call: the manager tells every body it was sent for.
+func hear_call() -> void:
+	if _down > 0.0:
+		return
+	_foe = null
+	_play_first(CLIPS_CALLED)
+	called.emit(fid)
+
+
 func set_order(o: String, arg: String) -> void:
 	if o == order and arg == order_arg:
 		return
@@ -152,17 +214,13 @@ func set_order(o: String, arg: String) -> void:
 		_hold = sim_position()
 
 
-## Foes call this like any combatant. Hurt, a recruit is knocked out for a while and then gets up; never killed.
+## Foes call this like any combatant. At 0 HP the recruit is Down (go_down); a Down body takes no more blows.
 func take_damage(amount: int, _from: Node = null, _knockback := Vector3.ZERO) -> void:
 	if _down > 0.0:
 		return
 	hp -= maxi(amount, 0)
 	if hp <= 0:
-		hp = 0
-		_down = DOWN_SECONDS
-		_foe = null
-		_so_leave()
-		_play("Lie_Down_Idle" if _anim != null and _anim.has_animation("Lie_Down_Idle") else "Idle_Hurt")
+		go_down()
 
 
 func place_at(p: Vector2) -> void:
@@ -183,8 +241,12 @@ func _physics_process(delta: float) -> void:
 	if _down > 0.0:
 		_down -= delta
 		if _down <= 0.0:
-			hp = maxi(1, max_hp / 2)
-			_play("Idle")
+			_down = 0.0
+			if down_expired.get_connections().is_empty():
+				revive()                   # no manager (a loose body): get up as before
+			else:
+				fallen = true
+				down_expired.emit(fid)
 		return
 	# A fast travel is one frame: act on it now, not at the next think.
 	if order == "follow" and not bool(_ctx["inside"]) and Brain.needs_teleport(dist, float(_ctx["jump"])):
@@ -229,7 +291,10 @@ func _physics_process(delta: float) -> void:
 func _decide(here: Vector2, dist: float) -> void:
 	var foe := false
 	if fighter_on and _down <= 0.0:
-		if _foe == null or not is_instance_valid(_foe) or _dead(_foe):
+		var locked := _locked_foe()
+		if locked != null and locked != _foe and global_position.distance_to(locked.global_position) <= Brain.SCAN_RANGE * 1.5:
+			_foe = locked                  # the player's target is everyone's target
+		elif _foe == null or not is_instance_valid(_foe) or _dead(_foe):
 			_foe = _scan(_ctx["pos"], here)
 		foe = _foe != null
 		if foe and _foe.global_position.distance_to(Vector3(_ctx["pos"].x, _foe.global_position.y, _ctx["pos"].y)) > Brain.LEASH:
@@ -259,19 +324,30 @@ func _teleport() -> void:
 
 # --------------------------------------------------------------------------- fighting
 
+## The foe the player has locked on to (player.locked_target()), if it is still a live enemy.
+func _locked_foe() -> Node3D:
+	var pl: Variant = _ctx.get("player")
+	if pl == null or not is_instance_valid(pl) or not (pl as Node).has_method("locked_target"):
+		return null
+	var t := (pl as Node).call("locked_target") as Node3D
+	if t == null or not is_instance_valid(t) or not t.is_in_group("team1") or _dead(t):
+		return null
+	return t
+
+
 func _scan(pp: Vector2, here: Vector2) -> Node3D:
-	var best: Node3D = null
-	var best_d := Brain.SCAN_RANGE
+	var foes: Array = []
+	var by_id := {}
 	for n: Node in get_tree().get_nodes_in_group("team1"):
 		var e := n as Node3D
 		if e == null or not is_instance_valid(e) or not e.is_in_group("combatant") or _dead(e):
 			continue
 		var ep := Vector2(e.global_position.x, e.global_position.z)
-		var d := minf(here.distance_to(ep), pp.distance_to(ep))
-		if d < best_d:
-			best_d = d
-			best = e
-	return best
+		foes.append({"id": e.get_instance_id(), "d": minf(here.distance_to(ep), pp.distance_to(ep))})
+		by_id[e.get_instance_id()] = e
+	var locked := _locked_foe()
+	var pick := Brain.pick_foe(foes, locked.get_instance_id() if locked != null else -1)
+	return by_id.get(pick) as Node3D
 
 
 func _dead(n: Node) -> bool:
@@ -520,6 +596,13 @@ func _animate(_delta: float) -> void:
 		_play("Idle")
 	elif _anim.current_animation == "Idle":
 		_anim.speed_scale = 0.9 + 0.2 * fmod(float(row) * 0.618034, 1.0)
+
+
+func _play_first(clips: Array) -> void:
+	for c: String in clips:
+		if _anim != null and _anim.has_animation(c):
+			_anim.play(c, 0.2)
+			return
 
 
 func _play(clip: String) -> void:

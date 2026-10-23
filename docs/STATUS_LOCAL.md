@@ -719,3 +719,6 @@ AAA-review backlog from this task:
 
 ## 2026-10-06 baked quality phase 2
 LOW draws 172 -> 131, HIGH ~700 -> ~530 in the gate-market bench (targets 120 / 300 not met). See docs/art/baked_quality/README.md and skill ashes-baked-quality.
+
+## Ready v1 (cloud)
+- C6 companions in combat (`claude/v1-companions`): followers engage the player's lock-on target; 0 HP = Down 30 s with hold-E revive; unrevived = death, or a 3-day injury on Story difficulty; the Call (key `N`, `FollowerManager.call_followers()`) uses the summon delay. Tests `tests/test_v1_companions.gd`, bot stage `v1_recruit`. Missing clips and the wolf-targeting gap are listed in the PR.

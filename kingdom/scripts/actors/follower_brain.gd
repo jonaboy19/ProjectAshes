@@ -28,6 +28,17 @@ const CATCHUP_SPEED := 8.0
 const LEASH := 22.0                # a fighter will not chase a foe farther than this from the player
 const SCAN_RANGE := 14.0
 const STRIKE_RANGE := 2.4
+## Down (C6): at 0 HP a body is Down this long; a hold-E revive within REVIVE_RANGE stands them up with REVIVE_HP of their
+## max. Unrevived they fall: killed for good, or on Story difficulty hurt for INJURY_DAYS game days.
+const DOWN_SECONDS := 30.0
+const REVIVE_HOLD := 2.0           # seconds the interact key is held (Interactable.hold_time)
+const REVIVE_RANGE := 2.6
+const REVIVE_HP := 0.4
+const INJURY_DAYS := 3
+const OUTCOME_DEAD := "dead"
+const OUTCOME_INJURED := "injured"
+## SettingsStore "difficulty" index -> name (settings_screen.gd DIFFICULTY).
+const DIFFICULTY_NAMES := ["story", "normal", "hard", "brutal"]
 ## Followers on work / home / wait orders keep a body only while the player is this close to where they are.
 const LOCAL_RANGE := 45.0
 const KEEP_NEAR := 25.0            # an embodied waiter / worker this close to the player always keeps its body
@@ -159,6 +170,39 @@ static func select(cands: Array, cap: int, have := {}) -> Array:
 
 static func _num(fid: Variant) -> int:
 	return int(String(fid).substr(1))
+
+
+## "story" for the Story difficulty (an index of SettingsStore "difficulty" or a name), else the lower-cased name.
+static func difficulty_name(difficulty: Variant) -> String:
+	if difficulty is int or difficulty is float:
+		return String(DIFFICULTY_NAMES[clampi(int(difficulty), 0, DIFFICULTY_NAMES.size() - 1)])
+	return String(difficulty).to_lower()
+
+
+## What happens to a follower nobody revived in time: a 3-day injury on Story difficulty, otherwise death.
+static func down_outcome(difficulty: Variant) -> String:
+	return OUTCOME_INJURED if difficulty_name(difficulty) == "story" else OUTCOME_DEAD
+
+
+## HP a revived follower stands up with.
+static func revive_hp(max_hp_value: int) -> int:
+	return maxi(1, int(round(float(max_hp_value) * REVIVE_HP)))
+
+
+## The foe a fighter engages. foes: [{id, d}] where d is the distance from the fighter or the player, whichever is
+## nearer; `locked_id` is the id of the player's locked-on target (-1 for none). The player's target wins when it is
+## inside the scan range; otherwise the nearest foe.
+static func pick_foe(foes: Array, locked_id: int) -> int:
+	var best := -1
+	var best_d := SCAN_RANGE
+	for e: Dictionary in foes:
+		var d := float(e["d"])
+		if int(e["id"]) == locked_id and d <= SCAN_RANGE * 1.5:
+			return locked_id
+		if d < best_d:
+			best_d = d
+			best = int(e["id"])
+	return best
 
 
 ## A fighter's rank (NpcFighter 0..10) from the recruit's combat skill.
