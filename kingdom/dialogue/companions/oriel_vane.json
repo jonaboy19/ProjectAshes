@@ -1,0 +1,350 @@
+{
+ "id": "companions/oriel_vane",
+ "start": "greet",
+ "_comment": "Sister Oriel Vane, 29, a Dawn Throne healer who left Envoy Lucan's train. Found in the Ashford healer's lot. Flags: docs/regions/COMPANIONS_R1.md.",
+ "nodes": {
+  "greet": {
+   "speaker": "oriel_vane",
+   "lines": [
+    {
+     "text": "Sit. Whatever it is, it's worse when you stand on it.",
+     "if": {
+      "no_flag": "companion.oriel_vane.recruit_yes"
+     },
+     "p": 1
+    },
+    {
+     "text": "Dawn comes whether anyone asks it to. I used to find that comforting.",
+     "if": {
+      "time": "morning",
+      "no_flag": "companion.oriel_vane.recruit_yes"
+     },
+     "p": 2
+    },
+    {
+     "text": "Keep the bandages dry and the questions short. I will do the rest.",
+     "if": {
+      "flag": "companion.oriel_vane.recruit_yes",
+      "no_flag": "companion.oriel_vane.done"
+     },
+     "p": 2
+    },
+    {
+     "text": "It went back to the sun, and the sun did not object. I am still not sure it ought to have been asked.",
+     "if": {
+      "flag": "companion.oriel_vane.path_return"
+     },
+     "p": 3
+    },
+    {
+     "text": "It sleeps in your stone now. I check on it. Humour me; healers fuss.",
+     "if": {
+      "flag": "companion.oriel_vane.path_hide"
+     },
+     "p": 3
+    },
+    {
+     "text": "You look tired. Come here. No, I mean it, I will check your pulse and nothing else. Tonight.",
+     "if": {
+      "flag": "companion.oriel_vane.courting"
+     },
+     "p": 4
+    },
+    {
+     "text": "Friends. Gladly. I have too few I can tell the truth to.",
+     "if": {
+      "flag": "companion.oriel_vane.friends_only"
+     },
+     "p": 4
+    }
+   ],
+   "choices": [
+    {
+     "text": "Who are you?",
+     "goto": "bio",
+     "if": {
+      "no_flag": "companion.oriel_vane.recruit_yes"
+     }
+    },
+    {
+     "text": "Come with me. We need a healer.",
+     "goto": "recruit",
+     "if": {
+      "no_flag": "companion.oriel_vane.recruit_yes"
+     }
+    },
+    {
+     "text": "What did you carry out of Lucan's train?",
+     "goto": "lamp",
+     "if": {
+      "flag": "companion.oriel_vane.recruit_yes"
+     }
+    },
+    {
+     "text": "About that favour you mentioned...",
+     "goto": "favour_open",
+     "if": {
+      "flag": "companion.oriel_vane.recruit_yes",
+      "no_flag": "companion.oriel_vane.done"
+     }
+    },
+    {
+     "text": "Is there something between us?",
+     "goto": "courtship",
+     "if": {
+      "flag": [
+       "companion.oriel_vane.done",
+       "hero.male"
+      ],
+      "no_flag": [
+       "companion.oriel_vane.courting",
+       "companion.oriel_vane.friends_only"
+      ]
+     }
+    },
+    {
+     "text": "Good day.",
+     "goto": "@end"
+    }
+   ]
+  },
+  "bio": {
+   "speaker": "oriel_vane",
+   "lines": [
+    {
+     "text": "Oriel Vane, Sister of the Morning Watch. Healer. Twenty-nine. I came east with Envoy Lucan to bless wells."
+    }
+   ],
+   "choices": [
+    {
+     "text": "And then?",
+     "goto": "bio_2"
+    }
+   ]
+  },
+  "bio_2": {
+   "speaker": "oriel_vane",
+   "lines": [
+    {
+     "text": "Then I was told to burn a lamp at a roadside shrine. A lantern with an ember in it. Our own order's, two centuries old."
+    }
+   ],
+   "choices": [
+    {
+     "text": "Why tell me?",
+     "goto": "bio_3"
+    }
+   ]
+  },
+  "bio_3": {
+   "speaker": "oriel_vane",
+   "lines": [
+    {
+     "text": "Because the Church calls embers heathen, and I was holding one in my hands. It was warm. It knew me. I could not."
+    }
+   ],
+   "choices": [
+    {
+     "text": "Come with me. We need a healer.",
+     "goto": "recruit",
+     "if": {
+      "no_flag": "companion.oriel_vane.recruit_yes"
+     }
+    },
+    {
+     "text": "I will think on it.",
+     "goto": "@end"
+    }
+   ]
+  },
+  "recruit": {
+   "speaker": "oriel_vane",
+   "lines": [
+    {
+     "text": "Terms: no wage, a tenth of whatever you earn, and I choose who I heal first. Even the ones you would not."
+    }
+   ],
+   "choices": [
+    {
+     "text": "Those are fair terms.",
+     "goto": "recruit_yes"
+    },
+    {
+     "text": "Not yet.",
+     "goto": "recruit_no"
+    }
+   ]
+  },
+  "recruit_yes": {
+   "speaker": "oriel_vane",
+   "lines": [
+    {
+     "text": "Then I walk with you. Do not ask me to curse the Envoy. He is a good man being lied to by his own faith."
+    }
+   ],
+   "choices": [
+    {
+     "text": "Walk with me.",
+     "goto": "@end",
+     "do": [
+      [
+       "flag",
+       "companion.oriel_vane.recruit_yes"
+      ]
+     ]
+    }
+   ]
+  },
+  "recruit_no": {
+   "speaker": "oriel_vane",
+   "lines": [
+    {
+     "text": "Take what time you need. I will be here, mending, and arguing with the sun."
+    }
+   ],
+   "choices": [
+    {
+     "text": "I will.",
+     "goto": "@end"
+    }
+   ]
+  },
+  "favour_open": {
+   "speaker": "oriel_vane",
+   "lines": [
+    {
+     "text": "I left the lamp in a milestone on the King's Ember Road. I should go back for it. I should not go alone."
+    }
+   ],
+   "choices": [
+    {
+     "text": "Tell me more.",
+     "goto": "favour_2"
+    },
+    {
+     "text": "Another day.",
+     "goto": "@end"
+    }
+   ]
+  },
+  "favour_2": {
+   "speaker": "oriel_vane",
+   "lines": [
+    {
+     "text": "Lucan will ask where it is. Tell him, or do not. Either way I will not tell you which to choose."
+    }
+   ],
+   "choices": [
+    {
+     "text": "I will see to it.",
+     "goto": "@end",
+     "do": [
+      [
+       "flag",
+       "companion.oriel_vane.quest_asked"
+      ],
+      [
+       "quests"
+      ]
+     ]
+    }
+   ]
+  },
+  "courtship": {
+   "speaker": "oriel_vane",
+   "lines": [
+    {
+     "text": "You have not once asked me to be braver than I am. I have noticed. It is rarer than sunrise."
+    }
+   ],
+   "choices": [
+    {
+     "text": "I'd like that. As Oriel, not Sister.",
+     "goto": "court_yes"
+    },
+    {
+     "text": "Friends is plenty.",
+     "goto": "court_friends"
+    },
+    {
+     "text": "Not now.",
+     "goto": "@end"
+    }
+   ]
+  },
+  "court_yes": {
+   "speaker": "oriel_vane",
+   "lines": [
+    {
+     "text": "Slowly, then. I am a healer. I know what happens when you rush the stitching."
+    }
+   ],
+   "choices": [
+    {
+     "text": "Then we go slowly.",
+     "goto": "@end",
+     "do": [
+      [
+       "flag",
+       "companion.oriel_vane.courting"
+      ]
+     ]
+    }
+   ]
+  },
+  "court_friends": {
+   "speaker": "oriel_vane",
+   "lines": [
+    {
+     "text": "Gladly. Truly. Go on, then. Say it is a good idea."
+    }
+   ],
+   "choices": [
+    {
+     "text": "Friends.",
+     "goto": "@end",
+     "do": [
+      [
+       "flag",
+       "companion.oriel_vane.friends_only"
+      ]
+     ]
+    }
+   ]
+  },
+  "lamp": {
+   "speaker": "oriel_vane",
+   "lines": [
+    {
+     "text": "A small brass lantern, ember-bright. Our order took it from a village that would not give it up."
+    }
+   ],
+   "choices": [
+    {
+     "text": "Whose ember is it?",
+     "goto": "lamp_2"
+    }
+   ]
+  },
+  "lamp_2": {
+   "speaker": "oriel_vane",
+   "lines": [
+    {
+     "text": "A midwife called Idony. The label says Saint. The ember says she asked them, very politely, to stop."
+    }
+   ],
+   "choices": [
+    {
+     "text": "We will do right by her.",
+     "goto": "@end",
+     "do": [
+      [
+       "flag",
+       "companion.oriel_vane.told_lamp"
+      ]
+     ]
+    }
+   ]
+  }
+ }
+}

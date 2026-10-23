@@ -1,0 +1,133 @@
+{
+ "id": "companion_the_unfinished_arch",
+ "title": "The Unfinished Arch",
+ "summary": "Hesk Ironbrow never finished his Durrow guild test arch. Cut the stone at Hollin's Cut and set the arch before Odrin Thale in Silverford, round or Charter-form.",
+ "giver": {
+  "npc": "hesk_ironbrow",
+  "name": "Hesk Ironbrow",
+  "place": "silverford"
+ },
+ "offer_text": "My test arch. Twelve cut stones, a keystone, and the nerve to set it in front of Odrin Thale. It never got finished.",
+ "stages": [
+  {
+   "id": "quarry",
+   "title": "Cut stone at Hollin's Cut",
+   "mode": "sequence",
+   "objectives": [
+    {
+     "id": "reach_cut",
+     "type": "goto",
+     "place": "hollin_cut_stone",
+     "text": "Walk Hesk to the quarry at Hollin's Cut"
+    },
+    {
+     "id": "stone",
+     "type": "collect",
+     "item": "cut_stone",
+     "count": 12,
+     "text": "Haul twelve cut stones"
+    }
+   ]
+  },
+  {
+   "id": "form",
+   "title": "Round or pointed",
+   "mode": "all",
+   "objectives": [
+    {
+     "id": "arch_form",
+     "type": "choose",
+     "npc": "hesk_ironbrow",
+     "options": [
+      {
+       "id": "charter",
+       "text": "Set it pointed, in Charter form",
+       "say": "Hesk spits on his palms. \"Pointed. Fine. Hold the keystone steady, then.\""
+      },
+      {
+       "id": "durrow",
+       "text": "Set it round, the Durrow way",
+       "say": "Hesk grins, all gravel. \"Round it is. Grandfather would've wept.\""
+      }
+     ]
+    }
+   ],
+   "branches": {
+    "charter": "charter",
+    "durrow": "durrow"
+   }
+  },
+  {
+   "id": "charter",
+   "title": "Before Odrin Thale, Charter-form",
+   "mode": "all",
+   "objectives": [
+    {
+     "id": "set_charter",
+     "type": "goto",
+     "place": "silverford_guild_hall",
+     "text": "Set the pointed arch before the Masons' and Runecarvers' Guild hall"
+    }
+   ],
+   "end": true,
+   "rewards": {
+    "rep": {
+     "guilds": 8
+    },
+    "flags": [
+     "companion.hesk_ironbrow.path_charter"
+    ],
+    "relationship": [
+     {
+      "npc": "hesk_ironbrow",
+      "label": "You let him finish it in the Charter's form",
+      "value": 10,
+      "days": 120
+     }
+    ]
+   }
+  },
+  {
+   "id": "durrow",
+   "title": "Before Odrin Thale, Durrow-form",
+   "mode": "all",
+   "objectives": [
+    {
+     "id": "set_durrow",
+     "type": "goto",
+     "place": "silverford_guild_hall",
+     "text": "Set the round arch before the Masons' and Runecarvers' Guild hall"
+    }
+   ],
+   "end": true,
+   "rewards": {
+    "rep": {
+     "guilds": -4
+    },
+    "flags": [
+     "companion.hesk_ironbrow.path_durrow"
+    ],
+    "relationship": [
+     {
+      "npc": "hesk_ironbrow",
+      "label": "You let him cut it round",
+      "value": 16,
+      "days": 120
+     }
+    ]
+   }
+  }
+ ],
+ "rewards": {
+  "gold": 50,
+  "items": {
+   "whetstone": 2,
+   "iron_ingot": 4
+  },
+  "flags": [
+   "companion.hesk_ironbrow.done",
+   "companion.hesk_ironbrow.stone_tier",
+   "companion.hesk_ironbrow.siege_engineer"
+  ]
+ }
+}
