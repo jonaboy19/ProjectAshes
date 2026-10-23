@@ -4523,7 +4523,7 @@ func _st_objective(sid: String, o: Dictionary) -> bool:
 			await wait(1.0)
 			if is_headless():
 				# the older, taller body can end up inside the doorway collider it was standing in: step out to the plaza
-				await teleport(ashford()["pos"], 0.0, 1.0)
+				await teleport((ashford()["pos"] as Vector2) + Vector2(2, 13), 0.0, 1.0)
 			return true
 		"cutscene_done":
 			dismiss_popups()
