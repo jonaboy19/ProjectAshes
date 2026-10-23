@@ -87,6 +87,7 @@ const TIERS := [
 
 ## PC profile (Forward+ desktop): same keys as TIERS plus the PC-only keys. `Quality.profile == "pc"` selects it.
 ## tier 0..3 = PC_LOW / PC_MED / PC_HIGH / PC_ULTRA (the enum is shared with the phone tiers).
+const PC_MAX_PHYSICS_STEPS := 3
 const PC_TIERS := [
 	{   # PC_LOW: integrated / GTX 16xx class
 		"max_3d_height": 0, "scale": 0.75, "scaling": "fsr", "taa": false, "fps": 0, "physics_hz": 60,
@@ -644,6 +645,11 @@ func _apply_globals() -> void:
 	# LOW renders at 30 fps: ticking physics at 60 ran every _physics_process (villagers, player, soldiers, Jolt) twice per
 	# frame on the phone. Physics interpolation (project setting) keeps 30 Hz motion smooth.
 	Engine.physics_ticks_per_second = int(value("physics_hz"))
+	# PC: a slow frame must not run 5-8 catch-up physics ticks (each is 6-10 ms of villager / critter / player scripts in a town), which
+	# made one 40 ms frame the next 130 ms one and kept the game there (measured: 7.5 fps in the Kingsreach market). Three ticks keep
+	# real time down to 20 fps; below that the simulation slows a little instead of freezing. Phones keep the engine default.
+	if is_pc():
+		Engine.max_physics_steps_per_frame = 8 if preload("res://scripts/core/perf_probe.gd").legacy else PC_MAX_PHYSICS_STEPS
 	npc_full = value("npc_full")
 	npc_sprites = value("npc_sprites")
 	view_radius = value("view_radius")
