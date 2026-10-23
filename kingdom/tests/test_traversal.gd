@@ -535,3 +535,85 @@ func test_step_assist_lifts_the_body_and_eases_the_camera() -> void:
 		assert_float(pivot.position.y).is_equal_approx(1.55 - h, 0.002)     # (the Player's camera code lerps it back)
 	else:
 		fail("the test body should be on the floor")
+
+
+# --- AAA wiring: run-vault clip, slope slide, edge balance, ledge stop (docs/anim/aaa_wiring/) -------------------------------------
+
+const Ground := preload("res://scripts/actors/ground_realism.gd")
+const WallScript := preload("res://scripts/actors/wall_contact.gd")
+
+
+func test_run_vault_picks_the_mocap_clip_above_the_run_speed() -> void:
+	_obstacle(0.8, 0.3)
+	var r: Dictionary = await _probe()
+	assert_str(String(r["kind"])).is_equal("vault")
+	var walk: Dictionary = Traversal.plan_for(r, Vector3.ZERO, 3.0)
+	var run: Dictionary = Traversal.plan_for(r, Vector3.ZERO, 6.0)
+	assert_str(String(run["clip"])).is_equal("Vault_Run")
+	assert_bool(["Vault_Low", "Vault_Low_B"].has(String(walk["clip"]))).is_true()
+	assert_float(float(run["rate"])).is_greater_equal(1.0)
+	# the clip's own touch-down (0.8 s) is what the rate fits to, its hand-over (1.35 s) is scaled by the same rate
+	assert_float(float(run["handover"])).is_equal_approx(1.35 / float(run["rate"]), 0.001)
+	# no library clip (Driver without it): the authored vault plays at any speed
+	var fallback: Dictionary = Traversal.plan_for(r, Vector3.ZERO, 6.0, {}, false)
+	assert_bool(["Vault_Low", "Vault_Low_B"].has(String(fallback["clip"]))).is_true()
+	assert_float(Traversal.config()["vault"]["run_min_speed"]).is_equal(5.0)
+
+
+func test_slope_slide_starts_above_forty_degrees() -> void:
+	var n39 := Vector3(sin(deg_to_rad(39.0)), cos(deg_to_rad(39.0)), 0.0)
+	var n41 := Vector3(sin(deg_to_rad(41.0)), cos(deg_to_rad(41.0)), 0.0)
+	assert_bool(Ground.slide_slope(n39)).is_false()
+	assert_bool(Ground.slide_slope(n41)).is_true()
+	assert_bool(Ground.slide_slope(Vector3.UP)).is_false()
+	assert_bool(Ground.slide_slope(Vector3(1.0, 0.1, 0.0).normalized())).is_false()          # a wall, not a slope
+	assert_float(Ground.slide_accel(n41)).is_equal_approx(9.8 * sin(deg_to_rad(41.0)) * 0.6, 0.01)
+
+
+func test_slope_pitch_leans_into_a_hill() -> void:
+	var n := Vector3(0.3, 0.95, 0.0).normalized()          # the slope faces +X, so +X is downhill
+	assert_float(Ground.slope_pitch(n, Vector3(-1, 0, 0))).is_greater(0.0)       # uphill: lean forward
+	assert_float(Ground.slope_pitch(n, Vector3(1, 0, 0))).is_less(0.0)           # downhill: lean back
+	assert_float(Ground.slope_pitch(Vector3(0.9, 0.2, 0).normalized(), Vector3(-1, 0, 0))).is_equal_approx(0.08, 0.0001)   # capped
+
+
+func test_balance_on_a_narrow_beam_but_not_on_a_wide_wall_top() -> void:
+	var beam := _box(Vector3(0.0, 0.9, 0.0), Vector3(0.2, 0.2, 6.0))             # top at y = 1.0, 0.2 m wide, floor 1 m below
+	await _settle()
+	var m := _mover()
+	m.global_position = Vector3(0.0, 1.0, 0.0)
+	var g := Ground.new()
+	assert_bool(g._balance_probe(m, Vector3(0, 0, -1))).is_true()
+	beam.queue_free()
+	await _settle()
+	_box(Vector3(0.0, 0.5, 0.0), Vector3(1.0, 1.0, 6.0))                         # a 1 m wide wall top at the same height
+	await _settle()
+	assert_bool(g._balance_probe(m, Vector3(0, 0, -1))).is_false()
+	assert_bool(Ground.balance_on(true, 0.0, 5.0)).is_false()
+	assert_bool(Ground.balance_on(true, 0.4, 0.4)).is_true()
+	assert_bool(Ground.balance_on(false, 5.0, 5.0)).is_false()
+
+
+func test_ledge_probe_sees_a_deep_drop_but_not_a_kerb() -> void:
+	_box(Vector3(0.0, 1.0, -2.0), Vector3(4.0, 2.0, 4.0))                        # platform: top at y = 2, front edge at z = 0
+	await _settle()
+	var m := _mover()
+	m.global_position = Vector3(0.0, 2.0, -0.2)
+	var g := Ground.new()
+	var drop := g._drop_ahead(m, Vector3(0, 0, 1))                               # toward +Z: off the edge, 2 m down
+	assert_float(drop).is_equal_approx(2.0, 0.05)
+	assert_bool(Ground.edge_ahead(drop)).is_true()
+	assert_bool(Ground.edge_ahead(0.6)).is_false()
+	assert_float(g._drop_ahead(m, Vector3(0, 0, -1))).is_equal_approx(0.0, 0.05)  # back onto the platform: no drop
+
+
+func test_wall_contact_ignores_a_stair_riser_the_step_up_climbs() -> void:
+	_box(Vector3(0.0, 0.1, -0.7), Vector3(4.0, 0.2, 0.4))                         # a 0.2 m step whose riser is 0.5 m ahead
+	await _settle()
+	var m := _mover()
+	var w := WallScript.new()
+	assert_bool(w._steppable(m, Vector3(0, 0, -1))).is_true()
+	_box(Vector3(0.0, 1.5, -4.0), Vector3(6.0, 3.0, 0.5))                         # a 3 m wall is a wall
+	await _settle()
+	m.global_position = Vector3(0, 0, -3.2)
+	assert_bool(w._steppable(m, Vector3(0, 0, -1))).is_false()

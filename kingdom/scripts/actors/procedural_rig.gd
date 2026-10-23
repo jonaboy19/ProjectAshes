@@ -34,6 +34,8 @@ const CHECK_INTERVAL := 0.35
 const WORLD_MASK := 1
 const LEGS := [["thigh_l", "calf_l", "foot_l"], ["thigh_r", "calf_r", "foot_r"]]
 const PELVIS := "pelvis"
+## Arm chains for set_hand_brace (wall contact, balance): built lazily the first time a brace is requested.
+const ARMS := [["upperarm_l", "lowerarm_l", "hand_l"], ["upperarm_r", "lowerarm_r", "hand_r"]]
 const TORSO := [["spine_02", 0.45], ["spine_03", 0.45], ["neck_01", -0.35]]
 ## IK weight by locomotion: full up to a walk, eased down into a run.
 const RUN_WEIGHT := 0.35
@@ -75,6 +77,7 @@ class Stage extends SkeletonModifier3D:
 var suppressed := false        # swimming, riding, rolling, dead: no IK at all
 var airborne := false
 var attacking := false         # whole-body actions that fight the clip: IK eased off
+var external_off := false      # a second owner (GroundRealism: steep-slope slide) switches the foot IK off; set_state does not touch it
 var always_near := false       # the local player: rays every tick
 var paused := false            # set_paused(): ragdoll or cutscene owns the skeleton
 
@@ -123,6 +126,18 @@ var _lean := Vector2.ZERO
 var _lean_v := Vector2.ZERO
 var _props: Array = []            # [{att, node, rest, r, bone, last, vel, off, off_v}]
 
+# Hand brace (arm IK, lazy) and torso yaw offset, both set by the owner (WallContact).
+var _arm: Array[PackedInt32Array] = []
+var _arm_ik: Array[TwoBoneIK3D] = []
+var _arm_markers: Array[Node3D] = []      # [target_l, target_r, pole_l, pole_r]
+var _arms_state := 0                      # 0 = not built, 1 = built, -1 = rig has no arms
+var _brace_pt: Array[Vector3] = [Vector3.ZERO, Vector3.ZERO]
+var _brace_w: Array[float] = [0.0, 0.0]
+var _brace_rot: Array[Quaternion] = [Quaternion.IDENTITY, Quaternion.IDENTITY]
+var _torso_yaw := 0.0
+var _axis_anim := Vector3.ZERO
+var _yaw_ch := {}                         # channel -> rad (0 = wall contact, 1 = balance sway)
+
 
 ## Foot IK, secondary motion and any spring chains on `model`. `body` is the
 ## physics body carrying it (its rays skip it). Returns the rig node, or null.
@@ -160,6 +175,79 @@ func set_state(speed: float, grounded: bool, off := false, heavy_action := false
 	airborne = not grounded
 	suppressed = off
 	attacking = heavy_action
+
+
+## Owner request: put hand `side` (0 = left, 1 = right) on `point` (world) with weight 0..1. Only the player's rig
+## (always_near) builds the arm IK; others ignore it. `normal` is unused for now (the hand keeps its animated rotation).
+func set_hand_brace(side: int, point: Vector3, _normal: Vector3, weight: float) -> void:
+	if side < 0 or side > 1:
+		return
+	_brace_pt[side] = point
+	_brace_w[side] = clampf(weight, 0.0, 1.0)
+	if _brace_w[side] > 0.001 and _arms_state == 0 and always_near and _use_ik:
+		_build_arms()
+
+
+## Shoulder-to-wrist length in metres (rest pose, at the current body scale); 0.37 when the rig has no arms.
+func arm_length() -> float:
+	var up := _skeleton.find_bone(ARMS[0][0])
+	var lo := _skeleton.find_bone(ARMS[0][1])
+	var hd := _skeleton.find_bone(ARMS[0][2])
+	if up < 0 or lo < 0 or hd < 0:
+		return 0.37
+	var xf := _skeleton.global_transform
+	var a := xf * _skeleton.get_bone_global_rest(up).origin
+	var b := xf * _skeleton.get_bone_global_rest(lo).origin
+	var c := xf * _skeleton.get_bone_global_rest(hd).origin
+	return a.distance_to(b) + b.distance_to(c)
+
+
+## World vector from the left upper-arm joint to the right one in the ANIMATED pose (measured at the start of the pre stage,
+## before any chest yaw of ours), or ZERO when the rig has no arms.
+func shoulder_axis() -> Vector3:
+	return _axis_anim
+
+
+## Chest yaw (rad, about world up) added to the torso bones; + turns toward the model's left. 0 = none. Channels add up.
+func set_torso_yaw_offset(rad: float, channel := 0) -> void:
+	_yaw_ch[channel] = rad
+	var total := 0.0
+	for v: float in _yaw_ch.values():
+		total += v
+	_torso_yaw = total
+
+
+func _build_arms() -> void:
+	_arms_state = -1
+	for names: Array in ARMS:
+		var ids := PackedInt32Array()
+		for n: String in names:
+			ids.append(_skeleton.find_bone(n))
+		if ids.has(-1):
+			_arm.clear()
+			return
+		_arm.append(ids)
+	for i in 4:
+		var m := Node3D.new()
+		m.top_level = true
+		add_child(m)
+		_arm_markers.append(m)
+	for s in 2:
+		var ik := TwoBoneIK3D.new()
+		ik.name = "ArmIK_" + ("L" if s == 0 else "R")
+		ik.setting_count = 1
+		ik.set_root_bone(0, _arm[s][0])
+		ik.set_middle_bone(0, _arm[s][1])
+		ik.set_end_bone(0, _arm[s][2])
+		_skeleton.add_child(ik)
+		ik.set_target_node(0, ik.get_path_to(_arm_markers[s]))
+		ik.set_pole_node(0, ik.get_path_to(_arm_markers[s + 2]))
+		ik.influence = 0.0
+		ik.active = _near
+		_arm_ik.append(ik)
+	_arms_state = 1
+	if _near:
+		_order_modifiers()
 
 
 func _setup(model: Node3D, body: Node3D, ik: bool, secondary: bool) -> bool:
@@ -309,7 +397,7 @@ func _notification(what: int) -> void:
 	# takes them along; when the model goes, the skeleton frees them itself.
 	if what == NOTIFICATION_PREDELETE:
 		_candidates.erase(get_instance_id())
-		for mod: Node in [_pre, _ik, _post, _springs]:
+		for mod: Node in [_pre, _ik, _post, _springs] + _arm_ik:
 			if is_instance_valid(mod) and not mod.is_queued_for_deletion():
 				mod.queue_free()
 
@@ -387,6 +475,9 @@ func _set_near(on: bool) -> void:
 	for mod: SkeletonModifier3D in [_pre, _ik, _post, _springs]:
 		if mod:
 			mod.active = on
+	for aik in _arm_ik:
+		aik.active = on
+		aik.influence = 0.0
 	if _ik:
 		_ik.influence = 0.0
 	set_physics_process(on and _use_ik)
@@ -400,7 +491,7 @@ func _order_modifiers() -> void:
 		if child is LookAtModifier3D:
 			_skeleton.move_child(child, index)
 			index += 1
-	for mod: Node in [_pre, _ik, _post, _springs]:
+	for mod: Node in [_pre, _ik, _arm_ik[0] if _arm_ik.size() == 2 else null, _arm_ik[1] if _arm_ik.size() == 2 else null, _post, _springs]:
 		if mod:
 			_skeleton.move_child(mod, index)
 			index += 1
@@ -450,7 +541,7 @@ func _physics_process(_delta: float) -> void:
 # --- Modifier stages -----------------------------------------------------------------
 
 func _target_weight() -> float:
-	if suppressed or airborne or not (_hit[0] or _hit[1]):
+	if suppressed or airborne or external_off or not (_hit[0] or _hit[1]):
 		return 0.0
 	var speed := _owner_speed
 	if speed < 0.0:
@@ -464,6 +555,14 @@ func _target_weight() -> float:
 ## the lower foot and place the IK targets and knee poles.
 func _pre_modify(delta: float) -> void:
 	_track_body(delta)
+	if _arms_state != -1 and _torso_yaw_wanted():
+		var l := _skeleton.find_bone(ARMS[0][0])
+		var r := _skeleton.find_bone(ARMS[1][0])
+		if l >= 0 and r >= 0:
+			var xa := _skeleton.global_transform
+			_axis_anim = (xa * _skeleton.get_bone_global_pose(r).origin) - (xa * _skeleton.get_bone_global_pose(l).origin)
+	if absf(_torso_yaw) >= 0.0005:
+		_apply_torso_yaw()          # before the arm IK: the hands must reach their targets with the chest already turned
 	var xf := _skeleton.global_transform
 	var base := _model.global_position
 	var fwd := _model.global_basis.z.normalized()
@@ -476,6 +575,8 @@ func _pre_modify(delta: float) -> void:
 		_foot_anim[i] = xf * foot_pose.origin
 		_foot_rot[i] = foot_pose.basis.get_rotation_quaternion()
 	_has_anim = true
+	if _arms_state == 1:
+		_arms_pre(xf, fwd)
 	_weight = move_toward(_weight, _target_weight(), WEIGHT_RATE * delta)
 	var a := 1.0 - exp(-GROUND_RATE * delta)
 	var max_drop := _leg_len * 0.38
@@ -525,6 +626,45 @@ func _pre_modify(delta: float) -> void:
 		_markers[i + 2].global_position = knees[i] + Vector3(0.0, _pelvis_off, 0.0) + (bend + fwd * 0.3).normalized() * _leg_len * 0.6
 
 
+func _torso_yaw_wanted() -> bool:
+	return always_near          # only the player's rig measures its shoulder line (WallContact squares the chest to a wall)
+
+
+## Chest yaw from set_torso_yaw_offset: the spine bones turn about world up (the neck is left alone).
+func _apply_torso_yaw() -> void:
+	var skel_q := _skeleton.global_basis.get_rotation_quaternion()
+	for entry: Array in _torso:
+		var share: float = entry[1]
+		if share <= 0.0:
+			continue
+		var bone: int = entry[0]
+		var q_skel := skel_q.inverse() * Quaternion(Vector3.UP, _torso_yaw * share / 0.9) * skel_q
+		var parent := _skeleton.get_bone_parent(bone)
+		var parent_q := _skeleton.get_bone_global_pose(parent).basis.get_rotation_quaternion() if parent >= 0 else Quaternion.IDENTITY
+		var bone_q := _skeleton.get_bone_global_pose(bone).basis.get_rotation_quaternion()
+		_skeleton.set_bone_pose_rotation(bone, (parent_q.inverse() * q_skel * bone_q).normalized())
+
+
+## Arm IK targets: the animated hand pulled toward the brace point by its weight; the elbow keeps the bend it had.
+func _arms_pre(xf: Transform3D, fwd: Vector3) -> void:
+	for s in 2:
+		var w := _brace_w[s]
+		var ik := _arm_ik[s]
+		var shoulder := xf * _skeleton.get_bone_global_pose(_arm[s][0]).origin
+		var hand_pose := _skeleton.get_bone_global_pose(_arm[s][2])
+		var hand := xf * hand_pose.origin
+		_brace_rot[s] = hand_pose.basis.get_rotation_quaternion()
+		if w <= 0.001:
+			ik.influence = 0.0
+			continue
+		ik.influence = 1.0
+		_arm_markers[s].global_position = hand.lerp(_brace_pt[s], w)
+		var side := -1.0 if s == 0 else 1.0
+		var out := fwd.cross(Vector3.UP).normalized() * side      # away from the body on this side
+		# elbows point out, back and down (a push against a wall, arms out to the sides): the pole sits there, relative to the shoulder
+		_arm_markers[s + 2].global_position = shoulder + out * 0.45 - fwd * 0.3 - Vector3.UP * 0.4
+
+
 ## After the IK: tilt the planted feet to the ground, then the torso and prop springs.
 func _post_modify(delta: float) -> void:
 	if _use_ik and _weight > 0.001:
@@ -542,6 +682,14 @@ func _post_modify(delta: float) -> void:
 			var parent_q := _skeleton.get_bone_global_pose(_leg[i][1]).basis.get_rotation_quaternion()
 			var foot_q := _skeleton.get_bone_global_pose(foot).basis.get_rotation_quaternion()
 			_skeleton.set_bone_pose_rotation(foot, (parent_q.inverse() * foot_q.slerp(desired, _weight)).normalized())
+	if _arms_state == 1:
+		for s in 2:
+			if _brace_w[s] > 0.001:
+				# keep the animated hand orientation (the solved forearm would twist it)
+				var hand := _arm[s][2]
+				var fa_q := _skeleton.get_bone_global_pose(_arm[s][1]).basis.get_rotation_quaternion()
+				var cur_q := _skeleton.get_bone_global_pose(hand).basis.get_rotation_quaternion()
+				_skeleton.set_bone_pose_rotation(hand, (fa_q.inverse() * cur_q.slerp(_brace_rot[s], 0.8)).normalized())
 	if _use_secondary:
 		_torso_spring(delta)
 		_prop_springs(delta)
@@ -582,6 +730,7 @@ func _torso_spring(delta: float) -> void:
 		var bone: int = entry[0]
 		var share: float = entry[1]
 		var q := Quaternion(right, _lean.x * share) * Quaternion(fwd, _lean.y * share)
+
 		var q_skel := skel_q.inverse() * q * skel_q
 		var parent := _skeleton.get_bone_parent(bone)
 		var parent_q := _skeleton.get_bone_global_pose(parent).basis.get_rotation_quaternion() if parent >= 0 else Quaternion.IDENTITY

@@ -243,6 +243,9 @@ var _camera_arm: SpringArm3D
 var _model: Node3D
 var _animator: CharacterAnimator
 var _rig: Node
+## Wall contact (brace / glance / impact) and ground realism (slope lean + slide, edge balance, ledge stop); docs/anim/aaa_wiring/.
+var _wall: RefCounted = preload("res://scripts/actors/wall_contact.gd").new()
+var _ground: RefCounted = preload("res://scripts/actors/ground_realism.gd").new()
 var _trail: WeaponTrail          # blade ribbon on the fast frames (COMBAT_AUDIT C4)
 var _equip_vis: RefCounted       # worn / wielded item models on the skeleton bones (Life.equipment.changed)
 var _ragdoll: Node
@@ -591,6 +594,8 @@ func _build_body() -> void:
 	# animation -> look-at -> foot IK -> secondary motion.
 	_rig = ProceduralRig.attach(body, self, true)
 	_animator.rig = _rig
+	_wall.bind_rig(_rig)
+	_ground.bind_rig(_rig)
 	_trail = WeaponTrail.attach(body)
 	var sks := body.find_children("*", "Skeleton3D", true, false)
 	if not sks.is_empty():
@@ -823,12 +828,14 @@ func _physics_process(delta: float) -> void:
 			if _jump_active and absf(velocity.y) < 1.5:
 				gravity *= 0.5
 			velocity.y = maxf(velocity.y - gravity * delta, -JUMP_TERMINAL)
+	velocity = _ground.pre_move(self, dir, delta, running, _wall)
 	var impact_speed := -velocity.y
 	if floor_before and not _jump_active and not swimming and _move_speed > 0.1:
 		_trav.step_assist(delta, _move_dir, _move_speed)
 	var _pm := Probe.t()
 	move_and_slide()
 	Probe.add("player.slide", _pm)
+	_wall.tick(self, dir, delta)
 	_update_jump_after_move(floor_before, impact_speed, dir)
 	_pm = Probe.t()
 	_resolve_contacts()
@@ -840,7 +847,7 @@ func _physics_process(delta: float) -> void:
 	_update_facing(dir, delta)
 	var real := get_real_velocity()
 	var travel := Vector3(real.x, 0.0, real.z)
-	_update_locomotion_transition(dir, floor_before, speed_before_steer, running)
+	_update_locomotion_transition(Vector3.ZERO if _wall.blocked() else dir, floor_before, 0.0 if _wall.blocked() else speed_before_steer, running)
 	_pm = Probe.t()
 	_animator.update(delta, travel.length() if _dodge <= 0.0 else 0.0, travel)
 	Probe.add("player.animator", _pm)
@@ -1373,6 +1380,8 @@ func _update_lean(delta: float) -> void:
 		roll = clampf(-_yaw_rate * _move_speed * 0.012, -LEAN_ROLL_MAX, LEAN_ROLL_MAX) * speed_t
 		var accel := (_move_speed - _lean_speed) / maxf(delta, 0.0001)
 		pitch = clampf(accel * 0.002, -LEAN_PITCH_MAX, LEAN_PITCH_MAX)
+		roll += _wall.lean().y
+		pitch += _wall.lean().x + _ground.lean_pitch()
 	_lean_speed = _move_speed
 	var a := 1.0 - exp(-10.0 * delta)
 	_lean = _lean.lerp(Vector2(pitch, roll), a)
