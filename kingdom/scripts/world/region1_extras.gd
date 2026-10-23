@@ -35,6 +35,31 @@ static func _ground_at(root: Node3D, at: Array) -> Vector3:
 
 ## A name board: a dark plank with the town name in gold letters, on two posts. World-sized (not a nameplate) so
 ## it reads in a screenshot from the road.
+## {lines, px}: the title laid out to fit `max_w` metres (Label3D pixel_size `px0`); 1 line shrunk down to 0.0075, else 2 lines split at the
+## space / hyphen nearest the middle.
+static func _fit_title(text: String, font_size: int, px0: float, max_w: float) -> Dictionary:
+	var font := ThemeDB.fallback_font
+	var w := func(t: String) -> float: return font.get_string_size(t, HORIZONTAL_ALIGNMENT_LEFT, -1, font_size).x
+	var px := px0
+	var full: float = w.call(text)
+	if full * px <= max_w or full <= 0.0:
+		return {"lines": PackedStringArray([text]), "px": px}
+	px = maxf(max_w / full, 0.0075)
+	if full * px <= max_w + 0.001:
+		return {"lines": PackedStringArray([text]), "px": px}
+	var best := -1
+	for i in text.length():
+		if text[i] == " " or text[i] == "-":
+			if best < 0 or absi(i - text.length() / 2) < absi(best - text.length() / 2):
+				best = i
+	if best < 0:
+		return {"lines": PackedStringArray([text]), "px": px}
+	var a := text.substr(0, best + (1 if text[best] == "-" else 0)).strip_edges()
+	var b := text.substr(best + 1).strip_edges()
+	var wide := maxf(w.call(a), w.call(b))
+	return {"lines": PackedStringArray([a, b]), "px": minf(px0 * 0.8, max_w / maxf(wide, 1.0))}
+
+
 static func _label(root: Node3D, lab: Dictionary) -> void:
 	var at: Array = lab.get("at", [0, 6])
 	var g := _ground_at(root, at)
@@ -45,16 +70,24 @@ static func _label(root: Node3D, lab: Dictionary) -> void:
 	var h := float(lab.get("h", 3.4))
 	# Nameplates (core/nameplates.gd) stay off the board's screen rectangle instead of printing over its lettering.
 	holder.add_to_group("world_sign")
-	holder.set_meta("sign_rect", Rect2(-2.4, h - 0.85, 4.8, 1.7))
+	holder.set_meta("sign_rect", Rect2(-2.4, h - 0.85, 4.8, 2.4 if _fit_title(String(lab.get("text", "")), 72, 0.0115, 4.2)["lines"].size() > 1 else 1.7))
+	# Fit the title to the board (W5): "MISTWOOD HEART-TREE" ran off both ends. Shrink to the board's width, then wrap onto two lines
+	# (taller board) when it is still too wide at the smallest readable size.
+	var title := String(lab.get("text", ""))
+	var fit := _fit_title(title, 72, 0.0115, 4.2)
+	var lines: PackedStringArray = fit["lines"]
+	var tpx: float = fit["px"]
+	var two := lines.size() > 1
+	var board_h := 2.2 if two else 1.5
 	var plank := MeshInstance3D.new()
 	var box := BoxMesh.new()
-	box.size = Vector3(4.6, 1.5, 0.14)
+	box.size = Vector3(4.6, board_h, 0.14)
 	plank.mesh = box
 	var mat := StandardMaterial3D.new()
 	mat.albedo_color = BOARD
 	mat.roughness = 0.9
 	plank.material_override = mat
-	plank.position = Vector3(0, h, 0)
+	plank.position = Vector3(0, h + (0.35 if two else 0.0), 0)
 	plank.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
 	holder.add_child(plank)
 	for sx: float in [-2.0, 2.0]:
@@ -70,28 +103,30 @@ static func _label(root: Node3D, lab: Dictionary) -> void:
 		holder.add_child(post)
 	for side: float in [1.0, -1.0]:
 		var t := Label3D.new()
-		t.text = String(lab.get("text", ""))
+		t.text = "
+".join(lines)
 		t.font_size = 72
-		t.pixel_size = 0.0115
+		t.pixel_size = tpx
 		t.outline_size = 0
 		t.modulate = INK
 		t.shaded = false
 		t.double_sided = false
-		t.position = Vector3(0, h + 0.22, 0.09 * side)
+		t.position = Vector3(0, h + (0.62 if two else 0.22), 0.09 * side)
 		t.rotation.y = 0.0 if side > 0.0 else PI
 		t.visibility_range_end = 90.0
 		holder.add_child(t)
 		var sub := String(lab.get("sub", ""))
 		if sub != "":
 			var s := Label3D.new()
+			var sfit := _fit_title(sub, 40, 0.0100, 4.2)
 			s.text = sub
 			s.font_size = 40
-			s.pixel_size = 0.0100
+			s.pixel_size = float(sfit["px"])
 			s.outline_size = 0
 			s.modulate = Color(0.85, 0.75, 0.55)
 			s.shaded = false
 			s.double_sided = false
-			s.position = Vector3(0, h - 0.42, 0.09 * side)
+			s.position = Vector3(0, h - (0.5 if two else 0.42), 0.09 * side)
 			s.rotation.y = 0.0 if side > 0.0 else PI
 			s.visibility_range_end = 70.0
 			holder.add_child(s)

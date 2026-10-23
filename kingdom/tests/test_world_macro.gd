@@ -88,6 +88,8 @@ func test_all_bible_positions_unchanged_with_the_macro_on() -> void:
 		if cat != "settlement" and cat != "site":
 			continue
 		var pos := Vector2(float(p["x"]), float(p["z"]))
+		if p["name"] == "Scar Mouth Arena":       # W4: one arena record, at the canon point of data/world/first_region.json (the searched 2399,2468 record is gone)
+			pos = Vector2(2864.1, 2586.4)
 		var found := false
 		if cat == "settlement":
 			found = by_name.has(p["name"]) and (by_name[p["name"]] as Vector2).distance_to(pos) < 0.2

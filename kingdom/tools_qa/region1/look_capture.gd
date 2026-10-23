@@ -13,9 +13,13 @@ extends SceneTree
 var views: Array = []
 var out_dir := ""
 var tag := ""
+var weather_arg := "clear"   # QA captures pin the weather (the daily schedule can roll fog/rain); --weather=auto leaves it
+var _env_saved: Dictionary = {}
+var _t3d_saved: Dictionary = {}
+var _mat_saved: Dictionary = {}
+var aa_arg := 0
 var only: PackedStringArray = []
 var budget_s := 900
-var aa_arg := 0
 var main: Node
 var cam: Camera3D
 var frame := 0
@@ -34,9 +38,10 @@ func _initialize() -> void:
 		if a.begins_with("--views="): views_path = a.substr(8)
 		elif a.begins_with("--out="): out_dir = a.substr(6)
 		elif a.begins_with("--tag="): tag = a.substr(6)
+		elif a.begins_with("--aa="): aa_arg = int(a.substr(5))   # Quality.aa_mode: 0 tier default, 1 FXAA+FSR1, 2 TAA, 3 FSR2 (FSR2 + Terrain3D crashes on 4.6.3)
+		elif a.begins_with("--weather="): weather_arg = "" if a.substr(10) == "auto" else a.substr(10)
 		elif a.begins_with("--only="): only = a.substr(7).split(",", false)
 		elif a.begins_with("--budget="): budget_s = int(a.substr(9))
-		elif a.begins_with("--aa="): aa_arg = int(a.substr(5))   # Quality.aa_mode: 0 tier default, 1 FXAA+FSR1, 2 TAA, 3 FSR2 (FSR2 + Terrain3D crashes on 4.6.3)
 	var parsed: Variant = JSON.parse_string(FileAccess.get_file_as_string(views_path))
 	for v: Dictionary in (parsed as Dictionary)["views"]:
 		if only.is_empty() or String(v["name"]) in only:
@@ -61,6 +66,9 @@ func _process(_dt: float) -> bool:
 			root.get_node("Quality").call("set_aa_mode", aa_arg)
 		DisplayServer.window_set_vsync_mode(DisplayServer.VSYNC_DISABLED)
 		Engine.max_fps = 0
+		if not weather_arg.is_empty() and main.get("weather"):
+			(main.get("weather") as Node).call("set_weather", weather_arg, 0.0)
+			(main.get("weather") as Node).set("auto", false)
 		var hud: Node = main.get("hud")
 		if hud:
 			hud.visible = false
@@ -101,8 +109,23 @@ func _next() -> void:
 	var v: Dictionary = views[idx]
 	_clear_overlays()
 	root.get_node("WorldSim").set("time_of_day", float(v.get("hour", 16.2)))
-	var at := Vector2(float(v["at"][0]), float(v["at"][1]))
-	var look := Vector2(float(v["look"][0]), float(v["look"][1]))
+	var at := Vector2(float(v.get("at", [0, 0])[0]), float(v.get("at", [0, 0])[1]))
+	var look := Vector2(float(v.get("look", [0, 0])[0]), float(v.get("look", [0, 0])[1]))
+	if v.has("gate"):
+		# Kingsreach gate market (the owner's reference view): `in` metres inside the first gate of settlement `gate`, looking out of the gate.
+		var gs: Dictionary = WorldGen.settlements[int(v["gate"])]
+		var ga: float = gs["plan"]["gates"][0]
+		var gd := Vector2(cos(ga), sin(ga))
+		at = (gs["pos"] as Vector2) + gd * (float(gs["radius"]) - float(v.get("in", 42.0)))
+		look = at + gd * 80.0
+	if v.has("site"):
+		for st: Dictionary in WorldGen.sites:
+			if String(st.get("r1id", "")).begins_with(String(v["site"])):
+				var sp: Vector2 = st["pos"]
+				var so: Array = v.get("site_at", [0.0, 14.0])
+				var sl: Array = v.get("site_look", [0.0, 5.2])
+				at = sp + Vector2(float(so[0]), float(so[1]))
+				look = sp + Vector2(float(sl[0]), float(sl[1]))
 	var player: Node3D = main.get("player")
 	# Stream the world around the camera spot: the game follows the player.
 	main.call("_teleport", at, 0.0)
@@ -130,6 +153,17 @@ func _next() -> void:
 				region.call("_build_part", item[0], item[1], item[1]["parts"][item[3]])
 			else:
 				region.call("_build_light", item[0], item[1]["lights"][item[3]])
+	# Towns build their props in slices around the focus: finish them so a view near a settlement is complete.
+	var setl: Node = main.get("settlements")
+	var near_town := v.has("gate")
+	for st in WorldGen.settlements:
+		if at.distance_to(st["pos"]) < float(st["radius"]) + 60.0:
+			near_town = true
+	if setl and near_town:     # (costs 1-2 min per view on a loaded machine: only where a town is really in view)
+		setl.set("focus", player.global_position)
+		for _i in 4:
+			setl.call("update_now")
+		setl.call("finish_prop_jobs")
 	var gy := WorldGen.height(at.x, at.y)
 	var ly := WorldGen.height(look.x, look.y)
 	var lv := WorldGen.water_level_at(look.x, look.y)
@@ -149,9 +183,63 @@ func _next() -> void:
 		cam.look_at(Vector3(look.x, ly + float(v.get("look_up", 1.5)), look.y))
 		cam.fov = float(v.get("fov", 60.0))
 		cam.current = true
+	var ts: Node = main.get("terrain") if main.get("terrain") else null
+	var br: Node = ts.get("_bridge") if ts else null
+	var t3h := NAN
+	if br:
+		t3h = br.call("sampled_height", at.x, at.y)
+	print("[diag] ", v["name"], " wg_h=", WorldGen.height(at.x, at.y), " t3d_h=", t3h, " cam_y=", cam.global_position.y, " regions=", br.call("region_count") if br else -1)
+	if br and v.has("probe"):
+		var t3: Object = (br.get("terrain") as Object).get("data")
+		for off: Array in v["probe"]:
+			var px := at.x + float(off[0])
+			var pz := at.y + float(off[1])
+			print("[probe] ", v["name"], " off=", off, " wg=", WorldGen.height(px, pz), " t3d=", t3.call("get_height", Vector3(px, 0, pz)), " ctrl=0x%x" % int(t3.call("get_control", Vector3(px, 0, pz))), " hole=", t3.call("get_control_hole", Vector3(px, 0, pz)) if t3.has_method("get_control_hole") else "n/a")
+	# per-view Environment overrides ({"env": {"ssr_enabled": false}}), restored before the next view
+	var envn: Environment = main.get("env")
+	if envn:
+		for k: String in _env_saved:
+			envn.set(k, _env_saved[k])
+		_env_saved.clear()
+		for k: String in (v.get("env", {}) as Dictionary):
+			_env_saved[k] = envn.get(k)
+			envn.set(k, (v["env"] as Dictionary)[k])
+	if br:
+		var tn: Object = br.get("terrain")
+		for k: String in _t3d_saved:
+			tn.set(k, _t3d_saved[k])
+		_t3d_saved.clear()
+		var tmat: Object = tn.get("material")
+		for k: String in _mat_saved:
+			tmat.set(k, _mat_saved[k])
+		_mat_saved.clear()
+		for k: String in (v.get("mat", {}) as Dictionary):
+			_mat_saved[k] = tmat.get(k)
+			tmat.set(k, (v["mat"] as Dictionary)[k])
+		for k: String in (v.get("t3d", {}) as Dictionary):
+			_t3d_saved[k] = tn.get(k)
+			tn.set(k, (v["t3d"] as Dictionary)[k])
+	if br:
+		var tp: Object = br.get("terrain")
+		print("[t3d] mesh_size=", tp.get("mesh_size"), " mesh_lods=", tp.get("mesh_lods"), " cull_margin=", tp.get("cull_margin"), " lod_dist=", tp.get("lod_distance") if "lod_distance" in tp else "n/a")
+	if br:
+		var dd: Object = (br.get("terrain") as Object).get("data")
+		print("[hr] data height_range=", dd.call("get_height_range"), " regions=", dd.call("get_region_count"), " has_E=", dd.call("has_regionp", Vector3(at.x + 100, 0, at.y)), " has_S=", dd.call("has_regionp", Vector3(at.x, 0, at.y + 100)))
+		if v.has("hr"):
+			dd.call("set_height_range", Vector2(float(v["hr"][0]), float(v["hr"][1])))
+			print("[hr] set ", dd.call("get_height_range"))
+	if br:
+		var tc: Camera3D = (br.get("terrain") as Object).call("get_camera")
+		print("[t3dcam] terrain camera=", tc.get_path() if tc else "null", " pos=", tc.global_position if tc else Vector3.ZERO, " cur=", tc.current if tc else false, " mycam=", cam.global_position, " snapped=", (br.get("terrain") as Object).call("get_snapped_position"))
+	if br and bool(v.get("tcam", false)):
+		(br.get("terrain") as Object).call("set_camera", cam)
+	print("[pcam] player camera=", (player.get("camera") as Camera3D).global_position if player.get("camera") else "none", " current=", (player.get("camera") as Camera3D).current if player.get("camera") else false)
+	var hzn: Node = region.get_node_or_null("Region1Look") if region else null
+	if hzn and hzn.get("horizon"):
+		(hzn.get("horizon") as Node3D).visible = not bool(v.get("nohorizon", false))
 	phase = 0
 	wait = int(v.get("warm", 150))
-	print("[look] view ", v["name"], " at ", at)
+	print("[look] view ", v["name"], " at ", at, " look ", look, " t=", (Time.get_ticks_msec() - t0) / 1000)
 
 
 ## Look-dev shots are of the world: HUD, cutscene captions,
@@ -168,6 +256,13 @@ func _clear_overlays() -> void:
 
 func _save() -> void:
 	var v: Dictionary = views[idx]
+	if v.has("scan"):
+		var cp := cam.global_position
+		for n in root.find_children("*", "VisualInstance3D", true, false):
+			var vi := n as VisualInstance3D
+			var bb := vi.global_transform * vi.get_aabb()
+			if bb.size.x > 30.0 and bb.size.z > 30.0 and bb.size.y < 60.0 and absf(bb.get_center().x - cp.x) < bb.size.x * 0.5 + 60.0 and absf(bb.get_center().z - cp.z) < bb.size.z * 0.5 + 60.0:
+				print("[scan] ", vi.get_path(), " cls=", vi.get_class(), " y=", bb.position.y, "..", bb.end.y, " size=", bb.size, " vis=", vi.is_visible_in_tree())
 	var img := root.get_viewport().get_texture().get_image()
 	var p := "%s/%s%s.png" % [out_dir, v["name"], ("_" + tag) if tag != "" else ""]
 	img.save_png(p)
@@ -187,7 +282,7 @@ func _save() -> void:
 		rv.get_render_info(Viewport.RENDER_INFO_TYPE_VISIBLE, Viewport.RENDER_INFO_OBJECTS_IN_FRAME)]
 	perf_lines.append(line)
 	print("[perf] ", line)
-	print("SAVED ", p)
+	print("SAVED ", p, " t=", (Time.get_ticks_msec() - t0) / 1000)
 
 
 func _finish() -> void:
