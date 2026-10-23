@@ -21,6 +21,18 @@ class EndMark extends Node:
 
 func _ready() -> void:
 	process_priority = -100000
+	if OS.get_cmdline_user_args().has("--no-aaa"):
+		(load("res://scripts/actors/aaa_clips.gd") as GDScript).set("enabled", false)      # baseline: library without the AAA clips
+	Assets.mh_character("villager_man_a", 1.75, [], false).queue_free()      # warm: builds the real library and loads the GLB scenes
+	var t_lib := Time.get_ticks_usec()
+	var mem0 := OS.get_static_memory_usage()
+	var lib: AnimationLibrary = Assets._ual_for(NodePath("Perf/Skeleton3D"))      # a second library build (cache miss): every UAL file + AAA merge
+	print("PROBE library_build %.1f ms  static_mem %+.1f MB  clips %d" % [(Time.get_ticks_usec() - t_lib) / 1000.0, (OS.get_static_memory_usage() - mem0) / 1048576.0, lib.get_animation_list().size()])
+	var t_aaa := Time.get_ticks_usec()
+	var mem1 := OS.get_static_memory_usage()
+	var lib2 := AnimationLibrary.new()
+	var n_aaa: int = (load("res://scripts/actors/aaa_clips.gd") as GDScript).call("merge_into", lib2, "Perf2/Skeleton3D")
+	print("PROBE aaa_merge %.1f ms  static_mem %+.2f MB  clips %d" % [(Time.get_ticks_usec() - t_aaa) / 1000.0, (OS.get_static_memory_usage() - mem1) / 1048576.0, n_aaa])
 	Engine.max_fps = 0
 	DisplayServer.window_set_vsync_mode(DisplayServer.VSYNC_DISABLED)
 	var em := EndMark.new()
