@@ -472,3 +472,10 @@ func test_controller_stamps_the_frame_of_the_press_it_ran() -> void:
 	assert_int(ran.size()).is_equal(1)
 	assert_int(InteractionController.consumed_frame).is_equal(Engine.get_process_frames())
 
+
+
+func test_door_priority_beats_a_station_beside_it() -> void:
+	var station := _cand("station", Vector3(0, 0, 0.9))
+	var door := _cand("door", Vector3(0, 0, 2.2), {"priority": InteriorDoor.PICK_PRIORITY})
+	var best := InteractionPicker.pick(Vector3.ZERO, Vector3(0, 0, 1), [station, door])
+	assert_str(String(best.get("id", ""))).is_equal("door")
