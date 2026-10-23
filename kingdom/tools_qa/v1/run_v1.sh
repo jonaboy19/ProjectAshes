@@ -21,8 +21,11 @@ echo "godot: $("$G" --version 2>/dev/null | head -1)  stages: $STAGES  out: $OUT
 
 # 1. import (builds the class cache; a second pass catches types that only resolve after the first)
 if [ -z "$V1_SKIP_IMPORT" ]; then
+  # the editor-mode import rewrites project.godot (drops renderer / shadow / AA keys): snapshot and put it back
+  cp project.godot "$OUT/project.godot.orig"
   timeout 1800 "$G" --headless --path . --import > "$OUT/import.log" 2>&1
   timeout 1800 "$G" --headless --path . --import >> "$OUT/import.log" 2>&1
+  cp "$OUT/project.godot.orig" project.godot
   verdict "import: done (rc $?), $(grep -c 'SCRIPT ERROR\|Parse Error' "$OUT/import.log") parse/script errors in import.log"
 fi
 

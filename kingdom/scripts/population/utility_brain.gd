@@ -661,7 +661,7 @@ static func hazards(tree: SceneTree) -> PackedVector2Array:
 ## is exhausted; unknown candidates never count as visible.
 func sense_threats(viewer: Node3D, tree: SceneTree, world_layer: int) -> Dictionary:
 	var out := {"visible": PackedVector2Array(), "observed_ms": -1}
-	if viewer == null or tree == null:
+	if viewer == null or tree == null or not viewer.is_inside_tree():
 		return out
 	_sight_observer_ref = weakref(viewer)
 	hazards(tree)
