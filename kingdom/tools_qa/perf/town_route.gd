@@ -1,5 +1,10 @@
 extends Node
 const Probe := preload("res://scripts/core/perf_probe.gd")
+const Marker := preload("res://tools_qa/perf/frame_marker.gd")
+var mk_proc := 0.0
+var mk_phys := 0.0
+var mk_ticks := 0
+var mk_n := 0
 ## Perf route (release QA): the same town walk on the PC and on the S22, so numbers compare.
 ## Walks the player (no input needed) through: Ashford's plaza ring -> Kingsreach from its gate into the
 ## market -> past the placed Meshy sites around Kingsreach, then loops until --seconds is up.
@@ -78,6 +83,10 @@ func run(m: Node) -> void:
 		set_process(false)
 		set_physics_process(false)
 		return
+	for mi in 2:
+		var mn: Node = Marker.new()
+		mn.set("mode", mi)
+		main.add_child(mn)
 	Probe.on = true
 	Probe.capture = true
 	Probe.min_us = 1500
@@ -230,8 +239,16 @@ func _process(delta: float) -> void:
 		print("STALL_SUM n_gt50=%d max=%.0f per_min=%.1f max_frame=%.0f" % [stalls.size(), mx, stalls.size() * 60.0 / maxf(1.0, t - maxf(6.0, prof_after)), mx])
 		var tk := tot_us.keys()
 		tk.sort_custom(func(a, b) -> bool: return tot_us[a] > tot_us[b])
+		var cnt := {}
+		for id: int in reg:
+			var e: Array = reg[id]
+			if e[2]:
+				cnt[e[1]] = int(cnt.get(e[1], 0)) + 1
+			if e[3]:
+				cnt["phys " + String(e[1])] = int(cnt.get("phys " + String(e[1]), 0)) + 1
 		for k in tk.slice(0, 25):
-			print("PROF %-60s avg=%.2fms worst=%.1fms" % [k, float(tot_us[k]) / 1000.0 / maxi(1, samples), float(worst_us[k]) / 1000.0])
+			print("PROF %-60s avg=%.2fms worst=%.1fms nodes=%d" % [k, float(tot_us[k]) / 1000.0 / maxi(1, samples), float(worst_us[k]) / 1000.0, int(cnt.get(k, 0))])
+		print("SPLIT per frame (steady): frame=%.1f ms  process=%.1f ms  physics=%.1f ms (%.2f ticks)  engine_rest=%.1f ms" % [mean_ms(), mk_proc / maxi(1, mk_n), mk_phys / maxi(1, mk_n), float(mk_ticks) / maxi(1, mk_n), mean_ms() - mk_proc / maxi(1, mk_n) - mk_phys / maxi(1, mk_n)])
 		var pk := Probe.us.keys()
 		pk.sort_custom(func(a, b) -> bool: return int(Probe.us[a]) > int(Probe.us[b]))
 		for k in pk.slice(0, 120):
@@ -277,6 +294,12 @@ func _scan() -> void:
 
 
 func _record(delta: float) -> void:
+	var mkv: Array = Marker.take()
+	if t >= prof_after:
+		mk_proc += mkv[0] / 1000.0
+		mk_phys += mkv[1] / 1000.0
+		mk_ticks += mkv[2]
+		mk_n += 1
 	var nodes := int(Performance.get_monitor(Performance.OBJECT_NODE_COUNT))
 	var objs := int(Performance.get_monitor(Performance.OBJECT_COUNT))
 	var res := int(Performance.get_monitor(Performance.OBJECT_RESOURCE_COUNT))
@@ -318,6 +341,13 @@ func _record(delta: float) -> void:
 		tot_us[k] = int(tot_us.get(k, 0)) + int(frame_us[k])
 		worst_us[k] = maxi(int(worst_us.get(k, 0)), int(frame_us[k]))
 	frame_us.clear()
+
+
+func mean_ms() -> float:
+	var tot := 0.0
+	for v: float in all:
+		tot += v
+	return tot / maxi(1, all.size())
 
 
 func _summary(ft: PackedFloat32Array) -> String:

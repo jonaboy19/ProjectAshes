@@ -433,8 +433,12 @@ func _sprite_job_step(slice_us: int) -> bool:
 				continue
 		active_sprite_ids[id] = true
 		var raw := WorldSim.pos[id]
+		var _ps1 := Probe.t()
 		var graph := _sprite_route_graph(id, raw, WorldSim.target[id])
+		Probe.add("sprj.graph", _ps1)
+		_ps1 = Probe.t()
 		var pp := _advance_sprite_route(id, raw, graph, step_delta)
+		Probe.add("sprj.advance", _ps1)
 		var look: String = JOB_LOOK[WorldSim.job[id]]
 		var n: int = used[look]
 		var heading := _sprite_heading(id, WorldSim.target[id]) - pp
@@ -445,6 +449,7 @@ func _sprite_job_step(slice_us: int) -> bool:
 		# the capital; reuse the result while the person hasn't moved.
 		if _sprite_cache.size() > 4000:
 			_sprite_cache.clear()
+		_ps1 = Probe.t()
 		var cached: Array = _sprite_cache.get(id, [])
 		var ground: Vector3
 		if not cached.is_empty() and (cached[0] as Vector2).distance_squared_to(pp) < 0.0025:
@@ -456,6 +461,8 @@ func _sprite_job_step(slice_us: int) -> bool:
 				pp = ground_graph.push_out(pp, 0.3)
 			ground = Vector3(pp.x, WorldGen.height(pp.x, pp.y), pp.y)
 			_sprite_cache[id] = [ground_raw, ground]
+		Probe.add("sprj.ground", _ps1)
+		_ps1 = Probe.t()
 		if vat_ok:
 			if _vat.want(id, pp, WorldSim.target[id], WorldSim.job[id], WorldSim.phase[id], ground.y):
 				_sprite_hidden.erase(id)
@@ -470,6 +477,7 @@ func _sprite_job_step(slice_us: int) -> bool:
 			elif entry[0] < enter_r2:
 				_sprite_hidden[id] = true
 				continue
+		Probe.add("sprj.vat", _ps1)
 		var t := Transform3D(Basis(Vector3.UP, yaw), ground)
 		(_multimeshes[look] as MultiMesh).set_instance_transform(n, t)
 		used[look] = n + 1
