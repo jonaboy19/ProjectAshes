@@ -4297,6 +4297,13 @@ func st_carve_at_stone(net_id: int, glyph: String, label: String, via_in := "Car
 		st_blocker("the carve canvas did not open at %s" % label)
 		return false
 	var took := false
+	if is_headless():
+		# the glyph is drawn with mouse events, which never reach the GUI without a window: use the canvas's own fallback
+		st_hook("carve %s via the canvas's own 'Choose a glyph' fallback (headless: no mouse drawing)" % glyph)
+		view._choose(glyph)
+		await wait_until(func() -> bool: return not view.visible, 10.0)
+		await wait(0.8)
+		return true
 	for attempt in 3:
 		await st_draw_glyph(glyph)
 		took = await wait_until(func() -> bool: return not view.visible, 25.0)
@@ -4514,6 +4521,9 @@ func _st_objective(sid: String, o: Dictionary) -> bool:
 			Life.life_path.set_age(want, WorldSim.day, WorldSim.time_of_day)
 			player.apply_age()
 			await wait(1.0)
+			if is_headless():
+				# the older, taller body can end up inside the doorway collider it was standing in: step out to the plaza
+				await teleport(ashford()["pos"], 0.0, 1.0)
 			return true
 		"cutscene_done":
 			dismiss_popups()

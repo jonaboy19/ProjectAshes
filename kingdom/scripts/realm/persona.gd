@@ -351,7 +351,12 @@ func serialize() -> Dictionary:
 	var last := _ids.size()
 	while last > 0 and _ids[last - 1] == 0:
 		last -= 1
-	return {"v": 1, "ids": Marshalls.raw_to_base64(_ids.slice(0, last).to_byte_array()), "b": Marshalls.raw_to_base64(_buf.slice(0, last * STRIDE))}
+	return {"v": 1, "ids": _b64(_ids.slice(0, last).to_byte_array()), "b": _b64(_buf.slice(0, last * STRIDE))}
+
+
+## raw_to_base64 logs an engine error on an empty array: an empty store saves as "".
+static func _b64(raw: PackedByteArray) -> String:
+	return Marshalls.raw_to_base64(raw) if not raw.is_empty() else ""
 
 
 func deserialize(d: Dictionary) -> void:
