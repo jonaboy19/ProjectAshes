@@ -676,7 +676,7 @@ func sense_threats(viewer: Node3D, tree: SceneTree, world_layer: int) -> Diction
 		if not is_instance_id_valid(target_id):
 			continue
 		var target_node := instance_from_id(target_id) as Node3D
-		if target_node == null:
+		if target_node == null or not target_node.is_inside_tree():
 			continue
 		var target: Vector3 = target_node.global_position
 		var dx := target.x - eye.x
