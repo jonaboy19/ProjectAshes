@@ -803,6 +803,7 @@ static var _static_cache: Dictionary = {}
 ## skeletons, animation, lights or particles fall back to the plain instantiated scene.
 static func static_model(path: String) -> Node3D:
 	if not _static_cache.has(path):
+		var _ps := Probe.t()
 		var sc := scene(path)
 		var mesh: ArrayMesh = null
 		if sc != null:
@@ -823,8 +824,11 @@ static func static_model(path: String) -> Node3D:
 						plain = false
 						break
 			probe.free()
+			Probe.add("assets.static_probe", _ps)
+			_ps = Probe.t()
 			if plain:
 				var merged := merged_mesh(path)
+				Probe.add("assets.static_merge", _ps)
 				if merged != null:
 					mesh = _transformed(merged, Transform3D.IDENTITY, true)   # keeps the automatic mesh LODs
 					_scenes.erase(path)      # perf: the merged copy is all that is drawn; don't keep the source scene's meshes too
@@ -842,6 +846,7 @@ static func merged_mesh(path: String, style := true) -> ArrayMesh:
 	if not ResourceLoader.exists(path):
 		push_warning("Missing building: " + path)
 		return null
+	var _pm := Probe.t()
 	var inst: Node = Assets.scene(path).instantiate()
 	var tools := {}          # material -> SurfaceTool
 	var root3d := inst as Node3D
@@ -865,6 +870,8 @@ static func merged_mesh(path: String, style := true) -> ArrayMesh:
 	if root3d == null and inst is MeshInstance3D:
 		pass
 	inst.free()
+	Probe.add("assets.mm_collect", _pm)
+	_pm = Probe.t()
 	var out := ArrayMesh.new()
 	for mat in tools:
 		var st: SurfaceTool = tools[mat]
@@ -872,8 +879,11 @@ static func merged_mesh(path: String, style := true) -> ArrayMesh:
 		out.surface_set_material(out.get_surface_count() - 1, mat)
 	if out.get_surface_count() == 0:
 		return null
+	Probe.add("assets.mm_commit", _pm)
+	_pm = Probe.t()
 	if style:
-		StyleG.restyle_mesh(out, path.get_file().get_basename())    # Style G role materials (idempotent; building_mesh/static_model reuse it)
+		StyleG.restyle_mesh(out, path.get_file().get_basename())
+		Probe.add("assets.mm_restyle", _pm)      # Style G role materials (idempotent; building_mesh/static_model reuse it)
 	return out
 
 
@@ -881,6 +891,7 @@ static func _transformed(mesh: ArrayMesh, xform: Transform3D, auto_lods := true,
 	# Built through ImporterMesh so the merged mesh gets automatic LODs again
 	# (SurfaceTool merging drops the importer's LODs; without them every tree and
 	# building draws full detail at any distance).
+	var _px := Probe.t()
 	var im := ImporterMesh.new()
 	var surfs := []
 	for surf in mesh.get_surface_count():
@@ -888,13 +899,20 @@ static func _transformed(mesh: ArrayMesh, xform: Transform3D, auto_lods := true,
 		st.begin(Mesh.PRIMITIVE_TRIANGLES)
 		st.append_from(mesh, surf, xform)
 		surfs.append(st.commit_to_arrays())
+	Probe.add("assets.xf_surfaces", _px)
+	_px = Probe.t()
 	if BakedVao.apply(vao_key, surfs):
 		im.set_meta("baked_vao", true)     # baked quality: offline AO + painterly light into COLOR (no-op without a blob)
 	for surf in surfs.size():
 		im.add_surface(Mesh.PRIMITIVE_TRIANGLES, surfs[surf], [], {}, mesh.surface_get_material(surf))
+	Probe.add("assets.xf_vao_add", _px)
+	_px = Probe.t()
 	if auto_lods:
 		im.generate_lods(25.0, 60.0, [])
+	Probe.add("assets.xf_generate_lods", _px)
+	_px = Probe.t()
 	var out := im.get_mesh()
+	Probe.add("assets.xf_get_mesh", _px)
 	if im.has_meta("baked_vao"):
 		out.set_meta("baked_vao", true)
 	return out

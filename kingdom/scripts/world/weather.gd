@@ -158,6 +158,9 @@ var _rain_amount := RAIN_AMOUNT_HIGH
 var _ripple_amount := RIPPLE_AMOUNT_HIGH
 var _flatness := 1.0
 var _ground_cache := 0.0
+## W5: depth fog thins with the camera height above the ground (1 near the ground, 0.12 floor): at 400 m the flat density swallowed a
+## 3 km view in one colour (beige dust aerials); aerial perspective should only tint the far hills.
+var _alt_fog := 1.0
 
 var _materials_wind: Array[ShaderMaterial] = []
 var _materials_wet: Array[ShaderMaterial] = []
@@ -329,6 +332,7 @@ func step(dt: float) -> void:
 	wind_strength = float(params["wind"])
 	if float(params["hfog"]) > 0.0 or float(params["rain"]) > 0.02:
 		_ground_cache = _ground_y()
+	_update_alt_fog()
 	_rescan_timer -= dt
 	if _rescan_timer <= 0.0:
 		_rescan_timer = 2.0
@@ -421,7 +425,7 @@ func _season() -> String:
 func _apply_environment() -> void:
 	if env:
 		var p := params
-		_mul(env, "fog_density", p["fog"])
+		_mul(env, "fog_density", float(p["fog"]) * _alt_fog)
 		_mul(env, "volumetric_fog_density", p["vfog"])
 		_add(env, "fog_height_density", p["hfog"])
 		if float(p["hfog"]) > 0.0:
@@ -442,6 +446,16 @@ func _apply_environment() -> void:
 	if sun:
 		_mul(sun, "light_energy", p_sun())
 		_mul(sun, "shadow_opacity", params["shadow"])
+
+
+func _update_alt_fog() -> void:
+	var cam := _active_camera()
+	if cam == null:
+		_alt_fog = 1.0
+		return
+	var p := cam.global_position
+	var alt := maxf(p.y - WorldGen.height(p.x, p.z), 0.0)
+	_alt_fog = clampf(1.0 / (1.0 + maxf(alt - 8.0, 0.0) / 70.0), 0.12, 1.0)
 
 
 func p_sun() -> float:

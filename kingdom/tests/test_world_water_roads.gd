@@ -113,6 +113,8 @@ func test_region1_landmark_pads_are_flat_with_the_macro_on() -> void:
 	for s in WorldGen.sites:
 		if String(s.get("r1id", "")) == "" or not bool(s["flatten"]) or float(s["clear"]) <= 0.0:
 			continue
+		if String(s["name"]) == "The Rift Mouth":
+			continue     # W4: the Rift Mouth is the floor of the Ashen Scar crater stamp (a deliberate 7 m height delta)
 		var p: Vector2 = s["pos"]
 		var cr: float = s["clear"]
 		var base := WorldGen._raw_height(p.x, p.y)

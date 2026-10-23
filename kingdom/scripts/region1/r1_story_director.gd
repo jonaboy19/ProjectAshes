@@ -25,6 +25,7 @@ const DialogueRunner := preload("res://scripts/sim/dialogue_runner.gd")
 const Spine := preload("res://scripts/region1/progression_spine.gd")
 const QUEST_PATH := "res://data/region1/quests/r1_main.json"
 const CAST_PATH := "res://data/region1/quests/cast.json"
+const Probe := preload("res://scripts/core/perf_probe.gd")
 const SS := preload("res://scripts/ui/frontend/settings_store.gd")
 const STATE_KEY := &"story_director"
 
@@ -186,7 +187,7 @@ func ctx() -> Dictionary:
 	var flags := {}
 	for f: Variant in lp.flags:
 		var v: Variant = lp.flags[f]
-		if v != null and not (v is bool and not v):     # (a flag value can be an Array: `Array != false` is a runtime error)
+		if (v != null and v != false) if Probe.legacy else (v != null and not (v is bool and not v)):      # truthy; a flag may hold an Array/Dictionary payload (`Array != bool` is a SCRIPT ERROR, 1/s with a backtrace)
 			flags[String(f)] = true
 	var items := {}
 	for id in _item_ids:
@@ -213,12 +214,16 @@ func ctx() -> Dictionary:
 func _on_tick() -> void:
 	if not enabled or story == null or not is_instance_valid(player):
 		return
+	var _pt := Probe.t()
 	_handle(story.refresh(ctx()))
+	Probe.add("r1story.refresh", _pt)
+	_pt = Probe.t()
 	_area_events()
 	_manage_npcs()
 	_refill_fights()
 	_process_pending_spawns()
 	_tick_staging()
+	Probe.add("r1story.tick_rest", _pt)
 	var sig := _signature()
 	if sig != _last_sig:
 		_last_sig = sig

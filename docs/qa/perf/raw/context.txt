@@ -1,0 +1,82 @@
+CTX s1_legacy_stand_1440 battery=1 godot_others=4 freeMB=3195 cpu=62
+CTX s2 battery=1 godot_others=2 freeMB=4956 cpu=26
+CTX s3 battery=1 godot_others=4 freeMB=3139 cpu=35
+crash/timeout try 1
+crash/timeout try 2
+crash/timeout try 3
+CTX s4 battery=1 godot_others=4 freeMB=4143 cpu=54
+crash/timeout try 1
+crash/timeout try 2
+crash/timeout try 3
+CTX s5 battery=1 godot_others=4 freeMB=450 cpu=82
+CTX s5 battery=2 godot_others=0 freeMB=3132 cpu=17
+CTX s6 battery=2 godot_others=2 freeMB=5271 cpu=15
+CTX s7 battery=2 godot_others=2 freeMB=5732 cpu=18
+CTX s8 battery=2 godot_others=2 freeMB=6108 cpu=23
+CTX a_phys30 battery=2 godot_others=2 freeMB=5896 cpu=76
+CTX a_phys30_npc12 battery=2 godot_others=2 freeMB=6219 cpu=17
+CTX b_prof30 battery=2 godot_others=2 freeMB=6466 cpu=22
+CTX b_rp battery=2 godot_others=2 freeMB=6352 cpu=27
+CTX b_rp2 battery=2 godot_others=2 freeMB=6557 cpu=33
+CTX b_rp3 battery=2 godot_others=2 freeMB=3016 cpu=38
+CTX b_rp4 battery=2 godot_others=2 freeMB=4675 cpu=14
+CTX b_rp5 battery=2 godot_others=2 freeMB=6288 cpu=17
+CTX b_rp6 battery=2 godot_others=2 freeMB=6864 cpu=21
+CTX b_rp7 battery=2 godot_others=2 freeMB=5167 cpu=34
+CTX c_split battery=2 godot_others=2 freeMB=5585 cpu=17
+crash/timeout try 1
+crash/timeout try 2
+crash/timeout try 3
+CTX c_split battery=2 godot_others=2 freeMB=2899 cpu=24
+CTX c_split2 battery=2 godot_others=2 freeMB=4175 cpu=19
+CTX c_hr battery=2 godot_others=2 freeMB=4763 cpu=37
+CTX c_hr60 battery=2 godot_others=2 freeMB=5203 cpu=25
+CTX c_prof battery=2 godot_others=2 freeMB=4426 cpu=24
+CTX c_spr battery=2 godot_others=2 freeMB=5849 cpu=31
+CTX g1440_base battery=2 godot_others=2 freeMB=5742 cpu=38
+CTX g1440_nosdfgi battery=2 godot_others=2 freeMB=4929 cpu=48
+CTX g1440_nossr battery=2 godot_others=2 freeMB=2460 cpu=33
+CTX g1440_nofog battery=1 godot_others=2 freeMB=4065 cpu=43
+CTX t3d_stand battery=1 godot_others=2 freeMB=4052 cpu=65
+CTX m_A_stand_1440_legacy_r1 battery=1 godot_others=2 freeMB=675 cpu=14
+CTX m_A_stand_1440_legacy_r1 battery=1 godot_others=4 freeMB=397 cpu=19
+crash/timeout try 1
+crash/timeout try 2
+CTX m_A_stand_1440_fixed_r1 battery=1 godot_others=4 freeMB=3416 cpu=23
+CTX m_B_walk_1440_legacy_r1 battery=1 godot_others=4 freeMB=3286 cpu=48
+CTX m_A_stand_1440_fixed_r1 battery=1 godot_others=4 freeMB=4695 cpu=18
+CTX m_B_walk_1440_legacy_r1 battery=1 godot_others=4 freeMB=2328 cpu=25
+crash/timeout try 1
+CTX m_B_walk_1440_fixed_r1 battery=1 godot_others=4 freeMB=1833 cpu=50
+CTX m_B_walk_1440_fixed_r1 battery=1 godot_others=4 freeMB=2080 cpu=15
+CTX m_C_stand_1080_legacy_r1 battery=1 godot_others=4 freeMB=2129 cpu=15
+CTX m_C_stand_1080_legacy_r1 battery=2 godot_others=4 freeMB=1217 cpu=55
+crash/timeout try 1
+crash/timeout try 2
+crash/timeout try 1
+CTX m_C_stand_1080_fixed_r1 battery=2 godot_others=4 freeMB=1951 cpu=84
+CTX m_C_stand_1080_fixed_r1 battery=2 godot_others=4 freeMB=1885 cpu=25
+CTX m_D_t3d_stand_1440_legacy_r1 battery=2 godot_others=4 freeMB=2924 cpu=51
+CTX m_A_stand_1440_legacy_r1 battery=2 godot_others=2 freeMB=4366 cpu=17
+CTX m_A_stand_1440_fixed_r1 battery=2 godot_others=2 freeMB=5141 cpu=65
+CTX m_B_walk_1440_legacy_r1 battery=2 godot_others=2 freeMB=4457 cpu=25
+CTX m_B_walk_1440_fixed_r1 battery=2 godot_others=2 freeMB=5824 cpu=71
+CTX m_C_stand_1080_legacy_r1 battery=2 godot_others=2 freeMB=4661 cpu=16
+CTX m_C_stand_1080_fixed_r1 battery=2 godot_others=2 freeMB=6056 cpu=14
+CTX m_D_t3d_stand_1440_legacy_r1 battery=1 godot_others=2 freeMB=3845 cpu=57
+CTX m_D_t3d_stand_1440_fixed_r1 battery=1 godot_others=2 freeMB=4187 cpu=17
+CTX m_A_stand_1440_legacy_r2 battery=1 godot_others=2 freeMB=2551 cpu=14
+CTX m_A_stand_1440_fixed_r2 battery=1 godot_others=2 freeMB=4877 cpu=26
+CTX m_B_walk_1440_legacy_r2 battery=1 godot_others=2 freeMB=6044 cpu=19
+CTX m_B_walk_1440_fixed_r2 battery=1 godot_others=2 freeMB=5885 cpu=26
+CTX m_C_stand_1080_legacy_r2 battery=1 godot_others=2 freeMB=2911 cpu=16
+CTX m_C_stand_1080_fixed_r2 battery=1 godot_others=2 freeMB=3397 cpu=49
+crash/timeout try 1
+CTX m_D_t3d_stand_1440_legacy_r2 battery=2 godot_others=2 freeMB=2235 cpu=18
+CTX m_D_t3d_stand_1440_fixed_r2 battery=2 godot_others=2 freeMB=3762 cpu=68
+crash/timeout try 1
+crash/timeout try 2
+CTX d_A_r1 battery=2 godot_others=2 freeMB=4268 cpu=20
+CTX d_A_r2 battery=2 godot_others=2 freeMB=4436 cpu=20
+CTX m_A_stand_1440_dens_r1 battery=2 godot_others=2 freeMB=4385 cpu=16
+CTX m_A_stand_1440_dens_r2 battery=2 godot_others=0 freeMB=5457 cpu=6

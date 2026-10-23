@@ -1,5 +1,6 @@
 class_name Player
 extends CharacterBody3D
+const Probe := preload("res://scripts/core/perf_probe.gd")
 const ContactBlobS := preload("res://scripts/actors/contact_blob.gd")
 const CameraOccludersS := preload("res://scripts/actors/camera_occluders.gd")
 ## The player character plus the four-scale camera:
@@ -729,7 +730,9 @@ func _physics_process(delta: float) -> void:
 	_parry_bonus -= delta
 	_flick_cooldown -= delta
 	_flick *= exp(-8.0 * delta)
+	var _pl0 := Probe.t()
 	_update_lock(delta)
+	Probe.add("player.lock", _pl0)
 	if _mount != null:
 		_physics_mounted(delta)
 		return
@@ -823,16 +826,24 @@ func _physics_process(delta: float) -> void:
 	var impact_speed := -velocity.y
 	if floor_before and not _jump_active and not swimming and _move_speed > 0.1:
 		_trav.step_assist(delta, _move_dir, _move_speed)
+	var _pm := Probe.t()
 	move_and_slide()
+	Probe.add("player.slide", _pm)
 	_update_jump_after_move(floor_before, impact_speed, dir)
+	_pm = Probe.t()
 	_resolve_contacts()
+	Probe.add("player.contacts", _pm)
+	_pm = Probe.t()
 	_keep_above_ground()
+	Probe.add("player.keep_ground", _pm)
 
 	_update_facing(dir, delta)
 	var real := get_real_velocity()
 	var travel := Vector3(real.x, 0.0, real.z)
 	_update_locomotion_transition(dir, floor_before, speed_before_steer, running)
+	_pm = Probe.t()
 	_animator.update(delta, travel.length() if _dodge <= 0.0 else 0.0, travel)
+	Probe.add("player.animator", _pm)
 	if _rig:
 		# Feet off the ground: airborne, swimming, rolling, dead. Big hits ease the IK off.
 		_rig.call("set_state", travel.length(), is_on_floor(), swimming or dead or _dodge > 0.0,
@@ -847,8 +858,12 @@ func _physics_process(delta: float) -> void:
 	elif _stamina_delay <= 0.0 and not blocking:
 		stamina = minf(stamina + 28.0 * delta * Life.needs.stamina_regen() * (TravelRules.WINDED_REGEN if _winded else 1.0), MAX_STAMINA * Life.needs.stamina_cap())
 	stamina_changed.emit(stamina, MAX_STAMINA)
+	_pm = Probe.t()
 	_update_look_target()
+	Probe.add("player.look_target", _pm)
+	_pm = Probe.t()
 	_update_camera(delta)
+	Probe.add("player.camera", _pm)
 
 
 ## Long runs cost stamina (docs/design/REALM_PLAN.md "Travel and world size"): a run is free for TravelRules.RUN_FREE_S
@@ -1390,7 +1405,9 @@ func _update_camera(delta: float) -> void:
 	_land_fov = move_toward(_land_fov, 0.0, 14.0 * delta)
 	_impact_fov = move_toward(_impact_fov, 0.0, maxf(_impact_fov, 1.0) * 7.0 * delta)
 	_impact_roll = move_toward(_impact_roll, 0.0, maxf(absf(_impact_roll), 0.01) * 9.0 * delta)
+	var _pc := Probe.t()
 	_step_chase(delta)
+	Probe.add("cam.chase", _pc)
 	camera.fov = lerpf(camera.fov, _chase.fov_base() + _chase.impulse() + _land_fov + _impact_fov, 1.0 - exp(-14.0 * delta))
 	camera.set_meta("fov_base", _chase.fov_base())
 	if view == View.THIRD:
@@ -1432,6 +1449,7 @@ func _update_camera(delta: float) -> void:
 	_camera_arm.spring_length = _distance
 	var lens_tilt := _chase.talk_tilt() + (INTERIOR_LENS_TILT if InteriorDoor.active != null else 0.0)
 	camera.rotation = _shake.step(delta) + Vector3(-lens_tilt if view == View.THIRD else 0.0, 0.0, _impact_roll)
+	_pc = Probe.t()
 	var cp := camera.global_position
 	var floor_h := WorldGen.height(cp.x, cp.z) + 0.6
 	var water_h := WorldGen.water_level_at(cp.x, cp.z)
@@ -1446,6 +1464,8 @@ func _update_camera(delta: float) -> void:
 	# camera visibly jerk whenever the ray flickered in and out (corners, foliage) —
 	# so solid walls still pull in immediately, while camera-only canopy proxies ease
 	# in and may fade their linked mesh. Releasing any occluder eases back out.
+	Probe.add("cam.floor", _pc)
+	_pc = Probe.t()
 	var camera_fade_target: GeometryInstance3D = null
 	if view == View.THIRD and InteriorDoor.active == null:
 		var from := _pivot.global_position
@@ -1470,7 +1490,9 @@ func _update_camera(delta: float) -> void:
 			# smooth recovery after a pull-in: ease back out, never snap backwards
 			_cam_pulled = maxf(_cam_pulled - delta, 0.0)
 			camera.global_position = camera.global_position.lerp(camera_target, 1.0 - exp(-(3.0 if _cam_pulled > 0.0 else 7.0) * delta))
+	Probe.add("cam.ray", _pc)
 	_update_camera_fade(camera_fade_target)
+	_pc = Probe.t()
 	# world shaders dither the cone lens -> hero (shaders/camera_see_through.gdshaderinc); 0 turns it off
 	var see := camera.global_position.distance_to(_pivot.global_position) if view == View.THIRD and camera.current else 0.0
 	if absf(see - _see_last) > 0.02:
@@ -1478,6 +1500,7 @@ func _update_camera(delta: float) -> void:
 		RenderingServer.global_shader_parameter_set(&"hero_cam_dist", see)
 	if _occluders != null:
 		_occluders.step(delta, camera.global_position, _pivot.global_position, view == View.THIRD and InteriorDoor.active == null)
+	Probe.add("cam.occluders", _pc)
 	_publish_cam_dist()
 	# Pinned against a wall so tight the lens would sit inside the head: hide the body.
 	if view != View.FIRST:

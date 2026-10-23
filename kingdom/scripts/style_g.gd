@@ -9,6 +9,7 @@ extends RefCounted
 ##   StyleG.make_fill()                           # warm bounce light (no shadow) from below/side; add once
 ##   StyleG.material_for("gate_stone")            # role -> Material (orig = the asset's BaseMaterial3D for atlas roles)
 
+const Probe := preload("res://scripts/core/perf_probe.gd")
 const SH := "res://shaders/style_lab/"
 const PH := "res://assets/incoming/polyhaven/textures/%s/%s_%s_%s.jpg"
 
@@ -105,7 +106,7 @@ static func apply_environment(env: Environment, tier := "high", game := false) -
 	env.glow_hdr_threshold = 1.0
 	env.glow_blend_mode = Environment.GLOW_BLEND_MODE_SOFTLIGHT
 	env.fog_enabled = true
-	env.fog_light_color = Color("e2dccc")            # slightly warm haze (was cool d9e3f2)
+	env.fog_light_color = Color("cdd7f0")            # W5: light blue-violet aerial perspective (was warm beige e2dccc: read as dust from the air)
 	env.fog_density = 0.0030
 	env.fog_aerial_perspective = 0.5
 	env.fog_sky_affect = 0.0
@@ -134,7 +135,7 @@ static func _game_environment(env: Environment, tier: String) -> void:
 	env.fog_density = 0.0021     # pass 12: 0.0027 washed the aerial view out
 	env.fog_aerial_perspective = 0.45
 	env.fog_sky_affect = 0.0
-	env.volumetric_fog_albedo = Color("f2e2c0")
+	env.volumetric_fog_albedo = Color("dde2f4")      # W5: blue-violet like the depth fog (was warm f2e2c0)
 	env.volumetric_fog_density = 0.0015
 	env.volumetric_fog_length = 64.0
 	env.reflected_light_source = Environment.REFLECTION_SOURCE_SKY
@@ -166,11 +167,11 @@ const DAY_KEYS := [
 	[0.0, "7f98e8", 0.40, "3a4a9a", 0.34, "1a2142", "060b22", "141c44", "0a0f22", "6f7fb0", "232d5a", 0.0, 0.45, 0.0, 0.62],
 	[4.8, "7f98e8", 0.34, "3e4e9c", 0.34, "202850", "0a1236", "27305e", "10152c", "7a86b8", "2a3466", 0.0, 0.50, 0.0, 0.50],
 	[5.8, "ff9a5a", 0.75, "7d78b8", 0.45, "e0a07a", "34408a", "f0a070", "4a4a52", "ffb890", "7a6ca8", 0.08, 0.90, 0.9, 0.10],
-	[7.0, "ffb878", 1.9, "98a2dc", 0.56, "f2c898", "2c58c8", "f4d0a8", "7a8a60", "fff0e0", "b0b8e0", 0.20, 1.0, 0.7, 0.30],
-	[9.5, "ffcf94", 2.5, "a2b2e8", 0.62, "f0d6a8", "2461d4", "dee4f8", "88985f", "ffffff", "b2c2e8", 0.26, 1.0, 0.55, 0.62],
-	[12.0, "ffd89c", 2.8, "a8b8ee", 0.64, "eedcb4", "2563d8", "d8e6ff", "8a9a6a", "ffffff", "b4c4e8", 0.28, 1.0, 0.5, 0.82],
-	[15.0, SUN_COLOR, SUN_ENERGY, AMBIENT_HEX, 0.56, FOG_HEX, "2563d8", "d8e6ff", "8a9a6a", "ffffff", "b4c4e8", 0.30, 1.0, 0.5, 0.70],
-	[17.0, "ffb064", 2.3, "b0a8e0", 0.58, "f4cc90", "2c58cc", "f8d4a0", "8a9060", "fff0dc", "c0b4dc", 0.30, 1.0, 0.7, 0.42],
+	[7.0, "ffb878", 1.9, "98a2dc", 0.56, "e8d0d8", "2c58c8", "f4d0a8", "7a8a60", "fff0e0", "b0b8e0", 0.20, 1.0, 0.7, 0.30],
+	[9.5, "ffcf94", 2.5, "a2b2e8", 0.62, "d4d8f0", "2461d4", "dee4f8", "88985f", "ffffff", "b2c2e8", 0.26, 1.0, 0.55, 0.62],
+	[12.0, "ffd89c", 2.8, "a8b8ee", 0.64, "c8d6f4", "2563d8", "d8e6ff", "8a9a6a", "ffffff", "b4c4e8", 0.28, 1.0, 0.5, 0.82],
+	[15.0, SUN_COLOR, SUN_ENERGY, AMBIENT_HEX, 0.56, "ccd6f2", "2563d8", "d8e6ff", "8a9a6a", "ffffff", "b4c4e8", 0.30, 1.0, 0.5, 0.70],
+	[17.0, "ffb064", 2.3, "b0a8e0", 0.58, "eccfd6", "2c58cc", "f8d4a0", "8a9060", "fff0dc", "c0b4dc", 0.30, 1.0, 0.7, 0.42],
 	[18.0, "ff8c48", 1.2, "9a8cd0", 0.50, "f0a070", "35459a", "ff9a60", "6a5a4a", "ffb488", "8a6ca4", 0.18, 0.95, 1.0, 0.14],
 	[18.8, "ff6a40", 0.45, "5e5aa8", 0.40, "b4688a", "1e2868", "d0627a", "3a3446", "e08a8a", "4e4488", 0.08, 0.80, 0.8, 0.07],
 	[19.8, "8fa4ff", 0.42, "3e4e9c", 0.34, "26305a", "0a1238", "2a346a", "10152c", "7a86b8", "2a3466", 0.0, 0.55, 0.0, 0.40],
@@ -582,11 +583,19 @@ static func _polished(role: String, orig: Material, skin_kind: int, tier: String
 
 
 ## Double-sided variant of a shader (leaf cards, banners, gate walls with hand-built winding).
+## One double-sided Shader per source Shader (keyed by the source's instance id): every restyled surface used to build and
+## compile its own copy of the same big shader text (124 ms each on the main thread, the freeze whenever a new prop kind streamed in).
+static var _ds_shaders := {}
+
+
 static func double_sided(sm: ShaderMaterial) -> ShaderMaterial:
 	var d := sm.duplicate() as ShaderMaterial
-	var sh := Shader.new()
-	sh.code = sm.shader.code.replace("cull_back", "cull_disabled")
-	d.shader = sh
+	var key := sm.shader.get_instance_id() if not Probe.legacy else sm.get_instance_id()
+	if not _ds_shaders.has(key) or not is_instance_valid(_ds_shaders[key]):
+		var sh := Shader.new()
+		sh.code = sm.shader.code.replace("cull_back", "cull_disabled")
+		_ds_shaders[key] = sh
+	d.shader = _ds_shaders[key]
 	return d
 
 
@@ -760,7 +769,9 @@ static func restyle_mesh(mesh: ArrayMesh, key: String, tier := "", role := "") -
 		var src: Material = orig
 		var fmt_col := (mesh.surface_get_format(i) & Mesh.ARRAY_FORMAT_COLOR) != 0
 		if not b.vertex_color_use_as_albedo and not fmt_col:
+			var _pv := Probe.t()
 			src = _vcol_copy(b)                     # no baked colours: let instance colours tint it (town identity)
+			Probe.add("styleg.vcol_copy", _pv)
 		var r := role
 		var by_name := role_for_material(b.resource_name)
 		if by_name != "":
@@ -771,17 +782,25 @@ static func restyle_mesh(mesh: ArrayMesh, key: String, tier := "", role := "") -
 		if role == "stone" and tier != "low" and key.get_slice(":lod", 0).begins_with("wall"):
 			m = _gate_stone_game()
 		else:
+			var _pmf := Probe.t()
 			m = material_for(r, src, 1, tier, true)
+			Probe.add("styleg.material_for", _pmf)
+		var _pd := Probe.t()
 		if m is ShaderMaterial and b.cull_mode == BaseMaterial3D.CULL_DISABLED and not (m as ShaderMaterial).shader.code.contains("cull_disabled"):
 			var dk := "ds|%d" % m.get_instance_id()          # leaf cards / banners are double sided
 			if not _cache.has(dk):
 				_cache[dk] = double_sided(m as ShaderMaterial)
 			m = _cache[dk]
+		Probe.add("styleg.double_sided", _pd)
 		if m != null:
+			_pd = Probe.t()
 			mesh.surface_set_material(i, m)
+			Probe.add("styleg.set_material", _pd)
 	if tier != "high" or not key.begins_with("nature/"):      # trees keep their bark/leaf split on HIGH
 		# fewer surfaces = fewer draws; HIGH near stage keeps lit windows and lamps
+		var _pcl := Probe.t()
 		load("res://scripts/world/surface_collapse.gd").collapse(mesh, tier, tier == "high" and not key.contains(":lod"))
+		Probe.add("styleg.collapse", _pcl)
 	return mesh
 
 

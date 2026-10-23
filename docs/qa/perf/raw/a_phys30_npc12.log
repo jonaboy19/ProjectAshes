@@ -1,0 +1,2737 @@
+Godot Engine v4.6.3.stable.official.7d41c59c4 - https://godotengine.org
+Vulkan 1.4.341 - Forward+ - Using Device #0: NVIDIA - NVIDIA GeForce RTX 4070 Laptop GPU
+
+Quality: High (forced)
+[audio] mood silence -> wilderness (threat 0, hostiles 0, interior )
+ERROR: Cannot convert to (or from) compressed formats. Use compress() and decompress() instead.
+   at: convert (core/io/image.cpp:571)
+   GDScript backtrace (most recent call first):
+       [0] round_face (res://scripts/ui/hud_art.gd:133)
+       [1] _make_button (res://scripts/ui/hud.gd:478)
+       [2] _button (res://scripts/ui/hud.gd:472)
+       [3] _ready (res://scripts/ui/hud.gd:224)
+       [4] _ready (res://scripts/core/main.gd:93)
+ERROR: Cannot resize in compressed image formats.
+   at: resize (core/io/image.cpp:1257)
+   GDScript backtrace (most recent call first):
+       [0] round_face (res://scripts/ui/hud_art.gd:135)
+       [1] _make_button (res://scripts/ui/hud.gd:478)
+       [2] _button (res://scripts/ui/hud.gd:472)
+       [3] _ready (res://scripts/ui/hud.gd:224)
+       [4] _ready (res://scripts/core/main.gd:93)
+ERROR: Condition "format != p_src->format" is true.
+   at: blend_rect (core/io/image.cpp:3201)
+   GDScript backtrace (most recent call first):
+       [0] round_face (res://scripts/ui/hud_art.gd:142)
+       [1] _make_button (res://scripts/ui/hud.gd:478)
+       [2] _button (res://scripts/ui/hud.gd:472)
+       [3] _ready (res://scripts/ui/hud.gd:224)
+       [4] _ready (res://scripts/core/main.gd:93)
+ERROR: Cannot convert to (or from) compressed formats. Use compress() and decompress() instead.
+   at: convert (core/io/image.cpp:571)
+   GDScript backtrace (most recent call first):
+       [0] round_face (res://scripts/ui/hud_art.gd:133)
+       [1] _make_button (res://scripts/ui/hud.gd:478)
+       [2] _button (res://scripts/ui/hud.gd:472)
+       [3] _ready (res://scripts/ui/hud.gd:228)
+       [4] _ready (res://scripts/core/main.gd:93)
+ERROR: Cannot resize in compressed image formats.
+   at: resize (core/io/image.cpp:1257)
+   GDScript backtrace (most recent call first):
+       [0] round_face (res://scripts/ui/hud_art.gd:135)
+       [1] _make_button (res://scripts/ui/hud.gd:478)
+       [2] _button (res://scripts/ui/hud.gd:472)
+       [3] _ready (res://scripts/ui/hud.gd:228)
+       [4] _ready (res://scripts/core/main.gd:93)
+ERROR: Condition "format != p_src->format" is true.
+   at: blend_rect (core/io/image.cpp:3201)
+   GDScript backtrace (most recent call first):
+       [0] round_face (res://scripts/ui/hud_art.gd:142)
+       [1] _make_button (res://scripts/ui/hud.gd:478)
+       [2] _button (res://scripts/ui/hud.gd:472)
+       [3] _ready (res://scripts/ui/hud.gd:228)
+       [4] _ready (res://scripts/core/main.gd:93)
+ERROR: Cannot convert to (or from) compressed formats. Use compress() and decompress() instead.
+   at: convert (core/io/image.cpp:571)
+   GDScript backtrace (most recent call first):
+       [0] round_face (res://scripts/ui/hud_art.gd:133)
+       [1] _make_button (res://scripts/ui/hud.gd:478)
+       [2] _button (res://scripts/ui/hud.gd:472)
+       [3] _ready (res://scripts/ui/hud.gd:246)
+       [4] _ready (res://scripts/core/main.gd:93)
+ERROR: Cannot resize in compressed image formats.
+   at: resize (core/io/image.cpp:1257)
+   GDScript backtrace (most recent call first):
+       [0] round_face (res://scripts/ui/hud_art.gd:135)
+       [1] _make_button (res://scripts/ui/hud.gd:478)
+       [2] _button (res://scripts/ui/hud.gd:472)
+       [3] _ready (res://scripts/ui/hud.gd:246)
+       [4] _ready (res://scripts/core/main.gd:93)
+ERROR: Condition "format != p_src->format" is true.
+   at: blend_rect (core/io/image.cpp:3201)
+   GDScript backtrace (most recent call first):
+       [0] round_face (res://scripts/ui/hud_art.gd:142)
+       [1] _make_button (res://scripts/ui/hud.gd:478)
+       [2] _button (res://scripts/ui/hud.gd:472)
+       [3] _ready (res://scripts/ui/hud.gd:246)
+       [4] _ready (res://scripts/core/main.gd:93)
+ERROR: Cannot convert to (or from) compressed formats. Use compress() and decompress() instead.
+   at: convert (core/io/image.cpp:571)
+   GDScript backtrace (most recent call first):
+       [0] round_face (res://scripts/ui/hud_art.gd:133)
+       [1] _make_button (res://scripts/ui/hud.gd:478)
+       [2] _button (res://scripts/ui/hud.gd:472)
+       [3] _ready (res://scripts/ui/hud.gd:249)
+       [4] _ready (res://scripts/core/main.gd:93)
+ERROR: Cannot resize in compressed image formats.
+   at: resize (core/io/image.cpp:1257)
+   GDScript backtrace (most recent call first):
+       [0] round_face (res://scripts/ui/hud_art.gd:135)
+       [1] _make_button (res://scripts/ui/hud.gd:478)
+       [2] _button (res://scripts/ui/hud.gd:472)
+       [3] _ready (res://scripts/ui/hud.gd:249)
+       [4] _ready (res://scripts/core/main.gd:93)
+ERROR: Condition "format != p_src->format" is true.
+   at: blend_rect (core/io/image.cpp:3201)
+   GDScript backtrace (most recent call first):
+       [0] round_face (res://scripts/ui/hud_art.gd:142)
+       [1] _make_button (res://scripts/ui/hud.gd:478)
+       [2] _button (res://scripts/ui/hud.gd:472)
+       [3] _ready (res://scripts/ui/hud.gd:249)
+       [4] _ready (res://scripts/core/main.gd:93)
+ERROR: Cannot convert to (or from) compressed formats. Use compress() and decompress() instead.
+   at: convert (core/io/image.cpp:571)
+   GDScript backtrace (most recent call first):
+       [0] round_face (res://scripts/ui/hud_art.gd:133)
+       [1] _make_button (res://scripts/ui/hud.gd:478)
+       [2] _button (res://scripts/ui/hud.gd:472)
+       [3] _ready (res://scripts/ui/hud.gd:250)
+       [4] _ready (res://scripts/core/main.gd:93)
+ERROR: Cannot resize in compressed image formats.
+   at: resize (core/io/image.cpp:1257)
+   GDScript backtrace (most recent call first):
+       [0] round_face (res://scripts/ui/hud_art.gd:135)
+       [1] _make_button (res://scripts/ui/hud.gd:478)
+       [2] _button (res://scripts/ui/hud.gd:472)
+       [3] _ready (res://scripts/ui/hud.gd:250)
+       [4] _ready (res://scripts/core/main.gd:93)
+ERROR: Condition "format != p_src->format" is true.
+   at: blend_rect (core/io/image.cpp:3201)
+   GDScript backtrace (most recent call first):
+       [0] round_face (res://scripts/ui/hud_art.gd:142)
+       [1] _make_button (res://scripts/ui/hud.gd:478)
+       [2] _button (res://scripts/ui/hud.gd:472)
+       [3] _ready (res://scripts/ui/hud.gd:250)
+       [4] _ready (res://scripts/core/main.gd:93)
+ERROR: Cannot convert to (or from) compressed formats. Use compress() and decompress() instead.
+   at: convert (core/io/image.cpp:571)
+   GDScript backtrace (most recent call first):
+       [0] round_face (res://scripts/ui/hud_art.gd:133)
+       [1] _make_button (res://scripts/ui/hud.gd:478)
+       [2] _button (res://scripts/ui/hud.gd:472)
+       [3] _ready (res://scripts/ui/hud.gd:251)
+       [4] _ready (res://scripts/core/main.gd:93)
+ERROR: Cannot resize in compressed image formats.
+   at: resize (core/io/image.cpp:1257)
+   GDScript backtrace (most recent call first):
+       [0] round_face (res://scripts/ui/hud_art.gd:135)
+       [1] _make_button (res://scripts/ui/hud.gd:478)
+       [2] _button (res://scripts/ui/hud.gd:472)
+       [3] _ready (res://scripts/ui/hud.gd:251)
+       [4] _ready (res://scripts/core/main.gd:93)
+ERROR: Condition "format != p_src->format" is true.
+   at: blend_rect (core/io/image.cpp:3201)
+   GDScript backtrace (most recent call first):
+       [0] round_face (res://scripts/ui/hud_art.gd:142)
+       [1] _make_button (res://scripts/ui/hud.gd:478)
+       [2] _button (res://scripts/ui/hud.gd:472)
+       [3] _ready (res://scripts/ui/hud.gd:251)
+       [4] _ready (res://scripts/core/main.gd:93)
+ERROR: Cannot convert to (or from) compressed formats. Use compress() and decompress() instead.
+   at: convert (core/io/image.cpp:571)
+   GDScript backtrace (most recent call first):
+       [0] round_face (res://scripts/ui/hud_art.gd:133)
+       [1] _make_button (res://scripts/ui/hud.gd:478)
+       [2] _button (res://scripts/ui/hud.gd:472)
+       [3] _ready (res://scripts/ui/hud.gd:252)
+       [4] _ready (res://scripts/core/main.gd:93)
+ERROR: Cannot resize in compressed image formats.
+   at: resize (core/io/image.cpp:1257)
+   GDScript backtrace (most recent call first):
+       [0] round_face (res://scripts/ui/hud_art.gd:135)
+       [1] _make_button (res://scripts/ui/hud.gd:478)
+       [2] _button (res://scripts/ui/hud.gd:472)
+       [3] _ready (res://scripts/ui/hud.gd:252)
+       [4] _ready (res://scripts/core/main.gd:93)
+ERROR: Condition "format != p_src->format" is true.
+   at: blend_rect (core/io/image.cpp:3201)
+   GDScript backtrace (most recent call first):
+       [0] round_face (res://scripts/ui/hud_art.gd:142)
+       [1] _make_button (res://scripts/ui/hud.gd:478)
+       [2] _button (res://scripts/ui/hud.gd:472)
+       [3] _ready (res://scripts/ui/hud.gd:252)
+       [4] _ready (res://scripts/core/main.gd:93)
+ERROR: Cannot convert to (or from) compressed formats. Use compress() and decompress() instead.
+   at: convert (core/io/image.cpp:571)
+   GDScript backtrace (most recent call first):
+       [0] round_face (res://scripts/ui/hud_art.gd:133)
+       [1] _make_button (res://scripts/ui/hud.gd:478)
+       [2] _button (res://scripts/ui/hud.gd:472)
+       [3] _ready (res://scripts/ui/hud.gd:261)
+       [4] _ready (res://scripts/core/main.gd:93)
+ERROR: Cannot resize in compressed image formats.
+   at: resize (core/io/image.cpp:1257)
+   GDScript backtrace (most recent call first):
+       [0] round_face (res://scripts/ui/hud_art.gd:135)
+       [1] _make_button (res://scripts/ui/hud.gd:478)
+       [2] _button (res://scripts/ui/hud.gd:472)
+       [3] _ready (res://scripts/ui/hud.gd:261)
+       [4] _ready (res://scripts/core/main.gd:93)
+ERROR: Condition "format != p_src->format" is true.
+   at: blend_rect (core/io/image.cpp:3201)
+   GDScript backtrace (most recent call first):
+       [0] round_face (res://scripts/ui/hud_art.gd:142)
+       [1] _make_button (res://scripts/ui/hud.gd:478)
+       [2] _button (res://scripts/ui/hud.gd:472)
+       [3] _ready (res://scripts/ui/hud.gd:261)
+       [4] _ready (res://scripts/core/main.gd:93)
+ERROR: Cannot convert to (or from) compressed formats. Use compress() and decompress() instead.
+   at: convert (core/io/image.cpp:571)
+   GDScript backtrace (most recent call first):
+       [0] round_face (res://scripts/ui/hud_art.gd:133)
+       [1] _make_button (res://scripts/ui/hud.gd:478)
+       [2] _button (res://scripts/ui/hud.gd:472)
+       [3] _ready (res://scripts/ui/hud.gd:277)
+       [4] _ready (res://scripts/core/main.gd:93)
+ERROR: Cannot resize in compressed image formats.
+   at: resize (core/io/image.cpp:1257)
+   GDScript backtrace (most recent call first):
+       [0] round_face (res://scripts/ui/hud_art.gd:135)
+       [1] _make_button (res://scripts/ui/hud.gd:478)
+       [2] _button (res://scripts/ui/hud.gd:472)
+       [3] _ready (res://scripts/ui/hud.gd:277)
+       [4] _ready (res://scripts/core/main.gd:93)
+ERROR: Condition "format != p_src->format" is true.
+   at: blend_rect (core/io/image.cpp:3201)
+   GDScript backtrace (most recent call first):
+       [0] round_face (res://scripts/ui/hud_art.gd:142)
+       [1] _make_button (res://scripts/ui/hud.gd:478)
+       [2] _button (res://scripts/ui/hud.gd:472)
+       [3] _ready (res://scripts/ui/hud.gd:277)
+       [4] _ready (res://scripts/core/main.gd:93)
+ERROR: Cannot convert to (or from) compressed formats. Use compress() and decompress() instead.
+   at: convert (core/io/image.cpp:571)
+   GDScript backtrace (most recent call first):
+       [0] round_face (res://scripts/ui/hud_art.gd:133)
+       [1] _make_button (res://scripts/ui/hud.gd:478)
+       [2] _button (res://scripts/ui/hud.gd:472)
+       [3] _ready (res://scripts/ui/hud.gd:277)
+       [4] _ready (res://scripts/core/main.gd:93)
+ERROR: Cannot resize in compressed image formats.
+   at: resize (core/io/image.cpp:1257)
+   GDScript backtrace (most recent call first):
+       [0] round_face (res://scripts/ui/hud_art.gd:135)
+       [1] _make_button (res://scripts/ui/hud.gd:478)
+       [2] _button (res://scripts/ui/hud.gd:472)
+       [3] _ready (res://scripts/ui/hud.gd:277)
+       [4] _ready (res://scripts/core/main.gd:93)
+ERROR: Condition "format != p_src->format" is true.
+   at: blend_rect (core/io/image.cpp:3201)
+   GDScript backtrace (most recent call first):
+       [0] round_face (res://scripts/ui/hud_art.gd:142)
+       [1] _make_button (res://scripts/ui/hud.gd:478)
+       [2] _button (res://scripts/ui/hud.gd:472)
+       [3] _ready (res://scripts/ui/hud.gd:277)
+       [4] _ready (res://scripts/core/main.gd:93)
+ERROR: Cannot convert to (or from) compressed formats. Use compress() and decompress() instead.
+   at: convert (core/io/image.cpp:571)
+   GDScript backtrace (most recent call first):
+       [0] round_face (res://scripts/ui/hud_art.gd:133)
+       [1] _make_button (res://scripts/ui/hud.gd:478)
+       [2] add_action_button (res://scripts/ui/hud.gd:1181)
+       [3] _build_navigation (res://scripts/ui/hud.gd:1233)
+       [4] _ready (res://scripts/ui/hud.gd:376)
+       [5] _ready (res://scripts/core/main.gd:93)
+ERROR: Cannot resize in compressed image formats.
+   at: resize (core/io/image.cpp:1257)
+   GDScript backtrace (most recent call first):
+       [0] round_face (res://scripts/ui/hud_art.gd:135)
+       [1] _make_button (res://scripts/ui/hud.gd:478)
+       [2] add_action_button (res://scripts/ui/hud.gd:1181)
+       [3] _build_navigation (res://scripts/ui/hud.gd:1233)
+       [4] _ready (res://scripts/ui/hud.gd:376)
+       [5] _ready (res://scripts/core/main.gd:93)
+ERROR: Condition "format != p_src->format" is true.
+   at: blend_rect (core/io/image.cpp:3201)
+   GDScript backtrace (most recent call first):
+       [0] round_face (res://scripts/ui/hud_art.gd:142)
+       [1] _make_button (res://scripts/ui/hud.gd:478)
+       [2] add_action_button (res://scripts/ui/hud.gd:1181)
+       [3] _build_navigation (res://scripts/ui/hud.gd:1233)
+       [4] _ready (res://scripts/ui/hud.gd:376)
+       [5] _ready (res://scripts/core/main.gd:93)
+ERROR: Cannot convert to (or from) compressed formats. Use compress() and decompress() instead.
+   at: convert (core/io/image.cpp:571)
+   GDScript backtrace (most recent call first):
+       [0] round_face (res://scripts/ui/hud_art.gd:133)
+       [1] _make_button (res://scripts/ui/hud.gd:478)
+       [2] add_action_button (res://scripts/ui/hud.gd:1181)
+       [3] _ready (res://scripts/core/main.gd:97)
+ERROR: Cannot resize in compressed image formats.
+   at: resize (core/io/image.cpp:1257)
+   GDScript backtrace (most recent call first):
+       [0] round_face (res://scripts/ui/hud_art.gd:135)
+       [1] _make_button (res://scripts/ui/hud.gd:478)
+       [2] add_action_button (res://scripts/ui/hud.gd:1181)
+       [3] _ready (res://scripts/core/main.gd:97)
+ERROR: Condition "format != p_src->format" is true.
+   at: blend_rect (core/io/image.cpp:3201)
+   GDScript backtrace (most recent call first):
+       [0] round_face (res://scripts/ui/hud_art.gd:142)
+       [1] _make_button (res://scripts/ui/hud.gd:478)
+       [2] add_action_button (res://scripts/ui/hud.gd:1181)
+       [3] _ready (res://scripts/core/main.gd:97)
+WARNING: Screen-space reflections are not supported in viewports with a transparent background. Disabling SSR in transparent viewport.
+   at: _render_scene (servers/rendering/renderer_rd/forward_clustered/render_forward_clustered.cpp:1851)
+ERROR: Condition "p_job.uavMip[i] >= mip_slice_rids.size()" is true. Returning: FFX_ERROR_INVALID_ARGUMENT
+   at: execute_gpu_job_compute_rd (servers/rendering/renderer_rd/effects/fsr2.cpp:418)
+[audio] music silence -> wild_b (mood wilderness, intensity 0.00)
+ERROR: Condition "p_job.uavMip[i] >= mip_slice_rids.size()" is true. Returning: FFX_ERROR_INVALID_ARGUMENT
+   at: execute_gpu_job_compute_rd (servers/rendering/renderer_rd/effects/fsr2.cpp:418)
+ERROR: Condition "p_job.uavMip[i] >= mip_slice_rids.size()" is true. Returning: FFX_ERROR_INVALID_ARGUMENT
+   at: execute_gpu_job_compute_rd (servers/rendering/renderer_rd/effects/fsr2.cpp:418)
+ERROR: Condition "p_job.uavMip[i] >= mip_slice_rids.size()" is true. Returning: FFX_ERROR_INVALID_ARGUMENT
+   at: execute_gpu_job_compute_rd (servers/rendering/renderer_rd/effects/fsr2.cpp:418)
+ERROR: Condition "p_job.uavMip[i] >= mip_slice_rids.size()" is true. Returning: FFX_ERROR_INVALID_ARGUMENT
+   at: execute_gpu_job_compute_rd (servers/rendering/renderer_rd/effects/fsr2.cpp:418)
+ERROR: Condition "p_job.uavMip[i] >= mip_slice_rids.size()" is true. Returning: FFX_ERROR_INVALID_ARGUMENT
+   at: execute_gpu_job_compute_rd (servers/rendering/renderer_rd/effects/fsr2.cpp:418)
+ERROR: Condition "p_job.uavMip[i] >= mip_slice_rids.size()" is true. Returning: FFX_ERROR_INVALID_ARGUMENT
+   at: execute_gpu_job_compute_rd (servers/rendering/renderer_rd/effects/fsr2.cpp:418)
+ERROR: Condition "p_job.uavMip[i] >= mip_slice_rids.size()" is true. Returning: FFX_ERROR_INVALID_ARGUMENT
+   at: execute_gpu_job_compute_rd (servers/rendering/renderer_rd/effects/fsr2.cpp:418)
+ERROR: Condition "p_job.uavMip[i] >= mip_slice_rids.size()" is true. Returning: FFX_ERROR_INVALID_ARGUMENT
+   at: execute_gpu_job_compute_rd (servers/rendering/renderer_rd/effects/fsr2.cpp:418)
+ERROR: Condition "p_job.uavMip[i] >= mip_slice_rids.size()" is true. Returning: FFX_ERROR_INVALID_ARGUMENT
+   at: execute_gpu_job_compute_rd (servers/rendering/renderer_rd/effects/fsr2.cpp:418)
+ERROR: Condition "p_job.uavMip[i] >= mip_slice_rids.size()" is true. Returning: FFX_ERROR_INVALID_ARGUMENT
+   at: execute_gpu_job_compute_rd (servers/rendering/renderer_rd/effects/fsr2.cpp:418)
+ERROR: Condition "p_job.uavMip[i] >= mip_slice_rids.size()" is true. Returning: FFX_ERROR_INVALID_ARGUMENT
+   at: execute_gpu_job_compute_rd (servers/rendering/renderer_rd/effects/fsr2.cpp:418)
+ERROR: Condition "p_job.uavMip[i] >= mip_slice_rids.size()" is true. Returning: FFX_ERROR_INVALID_ARGUMENT
+   at: execute_gpu_job_compute_rd (servers/rendering/renderer_rd/effects/fsr2.cpp:418)
+ERROR: Condition "p_job.uavMip[i] >= mip_slice_rids.size()" is true. Returning: FFX_ERROR_INVALID_ARGUMENT
+   at: execute_gpu_job_compute_rd (servers/rendering/renderer_rd/effects/fsr2.cpp:418)
+ERROR: Condition "p_job.uavMip[i] >= mip_slice_rids.size()" is true. Returning: FFX_ERROR_INVALID_ARGUMENT
+   at: execute_gpu_job_compute_rd (servers/rendering/renderer_rd/effects/fsr2.cpp:418)
+ERROR: Condition "p_job.uavMip[i] >= mip_slice_rids.size()" is true. Returning: FFX_ERROR_INVALID_ARGUMENT
+   at: execute_gpu_job_compute_rd (servers/rendering/renderer_rd/effects/fsr2.cpp:418)
+ERROR: Condition "p_job.uavMip[i] >= mip_slice_rids.size()" is true. Returning: FFX_ERROR_INVALID_ARGUMENT
+   at: execute_gpu_job_compute_rd (servers/rendering/renderer_rd/effects/fsr2.cpp:418)
+ERROR: Condition "p_job.uavMip[i] >= mip_slice_rids.size()" is true. Returning: FFX_ERROR_INVALID_ARGUMENT
+   at: execute_gpu_job_compute_rd (servers/rendering/renderer_rd/effects/fsr2.cpp:418)
+ERROR: Condition "p_job.uavMip[i] >= mip_slice_rids.size()" is true. Returning: FFX_ERROR_INVALID_ARGUMENT
+   at: execute_gpu_job_compute_rd (servers/rendering/renderer_rd/effects/fsr2.cpp:418)
+ERROR: Condition "p_job.uavMip[i] >= mip_slice_rids.size()" is true. Returning: FFX_ERROR_INVALID_ARGUMENT
+   at: execute_gpu_job_compute_rd (servers/rendering/renderer_rd/effects/fsr2.cpp:418)
+ERROR: Condition "p_job.uavMip[i] >= mip_slice_rids.size()" is true. Returning: FFX_ERROR_INVALID_ARGUMENT
+   at: execute_gpu_job_compute_rd (servers/rendering/renderer_rd/effects/fsr2.cpp:418)
+ERROR: Condition "p_job.uavMip[i] >= mip_slice_rids.size()" is true. Returning: FFX_ERROR_INVALID_ARGUMENT
+   at: execute_gpu_job_compute_rd (servers/rendering/renderer_rd/effects/fsr2.cpp:418)
+ERROR: Condition "p_job.uavMip[i] >= mip_slice_rids.size()" is true. Returning: FFX_ERROR_INVALID_ARGUMENT
+   at: execute_gpu_job_compute_rd (servers/rendering/renderer_rd/effects/fsr2.cpp:418)
+ERROR: Condition "p_job.uavMip[i] >= mip_slice_rids.size()" is true. Returning: FFX_ERROR_INVALID_ARGUMENT
+   at: execute_gpu_job_compute_rd (servers/rendering/renderer_rd/effects/fsr2.cpp:418)
+ERROR: Condition "p_job.uavMip[i] >= mip_slice_rids.size()" is true. Returning: FFX_ERROR_INVALID_ARGUMENT
+   at: execute_gpu_job_compute_rd (servers/rendering/renderer_rd/effects/fsr2.cpp:418)
+ERROR: Condition "p_job.uavMip[i] >= mip_slice_rids.size()" is true. Returning: FFX_ERROR_INVALID_ARGUMENT
+   at: execute_gpu_job_compute_rd (servers/rendering/renderer_rd/effects/fsr2.cpp:418)
+ERROR: Condition "p_job.uavMip[i] >= mip_slice_rids.size()" is true. Returning: FFX_ERROR_INVALID_ARGUMENT
+   at: execute_gpu_job_compute_rd (servers/rendering/renderer_rd/effects/fsr2.cpp:418)
+ERROR: Condition "p_job.uavMip[i] >= mip_slice_rids.size()" is true. Returning: FFX_ERROR_INVALID_ARGUMENT
+   at: execute_gpu_job_compute_rd (servers/rendering/renderer_rd/effects/fsr2.cpp:418)
+ERROR: Condition "p_job.uavMip[i] >= mip_slice_rids.size()" is true. Returning: FFX_ERROR_INVALID_ARGUMENT
+   at: execute_gpu_job_compute_rd (servers/rendering/renderer_rd/effects/fsr2.cpp:418)
+ERROR: Condition "p_job.uavMip[i] >= mip_slice_rids.size()" is true. Returning: FFX_ERROR_INVALID_ARGUMENT
+   at: execute_gpu_job_compute_rd (servers/rendering/renderer_rd/effects/fsr2.cpp:418)
+ERROR: Condition "p_job.uavMip[i] >= mip_slice_rids.size()" is true. Returning: FFX_ERROR_INVALID_ARGUMENT
+   at: execute_gpu_job_compute_rd (servers/rendering/renderer_rd/effects/fsr2.cpp:418)
+ERROR: Condition "p_job.uavMip[i] >= mip_slice_rids.size()" is true. Returning: FFX_ERROR_INVALID_ARGUMENT
+   at: execute_gpu_job_compute_rd (servers/rendering/renderer_rd/effects/fsr2.cpp:418)
+ERROR: Condition "p_job.uavMip[i] >= mip_slice_rids.size()" is true. Returning: FFX_ERROR_INVALID_ARGUMENT
+   at: execute_gpu_job_compute_rd (servers/rendering/renderer_rd/effects/fsr2.cpp:418)
+ERROR: Condition "p_job.uavMip[i] >= mip_slice_rids.size()" is true. Returning: FFX_ERROR_INVALID_ARGUMENT
+   at: execute_gpu_job_compute_rd (servers/rendering/renderer_rd/effects/fsr2.cpp:418)
+ERROR: Condition "p_job.uavMip[i] >= mip_slice_rids.size()" is true. Returning: FFX_ERROR_INVALID_ARGUMENT
+   at: execute_gpu_job_compute_rd (servers/rendering/renderer_rd/effects/fsr2.cpp:418)
+ERROR: Condition "p_job.uavMip[i] >= mip_slice_rids.size()" is true. Returning: FFX_ERROR_INVALID_ARGUMENT
+   at: execute_gpu_job_compute_rd (servers/rendering/renderer_rd/effects/fsr2.cpp:418)
+ERROR: Condition "p_job.uavMip[i] >= mip_slice_rids.size()" is true. Returning: FFX_ERROR_INVALID_ARGUMENT
+   at: execute_gpu_job_compute_rd (servers/rendering/renderer_rd/effects/fsr2.cpp:418)
+ERROR: Condition "p_job.uavMip[i] >= mip_slice_rids.size()" is true. Returning: FFX_ERROR_INVALID_ARGUMENT
+   at: execute_gpu_job_compute_rd (servers/rendering/renderer_rd/effects/fsr2.cpp:418)
+ERROR: Condition "p_job.uavMip[i] >= mip_slice_rids.size()" is true. Returning: FFX_ERROR_INVALID_ARGUMENT
+   at: execute_gpu_job_compute_rd (servers/rendering/renderer_rd/effects/fsr2.cpp:418)
+ERROR: Condition "p_job.uavMip[i] >= mip_slice_rids.size()" is true. Returning: FFX_ERROR_INVALID_ARGUMENT
+   at: execute_gpu_job_compute_rd (servers/rendering/renderer_rd/effects/fsr2.cpp:418)
+ERROR: Condition "p_job.uavMip[i] >= mip_slice_rids.size()" is true. Returning: FFX_ERROR_INVALID_ARGUMENT
+   at: execute_gpu_job_compute_rd (servers/rendering/renderer_rd/effects/fsr2.cpp:418)
+ERROR: Condition "p_job.uavMip[i] >= mip_slice_rids.size()" is true. Returning: FFX_ERROR_INVALID_ARGUMENT
+   at: execute_gpu_job_compute_rd (servers/rendering/renderer_rd/effects/fsr2.cpp:418)
+ERROR: Condition "p_job.uavMip[i] >= mip_slice_rids.size()" is true. Returning: FFX_ERROR_INVALID_ARGUMENT
+   at: execute_gpu_job_compute_rd (servers/rendering/renderer_rd/effects/fsr2.cpp:418)
+ERROR: Condition "p_job.uavMip[i] >= mip_slice_rids.size()" is true. Returning: FFX_ERROR_INVALID_ARGUMENT
+   at: execute_gpu_job_compute_rd (servers/rendering/renderer_rd/effects/fsr2.cpp:418)
+ERROR: Condition "p_job.uavMip[i] >= mip_slice_rids.size()" is true. Returning: FFX_ERROR_INVALID_ARGUMENT
+   at: execute_gpu_job_compute_rd (servers/rendering/renderer_rd/effects/fsr2.cpp:418)
+ERROR: Condition "p_job.uavMip[i] >= mip_slice_rids.size()" is true. Returning: FFX_ERROR_INVALID_ARGUMENT
+   at: execute_gpu_job_compute_rd (servers/rendering/renderer_rd/effects/fsr2.cpp:418)
+ERROR: Condition "p_job.uavMip[i] >= mip_slice_rids.size()" is true. Returning: FFX_ERROR_INVALID_ARGUMENT
+   at: execute_gpu_job_compute_rd (servers/rendering/renderer_rd/effects/fsr2.cpp:418)
+ERROR: Condition "p_job.uavMip[i] >= mip_slice_rids.size()" is true. Returning: FFX_ERROR_INVALID_ARGUMENT
+   at: execute_gpu_job_compute_rd (servers/rendering/renderer_rd/effects/fsr2.cpp:418)
+ERROR: Condition "p_job.uavMip[i] >= mip_slice_rids.size()" is true. Returning: FFX_ERROR_INVALID_ARGUMENT
+   at: execute_gpu_job_compute_rd (servers/rendering/renderer_rd/effects/fsr2.cpp:418)
+ERROR: Condition "p_job.uavMip[i] >= mip_slice_rids.size()" is true. Returning: FFX_ERROR_INVALID_ARGUMENT
+   at: execute_gpu_job_compute_rd (servers/rendering/renderer_rd/effects/fsr2.cpp:418)
+ERROR: Condition "p_job.uavMip[i] >= mip_slice_rids.size()" is true. Returning: FFX_ERROR_INVALID_ARGUMENT
+   at: execute_gpu_job_compute_rd (servers/rendering/renderer_rd/effects/fsr2.cpp:418)
+ERROR: Condition "p_job.uavMip[i] >= mip_slice_rids.size()" is true. Returning: FFX_ERROR_INVALID_ARGUMENT
+   at: execute_gpu_job_compute_rd (servers/rendering/renderer_rd/effects/fsr2.cpp:418)
+ERROR: Condition "p_job.uavMip[i] >= mip_slice_rids.size()" is true. Returning: FFX_ERROR_INVALID_ARGUMENT
+   at: execute_gpu_job_compute_rd (servers/rendering/renderer_rd/effects/fsr2.cpp:418)
+ERROR: Condition "p_job.uavMip[i] >= mip_slice_rids.size()" is true. Returning: FFX_ERROR_INVALID_ARGUMENT
+   at: execute_gpu_job_compute_rd (servers/rendering/renderer_rd/effects/fsr2.cpp:418)
+ERROR: Condition "p_job.uavMip[i] >= mip_slice_rids.size()" is true. Returning: FFX_ERROR_INVALID_ARGUMENT
+   at: execute_gpu_job_compute_rd (servers/rendering/renderer_rd/effects/fsr2.cpp:418)
+ERROR: Condition "p_job.uavMip[i] >= mip_slice_rids.size()" is true. Returning: FFX_ERROR_INVALID_ARGUMENT
+   at: execute_gpu_job_compute_rd (servers/rendering/renderer_rd/effects/fsr2.cpp:418)
+ERROR: Condition "p_job.uavMip[i] >= mip_slice_rids.size()" is true. Returning: FFX_ERROR_INVALID_ARGUMENT
+   at: execute_gpu_job_compute_rd (servers/rendering/renderer_rd/effects/fsr2.cpp:418)
+ERROR: Condition "p_job.uavMip[i] >= mip_slice_rids.size()" is true. Returning: FFX_ERROR_INVALID_ARGUMENT
+   at: execute_gpu_job_compute_rd (servers/rendering/renderer_rd/effects/fsr2.cpp:418)
+ERROR: Condition "p_job.uavMip[i] >= mip_slice_rids.size()" is true. Returning: FFX_ERROR_INVALID_ARGUMENT
+   at: execute_gpu_job_compute_rd (servers/rendering/renderer_rd/effects/fsr2.cpp:418)
+ERROR: Condition "p_job.uavMip[i] >= mip_slice_rids.size()" is true. Returning: FFX_ERROR_INVALID_ARGUMENT
+   at: execute_gpu_job_compute_rd (servers/rendering/renderer_rd/effects/fsr2.cpp:418)
+ERROR: Condition "p_job.uavMip[i] >= mip_slice_rids.size()" is true. Returning: FFX_ERROR_INVALID_ARGUMENT
+   at: execute_gpu_job_compute_rd (servers/rendering/renderer_rd/effects/fsr2.cpp:418)
+ERROR: Condition "p_job.uavMip[i] >= mip_slice_rids.size()" is true. Returning: FFX_ERROR_INVALID_ARGUMENT
+   at: execute_gpu_job_compute_rd (servers/rendering/renderer_rd/effects/fsr2.cpp:418)
+ERROR: Condition "p_job.uavMip[i] >= mip_slice_rids.size()" is true. Returning: FFX_ERROR_INVALID_ARGUMENT
+   at: execute_gpu_job_compute_rd (servers/rendering/renderer_rd/effects/fsr2.cpp:418)
+ERROR: Condition "p_job.uavMip[i] >= mip_slice_rids.size()" is true. Returning: FFX_ERROR_INVALID_ARGUMENT
+   at: execute_gpu_job_compute_rd (servers/rendering/renderer_rd/effects/fsr2.cpp:418)
+ERROR: Condition "p_job.uavMip[i] >= mip_slice_rids.size()" is true. Returning: FFX_ERROR_INVALID_ARGUMENT
+   at: execute_gpu_job_compute_rd (servers/rendering/renderer_rd/effects/fsr2.cpp:418)
+ERROR: Condition "p_job.uavMip[i] >= mip_slice_rids.size()" is true. Returning: FFX_ERROR_INVALID_ARGUMENT
+   at: execute_gpu_job_compute_rd (servers/rendering/renderer_rd/effects/fsr2.cpp:418)
+ERROR: Condition "p_job.uavMip[i] >= mip_slice_rids.size()" is true. Returning: FFX_ERROR_INVALID_ARGUMENT
+   at: execute_gpu_job_compute_rd (servers/rendering/renderer_rd/effects/fsr2.cpp:418)
+ERROR: Condition "p_job.uavMip[i] >= mip_slice_rids.size()" is true. Returning: FFX_ERROR_INVALID_ARGUMENT
+   at: execute_gpu_job_compute_rd (servers/rendering/renderer_rd/effects/fsr2.cpp:418)
+ERROR: Condition "p_job.uavMip[i] >= mip_slice_rids.size()" is true. Returning: FFX_ERROR_INVALID_ARGUMENT
+   at: execute_gpu_job_compute_rd (servers/rendering/renderer_rd/effects/fsr2.cpp:418)
+ERROR: Condition "p_job.uavMip[i] >= mip_slice_rids.size()" is true. Returning: FFX_ERROR_INVALID_ARGUMENT
+   at: execute_gpu_job_compute_rd (servers/rendering/renderer_rd/effects/fsr2.cpp:418)
+ERROR: Condition "p_job.uavMip[i] >= mip_slice_rids.size()" is true. Returning: FFX_ERROR_INVALID_ARGUMENT
+   at: execute_gpu_job_compute_rd (servers/rendering/renderer_rd/effects/fsr2.cpp:418)
+ERROR: Condition "p_job.uavMip[i] >= mip_slice_rids.size()" is true. Returning: FFX_ERROR_INVALID_ARGUMENT
+   at: execute_gpu_job_compute_rd (servers/rendering/renderer_rd/effects/fsr2.cpp:418)
+ERROR: Condition "p_job.uavMip[i] >= mip_slice_rids.size()" is true. Returning: FFX_ERROR_INVALID_ARGUMENT
+   at: execute_gpu_job_compute_rd (servers/rendering/renderer_rd/effects/fsr2.cpp:418)
+ERROR: This function should never be used outside the editor, it can severely damage performance.
+   at: global_shader_parameter_get_list (servers/rendering/renderer_rd/storage_rd/material_storage.cpp:1665)
+   GDScript backtrace (most recent call first):
+       [0] ensure_global (res://scripts/living_world/vat_crowd.gd:47)
+       [1] _init (res://scripts/living_world/vat_crowd.gd:52)
+       [2] _ready (res://scripts/living_world/vat_residents.gd:48)
+       [3] setup (res://scripts/population/population_lod.gd:133)
+       [4] _ready (res://scripts/core/main.gd:122)
+WARNING: 'res://assets/generated/village_house_a_3_lod1.glb': In external resource #3, invalid UID: 'uid://bv0rc2ksgjc4x' - using text path instead: 'res://assets/generated/pbr/window_alb.png'.
+   at: open (core/io/resource_format_binary.cpp:1089)
+   GDScript backtrace (most recent call first):
+       [0] scene (res://scripts/world/assets.gd:254)
+       [1] merged_mesh (res://scripts/world/assets.gd:845)
+       [2] building_mesh (res://scripts/world/assets.gd:763)
+       [3] building_lod_mesh (res://scripts/world/assets.gd:731)
+       [4] _build_co (res://scripts/world/settlement_builder.gd:238)
+       [5] update_now (res://scripts/world/settlement_builder.gd:139)
+       [6] _process (res://scripts/world/settlement_builder.gd:84)
+WARNING: 'res://assets/generated/village_house_a_3_lod1.glb': In external resource #4, invalid UID: 'uid://be5wotbwlb4j5' - using text path instead: 'res://assets/generated/pbr/window_emit.png'.
+   at: open (core/io/resource_format_binary.cpp:1089)
+   GDScript backtrace (most recent call first):
+       [0] scene (res://scripts/world/assets.gd:254)
+       [1] merged_mesh (res://scripts/world/assets.gd:845)
+       [2] building_mesh (res://scripts/world/assets.gd:763)
+       [3] building_lod_mesh (res://scripts/world/assets.gd:731)
+       [4] _build_co (res://scripts/world/settlement_builder.gd:238)
+       [5] update_now (res://scripts/world/settlement_builder.gd:139)
+       [6] _process (res://scripts/world/settlement_builder.gd:84)
+WARNING: 'res://assets/generated/village_house_a_3_lod1.glb': In external resource #5, invalid UID: 'uid://cs87ialbkqn1b' - using text path instead: 'res://assets/generated/pbr/window_nrm.png'.
+   at: open (core/io/resource_format_binary.cpp:1089)
+   GDScript backtrace (most recent call first):
+       [0] scene (res://scripts/world/assets.gd:254)
+       [1] merged_mesh (res://scripts/world/assets.gd:845)
+       [2] building_mesh (res://scripts/world/assets.gd:763)
+       [3] building_lod_mesh (res://scripts/world/assets.gd:731)
+       [4] _build_co (res://scripts/world/settlement_builder.gd:238)
+       [5] update_now (res://scripts/world/settlement_builder.gd:139)
+       [6] _process (res://scripts/world/settlement_builder.gd:84)
+WARNING: 'res://assets/generated/village_house_a_3.glb': In external resource #3, invalid UID: 'uid://bv0rc2ksgjc4x' - using text path instead: 'res://assets/generated/pbr/window_alb.png'.
+   at: open (core/io/resource_format_binary.cpp:1089)
+   GDScript backtrace (most recent call first):
+       [0] scene (res://scripts/world/assets.gd:254)
+       [1] merged_mesh (res://scripts/world/assets.gd:845)
+       [2] building_mesh (res://scripts/world/assets.gd:763)
+       [3] _footprint (res://scripts/world/settlement_builder.gd:798)
+       [4] _build_co (res://scripts/world/settlement_builder.gd:247)
+       [5] update_now (res://scripts/world/settlement_builder.gd:139)
+       [6] _process (res://scripts/world/settlement_builder.gd:84)
+WARNING: 'res://assets/generated/village_house_a_3.glb': In external resource #4, invalid UID: 'uid://be5wotbwlb4j5' - using text path instead: 'res://assets/generated/pbr/window_emit.png'.
+   at: open (core/io/resource_format_binary.cpp:1089)
+   GDScript backtrace (most recent call first):
+       [0] scene (res://scripts/world/assets.gd:254)
+       [1] merged_mesh (res://scripts/world/assets.gd:845)
+       [2] building_mesh (res://scripts/world/assets.gd:763)
+       [3] _footprint (res://scripts/world/settlement_builder.gd:798)
+       [4] _build_co (res://scripts/world/settlement_builder.gd:247)
+       [5] update_now (res://scripts/world/settlement_builder.gd:139)
+       [6] _process (res://scripts/world/settlement_builder.gd:84)
+WARNING: 'res://assets/generated/village_house_a_3.glb': In external resource #5, invalid UID: 'uid://cs87ialbkqn1b' - using text path instead: 'res://assets/generated/pbr/window_nrm.png'.
+   at: open (core/io/resource_format_binary.cpp:1089)
+   GDScript backtrace (most recent call first):
+       [0] scene (res://scripts/world/assets.gd:254)
+       [1] merged_mesh (res://scripts/world/assets.gd:845)
+       [2] building_mesh (res://scripts/world/assets.gd:763)
+       [3] _footprint (res://scripts/world/settlement_builder.gd:798)
+       [4] _build_co (res://scripts/world/settlement_builder.gd:247)
+       [5] update_now (res://scripts/world/settlement_builder.gd:139)
+       [6] _process (res://scripts/world/settlement_builder.gd:84)
+WARNING: 'res://assets/generated/village_house_a_lod1.glb': In external resource #3, invalid UID: 'uid://bv0rc2ksgjc4x' - using text path instead: 'res://assets/generated/pbr/window_alb.png'.
+   at: open (core/io/resource_format_binary.cpp:1089)
+   GDScript backtrace (most recent call first):
+       [0] scene (res://scripts/world/assets.gd:254)
+       [1] merged_mesh (res://scripts/world/assets.gd:845)
+       [2] building_mesh (res://scripts/world/assets.gd:763)
+       [3] building_lod_mesh (res://scripts/world/assets.gd:731)
+       [4] _build_co (res://scripts/world/settlement_builder.gd:238)
+       [5] update_now (res://scripts/world/settlement_builder.gd:139)
+       [6] _process (res://scripts/world/settlement_builder.gd:84)
+WARNING: 'res://assets/generated/village_house_a_lod1.glb': In external resource #4, invalid UID: 'uid://be5wotbwlb4j5' - using text path instead: 'res://assets/generated/pbr/window_emit.png'.
+   at: open (core/io/resource_format_binary.cpp:1089)
+   GDScript backtrace (most recent call first):
+       [0] scene (res://scripts/world/assets.gd:254)
+       [1] merged_mesh (res://scripts/world/assets.gd:845)
+       [2] building_mesh (res://scripts/world/assets.gd:763)
+       [3] building_lod_mesh (res://scripts/world/assets.gd:731)
+       [4] _build_co (res://scripts/world/settlement_builder.gd:238)
+       [5] update_now (res://scripts/world/settlement_builder.gd:139)
+       [6] _process (res://scripts/world/settlement_builder.gd:84)
+WARNING: 'res://assets/generated/village_house_a_lod1.glb': In external resource #5, invalid UID: 'uid://cs87ialbkqn1b' - using text path instead: 'res://assets/generated/pbr/window_nrm.png'.
+   at: open (core/io/resource_format_binary.cpp:1089)
+   GDScript backtrace (most recent call first):
+       [0] scene (res://scripts/world/assets.gd:254)
+       [1] merged_mesh (res://scripts/world/assets.gd:845)
+       [2] building_mesh (res://scripts/world/assets.gd:763)
+       [3] building_lod_mesh (res://scripts/world/assets.gd:731)
+       [4] _build_co (res://scripts/world/settlement_builder.gd:238)
+       [5] update_now (res://scripts/world/settlement_builder.gd:139)
+       [6] _process (res://scripts/world/settlement_builder.gd:84)
+WARNING: 'res://assets/generated/village_house_a.glb': In external resource #3, invalid UID: 'uid://bv0rc2ksgjc4x' - using text path instead: 'res://assets/generated/pbr/window_alb.png'.
+   at: open (core/io/resource_format_binary.cpp:1089)
+   GDScript backtrace (most recent call first):
+       [0] scene (res://scripts/world/assets.gd:254)
+       [1] merged_mesh (res://scripts/world/assets.gd:845)
+       [2] building_mesh (res://scripts/world/assets.gd:763)
+       [3] _footprint (res://scripts/world/settlement_builder.gd:798)
+       [4] _build_co (res://scripts/world/settlement_builder.gd:247)
+       [5] update_now (res://scripts/world/settlement_builder.gd:139)
+       [6] _process (res://scripts/world/settlement_builder.gd:84)
+WARNING: 'res://assets/generated/village_house_a.glb': In external resource #4, invalid UID: 'uid://be5wotbwlb4j5' - using text path instead: 'res://assets/generated/pbr/window_emit.png'.
+   at: open (core/io/resource_format_binary.cpp:1089)
+   GDScript backtrace (most recent call first):
+       [0] scene (res://scripts/world/assets.gd:254)
+       [1] merged_mesh (res://scripts/world/assets.gd:845)
+       [2] building_mesh (res://scripts/world/assets.gd:763)
+       [3] _footprint (res://scripts/world/settlement_builder.gd:798)
+       [4] _build_co (res://scripts/world/settlement_builder.gd:247)
+       [5] update_now (res://scripts/world/settlement_builder.gd:139)
+       [6] _process (res://scripts/world/settlement_builder.gd:84)
+WARNING: 'res://assets/generated/village_house_a.glb': In external resource #5, invalid UID: 'uid://cs87ialbkqn1b' - using text path instead: 'res://assets/generated/pbr/window_nrm.png'.
+   at: open (core/io/resource_format_binary.cpp:1089)
+   GDScript backtrace (most recent call first):
+       [0] scene (res://scripts/world/assets.gd:254)
+       [1] merged_mesh (res://scripts/world/assets.gd:845)
+       [2] building_mesh (res://scripts/world/assets.gd:763)
+       [3] _footprint (res://scripts/world/settlement_builder.gd:798)
+       [4] _build_co (res://scripts/world/settlement_builder.gd:247)
+       [5] update_now (res://scripts/world/settlement_builder.gd:139)
+       [6] _process (res://scripts/world/settlement_builder.gd:84)
+WARNING: 'res://assets/generated/village_house_a_2_lod1.glb': In external resource #3, invalid UID: 'uid://bv0rc2ksgjc4x' - using text path instead: 'res://assets/generated/pbr/window_alb.png'.
+   at: open (core/io/resource_format_binary.cpp:1089)
+   GDScript backtrace (most recent call first):
+       [0] scene (res://scripts/world/assets.gd:254)
+       [1] merged_mesh (res://scripts/world/assets.gd:845)
+       [2] building_mesh (res://scripts/world/assets.gd:763)
+       [3] building_lod_mesh (res://scripts/world/assets.gd:731)
+       [4] _build_co (res://scripts/world/settlement_builder.gd:238)
+       [5] update_now (res://scripts/world/settlement_builder.gd:139)
+       [6] _process (res://scripts/world/settlement_builder.gd:84)
+WARNING: 'res://assets/generated/village_house_a_2_lod1.glb': In external resource #4, invalid UID: 'uid://cs87ialbkqn1b' - using text path instead: 'res://assets/generated/pbr/window_nrm.png'.
+   at: open (core/io/resource_format_binary.cpp:1089)
+   GDScript backtrace (most recent call first):
+       [0] scene (res://scripts/world/assets.gd:254)
+       [1] merged_mesh (res://scripts/world/assets.gd:845)
+       [2] building_mesh (res://scripts/world/assets.gd:763)
+       [3] building_lod_mesh (res://scripts/world/assets.gd:731)
+       [4] _build_co (res://scripts/world/settlement_builder.gd:238)
+       [5] update_now (res://scripts/world/settlement_builder.gd:139)
+       [6] _process (res://scripts/world/settlement_builder.gd:84)
+WARNING: 'res://assets/generated/village_house_a_2_lod1.glb': In external resource #5, invalid UID: 'uid://be5wotbwlb4j5' - using text path instead: 'res://assets/generated/pbr/window_emit.png'.
+   at: open (core/io/resource_format_binary.cpp:1089)
+   GDScript backtrace (most recent call first):
+       [0] scene (res://scripts/world/assets.gd:254)
+       [1] merged_mesh (res://scripts/world/assets.gd:845)
+       [2] building_mesh (res://scripts/world/assets.gd:763)
+       [3] building_lod_mesh (res://scripts/world/assets.gd:731)
+       [4] _build_co (res://scripts/world/settlement_builder.gd:238)
+       [5] update_now (res://scripts/world/settlement_builder.gd:139)
+       [6] _process (res://scripts/world/settlement_builder.gd:84)
+WARNING: 'res://assets/generated/village_house_a_2.glb': In external resource #3, invalid UID: 'uid://bv0rc2ksgjc4x' - using text path instead: 'res://assets/generated/pbr/window_alb.png'.
+   at: open (core/io/resource_format_binary.cpp:1089)
+   GDScript backtrace (most recent call first):
+       [0] scene (res://scripts/world/assets.gd:254)
+       [1] merged_mesh (res://scripts/world/assets.gd:845)
+       [2] building_mesh (res://scripts/world/assets.gd:763)
+       [3] _footprint (res://scripts/world/settlement_builder.gd:798)
+       [4] _build_co (res://scripts/world/settlement_builder.gd:247)
+       [5] update_now (res://scripts/world/settlement_builder.gd:139)
+       [6] _process (res://scripts/world/settlement_builder.gd:84)
+WARNING: 'res://assets/generated/village_house_a_2.glb': In external resource #4, invalid UID: 'uid://cs87ialbkqn1b' - using text path instead: 'res://assets/generated/pbr/window_nrm.png'.
+   at: open (core/io/resource_format_binary.cpp:1089)
+   GDScript backtrace (most recent call first):
+       [0] scene (res://scripts/world/assets.gd:254)
+       [1] merged_mesh (res://scripts/world/assets.gd:845)
+       [2] building_mesh (res://scripts/world/assets.gd:763)
+       [3] _footprint (res://scripts/world/settlement_builder.gd:798)
+       [4] _build_co (res://scripts/world/settlement_builder.gd:247)
+       [5] update_now (res://scripts/world/settlement_builder.gd:139)
+       [6] _process (res://scripts/world/settlement_builder.gd:84)
+WARNING: 'res://assets/generated/village_house_a_2.glb': In external resource #5, invalid UID: 'uid://be5wotbwlb4j5' - using text path instead: 'res://assets/generated/pbr/window_emit.png'.
+   at: open (core/io/resource_format_binary.cpp:1089)
+   GDScript backtrace (most recent call first):
+       [0] scene (res://scripts/world/assets.gd:254)
+       [1] merged_mesh (res://scripts/world/assets.gd:845)
+       [2] building_mesh (res://scripts/world/assets.gd:763)
+       [3] _footprint (res://scripts/world/settlement_builder.gd:798)
+       [4] _build_co (res://scripts/world/settlement_builder.gd:247)
+       [5] update_now (res://scripts/world/settlement_builder.gd:139)
+       [6] _process (res://scripts/world/settlement_builder.gd:84)
+WARNING: 'res://assets/generated/village_house_a_4_lod1.glb': In external resource #3, invalid UID: 'uid://bv0rc2ksgjc4x' - using text path instead: 'res://assets/generated/pbr/window_alb.png'.
+   at: open (core/io/resource_format_binary.cpp:1089)
+   GDScript backtrace (most recent call first):
+       [0] scene (res://scripts/world/assets.gd:254)
+       [1] merged_mesh (res://scripts/world/assets.gd:845)
+       [2] building_mesh (res://scripts/world/assets.gd:763)
+       [3] building_lod_mesh (res://scripts/world/assets.gd:731)
+       [4] _build_co (res://scripts/world/settlement_builder.gd:238)
+       [5] update_now (res://scripts/world/settlement_builder.gd:139)
+       [6] _process (res://scripts/world/settlement_builder.gd:84)
+WARNING: 'res://assets/generated/village_house_a_4_lod1.glb': In external resource #4, invalid UID: 'uid://be5wotbwlb4j5' - using text path instead: 'res://assets/generated/pbr/window_emit.png'.
+   at: open (core/io/resource_format_binary.cpp:1089)
+   GDScript backtrace (most recent call first):
+       [0] scene (res://scripts/world/assets.gd:254)
+       [1] merged_mesh (res://scripts/world/assets.gd:845)
+       [2] building_mesh (res://scripts/world/assets.gd:763)
+       [3] building_lod_mesh (res://scripts/world/assets.gd:731)
+       [4] _build_co (res://scripts/world/settlement_builder.gd:238)
+       [5] update_now (res://scripts/world/settlement_builder.gd:139)
+       [6] _process (res://scripts/world/settlement_builder.gd:84)
+WARNING: 'res://assets/generated/village_house_a_4_lod1.glb': In external resource #5, invalid UID: 'uid://cs87ialbkqn1b' - using text path instead: 'res://assets/generated/pbr/window_nrm.png'.
+   at: open (core/io/resource_format_binary.cpp:1089)
+   GDScript backtrace (most recent call first):
+       [0] scene (res://scripts/world/assets.gd:254)
+       [1] merged_mesh (res://scripts/world/assets.gd:845)
+       [2] building_mesh (res://scripts/world/assets.gd:763)
+       [3] building_lod_mesh (res://scripts/world/assets.gd:731)
+       [4] _build_co (res://scripts/world/settlement_builder.gd:238)
+       [5] update_now (res://scripts/world/settlement_builder.gd:139)
+       [6] _process (res://scripts/world/settlement_builder.gd:84)
+WARNING: 'res://assets/generated/village_house_a_4.glb': In external resource #3, invalid UID: 'uid://bv0rc2ksgjc4x' - using text path instead: 'res://assets/generated/pbr/window_alb.png'.
+   at: open (core/io/resource_format_binary.cpp:1089)
+   GDScript backtrace (most recent call first):
+       [0] scene (res://scripts/world/assets.gd:254)
+       [1] merged_mesh (res://scripts/world/assets.gd:845)
+       [2] building_mesh (res://scripts/world/assets.gd:763)
+       [3] _footprint (res://scripts/world/settlement_builder.gd:798)
+       [4] _build_co (res://scripts/world/settlement_builder.gd:247)
+       [5] update_now (res://scripts/world/settlement_builder.gd:139)
+       [6] _process (res://scripts/world/settlement_builder.gd:84)
+WARNING: 'res://assets/generated/village_house_a_4.glb': In external resource #4, invalid UID: 'uid://be5wotbwlb4j5' - using text path instead: 'res://assets/generated/pbr/window_emit.png'.
+   at: open (core/io/resource_format_binary.cpp:1089)
+   GDScript backtrace (most recent call first):
+       [0] scene (res://scripts/world/assets.gd:254)
+       [1] merged_mesh (res://scripts/world/assets.gd:845)
+       [2] building_mesh (res://scripts/world/assets.gd:763)
+       [3] _footprint (res://scripts/world/settlement_builder.gd:798)
+       [4] _build_co (res://scripts/world/settlement_builder.gd:247)
+       [5] update_now (res://scripts/world/settlement_builder.gd:139)
+       [6] _process (res://scripts/world/settlement_builder.gd:84)
+WARNING: 'res://assets/generated/village_house_a_4.glb': In external resource #5, invalid UID: 'uid://cs87ialbkqn1b' - using text path instead: 'res://assets/generated/pbr/window_nrm.png'.
+   at: open (core/io/resource_format_binary.cpp:1089)
+   GDScript backtrace (most recent call first):
+       [0] scene (res://scripts/world/assets.gd:254)
+       [1] merged_mesh (res://scripts/world/assets.gd:845)
+       [2] building_mesh (res://scripts/world/assets.gd:763)
+       [3] _footprint (res://scripts/world/settlement_builder.gd:798)
+       [4] _build_co (res://scripts/world/settlement_builder.gd:247)
+       [5] update_now (res://scripts/world/settlement_builder.gd:139)
+       [6] _process (res://scripts/world/settlement_builder.gd:84)
+WARNING: 'res://assets/generated/village_house_b_2_lod1.glb': In external resource #3, invalid UID: 'uid://bv0rc2ksgjc4x' - using text path instead: 'res://assets/generated/pbr/window_alb.png'.
+   at: open (core/io/resource_format_binary.cpp:1089)
+   GDScript backtrace (most recent call first):
+       [0] scene (res://scripts/world/assets.gd:254)
+       [1] merged_mesh (res://scripts/world/assets.gd:845)
+       [2] building_mesh (res://scripts/world/assets.gd:763)
+       [3] building_lod_mesh (res://scripts/world/assets.gd:731)
+       [4] _build_co (res://scripts/world/settlement_builder.gd:238)
+       [5] update_now (res://scripts/world/settlement_builder.gd:139)
+       [6] _process (res://scripts/world/settlement_builder.gd:84)
+WARNING: 'res://assets/generated/village_house_b_2_lod1.glb': In external resource #4, invalid UID: 'uid://be5wotbwlb4j5' - using text path instead: 'res://assets/generated/pbr/window_emit.png'.
+   at: open (core/io/resource_format_binary.cpp:1089)
+   GDScript backtrace (most recent call first):
+       [0] scene (res://scripts/world/assets.gd:254)
+       [1] merged_mesh (res://scripts/world/assets.gd:845)
+       [2] building_mesh (res://scripts/world/assets.gd:763)
+       [3] building_lod_mesh (res://scripts/world/assets.gd:731)
+       [4] _build_co (res://scripts/world/settlement_builder.gd:238)
+       [5] update_now (res://scripts/world/settlement_builder.gd:139)
+       [6] _process (res://scripts/world/settlement_builder.gd:84)
+WARNING: 'res://assets/generated/village_house_b_2_lod1.glb': In external resource #5, invalid UID: 'uid://cs87ialbkqn1b' - using text path instead: 'res://assets/generated/pbr/window_nrm.png'.
+   at: open (core/io/resource_format_binary.cpp:1089)
+   GDScript backtrace (most recent call first):
+       [0] scene (res://scripts/world/assets.gd:254)
+       [1] merged_mesh (res://scripts/world/assets.gd:845)
+       [2] building_mesh (res://scripts/world/assets.gd:763)
+       [3] building_lod_mesh (res://scripts/world/assets.gd:731)
+       [4] _build_co (res://scripts/world/settlement_builder.gd:238)
+       [5] update_now (res://scripts/world/settlement_builder.gd:139)
+       [6] _process (res://scripts/world/settlement_builder.gd:84)
+WARNING: 'res://assets/generated/village_house_b_2.glb': In external resource #3, invalid UID: 'uid://bv0rc2ksgjc4x' - using text path instead: 'res://assets/generated/pbr/window_alb.png'.
+   at: open (core/io/resource_format_binary.cpp:1089)
+   GDScript backtrace (most recent call first):
+       [0] scene (res://scripts/world/assets.gd:254)
+       [1] merged_mesh (res://scripts/world/assets.gd:845)
+       [2] building_mesh (res://scripts/world/assets.gd:763)
+       [3] _footprint (res://scripts/world/settlement_builder.gd:798)
+       [4] _build_co (res://scripts/world/settlement_builder.gd:247)
+       [5] update_now (res://scripts/world/settlement_builder.gd:139)
+       [6] _process (res://scripts/world/settlement_builder.gd:84)
+WARNING: 'res://assets/generated/village_house_b_2.glb': In external resource #4, invalid UID: 'uid://be5wotbwlb4j5' - using text path instead: 'res://assets/generated/pbr/window_emit.png'.
+   at: open (core/io/resource_format_binary.cpp:1089)
+   GDScript backtrace (most recent call first):
+       [0] scene (res://scripts/world/assets.gd:254)
+       [1] merged_mesh (res://scripts/world/assets.gd:845)
+       [2] building_mesh (res://scripts/world/assets.gd:763)
+       [3] _footprint (res://scripts/world/settlement_builder.gd:798)
+       [4] _build_co (res://scripts/world/settlement_builder.gd:247)
+       [5] update_now (res://scripts/world/settlement_builder.gd:139)
+       [6] _process (res://scripts/world/settlement_builder.gd:84)
+WARNING: 'res://assets/generated/village_house_b_2.glb': In external resource #5, invalid UID: 'uid://cs87ialbkqn1b' - using text path instead: 'res://assets/generated/pbr/window_nrm.png'.
+   at: open (core/io/resource_format_binary.cpp:1089)
+   GDScript backtrace (most recent call first):
+       [0] scene (res://scripts/world/assets.gd:254)
+       [1] merged_mesh (res://scripts/world/assets.gd:845)
+       [2] building_mesh (res://scripts/world/assets.gd:763)
+       [3] _footprint (res://scripts/world/settlement_builder.gd:798)
+       [4] _build_co (res://scripts/world/settlement_builder.gd:247)
+       [5] update_now (res://scripts/world/settlement_builder.gd:139)
+       [6] _process (res://scripts/world/settlement_builder.gd:84)
+WARNING: 'res://assets/generated/bell_tower.glb': In external resource #3, invalid UID: 'uid://bv0rc2ksgjc4x' - using text path instead: 'res://assets/generated/pbr/window_alb.png'.
+   at: open (core/io/resource_format_binary.cpp:1089)
+   GDScript backtrace (most recent call first):
+       [0] scene (res://scripts/world/assets.gd:254)
+       [1] merged_mesh (res://scripts/world/assets.gd:845)
+       [2] building_mesh (res://scripts/world/assets.gd:763)
+       [3] _mesh_size (res://scripts/population/street_graph.gd:202)
+       [4] _setup (res://scripts/population/street_graph.gd:140)
+       [5] for_settlement (res://scripts/population/street_graph.gd:78)
+       [6] _sprite_route_graph (res://scripts/population/population_lod.gd:507)
+       [7] _sprite_job_step (res://scripts/population/population_lod.gd:436)
+       [8] refresh (res://scripts/population/population_lod.gd:361)
+       [9] _process (res://scripts/population/population_lod.gd:161)
+WARNING: 'res://assets/generated/bell_tower.glb': In external resource #4, invalid UID: 'uid://cs87ialbkqn1b' - using text path instead: 'res://assets/generated/pbr/window_nrm.png'.
+   at: open (core/io/resource_format_binary.cpp:1089)
+   GDScript backtrace (most recent call first):
+       [0] scene (res://scripts/world/assets.gd:254)
+       [1] merged_mesh (res://scripts/world/assets.gd:845)
+       [2] building_mesh (res://scripts/world/assets.gd:763)
+       [3] _mesh_size (res://scripts/population/street_graph.gd:202)
+       [4] _setup (res://scripts/population/street_graph.gd:140)
+       [5] for_settlement (res://scripts/population/street_graph.gd:78)
+       [6] _sprite_route_graph (res://scripts/population/population_lod.gd:507)
+       [7] _sprite_job_step (res://scripts/population/population_lod.gd:436)
+       [8] refresh (res://scripts/population/population_lod.gd:361)
+       [9] _process (res://scripts/population/population_lod.gd:161)
+WARNING: Adding 'LOD1_body' as child to 'Skeleton3D' will make owner 'hero_meshy3_lod1' inconsistent. Consider unsetting the owner beforehand.
+   at: add_child (scene/main/node.cpp:1716)
+   GDScript backtrace (most recent call first):
+       [0] attach_lods (res://scripts/actors/hero_tier_a.gd:274)
+       [1] dress_meshy_hero (res://scripts/actors/hero_tier_a.gd:293)
+       [2] _build_body (res://scripts/actors/player.gd:570)
+       [3] _ready (res://scripts/actors/player.gd:386)
+       [4] _ready (res://scripts/core/main.gd:140)
+WARNING: Adding 'LOD2_body' as child to 'Skeleton3D' will make owner 'hero_meshy3_lod2' inconsistent. Consider unsetting the owner beforehand.
+   at: add_child (scene/main/node.cpp:1716)
+   GDScript backtrace (most recent call first):
+       [0] attach_lods (res://scripts/actors/hero_tier_a.gd:274)
+       [1] dress_meshy_hero (res://scripts/actors/hero_tier_a.gd:293)
+       [2] _build_body (res://scripts/actors/player.gd:570)
+       [3] _ready (res://scripts/actors/player.gd:386)
+       [4] _ready (res://scripts/core/main.gd:140)
+ERROR: Can't use get_node() with absolute paths from outside the active scene tree.
+   at: get_node_or_null (scene/main/node.cpp:1898)
+   GDScript backtrace (most recent call first):
+       [0] setup (res://scripts/actors/hero_face_driver.gd:42)
+       [1] dress_meshy_hero (res://scripts/actors/hero_tier_a.gd:349)
+       [2] _build_body (res://scripts/actors/player.gd:570)
+       [3] _ready (res://scripts/actors/player.gd:386)
+       [4] _ready (res://scripts/core/main.gd:140)
+[audio] bed -> village_day (interior=, t=8.1 h)
+[audio] mood wilderness -> r1_village_day (threat 0, hostiles 0, interior )
+[audio] music wild_b -> r1_village_day (mood r1_village_day, intensity 0.00)
+WARNING: 'res://assets/generated/townhouse_b_lod1.glb': In external resource #3, invalid UID: 'uid://bv0rc2ksgjc4x' - using text path instead: 'res://assets/generated/pbr/window_alb.png'.
+   at: open (core/io/resource_format_binary.cpp:1089)
+   GDScript backtrace (most recent call first):
+       [0] scene (res://scripts/world/assets.gd:254)
+       [1] merged_mesh (res://scripts/world/assets.gd:845)
+       [2] building_mesh (res://scripts/world/assets.gd:763)
+       [3] building_lod_mesh (res://scripts/world/assets.gd:731)
+       [4] _build_co (res://scripts/world/settlement_builder.gd:238)
+       [5] update_now (res://scripts/world/settlement_builder.gd:139)
+       [6] _process (res://scripts/world/settlement_builder.gd:84)
+WARNING: 'res://assets/generated/townhouse_b_lod1.glb': In external resource #4, invalid UID: 'uid://be5wotbwlb4j5' - using text path instead: 'res://assets/generated/pbr/window_emit.png'.
+   at: open (core/io/resource_format_binary.cpp:1089)
+   GDScript backtrace (most recent call first):
+       [0] scene (res://scripts/world/assets.gd:254)
+       [1] merged_mesh (res://scripts/world/assets.gd:845)
+       [2] building_mesh (res://scripts/world/assets.gd:763)
+       [3] building_lod_mesh (res://scripts/world/assets.gd:731)
+       [4] _build_co (res://scripts/world/settlement_builder.gd:238)
+       [5] update_now (res://scripts/world/settlement_builder.gd:139)
+       [6] _process (res://scripts/world/settlement_builder.gd:84)
+WARNING: 'res://assets/generated/townhouse_b_lod1.glb': In external resource #5, invalid UID: 'uid://cs87ialbkqn1b' - using text path instead: 'res://assets/generated/pbr/window_nrm.png'.
+   at: open (core/io/resource_format_binary.cpp:1089)
+   GDScript backtrace (most recent call first):
+       [0] scene (res://scripts/world/assets.gd:254)
+       [1] merged_mesh (res://scripts/world/assets.gd:845)
+       [2] building_mesh (res://scripts/world/assets.gd:763)
+       [3] building_lod_mesh (res://scripts/world/assets.gd:731)
+       [4] _build_co (res://scripts/world/settlement_builder.gd:238)
+       [5] update_now (res://scripts/world/settlement_builder.gd:139)
+       [6] _process (res://scripts/world/settlement_builder.gd:84)
+WARNING: 'res://assets/generated/townhouse_b.glb': In external resource #3, invalid UID: 'uid://bv0rc2ksgjc4x' - using text path instead: 'res://assets/generated/pbr/window_alb.png'.
+   at: open (core/io/resource_format_binary.cpp:1089)
+   GDScript backtrace (most recent call first):
+       [0] scene (res://scripts/world/assets.gd:254)
+       [1] merged_mesh (res://scripts/world/assets.gd:845)
+       [2] building_mesh (res://scripts/world/assets.gd:763)
+       [3] _footprint (res://scripts/world/settlement_builder.gd:798)
+       [4] _build_co (res://scripts/world/settlement_builder.gd:247)
+       [5] update_now (res://scripts/world/settlement_builder.gd:139)
+       [6] _process (res://scripts/world/settlement_builder.gd:84)
+WARNING: 'res://assets/generated/townhouse_b.glb': In external resource #4, invalid UID: 'uid://be5wotbwlb4j5' - using text path instead: 'res://assets/generated/pbr/window_emit.png'.
+   at: open (core/io/resource_format_binary.cpp:1089)
+   GDScript backtrace (most recent call first):
+       [0] scene (res://scripts/world/assets.gd:254)
+       [1] merged_mesh (res://scripts/world/assets.gd:845)
+       [2] building_mesh (res://scripts/world/assets.gd:763)
+       [3] _footprint (res://scripts/world/settlement_builder.gd:798)
+       [4] _build_co (res://scripts/world/settlement_builder.gd:247)
+       [5] update_now (res://scripts/world/settlement_builder.gd:139)
+       [6] _process (res://scripts/world/settlement_builder.gd:84)
+WARNING: 'res://assets/generated/townhouse_b.glb': In external resource #5, invalid UID: 'uid://cs87ialbkqn1b' - using text path instead: 'res://assets/generated/pbr/window_nrm.png'.
+   at: open (core/io/resource_format_binary.cpp:1089)
+   GDScript backtrace (most recent call first):
+       [0] scene (res://scripts/world/assets.gd:254)
+       [1] merged_mesh (res://scripts/world/assets.gd:845)
+       [2] building_mesh (res://scripts/world/assets.gd:763)
+       [3] _footprint (res://scripts/world/settlement_builder.gd:798)
+       [4] _build_co (res://scripts/world/settlement_builder.gd:247)
+       [5] update_now (res://scripts/world/settlement_builder.gd:139)
+       [6] _process (res://scripts/world/settlement_builder.gd:84)
+WARNING: 'res://assets/generated/townhouse_a_lod1.glb': In external resource #3, invalid UID: 'uid://bv0rc2ksgjc4x' - using text path instead: 'res://assets/generated/pbr/window_alb.png'.
+   at: open (core/io/resource_format_binary.cpp:1089)
+   GDScript backtrace (most recent call first):
+       [0] scene (res://scripts/world/assets.gd:254)
+       [1] merged_mesh (res://scripts/world/assets.gd:845)
+       [2] building_mesh (res://scripts/world/assets.gd:763)
+       [3] building_lod_mesh (res://scripts/world/assets.gd:731)
+       [4] _build_co (res://scripts/world/settlement_builder.gd:238)
+       [5] update_now (res://scripts/world/settlement_builder.gd:139)
+       [6] _process (res://scripts/world/settlement_builder.gd:84)
+WARNING: 'res://assets/generated/townhouse_a_lod1.glb': In external resource #4, invalid UID: 'uid://be5wotbwlb4j5' - using text path instead: 'res://assets/generated/pbr/window_emit.png'.
+   at: open (core/io/resource_format_binary.cpp:1089)
+   GDScript backtrace (most recent call first):
+       [0] scene (res://scripts/world/assets.gd:254)
+       [1] merged_mesh (res://scripts/world/assets.gd:845)
+       [2] building_mesh (res://scripts/world/assets.gd:763)
+       [3] building_lod_mesh (res://scripts/world/assets.gd:731)
+       [4] _build_co (res://scripts/world/settlement_builder.gd:238)
+       [5] update_now (res://scripts/world/settlement_builder.gd:139)
+       [6] _process (res://scripts/world/settlement_builder.gd:84)
+WARNING: 'res://assets/generated/townhouse_a_lod1.glb': In external resource #5, invalid UID: 'uid://cs87ialbkqn1b' - using text path instead: 'res://assets/generated/pbr/window_nrm.png'.
+   at: open (core/io/resource_format_binary.cpp:1089)
+   GDScript backtrace (most recent call first):
+       [0] scene (res://scripts/world/assets.gd:254)
+       [1] merged_mesh (res://scripts/world/assets.gd:845)
+       [2] building_mesh (res://scripts/world/assets.gd:763)
+       [3] building_lod_mesh (res://scripts/world/assets.gd:731)
+       [4] _build_co (res://scripts/world/settlement_builder.gd:238)
+       [5] update_now (res://scripts/world/settlement_builder.gd:139)
+       [6] _process (res://scripts/world/settlement_builder.gd:84)
+WARNING: 'res://assets/generated/townhouse_a.glb': In external resource #3, invalid UID: 'uid://bv0rc2ksgjc4x' - using text path instead: 'res://assets/generated/pbr/window_alb.png'.
+   at: open (core/io/resource_format_binary.cpp:1089)
+   GDScript backtrace (most recent call first):
+       [0] scene (res://scripts/world/assets.gd:254)
+       [1] merged_mesh (res://scripts/world/assets.gd:845)
+       [2] building_mesh (res://scripts/world/assets.gd:763)
+       [3] _footprint (res://scripts/world/settlement_builder.gd:798)
+       [4] _build_co (res://scripts/world/settlement_builder.gd:247)
+       [5] update_now (res://scripts/world/settlement_builder.gd:139)
+       [6] _process (res://scripts/world/settlement_builder.gd:84)
+WARNING: 'res://assets/generated/townhouse_a.glb': In external resource #4, invalid UID: 'uid://be5wotbwlb4j5' - using text path instead: 'res://assets/generated/pbr/window_emit.png'.
+   at: open (core/io/resource_format_binary.cpp:1089)
+   GDScript backtrace (most recent call first):
+       [0] scene (res://scripts/world/assets.gd:254)
+       [1] merged_mesh (res://scripts/world/assets.gd:845)
+       [2] building_mesh (res://scripts/world/assets.gd:763)
+       [3] _footprint (res://scripts/world/settlement_builder.gd:798)
+       [4] _build_co (res://scripts/world/settlement_builder.gd:247)
+       [5] update_now (res://scripts/world/settlement_builder.gd:139)
+       [6] _process (res://scripts/world/settlement_builder.gd:84)
+WARNING: 'res://assets/generated/townhouse_a.glb': In external resource #5, invalid UID: 'uid://cs87ialbkqn1b' - using text path instead: 'res://assets/generated/pbr/window_nrm.png'.
+   at: open (core/io/resource_format_binary.cpp:1089)
+   GDScript backtrace (most recent call first):
+       [0] scene (res://scripts/world/assets.gd:254)
+       [1] merged_mesh (res://scripts/world/assets.gd:845)
+       [2] building_mesh (res://scripts/world/assets.gd:763)
+       [3] _footprint (res://scripts/world/settlement_builder.gd:798)
+       [4] _build_co (res://scripts/world/settlement_builder.gd:247)
+       [5] update_now (res://scripts/world/settlement_builder.gd:139)
+       [6] _process (res://scripts/world/settlement_builder.gd:84)
+WARNING: 'res://assets/generated/townhouse_d_lod1.glb': In external resource #3, invalid UID: 'uid://bv0rc2ksgjc4x' - using text path instead: 'res://assets/generated/pbr/window_alb.png'.
+   at: open (core/io/resource_format_binary.cpp:1089)
+   GDScript backtrace (most recent call first):
+       [0] scene (res://scripts/world/assets.gd:254)
+       [1] merged_mesh (res://scripts/world/assets.gd:845)
+       [2] building_mesh (res://scripts/world/assets.gd:763)
+       [3] building_lod_mesh (res://scripts/world/assets.gd:731)
+       [4] _build_co (res://scripts/world/settlement_builder.gd:238)
+       [5] update_now (res://scripts/world/settlement_builder.gd:139)
+       [6] _process (res://scripts/world/settlement_builder.gd:84)
+WARNING: 'res://assets/generated/townhouse_d_lod1.glb': In external resource #4, invalid UID: 'uid://cs87ialbkqn1b' - using text path instead: 'res://assets/generated/pbr/window_nrm.png'.
+   at: open (core/io/resource_format_binary.cpp:1089)
+   GDScript backtrace (most recent call first):
+       [0] scene (res://scripts/world/assets.gd:254)
+       [1] merged_mesh (res://scripts/world/assets.gd:845)
+       [2] building_mesh (res://scripts/world/assets.gd:763)
+       [3] building_lod_mesh (res://scripts/world/assets.gd:731)
+       [4] _build_co (res://scripts/world/settlement_builder.gd:238)
+       [5] update_now (res://scripts/world/settlement_builder.gd:139)
+       [6] _process (res://scripts/world/settlement_builder.gd:84)
+WARNING: 'res://assets/generated/townhouse_d_lod1.glb': In external resource #5, invalid UID: 'uid://be5wotbwlb4j5' - using text path instead: 'res://assets/generated/pbr/window_emit.png'.
+   at: open (core/io/resource_format_binary.cpp:1089)
+   GDScript backtrace (most recent call first):
+       [0] scene (res://scripts/world/assets.gd:254)
+       [1] merged_mesh (res://scripts/world/assets.gd:845)
+       [2] building_mesh (res://scripts/world/assets.gd:763)
+       [3] building_lod_mesh (res://scripts/world/assets.gd:731)
+       [4] _build_co (res://scripts/world/settlement_builder.gd:238)
+       [5] update_now (res://scripts/world/settlement_builder.gd:139)
+       [6] _process (res://scripts/world/settlement_builder.gd:84)
+WARNING: 'res://assets/generated/townhouse_d.glb': In external resource #3, invalid UID: 'uid://bv0rc2ksgjc4x' - using text path instead: 'res://assets/generated/pbr/window_alb.png'.
+   at: open (core/io/resource_format_binary.cpp:1089)
+   GDScript backtrace (most recent call first):
+       [0] scene (res://scripts/world/assets.gd:254)
+       [1] merged_mesh (res://scripts/world/assets.gd:845)
+       [2] building_mesh (res://scripts/world/assets.gd:763)
+       [3] _footprint (res://scripts/world/settlement_builder.gd:798)
+       [4] _build_co (res://scripts/world/settlement_builder.gd:247)
+       [5] update_now (res://scripts/world/settlement_builder.gd:139)
+       [6] _process (res://scripts/world/settlement_builder.gd:84)
+WARNING: 'res://assets/generated/townhouse_d.glb': In external resource #4, invalid UID: 'uid://cs87ialbkqn1b' - using text path instead: 'res://assets/generated/pbr/window_nrm.png'.
+   at: open (core/io/resource_format_binary.cpp:1089)
+   GDScript backtrace (most recent call first):
+       [0] scene (res://scripts/world/assets.gd:254)
+       [1] merged_mesh (res://scripts/world/assets.gd:845)
+       [2] building_mesh (res://scripts/world/assets.gd:763)
+       [3] _footprint (res://scripts/world/settlement_builder.gd:798)
+       [4] _build_co (res://scripts/world/settlement_builder.gd:247)
+       [5] update_now (res://scripts/world/settlement_builder.gd:139)
+       [6] _process (res://scripts/world/settlement_builder.gd:84)
+WARNING: 'res://assets/generated/townhouse_d.glb': In external resource #5, invalid UID: 'uid://be5wotbwlb4j5' - using text path instead: 'res://assets/generated/pbr/window_emit.png'.
+   at: open (core/io/resource_format_binary.cpp:1089)
+   GDScript backtrace (most recent call first):
+       [0] scene (res://scripts/world/assets.gd:254)
+       [1] merged_mesh (res://scripts/world/assets.gd:845)
+       [2] building_mesh (res://scripts/world/assets.gd:763)
+       [3] _footprint (res://scripts/world/settlement_builder.gd:798)
+       [4] _build_co (res://scripts/world/settlement_builder.gd:247)
+       [5] update_now (res://scripts/world/settlement_builder.gd:139)
+       [6] _process (res://scripts/world/settlement_builder.gd:84)
+WARNING: 'res://assets/generated/townhouse_c_lod1.glb': In external resource #3, invalid UID: 'uid://bv0rc2ksgjc4x' - using text path instead: 'res://assets/generated/pbr/window_alb.png'.
+   at: open (core/io/resource_format_binary.cpp:1089)
+   GDScript backtrace (most recent call first):
+       [0] scene (res://scripts/world/assets.gd:254)
+       [1] merged_mesh (res://scripts/world/assets.gd:845)
+       [2] building_mesh (res://scripts/world/assets.gd:763)
+       [3] building_lod_mesh (res://scripts/world/assets.gd:731)
+       [4] _build_co (res://scripts/world/settlement_builder.gd:238)
+       [5] update_now (res://scripts/world/settlement_builder.gd:139)
+       [6] _process (res://scripts/world/settlement_builder.gd:84)
+WARNING: 'res://assets/generated/townhouse_c_lod1.glb': In external resource #4, invalid UID: 'uid://be5wotbwlb4j5' - using text path instead: 'res://assets/generated/pbr/window_emit.png'.
+   at: open (core/io/resource_format_binary.cpp:1089)
+   GDScript backtrace (most recent call first):
+       [0] scene (res://scripts/world/assets.gd:254)
+       [1] merged_mesh (res://scripts/world/assets.gd:845)
+       [2] building_mesh (res://scripts/world/assets.gd:763)
+       [3] building_lod_mesh (res://scripts/world/assets.gd:731)
+       [4] _build_co (res://scripts/world/settlement_builder.gd:238)
+       [5] update_now (res://scripts/world/settlement_builder.gd:139)
+       [6] _process (res://scripts/world/settlement_builder.gd:84)
+WARNING: 'res://assets/generated/townhouse_c_lod1.glb': In external resource #5, invalid UID: 'uid://cs87ialbkqn1b' - using text path instead: 'res://assets/generated/pbr/window_nrm.png'.
+   at: open (core/io/resource_format_binary.cpp:1089)
+   GDScript backtrace (most recent call first):
+       [0] scene (res://scripts/world/assets.gd:254)
+       [1] merged_mesh (res://scripts/world/assets.gd:845)
+       [2] building_mesh (res://scripts/world/assets.gd:763)
+       [3] building_lod_mesh (res://scripts/world/assets.gd:731)
+       [4] _build_co (res://scripts/world/settlement_builder.gd:238)
+       [5] update_now (res://scripts/world/settlement_builder.gd:139)
+       [6] _process (res://scripts/world/settlement_builder.gd:84)
+WARNING: 'res://assets/generated/townhouse_c.glb': In external resource #3, invalid UID: 'uid://bv0rc2ksgjc4x' - using text path instead: 'res://assets/generated/pbr/window_alb.png'.
+   at: open (core/io/resource_format_binary.cpp:1089)
+   GDScript backtrace (most recent call first):
+       [0] scene (res://scripts/world/assets.gd:254)
+       [1] merged_mesh (res://scripts/world/assets.gd:845)
+       [2] building_mesh (res://scripts/world/assets.gd:763)
+       [3] _footprint (res://scripts/world/settlement_builder.gd:798)
+       [4] _build_co (res://scripts/world/settlement_builder.gd:247)
+       [5] update_now (res://scripts/world/settlement_builder.gd:139)
+       [6] _process (res://scripts/world/settlement_builder.gd:84)
+WARNING: 'res://assets/generated/townhouse_c.glb': In external resource #4, invalid UID: 'uid://be5wotbwlb4j5' - using text path instead: 'res://assets/generated/pbr/window_emit.png'.
+   at: open (core/io/resource_format_binary.cpp:1089)
+   GDScript backtrace (most recent call first):
+       [0] scene (res://scripts/world/assets.gd:254)
+       [1] merged_mesh (res://scripts/world/assets.gd:845)
+       [2] building_mesh (res://scripts/world/assets.gd:763)
+       [3] _footprint (res://scripts/world/settlement_builder.gd:798)
+       [4] _build_co (res://scripts/world/settlement_builder.gd:247)
+       [5] update_now (res://scripts/world/settlement_builder.gd:139)
+       [6] _process (res://scripts/world/settlement_builder.gd:84)
+WARNING: 'res://assets/generated/townhouse_c.glb': In external resource #5, invalid UID: 'uid://cs87ialbkqn1b' - using text path instead: 'res://assets/generated/pbr/window_nrm.png'.
+   at: open (core/io/resource_format_binary.cpp:1089)
+   GDScript backtrace (most recent call first):
+       [0] scene (res://scripts/world/assets.gd:254)
+       [1] merged_mesh (res://scripts/world/assets.gd:845)
+       [2] building_mesh (res://scripts/world/assets.gd:763)
+       [3] _footprint (res://scripts/world/settlement_builder.gd:798)
+       [4] _build_co (res://scripts/world/settlement_builder.gd:247)
+       [5] update_now (res://scripts/world/settlement_builder.gd:139)
+       [6] _process (res://scripts/world/settlement_builder.gd:84)
+WARNING: 'res://assets/generated/village_house_b_4_lod1.glb': In external resource #3, invalid UID: 'uid://bv0rc2ksgjc4x' - using text path instead: 'res://assets/generated/pbr/window_alb.png'.
+   at: open (core/io/resource_format_binary.cpp:1089)
+   GDScript backtrace (most recent call first):
+       [0] scene (res://scripts/world/assets.gd:254)
+       [1] merged_mesh (res://scripts/world/assets.gd:845)
+       [2] building_mesh (res://scripts/world/assets.gd:763)
+       [3] building_lod_mesh (res://scripts/world/assets.gd:731)
+       [4] _build_co (res://scripts/world/settlement_builder.gd:238)
+       [5] update_now (res://scripts/world/settlement_builder.gd:139)
+       [6] _process (res://scripts/world/settlement_builder.gd:84)
+WARNING: 'res://assets/generated/village_house_b_4_lod1.glb': In external resource #4, invalid UID: 'uid://cs87ialbkqn1b' - using text path instead: 'res://assets/generated/pbr/window_nrm.png'.
+   at: open (core/io/resource_format_binary.cpp:1089)
+   GDScript backtrace (most recent call first):
+       [0] scene (res://scripts/world/assets.gd:254)
+       [1] merged_mesh (res://scripts/world/assets.gd:845)
+       [2] building_mesh (res://scripts/world/assets.gd:763)
+       [3] building_lod_mesh (res://scripts/world/assets.gd:731)
+       [4] _build_co (res://scripts/world/settlement_builder.gd:238)
+       [5] update_now (res://scripts/world/settlement_builder.gd:139)
+       [6] _process (res://scripts/world/settlement_builder.gd:84)
+WARNING: 'res://assets/generated/village_house_b_4_lod1.glb': In external resource #5, invalid UID: 'uid://be5wotbwlb4j5' - using text path instead: 'res://assets/generated/pbr/window_emit.png'.
+   at: open (core/io/resource_format_binary.cpp:1089)
+   GDScript backtrace (most recent call first):
+       [0] scene (res://scripts/world/assets.gd:254)
+       [1] merged_mesh (res://scripts/world/assets.gd:845)
+       [2] building_mesh (res://scripts/world/assets.gd:763)
+       [3] building_lod_mesh (res://scripts/world/assets.gd:731)
+       [4] _build_co (res://scripts/world/settlement_builder.gd:238)
+       [5] update_now (res://scripts/world/settlement_builder.gd:139)
+       [6] _process (res://scripts/world/settlement_builder.gd:84)
+WARNING: 'res://assets/generated/village_house_b_4.glb': In external resource #3, invalid UID: 'uid://bv0rc2ksgjc4x' - using text path instead: 'res://assets/generated/pbr/window_alb.png'.
+   at: open (core/io/resource_format_binary.cpp:1089)
+   GDScript backtrace (most recent call first):
+       [0] scene (res://scripts/world/assets.gd:254)
+       [1] merged_mesh (res://scripts/world/assets.gd:845)
+       [2] building_mesh (res://scripts/world/assets.gd:763)
+       [3] _footprint (res://scripts/world/settlement_builder.gd:798)
+       [4] _build_co (res://scripts/world/settlement_builder.gd:247)
+       [5] update_now (res://scripts/world/settlement_builder.gd:139)
+       [6] _process (res://scripts/world/settlement_builder.gd:84)
+WARNING: 'res://assets/generated/village_house_b_4.glb': In external resource #4, invalid UID: 'uid://cs87ialbkqn1b' - using text path instead: 'res://assets/generated/pbr/window_nrm.png'.
+   at: open (core/io/resource_format_binary.cpp:1089)
+   GDScript backtrace (most recent call first):
+       [0] scene (res://scripts/world/assets.gd:254)
+       [1] merged_mesh (res://scripts/world/assets.gd:845)
+       [2] building_mesh (res://scripts/world/assets.gd:763)
+       [3] _footprint (res://scripts/world/settlement_builder.gd:798)
+       [4] _build_co (res://scripts/world/settlement_builder.gd:247)
+       [5] update_now (res://scripts/world/settlement_builder.gd:139)
+       [6] _process (res://scripts/world/settlement_builder.gd:84)
+WARNING: 'res://assets/generated/village_house_b_4.glb': In external resource #5, invalid UID: 'uid://be5wotbwlb4j5' - using text path instead: 'res://assets/generated/pbr/window_emit.png'.
+   at: open (core/io/resource_format_binary.cpp:1089)
+   GDScript backtrace (most recent call first):
+       [0] scene (res://scripts/world/assets.gd:254)
+       [1] merged_mesh (res://scripts/world/assets.gd:845)
+       [2] building_mesh (res://scripts/world/assets.gd:763)
+       [3] _footprint (res://scripts/world/settlement_builder.gd:798)
+       [4] _build_co (res://scripts/world/settlement_builder.gd:247)
+       [5] update_now (res://scripts/world/settlement_builder.gd:139)
+       [6] _process (res://scripts/world/settlement_builder.gd:84)
+WARNING: 'res://assets/generated/village_house_c_3_lod1.glb': In external resource #3, invalid UID: 'uid://bv0rc2ksgjc4x' - using text path instead: 'res://assets/generated/pbr/window_alb.png'.
+   at: open (core/io/resource_format_binary.cpp:1089)
+   GDScript backtrace (most recent call first):
+       [0] scene (res://scripts/world/assets.gd:254)
+       [1] merged_mesh (res://scripts/world/assets.gd:845)
+       [2] building_mesh (res://scripts/world/assets.gd:763)
+       [3] building_lod_mesh (res://scripts/world/assets.gd:731)
+       [4] _build_co (res://scripts/world/settlement_builder.gd:238)
+       [5] update_now (res://scripts/world/settlement_builder.gd:139)
+       [6] _process (res://scripts/world/settlement_builder.gd:84)
+WARNING: 'res://assets/generated/village_house_c_3_lod1.glb': In external resource #4, invalid UID: 'uid://be5wotbwlb4j5' - using text path instead: 'res://assets/generated/pbr/window_emit.png'.
+   at: open (core/io/resource_format_binary.cpp:1089)
+   GDScript backtrace (most recent call first):
+       [0] scene (res://scripts/world/assets.gd:254)
+       [1] merged_mesh (res://scripts/world/assets.gd:845)
+       [2] building_mesh (res://scripts/world/assets.gd:763)
+       [3] building_lod_mesh (res://scripts/world/assets.gd:731)
+       [4] _build_co (res://scripts/world/settlement_builder.gd:238)
+       [5] update_now (res://scripts/world/settlement_builder.gd:139)
+       [6] _process (res://scripts/world/settlement_builder.gd:84)
+WARNING: 'res://assets/generated/village_house_c_3_lod1.glb': In external resource #5, invalid UID: 'uid://cs87ialbkqn1b' - using text path instead: 'res://assets/generated/pbr/window_nrm.png'.
+   at: open (core/io/resource_format_binary.cpp:1089)
+   GDScript backtrace (most recent call first):
+       [0] scene (res://scripts/world/assets.gd:254)
+       [1] merged_mesh (res://scripts/world/assets.gd:845)
+       [2] building_mesh (res://scripts/world/assets.gd:763)
+       [3] building_lod_mesh (res://scripts/world/assets.gd:731)
+       [4] _build_co (res://scripts/world/settlement_builder.gd:238)
+       [5] update_now (res://scripts/world/settlement_builder.gd:139)
+       [6] _process (res://scripts/world/settlement_builder.gd:84)
+WARNING: 'res://assets/generated/village_house_c_3.glb': In external resource #3, invalid UID: 'uid://bv0rc2ksgjc4x' - using text path instead: 'res://assets/generated/pbr/window_alb.png'.
+   at: open (core/io/resource_format_binary.cpp:1089)
+   GDScript backtrace (most recent call first):
+       [0] scene (res://scripts/world/assets.gd:254)
+       [1] merged_mesh (res://scripts/world/assets.gd:845)
+       [2] building_mesh (res://scripts/world/assets.gd:763)
+       [3] _footprint (res://scripts/world/settlement_builder.gd:798)
+       [4] _build_co (res://scripts/world/settlement_builder.gd:247)
+       [5] update_now (res://scripts/world/settlement_builder.gd:139)
+       [6] _process (res://scripts/world/settlement_builder.gd:84)
+WARNING: 'res://assets/generated/village_house_c_3.glb': In external resource #4, invalid UID: 'uid://be5wotbwlb4j5' - using text path instead: 'res://assets/generated/pbr/window_emit.png'.
+   at: open (core/io/resource_format_binary.cpp:1089)
+   GDScript backtrace (most recent call first):
+       [0] scene (res://scripts/world/assets.gd:254)
+       [1] merged_mesh (res://scripts/world/assets.gd:845)
+       [2] building_mesh (res://scripts/world/assets.gd:763)
+       [3] _footprint (res://scripts/world/settlement_builder.gd:798)
+       [4] _build_co (res://scripts/world/settlement_builder.gd:247)
+       [5] update_now (res://scripts/world/settlement_builder.gd:139)
+       [6] _process (res://scripts/world/settlement_builder.gd:84)
+WARNING: 'res://assets/generated/village_house_c_3.glb': In external resource #5, invalid UID: 'uid://cs87ialbkqn1b' - using text path instead: 'res://assets/generated/pbr/window_nrm.png'.
+   at: open (core/io/resource_format_binary.cpp:1089)
+   GDScript backtrace (most recent call first):
+       [0] scene (res://scripts/world/assets.gd:254)
+       [1] merged_mesh (res://scripts/world/assets.gd:845)
+       [2] building_mesh (res://scripts/world/assets.gd:763)
+       [3] _footprint (res://scripts/world/settlement_builder.gd:798)
+       [4] _build_co (res://scripts/world/settlement_builder.gd:247)
+       [5] update_now (res://scripts/world/settlement_builder.gd:139)
+       [6] _process (res://scripts/world/settlement_builder.gd:84)
+WARNING: 'res://assets/generated/castle_keep.glb': In external resource #3, invalid UID: 'uid://bv0rc2ksgjc4x' - using text path instead: 'res://assets/generated/pbr/window_alb.png'.
+   at: open (core/io/resource_format_binary.cpp:1089)
+   GDScript backtrace (most recent call first):
+       [0] scene (res://scripts/world/assets.gd:254)
+       [1] _ready (res://scripts/world/region_dressing.gd:74)
+       [2] _ready (res://scripts/core/main.gd:173)
+WARNING: 'res://assets/generated/castle_keep.glb': In external resource #4, invalid UID: 'uid://cs87ialbkqn1b' - using text path instead: 'res://assets/generated/pbr/window_nrm.png'.
+   at: open (core/io/resource_format_binary.cpp:1089)
+   GDScript backtrace (most recent call first):
+       [0] scene (res://scripts/world/assets.gd:254)
+       [1] _ready (res://scripts/world/region_dressing.gd:74)
+       [2] _ready (res://scripts/core/main.gd:173)
+WARNING: 'res://assets/generated/castle_keep_lod1.glb': In external resource #3, invalid UID: 'uid://bv0rc2ksgjc4x' - using text path instead: 'res://assets/generated/pbr/window_alb.png'.
+   at: open (core/io/resource_format_binary.cpp:1089)
+   GDScript backtrace (most recent call first):
+       [0] scene (res://scripts/world/assets.gd:254)
+       [1] _ready (res://scripts/world/region_dressing.gd:74)
+       [2] _ready (res://scripts/core/main.gd:173)
+WARNING: 'res://assets/generated/castle_keep_lod1.glb': In external resource #4, invalid UID: 'uid://cs87ialbkqn1b' - using text path instead: 'res://assets/generated/pbr/window_nrm.png'.
+   at: open (core/io/resource_format_binary.cpp:1089)
+   GDScript backtrace (most recent call first):
+       [0] scene (res://scripts/world/assets.gd:254)
+       [1] _ready (res://scripts/world/region_dressing.gd:74)
+       [2] _ready (res://scripts/core/main.gd:173)
+WARNING: 'res://assets/generated/temple.glb': In external resource #3, invalid UID: 'uid://bv0rc2ksgjc4x' - using text path instead: 'res://assets/generated/pbr/window_alb.png'.
+   at: open (core/io/resource_format_binary.cpp:1089)
+   GDScript backtrace (most recent call first):
+       [0] scene (res://scripts/world/assets.gd:254)
+       [1] _ready (res://scripts/world/region_dressing.gd:74)
+       [2] _ready (res://scripts/core/main.gd:173)
+WARNING: 'res://assets/generated/temple.glb': In external resource #4, invalid UID: 'uid://cs87ialbkqn1b' - using text path instead: 'res://assets/generated/pbr/window_nrm.png'.
+   at: open (core/io/resource_format_binary.cpp:1089)
+   GDScript backtrace (most recent call first):
+       [0] scene (res://scripts/world/assets.gd:254)
+       [1] _ready (res://scripts/world/region_dressing.gd:74)
+       [2] _ready (res://scripts/core/main.gd:173)
+WARNING: 'res://assets/generated/temple_lod1.glb': In external resource #3, invalid UID: 'uid://bv0rc2ksgjc4x' - using text path instead: 'res://assets/generated/pbr/window_alb.png'.
+   at: open (core/io/resource_format_binary.cpp:1089)
+   GDScript backtrace (most recent call first):
+       [0] scene (res://scripts/world/assets.gd:254)
+       [1] _ready (res://scripts/world/region_dressing.gd:74)
+       [2] _ready (res://scripts/core/main.gd:173)
+WARNING: 'res://assets/generated/temple_lod1.glb': In external resource #4, invalid UID: 'uid://cs87ialbkqn1b' - using text path instead: 'res://assets/generated/pbr/window_nrm.png'.
+   at: open (core/io/resource_format_binary.cpp:1089)
+   GDScript backtrace (most recent call first):
+       [0] scene (res://scripts/world/assets.gd:254)
+       [1] _ready (res://scripts/world/region_dressing.gd:74)
+       [2] _ready (res://scripts/core/main.gd:173)
+WARNING: 'res://assets/generated/bell_tower_lod1.glb': In external resource #3, invalid UID: 'uid://bv0rc2ksgjc4x' - using text path instead: 'res://assets/generated/pbr/window_alb.png'.
+   at: open (core/io/resource_format_binary.cpp:1089)
+   GDScript backtrace (most recent call first):
+       [0] scene (res://scripts/world/assets.gd:254)
+       [1] _ready (res://scripts/world/region_dressing.gd:74)
+       [2] _ready (res://scripts/core/main.gd:173)
+WARNING: 'res://assets/generated/bell_tower_lod1.glb': In external resource #4, invalid UID: 'uid://cs87ialbkqn1b' - using text path instead: 'res://assets/generated/pbr/window_nrm.png'.
+   at: open (core/io/resource_format_binary.cpp:1089)
+   GDScript backtrace (most recent call first):
+       [0] scene (res://scripts/world/assets.gd:254)
+       [1] _ready (res://scripts/world/region_dressing.gd:74)
+       [2] _ready (res://scripts/core/main.gd:173)
+RegionDressing: preloaded 160 region scenes in 403 ms (main thread)
+Region1Look: 398 cliff rocks in 20 cells (tris per rock: 2498 2000 1500)
+Region1Look: 5 landmarks, built in 3453 ms
+ValeLook: 1331 cliff rocks
+Region1Horizon: ground 57800x1, 27083 canopy blobs in 613 cells
+WARNING: 'res://assets/generated/village_house_b_3_lod1.glb': In external resource #3, invalid UID: 'uid://bv0rc2ksgjc4x' - using text path instead: 'res://assets/generated/pbr/window_alb.png'.
+   at: open (core/io/resource_format_binary.cpp:1089)
+   GDScript backtrace (most recent call first):
+       [0] scene (res://scripts/world/assets.gd:254)
+       [1] merged_mesh (res://scripts/world/assets.gd:845)
+       [2] building_mesh (res://scripts/world/assets.gd:763)
+       [3] building_lod_mesh (res://scripts/world/assets.gd:731)
+       [4] _build_co (res://scripts/world/settlement_builder.gd:238)
+WARNING: 'res://assets/generated/village_house_b_3_lod1.glb': In external resource #4, invalid UID: 'uid://cs87ialbkqn1b' - using text path instead: 'res://assets/generated/pbr/window_nrm.png'.
+   at: open (core/io/resource_format_binary.cpp:1089)
+   GDScript backtrace (most recent call first):
+       [0] scene (res://scripts/world/assets.gd:254)
+       [1] merged_mesh (res://scripts/world/assets.gd:845)
+       [2] building_mesh (res://scripts/world/assets.gd:763)
+       [3] building_lod_mesh (res://scripts/world/assets.gd:731)
+       [4] _build_co (res://scripts/world/settlement_builder.gd:238)
+WARNING: 'res://assets/generated/village_house_b_3_lod1.glb': In external resource #5, invalid UID: 'uid://be5wotbwlb4j5' - using text path instead: 'res://assets/generated/pbr/window_emit.png'.
+   at: open (core/io/resource_format_binary.cpp:1089)
+   GDScript backtrace (most recent call first):
+       [0] scene (res://scripts/world/assets.gd:254)
+       [1] merged_mesh (res://scripts/world/assets.gd:845)
+       [2] building_mesh (res://scripts/world/assets.gd:763)
+       [3] building_lod_mesh (res://scripts/world/assets.gd:731)
+       [4] _build_co (res://scripts/world/settlement_builder.gd:238)
+WARNING: 'res://assets/generated/village_house_b_3.glb': In external resource #3, invalid UID: 'uid://bv0rc2ksgjc4x' - using text path instead: 'res://assets/generated/pbr/window_alb.png'.
+   at: open (core/io/resource_format_binary.cpp:1089)
+   GDScript backtrace (most recent call first):
+       [0] scene (res://scripts/world/assets.gd:254)
+       [1] merged_mesh (res://scripts/world/assets.gd:845)
+       [2] building_mesh (res://scripts/world/assets.gd:763)
+       [3] _footprint (res://scripts/world/settlement_builder.gd:798)
+       [4] _build_co (res://scripts/world/settlement_builder.gd:247)
+WARNING: 'res://assets/generated/village_house_b_3.glb': In external resource #4, invalid UID: 'uid://cs87ialbkqn1b' - using text path instead: 'res://assets/generated/pbr/window_nrm.png'.
+   at: open (core/io/resource_format_binary.cpp:1089)
+   GDScript backtrace (most recent call first):
+       [0] scene (res://scripts/world/assets.gd:254)
+       [1] merged_mesh (res://scripts/world/assets.gd:845)
+       [2] building_mesh (res://scripts/world/assets.gd:763)
+       [3] _footprint (res://scripts/world/settlement_builder.gd:798)
+       [4] _build_co (res://scripts/world/settlement_builder.gd:247)
+WARNING: 'res://assets/generated/village_house_b_3.glb': In external resource #5, invalid UID: 'uid://be5wotbwlb4j5' - using text path instead: 'res://assets/generated/pbr/window_emit.png'.
+   at: open (core/io/resource_format_binary.cpp:1089)
+   GDScript backtrace (most recent call first):
+       [0] scene (res://scripts/world/assets.gd:254)
+       [1] merged_mesh (res://scripts/world/assets.gd:845)
+       [2] building_mesh (res://scripts/world/assets.gd:763)
+       [3] _footprint (res://scripts/world/settlement_builder.gd:798)
+       [4] _build_co (res://scripts/world/settlement_builder.gd:247)
+WARNING: 'res://assets/generated/interiors/interior_blacksmith.glb': In external resource #0, invalid UID: 'uid://r1wyrt6s2lhi' - using text path instead: 'res://assets/generated/props/props_atlas.png'.
+   at: open (core/io/resource_format_binary.cpp:1089)
+   GDScript backtrace (most recent call first):
+       [0] scene (res://scripts/world/assets.gd:254)
+       [1] warm_scenes (res://scripts/interiors/interior_door.gd:406)
+       [2] _ready (res://scripts/core/main.gd:232)
+WARNING: 'res://assets/generated/interiors/interior_guild.glb': In external resource #0, invalid UID: 'uid://r1wyrt6s2lhi' - using text path instead: 'res://assets/generated/props/props_atlas.png'.
+   at: open (core/io/resource_format_binary.cpp:1089)
+   GDScript backtrace (most recent call first):
+       [0] scene (res://scripts/world/assets.gd:254)
+       [1] warm_scenes (res://scripts/interiors/interior_door.gd:406)
+       [2] _ready (res://scripts/core/main.gd:232)
+WARNING: 'res://assets/generated/interiors/interior_healer.glb': In external resource #0, invalid UID: 'uid://r1wyrt6s2lhi' - using text path instead: 'res://assets/generated/props/props_atlas.png'.
+   at: open (core/io/resource_format_binary.cpp:1089)
+   GDScript backtrace (most recent call first):
+       [0] scene (res://scripts/world/assets.gd:254)
+       [1] warm_scenes (res://scripts/interiors/interior_door.gd:406)
+       [2] _ready (res://scripts/core/main.gd:232)
+WARNING: 'res://assets/generated/interiors/interior_house.glb': In external resource #0, invalid UID: 'uid://r1wyrt6s2lhi' - using text path instead: 'res://assets/generated/props/props_atlas.png'.
+   at: open (core/io/resource_format_binary.cpp:1089)
+   GDScript backtrace (most recent call first):
+       [0] scene (res://scripts/world/assets.gd:254)
+       [1] warm_scenes (res://scripts/interiors/interior_door.gd:406)
+       [2] _ready (res://scripts/core/main.gd:232)
+WARNING: 'res://assets/generated/interiors/interior_inn.glb': In external resource #0, invalid UID: 'uid://r1wyrt6s2lhi' - using text path instead: 'res://assets/generated/props/props_atlas.png'.
+   at: open (core/io/resource_format_binary.cpp:1089)
+   GDScript backtrace (most recent call first):
+       [0] scene (res://scripts/world/assets.gd:254)
+       [1] warm_scenes (res://scripts/interiors/interior_door.gd:406)
+       [2] _ready (res://scripts/core/main.gd:232)
+[boot] warmed characters and interiors in 1279 ms
+ROUTE legs=3 meshy_sites=3
+WARNING: 'res://assets/generated/village_house_d_2_lod1.glb': In external resource #3, invalid UID: 'uid://bv0rc2ksgjc4x' - using text path instead: 'res://assets/generated/pbr/window_alb.png'.
+   at: open (core/io/resource_format_binary.cpp:1089)
+   GDScript backtrace (most recent call first):
+       [0] scene (res://scripts/world/assets.gd:254)
+       [1] merged_mesh (res://scripts/world/assets.gd:845)
+       [2] building_mesh (res://scripts/world/assets.gd:763)
+       [3] building_lod_mesh (res://scripts/world/assets.gd:731)
+       [4] _build_co (res://scripts/world/settlement_builder.gd:238)
+       [5] _build (res://scripts/world/settlement_builder.gd:184)
+       [6] update_now (res://scripts/world/settlement_builder.gd:142)
+       [7] _teleport (res://scripts/core/main.gd:641)
+       [8] _start_leg (res://tools_qa/perf/town_route.gd:144)
+       [9] run (res://tools_qa/perf/town_route.gd:87)
+       [10] _ready (res://scripts/core/main.gd:249)
+WARNING: 'res://assets/generated/village_house_d_2_lod1.glb': In external resource #4, invalid UID: 'uid://cs87ialbkqn1b' - using text path instead: 'res://assets/generated/pbr/window_nrm.png'.
+   at: open (core/io/resource_format_binary.cpp:1089)
+   GDScript backtrace (most recent call first):
+       [0] scene (res://scripts/world/assets.gd:254)
+       [1] merged_mesh (res://scripts/world/assets.gd:845)
+       [2] building_mesh (res://scripts/world/assets.gd:763)
+       [3] building_lod_mesh (res://scripts/world/assets.gd:731)
+       [4] _build_co (res://scripts/world/settlement_builder.gd:238)
+       [5] _build (res://scripts/world/settlement_builder.gd:184)
+       [6] update_now (res://scripts/world/settlement_builder.gd:142)
+       [7] _teleport (res://scripts/core/main.gd:641)
+       [8] _start_leg (res://tools_qa/perf/town_route.gd:144)
+       [9] run (res://tools_qa/perf/town_route.gd:87)
+       [10] _ready (res://scripts/core/main.gd:249)
+WARNING: 'res://assets/generated/village_house_d_2_lod1.glb': In external resource #5, invalid UID: 'uid://be5wotbwlb4j5' - using text path instead: 'res://assets/generated/pbr/window_emit.png'.
+   at: open (core/io/resource_format_binary.cpp:1089)
+   GDScript backtrace (most recent call first):
+       [0] scene (res://scripts/world/assets.gd:254)
+       [1] merged_mesh (res://scripts/world/assets.gd:845)
+       [2] building_mesh (res://scripts/world/assets.gd:763)
+       [3] building_lod_mesh (res://scripts/world/assets.gd:731)
+       [4] _build_co (res://scripts/world/settlement_builder.gd:238)
+       [5] _build (res://scripts/world/settlement_builder.gd:184)
+       [6] update_now (res://scripts/world/settlement_builder.gd:142)
+       [7] _teleport (res://scripts/core/main.gd:641)
+       [8] _start_leg (res://tools_qa/perf/town_route.gd:144)
+       [9] run (res://tools_qa/perf/town_route.gd:87)
+       [10] _ready (res://scripts/core/main.gd:249)
+WARNING: 'res://assets/generated/village_house_d_2.glb': In external resource #3, invalid UID: 'uid://bv0rc2ksgjc4x' - using text path instead: 'res://assets/generated/pbr/window_alb.png'.
+   at: open (core/io/resource_format_binary.cpp:1089)
+   GDScript backtrace (most recent call first):
+       [0] scene (res://scripts/world/assets.gd:254)
+       [1] merged_mesh (res://scripts/world/assets.gd:845)
+       [2] building_mesh (res://scripts/world/assets.gd:763)
+       [3] _footprint (res://scripts/world/settlement_builder.gd:798)
+       [4] _build_co (res://scripts/world/settlement_builder.gd:247)
+       [5] _build (res://scripts/world/settlement_builder.gd:184)
+       [6] update_now (res://scripts/world/settlement_builder.gd:142)
+       [7] _teleport (res://scripts/core/main.gd:641)
+       [8] _start_leg (res://tools_qa/perf/town_route.gd:144)
+       [9] run (res://tools_qa/perf/town_route.gd:87)
+       [10] _ready (res://scripts/core/main.gd:249)
+WARNING: 'res://assets/generated/village_house_d_2.glb': In external resource #4, invalid UID: 'uid://cs87ialbkqn1b' - using text path instead: 'res://assets/generated/pbr/window_nrm.png'.
+   at: open (core/io/resource_format_binary.cpp:1089)
+   GDScript backtrace (most recent call first):
+       [0] scene (res://scripts/world/assets.gd:254)
+       [1] merged_mesh (res://scripts/world/assets.gd:845)
+       [2] building_mesh (res://scripts/world/assets.gd:763)
+       [3] _footprint (res://scripts/world/settlement_builder.gd:798)
+       [4] _build_co (res://scripts/world/settlement_builder.gd:247)
+       [5] _build (res://scripts/world/settlement_builder.gd:184)
+       [6] update_now (res://scripts/world/settlement_builder.gd:142)
+       [7] _teleport (res://scripts/core/main.gd:641)
+       [8] _start_leg (res://tools_qa/perf/town_route.gd:144)
+       [9] run (res://tools_qa/perf/town_route.gd:87)
+       [10] _ready (res://scripts/core/main.gd:249)
+WARNING: 'res://assets/generated/village_house_d_2.glb': In external resource #5, invalid UID: 'uid://be5wotbwlb4j5' - using text path instead: 'res://assets/generated/pbr/window_emit.png'.
+   at: open (core/io/resource_format_binary.cpp:1089)
+   GDScript backtrace (most recent call first):
+       [0] scene (res://scripts/world/assets.gd:254)
+       [1] merged_mesh (res://scripts/world/assets.gd:845)
+       [2] building_mesh (res://scripts/world/assets.gd:763)
+       [3] _footprint (res://scripts/world/settlement_builder.gd:798)
+       [4] _build_co (res://scripts/world/settlement_builder.gd:247)
+       [5] _build (res://scripts/world/settlement_builder.gd:184)
+       [6] update_now (res://scripts/world/settlement_builder.gd:142)
+       [7] _teleport (res://scripts/core/main.gd:641)
+       [8] _start_leg (res://tools_qa/perf/town_route.gd:144)
+       [9] run (res://tools_qa/perf/town_route.gd:87)
+       [10] _ready (res://scripts/core/main.gd:249)
+WARNING: 'res://assets/generated/village_house_b_lod1.glb': In external resource #3, invalid UID: 'uid://bv0rc2ksgjc4x' - using text path instead: 'res://assets/generated/pbr/window_alb.png'.
+   at: open (core/io/resource_format_binary.cpp:1089)
+   GDScript backtrace (most recent call first):
+       [0] scene (res://scripts/world/assets.gd:254)
+       [1] merged_mesh (res://scripts/world/assets.gd:845)
+       [2] building_mesh (res://scripts/world/assets.gd:763)
+       [3] building_lod_mesh (res://scripts/world/assets.gd:731)
+       [4] _build_co (res://scripts/world/settlement_builder.gd:238)
+       [5] _build (res://scripts/world/settlement_builder.gd:184)
+       [6] update_now (res://scripts/world/settlement_builder.gd:142)
+       [7] _teleport (res://scripts/core/main.gd:641)
+       [8] _start_leg (res://tools_qa/perf/town_route.gd:144)
+       [9] run (res://tools_qa/perf/town_route.gd:87)
+       [10] _ready (res://scripts/core/main.gd:249)
+WARNING: 'res://assets/generated/village_house_b_lod1.glb': In external resource #4, invalid UID: 'uid://cs87ialbkqn1b' - using text path instead: 'res://assets/generated/pbr/window_nrm.png'.
+   at: open (core/io/resource_format_binary.cpp:1089)
+   GDScript backtrace (most recent call first):
+       [0] scene (res://scripts/world/assets.gd:254)
+       [1] merged_mesh (res://scripts/world/assets.gd:845)
+       [2] building_mesh (res://scripts/world/assets.gd:763)
+       [3] building_lod_mesh (res://scripts/world/assets.gd:731)
+       [4] _build_co (res://scripts/world/settlement_builder.gd:238)
+       [5] _build (res://scripts/world/settlement_builder.gd:184)
+       [6] update_now (res://scripts/world/settlement_builder.gd:142)
+       [7] _teleport (res://scripts/core/main.gd:641)
+       [8] _start_leg (res://tools_qa/perf/town_route.gd:144)
+       [9] run (res://tools_qa/perf/town_route.gd:87)
+       [10] _ready (res://scripts/core/main.gd:249)
+WARNING: 'res://assets/generated/village_house_b_lod1.glb': In external resource #5, invalid UID: 'uid://be5wotbwlb4j5' - using text path instead: 'res://assets/generated/pbr/window_emit.png'.
+   at: open (core/io/resource_format_binary.cpp:1089)
+   GDScript backtrace (most recent call first):
+       [0] scene (res://scripts/world/assets.gd:254)
+       [1] merged_mesh (res://scripts/world/assets.gd:845)
+       [2] building_mesh (res://scripts/world/assets.gd:763)
+       [3] building_lod_mesh (res://scripts/world/assets.gd:731)
+       [4] _build_co (res://scripts/world/settlement_builder.gd:238)
+       [5] _build (res://scripts/world/settlement_builder.gd:184)
+       [6] update_now (res://scripts/world/settlement_builder.gd:142)
+       [7] _teleport (res://scripts/core/main.gd:641)
+       [8] _start_leg (res://tools_qa/perf/town_route.gd:144)
+       [9] run (res://tools_qa/perf/town_route.gd:87)
+       [10] _ready (res://scripts/core/main.gd:249)
+WARNING: 'res://assets/generated/village_house_b.glb': In external resource #3, invalid UID: 'uid://bv0rc2ksgjc4x' - using text path instead: 'res://assets/generated/pbr/window_alb.png'.
+   at: open (core/io/resource_format_binary.cpp:1089)
+   GDScript backtrace (most recent call first):
+       [0] scene (res://scripts/world/assets.gd:254)
+       [1] merged_mesh (res://scripts/world/assets.gd:845)
+       [2] building_mesh (res://scripts/world/assets.gd:763)
+       [3] _footprint (res://scripts/world/settlement_builder.gd:798)
+       [4] _build_co (res://scripts/world/settlement_builder.gd:247)
+       [5] _build (res://scripts/world/settlement_builder.gd:184)
+       [6] update_now (res://scripts/world/settlement_builder.gd:142)
+       [7] _teleport (res://scripts/core/main.gd:641)
+       [8] _start_leg (res://tools_qa/perf/town_route.gd:144)
+       [9] run (res://tools_qa/perf/town_route.gd:87)
+       [10] _ready (res://scripts/core/main.gd:249)
+WARNING: 'res://assets/generated/village_house_b.glb': In external resource #4, invalid UID: 'uid://cs87ialbkqn1b' - using text path instead: 'res://assets/generated/pbr/window_nrm.png'.
+   at: open (core/io/resource_format_binary.cpp:1089)
+   GDScript backtrace (most recent call first):
+       [0] scene (res://scripts/world/assets.gd:254)
+       [1] merged_mesh (res://scripts/world/assets.gd:845)
+       [2] building_mesh (res://scripts/world/assets.gd:763)
+       [3] _footprint (res://scripts/world/settlement_builder.gd:798)
+       [4] _build_co (res://scripts/world/settlement_builder.gd:247)
+       [5] _build (res://scripts/world/settlement_builder.gd:184)
+       [6] update_now (res://scripts/world/settlement_builder.gd:142)
+       [7] _teleport (res://scripts/core/main.gd:641)
+       [8] _start_leg (res://tools_qa/perf/town_route.gd:144)
+       [9] run (res://tools_qa/perf/town_route.gd:87)
+       [10] _ready (res://scripts/core/main.gd:249)
+WARNING: 'res://assets/generated/village_house_b.glb': In external resource #5, invalid UID: 'uid://be5wotbwlb4j5' - using text path instead: 'res://assets/generated/pbr/window_emit.png'.
+   at: open (core/io/resource_format_binary.cpp:1089)
+   GDScript backtrace (most recent call first):
+       [0] scene (res://scripts/world/assets.gd:254)
+       [1] merged_mesh (res://scripts/world/assets.gd:845)
+       [2] building_mesh (res://scripts/world/assets.gd:763)
+       [3] _footprint (res://scripts/world/settlement_builder.gd:798)
+       [4] _build_co (res://scripts/world/settlement_builder.gd:247)
+       [5] _build (res://scripts/world/settlement_builder.gd:184)
+       [6] update_now (res://scripts/world/settlement_builder.gd:142)
+       [7] _teleport (res://scripts/core/main.gd:641)
+       [8] _start_leg (res://tools_qa/perf/town_route.gd:144)
+       [9] run (res://tools_qa/perf/town_route.gd:87)
+       [10] _ready (res://scripts/core/main.gd:249)
+WARNING: 'res://assets/generated/village_house_d_4_lod1.glb': In external resource #3, invalid UID: 'uid://bv0rc2ksgjc4x' - using text path instead: 'res://assets/generated/pbr/window_alb.png'.
+   at: open (core/io/resource_format_binary.cpp:1089)
+   GDScript backtrace (most recent call first):
+       [0] scene (res://scripts/world/assets.gd:254)
+       [1] merged_mesh (res://scripts/world/assets.gd:845)
+       [2] building_mesh (res://scripts/world/assets.gd:763)
+       [3] building_lod_mesh (res://scripts/world/assets.gd:731)
+       [4] _build_co (res://scripts/world/settlement_builder.gd:238)
+       [5] _build (res://scripts/world/settlement_builder.gd:184)
+       [6] update_now (res://scripts/world/settlement_builder.gd:142)
+       [7] _teleport (res://scripts/core/main.gd:641)
+       [8] _start_leg (res://tools_qa/perf/town_route.gd:144)
+       [9] run (res://tools_qa/perf/town_route.gd:87)
+       [10] _ready (res://scripts/core/main.gd:249)
+WARNING: 'res://assets/generated/village_house_d_4_lod1.glb': In external resource #4, invalid UID: 'uid://be5wotbwlb4j5' - using text path instead: 'res://assets/generated/pbr/window_emit.png'.
+   at: open (core/io/resource_format_binary.cpp:1089)
+   GDScript backtrace (most recent call first):
+       [0] scene (res://scripts/world/assets.gd:254)
+       [1] merged_mesh (res://scripts/world/assets.gd:845)
+       [2] building_mesh (res://scripts/world/assets.gd:763)
+       [3] building_lod_mesh (res://scripts/world/assets.gd:731)
+       [4] _build_co (res://scripts/world/settlement_builder.gd:238)
+       [5] _build (res://scripts/world/settlement_builder.gd:184)
+       [6] update_now (res://scripts/world/settlement_builder.gd:142)
+       [7] _teleport (res://scripts/core/main.gd:641)
+       [8] _start_leg (res://tools_qa/perf/town_route.gd:144)
+       [9] run (res://tools_qa/perf/town_route.gd:87)
+       [10] _ready (res://scripts/core/main.gd:249)
+WARNING: 'res://assets/generated/village_house_d_4_lod1.glb': In external resource #5, invalid UID: 'uid://cs87ialbkqn1b' - using text path instead: 'res://assets/generated/pbr/window_nrm.png'.
+   at: open (core/io/resource_format_binary.cpp:1089)
+   GDScript backtrace (most recent call first):
+       [0] scene (res://scripts/world/assets.gd:254)
+       [1] merged_mesh (res://scripts/world/assets.gd:845)
+       [2] building_mesh (res://scripts/world/assets.gd:763)
+       [3] building_lod_mesh (res://scripts/world/assets.gd:731)
+       [4] _build_co (res://scripts/world/settlement_builder.gd:238)
+       [5] _build (res://scripts/world/settlement_builder.gd:184)
+       [6] update_now (res://scripts/world/settlement_builder.gd:142)
+       [7] _teleport (res://scripts/core/main.gd:641)
+       [8] _start_leg (res://tools_qa/perf/town_route.gd:144)
+       [9] run (res://tools_qa/perf/town_route.gd:87)
+       [10] _ready (res://scripts/core/main.gd:249)
+WARNING: 'res://assets/generated/village_house_d_4.glb': In external resource #3, invalid UID: 'uid://bv0rc2ksgjc4x' - using text path instead: 'res://assets/generated/pbr/window_alb.png'.
+   at: open (core/io/resource_format_binary.cpp:1089)
+   GDScript backtrace (most recent call first):
+       [0] scene (res://scripts/world/assets.gd:254)
+       [1] merged_mesh (res://scripts/world/assets.gd:845)
+       [2] building_mesh (res://scripts/world/assets.gd:763)
+       [3] _footprint (res://scripts/world/settlement_builder.gd:798)
+       [4] _build_co (res://scripts/world/settlement_builder.gd:247)
+       [5] _build (res://scripts/world/settlement_builder.gd:184)
+       [6] update_now (res://scripts/world/settlement_builder.gd:142)
+       [7] _teleport (res://scripts/core/main.gd:641)
+       [8] _start_leg (res://tools_qa/perf/town_route.gd:144)
+       [9] run (res://tools_qa/perf/town_route.gd:87)
+       [10] _ready (res://scripts/core/main.gd:249)
+WARNING: 'res://assets/generated/village_house_d_4.glb': In external resource #4, invalid UID: 'uid://be5wotbwlb4j5' - using text path instead: 'res://assets/generated/pbr/window_emit.png'.
+   at: open (core/io/resource_format_binary.cpp:1089)
+   GDScript backtrace (most recent call first):
+       [0] scene (res://scripts/world/assets.gd:254)
+       [1] merged_mesh (res://scripts/world/assets.gd:845)
+       [2] building_mesh (res://scripts/world/assets.gd:763)
+       [3] _footprint (res://scripts/world/settlement_builder.gd:798)
+       [4] _build_co (res://scripts/world/settlement_builder.gd:247)
+       [5] _build (res://scripts/world/settlement_builder.gd:184)
+       [6] update_now (res://scripts/world/settlement_builder.gd:142)
+       [7] _teleport (res://scripts/core/main.gd:641)
+       [8] _start_leg (res://tools_qa/perf/town_route.gd:144)
+       [9] run (res://tools_qa/perf/town_route.gd:87)
+       [10] _ready (res://scripts/core/main.gd:249)
+WARNING: 'res://assets/generated/village_house_d_4.glb': In external resource #5, invalid UID: 'uid://cs87ialbkqn1b' - using text path instead: 'res://assets/generated/pbr/window_nrm.png'.
+   at: open (core/io/resource_format_binary.cpp:1089)
+   GDScript backtrace (most recent call first):
+       [0] scene (res://scripts/world/assets.gd:254)
+       [1] merged_mesh (res://scripts/world/assets.gd:845)
+       [2] building_mesh (res://scripts/world/assets.gd:763)
+       [3] _footprint (res://scripts/world/settlement_builder.gd:798)
+       [4] _build_co (res://scripts/world/settlement_builder.gd:247)
+       [5] _build (res://scripts/world/settlement_builder.gd:184)
+       [6] update_now (res://scripts/world/settlement_builder.gd:142)
+       [7] _teleport (res://scripts/core/main.gd:641)
+       [8] _start_leg (res://tools_qa/perf/town_route.gd:144)
+       [9] run (res://tools_qa/perf/town_route.gd:87)
+       [10] _ready (res://scripts/core/main.gd:249)
+WARNING: 'res://assets/generated/village_house_c_4_lod1.glb': In external resource #3, invalid UID: 'uid://bv0rc2ksgjc4x' - using text path instead: 'res://assets/generated/pbr/window_alb.png'.
+   at: open (core/io/resource_format_binary.cpp:1089)
+   GDScript backtrace (most recent call first):
+       [0] scene (res://scripts/world/assets.gd:254)
+       [1] merged_mesh (res://scripts/world/assets.gd:845)
+       [2] building_mesh (res://scripts/world/assets.gd:763)
+       [3] building_lod_mesh (res://scripts/world/assets.gd:731)
+       [4] _build_co (res://scripts/world/settlement_builder.gd:238)
+       [5] _build (res://scripts/world/settlement_builder.gd:184)
+       [6] update_now (res://scripts/world/settlement_builder.gd:142)
+       [7] _teleport (res://scripts/core/main.gd:641)
+       [8] _start_leg (res://tools_qa/perf/town_route.gd:144)
+       [9] run (res://tools_qa/perf/town_route.gd:87)
+       [10] _ready (res://scripts/core/main.gd:249)
+WARNING: 'res://assets/generated/village_house_c_4_lod1.glb': In external resource #4, invalid UID: 'uid://cs87ialbkqn1b' - using text path instead: 'res://assets/generated/pbr/window_nrm.png'.
+   at: open (core/io/resource_format_binary.cpp:1089)
+   GDScript backtrace (most recent call first):
+       [0] scene (res://scripts/world/assets.gd:254)
+       [1] merged_mesh (res://scripts/world/assets.gd:845)
+       [2] building_mesh (res://scripts/world/assets.gd:763)
+       [3] building_lod_mesh (res://scripts/world/assets.gd:731)
+       [4] _build_co (res://scripts/world/settlement_builder.gd:238)
+       [5] _build (res://scripts/world/settlement_builder.gd:184)
+       [6] update_now (res://scripts/world/settlement_builder.gd:142)
+       [7] _teleport (res://scripts/core/main.gd:641)
+       [8] _start_leg (res://tools_qa/perf/town_route.gd:144)
+       [9] run (res://tools_qa/perf/town_route.gd:87)
+       [10] _ready (res://scripts/core/main.gd:249)
+WARNING: 'res://assets/generated/village_house_c_4.glb': In external resource #3, invalid UID: 'uid://bv0rc2ksgjc4x' - using text path instead: 'res://assets/generated/pbr/window_alb.png'.
+   at: open (core/io/resource_format_binary.cpp:1089)
+   GDScript backtrace (most recent call first):
+       [0] scene (res://scripts/world/assets.gd:254)
+       [1] merged_mesh (res://scripts/world/assets.gd:845)
+       [2] building_mesh (res://scripts/world/assets.gd:763)
+       [3] _footprint (res://scripts/world/settlement_builder.gd:798)
+       [4] _build_co (res://scripts/world/settlement_builder.gd:247)
+       [5] _build (res://scripts/world/settlement_builder.gd:184)
+       [6] update_now (res://scripts/world/settlement_builder.gd:142)
+       [7] _teleport (res://scripts/core/main.gd:641)
+       [8] _start_leg (res://tools_qa/perf/town_route.gd:144)
+       [9] run (res://tools_qa/perf/town_route.gd:87)
+       [10] _ready (res://scripts/core/main.gd:249)
+WARNING: 'res://assets/generated/village_house_c_4.glb': In external resource #4, invalid UID: 'uid://cs87ialbkqn1b' - using text path instead: 'res://assets/generated/pbr/window_nrm.png'.
+   at: open (core/io/resource_format_binary.cpp:1089)
+   GDScript backtrace (most recent call first):
+       [0] scene (res://scripts/world/assets.gd:254)
+       [1] merged_mesh (res://scripts/world/assets.gd:845)
+       [2] building_mesh (res://scripts/world/assets.gd:763)
+       [3] _footprint (res://scripts/world/settlement_builder.gd:798)
+       [4] _build_co (res://scripts/world/settlement_builder.gd:247)
+       [5] _build (res://scripts/world/settlement_builder.gd:184)
+       [6] update_now (res://scripts/world/settlement_builder.gd:142)
+       [7] _teleport (res://scripts/core/main.gd:641)
+       [8] _start_leg (res://tools_qa/perf/town_route.gd:144)
+       [9] run (res://tools_qa/perf/town_route.gd:87)
+       [10] _ready (res://scripts/core/main.gd:249)
+WARNING: 'res://assets/generated/village_house_d_lod1.glb': In external resource #3, invalid UID: 'uid://bv0rc2ksgjc4x' - using text path instead: 'res://assets/generated/pbr/window_alb.png'.
+   at: open (core/io/resource_format_binary.cpp:1089)
+   GDScript backtrace (most recent call first):
+       [0] scene (res://scripts/world/assets.gd:254)
+       [1] merged_mesh (res://scripts/world/assets.gd:845)
+       [2] building_mesh (res://scripts/world/assets.gd:763)
+       [3] building_lod_mesh (res://scripts/world/assets.gd:731)
+       [4] _build_co (res://scripts/world/settlement_builder.gd:238)
+       [5] _build (res://scripts/world/settlement_builder.gd:184)
+       [6] update_now (res://scripts/world/settlement_builder.gd:142)
+       [7] _teleport (res://scripts/core/main.gd:641)
+       [8] _start_leg (res://tools_qa/perf/town_route.gd:144)
+       [9] run (res://tools_qa/perf/town_route.gd:87)
+       [10] _ready (res://scripts/core/main.gd:249)
+WARNING: 'res://assets/generated/village_house_d_lod1.glb': In external resource #4, invalid UID: 'uid://cs87ialbkqn1b' - using text path instead: 'res://assets/generated/pbr/window_nrm.png'.
+   at: open (core/io/resource_format_binary.cpp:1089)
+   GDScript backtrace (most recent call first):
+       [0] scene (res://scripts/world/assets.gd:254)
+       [1] merged_mesh (res://scripts/world/assets.gd:845)
+       [2] building_mesh (res://scripts/world/assets.gd:763)
+       [3] building_lod_mesh (res://scripts/world/assets.gd:731)
+       [4] _build_co (res://scripts/world/settlement_builder.gd:238)
+       [5] _build (res://scripts/world/settlement_builder.gd:184)
+       [6] update_now (res://scripts/world/settlement_builder.gd:142)
+       [7] _teleport (res://scripts/core/main.gd:641)
+       [8] _start_leg (res://tools_qa/perf/town_route.gd:144)
+       [9] run (res://tools_qa/perf/town_route.gd:87)
+       [10] _ready (res://scripts/core/main.gd:249)
+WARNING: 'res://assets/generated/village_house_d_lod1.glb': In external resource #5, invalid UID: 'uid://be5wotbwlb4j5' - using text path instead: 'res://assets/generated/pbr/window_emit.png'.
+   at: open (core/io/resource_format_binary.cpp:1089)
+   GDScript backtrace (most recent call first):
+       [0] scene (res://scripts/world/assets.gd:254)
+       [1] merged_mesh (res://scripts/world/assets.gd:845)
+       [2] building_mesh (res://scripts/world/assets.gd:763)
+       [3] building_lod_mesh (res://scripts/world/assets.gd:731)
+       [4] _build_co (res://scripts/world/settlement_builder.gd:238)
+       [5] _build (res://scripts/world/settlement_builder.gd:184)
+       [6] update_now (res://scripts/world/settlement_builder.gd:142)
+       [7] _teleport (res://scripts/core/main.gd:641)
+       [8] _start_leg (res://tools_qa/perf/town_route.gd:144)
+       [9] run (res://tools_qa/perf/town_route.gd:87)
+       [10] _ready (res://scripts/core/main.gd:249)
+WARNING: 'res://assets/generated/village_house_d.glb': In external resource #3, invalid UID: 'uid://bv0rc2ksgjc4x' - using text path instead: 'res://assets/generated/pbr/window_alb.png'.
+   at: open (core/io/resource_format_binary.cpp:1089)
+   GDScript backtrace (most recent call first):
+       [0] scene (res://scripts/world/assets.gd:254)
+       [1] merged_mesh (res://scripts/world/assets.gd:845)
+       [2] building_mesh (res://scripts/world/assets.gd:763)
+       [3] _footprint (res://scripts/world/settlement_builder.gd:798)
+       [4] _build_co (res://scripts/world/settlement_builder.gd:247)
+       [5] _build (res://scripts/world/settlement_builder.gd:184)
+       [6] update_now (res://scripts/world/settlement_builder.gd:142)
+       [7] _teleport (res://scripts/core/main.gd:641)
+       [8] _start_leg (res://tools_qa/perf/town_route.gd:144)
+       [9] run (res://tools_qa/perf/town_route.gd:87)
+       [10] _ready (res://scripts/core/main.gd:249)
+WARNING: 'res://assets/generated/village_house_d.glb': In external resource #4, invalid UID: 'uid://cs87ialbkqn1b' - using text path instead: 'res://assets/generated/pbr/window_nrm.png'.
+   at: open (core/io/resource_format_binary.cpp:1089)
+   GDScript backtrace (most recent call first):
+       [0] scene (res://scripts/world/assets.gd:254)
+       [1] merged_mesh (res://scripts/world/assets.gd:845)
+       [2] building_mesh (res://scripts/world/assets.gd:763)
+       [3] _footprint (res://scripts/world/settlement_builder.gd:798)
+       [4] _build_co (res://scripts/world/settlement_builder.gd:247)
+       [5] _build (res://scripts/world/settlement_builder.gd:184)
+       [6] update_now (res://scripts/world/settlement_builder.gd:142)
+       [7] _teleport (res://scripts/core/main.gd:641)
+       [8] _start_leg (res://tools_qa/perf/town_route.gd:144)
+       [9] run (res://tools_qa/perf/town_route.gd:87)
+       [10] _ready (res://scripts/core/main.gd:249)
+WARNING: 'res://assets/generated/village_house_d.glb': In external resource #5, invalid UID: 'uid://be5wotbwlb4j5' - using text path instead: 'res://assets/generated/pbr/window_emit.png'.
+   at: open (core/io/resource_format_binary.cpp:1089)
+   GDScript backtrace (most recent call first):
+       [0] scene (res://scripts/world/assets.gd:254)
+       [1] merged_mesh (res://scripts/world/assets.gd:845)
+       [2] building_mesh (res://scripts/world/assets.gd:763)
+       [3] _footprint (res://scripts/world/settlement_builder.gd:798)
+       [4] _build_co (res://scripts/world/settlement_builder.gd:247)
+       [5] _build (res://scripts/world/settlement_builder.gd:184)
+       [6] update_now (res://scripts/world/settlement_builder.gd:142)
+       [7] _teleport (res://scripts/core/main.gd:641)
+       [8] _start_leg (res://tools_qa/perf/town_route.gd:144)
+       [9] run (res://tools_qa/perf/town_route.gd:87)
+       [10] _ready (res://scripts/core/main.gd:249)
+[audio] bed -> meadow_day (interior=, t=15.0 h)
+[audio] mood r1_village_day -> wilderness (threat 0, hostiles 0, interior )
+[audio] music r1_village_day -> wild_c (mood wilderness, intensity 0.00)
+[audio] story cue r1_village_day for 140 s
+[audio] mood wilderness -> r1_village_day (threat 0, hostiles 0, interior )
+[audio] music wild_c -> r1_village_day (mood r1_village_day, intensity 0.00)
+ERROR: Condition "ret.is_empty()" is true. Returning: ret
+   at: raw_to_base64 (core/core_bind.cpp:1343)
+   GDScript backtrace (most recent call first):
+       [0] serialize (res://scripts/realm/persona.gd:354)
+       [1] <anonymous lambda> (res://autoload/life.gd:1623)
+       [2] pump_autosave (res://scripts/sim/save_manager.gd:443)
+       [3] _process (res://scripts/sim/save_manager.gd:139)
+ERROR: Condition "ret.is_empty()" is true. Returning: ret
+   at: raw_to_base64 (core/core_bind.cpp:1343)
+   GDScript backtrace (most recent call first):
+       [0] serialize (res://scripts/realm/persona.gd:354)
+       [1] <anonymous lambda> (res://autoload/life.gd:1623)
+       [2] pump_autosave (res://scripts/sim/save_manager.gd:443)
+       [3] _process (res://scripts/sim/save_manager.gd:139)
+ERROR: Condition "ret.is_empty()" is true. Returning: ret
+   at: raw_to_base64 (core/core_bind.cpp:1343)
+   GDScript backtrace (most recent call first):
+       [0] serialize (res://scripts/realm/psyche.gd:514)
+       [1] <anonymous lambda> (res://autoload/life.gd:1623)
+       [2] pump_autosave (res://scripts/sim/save_manager.gd:443)
+       [3] _process (res://scripts/sim/save_manager.gd:139)
+STALL t=6.12 ms=183 rcpu=4.2 rgpu=8.3 proc=213.3 phys=4.5 setup=0.3 dnodes=13563 dobjs=35753 dres=5131 dmemKB=956246 draws=1502
+STALL_TOP settle.props_dressing=7641.2 settle.batches=2148.7 settle.benchmark=1553.6 settle.lots=965.5 settle.square_market=580.4 settle.mills=442.5
+STALL_SCRIPTS
+STALL t=6.38 ms=262 rcpu=4.2 rgpu=6.3 proc=213.3 phys=4.5 setup=0.2 dnodes=8 dobjs=1 dres=-6 dmemKB=1 draws=1503
+STALL_TOP region.part=88.1 settle.props_step=3.2 worldsim.slice=2.9 region.bake=2.7
+STALL_SCRIPTS
+STALL t=6.52 ms=140 rcpu=11.0 rgpu=10.5 proc=213.3 phys=4.5 setup=0.2 dnodes=10 dobjs=0 dres=-12 dmemKB=20 draws=1539
+STALL_TOP region.part=184.1 settle.props_step=3.1 region.bake=2.8
+STALL_SCRIPTS
+STALL t=6.74 ms=220 rcpu=5.6 rgpu=14.8 proc=213.3 phys=4.5 setup=0.2 dnodes=10 dobjs=12 dres=0 dmemKB=-89 draws=1576
+STALL_TOP region.bake=3.4 settle.props_step=3.3 region.part=2.2 worldsim.slice=1.9
+STALL_SCRIPTS
+STALL t=6.80 ms=58 rcpu=8.5 rgpu=6.5 proc=213.3 phys=4.5 setup=0.1 dnodes=0 dobjs=-3 dres=-6 dmemKB=-16926 draws=1635
+STALL_TOP region.part=70.0 region.bake=13.5 settle.props_step=3.1 worldsim.slice=2.1
+STALL_SCRIPTS
+STALL t=6.91 ms=108 rcpu=6.5 rgpu=8.5 proc=213.3 phys=4.5 setup=0.3 dnodes=1 dobjs=3 dres=0 dmemKB=1471 draws=1653
+STALL_TOP settle.props_step=3.6 region.bake=3.1
+STALL_SCRIPTS
+STALL t=7.51 ms=168 rcpu=4.3 rgpu=7.3 proc=284.6 phys=3.6 setup=0.3 dnodes=6 dobjs=8 dres=0 dmemKB=409 draws=1740
+STALL_TOP settle.props_step=3.5 region.bake=3.0 worldsim.slice=2.3
+STALL_SCRIPTS
+STALL t=7.89 ms=175 rcpu=3.8 rgpu=7.3 proc=284.6 phys=3.6 setup=0.1 dnodes=22 dobjs=23 dres=0 dmemKB=-22 draws=1784
+STALL_TOP worldsim.slice=4.2 settle.props_step=3.0 region.part=1.7
+STALL_SCRIPTS
+STALL t=7.94 ms=51 rcpu=4.8 rgpu=7.3 proc=173.0 phys=3.7 setup=0.7 dnodes=7 dobjs=17 dres=1 dmemKB=1156 draws=1789
+STALL_TOP region.part=139.0 assets.scene_load=5.2 worldsim.slice=3.6 settle.props_step=3.3
+STALL_SCRIPTS
+STALL t=8.11 ms=169 rcpu=5.8 rgpu=10.3 proc=173.0 phys=3.7 setup=0.2 dnodes=5 dobjs=12 dres=1 dmemKB=918 draws=1840
+STALL_TOP region.part=135.5 assets.scene_load=4.1 settle.props_step=3.2
+STALL_SCRIPTS
+STALL t=8.28 ms=169 rcpu=6.4 rgpu=7.5 proc=173.0 phys=3.7 setup=0.3 dnodes=8 dobjs=14 dres=1 dmemKB=686 draws=1845
+STALL_TOP region.part=137.1 assets.scene_load=4.4 settle.props_step=3.6 ambient.groups=2.3 worldsim.slice=1.8
+STALL_SCRIPTS
+STALL t=8.46 ms=180 rcpu=4.4 rgpu=7.5 proc=173.0 phys=3.7 setup=0.2 dnodes=6 dobjs=16 dres=1 dmemKB=930 draws=1774
+STALL_TOP region.part=130.4 assets.scene_load=4.8 settle.props_step=3.4
+STALL_SCRIPTS
+STALL t=8.62 ms=162 rcpu=4.9 rgpu=10.5 proc=173.0 phys=3.7 setup=0.2 dnodes=3 dobjs=9 dres=1 dmemKB=890 draws=1794
+STALL_TOP region.part=142.6 assets.scene_load=4.5 settle.props_step=3.0 worldsim.slice=2.4
+STALL_SCRIPTS
+STALL t=8.80 ms=175 rcpu=4.0 rgpu=10.6 proc=173.0 phys=3.7 setup=0.2 dnodes=3 dobjs=2 dres=-3 dmemKB=-20 draws=1816
+STALL_TOP r1story.tick_rest=6.4 region.part=5.5 settle.props_step=3.9
+STALL_SCRIPTS
+STALL t=8.85 ms=53 rcpu=4.4 rgpu=7.7 proc=173.0 phys=3.7 setup=0.3 dnodes=8 dobjs=11 dres=2 dmemKB=679 draws=1827
+STALL_TOP region.part=127.4 worldsim.slice=3.4 settle.props_step=3.3
+STALL_SCRIPTS
+STALL t=9.01 ms=163 rcpu=7.4 rgpu=11.1 proc=173.0 phys=3.7 setup=0.8 dnodes=6 dobjs=6 dres=0 dmemKB=279 draws=1876
+STALL_TOP settle.props_step=3.5 worldsim.slice=2.9
+STALL_SCRIPTS
+STALL t=9.68 ms=126 rcpu=3.3 rgpu=6.2 proc=168.3 phys=4.7 setup=0.3 dnodes=0 dobjs=0 dres=0 dmemKB=20 draws=1852
+STALL_TOP settle.props_step=3.0 worldsim.slice=2.3
+STALL_SCRIPTS
+STALL t=9.91 ms=142 rcpu=6.3 rgpu=6.1 proc=168.3 phys=4.7 setup=0.3 dnodes=0 dobjs=2 dres=0 dmemKB=-232 draws=1882
+STALL_TOP settle.props_step=3.1
+STALL_SCRIPTS
+STALL t=10.60 ms=148 rcpu=4.2 rgpu=5.3 proc=139.4 phys=4.1 setup=0.2 dnodes=0 dobjs=3 dres=3 dmemKB=28 draws=1764
+STALL_TOP settle.props_step=9.4 district.phase8=6.5 assets.scene_load=1.6
+STALL_SCRIPTS
+STALL t=10.87 ms=129 rcpu=3.1 rgpu=5.2 proc=139.4 phys=4.1 setup=0.3 dnodes=0 dobjs=0 dres=0 dmemKB=8 draws=1761
+STALL_TOP settle.props_step=5.2 district.phase8=5.1
+STALL_SCRIPTS
+STALL t=11.14 ms=142 rcpu=3.2 rgpu=5.2 proc=148.1 phys=3.2 setup=0.2 dnodes=0 dobjs=2 dres=0 dmemKB=89 draws=1768
+STALL_TOP settle.props_step=5.3 district.phase8=2.6
+STALL_SCRIPTS
+[audio] stinger discovery
+[audio] stinger discovery
+STALL t=11.76 ms=161 rcpu=3.1 rgpu=6.2 proc=148.1 phys=3.2 setup=0.2 dnodes=0 dobjs=-2 dres=0 dmemKB=-139 draws=1824
+STALL_TOP settle.props_step=3.1 worldsim.slice=1.6
+STALL_SCRIPTS
+STALL t=12.02 ms=171 rcpu=3.5 rgpu=6.1 proc=148.1 phys=3.2 setup=0.2 dnodes=0 dobjs=2 dres=0 dmemKB=158 draws=1824
+STALL_TOP worldsim.slice=4.3 settle.props_step=3.1
+STALL_SCRIPTS
+STALL t=12.39 ms=159 rcpu=3.6 rgpu=6.1 proc=171.1 phys=3.8 setup=0.2 dnodes=0 dobjs=1 dres=0 dmemKB=469 draws=1817
+STALL_TOP pop.sprites=38.2 pop.sprites_slice=38.2 settle.props_step=3.0 ambient.groups=1.9
+STALL_SCRIPTS
+STALL t=12.46 ms=77 rcpu=3.6 rgpu=6.1 proc=171.1 phys=3.8 setup=0.4 dnodes=0 dobjs=0 dres=0 dmemKB=508 draws=1848
+STALL_TOP settle.props_step=3.0 worldsim.slice=1.8
+STALL_SCRIPTS
+STALL t=12.68 ms=160 rcpu=3.7 rgpu=6.1 proc=171.1 phys=3.8 setup=0.3 dnodes=0 dobjs=-2 dres=0 dmemKB=9 draws=1852
+STALL_TOP settle.props_step=3.1 worldsim.slice=2.4
+STALL_SCRIPTS
+STALL t=12.92 ms=165 rcpu=5.4 rgpu=6.1 proc=171.1 phys=3.8 setup=0.2 dnodes=0 dobjs=0 dres=0 dmemKB=154 draws=1939
+STALL_TOP settle.props_step=3.1
+STALL_SCRIPTS
+STALL t=13.09 ms=55 rcpu=3.4 rgpu=6.3 proc=165.0 phys=2.9 setup=0.1 dnodes=6 dobjs=10 dres=0 dmemKB=429 draws=1910
+STALL_TOP settle.props_step=11.0 district.phase8=10.9
+STALL_SCRIPTS
+STALL t=13.22 ms=57 rcpu=3.7 rgpu=8.3 proc=165.0 phys=2.9 setup=0.2 dnodes=0 dobjs=0 dres=0 dmemKB=135 draws=1904
+STALL_TOP settle.props_step=13.3 district.phase8=12.4 pop.sprites=9.0 pop.sprites_slice=9.0 worldsim.slice=2.3
+STALL_SCRIPTS
+STALL t=13.27 ms=50 rcpu=4.4 rgpu=11.3 proc=165.0 phys=2.9 setup=0.2 dnodes=0 dobjs=0 dres=0 dmemKB=27 draws=1892
+STALL_TOP settle.props_step=8.4 district.phase8=8.3 worldsim.slice=2.5
+STALL_SCRIPTS
+STALL t=15.09 ms=179 rcpu=5.7 rgpu=9.2 proc=33.5 phys=4.3 setup=0.2 dnodes=31 dobjs=40 dres=0 dmemKB=471 draws=2034
+STALL_TOP settle.props_step=4.7 district.phase8=4.7 worldsim.slice=4.2 pop.sprites=1.9 pop.sprites_slice=1.9
+STALL_SCRIPTS
+STALL t=15.16 ms=62 rcpu=3.4 rgpu=9.4 proc=33.5 phys=4.3 setup=0.3 dnodes=0 dobjs=2 dres=0 dmemKB=87 draws=2029
+STALL_TOP worldsim.slice=3.6 settle.props_step=3.4 district.phase8=2.9
+STALL_SCRIPTS
+ROUTE t=15 leg=approach fps=24.5 p50=26.6 p95=162.7 p99=182.6 draws=1948 prims=2732253 vram=2769 tex=2183 buf=516 static=943 nodes=13888 objs=36570 res=5221 rcpu=4.3 gpu=7.6
+STALL t=16.12 ms=158 rcpu=3.6 rgpu=5.9 proc=174.4 phys=4.3 setup=0.1 dnodes=8 dobjs=15 dres=0 dmemKB=17 draws=1935
+STALL_TOP settle.props_step=4.1 district.phase8=4.0
+STALL_SCRIPTS
+STALL t=17.78 ms=214 rcpu=3.8 rgpu=6.1 proc=155.2 phys=5.5 setup=0.3 dnodes=6 dobjs=9 dres=0 dmemKB=-104 draws=1744
+STALL_TOP settle.props_step=3.1 pop.sprites=2.9 pop.sprites_slice=2.9
+STALL_SCRIPTS
+STALL t=17.84 ms=56 rcpu=4.2 rgpu=6.1 proc=155.2 phys=5.5 setup=0.6 dnodes=0 dobjs=0 dres=0 dmemKB=11 draws=1727
+STALL_TOP settle.props_step=3.1
+STALL_SCRIPTS
+STALL t=18.88 ms=54 rcpu=3.9 rgpu=5.8 proc=210.8 phys=4.9 setup=0.4 dnodes=28 dobjs=55 dres=0 dmemKB=174 draws=1627
+STALL_TOP settle.props_step=3.0
+STALL_SCRIPTS
+STALL t=21.89 ms=85 rcpu=7.1 rgpu=7.4 proc=33.5 phys=22.4 setup=0.4 dnodes=9 dobjs=20 dres=0 dmemKB=242 draws=1859
+STALL_TOP pop.sprites_slice=4.3
+STALL_SCRIPTS
+ROUTE t=25 leg=approach fps=41.7 p50=22.2 p95=36.7 p99=54.2 draws=1958 prims=3186869 vram=2776 tex=2185 buf=521 static=959 nodes=15147 objs=38995 res=5234 rcpu=4.9 gpu=6.1
+[audio] voices 0/12, long streams 2, music r1_village_day/r1_village_day threat 0, surface cobble, played { "step_dirt_04": 11, "step_dirt_05": 9, "step_dirt_06": 6, "bird_blackbird": 3, "step_dirt_02": 7, "cow_far_02": 1, "step_dirt_03": 9, "step_dirt_01": 15, "bird_chirp_04": 1, "step_cobble_04": 2, "step_cobble_05": 1, "step_cobble_01": 2 }
+ROUTE t=35 leg=approach fps=45.1 p50=21.2 p95=34.8 p99=41.0 draws=2143 prims=4198404 vram=2775 tex=2185 buf=520 static=956 nodes=14746 objs=38260 res=5234 rcpu=5.3 gpu=6.6
+[audio] bed -> village_day (interior=, t=16.4 h)
+STALL t=43.65 ms=50 rcpu=6.4 rgpu=8.3 proc=40.7 phys=5.9 setup=0.5 dnodes=10 dobjs=18 dres=0 dmemKB=54 draws=2754
+STALL_TOP pop.sprites_slice=4.5
+STALL_SCRIPTS
+STALL t=44.31 ms=143 rcpu=6.8 rgpu=8.2 proc=44.0 phys=7.4 setup=0.6 dnodes=8 dobjs=5 dres=0 dmemKB=126 draws=2890
+STALL_TOP pop.sprites_slice=4.1
+STALL_SCRIPTS
+STALL t=44.80 ms=62 rcpu=6.3 rgpu=9.3 proc=44.0 phys=7.4 setup=0.6 dnodes=0 dobjs=2 dres=0 dmemKB=18 draws=2978
+STALL_TOP pop.sprites_slice=10.2 pop.sprites=4.2 pop.sprites_slice=4.2 pop.query=2.4
+STALL_SCRIPTS
+STALL t=44.85 ms=56 rcpu=6.4 rgpu=9.3 proc=44.0 phys=7.4 setup=0.7 dnodes=0 dobjs=0 dres=0 dmemKB=22 draws=2997
+STALL_TOP pop.sprites_slice=5.1
+STALL_SCRIPTS
+STALL t=45.22 ms=52 rcpu=8.9 rgpu=9.7 proc=133.4 phys=6.2 setup=0.3 dnodes=7 dobjs=10 dres=0 dmemKB=117 draws=3145
+STALL_TOP pop.sprites_slice=5.8
+STALL_SCRIPTS
+STALL t=45.52 ms=63 rcpu=6.9 rgpu=10.2 proc=133.4 phys=6.2 setup=0.5 dnodes=20 dobjs=29 dres=0 dmemKB=507 draws=3246
+STALL_TOP pop.spawn=8.8 villager.ready_tail=5.1 pop.sprites_slice=4.4 villager.plan_route=2.8 villager.ready_model=1.5
+STALL_SCRIPTS
+STALL t=45.58 ms=52 rcpu=7.2 rgpu=12.4 proc=133.4 phys=6.2 setup=0.7 dnodes=31 dobjs=59 dres=0 dmemKB=193 draws=3264
+STALL_TOP pop.sprites_slice=5.3
+STALL_SCRIPTS
+ROUTE t=45 leg=kingsreach_gate fps=39.2 p50=23.1 p95=44.0 p99=55.6 draws=3431 prims=7015647 vram=2779 tex=2185 buf=524 static=964 nodes=15148 objs=38797 res=5243 rcpu=5.8 gpu=8.8
+STALL t=49.31 ms=83 rcpu=8.9 rgpu=9.2 proc=36.6 phys=7.3 setup=0.6 dnodes=13 dobjs=24 dres=4 dmemKB=1652 draws=3258
+STALL_TOP pop.sprites=4.8 pop.sprites_slice=4.8
+STALL_SCRIPTS
+STALL t=50.21 ms=55 rcpu=10.9 rgpu=7.1 proc=74.3 phys=8.3 setup=0.8 dnodes=14 dobjs=14 dres=0 dmemKB=158 draws=3048
+STALL_TOP pop.sprites_slice=4.2
+STALL_SCRIPTS
+STALL t=50.34 ms=58 rcpu=6.3 rgpu=7.6 proc=74.3 phys=8.3 setup=0.5 dnodes=1 dobjs=3 dres=0 dmemKB=17 draws=3064
+STALL_TOP pop.sprites_slice=6.2
+STALL_SCRIPTS
+[audio] stinger discovery
+STALL t=50.57 ms=54 rcpu=6.3 rgpu=8.3 proc=74.3 phys=8.3 setup=0.5 dnodes=0 dobjs=1 dres=0 dmemKB=-20 draws=3112
+STALL_TOP pop.sprites_slice=5.1
+STALL_SCRIPTS
+STALL t=50.84 ms=51 rcpu=7.3 rgpu=7.4 proc=74.3 phys=8.3 setup=0.6 dnodes=0 dobjs=2 dres=0 dmemKB=330 draws=3087
+STALL_TOP pop.sprites_slice=4.8
+STALL_SCRIPTS
+STALL t=50.90 ms=52 rcpu=9.9 rgpu=10.0 proc=74.3 phys=8.3 setup=0.8 dnodes=0 dobjs=2 dres=0 dmemKB=392 draws=3090
+STALL_TOP pop.sprites_slice=4.6 save.step.frontier=1.6
+STALL_SCRIPTS
+STALL t=50.95 ms=52 rcpu=7.4 rgpu=7.2 proc=52.6 phys=14.5 setup=0.4 dnodes=-16 dobjs=0 dres=0 dmemKB=462 draws=3097
+STALL_TOP ambient.groups=4.9 pop.sprites_slice=4.3 save.step.life_courses=2.7
+STALL_SCRIPTS
+STALL t=51.00 ms=50 rcpu=9.3 rgpu=7.2 proc=52.6 phys=14.5 setup=1.0 dnodes=7 dobjs=8 dres=0 dmemKB=675 draws=3104
+STALL_TOP pop.sprites_slice=6.1
+STALL_SCRIPTS
+STALL t=51.05 ms=52 rcpu=7.0 rgpu=7.2 proc=52.6 phys=14.5 setup=0.5 dnodes=7 dobjs=8 dres=0 dmemKB=1434 draws=3120
+STALL_TOP pop.sprites_slice=12.8 save.step.realm/city_life=3.7
+STALL_SCRIPTS
+STALL t=51.10 ms=54 rcpu=8.4 rgpu=13.4 proc=52.6 phys=14.5 setup=0.7 dnodes=7 dobjs=8 dres=0 dmemKB=908 draws=3108
+STALL_TOP pop.sprites=4.8 pop.sprites_slice=4.7 save.step.realm/society=2.8 pop.sprites_slice=2.8 pop.query=1.7
+STALL_SCRIPTS
+STALL t=51.16 ms=55 rcpu=6.6 rgpu=7.2 proc=52.6 phys=14.5 setup=0.5 dnodes=7 dobjs=10 dres=0 dmemKB=591 draws=3100
+STALL_TOP pop.sprites_slice=13.0 save.step.realm/governance=2.2
+STALL_SCRIPTS
+STALL t=51.22 ms=57 rcpu=7.6 rgpu=9.9 proc=52.6 phys=14.5 setup=0.6 dnodes=7 dobjs=10 dres=0 dmemKB=563 draws=3113
+STALL_TOP pop.sprites_slice=9.2
+STALL_SCRIPTS
+ERROR: Condition "ret.is_empty()" is true. Returning: ret
+   at: raw_to_base64 (core/core_bind.cpp:1343)
+   GDScript backtrace (most recent call first):
+       [0] serialize (res://scripts/realm/persona.gd:354)
+       [1] <anonymous lambda> (res://autoload/life.gd:1623)
+       [2] pump_autosave (res://scripts/sim/save_manager.gd:443)
+       [3] _process (res://scripts/sim/save_manager.gd:139)
+ERROR: Condition "ret.is_empty()" is true. Returning: ret
+   at: raw_to_base64 (core/core_bind.cpp:1343)
+   GDScript backtrace (most recent call first):
+       [0] serialize (res://scripts/realm/persona.gd:354)
+       [1] <anonymous lambda> (res://autoload/life.gd:1623)
+       [2] pump_autosave (res://scripts/sim/save_manager.gd:443)
+       [3] _process (res://scripts/sim/save_manager.gd:139)
+ERROR: Condition "ret.is_empty()" is true. Returning: ret
+   at: raw_to_base64 (core/core_bind.cpp:1343)
+   GDScript backtrace (most recent call first):
+       [0] serialize (res://scripts/realm/psyche.gd:514)
+       [1] <anonymous lambda> (res://autoload/life.gd:1623)
+       [2] pump_autosave (res://scripts/sim/save_manager.gd:443)
+       [3] _process (res://scripts/sim/save_manager.gd:139)
+STALL t=51.27 ms=50 rcpu=6.9 rgpu=7.2 proc=52.6 phys=14.5 setup=0.5 dnodes=7 dobjs=8 dres=0 dmemKB=82 draws=3116
+STALL_TOP pop.sprites_slice=4.6 save.step.realm/persona=1.7
+STALL_SCRIPTS
+STALL t=51.59 ms=71 rcpu=6.5 rgpu=7.4 proc=52.6 phys=14.5 setup=0.6 dnodes=14 dobjs=-1 dres=-17 dmemKB=-98 draws=3128
+STALL_TOP region.part=15.6 pop.sprites_slice=5.3
+STALL_SCRIPTS
+STALL t=51.64 ms=52 rcpu=6.2 rgpu=13.1 proc=52.6 phys=14.5 setup=0.2 dnodes=11 dobjs=10 dres=-4 dmemKB=37 draws=3126
+STALL_TOP pop.sprites_slice=4.9 region.part=4.5
+STALL_SCRIPTS
+STALL t=51.87 ms=186 rcpu=4.7 rgpu=7.4 proc=52.6 phys=14.5 setup=0.2 dnodes=11 dobjs=0 dres=-11 dmemKB=607 draws=3130
+STALL_TOP region.part=15.7 pop.sprites_slice=4.4
+STALL_SCRIPTS
+STALL t=51.98 ms=113 rcpu=12.2 rgpu=7.5 proc=52.6 phys=14.5 setup=0.2 dnodes=-335 dobjs=-661 dres=0 dmemKB=-6619 draws=3135
+STALL_TOP pop.sprites_slice=5.2 ambient.groups=2.9 region.part=1.6
+STALL_SCRIPTS
+STALL t=52.05 ms=67 rcpu=12.1 rgpu=18.8 proc=181.2 phys=9.7 setup=0.6 dnodes=7 dobjs=12 dres=0 dmemKB=188 draws=3159
+STALL_TOP pop.sprites_slice=9.4 region.part=2.0
+STALL_SCRIPTS
+STALL t=52.11 ms=62 rcpu=6.8 rgpu=10.8 proc=181.2 phys=9.7 setup=0.7 dnodes=10 dobjs=10 dres=0 dmemKB=129 draws=3161
+STALL_TOP pop.sprites_slice=5.3 region.part=1.8
+STALL_SCRIPTS
+STALL t=52.17 ms=58 rcpu=8.1 rgpu=11.0 proc=181.2 phys=9.7 setup=0.6 dnodes=10 dobjs=10 dres=0 dmemKB=63 draws=3160
+STALL_TOP pop.sprites_slice=10.1 region.part=1.8
+STALL_SCRIPTS
+STALL t=52.22 ms=53 rcpu=7.3 rgpu=15.1 proc=181.2 phys=9.7 setup=0.7 dnodes=10 dobjs=8 dres=0 dmemKB=70 draws=3170
+STALL_TOP pop.sprites_slice=6.1 region.part=1.8 audio.context=1.6
+STALL_SCRIPTS
+STALL t=52.27 ms=51 rcpu=6.9 rgpu=11.2 proc=181.2 phys=9.7 setup=0.7 dnodes=5 dobjs=5 dres=0 dmemKB=45 draws=3175
+STALL_TOP pop.sprites_slice=4.4 region.part=2.2
+STALL_SCRIPTS
+STALL t=52.42 ms=65 rcpu=6.4 rgpu=11.4 proc=181.2 phys=9.7 setup=0.1 dnodes=5 dobjs=15 dres=0 dmemKB=-364 draws=3165
+STALL_TOP pop.sprites_slice=5.5 pop.spawn=4.6 villager.ready_tail=2.2 region.part=1.6 villager.decide=1.6
+STALL_SCRIPTS
+STALL t=52.49 ms=62 rcpu=10.5 rgpu=11.4 proc=181.2 phys=9.7 setup=0.5 dnodes=49 dobjs=84 dres=0 dmemKB=557 draws=3183
+STALL_TOP pop.spawn=5.6 pop.sprites_slice=4.8 villager.ready_tail=3.2 villager.decide=2.3 region.part=1.7
+STALL_SCRIPTS
+STALL t=52.55 ms=65 rcpu=6.9 rgpu=11.4 proc=181.2 phys=9.7 setup=0.8 dnodes=6 dobjs=10 dres=0 dmemKB=344 draws=3207
+STALL_TOP pop.sprites_slice=4.8
+STALL_SCRIPTS
+STALL t=52.60 ms=51 rcpu=8.7 rgpu=16.1 proc=181.2 phys=9.7 setup=0.6 dnodes=6 dobjs=3 dres=0 dmemKB=76 draws=3241
+STALL_TOP pop.sprites_slice=5.9
+STALL_SCRIPTS
+STALL t=52.66 ms=54 rcpu=8.0 rgpu=11.5 proc=181.2 phys=9.7 setup=0.8 dnodes=6 dobjs=6 dres=0 dmemKB=53 draws=3241
+STALL_TOP pop.sprites_slice=5.2
+STALL_SCRIPTS
+STALL t=52.80 ms=65 rcpu=6.4 rgpu=16.4 proc=181.2 phys=9.7 setup=0.2 dnodes=9 dobjs=9 dres=0 dmemKB=85 draws=3317
+STALL_TOP pop.sprites_slice=4.3
+STALL_SCRIPTS
+STALL t=52.85 ms=53 rcpu=8.7 rgpu=16.5 proc=181.2 phys=9.7 setup=0.5 dnodes=3 dobjs=11 dres=0 dmemKB=965 draws=3327
+STALL_TOP region.bake=7.3 pop.sprites_slice=4.4 region.part=1.8
+STALL_SCRIPTS
+STALL t=53.05 ms=56 rcpu=6.6 rgpu=16.4 proc=58.6 phys=10.2 setup=0.5 dnodes=41 dobjs=74 dres=0 dmemKB=691 draws=3383
+STALL_TOP pop.sprites_slice=4.6 region.bake=3.0
+STALL_SCRIPTS
+STALL t=53.15 ms=53 rcpu=8.0 rgpu=16.5 proc=58.6 phys=10.2 setup=0.5 dnodes=7 dobjs=7 dres=0 dmemKB=123 draws=3344
+STALL_TOP region.bake=11.5 pop.sprites_slice=4.1
+STALL_SCRIPTS
+STALL t=53.20 ms=50 rcpu=9.3 rgpu=24.4 proc=58.6 phys=10.2 setup=0.9 dnodes=7 dobjs=8 dres=0 dmemKB=687 draws=3350
+STALL_TOP pop.sprites=4.6 pop.sprites_slice=4.6 pop.sprites_slice=4.3 pop.query=3.3 region.bake=2.7
+STALL_SCRIPTS
+STALL t=53.26 ms=64 rcpu=5.8 rgpu=11.8 proc=58.6 phys=10.2 setup=0.1 dnodes=0 dobjs=13 dres=0 dmemKB=459 draws=3381
+STALL_TOP pop.sprites_slice=9.8 pop.spawn=4.8 region.bake=3.5 villager.ready_tail=3.0 villager.decide=2.1
+STALL_SCRIPTS
+STALL t=53.35 ms=85 rcpu=7.6 rgpu=11.8 proc=58.6 phys=10.2 setup=0.6 dnodes=22 dobjs=35 dres=0 dmemKB=713 draws=3422
+STALL_TOP pop.spawn=7.1 pop.sprites_slice=4.4 villager.ready_tail=3.8 region.bake=3.0 villager.decide=2.9
+STALL_SCRIPTS
+STALL t=53.43 ms=76 rcpu=8.4 rgpu=11.8 proc=58.6 phys=10.2 setup=1.8 dnodes=17 dobjs=26 dres=0 dmemKB=988 draws=3426
+STALL_TOP pop.sprites_slice=5.3 region.bake=2.5
+STALL_SCRIPTS
+STALL t=53.48 ms=50 rcpu=8.3 rgpu=15.2 proc=58.6 phys=10.2 setup=0.6 dnodes=7 dobjs=4 dres=0 dmemKB=403 draws=3422
+STALL_TOP pop.sprites_slice=4.5 region.bake=2.8
+STALL_SCRIPTS
+STALL t=53.53 ms=58 rcpu=7.8 rgpu=12.5 proc=58.6 phys=10.2 setup=1.5 dnodes=0 dobjs=1 dres=0 dmemKB=1414 draws=3416
+STALL_TOP region.bake=4.7 pop.sprites_slice=4.2
+STALL_SCRIPTS
+STALL t=53.59 ms=58 rcpu=7.6 rgpu=13.2 proc=58.6 phys=10.2 setup=0.9 dnodes=0 dobjs=-3 dres=0 dmemKB=31 draws=3443
+STALL_TOP pop.sprites_slice=4.3 region.bake=2.8
+STALL_SCRIPTS
+STALL t=53.64 ms=52 rcpu=10.1 rgpu=13.1 proc=58.6 phys=10.2 setup=1.3 dnodes=35 dobjs=70 dres=0 dmemKB=554 draws=3450
+STALL_TOP pop.sprites_slice=4.5 region.bake=2.5
+STALL_SCRIPTS
+STALL t=53.70 ms=51 rcpu=9.7 rgpu=13.0 proc=58.6 phys=10.2 setup=1.2 dnodes=0 dobjs=2 dres=0 dmemKB=113 draws=3444
+STALL_TOP pop.sprites_slice=5.8 region.bake=2.6
+STALL_SCRIPTS
+STALL t=53.75 ms=59 rcpu=8.5 rgpu=12.8 proc=58.6 phys=10.2 setup=1.5 dnodes=0 dobjs=-2 dres=0 dmemKB=174 draws=3450
+STALL_TOP pop.sprites_slice=4.5 region.bake=2.8
+STALL_SCRIPTS
+STALL t=53.86 ms=59 rcpu=10.9 rgpu=12.7 proc=58.6 phys=10.2 setup=1.5 dnodes=0 dobjs=-16 dres=0 dmemKB=-8041 draws=3493
+STALL_TOP region.bake=6.0 pop.sprites_slice=5.1
+STALL_SCRIPTS
+STALL t=53.92 ms=54 rcpu=7.3 rgpu=12.7 proc=58.6 phys=10.2 setup=0.5 dnodes=-23 dobjs=-14 dres=0 dmemKB=-56 draws=3504
+STALL_TOP pop.sprites_slice=6.8 region.bake=2.6
+STALL_SCRIPTS
+STALL t=53.97 ms=53 rcpu=8.3 rgpu=18.0 proc=62.5 phys=19.0 setup=1.0 dnodes=0 dobjs=1 dres=0 dmemKB=366 draws=3478
+STALL_TOP region.bake=4.8 pop.sprites=4.4 pop.sprites_slice=4.4 pop.sprites_slice=4.3 pop.query=3.6
+STALL_SCRIPTS
+STALL t=54.03 ms=60 rcpu=6.6 rgpu=17.8 proc=62.5 phys=19.0 setup=0.1 dnodes=-18 dobjs=-29 dres=0 dmemKB=-598 draws=3488
+STALL_TOP pop.sprites_slice=6.3 pop.spawn=6.2 region.bake=3.9 ambient.groups=3.4 villager.ready_tail=2.8 villager.decide=1.9
+STALL_SCRIPTS
+STALL t=54.10 ms=71 rcpu=7.2 rgpu=13.1 proc=62.5 phys=19.0 setup=1.1 dnodes=20 dobjs=30 dres=0 dmemKB=1257 draws=3476
+STALL_TOP pop.sprites_slice=5.4 pop.spawn=4.0 region.bake=3.1 villager.ready_tail=1.7
+STALL_SCRIPTS
+STALL t=54.16 ms=57 rcpu=6.4 rgpu=11.8 proc=62.5 phys=19.0 setup=0.6 dnodes=0 dobjs=3 dres=0 dmemKB=386 draws=3511
+STALL_TOP pop.sprites_slice=15.0 region.bake=2.9
+STALL_SCRIPTS
+STALL t=54.22 ms=61 rcpu=8.1 rgpu=11.9 proc=62.5 phys=19.0 setup=1.8 dnodes=0 dobjs=2 dres=0 dmemKB=687 draws=3509
+STALL_TOP pop.sprites_slice=7.0 region.bake=3.3
+STALL_SCRIPTS
+STALL t=54.27 ms=51 rcpu=9.7 rgpu=16.5 proc=62.5 phys=19.0 setup=0.6 dnodes=0 dobjs=1 dres=0 dmemKB=894 draws=3507
+STALL_TOP pop.sprites_slice=4.1 region.bake=3.6
+STALL_SCRIPTS
+STALL t=54.33 ms=56 rcpu=8.4 rgpu=16.4 proc=62.5 phys=19.0 setup=1.3 dnodes=32 dobjs=60 dres=0 dmemKB=547 draws=3512
+STALL_TOP pop.sprites_slice=7.9 region.bake=3.1
+STALL_SCRIPTS
+STALL t=54.38 ms=52 rcpu=7.9 rgpu=11.7 proc=62.5 phys=19.0 setup=1.0 dnodes=23 dobjs=43 dres=0 dmemKB=761 draws=3507
+STALL_TOP pop.sprites_slice=4.8 region.bake=3.2
+STALL_SCRIPTS
+STALL t=54.44 ms=63 rcpu=8.1 rgpu=16.0 proc=62.5 phys=19.0 setup=0.7 dnodes=0 dobjs=3 dres=0 dmemKB=272 draws=3520
+STALL_TOP pop.sprites_slice=4.3 region.bake=2.5
+STALL_SCRIPTS
+STALL t=54.49 ms=54 rcpu=7.8 rgpu=11.6 proc=62.5 phys=19.0 setup=0.7 dnodes=0 dobjs=2 dres=0 dmemKB=1241 draws=3502
+STALL_TOP pop.sprites_slice=8.3 region.bake=2.9
+STALL_SCRIPTS
+STALL t=54.55 ms=52 rcpu=7.1 rgpu=11.6 proc=62.5 phys=19.0 setup=0.5 dnodes=0 dobjs=0 dres=0 dmemKB=102 draws=3513
+STALL_TOP pop.sprites_slice=4.4 region.bake=2.6
+STALL_SCRIPTS
+STALL t=54.82 ms=53 rcpu=8.8 rgpu=11.8 proc=62.5 phys=19.0 setup=0.3 dnodes=0 dobjs=-1 dres=0 dmemKB=259 draws=3567
+STALL_TOP pop.sprites_slice=5.7 region.bake=2.9
+STALL_SCRIPTS
+STALL t=54.92 ms=53 rcpu=6.0 rgpu=11.7 proc=62.5 phys=19.0 setup=0.3 dnodes=13 dobjs=23 dres=0 dmemKB=-66 draws=3573
+STALL_TOP pop.sprites=6.5 pop.sprites_slice=6.5 region.bake=3.1 pop.sprites_slice=3.1 pop.query=2.8
+STALL_SCRIPTS
+STALL t=54.97 ms=58 rcpu=6.9 rgpu=11.9 proc=57.0 phys=10.4 setup=0.1 dnodes=-15 dobjs=-25 dres=0 dmemKB=-296 draws=3586
+STALL_TOP pop.sprites_slice=5.8 pop.spawn=4.5 villager.ready_tail=2.5 region.bake=2.3 villager.decide=1.7
+STALL_SCRIPTS
+STALL t=55.04 ms=62 rcpu=7.1 rgpu=11.8 proc=57.0 phys=10.4 setup=0.4 dnodes=15 dobjs=29 dres=0 dmemKB=517 draws=3613
+STALL_TOP pop.sprites_slice=5.3 pop.spawn=5.0 ambient.groups=2.9 villager.ready_tail=2.8 villager.decide=2.1
+STALL_SCRIPTS
+STALL t=55.10 ms=67 rcpu=7.2 rgpu=11.9 proc=57.0 phys=10.4 setup=0.7 dnodes=7 dobjs=11 dres=0 dmemKB=133 draws=3606
+STALL_TOP pop.sprites_slice=4.0
+STALL_SCRIPTS
+STALL t=55.48 ms=282 rcpu=8.7 rgpu=11.8 proc=57.0 phys=10.4 setup=0.5 dnodes=17 dobjs=32 dres=0 dmemKB=534 draws=3659
+STALL_TOP pop.sprites_slice=5.3
+STALL_SCRIPTS
+STALL t=55.56 ms=87 rcpu=1875.9 rgpu=52.9 proc=1900.0 phys=9.2 setup=1.2 dnodes=17 dobjs=33 dres=0 dmemKB=95 draws=3597
+STALL_TOP pop.sprites_slice=5.2
+STALL_SCRIPTS
+STALL t=55.62 ms=51 rcpu=7.7 rgpu=41.7 proc=1900.0 phys=9.2 setup=0.6 dnodes=0 dobjs=0 dres=0 dmemKB=-25 draws=3592
+STALL_TOP pop.sprites_slice=4.6
+STALL_SCRIPTS
+STALL t=55.67 ms=58 rcpu=6.5 rgpu=49.5 proc=1900.0 phys=9.2 setup=1.2 dnodes=0 dobjs=2 dres=0 dmemKB=131 draws=3579
+STALL_TOP pop.sprites_slice=4.2
+STALL_SCRIPTS
+STALL t=55.73 ms=57 rcpu=5.7 rgpu=43.1 proc=1900.0 phys=9.2 setup=0.4 dnodes=0 dobjs=-4 dres=0 dmemKB=-70 draws=3586
+STALL_TOP pop.sprites_slice=4.9
+STALL_SCRIPTS
+STALL t=55.79 ms=63 rcpu=6.2 rgpu=34.5 proc=1900.0 phys=9.2 setup=1.8 dnodes=0 dobjs=-1 dres=0 dmemKB=63 draws=3602
+STALL_TOP pop.sprites_slice=8.3
+STALL_SCRIPTS
+ROUTE t=55 leg=kingsreach_gate fps=24.7 p50=34.3 p95=64.8 p99=112.6 draws=3517 prims=8319532 vram=2784 tex=2186 buf=528 static=969 nodes=15354 objs=39060 res=5200 rcpu=14.8 gpu=11.2
+STALL t=56.13 ms=57 rcpu=7.0 rgpu=7.5 proc=1900.0 phys=9.2 setup=1.2 dnodes=7 dobjs=6 dres=0 dmemKB=116 draws=3467
+STALL_TOP pop.sprites_slice=4.8
+STALL_SCRIPTS
+STALL t=56.74 ms=52 rcpu=6.0 rgpu=7.3 proc=53.3 phys=7.7 setup=0.1 dnodes=-323 dobjs=-629 dres=0 dmemKB=-7034 draws=3422
+STALL_TOP pop.sprites_slice=4.5
+STALL_SCRIPTS
+STALL t=57.01 ms=54 rcpu=6.5 rgpu=9.7 proc=53.3 phys=7.7 setup=0.1 dnodes=-4 dobjs=4 dres=0 dmemKB=59 draws=3439
+STALL_TOP pop.spawn=7.2 pop.sprites_slice=6.8 villager.ready_tail=4.7 villager.decide=3.7
+STALL_SCRIPTS
+STALL t=57.09 ms=71 rcpu=7.1 rgpu=7.4 proc=53.3 phys=7.7 setup=0.6 dnodes=0 dobjs=0 dres=0 dmemKB=80 draws=3454
+STALL_TOP pop.sprites_slice=4.6 ambient.groups=2.9
+STALL_SCRIPTS
+[audio] voices 2/12, long streams 2, music r1_village_day/r1_village_day threat 0, surface cobble, played { "step_cobble_02": 25, "step_cobble_03": 16, "step_cobble_05": 18, "step_cobble_04": 15, "step_cobble_06": 13, "sheep_01": 1, "bird_blackbird": 2, "step_cobble_01": 16, "cow_far_01": 1, "hammer_distant_02": 1, "step_grass_02": 4, "step_grass_04": 4, "step_grass_05": 3, "step_grass_01": 3, "chicken_cluck_03": 1, "step_grass_03": 1, "step_dirt_03": 1, "well_bucket_02": 1 }
+STALL t=57.14 ms=52 rcpu=9.2 rgpu=9.8 proc=53.3 phys=7.7 setup=0.5 dnodes=16 dobjs=4 dres=2 dmemKB=87 draws=3428
+STALL_TOP pop.sprites_slice=6.0 audio.spot=4.3
+STALL_SCRIPTS
+STALL t=57.42 ms=55 rcpu=7.2 rgpu=7.3 proc=55.5 phys=10.6 setup=0.5 dnodes=7 dobjs=7 dres=0 dmemKB=165 draws=3432
+STALL_TOP pop.sprites_slice=11.1
+STALL_SCRIPTS
+STALL t=57.53 ms=67 rcpu=6.8 rgpu=7.4 proc=55.5 phys=10.6 setup=0.6 dnodes=7 dobjs=3 dres=0 dmemKB=52 draws=3421
+STALL_TOP pop.sprites=4.5 pop.sprites_slice=4.4 pop.sprites_slice=3.9 pop.query=2.0
+STALL_SCRIPTS
+STALL t=57.61 ms=75 rcpu=6.4 rgpu=7.3 proc=55.5 phys=10.6 setup=0.2 dnodes=-20 dobjs=-37 dres=0 dmemKB=-961 draws=3400
+STALL_TOP pop.spawn=7.3 pop.sprites_slice=5.7 villager.ready_tail=4.7 villager.decide=3.1
+STALL_SCRIPTS
+STALL t=57.68 ms=71 rcpu=9.9 rgpu=10.4 proc=55.5 phys=10.6 setup=0.7 dnodes=32 dobjs=54 dres=0 dmemKB=515 draws=3397
+STALL_TOP pop.spawn=4.9 pop.sprites_slice=4.7 villager.ready_tail=2.7 villager.decide=1.9
+STALL_SCRIPTS
+STALL t=57.74 ms=65 rcpu=9.1 rgpu=14.7 proc=55.5 phys=10.6 setup=1.0 dnodes=22 dobjs=35 dres=0 dmemKB=593 draws=3406
+STALL_TOP r1story.tick_rest=13.1 pop.spawn=6.4 villager.ready_tail=4.2 pop.sprites_slice=4.0 villager.decide=3.3 villager.decide=1.6
+STALL_SCRIPTS
+STALL t=57.83 ms=89 rcpu=7.2 rgpu=10.0 proc=55.5 phys=10.6 setup=0.8 dnodes=14 dobjs=22 dres=0 dmemKB=147 draws=3408
+STALL_TOP pop.sprites_slice=4.4
+STALL_SCRIPTS
+STALL t=57.89 ms=57 rcpu=7.2 rgpu=10.3 proc=55.5 phys=10.6 setup=0.7 dnodes=7 dobjs=9 dres=0 dmemKB=116 draws=3400
+STALL_TOP pop.sprites_slice=4.8
+STALL_SCRIPTS
+STALL t=58.42 ms=54 rcpu=7.2 rgpu=10.3 proc=70.5 phys=10.7 setup=0.6 dnodes=22 dobjs=36 dres=0 dmemKB=531 draws=3293
+STALL_TOP pop.sprites_slice=7.0 pop.spawn=6.0 villager.ready_tail=2.6 villager.ready_model=1.9 villager.decide=1.9
+STALL_SCRIPTS
+STALL t=58.47 ms=52 rcpu=6.4 rgpu=10.2 proc=70.5 phys=10.7 setup=0.4 dnodes=7 dobjs=10 dres=0 dmemKB=183 draws=3282
+STALL_TOP pop.sprites_slice=4.2
+STALL_SCRIPTS
+STALL t=58.65 ms=52 rcpu=7.2 rgpu=10.4 proc=70.5 phys=10.7 setup=0.7 dnodes=0 dobjs=-2 dres=0 dmemKB=3 draws=3273
+STALL_TOP pop.sprites_slice=5.1
+STALL_SCRIPTS
+STALL t=58.76 ms=58 rcpu=6.9 rgpu=10.5 proc=70.5 phys=10.7 setup=0.6 dnodes=0 dobjs=-1 dres=0 dmemKB=13 draws=3267
+STALL_TOP pop.sprites_slice=6.9
+STALL_SCRIPTS
+STALL t=58.86 ms=50 rcpu=9.2 rgpu=10.5 proc=70.5 phys=10.7 setup=0.7 dnodes=0 dobjs=-4 dres=0 dmemKB=70 draws=3261
+STALL_TOP pop.sprites_slice=5.6
+STALL_SCRIPTS
+STALL t=59.14 ms=62 rcpu=6.4 rgpu=15.1 proc=70.5 phys=10.7 setup=0.7 dnodes=32 dobjs=62 dres=0 dmemKB=192 draws=3262
+STALL_TOP pop.sprites_slice=4.5 ambient.groups=3.1
+STALL_SCRIPTS
+STALL t=59.19 ms=52 rcpu=7.2 rgpu=10.8 proc=70.5 phys=10.7 setup=0.9 dnodes=7 dobjs=8 dres=0 dmemKB=130 draws=3267
+STALL_TOP pop.sprites_slice=4.3
+STALL_SCRIPTS
+STALL t=59.59 ms=58 rcpu=9.0 rgpu=10.8 proc=46.8 phys=11.2 setup=0.5 dnodes=0 dobjs=-2 dres=0 dmemKB=-1 draws=3252
+STALL_TOP pop.sprites_slice=4.6
+STALL_SCRIPTS
+STALL t=59.80 ms=52 rcpu=6.6 rgpu=15.4 proc=46.8 phys=11.2 setup=0.1 dnodes=18 dobjs=40 dres=0 dmemKB=-259 draws=3274
+STALL_TOP pop.spawn=5.7 pop.sprites_slice=4.9 villager.ready_tail=3.2 villager.decide=2.5
+STALL_SCRIPTS
+STALL t=59.86 ms=59 rcpu=7.7 rgpu=10.9 proc=46.8 phys=11.2 setup=1.0 dnodes=15 dobjs=26 dres=0 dmemKB=570 draws=3280
+STALL_TOP pop.spawn=4.9 pop.sprites_slice=4.7 villager.ready_tail=2.9 villager.decide=2.1
+STALL_SCRIPTS
+STALL t=59.91 ms=52 rcpu=8.2 rgpu=14.4 proc=46.8 phys=11.2 setup=0.9 dnodes=0 dobjs=2 dres=0 dmemKB=65 draws=3270
+STALL_TOP pop.sprites_slice=4.0
+STALL_SCRIPTS
+STALL t=60.09 ms=69 rcpu=5.8 rgpu=10.3 proc=46.8 phys=11.2 setup=0.7 dnodes=0 dobjs=-6 dres=0 dmemKB=21 draws=3280
+STALL_TOP worldsim.slice=28.2 pop.sprites_slice=6.2 villager.decide=1.5 life.realm_pump=1.5
+STALL_SCRIPTS
+STALL t=60.16 ms=78 rcpu=6.0 rgpu=10.3 proc=46.8 phys=11.2 setup=0.5 dnodes=0 dobjs=1 dres=0 dmemKB=63 draws=3272
+STALL_TOP worldsim.slice=19.7 pop.sprites_slice=5.5 life.realm_pump=3.2 economy.hour_markets_chunk=3.2 ambient.groups=2.8
+STALL_SCRIPTS
+STALL t=60.25 ms=83 rcpu=6.1 rgpu=14.5 proc=46.8 phys=11.2 setup=0.4 dnodes=39 dobjs=71 dres=0 dmemKB=202 draws=3276
+STALL_TOP worldsim.slice=17.3 pop.sprites_slice=4.2
+STALL_SCRIPTS
+STALL t=60.30 ms=57 rcpu=6.0 rgpu=10.3 proc=46.8 phys=11.2 setup=0.8 dnodes=7 dobjs=10 dres=0 dmemKB=150 draws=3277
+STALL_TOP worldsim.slice=15.5 pop.sprites_slice=4.6 life.realm_pump=1.7 economy.hour_markets_chunk=1.6
+STALL_SCRIPTS
+STALL t=60.35 ms=51 rcpu=5.0 rgpu=10.2 proc=61.0 phys=9.5 setup=0.5 dnodes=7 dobjs=8 dres=0 dmemKB=36 draws=3278
+STALL_TOP worldsim.slice=19.5 pop.sprites_slice=4.5 life.realm_pump=1.9 economy.hour_markets_chunk=1.8
+STALL_SCRIPTS
+STALL t=60.41 ms=53 rcpu=6.1 rgpu=13.9 proc=61.0 phys=9.5 setup=0.7 dnodes=7 dobjs=6 dres=0 dmemKB=31 draws=3279
+STALL_TOP worldsim.slice=21.5 pop.sprites_slice=4.4
+STALL_SCRIPTS
+STALL t=60.47 ms=65 rcpu=5.7 rgpu=10.3 proc=61.0 phys=9.5 setup=0.4 dnodes=7 dobjs=8 dres=0 dmemKB=44 draws=3286
+STALL_TOP worldsim.slice=20.4 pop.sprites_slice=4.5
+STALL_SCRIPTS
+STALL t=60.54 ms=65 rcpu=6.5 rgpu=10.2 proc=61.0 phys=9.5 setup=0.5 dnodes=14 dobjs=20 dres=0 dmemKB=137 draws=3278
+STALL_TOP worldsim.slice=23.0 pop.sprites_slice=6.7
+STALL_SCRIPTS
+STALL t=60.61 ms=73 rcpu=6.4 rgpu=14.0 proc=61.0 phys=9.5 setup=0.3 dnodes=1 dobjs=1 dres=0 dmemKB=58 draws=3274
+STALL_TOP worldsim.slice=26.1 pop.sprites_slice=5.6 life.realm_pump=2.7 economy.hour_markets_chunk=2.6
+STALL_SCRIPTS
+STALL t=60.70 ms=89 rcpu=7.1 rgpu=10.2 proc=61.0 phys=9.5 setup=0.6 dnodes=0 dobjs=3 dres=0 dmemKB=-17 draws=3283
+STALL_TOP worldsim.slice=24.0 pop.sprites_slice=4.0 life.realm_pump=2.2 economy.hour_markets_chunk=2.1
+STALL_SCRIPTS
+STALL t=60.79 ms=88 rcpu=8.2 rgpu=10.2 proc=61.0 phys=9.5 setup=0.5 dnodes=0 dobjs=0 dres=0 dmemKB=8 draws=3274
+STALL_TOP worldsim.slice=19.6 pop.sprites_slice=4.1 villager.decide=1.6
+STALL_SCRIPTS
+STALL t=60.86 ms=68 rcpu=10.1 rgpu=10.3 proc=61.0 phys=9.5 setup=0.4 dnodes=2 dobjs=1 dres=0 dmemKB=45 draws=3278
+STALL_TOP worldsim.slice=19.5 pop.sprites_slice=4.7
+STALL_SCRIPTS
+STALL t=60.92 ms=67 rcpu=6.1 rgpu=10.2 proc=61.0 phys=9.5 setup=0.7 dnodes=7 dobjs=9 dres=2 dmemKB=367 draws=3290
+STALL_TOP worldsim.slice=26.4 pop.sprites=4.6 pop.sprites_slice=4.5 pop.sprites_slice=3.5 pop.query=2.1
+STALL_SCRIPTS
+STALL t=61.01 ms=86 rcpu=5.8 rgpu=13.8 proc=61.0 phys=9.5 setup=0.1 dnodes=-40 dobjs=-79 dres=0 dmemKB=-1789 draws=3315
+STALL_TOP worldsim.slice=32.3 pop.sprites_slice=9.5 pop.spawn=6.0 villager.ready_tail=3.4 villager.decide=2.6
+STALL_SCRIPTS
+STALL t=61.10 ms=95 rcpu=4.6 rgpu=10.3 proc=61.0 phys=9.5 setup=0.4 dnodes=15 dobjs=32 dres=0 dmemKB=483 draws=3305
+STALL_TOP worldsim.slice=13.7 pop.spawn=4.8 pop.sprites_slice=4.2 villager.ready_tail=3.0 villager.decide=2.3
+STALL_SCRIPTS
+STALL t=61.18 ms=72 rcpu=6.0 rgpu=14.4 proc=61.0 phys=9.5 setup=0.6 dnodes=16 dobjs=31 dres=0 dmemKB=519 draws=3306
+STALL_TOP worldsim.slice=17.1 pop.spawn=4.8 pop.sprites_slice=4.7 villager.ready_tail=2.5 ambient.groups=2.2 villager.decide=1.9
+STALL_SCRIPTS
+STALL t=61.25 ms=73 rcpu=6.1 rgpu=10.3 proc=61.0 phys=9.5 setup=0.5 dnodes=22 dobjs=34 dres=0 dmemKB=533 draws=3310
+STALL_TOP worldsim.slice=17.8 pop.spawn=4.6 pop.sprites_slice=4.4 villager.ready_tail=2.9 villager.decide=2.2
+STALL_SCRIPTS
+STALL t=61.32 ms=69 rcpu=7.2 rgpu=14.5 proc=61.0 phys=9.5 setup=0.8 dnodes=15 dobjs=0 dres=0 dmemKB=60 draws=3296
+STALL_TOP worldsim.slice=14.6 pop.sprites_slice=4.3
+STALL_SCRIPTS
+STALL t=61.37 ms=54 rcpu=8.0 rgpu=10.3 proc=79.7 phys=11.4 setup=0.5 dnodes=8 dobjs=9 dres=0 dmemKB=48 draws=3280
+STALL_TOP worldsim.slice=14.3 pop.sprites_slice=4.3
+STALL_SCRIPTS
+STALL t=61.42 ms=51 rcpu=6.4 rgpu=14.1 proc=79.7 phys=11.4 setup=0.5 dnodes=0 dobjs=-2 dres=0 dmemKB=22 draws=3273
+STALL_TOP worldsim.slice=14.1 pop.sprites_slice=4.4
+STALL_SCRIPTS
+STALL t=61.52 ms=60 rcpu=4.9 rgpu=10.3 proc=79.7 phys=11.4 setup=0.1 dnodes=-20 dobjs=-26 dres=0 dmemKB=-503 draws=3253
+STALL_TOP worldsim.slice=16.1 pop.spawn=4.3 pop.sprites_slice=4.2 villager.ready_tail=2.1 villager.decide=1.6
+STALL_SCRIPTS
+STALL t=61.58 ms=57 rcpu=6.8 rgpu=10.3 proc=79.7 phys=11.4 setup=0.4 dnodes=20 dobjs=28 dres=0 dmemKB=488 draws=3277
+STALL_TOP worldsim.slice=15.3 pop.spawn=4.4 pop.sprites_slice=4.0 villager.ready_tail=2.7
+STALL_SCRIPTS
+STALL t=61.63 ms=54 rcpu=6.2 rgpu=10.4 proc=79.7 phys=11.4 setup=0.6 dnodes=0 dobjs=2 dres=0 dmemKB=50 draws=3258
+STALL_TOP worldsim.slice=14.1 pop.sprites_slice=4.3 villager.decide=1.5
+STALL_SCRIPTS
+STALL t=61.69 ms=53 rcpu=5.5 rgpu=10.4 proc=79.7 phys=11.4 setup=0.6 dnodes=0 dobjs=-6 dres=0 dmemKB=3 draws=3249
+STALL_TOP worldsim.slice=16.9 pop.sprites_slice=4.4
+STALL_SCRIPTS
+STALL t=61.80 ms=62 rcpu=6.0 rgpu=13.2 proc=79.7 phys=11.4 setup=0.5 dnodes=0 dobjs=-1 dres=0 dmemKB=-15 draws=3277
+STALL_TOP pop.sprites=4.3 pop.sprites_slice=4.3 pop.query=4.2 pop.sprites_slice=4.0
+STALL_SCRIPTS
+STALL t=62.17 ms=53 rcpu=5.5 rgpu=9.7 proc=79.7 phys=11.4 setup=0.5 dnodes=0 dobjs=2 dres=0 dmemKB=33 draws=3382
+STALL_TOP worldsim.slice=14.0 pop.sprites_slice=4.1
+STALL_SCRIPTS
+STALL t=62.23 ms=57 rcpu=6.3 rgpu=13.5 proc=79.7 phys=11.4 setup=0.4 dnodes=0 dobjs=0 dres=0 dmemKB=-3 draws=3380
+STALL_TOP worldsim.slice=12.5 pop.sprites_slice=4.4 ambient.groups=2.1
+STALL_SCRIPTS
+STALL t=62.43 ms=58 rcpu=6.3 rgpu=9.7 proc=52.4 phys=8.4 setup=0.4 dnodes=7 dobjs=11 dres=0 dmemKB=48 draws=3414
+STALL_TOP worldsim.slice=16.4 pop.sprites_slice=5.8
+STALL_SCRIPTS
+STALL t=62.49 ms=64 rcpu=6.8 rgpu=13.2 proc=52.4 phys=8.4 setup=0.7 dnodes=7 dobjs=6 dres=0 dmemKB=99 draws=3448
+STALL_TOP worldsim.slice=18.4 pop.sprites_slice=4.2 villager.decide=2.0
+STALL_SCRIPTS
+STALL t=62.54 ms=51 rcpu=6.6 rgpu=9.8 proc=52.4 phys=8.4 setup=0.5 dnodes=1 dobjs=-1 dres=0 dmemKB=18 draws=3428
+STALL_TOP worldsim.slice=13.9 pop.sprites_slice=4.3
+STALL_SCRIPTS
+STALL t=62.69 ms=59 rcpu=5.3 rgpu=9.7 proc=52.4 phys=8.4 setup=0.1 dnodes=-15 dobjs=-33 dres=0 dmemKB=-566 draws=3454
+STALL_TOP worldsim.slice=14.7 pop.sprites_slice=4.2 pop.spawn=3.3 villager.ready_tail=1.9 villager.decide=1.7
+STALL_SCRIPTS
+STALL t=62.75 ms=57 rcpu=5.6 rgpu=9.8 proc=52.4 phys=8.4 setup=0.4 dnodes=15 dobjs=30 dres=0 dmemKB=514 draws=3449
+STALL_TOP worldsim.slice=25.9 r1story.tick_rest=7.7 pop.spawn=5.7 pop.sprites_slice=4.5 villager.ready_tail=3.7 villager.decide=2.6
+STALL_SCRIPTS
+STALL t=62.84 ms=84 rcpu=5.4 rgpu=9.7 proc=52.4 phys=8.4 setup=0.1 dnodes=-18 dobjs=-18 dres=0 dmemKB=-193 draws=3423
+STALL_TOP worldsim.slice=15.9 pop.sprites_slice=4.2
+STALL_SCRIPTS
+STALL t=62.90 ms=61 rcpu=5.2 rgpu=9.7 proc=52.4 phys=8.4 setup=0.1 dnodes=-11 dobjs=-14 dres=0 dmemKB=-426 draws=3410
+STALL_TOP worldsim.slice=15.1 pop.sprites=4.1 pop.sprites_slice=4.1 pop.sprites_slice=4.1 pop.query=2.2
+STALL_SCRIPTS
+STALL t=62.95 ms=56 rcpu=6.5 rgpu=17.0 proc=52.4 phys=8.4 setup=0.1 dnodes=-1 dobjs=-7 dres=0 dmemKB=-56 draws=3397
+STALL_TOP worldsim.slice=14.8 pop.sprites_slice=4.2 pop.spawn=3.8 villager.ready_tail=2.4 villager.decide=1.8
+STALL_SCRIPTS
+STALL t=63.01 ms=55 rcpu=5.7 rgpu=9.6 proc=52.4 phys=8.4 setup=0.5 dnodes=0 dobjs=0 dres=0 dmemKB=38 draws=3397
+STALL_TOP worldsim.slice=15.7 pop.sprites_slice=4.4
+STALL_SCRIPTS
+STALL t=63.06 ms=56 rcpu=6.4 rgpu=9.6 proc=52.4 phys=8.4 setup=0.5 dnodes=0 dobjs=2 dres=0 dmemKB=34 draws=3344
+STALL_TOP worldsim.slice=22.8 pop.sprites_slice=4.0
+STALL_SCRIPTS
+STALL t=63.13 ms=65 rcpu=8.5 rgpu=14.5 proc=52.4 phys=8.4 setup=0.5 dnodes=0 dobjs=0 dres=0 dmemKB=-5 draws=3337
+STALL_TOP worldsim.slice=18.9 pop.sprites_slice=4.1
+STALL_SCRIPTS
+STALL t=63.19 ms=60 rcpu=7.1 rgpu=9.5 proc=52.4 phys=8.4 setup=0.7 dnodes=0 dobjs=2 dres=0 dmemKB=14 draws=3321
+STALL_TOP worldsim.slice=16.4 pop.sprites_slice=4.1
+STALL_SCRIPTS
+STALL t=63.30 ms=59 rcpu=6.9 rgpu=9.6 proc=52.4 phys=8.4 setup=0.1 dnodes=-9 dobjs=-21 dres=0 dmemKB=-470 draws=3302
+STALL_TOP worldsim.slice=13.0 pop.sprites_slice=4.1 pop.spawn=3.8 villager.ready_tail=2.2 villager.decide=1.7
+STALL_SCRIPTS
+STALL t=63.36 ms=57 rcpu=6.2 rgpu=9.5 proc=74.6 phys=8.8 setup=0.5 dnodes=34 dobjs=46 dres=0 dmemKB=623 draws=3281
+STALL_TOP ambient.spawn=6.0 pop.sprites_slice=4.3 pop.spawn=4.3 villager.ready_tail=2.5 villager.decide=2.0
+STALL_SCRIPTS
+STALL t=64.39 ms=63 rcpu=8.9 rgpu=11.2 proc=42.6 phys=9.9 setup=1.7 dnodes=0 dobjs=-1 dres=0 dmemKB=121 draws=3114
+STALL_TOP pop.sprites_slice=5.3
+STALL_SCRIPTS
+STALL t=64.66 ms=51 rcpu=6.8 rgpu=7.3 proc=42.6 phys=9.9 setup=0.7 dnodes=15 dobjs=27 dres=0 dmemKB=427 draws=3084
+STALL_TOP pop.spawn=4.5 pop.sprites_slice=4.1 villager.ready_tail=2.4 villager.decide=1.7
+STALL_SCRIPTS
+ROUTE t=66 leg=kingsreach_gate fps=22.3 p50=42.9 p95=72.0 p99=88.8 draws=2942 prims=7162930 vram=2787 tex=2186 buf=531 static=970 nodes=15786 objs=39512 res=5204 rcpu=6.5 gpu=10.0
+STALL t=66.13 ms=97 rcpu=6.4 rgpu=7.9 proc=47.5 phys=15.2 setup=0.9 dnodes=10 dobjs=17 dres=4 dmemKB=430 draws=2941
+STALL_TOP pop.sprites_slice=4.2
+STALL_SCRIPTS
+STALL t=66.20 ms=65 rcpu=7.1 rgpu=7.6 proc=47.5 phys=15.2 setup=0.6 dnodes=10 dobjs=12 dres=0 dmemKB=399 draws=2939
+STALL_TOP pop.sprites_slice=4.2
+STALL_SCRIPTS
+STALL t=66.25 ms=55 rcpu=7.3 rgpu=12.1 proc=47.5 phys=15.2 setup=0.6 dnodes=10 dobjs=13 dres=0 dmemKB=381 draws=2925
+STALL_TOP pop.sprites=4.5 pop.sprites_slice=4.5 pop.query=3.3
+STALL_SCRIPTS
+STALL t=66.31 ms=53 rcpu=8.3 rgpu=7.9 proc=83.3 phys=9.6 setup=0.1 dnodes=7 dobjs=10 dres=0 dmemKB=379 draws=2913
+STALL_TOP pop.spawn=5.3 pop.sprites_slice=4.2 ambient.groups=2.8 villager.ready_tail=2.3 villager.decide=1.7
+STALL_SCRIPTS
+STALL t=66.37 ms=61 rcpu=7.8 rgpu=11.2 proc=83.3 phys=9.6 setup=0.4 dnodes=6 dobjs=12 dres=2 dmemKB=45 draws=2897
+STALL_TOP pop.sprites_slice=4.2 audio.spot=3.9
+STALL_SCRIPTS
+STALL t=66.42 ms=51 rcpu=5.7 rgpu=8.0 proc=83.3 phys=9.6 setup=0.5 dnodes=7 dobjs=8 dres=0 dmemKB=42 draws=2881
+STALL_TOP pop.sprites_slice=7.5
+STALL_SCRIPTS
+STALL t=66.56 ms=54 rcpu=7.7 rgpu=8.3 proc=83.3 phys=9.6 setup=0.1 dnodes=-14 dobjs=-21 dres=0 dmemKB=-510 draws=2874
+STALL_TOP pop.spawn=8.1 villager.ready_tail=4.7 pop.sprites_slice=4.6 villager.decide=3.8 villager.decide=1.5
+STALL_SCRIPTS
+STALL t=66.64 ms=74 rcpu=8.4 rgpu=8.4 proc=83.3 phys=9.6 setup=0.6 dnodes=22 dobjs=34 dres=0 dmemKB=513 draws=2889
+STALL_TOP pop.spawn=7.0 pop.sprites_slice=4.1 villager.ready_tail=3.6 villager.decide=2.7 villager.ready_model=1.7
+STALL_SCRIPTS
+STALL t=66.70 ms=60 rcpu=5.9 rgpu=8.7 proc=83.3 phys=9.6 setup=0.5 dnodes=7 dobjs=10 dres=0 dmemKB=95 draws=2891
+STALL_TOP pop.sprites_slice=4.1
+STALL_SCRIPTS
+STALL t=66.95 ms=53 rcpu=5.8 rgpu=9.1 proc=83.3 phys=9.6 setup=0.7 dnodes=0 dobjs=-2 dres=0 dmemKB=8 draws=2861
+STALL_TOP pop.sprites_slice=3.7
+STALL_SCRIPTS
+STALL t=68.82 ms=54 rcpu=5.4 rgpu=7.3 proc=38.4 phys=9.3 setup=0.6 dnodes=0 dobjs=2 dres=0 dmemKB=-61 draws=2805
+STALL_TOP pop.sprites_slice=3.0
+STALL_SCRIPTS
+STALL t=69.62 ms=110 rcpu=5.9 rgpu=7.9 proc=41.5 phys=9.8 setup=1.5 dnodes=0 dobjs=6 dres=0 dmemKB=348 draws=2801
+STALL_TOP pop.sprites_slice=4.2
+STALL_SCRIPTS
+STALL t=69.68 ms=55 rcpu=8.8 rgpu=7.2 proc=41.5 phys=9.8 setup=0.7 dnodes=0 dobjs=0 dres=0 dmemKB=18 draws=2810
+STALL_TOP pop.sprites_slice=4.3
+STALL_SCRIPTS
+STALL t=70.49 ms=200 rcpu=5.3 rgpu=7.8 proc=104.8 phys=9.3 setup=0.2 dnodes=-15 dobjs=-15 dres=1 dmemKB=383 draws=2795
+STALL_TOP region.part=171.7 assets.scene_load=6.0 pop.sprites_slice=5.8 pop.spawn=5.6 villager.ready_tail=3.3 villager.decide=2.7
+STALL_SCRIPTS
+STALL t=70.75 ms=256 rcpu=5.6 rgpu=8.9 proc=104.8 phys=9.3 setup=0.4 dnodes=29 dobjs=47 dres=1 dmemKB=1410 draws=2793
+STALL_TOP region.part=148.9 pop.spawn=6.8 assets.scene_load=5.0 pop.sprites_slice=4.3 villager.ready_tail=4.2 villager.decide=3.4
+STALL_SCRIPTS
+STALL t=71.00 ms=253 rcpu=5.4 rgpu=18.2 proc=104.8 phys=9.3 setup=0.4 dnodes=14 dobjs=25 dres=1 dmemKB=2140 draws=2807
+STALL_TOP region.part=140.3 assets.scene_load=4.7 pop.sprites_slice=4.2
+STALL_SCRIPTS
+STALL t=71.22 ms=216 rcpu=4.8 rgpu=10.3 proc=104.8 phys=9.3 setup=0.4 dnodes=12 dobjs=13 dres=-3 dmemKB=216 draws=2844
+STALL_TOP region.part=13.9 pop.sprites_slice=4.6
+STALL_SCRIPTS
+STALL t=71.35 ms=129 rcpu=5.2 rgpu=23.5 proc=104.8 phys=9.3 setup=0.2 dnodes=-690 dobjs=-1346 dres=1 dmemKB=-10485 draws=2855
+STALL_TOP region.part=203.2 assets.scene_load=5.7 pop.sprites_slice=5.3 villager.decide=1.5
+STALL_SCRIPTS
+STALL t=71.60 ms=259 rcpu=7.7 rgpu=16.5 proc=259.3 phys=9.5 setup=0.5 dnodes=41 dobjs=75 dres=1 dmemKB=1155 draws=2824
+STALL_TOP region.part=198.2 assets.scene_load=5.3 pop.sprites_slice=4.1 ambient.groups=3.3 player.camera=1.9
+STALL_SCRIPTS
+STALL t=71.87 ms=264 rcpu=8.6 rgpu=13.1 proc=259.3 phys=9.5 setup=0.2 dnodes=20 dobjs=39 dres=-1 dmemKB=-172 draws=2804
+STALL_TOP region.part=26.3 pop.query=17.9 pop.sprites_slice=4.7 pop.sprites=4.6 pop.sprites_slice=4.6 audio.spot=3.5
+STALL_SCRIPTS
+STALL t=72.05 ms=179 rcpu=7.7 rgpu=18.3 proc=259.3 phys=9.5 setup=0.2 dnodes=-102 dobjs=-178 dres=1 dmemKB=-2582 draws=2754
+STALL_TOP region.part=185.9 pop.spawn=8.2 ambient.spawn=6.7 villager.ready_tail=5.7 assets.scene_load=5.6 villager.decide=4.5
+STALL_SCRIPTS
+STALL t=72.30 ms=254 rcpu=14.0 rgpu=30.2 proc=259.3 phys=9.5 setup=0.5 dnodes=52 dobjs=89 dres=1 dmemKB=1909 draws=2767
+STALL_TOP region.part=203.6 ambient.spawn=7.7 assets.scene_load=4.5 pop.sprites_slice=4.2 pop.spawn=4.0 villager.ready_tail=2.3
+STALL_SCRIPTS
+STALL t=72.57 ms=271 rcpu=6.0 rgpu=21.4 proc=262.2 phys=10.9 setup=0.5 dnodes=54 dobjs=102 dres=1 dmemKB=1740 draws=2725
+STALL_TOP region.part=186.9 assets.scene_load=5.4 pop.spawn=4.9 pop.sprites_slice=4.4 villager.ready_tail=3.3 villager.decide=2.7
+STALL_SCRIPTS
+STALL t=72.84 ms=265 rcpu=7.0 rgpu=26.8 proc=262.2 phys=10.9 setup=0.5 dnodes=65 dobjs=122 dres=1 dmemKB=2164 draws=2737
+STALL_TOP region.part=214.1 ambient.spawn=10.4 r1story.tick_rest=6.6 assets.scene_load=5.0 ambient.groups=5.0 pop.spawn=4.7
+STALL_SCRIPTS
+STALL t=73.11 ms=270 rcpu=5.8 rgpu=32.2 proc=262.2 phys=10.9 setup=0.5 dnodes=60 dobjs=95 dres=-3 dmemKB=900 draws=2717
+STALL_TOP region.part=26.6 ambient.spawn=7.6 pop.spawn=4.8 pop.sprites_slice=4.2 villager.ready_tail=3.2 villager.decide=2.5
+STALL_SCRIPTS
+STALL t=73.26 ms=148 rcpu=9.4 rgpu=59.7 proc=296.5 phys=9.9 setup=0.5 dnodes=25 dobjs=39 dres=-3 dmemKB=719 draws=2683
+STALL_TOP region.part=14.3 pop.spawn=6.4 pop.sprites_slice=4.3 villager.ready_tail=3.7 villager.decide=2.8
+STALL_SCRIPTS
+STALL t=73.34 ms=88 rcpu=7.2 rgpu=41.4 proc=296.5 phys=9.9 setup=0.4 dnodes=63 dobjs=111 dres=1 dmemKB=1775 draws=2667
+STALL_TOP region.part=213.8 pop.query=21.1 assets.scene_load=5.4 pop.spawn=4.8 pop.sprites=4.3 pop.sprites_slice=4.3
+STALL_SCRIPTS
+STALL t=73.62 ms=276 rcpu=5.7 rgpu=41.1 proc=296.5 phys=9.9 setup=0.2 dnodes=-1 dobjs=14 dres=1 dmemKB=-247 draws=2645
+STALL_TOP region.part=187.4 pop.spawn=6.6 assets.scene_load=5.2 pop.sprites_slice=4.6 villager.ready_tail=3.7 villager.decide=3.0
+STALL_SCRIPTS
+STALL t=73.88 ms=265 rcpu=8.2 rgpu=30.3 proc=296.5 phys=9.9 setup=0.4 dnodes=39 dobjs=64 dres=1 dmemKB=1719 draws=2623
+STALL_TOP region.part=210.0 assets.scene_load=6.3 ambient.groups=4.5 pop.sprites_slice=4.3 pop.spawn=3.2
+STALL_SCRIPTS
+STALL t=74.15 ms=267 rcpu=7.0 rgpu=49.5 proc=296.5 phys=9.9 setup=0.5 dnodes=53 dobjs=96 dres=1 dmemKB=1833 draws=2627
+STALL_TOP region.part=200.5 pop.spawn=6.0 assets.scene_load=5.6 pop.sprites_slice=4.2 villager.ready_tail=4.1 villager.decide=2.2
+STALL_SCRIPTS
+STALL t=74.40 ms=243 rcpu=6.3 rgpu=30.4 proc=295.1 phys=8.8 setup=0.2 dnodes=47 dobjs=97 dres=1 dmemKB=1542 draws=2631
+STALL_TOP region.part=243.0 pop.spawn=5.3 assets.scene_load=4.9 pop.sprites_slice=4.2 villager.ready_tail=2.9 villager.decide=2.1
+STALL_SCRIPTS
+STALL t=74.68 ms=281 rcpu=7.3 rgpu=46.1 proc=295.1 phys=8.8 setup=0.6 dnodes=59 dobjs=100 dres=1 dmemKB=1697 draws=2635
+STALL_TOP region.part=180.7 pop.query=17.9 assets.scene_load=6.3 pop.spawn=5.8 pop.sprites=5.6 pop.sprites_slice=5.5
+STALL_SCRIPTS
+STALL t=74.94 ms=264 rcpu=8.2 rgpu=45.1 proc=295.1 phys=8.8 setup=0.2 dnodes=-42 dobjs=-59 dres=1 dmemKB=-1262 draws=2636
+STALL_TOP region.part=207.9 assets.scene_load=5.8 pop.spawn=4.8 pop.sprites_slice=4.1 ambient.groups=3.1 villager.ready_tail=3.1
+STALL_SCRIPTS
+ERROR: Cannot convert to (or from) compressed formats. Use compress() and decompress() instead.
+   at: convert (core/io/image.cpp:571)
+   GDScript backtrace (most recent call first):
+       [0] round_face (res://scripts/ui/hud_art.gd:133)
+       [1] _apply_label (res://scripts/ui/hud.gd:1556)
+       [2] _set_target (res://scripts/ui/hud.gd:1548)
+       [3] update_status (res://scripts/ui/hud.gd:891)
+       [4] _process (res://scripts/core/main.gd:380)
+ERROR: Cannot resize in compressed image formats.
+   at: resize (core/io/image.cpp:1257)
+   GDScript backtrace (most recent call first):
+       [0] round_face (res://scripts/ui/hud_art.gd:135)
+       [1] _apply_label (res://scripts/ui/hud.gd:1556)
+       [2] _set_target (res://scripts/ui/hud.gd:1548)
+       [3] update_status (res://scripts/ui/hud.gd:891)
+       [4] _process (res://scripts/core/main.gd:380)
+ERROR: Condition "format != p_src->format" is true.
+   at: blend_rect (core/io/image.cpp:3201)
+   GDScript backtrace (most recent call first):
+       [0] round_face (res://scripts/ui/hud_art.gd:142)
+       [1] _apply_label (res://scripts/ui/hud.gd:1556)
+       [2] _set_target (res://scripts/ui/hud.gd:1548)
+       [3] update_status (res://scripts/ui/hud.gd:891)
+       [4] _process (res://scripts/core/main.gd:380)
+ERROR: Cannot convert to (or from) compressed formats. Use compress() and decompress() instead.
+   at: convert (core/io/image.cpp:571)
+   GDScript backtrace (most recent call first):
+       [0] round_face (res://scripts/ui/hud_art.gd:133)
+       [1] _apply_label (res://scripts/ui/hud.gd:1559)
+       [2] _set_target (res://scripts/ui/hud.gd:1548)
+       [3] update_status (res://scripts/ui/hud.gd:891)
+       [4] _process (res://scripts/core/main.gd:380)
+ERROR: Cannot resize in compressed image formats.
+   at: resize (core/io/image.cpp:1257)
+   GDScript backtrace (most recent call first):
+       [0] round_face (res://scripts/ui/hud_art.gd:135)
+       [1] _apply_label (res://scripts/ui/hud.gd:1559)
+       [2] _set_target (res://scripts/ui/hud.gd:1548)
+       [3] update_status (res://scripts/ui/hud.gd:891)
+       [4] _process (res://scripts/core/main.gd:380)
+ERROR: Condition "format != p_src->format" is true.
+   at: blend_rect (core/io/image.cpp:3201)
+   GDScript backtrace (most recent call first):
+       [0] round_face (res://scripts/ui/hud_art.gd:142)
+       [1] _apply_label (res://scripts/ui/hud.gd:1559)
+       [2] _set_target (res://scripts/ui/hud.gd:1548)
+       [3] update_status (res://scripts/ui/hud.gd:891)
+       [4] _process (res://scripts/core/main.gd:380)
+STALL t=75.22 ms=277 rcpu=6.9 rgpu=42.7 proc=307.6 phys=10.9 setup=0.6 dnodes=56 dobjs=106 dres=1 dmemKB=1687 draws=2643
+STALL_TOP region.part=187.2 pop.sprites_slice=10.4 pop.spawn=8.2 villager.ready_tail=6.0 assets.scene_load=5.2 villager.decide=4.7
+STALL_SCRIPTS
+STALL t=75.49 ms=268 rcpu=9.7 rgpu=44.9 proc=307.6 phys=10.9 setup=0.4 dnodes=51 dobjs=100 dres=1 dmemKB=1911 draws=2644
+STALL_TOP region.part=210.5 assets.scene_load=5.9 pop.spawn=4.3 pop.sprites_slice=4.0 villager.ready_tail=2.9 villager.decide=1.7
+STALL_SCRIPTS
+STALL t=75.75 ms=265 rcpu=8.2 rgpu=72.6 proc=307.6 phys=10.9 setup=0.4 dnodes=55 dobjs=98 dres=1 dmemKB=1727 draws=2636
+STALL_TOP region.part=231.7 pop.spawn=6.3 assets.scene_load=5.4 villager.ready_tail=4.4 pop.sprites_slice=4.2 villager.decide=3.0
+STALL_SCRIPTS
+STALL t=76.02 ms=273 rcpu=6.8 rgpu=80.4 proc=289.6 phys=9.0 setup=0.5 dnodes=57 dobjs=101 dres=1 dmemKB=4296 draws=2637
+STALL_TOP region.part=27.7 region.bake=12.2 assets.scene_load=5.6 pop.spawn=5.3 pop.sprites_slice=4.4 ambient.groups=3.6
+STALL_SCRIPTS
+STALL t=76.17 ms=148 rcpu=7.8 rgpu=42.2 proc=289.6 phys=9.0 setup=0.7 dnodes=49 dobjs=93 dres=0 dmemKB=4278 draws=2624
+STALL_TOP region.bake=10.4 pop.spawn=6.0 pop.sprites_slice=4.1 villager.ready_tail=4.0 villager.decide=2.8
+STALL_SCRIPTS
+ROUTE t=76 leg=kingsreach_gate fps=14.5 p50=35.2 p95=267.4 p99=277.4 draws=2624 prims=6604467 vram=2800 tex=2194 buf=536 static=994 nodes=15996 objs=39741 res=5221 rcpu=5.8 gpu=12.8
+STALL t=76.27 ms=97 rcpu=7.9 rgpu=32.2 proc=289.6 phys=9.0 setup=1.1 dnodes=22 dobjs=28 dres=0 dmemKB=2604 draws=2638
+STALL_TOP pop.query=19.7 region.bake=7.4 pop.spawn=6.2 pop.sprites=5.0 pop.sprites_slice=5.0 villager.ready_tail=3.4
+STALL_SCRIPTS
+STALL t=76.38 ms=110 rcpu=8.9 rgpu=40.8 proc=289.6 phys=9.0 setup=0.2 dnodes=-114 dobjs=-200 dres=0 dmemKB=-40 draws=2631
+STALL_TOP region.bake=9.5 pop.spawn=5.3 pop.sprites_slice=4.5 villager.ready_tail=3.6 villager.decide=3.0
+STALL_SCRIPTS
+STALL t=76.46 ms=80 rcpu=5.9 rgpu=32.5 proc=289.6 phys=9.0 setup=0.1 dnodes=13 dobjs=23 dres=0 dmemKB=2601 draws=2646
+STALL_TOP region.bake=20.5 pop.spawn=8.2 villager.ready_tail=5.3 pop.sprites_slice=4.1 villager.decide=3.4
+STALL_SCRIPTS
+STALL t=76.54 ms=86 rcpu=7.6 rgpu=43.3 proc=289.6 phys=9.0 setup=0.8 dnodes=58 dobjs=100 dres=0 dmemKB=2968 draws=2694
+STALL_TOP region.bake=13.2 pop.spawn=7.8 villager.ready_tail=5.5 pop.sprites_slice=4.3 villager.decide=3.1 player.camera=1.7
+STALL_SCRIPTS
+STALL t=76.64 ms=100 rcpu=11.3 rgpu=50.4 proc=102.3 phys=10.6 setup=1.4 dnodes=50 dobjs=83 dres=0 dmemKB=-15909 draws=2696
+STALL_TOP region.bake=9.0 pop.spawn=8.3 villager.ready_tail=5.9 pop.sprites_slice=4.0 villager.decide=3.3 villager.plan_route=1.7
+STALL_SCRIPTS
+STALL t=76.73 ms=89 rcpu=8.8 rgpu=36.5 proc=102.3 phys=10.6 setup=1.0 dnodes=17 dobjs=30 dres=0 dmemKB=2082 draws=2712
+STALL_TOP region.bake=5.7 pop.spawn=5.3 pop.sprites_slice=4.6 villager.ready_tail=3.0 villager.decide=2.3
+STALL_SCRIPTS
+STALL t=76.81 ms=79 rcpu=7.4 rgpu=33.2 proc=102.3 phys=10.6 setup=0.6 dnodes=27 dobjs=42 dres=0 dmemKB=2201 draws=2723
+STALL_TOP pop.spawn=6.0 pop.sprites_slice=4.1 region.bake=4.0 villager.ready_tail=2.6 player.camera=1.8
+STALL_SCRIPTS
+STALL t=76.89 ms=81 rcpu=7.5 rgpu=27.3 proc=102.3 phys=10.6 setup=0.7 dnodes=28 dobjs=38 dres=0 dmemKB=3105 draws=2692
+STALL_TOP pop.spawn=9.3 villager.ready_tail=6.4 region.bake=5.5 pop.sprites_slice=4.6 villager.plan_route=3.6 villager.decide=1.9
+STALL_SCRIPTS
+STALL t=76.97 ms=81 rcpu=6.7 rgpu=9.0 proc=102.3 phys=10.6 setup=0.8 dnodes=22 dobjs=35 dres=0 dmemKB=2070 draws=2681
+STALL_TOP pop.spawn=6.7 villager.ready_tail=4.1 pop.sprites_slice=4.0 villager.decide=3.0 region.bake=2.9
+STALL_SCRIPTS
+STALL t=77.05 ms=79 rcpu=8.4 rgpu=8.9 proc=102.3 phys=10.6 setup=0.7 dnodes=22 dobjs=32 dres=0 dmemKB=1974 draws=2666
+STALL_TOP pop.query=13.8 pop.spawn=6.5 villager.ready_tail=4.5 pop.sprites=4.4 pop.sprites_slice=4.3 ambient.groups=3.2
+STALL_SCRIPTS
+STALL t=77.14 ms=92 rcpu=5.5 rgpu=8.8 proc=102.3 phys=10.6 setup=0.2 dnodes=-40 dobjs=-48 dres=0 dmemKB=-867 draws=2664
+STALL_TOP pop.spawn=5.7 pop.sprites_slice=4.2 villager.ready_tail=2.9 region.bake=2.6 villager.decide=1.5
+STALL_SCRIPTS
+STALL t=77.21 ms=71 rcpu=5.8 rgpu=11.9 proc=102.3 phys=10.6 setup=0.5 dnodes=20 dobjs=33 dres=0 dmemKB=2068 draws=2677
+STALL_TOP pop.spawn=6.3 pop.sprites_slice=4.4 villager.ready_tail=4.1 region.bake=2.8 villager.decide=2.8
+STALL_SCRIPTS
+STALL t=77.28 ms=64 rcpu=7.1 rgpu=16.0 proc=102.3 phys=10.6 setup=0.6 dnodes=61 dobjs=108 dres=0 dmemKB=2240 draws=2657
+STALL_TOP pop.spawn=5.1 pop.sprites_slice=4.3 region.bake=4.1 villager.ready_tail=3.0 villager.decide=2.2
+STALL_SCRIPTS
+STALL t=77.35 ms=67 rcpu=5.3 rgpu=8.8 proc=102.3 phys=10.6 setup=0.1 dnodes=19 dobjs=30 dres=0 dmemKB=1724 draws=2671
+STALL_TOP pop.spawn=6.7 pop.sprites_slice=4.2 villager.ready_tail=4.2 region.bake=3.2 villager.decide=2.6
+STALL_SCRIPTS
+STALL t=77.42 ms=71 rcpu=7.0 rgpu=8.9 proc=102.3 phys=10.6 setup=0.8 dnodes=6 dobjs=9 dres=0 dmemKB=2439 draws=2669
+STALL_TOP region.bake=4.6 pop.sprites_slice=4.1
+STALL_SCRIPTS
+STALL t=77.52 ms=51 rcpu=6.4 rgpu=8.9 proc=102.3 phys=10.6 setup=0.5 dnodes=7 dobjs=8 dres=0 dmemKB=1596 draws=2668
+STALL_TOP pop.sprites_slice=4.5 region.bake=2.7
+STALL_SCRIPTS
+STALL t=77.62 ms=63 rcpu=4.4 rgpu=8.8 proc=78.1 phys=11.2 setup=0.1 dnodes=9 dobjs=3 dres=0 dmemKB=-21305 draws=2673
+STALL_TOP region.bake=8.4 pop.spawn=5.6 pop.sprites_slice=4.1 villager.ready_tail=3.3 villager.decide=1.7 villager.plan_route=1.6
+STALL_SCRIPTS
+STALL t=77.68 ms=65 rcpu=5.2 rgpu=8.8 proc=78.1 phys=11.2 setup=0.6 dnodes=1 dobjs=5 dres=0 dmemKB=1941 draws=2684
+STALL_TOP pop.sprites_slice=4.0 region.bake=3.8
+STALL_SCRIPTS
+STALL t=77.75 ms=63 rcpu=5.1 rgpu=8.8 proc=78.1 phys=11.2 setup=0.3 dnodes=7 dobjs=8 dres=0 dmemKB=2353 draws=2685
+STALL_TOP r1story.tick_rest=6.2 region.bake=5.1 pop.sprites_slice=4.3
+STALL_SCRIPTS
+STALL t=77.81 ms=60 rcpu=5.8 rgpu=8.8 proc=78.1 phys=11.2 setup=0.7 dnodes=38 dobjs=67 dres=0 dmemKB=2536 draws=2685
+STALL_TOP region.bake=4.2 pop.sprites_slice=4.1 villager.decide=1.8
+STALL_SCRIPTS
+STALL t=78.04 ms=53 rcpu=4.6 rgpu=8.7 proc=78.1 phys=11.2 setup=0.3 dnodes=7 dobjs=8 dres=0 dmemKB=74 draws=2697
+STALL_TOP pop.sprites_slice=4.2
+STALL_SCRIPTS
+STALL t=82.35 ms=53 rcpu=5.5 rgpu=8.1 proc=36.9 phys=9.6 setup=0.7 dnodes=0 dobjs=0 dres=0 dmemKB=7 draws=2709
+STALL_TOP pop.sprites_slice=4.4
+STALL_SCRIPTS
+STALL t=82.85 ms=56 rcpu=4.8 rgpu=8.5 proc=40.4 phys=9.5 setup=0.1 dnodes=7 dobjs=8 dres=0 dmemKB=-7 draws=2703
+STALL_TOP pop.spawn=5.3 pop.sprites_slice=4.1 villager.ready_tail=3.0 villager.decide=2.4
+STALL_SCRIPTS
+STALL t=85.85 ms=54 rcpu=5.4 rgpu=8.2 proc=38.5 phys=10.9 setup=0.3 dnodes=0 dobjs=-2 dres=0 dmemKB=40 draws=2709
+STALL_TOP pop.sprites_slice=4.3
+STALL_SCRIPTS
+ROUTE t=86 leg=kingsreach_market fps=28.4 p50=31.6 p95=65.4 p99=97.2 draws=2705 prims=6492282 vram=2805 tex=2194 buf=541 static=993 nodes=16470 objs=40459 res=5223 rcpu=5.5 gpu=8.7
+STALL t=86.45 ms=61 rcpu=5.8 rgpu=8.6 proc=38.5 phys=10.9 setup=0.7 dnodes=0 dobjs=0 dres=0 dmemKB=27 draws=2703
+STALL_TOP pop.sprites_slice=4.1
+STALL_SCRIPTS
+STALL t=86.51 ms=55 rcpu=8.2 rgpu=8.7 proc=38.5 phys=10.9 setup=0.9 dnodes=0 dobjs=0 dres=0 dmemKB=7 draws=2705
+STALL_TOP pop.sprites_slice=4.3 villager.decide=1.8
+STALL_SCRIPTS
+STALL t=86.57 ms=59 rcpu=7.4 rgpu=8.9 proc=52.1 phys=11.3 setup=0.9 dnodes=0 dobjs=0 dres=0 dmemKB=-2 draws=2705
+STALL_TOP pop.sprites_slice=4.8 villager.plan_route=2.4 player.camera=1.6
+STALL_SCRIPTS
+STALL t=86.62 ms=59 rcpu=7.3 rgpu=8.9 proc=52.1 phys=11.3 setup=0.7 dnodes=0 dobjs=-2 dres=0 dmemKB=2 draws=2705
+STALL_TOP pop.sprites_slice=6.3
+STALL_SCRIPTS
+STALL t=86.72 ms=54 rcpu=5.7 rgpu=8.8 proc=52.1 phys=11.3 setup=0.7 dnodes=0 dobjs=0 dres=0 dmemKB=-2 draws=2704
+STALL_TOP pop.sprites_slice=4.6
+STALL_SCRIPTS
+[audio] voices 1/12, long streams 2, music r1_village_day/r1_village_day threat 0, surface cobble, played { "step_cobble_03": 29, "step_cobble_01": 47, "step_cobble_02": 27, "step_cobble_05": 36, "step_cobble_04": 38, "step_grass_03": 6, "step_grass_04": 5, "step_cobble_06": 28, "step_grass_01": 4, "step_grass_02": 4, "hammer_distant_03": 1, "step_grass_05": 2, "well_bucket_01": 1, "bird_blackbird": 1, "well_bucket_03": 1 }
+STALL t=88.04 ms=51 rcpu=5.6 rgpu=9.1 proc=40.0 phys=13.9 setup=0.6 dnodes=0 dobjs=0 dres=0 dmemKB=6 draws=2701
+STALL_TOP pop.sprites_slice=4.7
+STALL_SCRIPTS
+STALL t=88.42 ms=53 rcpu=6.4 rgpu=9.0 proc=40.0 phys=13.9 setup=0.6 dnodes=0 dobjs=0 dres=0 dmemKB=9 draws=2696
+STALL_TOP pop.sprites_slice=4.3
+STALL_SCRIPTS
+STALL t=89.80 ms=54 rcpu=9.0 rgpu=8.0 proc=40.5 phys=9.3 setup=0.9 dnodes=0 dobjs=2 dres=0 dmemKB=16 draws=2683
+STALL_TOP pop.sprites_slice=4.4
+STALL_SCRIPTS
+STALL t=89.86 ms=59 rcpu=6.1 rgpu=7.9 proc=40.5 phys=9.3 setup=0.5 dnodes=0 dobjs=0 dres=0 dmemKB=4 draws=2683
+STALL_TOP pop.sprites_slice=4.2
+STALL_SCRIPTS
+STALL t=90.23 ms=53 rcpu=4.3 rgpu=7.9 proc=40.5 phys=9.3 setup=0.1 dnodes=5 dobjs=8 dres=0 dmemKB=-2 draws=2686
+STALL_TOP pop.spawn=5.4 pop.sprites_slice=4.4 villager.ready_tail=3.3 villager.decide=2.4 life.realm_pump=2.0 economy.hour_markets_chunk=1.9
+STALL_SCRIPTS
+STALL t=90.31 ms=75 rcpu=4.5 rgpu=7.9 proc=40.5 phys=9.3 setup=0.6 dnodes=0 dobjs=2 dres=0 dmemKB=42 draws=2696
+STALL_TOP pop.sprites_slice=4.3 ambient.groups=2.3 player.camera=1.5
+STALL_SCRIPTS
+STALL t=93.49 ms=53 rcpu=7.9 rgpu=8.4 proc=32.8 phys=10.2 setup=0.9 dnodes=0 dobjs=0 dres=0 dmemKB=4 draws=2665
+STALL_TOP pop.sprites_slice=4.6 player.camera=1.7
+STALL_SCRIPTS
+STALL t=93.83 ms=66 rcpu=4.7 rgpu=8.4 proc=41.5 phys=13.3 setup=0.1 dnodes=2 dobjs=6 dres=0 dmemKB=7 draws=2660
+STALL_TOP pop.spawn=5.7 pop.sprites_slice=4.4 villager.ready_tail=4.0 villager.decide=2.3
+STALL_SCRIPTS
+STALL t=93.89 ms=63 rcpu=7.2 rgpu=8.4 proc=41.5 phys=13.3 setup=0.7 dnodes=0 dobjs=-2 dres=0 dmemKB=26 draws=2661
+STALL_TOP pop.sprites_slice=4.8
+STALL_SCRIPTS
+STALL t=94.22 ms=53 rcpu=7.1 rgpu=8.4 proc=41.5 phys=13.3 setup=0.6 dnodes=15 dobjs=28 dres=0 dmemKB=492 draws=2669
+STALL_TOP pop.spawn=4.8 pop.sprites_slice=4.4 villager.ready_tail=2.8 villager.decide=1.6
+STALL_SCRIPTS
+STALL t=94.92 ms=50 rcpu=4.9 rgpu=8.4 proc=50.4 phys=10.9 setup=0.1 dnodes=-5 dobjs=-2 dres=0 dmemKB=-29 draws=2662
+STALL_TOP pop.sprites_slice=4.5 pop.spawn=4.4 villager.ready_tail=2.7
+STALL_SCRIPTS
+ROUTE t=96 leg=kingsreach_market fps=28.4 p50=33.2 p95=50.8 p99=63.4 draws=2675 prims=6203511 vram=2803 tex=2194 buf=539 static=993 nodes=16458 objs=40459 res=5227 rcpu=5.5 gpu=8.5
+STALL t=99.39 ms=73 rcpu=5.6 rgpu=9.6 proc=38.4 phys=9.4 setup=0.2 dnodes=5 dobjs=5 dres=0 dmemKB=-3 draws=2675
+STALL_TOP pop.spawn=6.0 pop.sprites_slice=4.5 villager.ready_tail=3.9 villager.decide=2.6 villager.decide=1.7
+STALL_SCRIPTS
+STALL t=99.46 ms=69 rcpu=5.9 rgpu=9.6 proc=38.4 phys=9.4 setup=0.9 dnodes=0 dobjs=2 dres=0 dmemKB=36 draws=2674
+STALL_TOP pop.sprites_slice=5.0 ambient.groups=2.5
+STALL_SCRIPTS
+STALL t=100.35 ms=51 rcpu=6.7 rgpu=8.5 proc=64.9 phys=14.1 setup=0.7 dnodes=15 dobjs=26 dres=0 dmemKB=519 draws=2670
+STALL_TOP pop.spawn=4.3 pop.sprites_slice=4.0 villager.ready_tail=2.2
+STALL_SCRIPTS
+STALL t=101.19 ms=56 rcpu=6.0 rgpu=8.5 proc=42.6 phys=10.8 setup=0.9 dnodes=0 dobjs=-2 dres=0 dmemKB=8 draws=2661
+STALL_TOP pop.sprites_slice=4.1
+STALL_SCRIPTS
+STALL t=101.88 ms=58 rcpu=5.9 rgpu=7.9 proc=42.8 phys=9.2 setup=1.1 dnodes=0 dobjs=0 dres=0 dmemKB=5 draws=2672
+STALL_TOP pop.sprites_slice=4.4
+STALL_SCRIPTS
+STALL t=102.68 ms=54 rcpu=5.2 rgpu=7.9 proc=49.7 phys=12.3 setup=0.7 dnodes=0 dobjs=0 dres=0 dmemKB=37 draws=2686
+STALL_TOP pop.sprites_slice=4.5
+STALL_SCRIPTS
+STALL t=104.63 ms=53 rcpu=5.1 rgpu=8.5 proc=42.7 phys=11.9 setup=0.2 dnodes=-1 dobjs=-3 dres=0 dmemKB=-62 draws=2685
+STALL_TOP pop.spawn=5.0 pop.sprites_slice=4.1 villager.ready_tail=3.0
+STALL_SCRIPTS
+STALL t=104.69 ms=56 rcpu=6.8 rgpu=8.5 proc=42.7 phys=11.9 setup=0.7 dnodes=0 dobjs=0 dres=0 dmemKB=33 draws=2684
+STALL_TOP pop.sprites_slice=4.2
+STALL_SCRIPTS
+STALL t=104.79 ms=53 rcpu=7.1 rgpu=8.8 proc=42.7 phys=11.9 setup=1.2 dnodes=0 dobjs=-2 dres=0 dmemKB=-7 draws=2687
+STALL_TOP pop.sprites_slice=4.5 audio.context=1.6
+STALL_SCRIPTS
+STALL t=104.84 ms=55 rcpu=8.5 rgpu=8.8 proc=42.7 phys=11.9 setup=0.8 dnodes=0 dobjs=2 dres=0 dmemKB=11 draws=2688
+STALL_TOP pop.sprites_slice=4.3 villager.decide=1.8
+STALL_SCRIPTS
+STALL t=104.89 ms=53 rcpu=7.0 rgpu=8.8 proc=42.7 phys=11.9 setup=1.1 dnodes=0 dobjs=0 dres=0 dmemKB=2 draws=2691
+STALL_TOP pop.sprites_slice=4.4
+STALL_SCRIPTS
+STALL t=105.31 ms=55 rcpu=11.6 rgpu=8.5 proc=42.7 phys=11.9 setup=1.5 dnodes=0 dobjs=2 dres=0 dmemKB=44 draws=2685
+STALL_TOP pop.sprites_slice=4.3
+STALL_SCRIPTS
+STALL t=105.36 ms=51 rcpu=9.8 rgpu=8.5 proc=42.7 phys=11.9 setup=0.7 dnodes=0 dobjs=0 dres=0 dmemKB=0 draws=2687
+STALL_TOP pop.sprites_slice=4.2
+STALL_SCRIPTS
+STALL t=105.51 ms=62 rcpu=6.5 rgpu=8.5 proc=42.7 phys=11.9 setup=0.2 dnodes=-52 dobjs=-80 dres=0 dmemKB=-1557 draws=2688
+STALL_TOP pop.spawn=6.2 pop.sprites_slice=4.3 villager.ready_tail=3.7 villager.plan_route=1.8
+STALL_SCRIPTS
+STALL t=105.57 ms=57 rcpu=4.9 rgpu=8.5 proc=52.4 phys=14.0 setup=0.2 dnodes=0 dobjs=8 dres=0 dmemKB=271 draws=2686
+STALL_TOP pop.spawn=4.9 pop.sprites_slice=4.0 villager.ready_tail=2.5
+STALL_SCRIPTS
+STALL t=105.62 ms=54 rcpu=6.4 rgpu=8.5 proc=52.4 phys=14.0 setup=0.5 dnodes=15 dobjs=25 dres=0 dmemKB=486 draws=2684
+STALL_TOP pop.sprites_slice=4.4 pop.spawn=4.3 villager.ready_tail=2.6 ambient.groups=2.6
+STALL_SCRIPTS
+ROUTE_SUM fps=24.5 p50=33.0 p95=63.7 p99=265.1 draws=2678 prims=5744726 vram=2803 tex=2194 buf=539 static=994 nodes=16452 objs=40449 res=5231 avgdraws=8463 avgprims=17804572 maxdraws=3659 maxprims=8527055 legs: approach:ms=26.5,maxdraws=3307,maxprims=6929745 kingsreach_gate:ms=49.4,maxdraws=3659,maxprims=8527055 kingsreach_market:ms=34.4,maxdraws=2718,maxprims=6501379
+STALL_SUM n_gt50=81 max=281 per_min=134.9 max_frame=281
+PROBE region.part                        total=3992ms calls=25 avg=159.67ms worst=243.0ms
+PROBE pop.sprites_slice                  total=3767ms calls=897 avg=4.20ms worst=10.5ms
+PROBE villager.decide                    total=626ms calls=514 avg=1.22ms worst=4.7ms
+PROBE pop.query                          total=621ms calls=92 avg=6.75ms worst=21.1ms
+PROBE worldsim.slice                     total=549ms calls=883 avg=0.62ms worst=2.5ms
+PROBE player.camera                      total=510ms calls=1080 avg=0.47ms worst=2.0ms
+PROBE pop.spawn                          total=406ms calls=76 avg=5.35ms worst=9.3ms
+PROBE pop.sprites                        total=405ms calls=92 avg=4.40ms worst=5.6ms
+PROBE villager.anim                      total=283ms calls=12073 avg=0.02ms worst=4.1ms
+PROBE cam.occluders                      total=253ms calls=1080 avg=0.23ms worst=1.3ms
+PROBE villager.ready_tail                total=247ms calls=76 avg=3.25ms worst=6.4ms
+PROBE region.bake                        total=166ms calls=28 avg=5.94ms worst=20.5ms
+PROBE pop.presence                       total=135ms calls=883 avg=0.15ms worst=0.9ms
+PROBE pop.sort                           total=133ms calls=92 avg=1.45ms worst=4.1ms
+PROBE villager.perceive                  total=122ms calls=1420 avg=0.09ms worst=0.3ms
+PROBE hud.plates_refresh                 total=114ms calls=277 avg=0.41ms worst=0.8ms
+PROBE assets.scene_load                  total=114ms calls=21 avg=5.42ms worst=6.3ms
+PROBE cam.chase                          total=107ms calls=1080 avg=0.10ms worst=1.0ms
+PROBE pop.dists                          total=105ms calls=92 avg=1.15ms worst=2.8ms
+PROBE ambient.groups                     total=95ms calls=35 avg=2.71ms worst=5.0ms
+PROBE hud.modes                          total=90ms calls=883 avg=0.10ms worst=0.6ms
+PROBE villager.plan_route                total=90ms calls=134 avg=0.67ms worst=3.6ms
+PROBE ambient.spawn                      total=85ms calls=883 avg=0.10ms worst=10.4ms
+PROBE villager.ready_model               total=69ms calls=76 avg=0.91ms worst=1.9ms
+PROBE audio.context                      total=67ms calls=69 avg=0.97ms worst=1.6ms
+PROBE player.animator                    total=51ms calls=1080 avg=0.05ms worst=0.2ms
+PROBE hud.polls                          total=49ms calls=883 avg=0.06ms worst=0.7ms
+PROBE r1story.tick_rest                  total=45ms calls=36 avg=1.26ms worst=6.6ms
+PROBE player.slide                       total=43ms calls=1080 avg=0.04ms worst=0.2ms
+PROBE player.look_target                 total=42ms calls=1080 avg=0.04ms worst=0.2ms
+PROBE villager.greet_react               total=31ms calls=1420 avg=0.02ms worst=0.3ms
+PROBE cam.floor                          total=29ms calls=1080 avg=0.03ms worst=0.1ms
+PROBE hud.world_icon                     total=28ms calls=883 avg=0.03ms worst=0.1ms
+PROBE audio.spot                         total=28ms calls=5 avg=5.57ms worst=19.5ms
+PROBE life.realm_pump                    total=27ms calls=883 avg=0.03ms worst=3.9ms
+PROBE cam.ray                            total=27ms calls=1080 avg=0.02ms worst=0.1ms
+PROBE villager.neighbours                total=27ms calls=1420 avg=0.02ms worst=0.3ms
+PROBE player.keep_ground                 total=25ms calls=1080 avg=0.02ms worst=0.1ms
+PROBE economy.hour_markets_chunk         total=21ms calls=15 avg=1.41ms worst=3.9ms
+PROBE villager.ready_tint_anim           total=21ms calls=76 avg=0.28ms worst=0.5ms
+ERROR: BUG, indexing did not unpair geometries from light.
+   at: instance_set_scenario (servers/rendering/renderer_scene_cull.cpp:835)
+ERROR: BUG, indexing did not unpair geometries from light.
+   at: instance_set_scenario (servers/rendering/renderer_scene_cull.cpp:835)
+ERROR: BUG, indexing did not unpair geometries from light.
+   at: instance_set_scenario (servers/rendering/renderer_scene_cull.cpp:835)
+ERROR: BUG, indexing did not unpair geometries from light.
+   at: instance_set_scenario (servers/rendering/renderer_scene_cull.cpp:835)
+ERROR: BUG, indexing did not unpair geometries from light.
+   at: instance_set_scenario (servers/rendering/renderer_scene_cull.cpp:835)
+ERROR: BUG, indexing did not unpair geometries from light.
+   at: instance_set_scenario (servers/rendering/renderer_scene_cull.cpp:835)
+ERROR: BUG, indexing did not unpair geometries from light.
+   at: instance_set_scenario (servers/rendering/renderer_scene_cull.cpp:835)
+ERROR: BUG, indexing did not unpair geometries from light.
+   at: instance_set_scenario (servers/rendering/renderer_scene_cull.cpp:835)
+ERROR: BUG, indexing did not unpair geometries from light.
+   at: instance_set_scenario (servers/rendering/renderer_scene_cull.cpp:835)
+ERROR: BUG, indexing did not unpair geometries from light.
+   at: instance_set_scenario (servers/rendering/renderer_scene_cull.cpp:835)
+ERROR: BUG, indexing did not unpair geometries from light.
+   at: instance_set_scenario (servers/rendering/renderer_scene_cull.cpp:835)
+ERROR: BUG, indexing did not unpair geometries from light.
+   at: instance_set_scenario (servers/rendering/renderer_scene_cull.cpp:835)
+ERROR: BUG, indexing did not unpair geometries from light.
+   at: instance_set_scenario (servers/rendering/renderer_scene_cull.cpp:835)
+ERROR: BUG, indexing did not unpair geometries from light.
+   at: instance_set_scenario (servers/rendering/renderer_scene_cull.cpp:835)
+ERROR: BUG, indexing did not unpair geometries from light.
+   at: instance_set_scenario (servers/rendering/renderer_scene_cull.cpp:835)
+ERROR: BUG, indexing did not unpair geometries from light.
+   at: instance_set_scenario (servers/rendering/renderer_scene_cull.cpp:835)
+ERROR: BUG, indexing did not unpair geometries from light.
+   at: instance_set_scenario (servers/rendering/renderer_scene_cull.cpp:835)
+ERROR: BUG, indexing did not unpair geometries from light.
+   at: instance_set_scenario (servers/rendering/renderer_scene_cull.cpp:835)
+ERROR: BUG, indexing did not unpair geometries from light.
+   at: instance_set_scenario (servers/rendering/renderer_scene_cull.cpp:835)
+ERROR: BUG, indexing did not unpair geometries from light.
+   at: instance_set_base (servers/rendering/renderer_scene_cull.cpp:607)
+ERROR: BUG, indexing did not unpair geometries from light.
+   at: instance_set_base (servers/rendering/renderer_scene_cull.cpp:607)
+ERROR: BUG, indexing did not unpair geometries from light.
+   at: instance_set_base (servers/rendering/renderer_scene_cull.cpp:607)
+ERROR: BUG, indexing did not unpair geometries from light.
+   at: instance_set_base (servers/rendering/renderer_scene_cull.cpp:607)
+ERROR: BUG, indexing did not unpair geometries from light.
+   at: instance_set_base (servers/rendering/renderer_scene_cull.cpp:607)
+ERROR: BUG, indexing did not unpair geometries from light.
+   at: instance_set_base (servers/rendering/renderer_scene_cull.cpp:607)
+ERROR: BUG, indexing did not unpair geometries from light.
+   at: instance_set_base (servers/rendering/renderer_scene_cull.cpp:607)
+ERROR: BUG, indexing did not unpair geometries from light.
+   at: instance_set_base (servers/rendering/renderer_scene_cull.cpp:607)
+ERROR: BUG, indexing did not unpair geometries from light.
+   at: instance_set_base (servers/rendering/renderer_scene_cull.cpp:607)
+ERROR: BUG, indexing did not unpair geometries from light.
+   at: instance_set_base (servers/rendering/renderer_scene_cull.cpp:607)
+ERROR: BUG, indexing did not unpair geometries from light.
+   at: instance_set_base (servers/rendering/renderer_scene_cull.cpp:607)
+ERROR: BUG, indexing did not unpair geometries from light.
+   at: instance_set_base (servers/rendering/renderer_scene_cull.cpp:607)
+ERROR: BUG, indexing did not unpair geometries from light.
+   at: instance_set_base (servers/rendering/renderer_scene_cull.cpp:607)
+ERROR: BUG, indexing did not unpair geometries from light.
+   at: instance_set_base (servers/rendering/renderer_scene_cull.cpp:607)
+ERROR: BUG, indexing did not unpair geometries from light.
+   at: instance_set_base (servers/rendering/renderer_scene_cull.cpp:607)
+ERROR: BUG, indexing did not unpair geometries from light.
+   at: instance_set_base (servers/rendering/renderer_scene_cull.cpp:607)
+ERROR: BUG, indexing did not unpair geometries from light.
+   at: instance_set_base (servers/rendering/renderer_scene_cull.cpp:607)
+ERROR: BUG, indexing did not unpair geometries from light.
+   at: instance_set_base (servers/rendering/renderer_scene_cull.cpp:607)
+ERROR: BUG, indexing did not unpair geometries from light.
+   at: instance_set_base (servers/rendering/renderer_scene_cull.cpp:607)

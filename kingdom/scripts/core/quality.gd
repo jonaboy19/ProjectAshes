@@ -87,6 +87,7 @@ const TIERS := [
 
 ## PC profile (Forward+ desktop): same keys as TIERS plus the PC-only keys. `Quality.profile == "pc"` selects it.
 ## tier 0..3 = PC_LOW / PC_MED / PC_HIGH / PC_ULTRA (the enum is shared with the phone tiers).
+const PC_MAX_PHYSICS_STEPS := 3
 const PC_TIERS := [
 	{   # PC_LOW: integrated / GTX 16xx class
 		"max_3d_height": 0, "scale": 0.75, "scaling": "fsr", "taa": false, "fps": 0, "physics_hz": 60,
@@ -94,10 +95,11 @@ const PC_TIERS := [
 		"ssao": false, "ssao_half": true, "ssil": false, "sdfgi": false, "sdfgi_cascades": 4, "sdfgi_cell": 0.3, "sdfgi_rays": 1, "sdfgi_converge": 1, "gi_half": true,
 		"glow": true, "vol_fog": false, "vfog_size": 64, "vfog_depth": 64, "ssr": false, "ssr_steps": 0, "water_ssr": 0,
 		"lod_threshold": 1.5, "range": 1.0, "scatter": 0.8, "particles": 0.7, "aniso": 2, "tex_bias": 0.0, "fog_mul": 1.0,
-		"msaa": 0, "fxaa": true, "npc_full": 16, "rig_budget": 6, "npc_sprites": 60, "view_radius": 4, "light_fade": 80.0, "town_far": 0.0,
+		"msaa": 0, "fxaa": true, "npc_full": 8, "rig_budget": 3, "npc_sprites": 30, "view_radius": 4, "light_fade": 80.0, "town_far": 0.0,
 		"draw_merge": false, "prop_cull": 0, "impostor_cap": 0.0, "vat_crowd": true, "lite_world": false, "lod1_dressing": false,
+		"pop_full_range": 32.0, "vat_range": 70.0, "pop_sprite_range": 140.0,
 		"stream_mul": 1.0, "grass_mul": 1.0,
-		"crowd": {"near_max": 8, "near_dist": 14.0, "mid_dist": 40.0, "far_dist": 160.0, "shadow_dist": 18.0, "steps": [2, 3, 4]},
+		"crowd": {"near_max": 4, "near_dist": 14.0, "mid_dist": 40.0, "far_dist": 160.0, "shadow_dist": 18.0, "steps": [2, 3, 4]},
 	},
 	{   # PC_MED: RTX 3050/4050 laptop, GTX 1070-1080
 		"max_3d_height": 0, "scale": 0.67, "scaling": "fsr2", "taa": false, "fps": 0, "physics_hz": 60,
@@ -105,10 +107,11 @@ const PC_TIERS := [
 		"ssao": true, "ssao_half": true, "ssil": false, "sdfgi": false, "sdfgi_cascades": 4, "sdfgi_cell": 0.3, "sdfgi_rays": 1, "sdfgi_converge": 1, "gi_half": true,
 		"glow": true, "vol_fog": true, "vfog_size": 96, "vfog_depth": 64, "ssr": false, "ssr_steps": 0, "water_ssr": 16,
 		"lod_threshold": 1.0, "range": 1.25, "scatter": 1.0, "particles": 1.0, "aniso": 3, "tex_bias": 0.0, "fog_mul": 1.0,
-		"msaa": 0, "fxaa": false, "npc_full": 20, "rig_budget": 8, "npc_sprites": 90, "view_radius": 5, "light_fade": 120.0, "town_far": 0.0,
+		"msaa": 0, "fxaa": false, "npc_full": 10, "rig_budget": 5, "npc_sprites": 50, "view_radius": 5, "light_fade": 120.0, "town_far": 0.0,
 		"draw_merge": false, "prop_cull": 0, "impostor_cap": 0.0, "vat_crowd": true, "lite_world": false, "lod1_dressing": false,
+		"pop_full_range": 38.0, "vat_range": 90.0, "pop_sprite_range": 170.0,
 		"stream_mul": 1.15, "grass_mul": 1.2,
-		"crowd": {"near_max": 10, "near_dist": 16.0, "mid_dist": 48.0, "far_dist": 190.0, "shadow_dist": 22.0, "steps": [1, 2, 3]},
+		"crowd": {"near_max": 6, "near_dist": 16.0, "mid_dist": 48.0, "far_dist": 190.0, "shadow_dist": 22.0, "steps": [2, 3, 4]},
 	},
 	{   # PC_HIGH: RTX 4070 Laptop target, 60 fps @ 2560x1440
 		"max_3d_height": 0, "scale": 0.77, "scaling": "fsr2", "taa": false, "fps": 0, "physics_hz": 60,
@@ -116,10 +119,11 @@ const PC_TIERS := [
 		"ssao": true, "ssao_half": false, "ssil": false, "sdfgi": true, "sdfgi_cascades": 4, "sdfgi_cell": 0.3, "sdfgi_rays": 2, "sdfgi_converge": 1, "gi_half": true,
 		"glow": true, "vol_fog": true, "vfog_size": 128, "vfog_depth": 96, "ssr": true, "ssr_steps": 48, "water_ssr": 32,
 		"lod_threshold": 1.0, "range": 1.5, "scatter": 1.0, "particles": 1.0, "aniso": 4, "tex_bias": 0.0, "fog_mul": 1.0,
-		"msaa": 0, "fxaa": false, "npc_full": 28, "rig_budget": 12, "npc_sprites": 140, "view_radius": 6, "light_fade": 0.0, "town_far": 0.0,
+		"msaa": 0, "fxaa": false, "npc_full": 14, "rig_budget": 7, "npc_sprites": 80, "view_radius": 6, "light_fade": 0.0, "town_far": 0.0,
 		"draw_merge": false, "prop_cull": 0, "impostor_cap": 0.0, "vat_crowd": true, "lite_world": false, "lod1_dressing": false,
+		"pop_full_range": 45.0, "vat_range": 110.0, "pop_sprite_range": 200.0,
 		"stream_mul": 1.3, "grass_mul": 1.5,
-		"crowd": {"near_max": 14, "near_dist": 20.0, "mid_dist": 60.0, "far_dist": 220.0, "shadow_dist": 28.0, "steps": [1, 2, 3]},
+		"crowd": {"near_max": 8, "near_dist": 20.0, "mid_dist": 60.0, "far_dist": 220.0, "shadow_dist": 28.0, "steps": [2, 3, 3]},
 	},
 	{   # PC_ULTRA: RTX 4080+ desktop
 		"max_3d_height": 0, "scale": 1.0, "scaling": "fsr2", "taa": false, "fps": 0, "physics_hz": 60,
@@ -127,10 +131,11 @@ const PC_TIERS := [
 		"ssao": true, "ssao_half": false, "ssil": true, "sdfgi": true, "sdfgi_cascades": 6, "sdfgi_cell": 0.25, "sdfgi_rays": 3, "sdfgi_converge": 2, "gi_half": false,
 		"glow": true, "vol_fog": true, "vfog_size": 160, "vfog_depth": 128, "ssr": true, "ssr_steps": 64, "water_ssr": 48,
 		"lod_threshold": 0.75, "range": 2.0, "scatter": 1.0, "particles": 1.0, "aniso": 4, "tex_bias": 0.0, "fog_mul": 1.0,
-		"msaa": 0, "fxaa": false, "npc_full": 36, "rig_budget": 16, "npc_sprites": 200, "view_radius": 7, "light_fade": 0.0, "town_far": 0.0,
+		"msaa": 0, "fxaa": false, "npc_full": 18, "rig_budget": 10, "npc_sprites": 120, "view_radius": 7, "light_fade": 0.0, "town_far": 0.0,
 		"draw_merge": false, "prop_cull": 0, "impostor_cap": 0.0, "vat_crowd": true, "lite_world": false, "lod1_dressing": false,
+		"pop_full_range": 50.0, "vat_range": 130.0, "pop_sprite_range": 240.0,
 		"stream_mul": 1.5, "grass_mul": 2.0,
-		"crowd": {"near_max": 18, "near_dist": 24.0, "mid_dist": 70.0, "far_dist": 260.0, "shadow_dist": 34.0, "steps": [1, 1, 2]},
+		"crowd": {"near_max": 10, "near_dist": 24.0, "mid_dist": 70.0, "far_dist": 260.0, "shadow_dist": 34.0, "steps": [1, 2, 3]},
 	},
 ]
 
@@ -644,6 +649,11 @@ func _apply_globals() -> void:
 	# LOW renders at 30 fps: ticking physics at 60 ran every _physics_process (villagers, player, soldiers, Jolt) twice per
 	# frame on the phone. Physics interpolation (project setting) keeps 30 Hz motion smooth.
 	Engine.physics_ticks_per_second = int(value("physics_hz"))
+	# PC: a slow frame must not run 5-8 catch-up physics ticks (each is 6-10 ms of villager / critter / player scripts in a town), which
+	# made one 40 ms frame the next 130 ms one and kept the game there (measured: 7.5 fps in the Kingsreach market). Three ticks keep
+	# real time down to 20 fps; below that the simulation slows a little instead of freezing. Phones keep the engine default.
+	if is_pc():
+		Engine.max_physics_steps_per_frame = 8 if preload("res://scripts/core/perf_probe.gd").legacy else PC_MAX_PHYSICS_STEPS
 	npc_full = value("npc_full")
 	npc_sprites = value("npc_sprites")
 	view_radius = value("view_radius")

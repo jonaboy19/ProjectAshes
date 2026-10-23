@@ -548,7 +548,19 @@ func resync() -> void:
 	_decide = 0.0
 
 
+## Mid/far villagers (CrowdAnimLOD tier >= 1, no contact with the player) step every other physics tick with the elapsed time,
+## half of them on each parity: at 60 Hz the 28+ bodies cost ~8 ms per tick on the PC; the walkers beyond the NEAR band are not
+## near enough to see the difference. Contact / physics_active / anyone talking keeps the full rate.
+var _hr_acc := 0.0
+
+
 func _physics_process(delta: float) -> void:
+	if lod_tier >= 1 and not Probe.legacy and not _contact and not physics_active and not _talk.active and Engine.physics_ticks_per_second >= 50:
+		if ((Engine.get_physics_frames() + get_instance_id()) & 1) != 0:
+			_hr_acc += delta
+			return
+		delta += _hr_acc
+	_hr_acc = 0.0
 	if NpcWorld.profile:
 		var t0 := Time.get_ticks_usec()
 		_tick_body(delta)

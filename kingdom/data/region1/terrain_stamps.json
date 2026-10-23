@@ -28,6 +28,160 @@
 				-1875
 			],
 			"cell": 3
+		},
+		{
+			"cell": 3.0,
+			"file": "res://data/region1/terrain/rift_trench_noise.res",
+			"id": "rift_trench_noise",
+			"late": true,
+			"mode": "noise",
+			"origin": [
+				801.0,
+				675.0
+			]
+		},
+		{
+			"cell": 3.0,
+			"file": "res://data/region1/terrain/ashen_scar_noise.res",
+			"id": "ashen_scar_noise",
+			"late": true,
+			"mode": "noise",
+			"origin": [
+				2271.0,
+				2082.0
+			]
+		},
+		{
+			"cell": 3.0,
+			"file": "res://data/region1/terrain/rift_trench_valencious.res",
+			"id": "rift_trench_valencious",
+			"late": true,
+			"mode": "valencious",
+			"origin": [
+				801.0,
+				675.0
+			]
+		},
+		{
+			"cell": 3.0,
+			"file": "res://data/region1/terrain/ashen_scar_valencious.res",
+			"id": "ashen_scar_valencious",
+			"late": true,
+			"mode": "valencious",
+			"origin": [
+				2271.0,
+				2082.0
+			]
+		},
+		{
+			"cell": 1.5,
+			"file": "res://data/region1/terrain/mine_greyseam_noise.res",
+			"id": "mine_greyseam_noise",
+			"late": true,
+			"mode": "noise",
+			"origin": [
+				-190.5,
+				-510.0
+			]
+		},
+		{
+			"cell": 1.5,
+			"file": "res://data/region1/terrain/mine_deepvein_noise.res",
+			"id": "mine_deepvein_noise",
+			"late": true,
+			"mode": "noise",
+			"origin": [
+				-778.5,
+				-2604.0
+			]
+		},
+		{
+			"cell": 1.5,
+			"file": "res://data/region1/terrain/mine_coldseam_noise.res",
+			"id": "mine_coldseam_noise",
+			"late": true,
+			"mode": "noise",
+			"origin": [
+				2742.0,
+				-5662.5
+			]
+		},
+		{
+			"cell": 1.5,
+			"file": "res://data/region1/terrain/mine_ironroot_noise.res",
+			"id": "mine_ironroot_noise",
+			"late": true,
+			"mode": "noise",
+			"origin": [
+				-4087.5,
+				1264.5
+			]
+		},
+		{
+			"cell": 1.5,
+			"file": "res://data/region1/terrain/mine_greyseam_valencious.res",
+			"id": "mine_greyseam_valencious",
+			"late": true,
+			"mode": "valencious",
+			"origin": [
+				-190.5,
+				-510.0
+			]
+		},
+		{
+			"cell": 1.5,
+			"file": "res://data/region1/terrain/mine_deepvein_valencious.res",
+			"id": "mine_deepvein_valencious",
+			"late": true,
+			"mode": "valencious",
+			"origin": [
+				-778.5,
+				-2604.0
+			]
+		},
+		{
+			"cell": 1.5,
+			"file": "res://data/region1/terrain/mine_coldseam_valencious.res",
+			"id": "mine_coldseam_valencious",
+			"late": true,
+			"mode": "valencious",
+			"origin": [
+				2742.0,
+				-5662.5
+			]
+		},
+		{
+			"cell": 1.5,
+			"file": "res://data/region1/terrain/mine_ironroot_valencious.res",
+			"id": "mine_ironroot_valencious",
+			"late": true,
+			"mode": "valencious",
+			"origin": [
+				-4087.5,
+				1264.5
+			]
+		},
+		{
+			"cell": 2.0,
+			"file": "res://data/region1/terrain/grimfen_pass_cut_noise.res",
+			"id": "grimfen_pass_cut_noise",
+			"late": true,
+			"mode": "noise",
+			"origin": [
+				430.0,
+				-3728.0
+			]
+		},
+		{
+			"cell": 2.0,
+			"file": "res://data/region1/terrain/grimfen_pass_cut_valencious.res",
+			"id": "grimfen_pass_cut_valencious",
+			"late": true,
+			"mode": "valencious",
+			"origin": [
+				430.0,
+				-3728.0
+			]
 		}
 	],
 	"trails": [
