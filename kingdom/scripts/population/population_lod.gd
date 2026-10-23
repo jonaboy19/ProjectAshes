@@ -26,7 +26,7 @@ const CellStreamer := preload("res://scripts/core/cell_streamer.gd")
 const FULL_RANGE := 45.0       # defaults; the live values come from CellStreamer profile "population"
 const SPRITE_RANGE := 220.0
 const NEAR_ALWAYS := 9.0     # metres: never a sprite this close to the player
-const NEAR_HARD_CAP := 12    # but never more than this many full models in total
+const NEAR_HARD_CAP := 8    # but never more than this many full models in total
 ## Below this, a flat sprite impostor reads as a blocky pixel person right next
 ## to the camera. NEAR_ALWAYS/NEAR_HARD_CAP above are meant to keep everyone this
 ## close in a full model, but when the full-model budget (Quality.npc_full) is
@@ -37,13 +37,13 @@ const NEAR_HARD_CAP := 12    # but never more than this many full models in tota
 ## hovering right at the boundary doesn't pop in and out every refresh.
 const SPRITE_MIN_DIST := 20.0
 const SPRITE_MIN_DIST_RELEASE := 26.0
-const MAX_FULL := 24
+const MAX_FULL := 18
 const TownRoster := preload("res://scripts/world/town_kit/town_roster.gd")
 ## Recruits with a body of their own (stage 3, scripts/actors/follower_manager.gd): their rows are never drawn here.
 const FollowerManager := preload("res://scripts/actors/follower_manager.gd")
 ## Ceiling on total sprites drawn (all job looks combined; see `refresh()`), not
 ## per look. Quality.npc_sprites narrows this further per tier.
-const MAX_SPRITES := 140
+const MAX_SPRITES := 120
 ## Full bodies built per rendered frame (see `_drain_spawns`). The refresh only queues; this is the whole spawn budget.
 const MAX_SPAWNS_PER_FRAME := 1
 ## Contact-range villagers that use the multi-slide controller each physics
@@ -51,7 +51,7 @@ const MAX_SPAWNS_PER_FRAME := 1
 ## once; overflow uses one swept collision query (see Villager.physics_active)
 ## with the same steering/speed/animation and no NPC-on-NPC collision. Profile
 ## both paths before changing this cap.
-const MAX_PHYSICS_CONTACT := 8
+const MAX_PHYSICS_CONTACT := 4
 ## Retain an active contact slot slightly across ranking refreshes to avoid
 ## repeatedly enabling/disabling collision for bodies at the budget edge.
 const PHYSICS_KEEP_BIAS := 0.78
@@ -74,6 +74,7 @@ const LOOK_MODEL := {
 var focus := Vector3.ZERO
 var _full_range := FULL_RANGE
 var _sprite_range := SPRITE_RANGE
+var _vat_range := VAT_RANGE
 var full_count := 0
 var sprite_count := 0
 
@@ -104,6 +105,8 @@ var _query_r := 0.0             # adaptive people_near radius (see refresh)
 const VAT_RANGE := 120.0
 var _vat: VatResidents
 var _anim_lod: CrowdAnimLOD
+const PRESENCE_MAX := 6
+var _presence_bodies: Array = []
 var _presence := PresenceLive.new()      # Reactive Presence for the FULL tier (~10 Hz, observers staggered)
 var _player_node: Node3D
 
@@ -167,7 +170,7 @@ func _tick_presence(delta: float) -> void:
 	if _player_node == null or not is_instance_valid(_player_node):
 		_player_node = get_tree().get_first_node_in_group("player") as Node3D
 	var _pp := Probe.t()
-	_presence.tick(delta, Time.get_ticks_msec(), _villagers, _player_node)
+	_presence.tick(delta, Time.get_ticks_msec(), _presence_bodies if Quality.is_pc() else _villagers, _player_node)
 	Probe.add("pop.presence", _pp)
 
 
@@ -240,6 +243,11 @@ func refresh(step_delta := 0.25, spread := false) -> void:
 	var p2 := Vector2(focus.x, focus.z)
 	_full_range = CellStreamer.shared().distance("population", "full")      # F12: the cell manager owns the bands
 	_sprite_range = CellStreamer.shared().distance("population", "load")
+	_vat_range = VAT_RANGE
+	if Quality.is_pc():      # PC rows own the bands (docs/qa/perf: NPC density pass); phones keep the CellStreamer profile
+		_full_range = float(Quality.value("pop_full_range"))
+		_sprite_range = float(Quality.value("pop_sprite_range"))
+		_vat_range = float(Quality.value("vat_range"))
 	# Perf (release QA 2026-10-06): in the capital people_near returned ~1-2k residents and every refresh filtered, weighted and
 	# lambda-sorted all of them (~20 ms on the PC, ~100 ms on the S22, 4x a second) to keep ~22 (LOW). The query radius now
 	# adapts so about 4x what the tier can show come back; it never drops below the full-model band, so bodies are unchanged.
@@ -337,6 +345,13 @@ func refresh(step_delta := 0.25, spread := false) -> void:
 			nearest_id = entry[1]
 	for id in _full:
 		(_full[id] as Villager).show_tag = id == nearest_id
+	# Reactive presence (observers, glances, greetings) only for the nearest full-AI bodies on PC (NPC density research: think-count small).
+	_presence_bodies = []
+	for entry in dists:
+		if _full.has(entry[1]):
+			_presence_bodies.append(_full[entry[1]])
+			if _presence_bodies.size() >= PRESENCE_MAX:
+				break
 	var physics_candidates: Array = []
 	for entry in dists:
 		var candidate_id: int = entry[1]
@@ -400,7 +415,7 @@ func _sprite_job_step(slice_us: int) -> bool:
 	var active_sprite_ids: Dictionary = _sj["active"]
 	var step_delta: float = _sj["step"]
 	var sprite_budget: int = mini(MAX_SPRITES, Quality.npc_sprites)
-	var vat_r2 := VAT_RANGE * VAT_RANGE
+	var vat_r2 := _vat_range * _vat_range
 	var enter_r2 := SPRITE_MIN_DIST * SPRITE_MIN_DIST
 	var release_r2 := SPRITE_MIN_DIST_RELEASE * SPRITE_MIN_DIST_RELEASE
 	var break_early := false
