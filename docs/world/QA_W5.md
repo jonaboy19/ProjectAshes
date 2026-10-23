@@ -117,3 +117,13 @@ Read as 6-up sheets (640x360 per image); the fix shots were also read at full si
 | w12_harrowgate_steppe_aerial120_noon | lime steppe with tree clumps, big shadow: good |
 | w12_harrowgate_steppe_aerial400_noon | lime steppe: ok |
 | w12_harrowgate_steppe_ground_noon | oak, tall grass, berry bush: very good |
+
+## Performance (PC_HIGH 2560x1440, RTX 4070 Laptop, `--profile=pc --quality=high`)
+**Conditions (read before using any number):** the laptop was on BATTERY (BatteryStatus 1, 55-69 %), not AC, and another agent's 2560x1440 town-route profiling run (PA_wt_audit) was running at the same time; the Godot editor MCP was down. Frame times came out at a constant 133 ms (7.5 fps) with Terrain3D+macro and 129 ms (8.1 fps) legacy+noise, independent of draw count (flight: 87-147 draws, same 133 ms), i.e. a power/shared-GPU cap, not the renderer. **Treat fps and p50/p1 as invalid; re-run on AC with nothing else running** (`tools_qa/perf/town_route.gd --seconds=100`, `tools_qa/perf/aerial_flight.gd`).
+| run | result |
+|---|---|
+| town route, terrain3d + valencious (60 s) | p50 133.1 ms, p95 143.8, p99 147.0 (p1 fps ~6.8); avg 2026 draws, 6.0 M prims (max 2617 / 8.0 M); VRAM 3077 MB (textures 2443, buffers 527); static mem 1252 MB; 22 399 nodes |
+| town route, legacy + noise (60 s) | p50 129.0 ms, p95 143.4, p99 147.3; avg 2289 draws, 5.7 M prims (max 3378 / 7.7 M); VRAM 3111 MB; static 1066 MB; 16 282 nodes |
+| aerial flight 9 km at 70 m/s, 400 m up, terrain3d + valencious | p50 133.3 ms, p99 145.8; draws 81-147, 0.26-0.3 M prims; VRAM 3162 MB; 159 Terrain3D regions added; **region bake hitch (main thread add_region): avg 15.4 ms, worst 77.4 ms** (inflated by the loaded machine; headless W1e measured 5 ms); static 1185 MB; process RAM not sampled (OS reports 15.6 GB physical) |
+| aerial flight, legacy + noise | did not finish (run ended without FLIGHT_SUM; first windows p50 124 / 75 ms) |
+Take-aways that are not fps: Terrain3D + macro costs about +190 MB static memory and +6 000 nodes (ProtonScatter) in town; draw count is lower than legacy at the same spot; VRAM equal.
