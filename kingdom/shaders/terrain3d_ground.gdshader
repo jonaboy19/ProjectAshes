@@ -578,8 +578,10 @@ void fragment() {
 			float l = dot(albedo, vec3(0.299, 0.587, 0.114));
 			float violet = smoothstep(0.0, 0.04, albedo.b - albedo.g);
 			float bright = smoothstep(0.4, 0.65, l);
-			float k = lush * (1.0 - hard) * (1.0 - violet) * (1.0 - bright);
+			float greenish = smoothstep(-0.02, 0.012, albedo.g - albedo.r);      // honey cobbles and dirt tracks (red > green) keep their colour
+			float k = lush * (1.0 - hard) * (1.0 - violet) * (1.0 - bright) * greenish;
 			vec3 rich = mix(vec3(l), albedo, 1.55) * vec3(0.78, 1.18, 0.74);
+			rich = mix(rich, vec3(l) * vec3(0.8, 1.32, 0.56), 0.45);          // pull olive toward the reference's saturated meadow green
 			albedo = mix(albedo, rich, k);
 		}
 		albedo *= season_tint;

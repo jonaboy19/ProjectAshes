@@ -181,21 +181,6 @@
    "fov": 60
   },
   {
-   "name": "w03_ironmarch_highlands_ground_dawn",
-   "at": [
-    2300,
-    -2500
-   ],
-   "look": [
-    2400,
-    -2650
-   ],
-   "up": 1.7,
-   "look_up": 1.5,
-   "hour": 6.8,
-   "fov": 60
-  },
-  {
    "name": "w03_ironmarch_highlands_ground_noon",
    "at": [
     2300,
@@ -208,21 +193,6 @@
    "up": 1.7,
    "look_up": 1.5,
    "hour": 12.0,
-   "fov": 60
-  },
-  {
-   "name": "w03_ironmarch_highlands_ground_dusk",
-   "at": [
-    2300,
-    -2500
-   ],
-   "look": [
-    2400,
-    -2650
-   ],
-   "up": 1.7,
-   "look_up": 1.5,
-   "hour": 17.8,
    "fov": 60
   },
   {
@@ -331,21 +301,6 @@
    "fov": 60
   },
   {
-   "name": "w05_duskbriar_wood_ground_dawn",
-   "at": [
-    400,
-    520
-   ],
-   "look": [
-    450,
-    600
-   ],
-   "up": 1.7,
-   "look_up": 1.5,
-   "hour": 6.8,
-   "fov": 60
-  },
-  {
    "name": "w05_duskbriar_wood_ground_noon",
    "at": [
     400,
@@ -358,21 +313,6 @@
    "up": 1.7,
    "look_up": 1.5,
    "hour": 12.0,
-   "fov": 60
-  },
-  {
-   "name": "w05_duskbriar_wood_ground_dusk",
-   "at": [
-    400,
-    520
-   ],
-   "look": [
-    450,
-    600
-   ],
-   "up": 1.7,
-   "look_up": 1.5,
-   "hour": 17.8,
    "fov": 60
   },
   {
@@ -560,21 +500,6 @@
    "fov": 60
   },
   {
-   "name": "w08_greywood_emberfall_ground_dawn",
-   "at": [
-    -1500,
-    1750
-   ],
-   "look": [
-    -1450,
-    1830
-   ],
-   "up": 1.7,
-   "look_up": 1.5,
-   "hour": 6.8,
-   "fov": 60
-  },
-  {
    "name": "w08_greywood_emberfall_ground_noon",
    "at": [
     -1500,
@@ -587,21 +512,6 @@
    "up": 1.7,
    "look_up": 1.5,
    "hour": 12.0,
-   "fov": 60
-  },
-  {
-   "name": "w08_greywood_emberfall_ground_dusk",
-   "at": [
-    -1500,
-    1750
-   ],
-   "look": [
-    -1450,
-    1830
-   ],
-   "up": 1.7,
-   "look_up": 1.5,
-   "hour": 17.8,
    "fov": 60
   },
   {
@@ -710,21 +620,6 @@
    "fov": 60
   },
   {
-   "name": "w10_mistwood_west_ground_dawn",
-   "at": [
-    -3250,
-    -560
-   ],
-   "look": [
-    -3150,
-    -650
-   ],
-   "up": 1.7,
-   "look_up": 1.5,
-   "hour": 6.8,
-   "fov": 60
-  },
-  {
    "name": "w10_mistwood_west_ground_noon",
    "at": [
     -3250,
@@ -737,21 +632,6 @@
    "up": 1.7,
    "look_up": 1.5,
    "hour": 12.0,
-   "fov": 60
-  },
-  {
-   "name": "w10_mistwood_west_ground_dusk",
-   "at": [
-    -3250,
-    -560
-   ],
-   "look": [
-    -3150,
-    -650
-   ],
-   "up": 1.7,
-   "look_up": 1.5,
-   "hour": 17.8,
    "fov": 60
   },
   {
@@ -785,21 +665,6 @@
    "fov": 60
   },
   {
-   "name": "w11_dunhallow_uplands_ground_dawn",
-   "at": [
-    -2900,
-    -3150
-   ],
-   "look": [
-    -2800,
-    -3250
-   ],
-   "up": 1.7,
-   "look_up": 1.5,
-   "hour": 6.8,
-   "fov": 60
-  },
-  {
    "name": "w11_dunhallow_uplands_ground_noon",
    "at": [
     -2900,
@@ -812,21 +677,6 @@
    "up": 1.7,
    "look_up": 1.5,
    "hour": 12.0,
-   "fov": 60
-  },
-  {
-   "name": "w11_dunhallow_uplands_ground_dusk",
-   "at": [
-    -2900,
-    -3150
-   ],
-   "look": [
-    -2800,
-    -3250
-   ],
-   "up": 1.7,
-   "look_up": 1.5,
-   "hour": 17.8,
    "fov": 60
   },
   {
@@ -861,22 +711,6 @@
    "fov": 60
   },
   {
-   "name": "w12_harrowgate_steppe_ground_dawn",
-   "at": [
-    -100,
-    3250
-   ],
-   "look": [
-    0,
-    3350
-   ],
-   "up": 1.7,
-   "look_up": 1.5,
-   "hour": 6.8,
-   "fov": 60,
-   "warm": 500
-  },
-  {
    "name": "w12_harrowgate_steppe_ground_noon",
    "at": [
     -100,
@@ -889,22 +723,6 @@
    "up": 1.7,
    "look_up": 1.5,
    "hour": 12.0,
-   "fov": 60,
-   "warm": 500
-  },
-  {
-   "name": "w12_harrowgate_steppe_ground_dusk",
-   "at": [
-    -100,
-    3250
-   ],
-   "look": [
-    0,
-    3350
-   ],
-   "up": 1.7,
-   "look_up": 1.5,
-   "hour": 17.8,
    "fov": 60,
    "warm": 500
   }
