@@ -1,0 +1,3 @@
+# Allowed [HOOK] kinds for the v1 release gate: one normalised line per kind (numbers become N).
+# Generated from a bot run: `grep -h '\[HOOK\]' v1_out/bot_out.txt | sed 's/.*\[HOOK\] //; s/-\?[0-9]\+\(\.[0-9]\+\)\?/N/g' | sort -u`
+# Empty until the owner approves a list; run_v1.sh only reports unlisted hooks unless V1_HOOKS_STRICT=1.

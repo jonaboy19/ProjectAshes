@@ -100,6 +100,8 @@ func run(p_main: Node) -> void:
 	_tap = ErrorTap.new()
 	OS.add_logger(_tap)
 	_grab_refs()
+	if is_headless():
+		L("headless display server: screenshots and fps/draw sampling are skipped")
 	L("playtest bot start, stages filter '%s', adapter %s, quality tier forced low" % [only, RenderingServer.get_video_adapter_name()])
 	await _run_all()
 
@@ -186,7 +188,14 @@ func _on_engine_error(e: String) -> void:
 			L("ENGINE x%d %s" % [n, e.substr(0, 120)])
 
 
+## Headless (no GPU, no rendering): no screenshots, no fps / draw-call sampling. CHECKs, engine errors and stuck detection stay.
+func is_headless() -> bool:
+	return DisplayServer.get_name() == "headless"
+
+
 func _sample() -> void:
+	if is_headless():
+		return
 	var s := {"fps": Engine.get_frames_per_second(), "draws": 0, "prims": 0, "objs": 0}
 	if main != null and is_instance_valid(main) and main.get("viewport") != null and is_instance_valid(main.viewport):
 		var rid: RID = main.viewport.get_viewport_rid()
@@ -524,6 +533,10 @@ func close_everything() -> void:
 # --------------------------------------------------------------------------------------------- screenshots
 
 func shot(tag: String) -> void:
+	if is_headless():
+		dismiss_popups()
+		await frames(3)
+		return
 	dismiss_popups()
 	await frames(3)
 	await wait(0.3)
@@ -664,7 +677,7 @@ func _finish_metrics() -> void:
 	cur["draws_max"] = dmax
 	cur["prims_max"] = pmax
 	cur["worst_frame_ms"] = _frame_max
-	if not _samples.is_empty() and cur["draws_avg"] < 40.0 and not (cur["name"] in ["menus", "scribe", "boot", "tf_interior", "tf_rift"]) and not get_tree().paused:
+	if not is_headless() and not _samples.is_empty() and cur["draws_avg"] < 40.0 and not (cur["name"] in ["menus", "scribe", "boot", "tf_interior", "tf_rift"]) and not get_tree().paused:
 		bug("render", "world barely renders in this stage: %.0f draw calls on average" % cur["draws_avg"])
 
 
