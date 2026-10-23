@@ -19,6 +19,9 @@ const PATH := Color(0.62, 0.52, 0.34)
 const ROCK := Color(0.6, 0.55, 0.46)
 const COBBLE := Color(0.66, 0.58, 0.46)
 const WATER := Color(0.3, 0.56, 0.72)
+## Far-ground colour per WorldBiomes id: grass forest meadow farmland marsh highland rift snow.
+const BIOME_COL := [Color(0.42, 0.6, 0.22), Color(0.3, 0.46, 0.18), Color(0.46, 0.66, 0.24), Color(0.56, 0.62, 0.28), Color(0.32, 0.44, 0.24),
+	Color(0.5, 0.5, 0.3), Color(0.26, 0.2, 0.3), Color(0.88, 0.9, 0.95)]
 
 var _task := -1
 var _result: Dictionary = {}
@@ -152,6 +155,15 @@ func _work() -> void:
 			var wg := maxf(0.0, 1.0 - (w.r + w.g + w.b + w.a))
 			var tot := wg + w.r + w.g + w.b + w.a + 0.0001
 			var col := (GRASS * wg + PATH * w.r + ROCK * w.g + COBBLE * w.b + FOREST * w.a) / tot
+			if WorldBiomes.active():
+				# W5: colour from the SOFT biome field (150 m blends) instead of color_at's hard 12 m biome ids, which drew hard-edged polygon patches
+				# at distance. Road / rock / cobble weights still win where they exist.
+				var sw := WorldBiomes.soft_weights(x, z)
+				var bc := Color(0, 0, 0)
+				for bi in 8:
+					bc += (BIOME_COL[bi] as Color) * sw[bi]
+				var open := clampf(1.0 - (w.r + w.g + w.b), 0.0, 1.0)
+				col = col.lerp(PATH, 0.0).lerp(bc, open * 0.9)
 			var lv := lvs[j * n + i]
 			if not is_nan(lv) and lv > h + 0.1:
 				# Water only where the whole neighbourhood is water or higher ground (see _water_interior): a river is far

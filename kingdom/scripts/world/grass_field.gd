@@ -36,13 +36,25 @@ static func plan(origin: Vector2, size: float, seed_value: int) -> Dictionary:
 	# Blender-made alpha-card clumps (tools/blender/make_nature.py) with the wind
 	# material assigned at import; a few tall tufts and wildflowers mixed in.
 	var kinds := {"grass_clump": [], "grass_clump_tall": [], "flowers_a": []}
-	for i in CLUMPS_PER_CHUNK:
+	# Valencious macro on (WorldBiomes.active): density and the clump/tall/flower mix follow the biome (meadow lush and flowery, marsh tall,
+	# rift/snow bare) and Quality's grass_mul (PC_HIGH 1.5, PC_ULTRA 2.0) buys more clumps. Legacy world: exactly the old loop.
+	var biomes := WorldBiomes.active()
+	var cap := WorldBiomes.GRASS_DENSITY_MAX * WorldBiomes.grass_scale if biomes else 1.0
+	var attempts := int(CLUMPS_PER_CHUNK * cap) if biomes else CLUMPS_PER_CHUNK
+	for i in attempts:
 		var x := origin.x + rng.randf() * size
 		var z := origin.y + rng.randf() * size
+		var biome := WorldBiomes.LEGACY
+		if biomes:
+			biome = WorldBiomes.at(x, z)
+			if rng.randf() * cap >= WorldBiomes.grass_density(biome) * WorldBiomes.grass_scale:
+				continue
 		if not _grassy(x, z):
 			continue
 		var roll := rng.randf()
 		var kind := "grass_clump" if roll < 0.82 else ("grass_clump_tall" if roll < 0.95 else "flowers_a")
+		if biomes:
+			kind = WorldBiomes.grass_kind(biome, roll)
 		var s := rng.randf_range(0.75, 1.35)
 		var basis := Basis(Vector3.UP, rng.randf() * TAU).scaled(Vector3(s, s * rng.randf_range(0.85, 1.25), s))
 		(kinds[kind] as Array).append(Transform3D(basis, Vector3(x, WorldGen.height(x, z) - 0.03, z)))
@@ -68,6 +80,10 @@ static func _flower_patches(out: Array, origin: Vector2, size: float, seed_value
 		var roadside := edge > 0.4 and edge < 7.0
 		if not _flowerable(cx, cz):
 			continue
+		if WorldBiomes.active():
+			var fm := WorldBiomes.flower_mult(WorldBiomes.at(cx, cz))
+			if rng.randf() >= minf(1.0, fm):
+				continue
 		# Road edges nearly always get a drift, open meadow about a third of the time.
 		if rng.randf() > (0.95 if roadside else 0.6):
 			continue

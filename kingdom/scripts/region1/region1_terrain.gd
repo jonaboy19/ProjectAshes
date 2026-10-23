@@ -20,6 +20,12 @@ const INDEX := "res://data/region1/terrain_stamps.json"
 static var enabled := true
 ## [{x0, z0, x1, z1, cell, nx, nz, d: PackedFloat32Array (RGBA interleaved)}]
 static var _stamps: Array[Dictionary] = []
+## Stamps flagged "late" in the index (W4 landmark stamps): loaded here, switched on by activate_late() once RegionSites has planned, so
+## no site, road or pad is ever planned on the stamped ground (no id or position moves). Same layout as _stamps.
+static var _late: Array[Dictionary] = []
+## Tools (bake_stamps.gd) switch this on to sample the ground WITHOUT the late stamps they are about to replace, while the older stamps stay on
+## (site planning, e.g. the Greyseam Mine, depends on them).
+static var skip_late := false
 ## [{pts: PackedVector2Array, half: float, box: Rect2, soft: float}]
 static var _trails: Array[Dictionary] = []
 static var _box := Rect2()
@@ -27,6 +33,7 @@ static var _box := Rect2()
 
 static func setup() -> void:
 	_stamps.clear()
+	_late.clear()
 	_trails.clear()
 	_box = Rect2()
 	if not enabled or not FileAccess.file_exists(INDEX) or OS.get_cmdline_user_args().has("--r1off"):
@@ -38,6 +45,9 @@ static func setup() -> void:
 		var path := String(st.get("file", ""))
 		if not ResourceLoader.exists(path):
 			continue
+		# "mode": the stamp was baked against one macro mode (noise / valencious); the other mode never sees it.
+		if st.has("mode") and String(st["mode"]) != WorldMacro.mode():
+			continue
 		var img := load(path) as Image
 		if img == null or img.get_format() != Image.FORMAT_RGBAF:
 			continue
@@ -47,7 +57,11 @@ static func setup() -> void:
 			"d": img.get_data().to_float32_array()}
 		e["x1"] = e["x0"] + cell * (e["nx"] - 1)
 		e["z1"] = e["z0"] + cell * (e["nz"] - 1)
-		_stamps.append(e)
+		e["id"] = String(st.get("id", ""))
+		if bool(st.get("late", false)):
+			_late.append(e)
+		else:
+			_stamps.append(e)
 	for tr: Dictionary in data.get("trails", []):
 		var pts := PackedVector2Array()
 		for p: Array in tr["points"]:
@@ -61,6 +75,16 @@ static func setup() -> void:
 		box = box.grow(half + 3.0)
 		_trails.append({"pts": pts, "half": half, "box": box, "soft": float(tr.get("soft", 1.4))})
 		_box = box if _box.size == Vector2.ZERO else _box.merge(box)
+
+
+## Switches the late (W4) stamps on. RegionSites.plan() calls it as its last step; a no-op when stamps are disabled or already on.
+static func activate_late() -> void:
+	if skip_late:
+		_late.clear()
+	if _late.is_empty():
+		return
+	_stamps.append_array(_late)
+	_late.clear()
 
 
 ## Ground height with every stamp applied (called last in WorldGen.height()).

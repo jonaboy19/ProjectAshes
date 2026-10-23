@@ -17,8 +17,10 @@ const LAYERS := {
 	# W1d (Valencious macro biomes): existing Poly Haven sets only, graded to Style G (warm, painterly)
 	"meadow": ["leafy_grass", "disp"], "farmland": ["dirt", "disp"], "marsh": ["brown_mud_02", "disp"],
 	"rift": ["rocky_terrain_02", "disp"], "snow": ["rocky_terrain_02", "disp"],
+	# W3: highland / steppe scrub = rock detail mixed with leafy grass, dry gold-green
+	"highland": ["rocky_terrain_02", "disp"],
 }
-const GRADE := ["meadow", "farmland", "marsh", "rift", "snow"]
+const GRADE := ["meadow", "farmland", "marsh", "rift", "snow", "highland"]
 
 
 ## Offline grade (no new downloads): warm the meadow, make farmland a tilled brown, marsh a dark green-brown mud, the Rift a violet-black ash,
@@ -30,7 +32,8 @@ func _grade(layer: String, im: Image) -> void:
 			var l := c.get_luminance()
 			var o := c
 			match layer:
-				"meadow": o = Color(c.r * 1.14, c.g * 1.04, c.b * 0.62)
+				"meadow": o = Color(c.r * 0.96, c.g * 1.08, c.b * 0.72)      # W3: greener than the W1 gold (Style G lush ground)
+				"highland": o = Color(c.r * 1.05, c.g * 1.04, c.b * 0.80)
 				"farmland": o = Color(l * 0.72 + 0.10, l * 0.66 + 0.10, l * 0.36 + 0.04)
 				"marsh": o = Color(c.r * 0.70, c.g * 0.78, c.b * 0.52)
 				"rift": o = Color(l * 0.44 + 0.07, l * 0.38 + 0.06, l * 0.50 + 0.09)
@@ -64,6 +67,11 @@ func run() -> void:
 	for layer: String in LAYERS:
 		var set: String = LAYERS[layer][0]
 		var alb := _img(PH % [set, set, "diff"])
+		if layer == "highland":
+			var gr := _img(PH % ["leafy_grass", "leafy_grass", "diff"])
+			for y in alb.get_height():
+				for x in alb.get_width():
+					alb.set_pixel(x, y, alb.get_pixel(x, y).lerp(gr.get_pixel(x, y), 0.55))
 		if GRADE.has(layer):
 			_grade(layer, alb)
 		_pack(layer, alb, _img(PH % [set, set, "nor_gl"]), _img(PH % [set, set, "arm"]), _img(PH % [set, set, "disp"]))

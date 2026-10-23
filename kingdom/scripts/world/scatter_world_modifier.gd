@@ -34,9 +34,10 @@ func exclusion_kind() -> String:
 ## Whether the world allows `role` at (x, z) (no randomness; the keep_chance roll comes after).
 func allows(x: float, z: float) -> bool:
 	var h := WorldGen.height(x, z)
-	if h > 115.0:
+	var biome := WorldBiomes.at(x, z)   # LEGACY (-1) unless the Valencious macro is on: then the biome sets the height cap and tree share
+	if h > WorldBiomes.max_height(role, biome):
 		return false
-	var density := WorldGen.forest_density(x, z)
+	var density := WorldBiomes.tree_density(biome, WorldGen.forest_density(x, z))
 	match role:
 		"tree":
 			if density < 0.02:
@@ -55,7 +56,13 @@ func allows(x: float, z: float) -> bool:
 	return not ScatterExclusion.blocked(x, z, exclusion_kind())
 
 
+## Diagnostics (perf pass W3): [passes, total_us, max_us, candidates] of the modifier's own maths (one pass per role per chunk).
+static var stats := [0, 0, 0, 0]
+
+
 func _process_transforms(transforms, _domain, random_seed: int) -> void:
+	var t0 := Time.get_ticks_usec()
+	var cand: int = transforms.list.size()
 	var rng := RandomNumberGenerator.new()
 	rng.seed = random_seed ^ salt
 	var kept: Array[Transform3D] = []
@@ -66,12 +73,20 @@ func _process_transforms(transforms, _domain, random_seed: int) -> void:
 		var roll := rng.randf()
 		var yaw := rng.randf() * TAU
 		var s := rng.randf_range(scale_min, scale_max)
+		var biome := WorldBiomes.at(x, z)
+		if role != "tree":
+			# The keep roll only needs the biome: do it before the expensive world rules (same result, 3-8x fewer WorldGen calls).
+			var keep := keep_chance
+			if biome >= 0:
+				var scar := 1.0
+				if biome == WorldBiomes.RIFT and role != "meadow":
+					scar += WorldBiomes.scar_boost(x, z) * 1.5      # scar slot: more dead wood and rock round the breaches
+				keep = minf(1.0, keep * WorldBiomes.keep_mult(role, biome) * scar)
+			if roll >= keep:
+				continue
 		if not allows(x, z):
 			continue
-		var density := WorldGen.forest_density(x, z)
-		if role == "tree" and roll >= density:
-			continue
-		if role != "tree" and roll >= keep_chance:
+		if role == "tree" and roll >= WorldBiomes.tree_density(biome, WorldGen.forest_density(x, z)):
 			continue
 		var h := WorldGen.height(x, z)
 		var slope := absf(WorldGen.height(x + 0.6, z) - h) + absf(WorldGen.height(x, z + 0.6) - h)
@@ -80,3 +95,8 @@ func _process_transforms(transforms, _domain, random_seed: int) -> void:
 	transforms.list = kept
 	last_kept = kept.size()
 	runs += 1
+	var dt := Time.get_ticks_usec() - t0
+	stats[0] += 1
+	stats[1] += dt
+	stats[2] = maxi(stats[2], dt)
+	stats[3] += cand
