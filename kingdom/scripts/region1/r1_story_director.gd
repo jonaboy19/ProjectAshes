@@ -186,7 +186,7 @@ func ctx() -> Dictionary:
 	var flags := {}
 	for f: Variant in lp.flags:
 		var v: Variant = lp.flags[f]
-		if v != null and v != false:
+		if v != null and not (v is bool and not v):     # (a flag value can be an Array: `Array != false` is a runtime error)
 			flags[String(f)] = true
 	var items := {}
 	for id in _item_ids:

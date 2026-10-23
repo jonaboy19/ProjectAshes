@@ -775,11 +775,26 @@ func _guild_context(settlement: int, _day: int) -> Dictionary:
 	for item: String in market.stock:
 		if int(market.stock[item]) < int(market.target[item]) / 2 and item in ["wolf_pelt", "firewood", "wolf_meat"]:
 			gathering.append({"item": item, "amount": int(market.target[item]) - int(market.stock[item])})
+	for h: Dictionary in HUNTER_POSTS:     # the "Hunter" board job: bring in skinned game (READY_V1 C10)
+		gathering.append(h)
 	var rumours := []
 	for m: Dictionary in Frontier.threat.modifiers:
 		rumours.append({"id": hash(m.get("label", "")), "label": m.get("label", "Strange signs"), "threat": m.get("value", 10.0)})
 	return {"dens": dens, "caravans": [], "gathering": gathering, "deliveries": [], "rumours": rumours,
 		"vacancies": RAAdventurerGuild.vacancies_from(careers, settlement)}
+
+
+## Guild "gather" posts for the hunting loop: bring in venison or hides taken from carcasses (CorpseLoot.attach_animal).
+const HUNTER_POSTS := [
+	{"item": "venison", "amount": 3, "title": "Hunter: bring in %d venison"},
+	{"item": "deer_hide", "amount": 2, "title": "Hunter: bring in %d deer hides"},
+]
+
+
+## Skinned game counts towards the Hunter commissions. `items` is [[id, qty], ...] from Hunting.skin.
+func on_haul_skinned(items: Array) -> void:
+	for e: Array in items:
+		guild.on_gathered(RAAdventurerGuild.PLAYER, String(e[0]), int(e[1]))
 
 
 func scout_profile() -> Dictionary:

@@ -554,6 +554,7 @@ func _run_all() -> void:
 		["towns", _s_towns], ["townsweep", _s_townsweep],
 		["st_load", _s_st_load], ["st_birth", _s_st_birth], ["st_a1", _s_st_a1], ["st_a2", _s_st_a2], ["st_a3", _s_st_a3],
 		["st_a4", _s_st_a4], ["st_a5", _s_st_a5], ["st_save", _s_st_save], ["st_probe", _s_st_probe],
+		["v1_hunt", _s_v1_hunt],
 	]
 	for e: Array in list:
 		if not _want(String(e[0])) and (String(e[0]) != "adult" or only.contains("st_")):
@@ -589,6 +590,7 @@ func _stage_limit(name: String) -> float:
 		"towns": return 900.0 * float(maxi(1, _town_list().size()))
 		"townsweep": return 60.0 * float(maxi(1, _sweep_list().size())) + 120.0
 		"st_load", "st_probe": return 400.0
+		"v1_hunt": return 240.0
 		"st_save": return 200.0
 		"st_birth", "st_a1", "st_a2", "st_a3", "st_a4", "st_a5": return 1500.0
 	return 150.0
@@ -4948,6 +4950,65 @@ func _s_st_a1() -> void:
 	st_act_result("Act I", "a1_after_blessing", "blessing happened %s" % str(Life.awakening.has_happened()))
 	if st_q().is_done("a1_after_blessing"):
 		check("Act I: the Blessing ceremony ran (the age-12 awakening)", Life.awakening.has_happened())
+
+
+## READY_V1 C10: the hunting loop. A deer dies to the player's blow, the carcass offers "Skin" (hold E), the haul lands in
+## the pack scaled by the hunting mastery, the skill grows, and the hide/meat feed the leather and jerky recipes.
+func _s_v1_hunt() -> void:
+	await _st_ready()
+	CorpseLoot.reset()
+	var c: Vector2 = ashford()["pos"]
+	var spot := c + Vector2(60, 40)
+	await teleport(spot, 0.0, 1.5)
+	var deer := Critter.new()
+	deer.kind = "deer"
+	deer.home = spot + Vector2(0, -3)
+	deer.claimed = true
+	main.world.add_child(deer)
+	deer.global_position = Vector3(spot.x, WorldGen.height(spot.x, spot.y - 2.0), spot.y - 2.0)
+	await wait(0.6)
+	check("a deer is huntable game", deer.huntable and deer.health > 0, "kind %s health %d" % [deer.kind, deer.health])
+	var xp0 := float(Life.mastery.xp.get("hunting", 0.0))
+	var meat0 := Life.count("venison")
+	deer.take_damage(999, player)
+	await wait(0.6)
+	check("the blow kills the deer", deer.dead)
+	check("a kill alone pays nothing: the carcass must be skinned", Life.count("venison") == meat0, "venison %d -> %d" % [meat0, Life.count("venison")])
+	player.global_position = deer.global_position + Vector3(1.2, 0.2, 0.0)
+	await wait(0.6)
+	var best := Interaction.best(player)
+	var lab := Interaction.label_of(best)
+	check("the carcass prompts 'Skin'", String(lab.get("text", lab)).to_lower().contains("skin"), str(lab).left(100))
+	check("skinning is a hold action", float(best.get("hold_time", 0.0)) > 0.0)
+	var ev := InputEventKey.new()
+	ev.keycode = KEY_E
+	ev.physical_keycode = KEY_E
+	ev.pressed = true
+	Input.parse_input_event(ev)     # a real key-down: the InteractionController starts the hold from the event
+	await wait(Hunting.HOLD_SECONDS + 0.8)
+	var up := InputEventKey.new()
+	up.keycode = KEY_E
+	up.physical_keycode = KEY_E
+	up.pressed = false
+	Input.parse_input_event(up)
+	await wait(0.4)
+	var got := Life.count("venison") - meat0
+	check("skinning the deer yields venison", got >= 1, "venison +%d, hide %d" % [got, Life.count("deer_hide")])
+	check("skinning trains hunting", float(Life.mastery.xp.get("hunting", 0.0)) > xp0, "xp %.2f -> %.2f" % [xp0, float(Life.mastery.xp.get("hunting", 0.0))])
+	var comp := Interactable.component_of(deer)
+	check("a skinned carcass leaves the picker", comp != null and not comp.enabled)
+	# The recipe chain: hide -> leather, meat -> jerky (stations skipped: this is the rules, not the workbench).
+	Life.give("deer_hide", 2)
+	Life.give("tannin", 1)
+	Life.give("salt", 1)
+	if Life.count("venison") < 2:
+		L("[HOOK] top venison up to 2 (one deer gave %d at hunting level 1)" % Life.count("venison"))
+		Life.give("venison", 2 - Life.count("venison"))
+	var cr: Dictionary = Life.crafting.craft("tan_hide", Life, null, {"roll": 0.5})
+	check("tanning a hide makes leather", bool(cr.get("ok", false)) and Life.count("leather") >= 1, str(cr.get("text", "")))
+	var jr: Dictionary = Life.crafting.craft("game_jerky", Life, null, {"roll": 0.5})
+	check("venison and salt make jerky", bool(jr.get("ok", false)) and Life.count("jerky") >= 2, str(jr.get("text", "")))
+	CorpseLoot.reset()
 
 
 func _s_st_a2() -> void:
