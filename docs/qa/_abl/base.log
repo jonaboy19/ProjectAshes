@@ -1,0 +1,452 @@
+Godot Engine v4.6.3.stable.official.7d41c59c4 - https://godotengine.org
+Vulkan 1.4.341 - Forward+ - Using Device #0: NVIDIA - NVIDIA GeForce RTX 4070 Laptop GPU
+
+Quality: High (forced)
+[audio] mood silence -> wilderness (threat 0, hostiles 0, interior )
+WARNING: Screen-space reflections are not supported in viewports with a transparent background. Disabling SSR in transparent viewport.
+   at: _render_scene (servers/rendering/renderer_rd/forward_clustered/render_forward_clustered.cpp:1851)
+ERROR: Condition "p_job.uavMip[i] >= mip_slice_rids.size()" is true. Returning: FFX_ERROR_INVALID_ARGUMENT
+   at: execute_gpu_job_compute_rd (servers/rendering/renderer_rd/effects/fsr2.cpp:418)
+[audio] music silence -> wild_c (mood wilderness, intensity 0.00)
+ERROR: Condition "p_job.uavMip[i] >= mip_slice_rids.size()" is true. Returning: FFX_ERROR_INVALID_ARGUMENT
+   at: execute_gpu_job_compute_rd (servers/rendering/renderer_rd/effects/fsr2.cpp:418)
+ERROR: Condition "p_job.uavMip[i] >= mip_slice_rids.size()" is true. Returning: FFX_ERROR_INVALID_ARGUMENT
+   at: execute_gpu_job_compute_rd (servers/rendering/renderer_rd/effects/fsr2.cpp:418)
+ERROR: Condition "p_job.uavMip[i] >= mip_slice_rids.size()" is true. Returning: FFX_ERROR_INVALID_ARGUMENT
+   at: execute_gpu_job_compute_rd (servers/rendering/renderer_rd/effects/fsr2.cpp:418)
+ERROR: Condition "p_job.uavMip[i] >= mip_slice_rids.size()" is true. Returning: FFX_ERROR_INVALID_ARGUMENT
+   at: execute_gpu_job_compute_rd (servers/rendering/renderer_rd/effects/fsr2.cpp:418)
+ERROR: Condition "p_job.uavMip[i] >= mip_slice_rids.size()" is true. Returning: FFX_ERROR_INVALID_ARGUMENT
+   at: execute_gpu_job_compute_rd (servers/rendering/renderer_rd/effects/fsr2.cpp:418)
+ERROR: Condition "p_job.uavMip[i] >= mip_slice_rids.size()" is true. Returning: FFX_ERROR_INVALID_ARGUMENT
+   at: execute_gpu_job_compute_rd (servers/rendering/renderer_rd/effects/fsr2.cpp:418)
+ERROR: Condition "p_job.uavMip[i] >= mip_slice_rids.size()" is true. Returning: FFX_ERROR_INVALID_ARGUMENT
+   at: execute_gpu_job_compute_rd (servers/rendering/renderer_rd/effects/fsr2.cpp:418)
+ERROR: Condition "p_job.uavMip[i] >= mip_slice_rids.size()" is true. Returning: FFX_ERROR_INVALID_ARGUMENT
+   at: execute_gpu_job_compute_rd (servers/rendering/renderer_rd/effects/fsr2.cpp:418)
+ERROR: Condition "p_job.uavMip[i] >= mip_slice_rids.size()" is true. Returning: FFX_ERROR_INVALID_ARGUMENT
+   at: execute_gpu_job_compute_rd (servers/rendering/renderer_rd/effects/fsr2.cpp:418)
+ERROR: Condition "p_job.uavMip[i] >= mip_slice_rids.size()" is true. Returning: FFX_ERROR_INVALID_ARGUMENT
+   at: execute_gpu_job_compute_rd (servers/rendering/renderer_rd/effects/fsr2.cpp:418)
+ERROR: Condition "p_job.uavMip[i] >= mip_slice_rids.size()" is true. Returning: FFX_ERROR_INVALID_ARGUMENT
+   at: execute_gpu_job_compute_rd (servers/rendering/renderer_rd/effects/fsr2.cpp:418)
+ERROR: Condition "p_job.uavMip[i] >= mip_slice_rids.size()" is true. Returning: FFX_ERROR_INVALID_ARGUMENT
+   at: execute_gpu_job_compute_rd (servers/rendering/renderer_rd/effects/fsr2.cpp:418)
+ERROR: Condition "p_job.uavMip[i] >= mip_slice_rids.size()" is true. Returning: FFX_ERROR_INVALID_ARGUMENT
+   at: execute_gpu_job_compute_rd (servers/rendering/renderer_rd/effects/fsr2.cpp:418)
+ERROR: Condition "p_job.uavMip[i] >= mip_slice_rids.size()" is true. Returning: FFX_ERROR_INVALID_ARGUMENT
+   at: execute_gpu_job_compute_rd (servers/rendering/renderer_rd/effects/fsr2.cpp:418)
+ERROR: Condition "p_job.uavMip[i] >= mip_slice_rids.size()" is true. Returning: FFX_ERROR_INVALID_ARGUMENT
+   at: execute_gpu_job_compute_rd (servers/rendering/renderer_rd/effects/fsr2.cpp:418)
+ERROR: Condition "p_job.uavMip[i] >= mip_slice_rids.size()" is true. Returning: FFX_ERROR_INVALID_ARGUMENT
+   at: execute_gpu_job_compute_rd (servers/rendering/renderer_rd/effects/fsr2.cpp:418)
+ERROR: Condition "p_job.uavMip[i] >= mip_slice_rids.size()" is true. Returning: FFX_ERROR_INVALID_ARGUMENT
+   at: execute_gpu_job_compute_rd (servers/rendering/renderer_rd/effects/fsr2.cpp:418)
+ERROR: Condition "p_job.uavMip[i] >= mip_slice_rids.size()" is true. Returning: FFX_ERROR_INVALID_ARGUMENT
+   at: execute_gpu_job_compute_rd (servers/rendering/renderer_rd/effects/fsr2.cpp:418)
+ERROR: Condition "p_job.uavMip[i] >= mip_slice_rids.size()" is true. Returning: FFX_ERROR_INVALID_ARGUMENT
+   at: execute_gpu_job_compute_rd (servers/rendering/renderer_rd/effects/fsr2.cpp:418)
+ERROR: Condition "p_job.uavMip[i] >= mip_slice_rids.size()" is true. Returning: FFX_ERROR_INVALID_ARGUMENT
+   at: execute_gpu_job_compute_rd (servers/rendering/renderer_rd/effects/fsr2.cpp:418)
+ERROR: Condition "p_job.uavMip[i] >= mip_slice_rids.size()" is true. Returning: FFX_ERROR_INVALID_ARGUMENT
+   at: execute_gpu_job_compute_rd (servers/rendering/renderer_rd/effects/fsr2.cpp:418)
+ERROR: Condition "p_job.uavMip[i] >= mip_slice_rids.size()" is true. Returning: FFX_ERROR_INVALID_ARGUMENT
+   at: execute_gpu_job_compute_rd (servers/rendering/renderer_rd/effects/fsr2.cpp:418)
+ERROR: Condition "p_job.uavMip[i] >= mip_slice_rids.size()" is true. Returning: FFX_ERROR_INVALID_ARGUMENT
+   at: execute_gpu_job_compute_rd (servers/rendering/renderer_rd/effects/fsr2.cpp:418)
+ERROR: Condition "p_job.uavMip[i] >= mip_slice_rids.size()" is true. Returning: FFX_ERROR_INVALID_ARGUMENT
+   at: execute_gpu_job_compute_rd (servers/rendering/renderer_rd/effects/fsr2.cpp:418)
+ERROR: Condition "p_job.uavMip[i] >= mip_slice_rids.size()" is true. Returning: FFX_ERROR_INVALID_ARGUMENT
+   at: execute_gpu_job_compute_rd (servers/rendering/renderer_rd/effects/fsr2.cpp:418)
+ERROR: Condition "p_job.uavMip[i] >= mip_slice_rids.size()" is true. Returning: FFX_ERROR_INVALID_ARGUMENT
+   at: execute_gpu_job_compute_rd (servers/rendering/renderer_rd/effects/fsr2.cpp:418)
+ERROR: Condition "p_job.uavMip[i] >= mip_slice_rids.size()" is true. Returning: FFX_ERROR_INVALID_ARGUMENT
+   at: execute_gpu_job_compute_rd (servers/rendering/renderer_rd/effects/fsr2.cpp:418)
+ERROR: Condition "p_job.uavMip[i] >= mip_slice_rids.size()" is true. Returning: FFX_ERROR_INVALID_ARGUMENT
+   at: execute_gpu_job_compute_rd (servers/rendering/renderer_rd/effects/fsr2.cpp:418)
+ERROR: Condition "p_job.uavMip[i] >= mip_slice_rids.size()" is true. Returning: FFX_ERROR_INVALID_ARGUMENT
+   at: execute_gpu_job_compute_rd (servers/rendering/renderer_rd/effects/fsr2.cpp:418)
+ERROR: Condition "p_job.uavMip[i] >= mip_slice_rids.size()" is true. Returning: FFX_ERROR_INVALID_ARGUMENT
+   at: execute_gpu_job_compute_rd (servers/rendering/renderer_rd/effects/fsr2.cpp:418)
+ERROR: Condition "p_job.uavMip[i] >= mip_slice_rids.size()" is true. Returning: FFX_ERROR_INVALID_ARGUMENT
+   at: execute_gpu_job_compute_rd (servers/rendering/renderer_rd/effects/fsr2.cpp:418)
+ERROR: Condition "p_job.uavMip[i] >= mip_slice_rids.size()" is true. Returning: FFX_ERROR_INVALID_ARGUMENT
+   at: execute_gpu_job_compute_rd (servers/rendering/renderer_rd/effects/fsr2.cpp:418)
+ERROR: Condition "p_job.uavMip[i] >= mip_slice_rids.size()" is true. Returning: FFX_ERROR_INVALID_ARGUMENT
+   at: execute_gpu_job_compute_rd (servers/rendering/renderer_rd/effects/fsr2.cpp:418)
+ERROR: Condition "p_job.uavMip[i] >= mip_slice_rids.size()" is true. Returning: FFX_ERROR_INVALID_ARGUMENT
+   at: execute_gpu_job_compute_rd (servers/rendering/renderer_rd/effects/fsr2.cpp:418)
+ERROR: Condition "p_job.uavMip[i] >= mip_slice_rids.size()" is true. Returning: FFX_ERROR_INVALID_ARGUMENT
+   at: execute_gpu_job_compute_rd (servers/rendering/renderer_rd/effects/fsr2.cpp:418)
+ERROR: Condition "p_job.uavMip[i] >= mip_slice_rids.size()" is true. Returning: FFX_ERROR_INVALID_ARGUMENT
+   at: execute_gpu_job_compute_rd (servers/rendering/renderer_rd/effects/fsr2.cpp:418)
+ERROR: Condition "p_job.uavMip[i] >= mip_slice_rids.size()" is true. Returning: FFX_ERROR_INVALID_ARGUMENT
+   at: execute_gpu_job_compute_rd (servers/rendering/renderer_rd/effects/fsr2.cpp:418)
+ERROR: Condition "p_job.uavMip[i] >= mip_slice_rids.size()" is true. Returning: FFX_ERROR_INVALID_ARGUMENT
+   at: execute_gpu_job_compute_rd (servers/rendering/renderer_rd/effects/fsr2.cpp:418)
+ERROR: Condition "p_job.uavMip[i] >= mip_slice_rids.size()" is true. Returning: FFX_ERROR_INVALID_ARGUMENT
+   at: execute_gpu_job_compute_rd (servers/rendering/renderer_rd/effects/fsr2.cpp:418)
+ERROR: Condition "p_job.uavMip[i] >= mip_slice_rids.size()" is true. Returning: FFX_ERROR_INVALID_ARGUMENT
+   at: execute_gpu_job_compute_rd (servers/rendering/renderer_rd/effects/fsr2.cpp:418)
+ERROR: Condition "p_job.uavMip[i] >= mip_slice_rids.size()" is true. Returning: FFX_ERROR_INVALID_ARGUMENT
+   at: execute_gpu_job_compute_rd (servers/rendering/renderer_rd/effects/fsr2.cpp:418)
+ERROR: Condition "p_job.uavMip[i] >= mip_slice_rids.size()" is true. Returning: FFX_ERROR_INVALID_ARGUMENT
+   at: execute_gpu_job_compute_rd (servers/rendering/renderer_rd/effects/fsr2.cpp:418)
+ERROR: Condition "p_job.uavMip[i] >= mip_slice_rids.size()" is true. Returning: FFX_ERROR_INVALID_ARGUMENT
+   at: execute_gpu_job_compute_rd (servers/rendering/renderer_rd/effects/fsr2.cpp:418)
+ERROR: Condition "p_job.uavMip[i] >= mip_slice_rids.size()" is true. Returning: FFX_ERROR_INVALID_ARGUMENT
+   at: execute_gpu_job_compute_rd (servers/rendering/renderer_rd/effects/fsr2.cpp:418)
+ERROR: Condition "p_job.uavMip[i] >= mip_slice_rids.size()" is true. Returning: FFX_ERROR_INVALID_ARGUMENT
+   at: execute_gpu_job_compute_rd (servers/rendering/renderer_rd/effects/fsr2.cpp:418)
+ERROR: Condition "p_job.uavMip[i] >= mip_slice_rids.size()" is true. Returning: FFX_ERROR_INVALID_ARGUMENT
+   at: execute_gpu_job_compute_rd (servers/rendering/renderer_rd/effects/fsr2.cpp:418)
+ERROR: Condition "p_job.uavMip[i] >= mip_slice_rids.size()" is true. Returning: FFX_ERROR_INVALID_ARGUMENT
+   at: execute_gpu_job_compute_rd (servers/rendering/renderer_rd/effects/fsr2.cpp:418)
+ERROR: Condition "p_job.uavMip[i] >= mip_slice_rids.size()" is true. Returning: FFX_ERROR_INVALID_ARGUMENT
+   at: execute_gpu_job_compute_rd (servers/rendering/renderer_rd/effects/fsr2.cpp:418)
+ERROR: Condition "p_job.uavMip[i] >= mip_slice_rids.size()" is true. Returning: FFX_ERROR_INVALID_ARGUMENT
+   at: execute_gpu_job_compute_rd (servers/rendering/renderer_rd/effects/fsr2.cpp:418)
+ERROR: Condition "p_job.uavMip[i] >= mip_slice_rids.size()" is true. Returning: FFX_ERROR_INVALID_ARGUMENT
+   at: execute_gpu_job_compute_rd (servers/rendering/renderer_rd/effects/fsr2.cpp:418)
+ERROR: Condition "p_job.uavMip[i] >= mip_slice_rids.size()" is true. Returning: FFX_ERROR_INVALID_ARGUMENT
+   at: execute_gpu_job_compute_rd (servers/rendering/renderer_rd/effects/fsr2.cpp:418)
+ERROR: Condition "p_job.uavMip[i] >= mip_slice_rids.size()" is true. Returning: FFX_ERROR_INVALID_ARGUMENT
+   at: execute_gpu_job_compute_rd (servers/rendering/renderer_rd/effects/fsr2.cpp:418)
+ERROR: Condition "p_job.uavMip[i] >= mip_slice_rids.size()" is true. Returning: FFX_ERROR_INVALID_ARGUMENT
+   at: execute_gpu_job_compute_rd (servers/rendering/renderer_rd/effects/fsr2.cpp:418)
+ERROR: Condition "p_job.uavMip[i] >= mip_slice_rids.size()" is true. Returning: FFX_ERROR_INVALID_ARGUMENT
+   at: execute_gpu_job_compute_rd (servers/rendering/renderer_rd/effects/fsr2.cpp:418)
+ERROR: Condition "p_job.uavMip[i] >= mip_slice_rids.size()" is true. Returning: FFX_ERROR_INVALID_ARGUMENT
+   at: execute_gpu_job_compute_rd (servers/rendering/renderer_rd/effects/fsr2.cpp:418)
+ERROR: Condition "p_job.uavMip[i] >= mip_slice_rids.size()" is true. Returning: FFX_ERROR_INVALID_ARGUMENT
+   at: execute_gpu_job_compute_rd (servers/rendering/renderer_rd/effects/fsr2.cpp:418)
+ERROR: Condition "p_job.uavMip[i] >= mip_slice_rids.size()" is true. Returning: FFX_ERROR_INVALID_ARGUMENT
+   at: execute_gpu_job_compute_rd (servers/rendering/renderer_rd/effects/fsr2.cpp:418)
+ERROR: Condition "p_job.uavMip[i] >= mip_slice_rids.size()" is true. Returning: FFX_ERROR_INVALID_ARGUMENT
+   at: execute_gpu_job_compute_rd (servers/rendering/renderer_rd/effects/fsr2.cpp:418)
+ERROR: Condition "p_job.uavMip[i] >= mip_slice_rids.size()" is true. Returning: FFX_ERROR_INVALID_ARGUMENT
+   at: execute_gpu_job_compute_rd (servers/rendering/renderer_rd/effects/fsr2.cpp:418)
+ERROR: Condition "p_job.uavMip[i] >= mip_slice_rids.size()" is true. Returning: FFX_ERROR_INVALID_ARGUMENT
+   at: execute_gpu_job_compute_rd (servers/rendering/renderer_rd/effects/fsr2.cpp:418)
+ERROR: Condition "p_job.uavMip[i] >= mip_slice_rids.size()" is true. Returning: FFX_ERROR_INVALID_ARGUMENT
+   at: execute_gpu_job_compute_rd (servers/rendering/renderer_rd/effects/fsr2.cpp:418)
+ERROR: Condition "p_job.uavMip[i] >= mip_slice_rids.size()" is true. Returning: FFX_ERROR_INVALID_ARGUMENT
+   at: execute_gpu_job_compute_rd (servers/rendering/renderer_rd/effects/fsr2.cpp:418)
+ERROR: Condition "p_job.uavMip[i] >= mip_slice_rids.size()" is true. Returning: FFX_ERROR_INVALID_ARGUMENT
+   at: execute_gpu_job_compute_rd (servers/rendering/renderer_rd/effects/fsr2.cpp:418)
+ERROR: Condition "p_job.uavMip[i] >= mip_slice_rids.size()" is true. Returning: FFX_ERROR_INVALID_ARGUMENT
+   at: execute_gpu_job_compute_rd (servers/rendering/renderer_rd/effects/fsr2.cpp:418)
+ERROR: Condition "p_job.uavMip[i] >= mip_slice_rids.size()" is true. Returning: FFX_ERROR_INVALID_ARGUMENT
+   at: execute_gpu_job_compute_rd (servers/rendering/renderer_rd/effects/fsr2.cpp:418)
+ERROR: Condition "p_job.uavMip[i] >= mip_slice_rids.size()" is true. Returning: FFX_ERROR_INVALID_ARGUMENT
+   at: execute_gpu_job_compute_rd (servers/rendering/renderer_rd/effects/fsr2.cpp:418)
+ERROR: Condition "p_job.uavMip[i] >= mip_slice_rids.size()" is true. Returning: FFX_ERROR_INVALID_ARGUMENT
+   at: execute_gpu_job_compute_rd (servers/rendering/renderer_rd/effects/fsr2.cpp:418)
+ERROR: Condition "p_job.uavMip[i] >= mip_slice_rids.size()" is true. Returning: FFX_ERROR_INVALID_ARGUMENT
+   at: execute_gpu_job_compute_rd (servers/rendering/renderer_rd/effects/fsr2.cpp:418)
+ERROR: Condition "p_job.uavMip[i] >= mip_slice_rids.size()" is true. Returning: FFX_ERROR_INVALID_ARGUMENT
+   at: execute_gpu_job_compute_rd (servers/rendering/renderer_rd/effects/fsr2.cpp:418)
+ERROR: Condition "p_job.uavMip[i] >= mip_slice_rids.size()" is true. Returning: FFX_ERROR_INVALID_ARGUMENT
+   at: execute_gpu_job_compute_rd (servers/rendering/renderer_rd/effects/fsr2.cpp:418)
+ERROR: Condition "p_job.uavMip[i] >= mip_slice_rids.size()" is true. Returning: FFX_ERROR_INVALID_ARGUMENT
+   at: execute_gpu_job_compute_rd (servers/rendering/renderer_rd/effects/fsr2.cpp:418)
+ERROR: This function should never be used outside the editor, it can severely damage performance.
+   at: global_shader_parameter_get_list (servers/rendering/renderer_rd/storage_rd/material_storage.cpp:1665)
+   GDScript backtrace (most recent call first):
+       [0] ensure_global (res://scripts/living_world/vat_crowd.gd:47)
+       [1] _init (res://scripts/living_world/vat_crowd.gd:52)
+       [2] _ready (res://scripts/living_world/vat_residents.gd:48)
+       [3] setup (res://scripts/population/population_lod.gd:121)
+       [4] _ready (res://scripts/core/main.gd:122)
+WARNING: Adding 'LOD1_body' as child to 'Skeleton3D' will make owner 'hero_meshy3_lod1' inconsistent. Consider unsetting the owner beforehand.
+   at: add_child (scene/main/node.cpp:1716)
+   GDScript backtrace (most recent call first):
+       [0] attach_lods (res://scripts/actors/hero_tier_a.gd:274)
+       [1] dress_meshy_hero (res://scripts/actors/hero_tier_a.gd:293)
+       [2] _build_body (res://scripts/actors/player.gd:498)
+       [3] _ready (res://scripts/actors/player.gd:385)
+       [4] _ready (res://scripts/core/main.gd:140)
+WARNING: Adding 'LOD2_body' as child to 'Skeleton3D' will make owner 'hero_meshy3_lod2' inconsistent. Consider unsetting the owner beforehand.
+   at: add_child (scene/main/node.cpp:1716)
+   GDScript backtrace (most recent call first):
+       [0] attach_lods (res://scripts/actors/hero_tier_a.gd:274)
+       [1] dress_meshy_hero (res://scripts/actors/hero_tier_a.gd:293)
+       [2] _build_body (res://scripts/actors/player.gd:498)
+       [3] _ready (res://scripts/actors/player.gd:385)
+       [4] _ready (res://scripts/core/main.gd:140)
+ERROR: Can't use get_node() with absolute paths from outside the active scene tree.
+   at: get_node_or_null (scene/main/node.cpp:1898)
+   GDScript backtrace (most recent call first):
+       [0] setup (res://scripts/actors/hero_face_driver.gd:42)
+       [1] dress_meshy_hero (res://scripts/actors/hero_tier_a.gd:349)
+       [2] _build_body (res://scripts/actors/player.gd:498)
+       [3] _ready (res://scripts/actors/player.gd:385)
+       [4] _ready (res://scripts/core/main.gd:140)
+RegionDressing: preloaded 160 region scenes in 613 ms (main thread)
+Region1Look: 398 cliff rocks in 20 cells (tris per rock: 2498 2000 1500)
+Region1Look: 5 landmarks, built in 4999 ms
+ValeLook: 1331 cliff rocks
+Region1Horizon: ground 57800x1, 27083 canopy blobs in 613 cells
+[audio] bed -> village_day (interior=, t=8.1 h)
+[audio] mood wilderness -> r1_village_day (threat 0, hostiles 0, interior )
+[audio] music wild_c -> r1_village_day (mood r1_village_day, intensity 0.00)
+[audio] stinger discovery
+[audio] story cue r1_village_day for 140 s
+[audio] stinger discovery
+ERROR: BUG, indexing did not unpair geometries from light.
+   at: instance_set_scenario (servers/rendering/renderer_scene_cull.cpp:835)
+ERROR: BUG, indexing did not unpair geometries from light.
+   at: instance_set_base (servers/rendering/renderer_scene_cull.cpp:607)
+AUDIT gate draws=993 prims=1727935 fps=10
+[audio] voices 1/12, long streams 2, music r1_village_day/r1_village_day threat 0, surface grass, played { "step_dirt_05": 1, "step_cobble_06": 22, "step_grass_03": 7, "step_cobble_01": 17, "bird_blackbird": 1, "step_dirt_04": 1, "step_grass_01": 9, "step_cobble_02": 5, "rooster_02": 1, "step_cobble_04": 9, "step_cobble_05": 10, "step_grass_02": 13, "step_grass_05": 8, "step_dirt_03": 1, "step_grass_04": 5, "step_cobble_03": 13, "sheep_01": 1, "well_bucket_01": 1 }
+AUDITPERF gate tier=High profile=pc renderer=forward_plus fps_avg=15.6 ft_p50=49.40ms ft_p95=139.79ms ft_p99=169.26ms vram_mb=3129 tex_mb=2539 draws=994 prims=1773800 gpu=NVIDIA GeForce RTX 4070 Laptop GPU cpu_setup=0.41ms proc=76.56ms phys=8.24ms
+AUDIT gate_nohud draws=990 prims=1760783 fps=18
+AUDIT DONE
+ERROR: BUG, indexing did not unpair geometries from light.
+   at: instance_set_scenario (servers/rendering/renderer_scene_cull.cpp:835)
+ERROR: BUG, indexing did not unpair geometries from light.
+   at: instance_set_scenario (servers/rendering/renderer_scene_cull.cpp:835)
+ERROR: BUG, indexing did not unpair geometries from light.
+   at: instance_set_scenario (servers/rendering/renderer_scene_cull.cpp:835)
+ERROR: BUG, indexing did not unpair geometries from light.
+   at: instance_set_scenario (servers/rendering/renderer_scene_cull.cpp:835)
+ERROR: BUG, indexing did not unpair geometries from light.
+   at: instance_set_scenario (servers/rendering/renderer_scene_cull.cpp:835)
+ERROR: BUG, indexing did not unpair geometries from light.
+   at: instance_set_scenario (servers/rendering/renderer_scene_cull.cpp:835)
+ERROR: BUG, indexing did not unpair geometries from light.
+   at: instance_set_scenario (servers/rendering/renderer_scene_cull.cpp:835)
+ERROR: BUG, indexing did not unpair geometries from light.
+   at: instance_set_scenario (servers/rendering/renderer_scene_cull.cpp:835)
+ERROR: BUG, indexing did not unpair geometries from light.
+   at: instance_set_scenario (servers/rendering/renderer_scene_cull.cpp:835)
+ERROR: BUG, indexing did not unpair geometries from light.
+   at: instance_set_scenario (servers/rendering/renderer_scene_cull.cpp:835)
+ERROR: BUG, indexing did not unpair geometries from light.
+   at: instance_set_scenario (servers/rendering/renderer_scene_cull.cpp:835)
+ERROR: BUG, indexing did not unpair geometries from light.
+   at: instance_set_scenario (servers/rendering/renderer_scene_cull.cpp:835)
+ERROR: BUG, indexing did not unpair geometries from light.
+   at: instance_set_scenario (servers/rendering/renderer_scene_cull.cpp:835)
+ERROR: BUG, indexing did not unpair geometries from light.
+   at: instance_set_scenario (servers/rendering/renderer_scene_cull.cpp:835)
+ERROR: BUG, indexing did not unpair geometries from light.
+   at: instance_set_scenario (servers/rendering/renderer_scene_cull.cpp:835)
+ERROR: BUG, indexing did not unpair geometries from light.
+   at: instance_set_scenario (servers/rendering/renderer_scene_cull.cpp:835)
+ERROR: BUG, indexing did not unpair geometries from light.
+   at: instance_set_scenario (servers/rendering/renderer_scene_cull.cpp:835)
+ERROR: BUG, indexing did not unpair geometries from light.
+   at: instance_set_scenario (servers/rendering/renderer_scene_cull.cpp:835)
+ERROR: BUG, indexing did not unpair geometries from light.
+   at: instance_set_scenario (servers/rendering/renderer_scene_cull.cpp:835)
+ERROR: BUG, indexing did not unpair geometries from light.
+   at: instance_set_scenario (servers/rendering/renderer_scene_cull.cpp:835)
+ERROR: BUG, indexing did not unpair geometries from light.
+   at: instance_set_scenario (servers/rendering/renderer_scene_cull.cpp:835)
+ERROR: BUG, indexing did not unpair geometries from light.
+   at: instance_set_scenario (servers/rendering/renderer_scene_cull.cpp:835)
+ERROR: BUG, indexing did not unpair geometries from light.
+   at: instance_set_scenario (servers/rendering/renderer_scene_cull.cpp:835)
+ERROR: BUG, indexing did not unpair geometries from light.
+   at: instance_set_scenario (servers/rendering/renderer_scene_cull.cpp:835)
+ERROR: BUG, indexing did not unpair geometries from light.
+   at: instance_set_scenario (servers/rendering/renderer_scene_cull.cpp:835)
+ERROR: BUG, indexing did not unpair geometries from light.
+   at: instance_set_scenario (servers/rendering/renderer_scene_cull.cpp:835)
+ERROR: BUG, indexing did not unpair geometries from light.
+   at: instance_set_scenario (servers/rendering/renderer_scene_cull.cpp:835)
+ERROR: BUG, indexing did not unpair geometries from light.
+   at: instance_set_scenario (servers/rendering/renderer_scene_cull.cpp:835)
+ERROR: BUG, indexing did not unpair geometries from light.
+   at: instance_set_scenario (servers/rendering/renderer_scene_cull.cpp:835)
+ERROR: BUG, indexing did not unpair geometries from light.
+   at: instance_set_scenario (servers/rendering/renderer_scene_cull.cpp:835)
+ERROR: BUG, indexing did not unpair geometries from light.
+   at: instance_set_scenario (servers/rendering/renderer_scene_cull.cpp:835)
+ERROR: BUG, indexing did not unpair geometries from light.
+   at: instance_set_scenario (servers/rendering/renderer_scene_cull.cpp:835)
+ERROR: BUG, indexing did not unpair geometries from light.
+   at: instance_set_scenario (servers/rendering/renderer_scene_cull.cpp:835)
+ERROR: BUG, indexing did not unpair geometries from light.
+   at: instance_set_scenario (servers/rendering/renderer_scene_cull.cpp:835)
+ERROR: BUG, indexing did not unpair geometries from light.
+   at: instance_set_scenario (servers/rendering/renderer_scene_cull.cpp:835)
+ERROR: BUG, indexing did not unpair geometries from light.
+   at: instance_set_scenario (servers/rendering/renderer_scene_cull.cpp:835)
+ERROR: BUG, indexing did not unpair geometries from light.
+   at: instance_set_scenario (servers/rendering/renderer_scene_cull.cpp:835)
+ERROR: BUG, indexing did not unpair geometries from light.
+   at: instance_set_scenario (servers/rendering/renderer_scene_cull.cpp:835)
+ERROR: BUG, indexing did not unpair geometries from light.
+   at: instance_set_scenario (servers/rendering/renderer_scene_cull.cpp:835)
+ERROR: BUG, indexing did not unpair geometries from light.
+   at: instance_set_scenario (servers/rendering/renderer_scene_cull.cpp:835)
+ERROR: BUG, indexing did not unpair geometries from light.
+   at: instance_set_scenario (servers/rendering/renderer_scene_cull.cpp:835)
+ERROR: BUG, indexing did not unpair geometries from light.
+   at: instance_set_scenario (servers/rendering/renderer_scene_cull.cpp:835)
+ERROR: BUG, indexing did not unpair geometries from light.
+   at: instance_set_scenario (servers/rendering/renderer_scene_cull.cpp:835)
+ERROR: BUG, indexing did not unpair geometries from light.
+   at: instance_set_scenario (servers/rendering/renderer_scene_cull.cpp:835)
+ERROR: BUG, indexing did not unpair geometries from light.
+   at: instance_set_scenario (servers/rendering/renderer_scene_cull.cpp:835)
+ERROR: BUG, indexing did not unpair geometries from light.
+   at: instance_set_scenario (servers/rendering/renderer_scene_cull.cpp:835)
+ERROR: BUG, indexing did not unpair geometries from light.
+   at: instance_set_scenario (servers/rendering/renderer_scene_cull.cpp:835)
+ERROR: BUG, indexing did not unpair geometries from light.
+   at: instance_set_scenario (servers/rendering/renderer_scene_cull.cpp:835)
+ERROR: BUG, indexing did not unpair geometries from light.
+   at: instance_set_scenario (servers/rendering/renderer_scene_cull.cpp:835)
+ERROR: BUG, indexing did not unpair geometries from light.
+   at: instance_set_scenario (servers/rendering/renderer_scene_cull.cpp:835)
+ERROR: BUG, indexing did not unpair geometries from light.
+   at: instance_set_scenario (servers/rendering/renderer_scene_cull.cpp:835)
+ERROR: BUG, indexing did not unpair geometries from light.
+   at: instance_set_scenario (servers/rendering/renderer_scene_cull.cpp:835)
+ERROR: BUG, indexing did not unpair geometries from light.
+   at: instance_set_scenario (servers/rendering/renderer_scene_cull.cpp:835)
+ERROR: BUG, indexing did not unpair geometries from light.
+   at: instance_set_scenario (servers/rendering/renderer_scene_cull.cpp:835)
+ERROR: BUG, indexing did not unpair geometries from light.
+   at: instance_set_scenario (servers/rendering/renderer_scene_cull.cpp:835)
+ERROR: BUG, indexing did not unpair geometries from light.
+   at: instance_set_scenario (servers/rendering/renderer_scene_cull.cpp:835)
+ERROR: BUG, indexing did not unpair geometries from light.
+   at: instance_set_scenario (servers/rendering/renderer_scene_cull.cpp:835)
+ERROR: BUG, indexing did not unpair geometries from light.
+   at: instance_set_scenario (servers/rendering/renderer_scene_cull.cpp:835)
+ERROR: BUG, indexing did not unpair geometries from light.
+   at: instance_set_scenario (servers/rendering/renderer_scene_cull.cpp:835)
+ERROR: BUG, indexing did not unpair geometries from light.
+   at: instance_set_scenario (servers/rendering/renderer_scene_cull.cpp:835)
+ERROR: BUG, indexing did not unpair geometries from light.
+   at: instance_set_scenario (servers/rendering/renderer_scene_cull.cpp:835)
+ERROR: BUG, indexing did not unpair geometries from light.
+   at: instance_set_scenario (servers/rendering/renderer_scene_cull.cpp:835)
+ERROR: BUG, indexing did not unpair geometries from light.
+   at: instance_set_base (servers/rendering/renderer_scene_cull.cpp:607)
+ERROR: BUG, indexing did not unpair geometries from light.
+   at: instance_set_base (servers/rendering/renderer_scene_cull.cpp:607)
+ERROR: BUG, indexing did not unpair geometries from light.
+   at: instance_set_base (servers/rendering/renderer_scene_cull.cpp:607)
+ERROR: BUG, indexing did not unpair geometries from light.
+   at: instance_set_base (servers/rendering/renderer_scene_cull.cpp:607)
+ERROR: BUG, indexing did not unpair geometries from light.
+   at: instance_set_base (servers/rendering/renderer_scene_cull.cpp:607)
+ERROR: BUG, indexing did not unpair geometries from light.
+   at: instance_set_base (servers/rendering/renderer_scene_cull.cpp:607)
+ERROR: BUG, indexing did not unpair geometries from light.
+   at: instance_set_base (servers/rendering/renderer_scene_cull.cpp:607)
+ERROR: BUG, indexing did not unpair geometries from light.
+   at: instance_set_base (servers/rendering/renderer_scene_cull.cpp:607)
+ERROR: BUG, indexing did not unpair geometries from light.
+   at: instance_set_base (servers/rendering/renderer_scene_cull.cpp:607)
+ERROR: BUG, indexing did not unpair geometries from light.
+   at: instance_set_base (servers/rendering/renderer_scene_cull.cpp:607)
+ERROR: BUG, indexing did not unpair geometries from light.
+   at: instance_set_base (servers/rendering/renderer_scene_cull.cpp:607)
+ERROR: BUG, indexing did not unpair geometries from light.
+   at: instance_set_base (servers/rendering/renderer_scene_cull.cpp:607)
+ERROR: BUG, indexing did not unpair geometries from light.
+   at: instance_set_base (servers/rendering/renderer_scene_cull.cpp:607)
+ERROR: BUG, indexing did not unpair geometries from light.
+   at: instance_set_base (servers/rendering/renderer_scene_cull.cpp:607)
+ERROR: BUG, indexing did not unpair geometries from light.
+   at: instance_set_base (servers/rendering/renderer_scene_cull.cpp:607)
+ERROR: BUG, indexing did not unpair geometries from light.
+   at: instance_set_base (servers/rendering/renderer_scene_cull.cpp:607)
+ERROR: BUG, indexing did not unpair geometries from light.
+   at: instance_set_base (servers/rendering/renderer_scene_cull.cpp:607)
+ERROR: BUG, indexing did not unpair geometries from light.
+   at: instance_set_base (servers/rendering/renderer_scene_cull.cpp:607)
+ERROR: BUG, indexing did not unpair geometries from light.
+   at: instance_set_base (servers/rendering/renderer_scene_cull.cpp:607)
+ERROR: BUG, indexing did not unpair geometries from light.
+   at: instance_set_base (servers/rendering/renderer_scene_cull.cpp:607)
+ERROR: BUG, indexing did not unpair geometries from light.
+   at: instance_set_base (servers/rendering/renderer_scene_cull.cpp:607)
+ERROR: BUG, indexing did not unpair geometries from light.
+   at: instance_set_base (servers/rendering/renderer_scene_cull.cpp:607)
+ERROR: BUG, indexing did not unpair geometries from light.
+   at: instance_set_base (servers/rendering/renderer_scene_cull.cpp:607)
+ERROR: BUG, indexing did not unpair geometries from light.
+   at: instance_set_base (servers/rendering/renderer_scene_cull.cpp:607)
+ERROR: BUG, indexing did not unpair geometries from light.
+   at: instance_set_base (servers/rendering/renderer_scene_cull.cpp:607)
+ERROR: BUG, indexing did not unpair geometries from light.
+   at: instance_set_base (servers/rendering/renderer_scene_cull.cpp:607)
+ERROR: BUG, indexing did not unpair geometries from light.
+   at: instance_set_base (servers/rendering/renderer_scene_cull.cpp:607)
+ERROR: BUG, indexing did not unpair geometries from light.
+   at: instance_set_base (servers/rendering/renderer_scene_cull.cpp:607)
+ERROR: BUG, indexing did not unpair geometries from light.
+   at: instance_set_base (servers/rendering/renderer_scene_cull.cpp:607)
+ERROR: BUG, indexing did not unpair geometries from light.
+   at: instance_set_base (servers/rendering/renderer_scene_cull.cpp:607)
+ERROR: BUG, indexing did not unpair geometries from light.
+   at: instance_set_base (servers/rendering/renderer_scene_cull.cpp:607)
+ERROR: BUG, indexing did not unpair geometries from light.
+   at: instance_set_base (servers/rendering/renderer_scene_cull.cpp:607)
+ERROR: BUG, indexing did not unpair geometries from light.
+   at: instance_set_base (servers/rendering/renderer_scene_cull.cpp:607)
+ERROR: BUG, indexing did not unpair geometries from light.
+   at: instance_set_base (servers/rendering/renderer_scene_cull.cpp:607)
+ERROR: BUG, indexing did not unpair geometries from light.
+   at: instance_set_base (servers/rendering/renderer_scene_cull.cpp:607)
+ERROR: BUG, indexing did not unpair geometries from light.
+   at: instance_set_base (servers/rendering/renderer_scene_cull.cpp:607)
+ERROR: BUG, indexing did not unpair geometries from light.
+   at: instance_set_base (servers/rendering/renderer_scene_cull.cpp:607)
+ERROR: BUG, indexing did not unpair geometries from light.
+   at: instance_set_base (servers/rendering/renderer_scene_cull.cpp:607)
+ERROR: BUG, indexing did not unpair geometries from light.
+   at: instance_set_base (servers/rendering/renderer_scene_cull.cpp:607)
+ERROR: BUG, indexing did not unpair geometries from light.
+   at: instance_set_base (servers/rendering/renderer_scene_cull.cpp:607)
+ERROR: BUG, indexing did not unpair geometries from light.
+   at: instance_set_base (servers/rendering/renderer_scene_cull.cpp:607)
+ERROR: BUG, indexing did not unpair geometries from light.
+   at: instance_set_base (servers/rendering/renderer_scene_cull.cpp:607)
+ERROR: BUG, indexing did not unpair geometries from light.
+   at: instance_set_base (servers/rendering/renderer_scene_cull.cpp:607)
+ERROR: BUG, indexing did not unpair geometries from light.
+   at: instance_set_base (servers/rendering/renderer_scene_cull.cpp:607)
+ERROR: BUG, indexing did not unpair geometries from light.
+   at: instance_set_base (servers/rendering/renderer_scene_cull.cpp:607)
+ERROR: BUG, indexing did not unpair geometries from light.
+   at: instance_set_base (servers/rendering/renderer_scene_cull.cpp:607)
+ERROR: BUG, indexing did not unpair geometries from light.
+   at: instance_set_base (servers/rendering/renderer_scene_cull.cpp:607)
+ERROR: BUG, indexing did not unpair geometries from light.
+   at: instance_set_base (servers/rendering/renderer_scene_cull.cpp:607)
+ERROR: BUG, indexing did not unpair geometries from light.
+   at: instance_set_base (servers/rendering/renderer_scene_cull.cpp:607)
+ERROR: BUG, indexing did not unpair geometries from light.
+   at: instance_set_base (servers/rendering/renderer_scene_cull.cpp:607)
+ERROR: BUG, indexing did not unpair geometries from light.
+   at: instance_set_base (servers/rendering/renderer_scene_cull.cpp:607)
+ERROR: BUG, indexing did not unpair geometries from light.
+   at: instance_set_base (servers/rendering/renderer_scene_cull.cpp:607)
+ERROR: BUG, indexing did not unpair geometries from light.
+   at: instance_set_base (servers/rendering/renderer_scene_cull.cpp:607)
+ERROR: BUG, indexing did not unpair geometries from light.
+   at: instance_set_base (servers/rendering/renderer_scene_cull.cpp:607)
+ERROR: BUG, indexing did not unpair geometries from light.
+   at: instance_set_base (servers/rendering/renderer_scene_cull.cpp:607)
+ERROR: BUG, indexing did not unpair geometries from light.
+   at: instance_set_base (servers/rendering/renderer_scene_cull.cpp:607)
+ERROR: BUG, indexing did not unpair geometries from light.
+   at: instance_set_base (servers/rendering/renderer_scene_cull.cpp:607)
+ERROR: BUG, indexing did not unpair geometries from light.
+   at: instance_set_base (servers/rendering/renderer_scene_cull.cpp:607)
+ERROR: BUG, indexing did not unpair geometries from light.
+   at: instance_set_base (servers/rendering/renderer_scene_cull.cpp:607)
+ERROR: BUG, indexing did not unpair geometries from light.
+   at: instance_set_base (servers/rendering/renderer_scene_cull.cpp:607)
+ERROR: BUG, indexing did not unpair geometries from light.
+   at: instance_set_base (servers/rendering/renderer_scene_cull.cpp:607)
+ERROR: BUG, indexing did not unpair geometries from light.
+   at: instance_set_base (servers/rendering/renderer_scene_cull.cpp:607)
