@@ -43,6 +43,7 @@ var tot_us := {}
 var worst_us := {}
 var approach := 0.0           # --approach=METRES: start that far beyond the Kingsreach gate and walk in (streams like play; no synchronous town build)
 var stand_leg := 7
+var walk_k := false           # --walkk: approach + gate + market chords only (Kingsreach walk without the Ashford teleports)
 var prof_after := 0.0         # --after=SECONDS: PROF/PROBE tables and stall counts only cover route time >= this (steady state)
 var _reset_done := false
 var stand := false            # --stand: teleport to the Kingsreach market and stand still
@@ -64,6 +65,8 @@ func run(m: Node) -> void:
 				census_at.append(float(v))
 		elif a == "--uncap":
 			uncap = true
+		elif a == "--walkk":
+			walk_k = true
 		elif a.begins_with("--approach="):
 			approach = float(a.get_slice("=", 1))
 		elif a.begins_with("--after="):
@@ -137,6 +140,8 @@ func _build_route() -> void:
 		var g0: Vector2 = legs[6][0]
 		legs.push_front([g0 + gdir * approach, g0, "approach"])
 		stand_leg += 1
+		if not stand and walk_k:
+			legs = [legs[0], legs[1 + 6], legs[stand_leg], legs[stand_leg + 1], legs[stand_leg + 2]]      # approach -> gate -> market chords: Kingsreach only, no teleports
 		if stand:
 			legs = [legs[0], legs[stand_leg - 1], legs[stand_leg]]      # approach -> gate -> market, contiguous: no teleport
 			stand_leg = 2

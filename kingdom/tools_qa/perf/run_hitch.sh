@@ -6,6 +6,7 @@ G="C:/Users/Jonna/Downloads/Godot_v4.6.3-stable_win64/Godot_v4.6.3-stable_win64_
 ROOT="C:/Users/Jonna/Documents/PA_wt_audit"
 N=$1; RES=$2; SEC=$3; shift 3
 R=$ROOT/docs/qa/perf/raw
+for w in $(seq 1 60); do [ "$(powershell -c '(Get-CimInstance Win32_Battery).BatteryStatus')" = "2" ] && break; sleep 10; done   # wait for AC: DC power halves the CPU
 echo "CTX $N battery=$(powershell -c '(Get-CimInstance Win32_Battery).BatteryStatus') godot_others=$(powershell -c '(Get-Process Godot* -ErrorAction SilentlyContinue).Count') freeMB=$(powershell -c '[int]((Get-CimInstance Win32_OperatingSystem).FreePhysicalMemory/1024)') cpu=$(powershell -c '(Get-CimInstance Win32_Processor).LoadPercentage')" | tee -a $R/context.txt
 for try in 1 2 3; do
   timeout 590 "$G" --path "$ROOT/kingdom" --rendering-method forward_plus --resolution $RES -- --adult --skipintro --qa=res://tools_qa/perf/town_route.gd --seconds=$SEC --uncap --hitchcsv=$R/$N.csv "$@" > $R/$N.log 2>&1

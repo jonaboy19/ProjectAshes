@@ -218,6 +218,7 @@ func queued_spawns() -> int:
 
 
 func refresh(step_delta := 0.25, spread := false) -> void:
+	spread = spread and not Probe.legacy
 	if not _sj.is_empty():
 		_sprite_job_step(0)        # a sync caller (teleport, tool): finish the pass in flight first
 	var _pt := Probe.t()

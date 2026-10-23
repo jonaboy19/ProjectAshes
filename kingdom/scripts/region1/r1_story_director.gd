@@ -187,7 +187,7 @@ func ctx() -> Dictionary:
 	var flags := {}
 	for f: Variant in lp.flags:
 		var v: Variant = lp.flags[f]
-		if v != null and not (v is bool and not v):      # truthy; a flag may hold an Array/Dictionary payload (`Array != bool` is a SCRIPT ERROR, 1/s with a backtrace)
+		if (v != null and v != false) if Probe.legacy else (v != null and not (v is bool and not v)):      # truthy; a flag may hold an Array/Dictionary payload (`Array != bool` is a SCRIPT ERROR, 1/s with a backtrace)
 			flags[String(f)] = true
 	var items := {}
 	for id in _item_ids:

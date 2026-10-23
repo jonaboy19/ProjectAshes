@@ -590,7 +590,7 @@ static var _ds_shaders := {}
 
 static func double_sided(sm: ShaderMaterial) -> ShaderMaterial:
 	var d := sm.duplicate() as ShaderMaterial
-	var key := sm.shader.get_instance_id()
+	var key := sm.shader.get_instance_id() if not Probe.legacy else sm.get_instance_id()
 	if not _ds_shaders.has(key) or not is_instance_valid(_ds_shaders[key]):
 		var sh := Shader.new()
 		sh.code = sm.shader.code.replace("cull_back", "cull_disabled")

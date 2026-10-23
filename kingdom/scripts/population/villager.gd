@@ -555,7 +555,7 @@ var _hr_acc := 0.0
 
 
 func _physics_process(delta: float) -> void:
-	if lod_tier >= 1 and not _contact and not physics_active and not _talk.active and Engine.physics_ticks_per_second >= 50:
+	if lod_tier >= 1 and not Probe.legacy and not _contact and not physics_active and not _talk.active and Engine.physics_ticks_per_second >= 50:
 		if ((Engine.get_physics_frames() + get_instance_id()) & 1) != 0:
 			_hr_acc += delta
 			return

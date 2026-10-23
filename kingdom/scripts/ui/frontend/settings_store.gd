@@ -93,6 +93,11 @@ static func _cached() -> ConfigFile:
 
 
 static func get_value(key: String) -> Variant:
+	if preload("res://scripts/core/perf_probe.gd").legacy:
+		var old := ConfigFile.new()
+		if old.load(PATH) != OK:
+			return DEFAULTS.get(key)
+		return old.get_value(section_of(key), key, DEFAULTS.get(key))
 	_cache_lock.lock()
 	var cf := _cached()
 	var v: Variant = DEFAULTS.get(key) if cf == null else cf.get_value(section_of(key), key, DEFAULTS.get(key))

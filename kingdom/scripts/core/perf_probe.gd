@@ -6,6 +6,10 @@ extends RefCounted
 ##   ...work...
 ##   Probe.add("population_lod.sort", t0)
 static var on := false
+## `--perf-legacy`: QA A/B switch that puts back the pre-2026-10-23 hitch behaviours (settings parsed from disk on every call, one Style G
+## double-sided shader per material, the whole sprite pass in one frame, full-rate far villagers, the 1 Hz story-context script error), so one build
+## can be measured both ways in interleaved runs.
+static var legacy := OS.get_cmdline_user_args().has("--perf-legacy")
 static var us := {}         # key -> total microseconds since reset()
 static var calls := {}      # key -> number of timed sections
 static var worst := {}      # key -> longest single section in microseconds
