@@ -509,6 +509,24 @@ func found_place(pos: Vector2, pname := "", founder := "", day := -1, pop := 12)
 	return node
 
 
+## Erases a dynamic camp-place with its camp and open projects (a player founding given up). True when it existed.
+func remove_place(node: String) -> bool:
+	_ensure()
+	var p: Dictionary = _places.get(node, {})
+	if p.is_empty() or not bool(p["dyn"]):
+		return false
+	var cm := _mod("camps")
+	if cm != null:
+		cm.call("remove_camp", int(p["camp"]))
+	for pid: int in _projects.keys():
+		if String((_projects[pid] as Dictionary)["node"]) == node:
+			_projects.erase(pid)
+	_places.erase(node)
+	_ids_cache = []
+	_adj_n = -1
+	return true
+
+
 ## Settlement id a news item is filed under: a static place's own sid, a dynamic camp files under the nearest static place (news.gd
 ## measures road distance between settlement ids only).
 func news_sid(node: String) -> int:

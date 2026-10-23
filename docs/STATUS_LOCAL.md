@@ -719,3 +719,6 @@ AAA-review backlog from this task:
 
 ## 2026-10-06 baked quality phase 2
 LOW draws 172 -> 131, HIGH ~700 -> ~530 in the gate-market bench (targets 120 / 300 not met). See docs/art/baked_quality/README.md and skill ashes-baked-quality.
+
+## Ready v1 (cloud)
+- C2 one settlement model (`claude/v1-settlement-unify`): `BuildKit.claim()` now starts the `founding.gd` record (`claim_site`) and its civilization row; grid stores `fid`/`node`; `BuildKit.abandon(gid)` / `founding.abandon` clear all three; `RealmHub.player_settlements()` / `settlement_of_grid(gid)`; max 3 kept. Tests `tests/test_v1_settlement_unify.gd`.
