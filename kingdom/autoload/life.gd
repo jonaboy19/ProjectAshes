@@ -96,6 +96,7 @@ const RECORD_TO_MASTERY := {
 	"helped_farmer": "farming", "farmed": "farming", "hunted": "hunting", "fished": "fishing",
 	"trained_sword": "swordsmanship", "trained_bow": "archery", "traded": "trading",
 	"adventured": "soldiering", "studied": "scholarship", "meditated": "faith", "worked": "farming",
+	"mined": "mining", "chopped_wood": "carpentry", "foraged": "herbalism",
 }
 const ORG_TO_CAREER := {"guard": "soldier", "smithy": "blacksmith", "inn": "innkeeper"}
 var homestead := preload("res://scripts/sim/homestead.gd").new()
@@ -141,7 +142,7 @@ func _ready() -> void:
 const STATE := ["life_path", "titles", "triggers", "careers", "guild", "magicules", "naming", "injuries", "scouts",
 	"discovery", "relationships", "npc_social_graph", "radiant", "crafting", "equipment", "skills", "mastery", "biography", "property",
 	"nobility", "lordship", "family", "soul", "skill_evolution", "echoes", "life_courses", "war", "realm",
-	"homestead", "tendencies", "element_places", "childhood_events", "awakening", "needs", "market", "economy"]
+	"homestead", "tendencies", "element_places", "trade_ranks", "childhood_events", "awakening", "needs", "market", "economy"]
 
 
 ## A brand-new run: Game, WorldSim, Frontier, Region 1 and every object Life owns go back to their
@@ -509,6 +510,8 @@ func commit_craft_action(token: String, recipe_id: String, requested_kinds: Arra
 		return crafting.call("craft", recipe_id, self, allowed_kinds, ctx)
 	var result: Dictionary = action_runtime.commit(token, now_s, check, apply)
 	_craft_station_actions.erase(token)
+	if bool(result.get("ok", false)) and String(crafting.call("recipe", recipe_id).get("skill", "")) == "cooking":
+		record("cooked")   # the cook trade rank (trade_ranks.gd)
 	return result
 
 
@@ -571,6 +574,8 @@ func _life_tick(hour: int) -> void:
 		"age": age(), "flags": life_path.flags, "day": WorldSim.day})
 	if hour == 0:
 		_career_daily()
+		for line: String in trade_ranks.update(mastery, life_path.actions):
+			Game.say(line)
 		for msg: String in homestead.daily_tick(WorldSim.day):
 			Game.say(msg)
 	for msg: String in skills.sync_progress(skills.ctx_from_life(self)):
@@ -1640,7 +1645,7 @@ func _snapshot_steps_raw() -> Array:
 	for key: String in ["life_path", "titles", "triggers", "guild", "magicules", "naming", "injuries", "scouts", "discovery",
 			"relationships", "npc_social_graph", "mastery", "biography", "property", "nobility", "lordship", "family",
 			"life_courses", "war", "soul", "skill_evolution", "echoes", "radiant", "crafting", "world_events",
-			"equipment", "skills", "homestead", "tendencies", "element_places", "childhood_events", "awakening"]:
+			"equipment", "skills", "homestead", "tendencies", "element_places", "trade_ranks", "childhood_events", "awakening"]:
 		steps.append([key, func() -> Variant: return get(key).serialize()])
 	# The realm (532 KB, 9-13 ms in one go) is collected a module per step.
 	for rk: String in realm.ORDER:
@@ -1705,7 +1710,7 @@ func restore(d: Dictionary) -> void:
 		life_path.deserialize(d["life_path"])
 		titles.deserialize(d.get("titles", {}))
 		triggers.deserialize(d.get("triggers", {}))
-	for key: String in ["guild", "magicules", "naming", "injuries", "scouts", "discovery", "relationships", "npc_social_graph", "radiant", "crafting", "equipment", "skills", "homestead", "tendencies", "element_places", "childhood_events", "awakening", "mastery", "biography", "property", "nobility", "lordship", "family", "life_courses", "war", "soul", "skill_evolution", "echoes", "realm"]:
+	for key: String in ["guild", "magicules", "naming", "injuries", "scouts", "discovery", "relationships", "npc_social_graph", "radiant", "crafting", "equipment", "skills", "homestead", "tendencies", "element_places", "trade_ranks", "childhood_events", "awakening", "mastery", "biography", "property", "nobility", "lordship", "family", "life_courses", "war", "soul", "skill_evolution", "echoes", "realm"]:
 		if d.has(key):
 			get(key).deserialize(d[key])
 	appearance = d.get("appearance", {})
@@ -1857,6 +1862,7 @@ func _on_old_age_death() -> void:
 var _exposure_ms := -100000
 var _exposure_dh := 0.0
 var element_places := preload("res://scripts/sim/element_places.gd").new()
+var trade_ranks := preload("res://scripts/sim/trade_ranks.gd").new()
 
 
 func _update_exposure(dh := 0.0) -> void:
