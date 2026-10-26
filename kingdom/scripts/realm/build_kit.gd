@@ -188,10 +188,15 @@ func ensure_grid(world: Vector3, name := "") -> Dictionary:
 
 ## The claim / founding flow's entry point (C16): validates the ground (LandClaim) and founds the grid through ensure_grid, which
 ## enforces MAX_GRIDS (OWNER_DECISIONS: at most 3 settlements). Standing inside an existing grid is always fine.
+## One settlement model (READY_V1 C2): inside a hub, a new claim also starts the realm/founding.gd record (begin "player") and its
+## civilization row, and the grid stores their ids ("fid", "node"); an older grid that has none is attached on the next claim there.
+## `fid` > 0 is founding.occupy handing over a record it already made: the grid just links to it.
 ## Returns {ok, gid, reason, founded}. `claim_kind` is recorded on the grid ("squat" until the charter / ward-claim ladder exists).
-func claim(world: Vector3, claim_kind := "squat", name := "") -> Dictionary:
+func claim(world: Vector3, claim_kind := "squat", name := "", fid := 0) -> Dictionary:
 	var gid := grid_at(world)
 	if gid > 0:
+		if int(grids[gid].get("fid", 0)) == 0:
+			_attach(gid, name)
 		return {"ok": true, "gid": gid, "reason": "", "founded": false}
 	if grids.size() >= MAX_GRIDS:
 		return {"ok": false, "gid": 0, "reason": "You can found at most %d settlements." % MAX_GRIDS, "founded": false}
@@ -199,11 +204,77 @@ func claim(world: Vector3, claim_kind := "squat", name := "") -> Dictionary:
 		var why := LandClaim.block_reason(Vector2(world.x, world.z))
 		if why != "":
 			return {"ok": false, "gid": 0, "reason": why, "founded": false}
-	var r := ensure_grid(world, name)
+	var fd := _founding()
+	var gname := name
+	if fd != null and fid == 0:
+		var cs: Dictionary = fd.call("claim_site", Vector2(world.x, world.z), name)
+		if bool(cs.get("ok", false)):
+			fid = int(cs["fid"])
+		elif claim_rules:
+			return {"ok": false, "gid": 0, "reason": String(cs.get("reason", "")), "founded": false}
+	if fd != null and fid > 0 and gname == "":
+		gname = String((fd.call("get_founding", fid) as Dictionary).get("name", ""))
+	var r := ensure_grid(world, gname)
 	if bool(r["ok"]):
-		grids[int(r["gid"])]["claim"] = claim_kind
+		var g: Dictionary = grids[int(r["gid"])]
+		g["claim"] = claim_kind
+		if fd != null and fid > 0:
+			_link(int(r["gid"]), fid)
 	r["founded"] = bool(r["ok"])
 	return r
+
+
+## Gives a settlement up: the founding ends, its camp-place row goes and so does the grid with every piece on it. {ok, gid}.
+func abandon(gid: int) -> Dictionary:
+	if not grids.has(gid):
+		return {"ok": false, "gid": gid}
+	var fid := int(grids[gid].get("fid", 0))
+	var fd := _founding()
+	if fd != null and fid > 0:
+		fd.call("abandon", fid)   # releases the row and (through release_grid) this grid
+	release_grid(gid)             # a grid with no founding record, or one whose record had already ended
+	return {"ok": true, "gid": gid}
+
+
+## Drops a grid and everything on it (founding.abandon calls this; use abandon() to give a settlement up). No-op for an unknown gid.
+func release_grid(gid: int) -> void:
+	if not grids.has(gid):
+		return
+	grids.erase(gid)
+	_index.erase(gid)
+	_integ.erase(gid)
+	ScatterExclusion.sync_grids(grids, GRID_RADIUS)
+	rev += 1
+	sync_realm()
+
+
+## Founding record and civilization row of a grid linked to the realm ({fid, node}); zeros/"" for a bare grid.
+func link_of(gid: int) -> Dictionary:
+	var g: Dictionary = grids.get(gid, {})
+	return {"fid": int(g.get("fid", 0)), "node": String(g.get("node", ""))}
+
+
+func _founding() -> RefCounted:
+	return hub.mod("founding") if hub != null else null
+
+
+func _link(gid: int, fid: int) -> void:
+	var fd := _founding()
+	var f: Dictionary = fd.call("get_founding", fid)
+	grids[gid]["fid"] = fid
+	grids[gid]["node"] = String(f.get("node", ""))
+	fd.call("link_grid", fid, gid)
+
+
+## Best-effort: an old or hand-made grid gets a founding record + row too. A refusal (poor ground, a founding nearby) leaves it bare.
+func _attach(gid: int, name: String) -> void:
+	var fd := _founding()
+	if fd == null:
+		return
+	var o := _origin(gid)
+	var cs: Dictionary = fd.call("claim_site", Vector2(o.x, o.z), name if name != "" else String(grids[gid]["name"]))
+	if bool(cs.get("ok", false)):
+		_link(gid, int(cs["fid"]))
 
 
 func _origin(gid: int) -> Vector3:
@@ -942,7 +1013,7 @@ func serialize() -> Dictionary:
 		var g: Dictionary = grids[gid]
 		var packed := pack_pieces(gid)
 		gg[str(gid)] = {"id": gid, "name": g["name"], "origin": g["origin"], "roads": (g["roads"] as Array).duplicate(true),
-			"claim": String(g.get("claim", "squat")), "packed": Marshalls.raw_to_base64(packed) if not packed.is_empty() else ""}
+			"claim": String(g.get("claim", "squat")), "fid": int(g.get("fid", 0)), "node": String(g.get("node", "")), "packed": Marshalls.raw_to_base64(packed) if not packed.is_empty() else ""}
 	return {"grids": gg, "next_grid": _next_grid, "log": log_lines.duplicate()}
 
 
@@ -954,7 +1025,8 @@ func deserialize(d: Dictionary) -> void:
 		var src: Dictionary = d["grids"][key]
 		var gid := int(src["id"])
 		grids[gid] = {"id": gid, "name": String(src["name"]), "origin": src["origin"], "pieces": {}, "next": 1,
-			"roads": (src.get("roads", []) as Array).duplicate(true), "plans": {}, "claim": String(src.get("claim", "squat"))}
+			"roads": (src.get("roads", []) as Array).duplicate(true), "plans": {}, "claim": String(src.get("claim", "squat")),
+			"fid": int(src.get("fid", 0)), "node": String(src.get("node", ""))}
 		_index[gid] = {}
 		_integ[gid] = {}
 		unpack_pieces(gid, Marshalls.base64_to_raw(String(src.get("packed", ""))))

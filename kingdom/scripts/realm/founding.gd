@@ -395,6 +395,19 @@ func occupy(fid: int) -> Dictionary:
 	var node: String = civ.call("found_place", pos, String(f["name"]), "%s and their settlers" % String(f["fn"]), _day, 8)
 	if node == "":
 		return {"ok": false, "reason": "There is no room for a camp here (too many camps, or too close to another)."}
+	_raise_camp(f, node)
+	if player and bk != null:
+		var kind := "squat"
+		if bool((f["rights"] as Dictionary)["build"]):
+			kind = "occupation" if "occupation" in (f["acts"] as Array) else ((f["acts"] as Array)[0] if not (f["acts"] as Array).is_empty() else "occupation")
+		bk.call("claim", Vector3(pos.x, WorldGen.height(pos.x, pos.y), pos.y), String(kind), String(f["name"]), fid)
+	_camp_done(f)
+	return {"ok": true, "reason": ""}
+
+
+## The camp-place exists: remember it and settle the land rights it gives.
+func _raise_camp(f: Dictionary, node: String) -> void:
+	var civ := _civ()
 	f["node"] = node
 	f["cid"] = int((civ.call("place", node) as Dictionary).get("camp", -1))
 	_refresh_rights(f)
@@ -402,13 +415,12 @@ func occupy(fid: int) -> Dictionary:
 	if bool((f["base"] as Dictionary)["own"]) and String(land["status"]) == "wilderness":
 		(f["acts"] as Array).append("occupation")
 	_refresh_rights(f)
-	if player and bk != null:
-		var kind := "squat"
-		if bool((f["rights"] as Dictionary)["build"]):
-			kind = "occupation" if "occupation" in (f["acts"] as Array) else ((f["acts"] as Array)[0] if not (f["acts"] as Array).is_empty() else "occupation")
-		var r: Dictionary = bk.call("claim", Vector3(pos.x, WorldGen.height(pos.x, pos.y), pos.y), String(kind), String(f["name"]))
-		if bool(r.get("ok", false)):
-			f["gid"] = int(r["gid"])
+
+
+## The first structures stand: the founding is at stage "camp raised".
+func _camp_done(f: Dictionary) -> void:
+	var pos := _pos(f)
+	var land: Dictionary = f["land"]
 	var cm := _mod("camps")
 	if cm != null:
 		for k in ["tent", "well", "warehouse"]:
@@ -420,7 +432,35 @@ func occupy(fid: int) -> Dictionary:
 	if not bool((f["rights"] as Dictionary)["build"]):
 		_hist(f, "built without right (%s)" % String(land["status"]))
 		_ev("crime", f, "illegal build", "camp on %s ground" % String(land["status"]).replace("_", " "), 2)
-	return {"ok": true, "reason": ""}
+
+
+## C2 (one settlement model): the build kit's claim of ground starts the founding record AND raises its camp-place row in one go
+## (scouting is skipped: the player is standing there). BuildKit.claim then opens the grid and calls link_grid. Returns {ok, fid, reason}.
+func claim_site(pos: Vector2, fname: String) -> Dictionary:
+	var r := begin(pos, fname, "player")
+	if not bool(r["ok"]):
+		return r
+	var fid := int(r["fid"])
+	var f: Dictionary = _f[fid]
+	var civ := _civ()
+	var node := ""
+	if civ != null:
+		node = String(civ.call("found_place", pos, String(f["name"]), "%s and their settlers" % String(f["fn"]), _day, 8))
+	if node == "":
+		_f.erase(fid)
+		stats["begun"] = int(stats["begun"]) - 1
+		ScatterExclusion.sync_founded(_f.values())
+		return {"ok": false, "fid": 0, "reason": "There is no room for a camp here (too many camps, or too close to another)."}
+	_raise_camp(f, node)
+	_camp_done(f)
+	return {"ok": true, "fid": fid, "reason": ""}
+
+
+## Ties a build-kit grid to its founding record (both directions are kept: the grid stores fid and node).
+func link_grid(fid: int, gid: int) -> void:
+	var f: Dictionary = _f.get(fid, {})
+	if not f.is_empty():
+		f["gid"] = gid
 
 
 func abandon(fid: int) -> bool:
@@ -428,7 +468,24 @@ func abandon(fid: int) -> bool:
 	if f.is_empty() or int(f["end"]) >= 0:
 		return false
 	_end(f, "abandoned")
+	_release(f)
 	return true
+
+
+## An ended founding that owned a grid and a camp-place gives both back (one id linked the three, so all three go).
+func _release(f: Dictionary) -> void:
+	var gid := int(f["gid"])
+	var node := String(f["node"])
+	f["gid"] = 0
+	f["node"] = ""
+	if node != "":
+		var civ := _civ()
+		if civ != null and civ.has_method("remove_place"):
+			civ.call("remove_place", node)
+	if gid > 0:
+		var bk := _mod("build_kit")
+		if bk != null:
+			bk.call("release_grid", gid)
 
 
 func _end(f: Dictionary, why: String) -> void:

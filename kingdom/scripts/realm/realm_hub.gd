@@ -108,6 +108,33 @@ func mod(name: String) -> RefCounted:
 	return mods.get(name)
 
 
+## One settlement model (READY_V1 C2): the settlements the player founded, one row per build-kit grid, each linking the three ids.
+## [{gid, fid, node, name, pos: Vector2, stage, pop}] in grid order. Grids without a founding record (older saves) show fid 0.
+func player_settlements() -> Array:
+	var out: Array = []
+	var bk: RefCounted = mods["build_kit"]
+	var fd: RefCounted = mods["founding"]
+	var civ: RefCounted = mods["civilization"]
+	var gids: Array = bk.grids.keys()
+	gids.sort()
+	for gid: int in gids:
+		var g: Dictionary = bk.grids[gid]
+		var fid := int(g.get("fid", 0))
+		var node := String(g.get("node", ""))
+		var o: Array = g["origin"]
+		out.append({"gid": gid, "fid": fid, "node": node, "name": String(g["name"]), "pos": Vector2(float(o[0]), float(o[2])),
+			"stage": fd.stage_name(fid) if fid > 0 else "", "pop": int(civ.population(node)) if node != "" else 0})
+	return out
+
+
+## The player_settlements() row of build-kit grid `gid`, {} when there is none.
+func settlement_of_grid(gid: int) -> Dictionary:
+	for row: Dictionary in player_settlements():
+		if int(row["gid"]) == gid:
+			return row
+	return {}
+
+
 func on_hour(hour: int, day: int, ctx: Dictionary) -> void:
 	for k: String in ORDER:
 		_queue.append([k, "tick_hour", hour, ctx])
