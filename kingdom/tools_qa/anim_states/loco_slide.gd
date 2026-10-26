@@ -99,6 +99,10 @@ func _case(name: String, strength: float, sprint: bool) -> void:
 	for i in 90:                      # accelerate, get through the start transition
 		await physics_frame
 		_p.get_viewport().get_camera_3d().global_position = _p.global_position + Vector3(3.0, 1.3, 0.0)
+	var an2: RefCounted = _p.get("_animator")
+	if an2 != null and OS.get_cmdline_user_args().has("--dbg"):
+		var tr: AnimationTree = an2.get("tree")
+		print("LOCO dbg %s pos=%.2f rate=%.2f loco=%.2f speed=%.2f" % [name, tr["parameters/gait/blend_position"], tr["parameters/gait_rate/scale"], tr["parameters/loco/blend_amount"], float(an2.get("_speed"))])
 	_rec.clear()
 	_recording = true
 	for i in 240:

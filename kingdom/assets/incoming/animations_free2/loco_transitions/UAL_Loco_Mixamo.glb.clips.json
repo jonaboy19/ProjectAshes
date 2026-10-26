@@ -1,0 +1,344 @@
+[
+ {
+  "name": "Mx_Walk_Careful",
+  "loop": true,
+  "seconds": 4.57,
+  "frames": 138,
+  "keys": 1156,
+  "source": "careful_walk_inplace.fbx",
+  "range_s": [
+   0.0,
+   4.566666666666666
+  ],
+  "autotrim": null,
+  "loop_pts": null,
+  "floor_fix_m": 0.042,
+  "contact_lift_m": 0.0,
+  "min_foot_m": -0.002,
+  "travel_m": 1.12,
+  "hip_scale": 0.8509
+ },
+ {
+  "name": "Mx_Walk_Standard",
+  "loop": true,
+  "seconds": 1.13,
+  "frames": 35,
+  "keys": 555,
+  "source": "standard_walk_inplace.fbx",
+  "range_s": [
+   0.0,
+   1.1333333333333333
+  ],
+  "autotrim": null,
+  "loop_pts": null,
+  "floor_fix_m": 0.054,
+  "contact_lift_m": 0.0,
+  "min_foot_m": -0.004,
+  "travel_m": 1.52,
+  "hip_scale": 0.8509
+ },
+ {
+  "name": "Mx_Walk_Unarmed",
+  "loop": true,
+  "seconds": 1.33,
+  "frames": 41,
+  "keys": 724,
+  "source": "unarmed_walk_fwd_inplace.fbx",
+  "range_s": [
+   0.0,
+   1.3333333333333333
+  ],
+  "autotrim": null,
+  "loop_pts": null,
+  "floor_fix_m": 0.041,
+  "contact_lift_m": 0.0,
+  "min_foot_m": -0.001,
+  "travel_m": 1.16,
+  "hip_scale": 0.8509
+ },
+ {
+  "name": "Mx_Run_Slow",
+  "loop": true,
+  "seconds": 0.7,
+  "frames": 22,
+  "keys": 502,
+  "source": "slow_run_inplace.fbx",
+  "range_s": [
+   0.0,
+   0.7
+  ],
+  "autotrim": null,
+  "loop_pts": null,
+  "floor_fix_m": 0.074,
+  "contact_lift_m": 0.0,
+  "min_foot_m": -0.007,
+  "travel_m": 1.86,
+  "hip_scale": 0.8509
+ },
+ {
+  "name": "Mx_Jog",
+  "loop": true,
+  "seconds": 2.53,
+  "frames": 77,
+  "keys": 1532,
+  "source": "jogging_inplace.fbx",
+  "range_s": [
+   0.0,
+   2.533333333333333
+  ],
+  "autotrim": null,
+  "loop_pts": null,
+  "floor_fix_m": 0.064,
+  "contact_lift_m": 0.0,
+  "min_foot_m": -0.003,
+  "travel_m": 4.29,
+  "hip_scale": 0.8509
+ },
+ {
+  "name": "Mx_Run_Medium",
+  "loop": true,
+  "seconds": 0.53,
+  "frames": 17,
+  "keys": 416,
+  "source": "medium_run_inplace.fbx",
+  "range_s": [
+   0.0,
+   0.5333333333333333
+  ],
+  "autotrim": null,
+  "loop_pts": null,
+  "floor_fix_m": 0.064,
+  "contact_lift_m": 0.0,
+  "min_foot_m": -0.004,
+  "travel_m": 2.12,
+  "hip_scale": 0.8509
+ },
+ {
+  "name": "Mx_Run_Standard",
+  "loop": true,
+  "seconds": 0.7,
+  "frames": 22,
+  "keys": 495,
+  "source": "standard_run_inplace.fbx",
+  "range_s": [
+   0.0,
+   0.7
+  ],
+  "autotrim": null,
+  "loop_pts": null,
+  "floor_fix_m": 0.07,
+  "contact_lift_m": 0.0,
+  "min_foot_m": -0.003,
+  "travel_m": 2.61,
+  "hip_scale": 0.8509
+ },
+ {
+  "name": "Mx_Run_Fast",
+  "loop": true,
+  "seconds": 0.5,
+  "frames": 16,
+  "keys": 408,
+  "source": "fast_run_inplace.fbx",
+  "range_s": [
+   0.0,
+   0.5
+  ],
+  "autotrim": null,
+  "loop_pts": null,
+  "floor_fix_m": 0.077,
+  "contact_lift_m": 0.0,
+  "min_foot_m": 0.007,
+  "travel_m": 2.41,
+  "hip_scale": 0.8509
+ },
+ {
+  "name": "Mx_SnS_Walk",
+  "loop": true,
+  "seconds": 1.07,
+  "frames": 33,
+  "keys": 487,
+  "source": "sns_walk_fwd_inplace.fbx",
+  "range_s": [
+   0.0,
+   1.0666666666666667
+  ],
+  "autotrim": null,
+  "loop_pts": null,
+  "floor_fix_m": 0.047,
+  "contact_lift_m": 0.0,
+  "min_foot_m": -0.0,
+  "travel_m": 1.37,
+  "hip_scale": 0.8509
+ },
+ {
+  "name": "Mx_SnS_WalkBack",
+  "loop": true,
+  "seconds": 1.23,
+  "frames": 38,
+  "keys": 503,
+  "source": "sns_walk_back_inplace.fbx",
+  "range_s": [
+   0.0,
+   1.2333333333333334
+  ],
+  "autotrim": null,
+  "loop_pts": null,
+  "floor_fix_m": 0.048,
+  "contact_lift_m": 0.0,
+  "min_foot_m": -0.0,
+  "travel_m": 1.2,
+  "hip_scale": 0.8509
+ },
+ {
+  "name": "Mx_SnS_Run",
+  "loop": true,
+  "seconds": 0.67,
+  "frames": 21,
+  "keys": 484,
+  "source": "sns_run_inplace.fbx",
+  "range_s": [
+   0.0,
+   0.6666666666666666
+  ],
+  "autotrim": null,
+  "loop_pts": null,
+  "floor_fix_m": 0.074,
+  "contact_lift_m": 0.0,
+  "min_foot_m": -0.006,
+  "travel_m": 2.35,
+  "hip_scale": 0.8509
+ },
+ {
+  "name": "Mx_Strafe_R",
+  "loop": true,
+  "seconds": 1.43,
+  "frames": 44,
+  "keys": 596,
+  "source": "walk_strafe_right_inplace.fbx",
+  "range_s": [
+   0.0,
+   1.4333333333333333
+  ],
+  "autotrim": null,
+  "loop_pts": null,
+  "floor_fix_m": 0.049,
+  "contact_lift_m": 0.0,
+  "min_foot_m": -0.0,
+  "travel_m": 0.75,
+  "hip_scale": 0.8509
+ },
+ {
+  "name": "Mx_Strafe_L",
+  "loop": true,
+  "seconds": 1.43,
+  "frames": 44,
+  "keys": 596,
+  "source": "walk_strafe_right_inplace.fbx",
+  "range_s": [
+   0.0,
+   1.4333333333333333
+  ],
+  "autotrim": null,
+  "loop_pts": null,
+  "floor_fix_m": 0.06,
+  "contact_lift_m": 0.0,
+  "min_foot_m": -0.001,
+  "travel_m": 0.75,
+  "hip_scale": 0.8509
+ },
+ {
+  "name": "Mx_WalkStart",
+  "loop": false,
+  "seconds": 2.93,
+  "frames": 89,
+  "keys": 1038,
+  "source": "start_walking.fbx",
+  "range_s": [
+   null,
+   null
+  ],
+  "autotrim": null,
+  "loop_pts": null,
+  "floor_fix_m": 0.048,
+  "contact_lift_m": 0.0,
+  "min_foot_m": -0.004,
+  "travel_m": 1.58,
+  "hip_scale": 0.8509
+ },
+ {
+  "name": "Mx_WalkStop",
+  "loop": false,
+  "seconds": 3.0,
+  "frames": 91,
+  "keys": 918,
+  "source": "walk_to_stop_root.fbx",
+  "range_s": [
+   null,
+   null
+  ],
+  "autotrim": null,
+  "loop_pts": null,
+  "floor_fix_m": 0.043,
+  "contact_lift_m": 0.0,
+  "min_foot_m": -0.0,
+  "travel_m": 0.94,
+  "hip_scale": 0.8509
+ },
+ {
+  "name": "Mx_RunStop",
+  "loop": false,
+  "seconds": 0.9,
+  "frames": 28,
+  "keys": 474,
+  "source": "run_to_stop_root.fbx",
+  "range_s": [
+   null,
+   null
+  ],
+  "autotrim": null,
+  "loop_pts": null,
+  "floor_fix_m": 0.074,
+  "contact_lift_m": 0.0,
+  "min_foot_m": -0.0,
+  "travel_m": 0.47,
+  "hip_scale": 0.8509
+ },
+ {
+  "name": "Mx_RunTurn_R",
+  "loop": false,
+  "seconds": 0.77,
+  "frames": 24,
+  "keys": 506,
+  "source": "run_turn_right_root.fbx",
+  "range_s": [
+   null,
+   null
+  ],
+  "autotrim": null,
+  "loop_pts": null,
+  "floor_fix_m": 0.056,
+  "contact_lift_m": 0.0,
+  "min_foot_m": -0.0,
+  "travel_m": 1.81,
+  "hip_scale": 0.8509
+ },
+ {
+  "name": "Mx_RunTurn_L",
+  "loop": false,
+  "seconds": 0.77,
+  "frames": 24,
+  "keys": 505,
+  "source": "run_turn_right_root.fbx",
+  "range_s": [
+   null,
+   null
+  ],
+  "autotrim": null,
+  "loop_pts": null,
+  "floor_fix_m": 0.122,
+  "contact_lift_m": 0.0,
+  "min_foot_m": -0.002,
+  "travel_m": 1.81,
+  "hip_scale": 0.8509
+ }
+]

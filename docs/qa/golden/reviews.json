@@ -449,5 +449,173 @@
   "verdict": "pass",
   "by": "claude (side-view 8-frame strip, ground grid)",
   "date": "2026-10-26"
+ },
+ "Life_Mx_Pick_Fruit": {
+  "sheet": "docs/qa/golden/mixamo_owner/sheet_life.jpg",
+  "verdict": "pass",
+  "note": "feet planted (foot lock), reach + pick reads clearly, loop seam 0.3 deg",
+  "by": "claude (Mixamo owner_set front-view 8-frame check sheet, 25 cm checker floor)",
+  "date": "2026-10-26"
+ },
+ "Life_Mx_Salute": {
+  "sheet": "docs/qa/golden/mixamo_owner/sheet_life.jpg",
+  "verdict": "pass",
+  "note": "clean brow salute, feet planted, returns to rest",
+  "by": "claude (Mixamo owner_set front-view 8-frame check sheet, 25 cm checker floor)",
+  "date": "2026-10-26"
+ },
+ "Life_Mx_Tell_Secret": {
+  "sheet": "docs/qa/golden/mixamo_owner/sheet_life.jpg",
+  "verdict": "pass",
+  "note": "lean-in whisper, feet planted, no clipping of the hand into the head",
+  "by": "claude (Mixamo owner_set front-view 8-frame check sheet, 25 cm checker floor)",
+  "date": "2026-10-26"
+ },
+ "Life_Mx_Thankful": {
+  "sheet": "docs/qa/golden/mixamo_owner/sheet_life.jpg",
+  "verdict": "pass",
+  "note": "hand on heart + small bow, feet planted",
+  "by": "claude (Mixamo owner_set front-view 8-frame check sheet, 25 cm checker floor)",
+  "date": "2026-10-26"
+ },
+ "Mx_Bow_Aim_Idle": {
+  "sheet": "docs/qa/golden/mixamo_owner/sheet_combat_0.jpg",
+  "verdict": "pass",
+  "note": "bow arm extended at shoulder height, draw hand at the cheek, wide stance planted",
+  "by": "claude (Mixamo owner_set front-view 8-frame check sheet, 25 cm checker floor)",
+  "date": "2026-10-26"
+ },
+ "Mx_Bow_Shoot": {
+  "sheet": "docs/qa/golden/mixamo_owner/sheet_combat_0.jpg",
+  "verdict": "pass",
+  "note": "reach to quiver over the right shoulder, nock, draw, loose; feet planted",
+  "by": "claude (Mixamo owner_set front-view 8-frame check sheet, 25 cm checker floor)",
+  "date": "2026-10-26"
+ },
+ "Mx_SnS_Block_Crouch_Idle": {
+  "sheet": "docs/qa/golden/mixamo_owner/sheet_combat_2.jpg",
+  "verdict": "pass",
+  "note": "low crouched guard, feet planted, 0.47 s loop seamless",
+  "by": "claude (Mixamo owner_set front-view 8-frame check sheet, 25 cm checker floor)",
+  "date": "2026-10-26"
+ },
+ "Mx_Death_Left": {
+  "sheet": "docs/qa/golden/mixamo_owner/sheet_combat_0.jpg",
+  "verdict": "pass",
+  "note": "collapse to the left, body ends flat on the floor (0.7 cm), terminal; travel 1.1 m stays in the pelvis",
+  "by": "claude (Mixamo owner_set front-view 8-frame check sheet, 25 cm checker floor)",
+  "date": "2026-10-26"
+ },
+ "Mx_GreatSword_Death": {
+  "sheet": "docs/qa/golden/mixamo_owner/sheet_combat_1.jpg",
+  "verdict": "pass",
+  "note": "knees then over to the side, ends on the floor, terminal",
+  "by": "claude (Mixamo owner_set front-view 8-frame check sheet, 25 cm checker floor)",
+  "date": "2026-10-26"
+ },
+ "Mx_Fall": {
+  "sheet": "docs/qa/golden/mixamo_owner/sheet_combat_0.jpg",
+  "verdict": "pass",
+  "note": "airborne flail loop, no floor involved",
+  "by": "claude (Mixamo owner_set front-view 8-frame check sheet, 25 cm checker floor)",
+  "date": "2026-10-26"
+ },
+ "Mx_Dodge": {
+  "sheet": "docs/qa/golden/mixamo_owner/sheet_combat_0.jpg",
+  "verdict": "hold",
+  "note": "planted-foot slide 4.6 cm/s mean (gold < 3): stepping dodge, use upper/short only",
+  "by": "claude (Mixamo owner_set front-view 8-frame check sheet, 25 cm checker floor)",
+  "date": "2026-10-26"
+ },
+ "Mx_Sword_Draw": {
+  "sheet": "docs/qa/golden/mixamo_owner/sheet_combat_2.jpg",
+  "verdict": "hold",
+  "note": "17 cm/s foot slide during the draw step; hand passes the hip as it should (no scabbard socket yet)",
+  "by": "claude (Mixamo owner_set front-view 8-frame check sheet, 25 cm checker floor)",
+  "date": "2026-10-26"
+ },
+ "Mx_GreatSword_Draw": {
+  "sheet": "docs/qa/golden/mixamo_owner/sheet_combat_1.jpg",
+  "verdict": "hold",
+  "note": "17 cm/s mean / 65 cm/s max foot slide (step under the over-shoulder draw)",
+  "by": "claude (Mixamo owner_set front-view 8-frame check sheet, 25 cm checker floor)",
+  "date": "2026-10-26"
+ },
+ "Mx_Punch_Combo": {
+  "sheet": "docs/qa/golden/mixamo_owner/sheet_combat_2.jpg",
+  "verdict": "hold",
+  "note": "22 cm/s planted-foot slide in the combo footwork",
+  "by": "claude (Mixamo owner_set front-view 8-frame check sheet, 25 cm checker floor)",
+  "date": "2026-10-26"
+ },
+ "Mx_Sword_Slash_Inward": {
+  "sheet": "docs/qa/golden/mixamo_owner/sheet_combat_2.jpg",
+  "verdict": "hold",
+  "note": "10 cm/s planted-foot slide on the lunge step",
+  "by": "claude (Mixamo owner_set front-view 8-frame check sheet, 25 cm checker floor)",
+  "date": "2026-10-26"
+ },
+ "Mx_Headbutt": {
+  "sheet": "docs/qa/golden/mixamo_owner/sheet_combat_1.jpg",
+  "verdict": "hold",
+  "note": "49 cm/s slide: the lunge travel was kept in the pelvis; needs root motion or upper-body use",
+  "by": "claude (Mixamo owner_set front-view 8-frame check sheet, 25 cm checker floor)",
+  "date": "2026-10-26"
+ },
+ "Mx_Hit_Uppercut": {
+  "sheet": "docs/qa/golden/mixamo_owner/sheet_combat_1.jpg",
+  "verdict": "hold",
+  "note": "knockback travels 1.1 m in the pelvis: a non-terminal hit would snap back -> only usable with root motion",
+  "by": "claude (Mixamo owner_set front-view 8-frame check sheet, 25 cm checker floor)",
+  "date": "2026-10-26"
+ },
+ "Mx_Run_Turn_180": {
+  "sheet": "docs/qa/golden/mixamo_owner/sheet_combat_2.jpg",
+  "verdict": "hold",
+  "note": "travel moved to the disabled root track -> feet slide 0.7 m/s in place; locomotion (S3.1c) needs root motion to use it",
+  "by": "claude (Mixamo owner_set front-view 8-frame check sheet, 25 cm checker floor)",
+  "date": "2026-10-26"
+ },
+ "Life_Mx_Dig_Plant": {
+  "sheet": "docs/qa/golden/mixamo_owner/sheet_life.jpg",
+  "verdict": "fail",
+  "note": "hands go 22 cm through the floor while digging (UAL arms longer than the Mixamo actor); lifting the body instead leaves the feet 7.7 cm in the air",
+  "by": "claude (Mixamo owner_set front-view 8-frame check sheet, 25 cm checker floor)",
+  "date": "2026-10-26"
+ },
+ "Life_Mx_Plank_Start": {
+  "sheet": "docs/qa/golden/mixamo_owner/sheet_life.jpg",
+  "verdict": "fail",
+  "note": "8.6 cm ground penetration (hands/chest) in the plank",
+  "by": "claude (Mixamo owner_set front-view 8-frame check sheet, 25 cm checker floor)",
+  "date": "2026-10-26"
+ },
+ "Mx_Crawl": {
+  "sheet": "docs/qa/golden/mixamo_owner/sheet_combat_0.jpg",
+  "verdict": "fail",
+  "note": "in-place crawl slides 0.8 m/s, 10 cm penetration, 15.8 deg loop seam",
+  "by": "claude (Mixamo owner_set front-view 8-frame check sheet, 25 cm checker floor)",
+  "date": "2026-10-26"
+ },
+ "Mx_GreatSword_Strafe": {
+  "sheet": "docs/qa/golden/mixamo_owner/sheet_combat_1.jpg",
+  "verdict": "fail",
+  "note": "in-place strafe slides 0.21/2.4 m/s, 4.7 deg seam",
+  "by": "claude (Mixamo owner_set front-view 8-frame check sheet, 25 cm checker floor)",
+  "date": "2026-10-26"
+ },
+ "Mx_Ladder_Climb": {
+  "sheet": "docs/qa/golden/mixamo_owner/sheet_combat_1.jpg",
+  "verdict": "fail",
+  "note": "ladder contact is rungs not floor so metrics do not apply, but the 23-frame loop has no rung spacing match with the authored ladder rig (0.41 m per cycle) - needs ladder-rig review before use",
+  "by": "claude (Mixamo owner_set front-view 8-frame check sheet, 25 cm checker floor)",
+  "date": "2026-10-26"
+ },
+ "Mx_SnS_Run_Owner": {
+  "sheet": "docs/qa/golden/mixamo_owner/sheet_combat_2.jpg",
+  "verdict": "fail",
+  "note": "in-place run slides 0.13/0.27 m/s, 8.4 deg seam; locomotion owner already has Mx_SnS_Run",
+  "by": "claude (Mixamo owner_set front-view 8-frame check sheet, 25 cm checker floor)",
+  "date": "2026-10-26"
  }
 }

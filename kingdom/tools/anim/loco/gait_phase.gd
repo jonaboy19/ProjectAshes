@@ -40,19 +40,23 @@ func _run() -> void:
 			zl.append(sk.get_bone_global_pose(fl).origin.z - p.z)
 			zr.append(sk.get_bone_global_pose(fr).origin.z - p.z)
 		anim.loop_mode = lm
-		# cycle count: smallest lag (fraction of the loop) with minimal circular difference of foot_l, tested at 1, 1/2, 1/3
+		# cycle count: the largest k in 1..4 for which the loop repeats itself every n/k samples (foot_l circular difference below 12 %
+		# of its forward/back range): a loop holding two steps cycles twice
+		var rng := 0.001
+		var zmin := 9e9
+		var zmax := -9e9
+		for v in zl:
+			zmin = minf(zmin, v)
+			zmax = maxf(zmax, v)
+		rng = maxf(zmax - zmin, 0.001)
 		var best_k := 1
-		var best_err := 1e9
-		for k in [1, 2, 3]:
+		for k in [2, 3, 4]:
 			var lag := int(round(float(n) / k))
 			var err := 0.0
 			for i in n:
 				err += absf(zl[i] - zl[(i + lag) % n])
-			if k == 1:
-				continue
-			if err / n < 0.01 and best_err == 1e9:
+			if err / n < 0.12 * rng:
 				best_k = k
-				best_err = err
 		var period := n / best_k
 		var imax := 0
 		for i in period:
@@ -82,19 +86,14 @@ func _stance_speed(sk: Skeleton3D, ap: AnimationPlayer, anim: Animation, clip: S
 			var b := sk.find_bone(jn + ("_l" if f == 0 else "_r"))
 			joints.append(b)
 			rest_y.append(sk.get_bone_global_rest(b).origin.y)
-		var rel: Array = []       # per frame: [lowest height, position of lowest joint relative to pelvis (z)]
+		var rel: Array = []       # per frame: [lowest height of ankle / ball / toe, ball position relative to the pelvis (z)]
 		for i in n + 1:
 			ap.seek(anim.length * i / n, true)
 			var pz := sk.get_bone_global_pose(pel).origin.z
 			var lo := 9e9
-			var z := 0.0
 			for k in 3:
-				var o := sk.get_bone_global_pose(joints[k]).origin
-				var h := o.y - rest_y[k]
-				if h < lo:
-					lo = h
-					z = o.z - pz
-			rel.append([lo, z])
+				lo = minf(lo, sk.get_bone_global_pose(joints[k]).origin.y - rest_y[k])
+			rel.append([lo, sk.get_bone_global_pose(joints[1]).origin.z - pz])
 		var dt := anim.length / n
 		var run_start := -1
 		for i in range(n + 2):

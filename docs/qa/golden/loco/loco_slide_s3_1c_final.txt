@@ -1,0 +1,8 @@
+LOCO lock=false rig=true
+LOCO slow body=0.60 m/s contact_samples=310 slide_mean=0.153 slide_max=0.918
+LOCO walk body=2.40 m/s contact_samples=122 slide_mean=0.901 slide_max=1.989
+LOCO sprint body=6.50 m/s contact_samples=24 slide_mean=1.550 slide_max=1.576
+LOCO lock=true rig=true
+LOCO slow body=0.60 m/s contact_samples=280 slide_mean=0.116 slide_max=0.640
+LOCO walk body=2.40 m/s contact_samples=77 slide_mean=0.226 slide_max=0.627
+LOCO sprint body=6.50 m/s contact_samples=24 slide_mean=0.076 slide_max=0.102

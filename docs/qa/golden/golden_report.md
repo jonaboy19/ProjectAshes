@@ -4,13 +4,13 @@ Generated 2026-10-26 by `tools/qa/anim_qa/golden_gate.py`.
 
 | category | gold | probation | banned |
 |---|---:|---:|---:|
-| combat | 37 | 173 | 91 |
+| combat | 43 | 186 | 108 |
 | creature | 0 | 114 | 215 |
 | death | 0 | 2 | 7 |
-| interaction | 14 | 9 | 3 |
+| interaction | 18 | 9 | 5 |
 | locomotion | 17 | 9 | 30 |
 | traversal | 2 | 10 | 26 |
-| **total** | 70 | 317 | 372 |
+| **total** | 80 | 330 | 391 |
 
 ## Slots
 

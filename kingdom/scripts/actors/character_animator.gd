@@ -32,10 +32,13 @@ const LOWER_KEYS := ["root", "hips", "pelvis", "upperleg", "lowerleg", "thigh", 
 const WALK_CLIP_SPEED := 1.0
 const RUN_CLIP_SPEED := 6.0
 const BACK_CLIP_SPEED := 1.0
-## Extra gait loops between Walk and the run (UAL_Loco_Gaits.glb, CMU takes: tools/anim/loco/make_cfg_gaits.py): [clip, ground speed
-## in m/s on the 1.8 m rig (gait_phase.gd stance-core speed), loop fraction at which the LEFT foot is furthest forward (tools/anim/loco/
+## Extra gait loops between Walk and the run (UAL_Loco_Gaits.glb: CMU, make_cfg_gaits.py). The Mixamo set (UAL_Loco_Mixamo.glb) measured no better
+## in tools_qa/anim_states/loco_slide.gd (docs/plans/AAA_PROGRESS.md S3.1c) and stays in the library for armed/strafe/start/stop work: [clip, ground speed
+## in m/s on the 1.8 m rig (gait_phase.gd stance-core speed of the ball of the foot), loop fraction at which the LEFT foot is furthest forward (tools/anim/loco/
 ## gait_phase.gd: used as start_offset so every cycle plants the left foot at t = 0, like Walk and Jog_Fwd)].
-const GAIT_EXTRA := [["Walk_Brisk", 2.21, 0.938], ["Jog_Mid", 3.00, 0.952]]
+const GAIT_EXTRA := [["Walk_Brisk", 2.25, 0.938], ["Jog_Mid", 3.00, 0.952]]
+## Above the run clip: [clip, speed, phase] for the sprint end of the blend space (the player's sprint drives the rig at ~11 m/s).
+const GAIT_TOP := []
 ## Measured body travel of the UAL strafe clips in rig space: Strafe_left moves
 ## the body toward the rig's -X, Strafe_right toward +X.
 const STRAFE_LEFT_CLIP := Vector2(-0.8, 0.0)
@@ -160,6 +163,11 @@ func _init(model: Node3D, run_speed: float, _walk_speed := -1.0, walk_anim := "W
 			if player.has_animation(String(e[0])):
 				pts.append([String(e[0]), float(e[1]) * leg, float(e[2])])
 	pts.append([run_anim, _run_pt, 0.0])
+	if walk_anim == "Walking_A" and run_anim == "Running_A":
+		for e: Array in GAIT_TOP:
+			if player.has_animation(String(e[0])):
+				pts.append([String(e[0]), float(e[1]) * leg, float(e[2])])
+	_run_pt = float((pts[pts.size() - 1] as Array)[1])     # top of the blend space
 	for e: Array in pts:
 		gait.add_blend_point(_cycle(String(e[0]), float(e[2])), float(e[1]))
 		var clip_len := _clip_length(String(e[0]))

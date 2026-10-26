@@ -1,0 +1,210 @@
+{
+ "source_type": "fbx",
+ "ual": "../../../assets/incoming/quaternius/universal-animation-library/Unreal-Godot/UAL1_Standard.glb",
+ "out": "../../../assets/incoming/animations_free2/loco_transitions/UAL_Loco_Mixamo.glb",
+ "smooth": 0.0,
+ "fingers": "relaxed",
+ "finger_poses": {
+  "relaxed": [
+   "Idle_Loop",
+   0.0
+  ],
+  "fist": [
+   "Punch_Jab",
+   0.4
+  ]
+ },
+ "map": {
+  "pelvis": "mixamorig:Hips",
+  "spine_01": "mixamorig:Spine",
+  "spine_02": "mixamorig:Spine1",
+  "spine_03": "mixamorig:Spine2",
+  "neck_01": "mixamorig:Neck",
+  "Head": "mixamorig:Head",
+  "clavicle_l": "mixamorig:LeftShoulder",
+  "upperarm_l": "mixamorig:LeftArm",
+  "lowerarm_l": "mixamorig:LeftForeArm",
+  "hand_l": "mixamorig:LeftHand",
+  "thigh_l": "mixamorig:LeftUpLeg",
+  "calf_l": "mixamorig:LeftLeg",
+  "foot_l": "mixamorig:LeftFoot",
+  "ball_l": "mixamorig:LeftToeBase",
+  "clavicle_r": "mixamorig:RightShoulder",
+  "upperarm_r": "mixamorig:RightArm",
+  "lowerarm_r": "mixamorig:RightForeArm",
+  "hand_r": "mixamorig:RightHand",
+  "thigh_r": "mixamorig:RightUpLeg",
+  "calf_r": "mixamorig:RightLeg",
+  "foot_r": "mixamorig:RightFoot",
+  "ball_r": "mixamorig:RightToeBase"
+ },
+ "fbx_dir": "${MIXAMO_SRC}",
+ "source_fps": 30,
+ "heading": "start",
+ "check_directions": false,
+ "clips": [
+  {
+   "name": "Mx_Walk_Careful",
+   "file": "careful_walk_inplace.fbx",
+   "start": 0.0,
+   "end": 4.566666666666666,
+   "loop": true,
+   "loop_native": true,
+   "inplace": "linear",
+   "heading": "start"
+  },
+  {
+   "name": "Mx_Walk_Standard",
+   "file": "standard_walk_inplace.fbx",
+   "start": 0.0,
+   "end": 1.1333333333333333,
+   "loop": true,
+   "loop_native": true,
+   "inplace": "linear",
+   "heading": "start"
+  },
+  {
+   "name": "Mx_Walk_Unarmed",
+   "file": "unarmed_walk_fwd_inplace.fbx",
+   "start": 0.0,
+   "end": 1.3333333333333333,
+   "loop": true,
+   "loop_native": true,
+   "inplace": "linear",
+   "heading": "start"
+  },
+  {
+   "name": "Mx_Run_Slow",
+   "file": "slow_run_inplace.fbx",
+   "start": 0.0,
+   "end": 0.7,
+   "loop": true,
+   "loop_native": true,
+   "inplace": "linear",
+   "heading": "start"
+  },
+  {
+   "name": "Mx_Jog",
+   "file": "jogging_inplace.fbx",
+   "start": 0.0,
+   "end": 2.533333333333333,
+   "loop": true,
+   "loop_native": true,
+   "inplace": "linear",
+   "heading": "start"
+  },
+  {
+   "name": "Mx_Run_Medium",
+   "file": "medium_run_inplace.fbx",
+   "start": 0.0,
+   "end": 0.5333333333333333,
+   "loop": true,
+   "loop_native": true,
+   "inplace": "linear",
+   "heading": "start"
+  },
+  {
+   "name": "Mx_Run_Standard",
+   "file": "standard_run_inplace.fbx",
+   "start": 0.0,
+   "end": 0.7,
+   "loop": true,
+   "loop_native": true,
+   "inplace": "linear",
+   "heading": "start"
+  },
+  {
+   "name": "Mx_Run_Fast",
+   "file": "fast_run_inplace.fbx",
+   "start": 0.0,
+   "end": 0.5,
+   "loop": true,
+   "loop_native": true,
+   "inplace": "linear",
+   "heading": "start"
+  },
+  {
+   "name": "Mx_SnS_Walk",
+   "file": "sns_walk_fwd_inplace.fbx",
+   "start": 0.0,
+   "end": 1.0666666666666667,
+   "loop": true,
+   "loop_native": true,
+   "inplace": "linear",
+   "heading": "start"
+  },
+  {
+   "name": "Mx_SnS_WalkBack",
+   "file": "sns_walk_back_inplace.fbx",
+   "start": 0.0,
+   "end": 1.2333333333333334,
+   "loop": true,
+   "loop_native": true,
+   "inplace": "linear",
+   "heading": "start"
+  },
+  {
+   "name": "Mx_SnS_Run",
+   "file": "sns_run_inplace.fbx",
+   "start": 0.0,
+   "end": 0.6666666666666666,
+   "loop": true,
+   "loop_native": true,
+   "inplace": "linear",
+   "heading": "start"
+  },
+  {
+   "name": "Mx_Strafe_R",
+   "file": "walk_strafe_right_inplace.fbx",
+   "start": 0.0,
+   "end": 1.4333333333333333,
+   "loop": true,
+   "loop_native": true,
+   "inplace": "linear",
+   "heading": "start"
+  },
+  {
+   "name": "Mx_Strafe_L",
+   "file": "walk_strafe_right_inplace.fbx",
+   "start": 0.0,
+   "end": 1.4333333333333333,
+   "loop": true,
+   "loop_native": true,
+   "inplace": "linear",
+   "heading": "start",
+   "mirror": true
+  },
+  {
+   "name": "Mx_WalkStart",
+   "file": "start_walking.fbx",
+   "heading": "start",
+   "inplace": "smooth"
+  },
+  {
+   "name": "Mx_WalkStop",
+   "file": "walk_to_stop_root.fbx",
+   "heading": "start",
+   "inplace": "smooth"
+  },
+  {
+   "name": "Mx_RunStop",
+   "file": "run_to_stop_root.fbx",
+   "heading": "start",
+   "inplace": "smooth"
+  },
+  {
+   "name": "Mx_RunTurn_R",
+   "file": "run_turn_right_root.fbx",
+   "heading": "start",
+   "inplace": "smooth",
+   "yaw_root": false
+  },
+  {
+   "name": "Mx_RunTurn_L",
+   "file": "run_turn_right_root.fbx",
+   "heading": "start",
+   "inplace": "smooth",
+   "mirror": true
+  }
+ ]
+}

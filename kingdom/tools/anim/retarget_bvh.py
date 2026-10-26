@@ -40,7 +40,7 @@ ROT_TOL = math.radians(cfg.get("rot_tolerance_deg", 0.3))
 POS_TOL = cfg.get("pos_tolerance_m", 0.002)
 bmap = cfg["map"]                      # ual bone -> source bone
 no_match = set(cfg.get("no_match", ["pelvis"]))
-src_type = cfg["source_type"]          # "bvh" | "blend"
+src_type = cfg["source_type"]          # "bvh" | "blend" | "gltf" | "fbx"
 
 # ---------------------------------------------------------------- scene setup
 if src_type == "blend":
@@ -545,6 +545,15 @@ for clip in cfg["clips"]:
         ft = float(re.search(r"Frame Time:\s*([0-9.eE+-]+)", open(path).read(4000000)).group(1))
         src_fps = 1.0 / ft
         f_first = int(act.frame_range[0])
+    elif src_type == "fbx":
+        # source = one FBX per clip (Mixamo: mixamorig:* armature, 30 fps, no skin); every object it brings is removed afterwards
+        bset = set(bpy.data.objects)
+        bpy.ops.import_scene.fbx(filepath=P(os.path.join(cfg["fbx_dir"], clip["file"])))
+        fbx_new = [o for o in bpy.data.objects if o not in bset]
+        src = [o for o in fbx_new if o.type == "ARMATURE"][0]
+        act = src.animation_data.action
+        src_fps = cfg.get("source_fps", 30)
+        f_first = int(math.floor(act.frame_range[0]))
     elif src_type == "gltf":
         # source = a glTF/GLB whose armature carries named actions (KayKit, Quaternius ...)
         gpath = P(clip["glb"])
@@ -617,6 +626,11 @@ for clip in cfg["clips"]:
     if src_type == "bvh":
         assign(src, None)
         bpy.data.objects.remove(src)
+        bpy.data.actions.remove(act)
+    elif src_type == "fbx":
+        assign(src, None)
+        for o in fbx_new:
+            bpy.data.objects.remove(o)
         bpy.data.actions.remove(act)
 
 # ------------------------------------------------------------------- export

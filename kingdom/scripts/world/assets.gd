@@ -35,6 +35,8 @@ const UAL_FILES := [
 	UAL_LOCO_DIR + "UAL_Loco_Transitions.glb",
 	# Steady in-place gait loops at 2.0 / 2.7 / 3.4 / 4.5 m/s (CMU; tools/anim/loco/make_cfg_gaits.py): CharacterAnimator's blend points.
 	UAL_LOCO_DIR + "UAL_Loco_Gaits.glb",
+	# Mixamo locomotion set retargeted to UAL (tools/anim/loco/make_cfg_mixamo.py): walks, runs 1.x-9 m/s, armed walk/run, strafe, starts/stops/turns.
+	UAL_LOCO_DIR + "UAL_Loco_Mixamo.glb",
 	# Authored traversal (F2): vault, mantle, ledge grab / hang / climb / drop, ladder, rides. Root track disabled;
 	# scripts/actors/traversal.gd moves the capsule. docs/anim/traversal_v2_HANDOFF.md.
 	UAL_TRAV_DIR + "UAL_Authored_Traversal.glb",
@@ -57,7 +59,10 @@ const UAL_FILES := [
 	"res://assets/incoming/animations_free/martial_arts_unarmed/UAL_Free_MartialArtsUnarmed.glb",
 	# Elemental casting v2 (docs/anim/free_library/polish_casting.md): Cast_<Element>_Charge / _Release, Cast_AoE_Slam,
 	# Cast_Channel_Beam. In place, so no root handling is needed.
-	"res://assets/incoming/animations_free/casting/UAL_Free_CastingElements.glb"]
+	"res://assets/incoming/animations_free/casting/UAL_Free_CastingElements.glb",
+	# Owner Mixamo set (tools/anim/mixamo_to_ual.py, grades in golden_set.json): Mx_* deaths, draws, bow aim/shoot, dodge,
+	# block idle, crawl, fall, ladder. Root track disabled (UAL_ANIM_DIR).
+	UAL_ANIM_DIR + "mixamo_owner/UAL_Mixamo_Owner.glb"]
 const WEAPONS := Q + "fantasy-props-megakit/Exports/glTF/"
 const HELMET := Q + "lowpoly-animated-knight/FBX/Helmet1.fbx"
 ## Old KayKit clip names -> UAL clips, so gameplay code keeps using one vocabulary.
