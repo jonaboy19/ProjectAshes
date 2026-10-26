@@ -60,7 +60,12 @@ const LOCK_MAX := 0.25           # m of lag between the pinned and the animated 
 const LOCK_BLEND := 0.05         # s: 3 frames at 60 Hz
 const LOCK_MIN_SPEED := 0.35     # m/s: below this the clip is a standing idle, nothing to pin
 const WEAPON_CARRY_DEG := 45.0
-const WEAPON_CARRY_RATE := 14.0  # 1/s
+const WEAPON_CARRY_RATE := 14.0  # 1/s into a swing
+const WEAPON_CARRY_IN := 4.5     # 1/s back to the carry: blends over the swing recovery with the arm, no snap
+const HOLSTER_RATE := 7.0        # 1/s: arm <-> back in ~0.15 s
+const BACK_GAP := 0.165          # m from the spine line (pelvis..neck) to the inner face of a prop on the back
+const BACK_DIAG_DEG := 35.0      # long weapons on the back: tilt from vertical, grip over the right shoulder
+const GUARD_MARGIN := 0.01       # m a hand prop is kept above the floor
 const PROP_GAIN := 0.0045
 const PROP_MAX := 0.12
 const PROP_STIFF := 160.0
@@ -129,6 +134,13 @@ var _plant: Array[float] = [0.0, 0.0]
 ## sets weapon_carry, the hand prop eases WEAPON_CARRY_DEG around its grip axis and back (docs/plans/AAA_PROGRESS.md, idle sword).
 var weapon_carry := false
 var _carry_w := 0.0
+## Back sockets (docs/plans/AAA_PROGRESS.md, shield sling / roll holster): the owner sets shield_slung (the shield rides on the upper
+## back instead of the forearm: out of combat, rolling, airborne) and long_holster (two-handed weapons go diagonally across the back
+## while rolling). The prop travels between arm and back on an arc outside the body (HOLSTER_RATE), it is never hidden. Every hand
+## prop is also kept above ground_guard_y (the floor under the body, set by the owner while grounded): no blade through the floor.
+var shield_slung := false
+var long_holster := false
+var ground_guard_y := NAN
 var foot_lock := true                         # QA switch (tools_qa/anim_states/loco_slide.gd --no-lock)
 var _ball: Array[int] = []
 var _leaf: Array[int] = []
@@ -839,6 +851,7 @@ func _post_modify(delta: float) -> void:
 	if _use_secondary:
 		_torso_spring(delta)
 		_prop_springs(delta)
+		_holster_pass(delta)     # also on zero-delta re-evaluations of the stack, or the guard would be lost for that pass
 
 
 ## Smoothed world velocity and acceleration of the model (drives the springs and,
@@ -891,8 +904,12 @@ func _prop_springs(delta: float) -> void:
 		return
 	var xf := _skeleton.global_transform
 	var dt := minf(delta, 0.05)
-	_carry_w = move_toward(_carry_w, 1.0 if weapon_carry else 0.0, WEAPON_CARRY_RATE * delta)
+	_carry_w = move_toward(_carry_w, 1.0 if weapon_carry else 0.0, (WEAPON_CARRY_IN if weapon_carry else WEAPON_CARRY_RATE) * delta)
 	_update_two_handed(delta)
+	_spring_props(delta, xf, dt)
+
+
+func _spring_props(delta: float, xf: Transform3D, dt: float) -> void:
 	for p: Dictionary in _props:
 		var node: Node3D = p["node"]
 		if not is_instance_valid(node) or p["bone"] < 0:
@@ -932,3 +949,244 @@ func _prop_springs(delta: float) -> void:
 			continue
 		var axis_local := att_basis.inverse() * (axis_world / angle)
 		node.transform = Transform3D(Basis(axis_local.normalized(), angle), Vector3.ZERO) * rest
+
+
+# ---------------------------------------------------------------------------------------------------------------------------------
+# Back sockets and ground guard (run after every other prop pass, so they see the final hand transform of the frame).
+
+var _hprops: Array = []      # [{node, att, kind, h, rest, managed, corners, box, thin, long, out_sign}]
+var _back_frame := {}        # cached: spine_03 / pelvis / neck bones and the body's forward and up in spine_03 bone space
+
+
+func _holster_refresh() -> void:
+	_hprops = _hprops.filter(func(e: Dictionary) -> bool:
+		var nv: Variant = e["node"]
+		return is_instance_valid(nv) and (nv as Node).is_inside_tree())
+	for att in _skeleton.get_children():
+		if not att is BoneAttachment3D:
+			continue
+		var bn := String((att as BoneAttachment3D).bone_name).to_lower()
+		if bn != "hand_r" and bn != "hand_l" and bn != "lowerarm_l":
+			continue
+		for c in att.get_children():
+			if not c is Node3D:
+				continue
+			var known := false
+			for e: Dictionary in _hprops:
+				if e["node"] == c:
+					known = true
+					break
+			if known:
+				continue
+			var node := c as Node3D
+			var kind := "hand"
+			if bn == "lowerarm_l":
+				kind = "shield"
+			elif node.has_meta(&"wclass") and ["polearm", "great", "bow"].has(String(node.get_meta(&"wclass"))):
+				kind = "long"
+			var managed := node.has_meta(&"wclass")
+			for p: Dictionary in _props:
+				if p["node"] == node:
+					managed = true
+			var box := _local_box(node)
+			if box.size.length() < 0.0001:
+				continue
+			var corners: Array[Vector3] = []
+			for k in 8:
+				corners.append(box.get_endpoint(k))
+			var sz := box.size
+			var thin := 0 if sz.x <= sz.y and sz.x <= sz.z else (1 if sz.y <= sz.z else 2)
+			var lng := 0 if sz.x >= sz.y and sz.x >= sz.z else (1 if sz.y >= sz.z else 2)
+			if node.has_meta(&"axis"):
+				var ax: Vector3 = node.get_meta(&"axis")
+				lng = 0 if absf(ax.x) > 0.5 else (2 if absf(ax.z) > 0.5 else 1)
+				if thin == lng:
+					thin = (lng + 1) % 3
+			_hprops.append({"node": node, "att": att, "kind": kind, "h": 0.0, "rest": node.transform, "managed": managed,
+					"corners": corners, "box": box, "thin": thin, "long": lng, "out_sign": 0.0})
+
+
+## AABB of the prop's meshes in the prop node's own space.
+static func _local_box(node: Node3D) -> AABB:
+	var out := AABB()
+	var first := true
+	var inv := node.global_transform.affine_inverse()
+	for mi in node.find_children("*", "MeshInstance3D", true, false) + ([node] if node is MeshInstance3D else []):
+		var m := mi as MeshInstance3D
+		if m.mesh == null:
+			continue
+		var b := (inv * m.global_transform) * m.mesh.get_aabb()
+		if first:
+			out = b
+			first = false
+		else:
+			out = out.merge(b)
+	return out
+
+
+## spine_03 world origin and the body's back / up / right directions in world space (they follow the live spine through a roll).
+func _back_basis() -> Dictionary:
+	if _back_frame.is_empty():
+		var sp := _skeleton.find_bone("spine_03")
+		var pel := _skeleton.find_bone("pelvis")
+		var nk := _skeleton.find_bone("neck_01")
+		var fl := _skeleton.find_bone("foot_l")
+		var bl := _skeleton.find_bone("ball_l")
+		if sp < 0 or pel < 0 or nk < 0 or fl < 0 or bl < 0:
+			_back_frame = {"ok": false}
+			return _back_frame
+		var r_sp := _skeleton.get_bone_global_rest(sp)
+		var up_s := (_skeleton.get_bone_global_rest(nk).origin - r_sp.origin).normalized()     # along the upper back
+		var fwd_s := _skeleton.get_bone_global_rest(bl).origin - _skeleton.get_bone_global_rest(fl).origin
+		fwd_s = (fwd_s - up_s * fwd_s.dot(up_s)).normalized()
+		var inv := r_sp.basis.inverse()
+		# the point of the spine line (pelvis..neck) level with spine_03 in the rest pose, kept in spine_03 bone space: the socket rides
+		# that bone rigidly (no drift when the spine curls in a roll)
+		var pel_r := _skeleton.get_bone_global_rest(pel).origin
+		var ab_r := _skeleton.get_bone_global_rest(nk).origin - pel_r
+		var line_r := pel_r + ab_r * clampf((r_sp.origin - pel_r).dot(ab_r) / maxf(ab_r.length_squared(), 1e-9), 0.0, 1.0)
+		_back_frame = {"ok": true, "sp": sp, "fwd": (inv * fwd_s).normalized(), "up": (inv * up_s).normalized(),
+				"line": r_sp.affine_inverse() * line_r}
+	if not bool(_back_frame["ok"]):
+		return _back_frame
+	var xf := _skeleton.global_transform
+	var spx := xf * _skeleton.get_bone_global_pose(_back_frame["sp"])
+	var b := spx.basis
+	var up := (b * (_back_frame["up"] as Vector3)).normalized()
+	var fwd := (b * (_back_frame["fwd"] as Vector3)).normalized()
+	fwd = (fwd - up * fwd.dot(up)).normalized()
+	return {"ok": true, "o": spx.origin, "up": up, "back": -fwd, "right": up.cross(fwd).normalized(), "line": spx * (_back_frame["line"] as Vector3)}
+
+
+func _holster_pass(delta: float) -> void:
+	if Engine.get_process_frames() % 20 == 0 or _hprops.is_empty():
+		_holster_refresh()
+	if _hprops.is_empty():
+		return
+	var bb := _back_basis()
+	for e: Dictionary in _hprops:
+		var nv: Variant = e["node"]
+		if not is_instance_valid(nv):
+			continue
+		var node := nv as Node3D
+		if not node.is_visible_in_tree():
+			continue
+		if delta <= 0.0 and e.has("pre"):
+			node.transform = e["pre"]          # a re-evaluation of the stack: start from this frame's hand transform again
+		elif not bool(e["managed"]):
+			node.transform = e["rest"]
+		e["pre"] = node.transform
+		var kind := String(e["kind"])
+		var want := 0.0
+		if kind == "shield" and shield_slung:
+			want = 1.0
+		elif kind == "long" and long_holster:
+			want = 1.0
+		var h: float = move_toward(float(e["h"]), want, HOLSTER_RATE * delta)
+		_roll_gap = move_toward(_roll_gap, ROLL_GAP if long_holster else 0.0, 0.4 * delta)
+		e["h"] = h
+		var att := e["att"] as BoneAttachment3D
+		# the attachment follows the bone only after the modifier stack (skeleton_updated): use the live bone pose, not att's transform
+		var bi := _skeleton.find_bone(att.bone_name)
+		if bi < 0:
+			continue
+		var att_g := _skeleton.global_transform * _skeleton.get_bone_global_pose(bi)
+		e["att_g"] = att_g
+		if h > 0.0005 and bool(bb.get("ok", false)):
+			var hand_g := att_g * node.transform
+			var box: AABB = e["box"]
+			if float(e["out_sign"]) == 0.0:
+				# which side of the thin axis faces away from the bone it is worn on (the shield's boss)
+				var tw := hand_g.basis.orthonormalized() * _axis(int(e["thin"]))
+				e["out_sign"] = 1.0 if tw.dot(hand_g * box.get_center() - att_g.origin) >= 0.0 else -1.0
+			var sock := _socket(e, bb, hand_g)
+			var k := h * h * (3.0 - 2.0 * h)
+			var q := hand_g.basis.get_rotation_quaternion().slerp(sock.basis.get_rotation_quaternion(), k)
+			var c_hand := hand_g * box.get_center()
+			var c_sock := sock * box.get_center()
+			var side: Vector3 = -(bb["right"] as Vector3) if kind == "shield" else (bb["right"] as Vector3)
+			# the path swings out past the shoulder and behind, never through the chest
+			var arc := (side * 0.28 + (bb["back"] as Vector3) * 0.12 + (bb["up"] as Vector3) * 0.08) * sin(PI * k)
+			var basis := Basis(q).scaled(hand_g.basis.get_scale())
+			node.transform = att_g.affine_inverse() * Transform3D(basis, c_hand.lerp(c_sock, k) + arc - basis * box.get_center())
+		_ground_guard(e, node)
+
+
+## While rolling (long_holster) the back curls: slung props stand a little further off it so the curled shoulders do not swallow them.
+const ROLL_GAP := 0.05
+var _roll_gap := 0.0
+
+
+static func _axis(i: int) -> Vector3:
+	return Vector3.RIGHT if i == 0 else (Vector3.UP if i == 1 else Vector3.BACK)
+
+
+## World transform of a prop on the back: thin axis (outside out) along the body's back direction, long axis up (shield) or
+## diagonal with the grip over the right shoulder (long weapons), inner face BACK_GAP behind the spine line at spine_03.
+func _socket(e: Dictionary, bb: Dictionary, hand_g: Transform3D) -> Transform3D:
+	var up: Vector3 = bb["up"]
+	var back: Vector3 = bb["back"]
+	var right: Vector3 = bb["right"]
+	var box: AABB = e["box"]
+	var scl := hand_g.basis.get_scale()
+	var ti := int(e["thin"])
+	var li := int(e["long"])
+	var oi := 3 - ti - li
+	var is_long := String(e["kind"]) == "long"
+	var long_dir := up
+	var lsign := 1.0
+	if is_long:
+		long_dir = (up * cos(deg_to_rad(BACK_DIAG_DEG)) - right * sin(deg_to_rad(BACK_DIAG_DEG))).normalized()
+		# the grip end (the side of the box nearer the prop origin) goes up
+		lsign = 1.0 if box.get_center()[li] < 0.0 else -1.0
+	var cols: Array[Vector3] = [Vector3.ZERO, Vector3.ZERO, Vector3.ZERO]
+	cols[ti] = back * float(e["out_sign"])
+	cols[li] = long_dir * lsign
+	cols[oi] = cols[(oi + 1) % 3].cross(cols[(oi + 2) % 3])
+	var basis := Basis(cols[0], cols[1], cols[2]).orthonormalized()
+	var half_thin := box.size[ti] * 0.5 * scl[ti]
+	var centre := (bb["line"] as Vector3) + back * (BACK_GAP + half_thin + _roll_gap) + up * (0.04 if not is_long else 0.0)
+	var b_scaled := basis.scaled(scl)
+	return Transform3D(b_scaled, centre - b_scaled * box.get_center())
+
+
+## A hand prop whose lowest corner goes below the floor is turned about its grip (the bone) just enough to clear it.
+func _ground_guard(e: Dictionary, node: Node3D) -> void:
+	if is_nan(ground_guard_y):
+		return
+	var floor_y := ground_guard_y + GUARD_MARGIN
+	var att_g: Transform3D = e["att_g"]
+	var g := att_g * node.transform
+	var lp := _lowest(e, g)
+	if lp.y >= floor_y:
+		return
+	if float(e["h"]) > 0.5:
+		# on the back: the body rolls over it, so it is lifted off the back (straight up = away from a back that faces the floor)
+		g.origin.y += floor_y - lp.y
+		node.transform = att_g.affine_inverse() * g
+		return
+	var pivot := att_g.origin
+	for _iter in 4:
+		var r := lp - pivot
+		var need := floor_y - lp.y
+		if need <= 0.0:
+			break
+		var horiz := Vector3(r.x, 0.0, r.z)
+		var axis := horiz.cross(Vector3.UP)
+		if axis.length() < 1e-4 or horiz.length() < 0.05:
+			break
+		var rot := Basis(axis.normalized(), clampf(need / horiz.length(), 0.0, 1.0))
+		g = Transform3D(rot * g.basis, pivot + rot * (g.origin - pivot))
+		lp = _lowest(e, g)
+	if lp.y < floor_y:
+		g.origin.y += floor_y - lp.y      # what the turn could not clear (prop hanging straight down from a low hand)
+	node.transform = att_g.affine_inverse() * g
+
+
+static func _lowest(e: Dictionary, g: Transform3D) -> Vector3:
+	var low := Vector3(0, INF, 0)
+	for p: Vector3 in e["corners"]:
+		var w := g * p
+		if w.y < low.y:
+			low = w
+	return low

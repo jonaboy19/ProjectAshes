@@ -278,6 +278,9 @@ var dash_cooldown := 0.0
 var _invulnerable := 0.0
 var _stunned := 0.0
 var _hurt_cooldown := 0.0
+var _shield_ready := 0.0
+var _dodge_roll := false      # the dodge is a roll (Dodge_Forward / Backward), not the Dodge_back step: props go on the back
+const SHIELD_READY_S := 4.0
 var _stamina_delay := 0.0
 var _impulse := Vector3.ZERO
 var _step_distance := 0.0
@@ -856,9 +859,17 @@ func _physics_process(delta: float) -> void:
 		# Feet off the ground: airborne, swimming, rolling, dead. Big hits ease the IK off.
 		_rig.call("set_state", travel.length(), is_on_floor(), swimming or dead or _dodge > 0.0,
 				_animator.is_full_busy() or _animator.is_stand_attack())
-		_rig.set("weapon_carry", _swing <= 0.0 and _dodge <= 0.0 and not blocking)       # recovery included: the blade drops back at once
-		if _equip_vis != null:
-			(_equip_vis as EquipmentVisuals).set_stowed(_dodge > 0.0)
+		_rig.set("weapon_carry", (_swing <= 0.0 or _swing_elapsed > _swing_hit + ACTIVE_AFTER) and _dodge <= 0.0 and not blocking)       # recovery included: the blade drops back at once
+		# Shield on the arm while fighting (blocking, swinging, hurt, locked on: lingers SHIELD_READY_S), on the back otherwise and
+		# through rolls and jumps; two-handed weapons go on the back for the roll. Nothing is hidden.
+		if blocking or _swing > 0.0 or is_instance_valid(_lock) or _hurt_cooldown > 0.0:
+			_shield_ready = SHIELD_READY_S
+		else:
+			_shield_ready = maxf(_shield_ready - delta, 0.0)
+		var rolling := _dodge > 0.0 and _dodge_roll
+		_rig.set("shield_slung", not blocking and (_shield_ready <= 0.0 or rolling or not is_on_floor()))
+		_rig.set("long_holster", rolling)
+		_rig.set("ground_guard_y", global_position.y if is_on_floor() and not dead else NAN)
 	_update_lean(delta)
 	_update_footsteps(delta, dir, grounded and not swimming and not _jump_starting and not _jump_active \
 			and _land_time <= 0.0)
@@ -2208,6 +2219,7 @@ func _start_dodge(is_ability: bool) -> void:
 	_swing = 0.0
 	_attack_buffer = 0.0
 	_impulse = Vector3.ZERO
+	_dodge_roll = not (backward and _animator.has_clip("Dodge_back"))
 	if backward and _animator.has_clip("Dodge_back"):
 		_animator.play_full("Dodge_back", DODGE_ANIM_RATE * 0.85)      # a back-step, not a forward somersault played while moving backwards
 	else:
