@@ -141,7 +141,7 @@ func _ready() -> void:
 const STATE := ["life_path", "titles", "triggers", "careers", "guild", "magicules", "naming", "injuries", "scouts",
 	"discovery", "relationships", "npc_social_graph", "radiant", "crafting", "equipment", "skills", "mastery", "biography", "property",
 	"nobility", "lordship", "family", "soul", "skill_evolution", "echoes", "life_courses", "war", "realm",
-	"homestead", "tendencies", "childhood_events", "awakening", "needs", "market", "economy"]
+	"homestead", "tendencies", "element_places", "childhood_events", "awakening", "needs", "market", "economy"]
 
 
 ## A brand-new run: Game, WorldSim, Frontier, Region 1 and every object Life owns go back to their
@@ -1095,7 +1095,11 @@ func _process(_delta: float) -> void:
 	dh = _tick_dh
 	_tick_dh = 0.0
 	_tick_wall = 0.0
-	_update_exposure()
+	_exposure_dh += dh
+	if Time.get_ticks_msec() - _exposure_ms >= 1000:   # survival / element exposure about once a real second, not every 0.1 s tick
+		_exposure_ms = Time.get_ticks_msec()
+		_update_exposure(_exposure_dh)
+		_exposure_dh = 0.0
 	needs.tick(dh)
 	magicules.regenerate(dh)
 	if player and is_instance_valid(player):
@@ -1636,7 +1640,7 @@ func _snapshot_steps_raw() -> Array:
 	for key: String in ["life_path", "titles", "triggers", "guild", "magicules", "naming", "injuries", "scouts", "discovery",
 			"relationships", "npc_social_graph", "mastery", "biography", "property", "nobility", "lordship", "family",
 			"life_courses", "war", "soul", "skill_evolution", "echoes", "radiant", "crafting", "world_events",
-			"equipment", "skills", "homestead", "tendencies", "childhood_events", "awakening"]:
+			"equipment", "skills", "homestead", "tendencies", "element_places", "childhood_events", "awakening"]:
 		steps.append([key, func() -> Variant: return get(key).serialize()])
 	# The realm (532 KB, 9-13 ms in one go) is collected a module per step.
 	for rk: String in realm.ORDER:
@@ -1701,7 +1705,7 @@ func restore(d: Dictionary) -> void:
 		life_path.deserialize(d["life_path"])
 		titles.deserialize(d.get("titles", {}))
 		triggers.deserialize(d.get("triggers", {}))
-	for key: String in ["guild", "magicules", "naming", "injuries", "scouts", "discovery", "relationships", "npc_social_graph", "radiant", "crafting", "equipment", "skills", "homestead", "tendencies", "childhood_events", "awakening", "mastery", "biography", "property", "nobility", "lordship", "family", "life_courses", "war", "soul", "skill_evolution", "echoes", "realm"]:
+	for key: String in ["guild", "magicules", "naming", "injuries", "scouts", "discovery", "relationships", "npc_social_graph", "radiant", "crafting", "equipment", "skills", "homestead", "tendencies", "element_places", "childhood_events", "awakening", "mastery", "biography", "property", "nobility", "lordship", "family", "life_courses", "war", "soul", "skill_evolution", "echoes", "realm"]:
 		if d.has(key):
 			get(key).deserialize(d[key])
 	appearance = d.get("appearance", {})
@@ -1850,7 +1854,12 @@ func _on_old_age_death() -> void:
 	family.succeed_to(heir["id"])
 
 ## Thirst / warmth inputs for RANeeds: night, weather, water, altitude, shelter (interiors) and nearby fire.
-func _update_exposure() -> void:
+var _exposure_ms := -100000
+var _exposure_dh := 0.0
+var element_places := preload("res://scripts/sim/element_places.gd").new()
+
+
+func _update_exposure(dh := 0.0) -> void:
 	if player == null or not is_instance_valid(player):
 		needs.env = {}
 		return
@@ -1875,6 +1884,14 @@ func _update_exposure() -> void:
 	var MD := load("res://scripts/ui/gamemenu/menu_data.gd")
 	var cap: float = MD.carry_capacity(MD.attribute_value(mastery, MD.ATTRIBUTES[0]["from"], player_level()))
 	needs.load_ratio = float(MD.carry_weight(MD.stacks())) / maxf(cap, 1.0)
+	if dh > 0.0:
+		var n := Vector3(WorldGen.height(pos.x - 1.0, pos.z) - WorldGen.height(pos.x + 1.0, pos.z), 2.0,
+			WorldGen.height(pos.x, pos.z - 1.0) - WorldGen.height(pos.x, pos.z + 1.0)).normalized()
+		var storm := w != null and w.has_method("current_name") and String(w.call("current_name")) == "storm"
+		var ew: Dictionary = element_places.weights(WorldGen.shore_distance(pos.x, pos.z), depth, fire, pos.y, 1.0 - n.y,
+			WorldGen.forest_density(pos.x, pos.z), storm, preload("res://scripts/world/weather.gd").wind_strength)
+		for line: String in element_places.tick(dh, ew, tendencies):
+			Game.say(line)
 	if depth > 0.4 and needs.water < 95.0:
 		needs.drink(20.0)   # wading in fresh water: cup a drink (rivers and lakes are fresh in Valencious)
 
