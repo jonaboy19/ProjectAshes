@@ -103,3 +103,21 @@ Each was ~28 commits behind main when surveyed. **Not started:** C3 found-a-camp
 3. Silverford position (keep at Ironmarch, recommended); repaint parchment map for 12 km; Regions 2–4 later.
 4. Antigravity IP-flavoured animation packs (Bending/Mythic/Umbrella) — excluded unless the owner OKs.
 5. Undo Antigravity commit `8355beff` (32 km map POIs + team skills table) that got onto main?
+
+## 8. Update (later on 2026-10-26)
+### Meshy key NPCs — made, NOT integrated (Codex: please integrate)
+- 6 characters generated + rigged by Meshy (138 credits; 42 left until the 10-27 reset): **Brannoc Tallow** (hooded spy), **Sister Oriel Vane** (healer), **Hesk Ironbrow** (stonemason/siege engineer), **Captain Bram Hollis** (Ashford Guard captain, the story's betrayer — CAST_R1/STORY_R1), **Hesta Thorne** (Thornfield brewer/tithe keeper, `hesta_body.gd`), **King Aldric III** (House Caldrenn).
+- Files: `C:\Users\Jonna\Documents\ProjectAshes_art_staging\npc_meshy\<name>\{concept.png, preview.png, rigged.glb}` (+ `concept_clean.png` for Brannoc/Aldric); lineup `npc_meshy\lineup_meshy_previews.jpg`. ~10k polys, 2K texture, Meshy skeleton.
+- Owner/Claude ratings from previews: Hollis 8, Hesta 8, Aldric 7.5, Oriel 7.5, Brannoc 7, Hesk 7. Long cloaks/skirts (Aldric, Oriel, Brannoc) may skin poorly; Hesk is squat with very wide hands.
+- **To do (Codex):** re-rig each onto the game's UAL skeleton in Blender the same way hero v2 was done (see `docs/art/hero_tier_a/`, `kingdom/scripts/actors/hero_tier_a.gd`, `tools/blender/hero_tier_a/`), LODs at 12/30 m, put under `kingdom/assets/generated/characters/npc_tier_a/`, and use each as the body of that named NPC/companion where the code spawns them (companions come from PR #9). Then an in-engine lineup render + walk/idle/talk frame sheets. Don't use Meshy's own animations for gameplay — once on the UAL rig they get every existing clip.
+
+### Blender add-ons (installed 2026-10-26, Blender 5.2) — full list in `C:\Users\Jonna\Tools\BLENDER_ADDONS.md`
+- **Installed + enabled:** Rigify 0.6.10 (bundled), AnimAll 0.14.0 (extensions.blender.org, GPL), Copy Attributes Menu 0.6.3 (extensions.blender.org, GPL), TexTools 1.6.1 (github franMarz/TexTools-Blender, GPL; harmless KeyError on exit).
+- **Already present:** MPFB (MakeHuman for Blender — face expression units for villager faces), Expy Kit (retargeting), Bone Dynamics + Wiggle 2 (secondary motion; not enabled — Wiggle 2 pref entry points at a missing install), dcc_mcp_blender (Blender MCP, under `C:\Users\Jonna\Tools\dcc-mcp`).
+- **Skipped:** Animation Layers (paid), Godot Game Tools (repo gone; only a GPL-2.0 2022 fork without Blender 5 support), Bone Selection Sets (not available for 5.2). Downloads in `C:\Users\Jonna\Tools\blender-downloads\`.
+
+### Godot editor MCP
+- Restarted and working (http://127.0.0.1:8765/mcp, editor on `C:\Users\Jonna\Documents\PA_wt_mcp\kingdom`). If it's down: `powershell -ExecutionPolicy Bypass -File C:\Users\Jonna\Tools\dcc-mcp\start_godot_mcp.ps1` (prints READY). In Claude Code it must be reconnected via /mcp after a restart.
+
+### Meshy vs our animation pipeline (owner asked)
+Meshy animations are generic clips on Meshy's own rig, 3 credits each (presets) / 3–10 (text-to-motion), with no hit/foot-sync timing data. The game uses hundreds of clips on one shared UAL skeleton. So: retarget characters once to UAL and reuse everything; ask Claude for Meshy only for clips that exist nowhere.
