@@ -7,10 +7,10 @@ Generated 2026-10-26 by `tools/qa/anim_qa/golden_gate.py`.
 | combat | 44 | 191 | 109 |
 | creature | 0 | 114 | 215 |
 | death | 0 | 2 | 7 |
-| interaction | 31 | 17 | 10 |
+| interaction | 32 | 16 | 10 |
 | locomotion | 17 | 9 | 30 |
 | traversal | 2 | 12 | 24 |
-| **total** | 94 | 345 | 395 |
+| **total** | 95 | 344 | 395 |
 
 ## Slots
 

@@ -28,6 +28,7 @@ POST PASSES (this file, on the baked actions):
   * CONTACT IK (default on, contact_ik=false to skip): hands / finger tips clamped above the floor with two-bone arm IK,
     lift max-filtered and smoothed (no pops). Per-clip lock_vel / lock_wander tune the foot lock.
   * knee_lift (per clip): per-frame smoothed pelvis raise keeping the knees KNEE_MARGIN above the floor (kneeling).
+  * reverse (per clip): the baked take played backwards.
   * lift_m (per clip): constant pelvis height offset after measuring mesh contact (kneel/sit/lie poses).
   * FOOT LOCK: per foot, frames where the ball AND ankle are within 4 cm of the clip floor and move < 0.25 m/s for
     >= 4 frames are a plant; the ankle is pinned (x/y; z never below the plant-start height) with an analytic two-bone IK on thigh/calf (knee stays in its plane), the foot keeps its world rotation,
@@ -261,6 +262,16 @@ def post(g, cfg, foot_lock):
         assign(tgt, act)
         n = int(round(act.frame_range[1])) + 1
         rec = {}
+        if c.get("reverse"):
+            # play the take backwards (e.g. sit-to-stand built from stand-to-sit so it starts exactly on the sit pose)
+            for fc in fcurves_of(act):
+                pts = [(kp.co[0], kp.co[1]) for kp in fc.keyframe_points]
+                for kp, (x, y) in zip(fc.keyframe_points, reversed(pts)):
+                    kp.co = ((n - 1) - x, y)
+                    kp.handle_left = kp.co
+                    kp.handle_right = kp.co
+                fc.update()
+            rec["reversed"] = True
         # bake every frame of the bones the passes edit, so a per-frame edit never bleeds into the interpolation of the next
         # frame (sparse Douglas-Peucker keys + sequential edits used to accumulate: the old lift_m bug)
         BAKE = ["pelvis"] + [b + "_" + s for s in ("l", "r") for b in ("thigh", "calf", "foot", "upperarm", "lowerarm", "hand")]

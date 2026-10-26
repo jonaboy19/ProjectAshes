@@ -252,7 +252,7 @@ Life_Mx_Plank_Start,ual,interaction,once,4.9,banned,0.061,0.418,8.6,2.74,0,,1.0,
 Life_Mx_Plant_Kneel,ual,interaction,loop,7.533,banned,0.03,0.09,0.0,1.55,10,0.09,0.0,0.0,fail,banned: 10 pop(s)
 Life_Mx_Plant_Tree,ual,interaction,once,9.267,probation,0.087,0.932,0.0,1.31,0,,0.0,0.0,hold,"metrics gold, no passing frame-sheet review yet"
 Life_Mx_Pray_Kneel,ual,interaction,loop,1.9,gold,0.005,0.02,0.0,0.24,0,0.03,0.0,0.0,pass,
-Life_Mx_Pull_Plant,ual,interaction,loop,4.7,probation,0.011,0.05,0.0,1.53,0,0.02,0.0,0.0,hold,"metrics gold, no passing frame-sheet review yet"
+Life_Mx_Pull_Plant,ual,interaction,loop,4.7,gold,0.011,0.05,0.0,1.53,0,0.02,0.0,0.0,pass,
 Life_Mx_Salute,ual,interaction,once,2.833,gold,0.006,0.03,0.0,0.22,0,,0.0,0.0,pass,
 Life_Mx_Scythe,ual,interaction,loop,2.367,banned,0.487,1.173,0.0,0.47,0,0.03,0.0,0.0,fail,banned: slide mean 0.49 m/s; banned: slide max 1.17 m/s
 Life_Mx_Sit_Chair,ual,interaction,sit,2.933,gold,0.0,0.0,0.0,0.0,0,,0.0,0.0,pass,

@@ -56,7 +56,8 @@
    "file": "pick_from_ground.fbx",
    "inplace": "none",
    "knee_lift": true,
-   "hand_margin_extra": 0.03
+   "hand_margin_extra": 0.03,
+   "lock_wander": 0.15
   },
   {
    "name": "Life_Mx_Pick_Up",

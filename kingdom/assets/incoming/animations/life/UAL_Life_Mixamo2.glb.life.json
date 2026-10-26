@@ -49,7 +49,9 @@
    "note": "kneel and plant a seedling",
    "loop": true,
    "frames": 227,
-   "seconds": 7.533
+   "seconds": 7.533,
+   "contact_ik": true,
+   "hand_contact": true
   },
   "Life_Mx_Plant_Tree": {
    "layer": "full",
@@ -97,7 +99,9 @@
    "note": "kneel, pull weeds/roots, toss aside",
    "loop": true,
    "frames": 142,
-   "seconds": 4.7
+   "seconds": 4.7,
+   "contact_ik": true,
+   "hand_contact": true
   },
   "Life_Mx_Scythe": {
    "layer": "full",
@@ -173,7 +177,9 @@
    "note": "kneel, pick something from the ground, stand",
    "loop": false,
    "frames": 214,
-   "seconds": 7.1
+   "seconds": 7.1,
+   "contact_ik": true,
+   "hand_contact": true
   },
   "Life_Mx_Pick_Up": {
    "layer": "full",
@@ -577,7 +583,8 @@
    "note": "kneeling, hands together",
    "loop": true,
    "frames": 58,
-   "seconds": 1.9
+   "seconds": 1.9,
+   "contact_ik": true
   },
   "Life_Mx_Lute": {
    "layer": "full",

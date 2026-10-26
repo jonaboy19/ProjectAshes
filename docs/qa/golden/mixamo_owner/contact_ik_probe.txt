@@ -1,0 +1,12 @@
+CIK villager_man_a Life_Mx_Pull_Plant | off: leg p5 -1.9 p50 -0.8 hand p5 +1.5 | on: leg p5 -0.5 p50 -0.1 hand p5 -0.0 cm | 0.104 ms
+CIK villager_man_a Life_Mx_Pick_Ground | off: leg p5 -0.3 p50 +2.6 hand p5 +1.5 | on: leg p5 -1.5 p50 +0.0 hand p5 -0.0 cm | 0.111 ms
+CIK villager_man_a Life_Mx_Pray_Kneel | off: leg p5 -0.7 p50 -0.7 hand p5 +83.0 | on: leg p5 -0.5 p50 -0.0 hand p5 +83.3 cm | 0.091 ms
+CIK villager_woman_a Life_Mx_Pull_Plant | off: leg p5 -1.5 p50 -0.4 hand p5 +11.8 | on: leg p5 -0.5 p50 -0.1 hand p5 +1.0 cm | 0.123 ms
+CIK villager_woman_a Life_Mx_Pick_Ground | off: leg p5 -0.3 p50 +2.6 hand p5 +11.6 | on: leg p5 -1.2 p50 +0.1 hand p5 -0.0 cm | 0.107 ms
+CIK villager_woman_a Life_Mx_Pray_Kneel | off: leg p5 -0.3 p50 -0.3 hand p5 +80.5 | on: leg p5 -0.3 p50 -0.0 hand p5 +80.6 cm | 0.085 ms
+CIK villager_man_b Life_Mx_Pull_Plant | off: leg p5 -0.4 p50 +0.7 hand p5 +0.5 | on: leg p5 -0.4 p50 -0.0 hand p5 -0.0 cm | 0.178 ms
+CIK villager_man_b Life_Mx_Pick_Ground | off: leg p5 -0.5 p50 +1.8 hand p5 -0.3 | on: leg p5 -1.2 p50 +0.1 hand p5 -0.0 cm | 0.087 ms
+CIK villager_man_b Life_Mx_Pray_Kneel | off: leg p5 +0.9 p50 +0.9 hand p5 +83.7 | on: leg p5 -0.0 p50 +0.1 hand p5 +82.8 cm | 0.097 ms
+CIK villager_woman_b Life_Mx_Pull_Plant | off: leg p5 -1.1 p50 -0.0 hand p5 +11.7 | on: leg p5 -0.4 p50 -0.0 hand p5 +0.7 cm | 0.078 ms
+CIK villager_woman_b Life_Mx_Pick_Ground | off: leg p5 -0.4 p50 +2.1 hand p5 +11.5 | on: leg p5 -1.2 p50 +0.1 hand p5 -0.0 cm | 0.068 ms
+CIK villager_woman_b Life_Mx_Pray_Kneel | off: leg p5 +0.1 p50 +0.2 hand p5 +80.3 | on: leg p5 -0.0 p50 +0.0 hand p5 +80.1 cm | 0.064 ms

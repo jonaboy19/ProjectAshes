@@ -252,6 +252,7 @@ var _hide_until := 0
 var _scared_at := Vector2.INF
 var _protest_cd := 0
 var _greet_cd := 0
+var _cik: ContactIK = null      # runtime ground contact while a contact clip plays (scripts/living_world/contact_ik.gd)
 var _talk := TalkPose.new()       # in-world conversation: stops the act, faces the player (talk_pose.gd)
 var _bark_ms := -1000000
 var _crime_until := 0
@@ -1813,6 +1814,13 @@ func _so_apply(out: Dictionary) -> void:
 
 func _so_play(clip: String, blend: float, restart: bool) -> void:
 	_anim.play(clip, blend)
+	# Runtime ground contact for kneel / plant / ground clips (sidecar "contact_ik"): near the camera only, budgeted.
+	if bool(LifeLibrary.info(clip).get("contact_ik", false)):
+		if _cik == null or not is_instance_valid(_cik):
+			_cik = ContactIK.request(_skeleton, self, _anim)
+	elif _cik != null and is_instance_valid(_cik):
+		_cik.release()
+		_cik = null
 	if restart and clip == _so_clip:
 		_anim.seek(0.0, true)
 	_so_clip = clip

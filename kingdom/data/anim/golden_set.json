@@ -11403,7 +11403,7 @@
    "review": {
     "sheet": "docs/qa/golden/mixamo_owner/sheet3_life_1.jpg",
     "verdict": "hold",
-    "note": "RESCUED pen 1.8 -> 0.5 cm (gold metrics) but a 3.6 m/s foot slide spike while kneeling down remains",
+    "note": "lock tightened (0.6 m/s, 15 cm): slide mean 22 -> 16 cm/s, runtime ContactIK puts the hands on the ground on all 4 bodies, but the 3.6 m/s spike is the real kneel-down step (frames 25-40, 162-188) and cannot be cut without removing the kneel; hold",
     "by": "claude (rescue pass: anim_qa player_young + villager_man_a + villager_woman_a, sheet3 front view)",
     "date": "2026-10-26"
    },
@@ -11705,14 +11705,14 @@
    "contacts_fps": 30.0,
    "upper": false,
    "review": {
-    "sheet": "docs/qa/golden/mixamo_owner/sheet3_life_2.jpg",
-    "verdict": "hold",
-    "note": "RESCUED on the reference rig (contact IK + knee lift: pen 21 -> 0 cm, gold) but 2.4 cm float on villager_man_a and 3.4 cm on villager_woman_a: arm/leg proportions differ per rig, a static bake cannot satisfy all; needs runtime hand IK",
+    "sheet": "docs/qa/golden/mixamo_owner/contact_ik_pull_plant.png",
+    "verdict": "pass",
+    "note": "PROMOTED with runtime ContactIK (scripts/living_world/contact_ik.gd): lowest leg contact p50 -0.1..0.0 cm and lowest hand contact -0.0..+1.0 cm on villager_man_a/_b and villager_woman_a/_b (raw: hands +11.8 cm on the women); 0.07-0.18 ms per NPC; windowed before/after docs/qa/golden/mixamo_owner/contact_ik_pull_plant.png",
     "by": "claude (rescue pass: anim_qa player_young + villager_man_a + villager_woman_a, sheet3 front view)",
     "date": "2026-10-26"
    },
-   "status": "probation",
-   "why": "metrics gold, no passing frame-sheet review yet"
+   "status": "gold",
+   "why": ""
   },
   "Life_Mx_Salute": {
    "rig": "ual",
@@ -12012,7 +12012,7 @@
    "review": {
     "sheet": "docs/qa/golden/mixamo_owner/sheet3_life_3.jpg",
     "verdict": "hold",
-    "note": "metrics gold but the first frame is half-standing (source starts on a high seat) - does not chain from Life_Mx_Sit_Chair",
+    "note": "start frame fixed by building it as the reversed Stand_To_Sit (begins exactly on the sit pose), but both transitions carry 43 cm of backward travel in the pelvis (the actor steps back to the chair): they need end-aligned entry in the smart-object code before use; hold",
     "by": "claude (rescue pass: anim_qa player_young + villager_man_a + villager_woman_a, sheet3 front view)",
     "date": "2026-10-26"
    },
