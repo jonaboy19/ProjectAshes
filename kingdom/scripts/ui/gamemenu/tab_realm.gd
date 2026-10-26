@@ -14,6 +14,7 @@ const ORDER_KINDS := [["move", "Move"], ["attack", "Attack"], ["hold", "Hold"], 
 const RETREATS := ["orderly", "rout", "feigned", "scorched"]
 const FORMATIONS := ["line", "wedge", "square", "skirmish", "column"]
 const NEEDS_TARGET := ["move", "attack", "retreat"]
+const Academy := preload("res://scripts/realm/academy_view.gd")
 const Apprentice := preload("res://scripts/realm/apprentice_view.gd")
 const Ledger := preload("res://scripts/realm/settlement_ledger.gd")
 const WarMap := preload("res://scripts/ui/war/war_map.gd")
@@ -1169,6 +1170,7 @@ func _fill_masters(box: VBoxContainer) -> void:
 	if so == null:
 		_empty(box)
 		return
+	_fill_schools(box)
 	var cur: Dictionary = Apprentice.current(so)
 	box.add_child(Kit.section("Your apprenticeship"))
 	if cur.is_empty():
@@ -1227,4 +1229,45 @@ func _fill_masters(box: VBoxContainer) -> void:
 			var r: Dictionary = so.call("take_student", nid, cr)
 			Game.say("A new pupil." if bool(r.get("ok", false)) else String(r.get("reason", "")))
 			_rebuild("masters", true)))
+		box.add_child(_framed(v))
+
+## Academies and schools (education.gd): adult entry routes, and the path teachers of your own school once enrolled.
+func _fill_schools(box: VBoxContainer) -> void:
+	var ed := mod("education")
+	if ed == null:
+		return
+	box.add_child(Kit.section("Academies and schools"))
+	if bool(ed.call("is_student")):
+		var am: Dictionary = ed.call("alma_mater")
+		var v := _card()
+		v.add_child(Kit.lbl("You study at %s." % String(am.get("name", "your school")), 18, AF.TEXT, true, "title_bold"))
+		var iid := String(am.get("id", ""))
+		for t: Dictionary in ed.call("path_teachers", iid):
+			var tid := String(t["id"])
+			var row := HBoxContainer.new()
+			row.add_child(Kit.lbl("%s%s" % [String(t.get("name", tid)), "  (studied)" if bool(t.get("taught", false)) else ""], 16, AF.TEXT, true))
+			row.add_child(Kit.hspacer())
+			row.add_child(_btn("Study", func() -> void:
+				var r: Dictionary = ed.call("learn_from_path_teacher", iid, tid)
+				Game.say(String(r.get("text", "")))
+				_rebuild("masters", true), false, bool(t.get("taught", false))))
+			v.add_child(row)
+		box.add_child(_framed(v))
+		return
+	for sc: Dictionary in Academy.schools(ed, _player_pos(), 6):
+		var v := _card()
+		var head := HBoxContainer.new()
+		head.add_child(Kit.lbl(String(sc["name"]), 17, AF.TEXT, false, "title_bold"))
+		head.add_child(Kit.hspacer())
+		head.add_child(Kit.lbl("%s  ·  %s" % [String(sc["label"]), String(sc["town"])], 15, AF.GOLD_BRIGHT))
+		v.add_child(head)
+		var sid := String(sc["id"])
+		for rt: Dictionary in sc["routes"]:
+			var route := String(rt["route"])
+			v.add_child(_btn(String(rt["words"]), func() -> void:
+				var r: Dictionary = ed.call("apply", sid, route)
+				Game.say(String(r.get("reason", "")))
+				_rebuild("masters", true)))
+		if (sc["routes"] as Array).is_empty():
+			v.add_child(Kit.lbl("No way in yet: " + "; ".join(sc["blocked"]), 14, AF.TEXT_DIM, true, "italic"))
 		box.add_child(_framed(v))
