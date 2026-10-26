@@ -421,6 +421,13 @@ func _ready() -> void:
 	_decide = 0.0
 	_think_tick()
 	_decide = float((h / 7) % 1000) / 1000.0 * DECIDE_INTERVAL
+	# Spawn QA: never show the bind pose (T/A-pose) for a frame. Pose the skeleton now, from a per-person phase of
+	# whatever the first decision started (Idle if nothing yet), before the body is ever rendered.
+	if _anim != null:
+		if _anim.current_animation == "" and _anim.has_animation("Idle"):
+			_anim.play("Idle", 0.0)
+		if _anim.current_animation != "":
+			_anim.seek(fmod(float(h % 997) / 997.0 * 5.0, maxf(_anim.current_animation_length, 0.01)), true)
 	Probe.add("villager.ready_tail", _pm)
 
 
