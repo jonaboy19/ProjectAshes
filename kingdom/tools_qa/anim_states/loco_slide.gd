@@ -48,6 +48,9 @@ func _run() -> void:
 	if rig != null and "foot_lock" in rig:
 		rig.set("foot_lock", lock)
 	print("LOCO lock=", lock, " rig=", rig != null)
+	var an: RefCounted = _p.get("_animator")
+	if an != null:
+		print("LOCO gait points ", an.get("_pt_speed"), " strides ", an.get("_pt_stride"))
 	for c in [["slow", 0.4, false], ["walk", 1.0, false], ["sprint", 1.0, true]]:
 		await _case(String(c[0]), float(c[1]), bool(c[2]))
 	Input.action_release("move_forward")
@@ -137,6 +140,11 @@ func _case(name: String, strength: float, sprint: bool) -> void:
 						var pb: Vector3 = (_rec[m][6] as Array)[f * 3 + j]
 						slips.append(Vector2(pb.x - pa.x, pb.z - pa.z).length() / dt)
 				run_start = -1
+	if OS.get_cmdline_user_args().has("--dump") and name == "walk":
+		for i in range(60, 110):
+			var hp: Array = _rec[i][7]
+			var pp: Array = _rec[i][6]
+			print("D %d hL=[%.3f %.3f %.3f] zL=[%.3f %.3f %.3f] hR=[%.3f %.3f %.3f] zR=[%.3f %.3f %.3f]" % [i, hp[0], hp[1], hp[2], pp[0].z, pp[1].z, pp[2].z, hp[3], hp[4], hp[5], pp[3].z, pp[4].z, pp[5].z])
 	var mean := 0.0
 	var mx := 0.0
 	for s in slips:

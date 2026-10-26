@@ -193,6 +193,7 @@ Idle_Torch,ual,locomotion,loop,1.267,gold,0.011,0.046,0.0,0.06,0,0.0,0.0,0.0,pas
 Insult,ual,combat,once,2.792,probation,0.007,0.027,0.0,0.08,0,,0.0,0.0,,"metrics gold, no passing frame-sheet review yet"
 Interact,ual,interaction,once,2.0,gold,0.011,0.049,0.0,0.04,0,,0.0,0.0,pass,
 Jog_Fwd,ual,locomotion,loco,0.933,banned,0.146,0.207,0.0,0.98,0,0.0,0.0,0.0,,banned: slide mean 0.15 m/s; banned: slide max 0.21 m/s
+Jog_Mid,ual,locomotion,loco,0.7,banned,0.289,0.87,0.19,0.0,0,0.0,0.0,0.0,,banned: slide mean 0.29 m/s; banned: slide max 0.87 m/s
 Jump,ual,traversal,jump,2.5,banned,0.012,0.024,13.31,0.0,0,,0.0,0.0,,banned: ground penetration 13.3 cm
 Jump_2,ual,traversal,jump,1.583,probation,0.249,1.506,0.78,0.0,0,,0.0,0.0,,"metrics gold, no passing frame-sheet review yet"
 Jump_Fall,ual,traversal,jump,0.8,banned,0.337,0.861,8.62,0.0,0,,0.0,0.0,,banned: ground penetration 8.6 cm
@@ -416,6 +417,7 @@ Victory_Fist_Pump,ual,combat,once,2.208,probation,0.011,0.274,0.0,0.18,0,,0.4,0.
 Villager_Hit_Chest,ual,combat,once,1.2,banned,0.89,2.936,4.49,0.0,0,,8.0,0.0,,banned: ground penetration 4.5 cm
 Walk,ual,locomotion,loco,1.333,banned,0.134,0.787,1.34,0.0,0,0.0,0.0,0.0,,probation: ground penetration 1.3 cm; banned: slide mean 0.13 m/s; banned: slide max 0.79 m/s
 Walk_Backwards,ual,locomotion,loco,0.958,banned,0.536,1.859,0.0,0.15,0,0.0,0.0,0.0,,banned: planted feet move forward (moonwalk); banned: slide mean 0.54 m/s; banned: slide max 1.86 m/s
+Walk_Brisk,ual,locomotion,loco,0.533,banned,0.528,2.108,0.64,0.0,0,0.0,0.0,0.0,,banned: slide mean 0.53 m/s; banned: slide max 2.11 m/s
 Walk_Carry,ual,locomotion,loco,2.0,banned,0.083,0.676,0.95,0.0,0,0.0,0.0,0.0,,banned: slide mean 0.08 m/s; banned: slide max 0.68 m/s
 Walk_Female,ual,locomotion,loco,1.333,banned,0.261,1.007,0.0,0.18,0,2.68,0.1,0.0,,banned: slide mean 0.26 m/s; banned: slide max 1.01 m/s
 Walk_Formal,ual,locomotion,loco,1.333,banned,0.128,0.778,1.3,0.0,0,0.68,0.0,0.0,,probation: ground penetration 1.3 cm; banned: slide mean 0.13 m/s; banned: slide max 0.78 m/s

@@ -1,0 +1,71 @@
+[
+ {
+  "name": "Walk_Brisk",
+  "loop": true,
+  "seconds": 0.53,
+  "frames": 17,
+  "keys": 342,
+  "source": "143_32.bvh",
+  "range_s": [
+   4.5,
+   5.075
+  ],
+  "autotrim": null,
+  "loop_pts": [
+   0.03,
+   0.57,
+   11.09
+  ],
+  "floor_fix_m": -0.024,
+  "contact_lift_m": 0.0,
+  "min_foot_m": 0.0,
+  "travel_m": 0.69,
+  "hip_scale": 0.0592
+ },
+ {
+  "name": "Jog_Mid",
+  "loop": true,
+  "seconds": 0.7,
+  "frames": 22,
+  "keys": 439,
+  "source": "35_20.bvh",
+  "range_s": [
+   0.242,
+   0.975
+  ],
+  "autotrim": null,
+  "loop_pts": [
+   0.03,
+   0.73,
+   15.66
+  ],
+  "floor_fix_m": -0.017,
+  "contact_lift_m": 0.0,
+  "min_foot_m": -0.0,
+  "travel_m": 1.42,
+  "hip_scale": 0.0499
+ },
+ {
+  "name": "Run_Mid",
+  "loop": true,
+  "seconds": 0.6,
+  "frames": 19,
+  "keys": 420,
+  "source": "127_08.bvh",
+  "range_s": [
+   0.333,
+   0.967
+  ],
+  "autotrim": null,
+  "loop_pts": [
+   0.03,
+   0.63,
+   23.49
+  ],
+  "floor_fix_m": 0.0,
+  "contact_lift_m": 0.0,
+  "min_foot_m": 0.0,
+  "travel_m": 1.59,
+  "hip_scale": 0.0502
+ }
+]

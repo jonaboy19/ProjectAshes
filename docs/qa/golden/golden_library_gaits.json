@@ -1,0 +1,106 @@
+{
+	"player_young": {
+		"Jog_Mid": {
+			"airborne_s": 0.0666666666666667,
+			"checks": {
+				"airborne": "PASS",
+				"drift": "PASS",
+				"hover": "PASS",
+				"penetration": "PASS",
+				"pops": "PASS",
+				"scale": "PASS",
+				"seam": "PASS",
+				"slide": "FAIL",
+				"stretch": "PASS"
+			},
+			"contacts": {
+				"foot_l": [
+					[
+						0,
+						8
+					]
+				],
+				"foot_r": [
+					[
+						12,
+						19
+					]
+				]
+			},
+			"contacts_fps": 30.0,
+			"drift_cm": 0.0000178901231606687,
+			"ground_speed": 2.30338740348816,
+			"hover_cm": 0.0,
+			"kind": "loco",
+			"length": 0.699999988079071,
+			"looping": true,
+			"notes": [
+				"planted foot slips 34 cm/s (p75)"
+			],
+			"pen_cm": 0.188749805092812,
+			"pops": 0,
+			"scale_pct": 0.0000119209289550781,
+			"seam_cm": 0.0,
+			"seam_deg": 0.0,
+			"slide_max": 87.0135498046875,
+			"slide_mean": 28.8928086161613,
+			"slide_p75": 34.238166809082,
+			"status": "FAIL",
+			"stretch_pct": 0.000427824003645938,
+			"subject": "player_young",
+			"tpose_frames": 0,
+			"upper": false
+		},
+		"Walk_Brisk": {
+			"airborne_s": 0.0,
+			"checks": {
+				"airborne": "PASS",
+				"drift": "PASS",
+				"hover": "PASS",
+				"penetration": "PASS",
+				"pops": "PASS",
+				"scale": "PASS",
+				"seam": "PASS",
+				"slide": "FAIL",
+				"stretch": "PASS"
+			},
+			"contacts": {
+				"foot_l": [
+					[
+						0,
+						6
+					]
+				],
+				"foot_r": [
+					[
+						7,
+						14
+					]
+				]
+			},
+			"contacts_fps": 30.0,
+			"drift_cm": 0.00000299556326410766,
+			"ground_speed": 1.62582170963287,
+			"hover_cm": 0.0,
+			"kind": "loco",
+			"length": 0.533333361148834,
+			"looping": true,
+			"notes": [
+				"planted foot slips 40 cm/s (p75)"
+			],
+			"pen_cm": 0.639401912689209,
+			"pops": 0,
+			"scale_pct": 0.0000119209289550781,
+			"seam_cm": 0.0,
+			"seam_deg": 0.0,
+			"slide_max": 210.784393310547,
+			"slide_mean": 52.7713262637456,
+			"slide_p75": 40.258960723877,
+			"status": "FAIL",
+			"stretch_pct": 0.000368844348286324,
+			"subject": "player_young",
+			"tpose_frames": 0,
+			"upper": false
+		}
+	}
+}

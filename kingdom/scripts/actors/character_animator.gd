@@ -32,6 +32,10 @@ const LOWER_KEYS := ["root", "hips", "pelvis", "upperleg", "lowerleg", "thigh", 
 const WALK_CLIP_SPEED := 1.0
 const RUN_CLIP_SPEED := 6.0
 const BACK_CLIP_SPEED := 1.0
+## Extra gait loops between Walk and the run (UAL_Loco_Gaits.glb, CMU takes: tools/anim/loco/make_cfg_gaits.py): [clip, ground speed
+## in m/s on the 1.8 m rig (gait_phase.gd stance-core speed), loop fraction at which the LEFT foot is furthest forward (tools/anim/loco/
+## gait_phase.gd: used as start_offset so every cycle plants the left foot at t = 0, like Walk and Jog_Fwd)].
+const GAIT_EXTRA := [["Walk_Brisk", 2.21, 0.938], ["Jog_Mid", 3.00, 0.952]]
 ## Measured body travel of the UAL strafe clips in rig space: Strafe_left moves
 ## the body toward the rig's -X, Strafe_right toward +X.
 const STRAFE_LEFT_CLIP := Vector2(-0.8, 0.0)
@@ -105,6 +109,9 @@ var _walk_pt := WALK_CLIP_SPEED
 var _run_pt := RUN_CLIP_SPEED
 var _walk_len := 1.0
 var _run_len := 1.0
+var _pt_speed: Array[float] = []        # gait blend points, ascending: speed (m/s at this body size) ...
+var _pt_stride: Array[float] = []       # ... distance covered per cycle (speed x clip length)
+var _pt_natural: Array[float] = []      # ... natural cycles per second
 var _has_strafe := false
 var _strafe_fw := WALK_CLIP_SPEED
 var _strafe_bw := BACK_CLIP_SPEED
@@ -147,8 +154,18 @@ func _init(model: Node3D, run_speed: float, _walk_speed := -1.0, walk_anim := "W
 	gait.min_space = 0.0
 	gait.max_space = maxf(maxf(run_speed, 7.5), _run_pt + 0.5)
 	gait.sync = true   # both cycles keep advancing, so their shared phase never drifts
-	gait.add_blend_point(_cycle(walk_anim), _walk_pt)
-	gait.add_blend_point(_cycle(run_anim), _run_pt)
+	var pts: Array = [[walk_anim, _walk_pt, 0.0]]
+	if walk_anim == "Walking_A" and run_anim == "Running_A":
+		for e: Array in GAIT_EXTRA:
+			if player.has_animation(String(e[0])):
+				pts.append([String(e[0]), float(e[1]) * leg, float(e[2])])
+	pts.append([run_anim, _run_pt, 0.0])
+	for e: Array in pts:
+		gait.add_blend_point(_cycle(String(e[0]), float(e[2])), float(e[1]))
+		var clip_len := _clip_length(String(e[0]))
+		_pt_speed.append(float(e[1]))
+		_pt_stride.append(float(e[1]) * clip_len)
+		_pt_natural.append(1.0 / clip_len)
 	_root.add_node("gait", gait, Vector2(-400, 0))
 	_root.add_node("gait_rate", AnimationNodeTimeScale.new(), Vector2(-250, 0))
 	var move := AnimationNodeBlend2.new()
@@ -338,12 +355,12 @@ func _anim(anim_name: String) -> AnimationNodeAnimation:
 
 ## A looping gait clip stretched onto a one-second timeline, so clips of
 ## different lengths share one normalized step phase.
-func _cycle(anim_name: String) -> AnimationNodeAnimation:
+func _cycle(anim_name: String, phase := 0.0) -> AnimationNodeAnimation:
 	var a := _anim(anim_name)
 	a.use_custom_timeline = true
 	a.timeline_length = 1.0
 	a.stretch_time_scale = true
-	a.start_offset = 0.0
+	a.start_offset = phase
 	a.loop_mode = Animation.LOOP_LINEAR
 	return a
 
@@ -422,9 +439,13 @@ func update(delta: float, speed: float, move_dir := Vector3.ZERO) -> void:
 	tree["parameters/loco/blend_amount"] = moving
 	var pos := clampf(_speed, _walk_pt, _run_pt)
 	tree["parameters/gait/blend_position"] = pos
-	var t := inverse_lerp(_walk_pt, _run_pt, pos)
-	var stride := lerpf(_walk_pt * _walk_len, _run_pt * _run_len, t)
-	var natural := lerpf(1.0 / _walk_len, 1.0 / _run_len, t)
+	# piecewise between the two neighbouring blend points: playback rate = ground speed / blended stride per cycle
+	var seg := 0
+	while seg < _pt_speed.size() - 2 and pos > _pt_speed[seg + 1]:
+		seg += 1
+	var t := clampf(inverse_lerp(_pt_speed[seg], _pt_speed[seg + 1], pos), 0.0, 1.0)
+	var stride := lerpf(_pt_stride[seg], _pt_stride[seg + 1], t)
+	var natural := lerpf(_pt_natural[seg], _pt_natural[seg + 1], t)
 	var rate := clampf(_speed / maxf(stride, 0.01), natural * MIN_CADENCE, natural * MAX_CADENCE)
 	tree["parameters/gait_rate/scale"] = rate
 	_advance_phase(delta, rate, moving)

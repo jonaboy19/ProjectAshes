@@ -54,8 +54,8 @@ const TORSO_DAMP := 0.45       # damping ratio: a little overshoot reads as weig
 ## Foot lock (docs/plans/AAA_FINISH_PLAN.md A5.1): while the animated sole is on the ground the IK target is pinned to where
 ## the stance began, so the planted foot cannot skate when the body speed and the clip's ground speed disagree. The pin
 ## fades out over LOCK_BLEND at lift-off and is dragged along once it lags more than LOCK_MAX (metres at leg height 0.98).
-const LOCK_ON_LIFT := 0.02       # animated ball of the foot this high (m, at leg height 0.98) or lower: the stance starts
-const LOCK_OFF_LIFT := 0.035     # ... and ends above this (hysteresis)
+const LOCK_ON_LIFT := 0.045       # animated ball of the foot this high (m, at leg height 0.98) or lower: the stance starts
+const LOCK_OFF_LIFT := 0.065     # ... and ends above this (hysteresis)
 const LOCK_MAX := 0.25           # m of lag between the pinned and the animated foot before the pin is dragged along
 const LOCK_BLEND := 0.05         # s: 3 frames at 60 Hz
 const LOCK_MIN_SPEED := 0.35     # m/s: below this the clip is a standing idle, nothing to pin

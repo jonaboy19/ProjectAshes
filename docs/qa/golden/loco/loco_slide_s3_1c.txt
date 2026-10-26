@@ -1,0 +1,10 @@
+LOCO lock=false rig=true
+LOCO gait points [0.99207856217209, 2.19249362240032, 2.97623568651628, 5.95247137303255] strides [1.32277145565112, 1.16932999293215, 2.0833649450819, 5.55563997181671]
+LOCO slow body=0.60 m/s contact_samples=311 slide_mean=0.156 slide_max=0.913
+LOCO walk body=2.40 m/s contact_samples=120 slide_mean=0.908 slide_max=1.995
+LOCO sprint body=6.50 m/s contact_samples=24 slide_mean=1.547 slide_max=1.575
+LOCO lock=true rig=true
+LOCO gait points [0.99207856217209, 2.19249362240032, 2.97623568651628, 5.95247137303255] strides [1.32277145565112, 1.16932999293215, 2.0833649450819, 5.55563997181671]
+LOCO slow body=0.60 m/s contact_samples=281 slide_mean=0.115 slide_max=0.643
+LOCO walk body=2.40 m/s contact_samples=75 slide_mean=0.229 slide_max=0.623
+LOCO sprint body=6.50 m/s contact_samples=24 slide_mean=0.053 slide_max=0.080

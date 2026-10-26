@@ -33,6 +33,8 @@ const AaaClipsScript := preload("res://scripts/actors/aaa_clips.gd")
 const UAL_FILES := [
 	# First match wins: this set's Jump_Start must precede UAL1's older clip.
 	UAL_LOCO_DIR + "UAL_Loco_Transitions.glb",
+	# Steady in-place gait loops at 2.0 / 2.7 / 3.4 / 4.5 m/s (CMU; tools/anim/loco/make_cfg_gaits.py): CharacterAnimator's blend points.
+	UAL_LOCO_DIR + "UAL_Loco_Gaits.glb",
 	# Authored traversal (F2): vault, mantle, ledge grab / hang / climb / drop, ladder, rides. Root track disabled;
 	# scripts/actors/traversal.gd moves the capsule. docs/anim/traversal_v2_HANDOFF.md.
 	UAL_TRAV_DIR + "UAL_Authored_Traversal.glb",

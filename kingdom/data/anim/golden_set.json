@@ -8670,6 +8670,41 @@
    "status": "banned",
    "why": "banned: slide mean 0.15 m/s; banned: slide max 0.21 m/s"
   },
+  "Jog_Mid": {
+   "rig": "ual",
+   "category": "locomotion",
+   "kind": "loco",
+   "length_s": 0.7,
+   "metrics": {
+    "slide_mean": 0.289,
+    "slide_max": 0.87,
+    "pen_cm": 0.19,
+    "float_cm": 0.0,
+    "pops": 0,
+    "seam_deg": 0.0,
+    "drift_cm": 0.0,
+    "speed": 2.3,
+    "stretch_pct": 0.0
+   },
+   "foot_contacts": {
+    "foot_l": [
+     [
+      0,
+      8
+     ]
+    ],
+    "foot_r": [
+     [
+      12,
+      19
+     ]
+    ]
+   },
+   "contacts_fps": 30.0,
+   "upper": false,
+   "status": "banned",
+   "why": "banned: slide mean 0.29 m/s; banned: slide max 0.87 m/s"
+  },
   "Jump": {
    "rig": "ual",
    "category": "traversal",
@@ -18277,6 +18312,41 @@
    "upper": false,
    "status": "banned",
    "why": "banned: planted feet move forward (moonwalk); banned: slide mean 0.54 m/s; banned: slide max 1.86 m/s"
+  },
+  "Walk_Brisk": {
+   "rig": "ual",
+   "category": "locomotion",
+   "kind": "loco",
+   "length_s": 0.533,
+   "metrics": {
+    "slide_mean": 0.528,
+    "slide_max": 2.108,
+    "pen_cm": 0.64,
+    "float_cm": 0.0,
+    "pops": 0,
+    "seam_deg": 0.0,
+    "drift_cm": 0.0,
+    "speed": 1.63,
+    "stretch_pct": 0.0
+   },
+   "foot_contacts": {
+    "foot_l": [
+     [
+      0,
+      6
+     ]
+    ],
+    "foot_r": [
+     [
+      7,
+      14
+     ]
+    ]
+   },
+   "contacts_fps": 30.0,
+   "upper": false,
+   "status": "banned",
+   "why": "banned: slide mean 0.53 m/s; banned: slide max 2.11 m/s"
   },
   "Walk_Carry": {
    "rig": "ual",
