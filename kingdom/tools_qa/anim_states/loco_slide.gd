@@ -10,6 +10,9 @@ var _root3: Node3D
 var _ball_w: Array[Vector3] = [Vector3.ZERO, Vector3.ZERO]   # ball bones after every modifier ran (skeleton_updated)
 var _rec: Array = []                                          # [usec, left, right, body_v] per skeleton update while recording
 var _recording := false
+var _joint_p: Array[Vector3] = []     # per foot x (ankle, ball, toe tip): world position
+var _joint_h: Array[float] = []       # ... and height above its own rest height
+var _sole_h: Array[float] = [0.0, 0.0]     # lowest of ankle / ball / toe tip against their rest heights (0 = flat on the floor)
 
 
 func _initialize() -> void:
@@ -45,7 +48,7 @@ func _run() -> void:
 	if rig != null and "foot_lock" in rig:
 		rig.set("foot_lock", lock)
 	print("LOCO lock=", lock, " rig=", rig != null)
-	for c in [["walk", 0.4, false], ["jog", 1.0, false], ["sprint", 1.0, true]]:
+	for c in [["slow", 0.4, false], ["walk", 1.0, false], ["sprint", 1.0, true]]:
 		await _case(String(c[0]), float(c[1]), bool(c[2]))
 	Input.action_release("move_forward")
 	Input.action_release("sprint")
@@ -53,11 +56,29 @@ func _run() -> void:
 
 
 func _on_updated() -> void:
+	if _joint_p.is_empty():
+		_joint_p.resize(6)
+		_joint_h.resize(6)
 	for i in 2:
 		var b := _sk.find_bone("ball_l" if i == 0 else "ball_r")
 		_ball_w[i] = (_sk.global_transform * _sk.get_bone_global_pose(b)).origin
+		var sx := "_l" if i == 0 else "_r"
+		var low := 9e9
+		for jn in ["foot", "ball", "ball_leaf"]:
+			var jb := _sk.find_bone(jn + sx)
+			var rest_y := (_sk.global_transform * _sk.get_bone_global_rest(jb)).origin.y
+			var jp := (_sk.global_transform * _sk.get_bone_global_pose(jb)).origin
+			_joint_p[i * 3 + ["foot", "ball", "ball_leaf"].find(jn)] = jp
+			_joint_h[i * 3 + ["foot", "ball", "ball_leaf"].find(jn)] = jp.y - rest_y
+			low = minf(low, jp.y - rest_y)
+		_sole_h[i] = low
 	if _recording:
-		_rec.append([Time.get_ticks_usec(), _ball_w[0], _ball_w[1], _p.get_real_velocity()])
+		# skeleton_updated fires twice per frame with different poses (before / after the modifier stack): keep the LAST per frame
+		var row := [Engine.get_process_frames() * 1000000 / 60, _ball_w[0], _ball_w[1], _p.get_real_velocity(), _sole_h[0], _sole_h[1], _joint_p.duplicate(), _joint_h.duplicate()]
+		if not _rec.is_empty() and int(_rec[_rec.size() - 1][0]) == int(row[0]):
+			_rec[_rec.size() - 1] = row
+		else:
+			_rec.append(row)
 
 
 func _ball(i: int) -> Vector3:
@@ -83,19 +104,39 @@ func _case(name: String, strength: float, sprint: bool) -> void:
 	_recording = false
 	Input.action_release("move_forward")
 	Input.action_release("sprint")
+	# Stance core: per foot, runs of >= 6 consecutive frames whose lowest joint (ankle / ball / toe tip, against its rest height)
+	# stays below 2 cm; the first and last 2 frames of a run (heel strike / toe-off roll) are dropped. Slip = world horizontal
+	# speed of the run's lowest joint (the same joint tracked through the run).
 	var slips: Array[float] = []
 	for f in 2:
-		var miny := 9e9
-		for r: Array in _rec:
-			miny = minf(miny, (r[1 + f] as Vector3).y)
-		for i in range(1, _rec.size()):
-			var dt := float(int(_rec[i][0]) - int(_rec[i - 1][0])) / 1e6
-			if dt < 0.004:
-				continue
-			var a: Vector3 = _rec[i - 1][1 + f]
-			var b: Vector3 = _rec[i][1 + f]
-			if b.y < miny + 0.025 and absf(b.y - a.y) / dt < 0.25:
-				slips.append(Vector2(b.x - a.x, b.z - a.z).length() / dt)
+		var run_start := -1
+		for i in range(0, _rec.size() + 1):
+			var planted := false
+			if i < _rec.size():
+				var hp: Array = _rec[i][7]
+				var low_j := 0
+				for k in 3:
+					if float(hp[f * 3 + k]) < float(hp[f * 3 + low_j]):
+						low_j = k
+				planted = float(hp[f * 3 + low_j]) < 0.02
+			if planted and run_start < 0:
+				run_start = i
+			elif not planted and run_start >= 0:
+				var end := i - 1
+				if end - run_start + 1 >= 6:
+					var hs: Array = _rec[run_start + 2][7]
+					var j := 0
+					for k in 3:
+						if float(hs[f * 3 + k]) < float(hs[f * 3 + j]):
+							j = k
+					for m in range(run_start + 3, end - 1):
+						var dt := float(int(_rec[m][0]) - int(_rec[m - 1][0])) / 1e6
+						if dt < 0.004:
+							continue
+						var pa: Vector3 = (_rec[m - 1][6] as Array)[f * 3 + j]
+						var pb: Vector3 = (_rec[m][6] as Array)[f * 3 + j]
+						slips.append(Vector2(pb.x - pa.x, pb.z - pa.z).length() / dt)
+				run_start = -1
 	var mean := 0.0
 	var mx := 0.0
 	for s in slips:

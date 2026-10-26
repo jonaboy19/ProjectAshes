@@ -72,6 +72,17 @@ static func slot(slot_id: String) -> Dictionary:
 	return s if s is Dictionary else {}
 
 
+## A measured metric of a clip from the golden set (e.g. "speed": ground speed in m/s on the 1.8 m reference rig), or `default`.
+static func metric(clip: StringName, key: String, default := 0.0) -> float:
+	_load()
+	var c: Variant = (_data.get("clips", {}) as Dictionary).get(String(clip), null)
+	if c is Dictionary and (c as Dictionary).get("metrics", null) is Dictionary:
+		var v: Variant = ((c as Dictionary)["metrics"] as Dictionary).get(key, null)
+		if v != null:
+			return float(v)
+	return default
+
+
 ## Planted-foot contact windows of a clip: {"foot_l": [[first, last], ...], ...} in frames at contacts_fps.
 static func contacts(clip: StringName) -> Dictionary:
 	_load()
