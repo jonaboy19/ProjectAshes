@@ -1,0 +1,112 @@
+{
+ "clips": [
+  {
+   "name": "Mx_Punch_Combo",
+   "file": "Punching.fbx",
+   "inplace": "none"
+  },
+  {
+   "name": "Mx_Headbutt",
+   "file": "Headbutt.fbx",
+   "inplace": "none"
+  },
+  {
+   "name": "Mx_Dodge",
+   "file": "Dodging.fbx",
+   "inplace": "none"
+  },
+  {
+   "name": "Mx_Sword_Draw",
+   "file": "Draw Sword 1.fbx",
+   "inplace": "none"
+  },
+  {
+   "name": "Mx_GreatSword_Draw",
+   "file": "Draw A Great Sword 2.fbx",
+   "inplace": "none"
+  },
+  {
+   "name": "Mx_GreatSword_Strafe",
+   "file": "Great Sword Strafe.fbx",
+   "loop": true,
+   "inplace": "linear"
+  },
+  {
+   "name": "Mx_Sword_Slash_Inward",
+   "file": "Stable Sword Inward Slash.fbx",
+   "inplace": "none"
+  },
+  {
+   "name": "Mx_SnS_Block_Crouch_Idle",
+   "file": "Sword And Shield Crouch Block Idle.fbx",
+   "loop": true,
+   "inplace": "none"
+  },
+  {
+   "name": "Mx_SnS_Run_Owner",
+   "file": "Sword And Shield Run.fbx",
+   "loop": true,
+   "inplace": "linear"
+  },
+  {
+   "name": "Mx_Hit_Uppercut",
+   "file": "Receiving An Uppercut.fbx",
+   "inplace": "none",
+   "floor": "min"
+  },
+  {
+   "name": "Mx_Death_Left",
+   "file": "Standing Death Left 01.fbx",
+   "inplace": "none",
+   "floor": "min"
+  },
+  {
+   "name": "Mx_GreatSword_Death",
+   "file": "Two Handed Sword Death.fbx",
+   "inplace": "none",
+   "floor": "min"
+  },
+  {
+   "name": "Mx_Bow_Aim_Idle",
+   "file": "Standing Aim Idle 01.fbx",
+   "loop": true,
+   "inplace": "none"
+  },
+  {
+   "name": "Mx_Bow_Shoot",
+   "file": "Shooting Arrow.fbx",
+   "inplace": "none"
+  },
+  {
+   "name": "Mx_Run_Turn_180",
+   "file": "Running To Turn.fbx",
+   "inplace": "smooth"
+  },
+  {
+   "name": "Mx_Crawl",
+   "file": "Crawling.fbx",
+   "loop": true,
+   "inplace": "linear",
+   "floor": "min"
+  },
+  {
+   "name": "Mx_Fall",
+   "file": "Falling.fbx",
+   "loop": true,
+   "inplace": "none",
+   "floor": "none",
+   "contact": false,
+   "foot_lock": false
+  },
+  {
+   "name": "Mx_Ladder_Climb",
+   "file": "Climbing Ladder.fbx",
+   "loop": true,
+   "inplace": "none",
+   "floor": "none",
+   "contact": false,
+   "inplace_z": true,
+   "foot_lock": false
+  }
+ ]
+}

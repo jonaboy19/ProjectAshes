@@ -1,0 +1,39 @@
+{
+ "clips": [
+  {
+   "name": "Life_Mx_Dig_Plant",
+   "file": "Dig And Plant Seeds.fbx",
+   "loop": true,
+   "inplace": "none",
+   "contact": false,
+   "floor": "min"
+  },
+  {
+   "name": "Life_Mx_Pick_Fruit",
+   "file": "Pick Fruit.fbx",
+   "loop": true,
+   "inplace": "none"
+  },
+  {
+   "name": "Life_Mx_Salute",
+   "file": "Salute.fbx",
+   "inplace": "none"
+  },
+  {
+   "name": "Life_Mx_Thankful",
+   "file": "Thankful.fbx",
+   "inplace": "none"
+  },
+  {
+   "name": "Life_Mx_Tell_Secret",
+   "file": "Telling A Secret.fbx",
+   "inplace": "none"
+  },
+  {
+   "name": "Life_Mx_Plank_Start",
+   "file": "Start Plank.fbx",
+   "inplace": "none",
+   "floor": "min"
+  }
+ ]
+}
