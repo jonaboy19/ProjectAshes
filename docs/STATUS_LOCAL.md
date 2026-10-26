@@ -5,6 +5,11 @@ Who owns which area: `docs/LOCAL_SESSION_HANDOFF.md`.
 
 _Last update: 2026-10-06 (animation behaviour takeover: Codex merge, P9/P5/P2b/casting v2 wired); before that 2026-10-06 (AAA camera + clean screen pass); before that 2026-10-05 (build kit + Palworld-style building; medieval towns pass, 153 Meshy models placed); before that 2026-10-01 (Codex animation + living-world branches merged and reviewed in game, see CODEX_INTEGRATION_REVIEW.md; Style G art-director pass); before that 2026-09-30 (horses and riding: rig, 50 horse + 57 rider clips, HorseRig/RiderSync/RiderIK, VAT herds, P14; living world: 188 life clips, VAT crowds, animation LOD, smart objects, P13; combat animation director pass: COMBAT_AUDIT.md, 44 combat clips, weapon trail, markers, P9-P12; world map review); Region 1 look pass: Hollin's Reach valley, 5 landmarks, far horizon, biome patchwork, parchment map)_
 
+## Ready v1 (cloud)
+| Date | What | Where | Branch |
+|---|---|---|---|
+| 10-23 | **C1 headless release harness**: `run_v1.sh [stages]` = import, full gdUnit, headless playtest bot, `verdict.py` (non-zero on failed CHECK / SCRIPT ERROR / stuck stage). Bot is headless-safe (no shots/fps, buttons pressed directly, carve via canvas fallback). Found and fixed on the way: `Array != bool` in `R1StoryDirector.ctx` (script error on 4.6.3), off-tree nodes in `sense_threats` / `threat_plates`, empty `raw_to_base64` in persona/psyche saves, headless impostor bake. `boot,intro,menus,st_birth,st_a1` passes headless (Godot 4.6.3). `boot_wiring_wip.patch` is NOT applied (does not apply cleanly). Open: Godot aborts at exit (exit 134, malloc) after the bot reports done. | `kingdom/tools_qa/v1/`, `playtest_bot.gd` | claude/v1-harness |
+
 ## Done (recent)
 | Date | What | Where | Commit |
 |---|---|---|---|

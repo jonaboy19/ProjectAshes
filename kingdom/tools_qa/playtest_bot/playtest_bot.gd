@@ -100,6 +100,8 @@ func run(p_main: Node) -> void:
 	_tap = ErrorTap.new()
 	OS.add_logger(_tap)
 	_grab_refs()
+	if is_headless():
+		L("headless display server: screenshots and fps/draw sampling are skipped")
 	L("playtest bot start, stages filter '%s', adapter %s, quality tier forced low" % [only, RenderingServer.get_video_adapter_name()])
 	await _run_all()
 
@@ -186,7 +188,14 @@ func _on_engine_error(e: String) -> void:
 			L("ENGINE x%d %s" % [n, e.substr(0, 120)])
 
 
+## Headless (no GPU, no rendering): no screenshots, no fps / draw-call sampling. CHECKs, engine errors and stuck detection stay.
+func is_headless() -> bool:
+	return DisplayServer.get_name() == "headless"
+
+
 func _sample() -> void:
+	if is_headless():
+		return
 	var s := {"fps": Engine.get_frames_per_second(), "draws": 0, "prims": 0, "objs": 0}
 	if main != null and is_instance_valid(main) and main.get("viewport") != null and is_instance_valid(main.viewport):
 		var rid: RID = main.viewport.get_viewport_rid()
@@ -397,6 +406,11 @@ func click(c: Control, label := "") -> bool:
 				break
 			q = q.get_parent()
 		bug("ui-blocked", "button '%s' (layer %s) is covered by %s (%s) at %s%s" % [label if label != "" else (c as BaseButton).get("text"), _layer_of(c), hov.name, hov.get_class(), str(hov.get_path()), lay])
+	if is_headless() and c is BaseButton:
+		# no window: synthetic mouse buttons never reach the GUI, so press the (hover-checked) button directly
+		(c as BaseButton).pressed.emit()
+		await frames(2)
+		return true
 	for pressed in [true, false]:
 		var mb := InputEventMouseButton.new()
 		mb.button_index = MOUSE_BUTTON_LEFT
@@ -524,6 +538,10 @@ func close_everything() -> void:
 # --------------------------------------------------------------------------------------------- screenshots
 
 func shot(tag: String) -> void:
+	if is_headless():
+		dismiss_popups()
+		await frames(3)
+		return
 	dismiss_popups()
 	await frames(3)
 	await wait(0.3)
@@ -664,7 +682,7 @@ func _finish_metrics() -> void:
 	cur["draws_max"] = dmax
 	cur["prims_max"] = pmax
 	cur["worst_frame_ms"] = _frame_max
-	if not _samples.is_empty() and cur["draws_avg"] < 40.0 and not (cur["name"] in ["menus", "scribe", "boot", "tf_interior", "tf_rift"]) and not get_tree().paused:
+	if not is_headless() and not _samples.is_empty() and cur["draws_avg"] < 40.0 and not (cur["name"] in ["menus", "scribe", "boot", "tf_interior", "tf_rift"]) and not get_tree().paused:
 		bug("render", "world barely renders in this stage: %.0f draw calls on average" % cur["draws_avg"])
 
 
@@ -4279,6 +4297,13 @@ func st_carve_at_stone(net_id: int, glyph: String, label: String, via_in := "Car
 		st_blocker("the carve canvas did not open at %s" % label)
 		return false
 	var took := false
+	if is_headless():
+		# the glyph is drawn with mouse events, which never reach the GUI without a window: use the canvas's own fallback
+		st_hook("carve %s via the canvas's own 'Choose a glyph' fallback (headless: no mouse drawing)" % glyph)
+		view._choose(glyph)
+		await wait_until(func() -> bool: return not view.visible, 10.0)
+		await wait(0.8)
+		return true
 	for attempt in 3:
 		await st_draw_glyph(glyph)
 		took = await wait_until(func() -> bool: return not view.visible, 25.0)
@@ -4496,6 +4521,9 @@ func _st_objective(sid: String, o: Dictionary) -> bool:
 			Life.life_path.set_age(want, WorldSim.day, WorldSim.time_of_day)
 			player.apply_age()
 			await wait(1.0)
+			if is_headless():
+				# the older, taller body can end up inside the doorway collider it was standing in: step out to the plaza
+				await teleport((ashford()["pos"] as Vector2) + Vector2(2, 13), 0.0, 1.0)
 			return true
 		"cutscene_done":
 			dismiss_popups()
