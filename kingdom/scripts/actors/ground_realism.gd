@@ -48,6 +48,33 @@ static func slope_pitch(floor_normal: Vector3, move_dir: Vector3, c := {}) -> fl
 	return clampf(-n.dot(m.normalized()) * float(k.get("gain", 0.25)), -float(k.get("max", 0.08)), float(k.get("max", 0.08)))
 
 
+## Wet stone / mud / snow slide at lower slopes (SurfaceQuery.slide_min_deg): the ground material under the body is sampled at 4 Hz.
+const SQ := preload("res://scripts/world/surface_query.gd")
+var _surf_t := 0.0
+var _surf_min := -1.0
+var _surf_base := 40.0
+
+
+func _wet_cfg(body: CharacterBody3D, sc: Dictionary, on_floor: bool, delta: float) -> Dictionary:
+	if not on_floor:
+		return sc
+	var base := float(sc.get("min_deg", 40.0))
+	_surf_t -= delta
+	if _surf_t <= 0.0 or _surf_base != base:
+		_surf_t = 0.25
+		_surf_base = base
+		var space := body.get_world_3d().direct_space_state if body.is_inside_tree() else null
+		var m: StringName = &"stone"
+		if space != null:
+			m = SQ.ground(space, body.global_position, [body.get_rid()]).get("material", &"stone")
+		_surf_min = SQ.slide_min_deg(m, SQ.wetness(), base)
+	if _surf_min < 0.0 or is_equal_approx(_surf_min, base):
+		return sc
+	var out := sc.duplicate()
+	out["min_deg"] = _surf_min
+	return out
+
+
 ## True when a floor with this normal is steep enough to slide on.
 static func slide_slope(floor_normal: Vector3, c := {}) -> bool:
 	var s: Dictionary = c if not c.is_empty() else cfg("slope_slide")
@@ -97,7 +124,7 @@ func pre_move(body: CharacterBody3D, dir: Vector3, delta: float, running: bool, 
 		return v
 	var planar := Vector2(v.x, v.z)
 	# slope slide
-	var sc := cfg("slope_slide")
+	var sc := _wet_cfg(body, cfg("slope_slide"), on_floor, delta)
 	# Pushing up a steep ramp climbs it slowly as before (no slide: stick-vs-slide jitter at the foot); let go and it slides.
 	var down := Vector3(fn.x, 0.0, fn.z)
 	var uphill: bool = dir.length() > 0.1 and down.length() > 0.01 and dir.normalized().dot(-down.normalized()) > 0.3

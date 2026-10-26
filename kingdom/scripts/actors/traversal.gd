@@ -19,6 +19,7 @@ extends RefCounted
 
 const CONFIG_PATH := "res://data/movement/traversal.json"
 const SettingsStore := preload("res://scripts/ui/frontend/settings_store.gd")
+const SQ := preload("res://scripts/world/surface_query.gd")
 
 const NONE := &"none"
 const VAULT := &"vault"
@@ -187,6 +188,9 @@ static func probe(space: PhysicsDirectSpaceState3D, feet: Vector3, dir: Vector3,
 	var clear := false
 	if height >= float((bands["mantle_low"] as Dictionary)["min"]):
 		clear = fits(space, top_spot, c, exclude)
+		if clear:     # SurfaceQuery: the top must be something to stand on (not a steep roof, not water)
+			var tg := SQ.ground(space, top_spot, exclude)
+			clear = bool(tg.get("walkable", true)) and tg.get("kind", &"ground") != &"water"
 	out["top_clear"] = clear
 	var landing_ok := false
 	var land := Vector3.ZERO
@@ -199,6 +203,10 @@ static func probe(space: PhysicsDirectSpaceState3D, feet: Vector3, dir: Vector3,
 			if gy >= feet.y - float(pr["land_below_max"]) and gy <= feet.y + float(pr["land_above_max"]):
 				land = Vector3(lp.x, gy, lp.z)
 				landing_ok = fits(space, land, c, exclude)
+				if landing_ok:    # never vault into deep water or onto an unwalkable slope
+					var lg := SQ.ground(space, land, exclude)
+					landing_ok = bool(lg.get("walkable", true)) and lg.get("kind", &"ground") != &"water"
+	out["surface"] = SQ.probe(space, from, from + d * r, exclude)    # the wall's material / climbable / vaultable tags (sounds, rules)
 	out["landing_ok"] = landing_ok
 	out["land"] = land
 	out["kind"] = classify(height, depth, clear, landing_ok, can_jump, c)
