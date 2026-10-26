@@ -857,6 +857,8 @@ func _physics_process(delta: float) -> void:
 		_rig.call("set_state", travel.length(), is_on_floor(), swimming or dead or _dodge > 0.0,
 				_animator.is_full_busy() or _animator.is_stand_attack())
 		_rig.set("weapon_carry", _swing <= 0.0 and _dodge <= 0.0 and not blocking)       # recovery included: the blade drops back at once
+		if _equip_vis != null:
+			(_equip_vis as EquipmentVisuals).set_stowed(_dodge > 0.0)
 	_update_lean(delta)
 	_update_footsteps(delta, dir, grounded and not swimming and not _jump_starting and not _jump_active \
 			and _land_time <= 0.0)

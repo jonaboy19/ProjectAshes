@@ -22,7 +22,7 @@ const LOADOUTS := {
 	"staff": ["ash_staff"],
 }
 const STATES := [
-	["idle", 1.0], ["walk", 1.4], ["sprint", 1.4], ["strafe_l", 1.0], ["crouch", 1.0], ["jump", 1.4], ["dodge", 1.4],
+	["idle", 1.0], ["dodge_fwd", 1.4], ["walk", 1.4], ["sprint", 1.4], ["strafe_l", 1.0], ["crouch", 1.0], ["jump", 1.4], ["dodge", 1.4],
 	["attack", 1.6], ["block", 1.2], ["hit", 1.0], ["death", 1.6],
 ]
 var _p: CharacterBody3D
@@ -234,6 +234,8 @@ func _state(lo: String, st: String, secs: float) -> Image:
 			Input.action_press("move_forward", 0.6)
 		"block":
 			Input.action_press("block")
+		"dodge_fwd":
+			Input.action_press("move_forward")
 	while t < secs:
 		await physics_frame
 		await process_frame
@@ -244,7 +246,7 @@ func _state(lo: String, st: String, secs: float) -> Image:
 			match st:
 				"jump":
 					_p.call("jump")
-				"dodge":
+				"dodge", "dodge_fwd":
 					_p.call("dodge")
 				"attack":
 					_p.call("attack")

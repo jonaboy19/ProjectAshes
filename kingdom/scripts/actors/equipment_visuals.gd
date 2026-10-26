@@ -212,6 +212,14 @@ func _update_two_handed() -> void:
 			_two_hidden.append(d)
 
 
+## Long weapons (two-handed classes) are hidden while the body is rolling: a 1-2 m prop on a tumbling hand drives through the floor.
+func set_stowed(on: bool) -> void:
+	for att in _nodes.get("main_hand", []):
+		for c in (att as Node).get_children():
+			if c is Node3D and c.has_meta(&"wclass") and TWO_HANDED.has(String(c.get_meta(&"wclass"))):
+				(c as Node3D).visible = not on
+
+
 func _clear_slot(slot: String) -> void:
 	for att in _nodes.get(slot, []):
 		if is_instance_valid(att):
