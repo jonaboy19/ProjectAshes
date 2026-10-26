@@ -1,4 +1,4 @@
-extends Node
+﻿extends Node
 ## The player's life in the world: employment (RACareers), hunger and sleep
 ## (RANeeds), possessions (a GLoot Inventory), the village market (RAMarket),
 ## merit, and save/load of the whole simulation.
@@ -651,7 +651,7 @@ func _present_childhood_event(ev: Dictionary) -> void:
 		return
 	var opts: Array = []
 	for c: Dictionary in ev.get("choices", []):
-		opts.append([String(c.get("text", "…")), _childhood_choice.bind(c)])
+		opts.append([String(c.get("text", "â€¦")), _childhood_choice.bind(c)])
 	LifeEventPopup.present(hud, {"title": "Growing Up", "body": String(ev.get("text", "")), "choices": opts})
 
 
@@ -698,7 +698,7 @@ func _awakening_text(r: Dictionary) -> String:
 	var text := "The temple bell tolls, and %s leaning toward %s answers your call." % [
 		tier_words.get(String(r["tier"]), "a"), el]
 	if String(r.get("dual", "")) != "":
-		text += " A second element, %s, answers too — rare enough that the whole village will talk about it." % String(r["dual"])
+		text += " A second element, %s, answers too â€” rare enough that the whole village will talk about it." % String(r["dual"])
 	return text
 
 
@@ -816,7 +816,7 @@ func _offer(e: Dictionary) -> void:
 	pending_offers.append(e)
 	var sc: Dictionary = e.get("scout", {})
 	var org: Dictionary = e.get("org", {})
-	Game.say("%s of %s has been watching you. Open Pack → Journal → Scouting Offers to answer." % [
+	Game.say("%s of %s has been watching you. Open Pack â†’ Journal â†’ Scouting Offers to answer." % [
 		sc.get("name", "A stranger"), org.get("name", "somewhere")])
 
 
@@ -1661,6 +1661,7 @@ func _snapshot_steps_raw() -> Array:
 		interactives["takedown"] = preload("res://scripts/combat/takedown.gd").serialize(now_ms)
 		interactives["guard_alert"] = preload("res://scripts/population/alert_net.gd").serialize(now_ms)
 		return interactives])
+	steps.append(["world_version", func() -> Variant: return RealWorld.WORLD_VERSION if RealWorld.active() else 2])   # W6
 	steps.append(["player", func() -> Variant:
 		if player and is_instance_valid(player):
 			return {"x": player.global_position.x, "y": player.global_position.y,
@@ -1721,6 +1722,11 @@ func restore(d: Dictionary) -> void:
 	if d.has("player") and player and is_instance_valid(player):
 		var p: Dictionary = d["player"]
 		player.global_position = Vector3(p["x"], p["y"], p["z"])
+		if RealWorld.active() and int(d.get("world_version", 2)) < RealWorld.WORLD_VERSION:
+			# W6: a save from the old 12 km world. Positions move with the real-world layout; the player lands on the new ground.
+			var np := RealWorld.remap(Vector2(float(p["x"]), float(p["z"])))
+			player.global_position = Vector3(np.x, WorldGen.height(np.x, np.y) + 1.0, np.y)
+			Game.toast.emit("The land has changed: Valencious was remade. Your journey continues near the same place on the new map.")
 		if bool(player.get("dead")) and player.has_method("revive"):
 			player.revive(false)     # a save loaded from the death screen
 		if player.has_method("set_health"):
@@ -1854,7 +1860,7 @@ func _on_old_age_death() -> void:
 		preload("res://scripts/region1/ember_legacy.gd").emit_life_ended(biography, echoes, life_path.full_name(), age(),
 			life_path.family_name, WorldSim.day, {"place": String(WorldGen.settlements[life_path.home_settlement]["name"]) if life_path.home_settlement >= 0 and life_path.home_settlement < WorldGen.settlements.size() else "", "mastery": mastery.xp, "tendencies": tendencies.values})
 		return
-	var heir: Dictionary = heirs[0]
+	var heir: Dictionary = family.heirs_in_order()[0] if not family.heirs_in_order().is_empty() else heirs[0]   # the named heir first
 	Game.say("%s dies in old age. %s carries on the family.\n%s" % [life_path.full_name(), String(heir.get("name", "Your heir")), story])
 	family.succeed_to(heir["id"])
 

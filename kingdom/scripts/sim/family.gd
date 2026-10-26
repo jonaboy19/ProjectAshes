@@ -530,6 +530,22 @@ func can_retire(age := -1) -> bool:
 
 ## Who could take up the story: the eldest living child 16+, else the spouse,
 ## else none (the story ends). [{kind: "child"/"spouse", id, name, age, sex}]
+## The heir the player named (child id), or -1: they inherit first when still a candidate (Life._on_old_age_death).
+var designated_heir := -1
+
+
+## Candidates with the designated heir first.
+func heirs_in_order(day := -1) -> Array:
+	var out := heir_candidates(day)
+	for i in out.size():
+		if int(out[i]["id"]) == designated_heir:
+			var h: Dictionary = out[i]
+			out.remove_at(i)
+			out.push_front(h)
+			break
+	return out
+
+
 func heir_candidates(day := -1) -> Array:
 	var d := day if day >= 0 else WorldSim.day
 	var out := []
@@ -687,6 +703,7 @@ func serialize() -> Dictionary:
 		"parent_state": parent_state.duplicate(true),
 		"chronicles": chronicles.duplicate(true),
 		"next_child_id": next_child_id,
+		"designated_heir": designated_heir,
 		"last_tick_day": _last_tick_day,
 	}
 
@@ -713,6 +730,7 @@ func deserialize(d: Dictionary) -> void:
 		var e2: Dictionary = ps[role]
 		parent_state[role] = {"age_at_birth": int(e2.get("age_at_birth", 30)), "alive": bool(e2.get("alive", true)),
 			"death_day": int(e2.get("death_day", -1))}
+	designated_heir = int(d.get("designated_heir", -1))
 	chronicles.clear()
 	for ch: Variant in d.get("chronicles", []):
 		var chd: Dictionary = ch

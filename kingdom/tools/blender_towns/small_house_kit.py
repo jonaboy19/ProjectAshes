@@ -8,6 +8,7 @@ import bpy, bmesh, sys, math, random
 from mathutils import Vector, Matrix
 
 out = sys.argv[sys.argv.index("--") + 1]
+SIMPLE = False   # LOD1 pass: walls, roofs, chimneys and sills only (no frame, windows, shutters, patches)
 MATS = {
     "RA_plaster": (0.78, 0.72, 0.6), "RA_plaster_dirty": (0.6, 0.55, 0.46), "RA_timber": (0.28, 0.19, 0.12),
     "RA_thatch": (0.55, 0.45, 0.27), "RA_shingle": (0.33, 0.28, 0.24), "RA_boards": (0.42, 0.33, 0.24),
@@ -88,6 +89,8 @@ class B:
 
 
 def frame(b, w, z0, hgt, fy, rng, poor):
+    if SIMPLE:
+        return
     t = 0.16
     for x in (-w * 0.5 + 0.06, w * 0.5 - 0.06):
         b.box((x, fy, z0 + hgt * 0.5), (t, t, hgt), "RA_timber", roll=rng.uniform(-0.03, 0.03) if poor else 0.0)
@@ -102,6 +105,8 @@ def frame(b, w, z0, hgt, fy, rng, poor):
 
 
 def side_frame(b, d, z0, hgt, sx, y0, rng, poor, win=True):
+    if SIMPLE:
+        return
     # timber frame + a small window on a side wall (x = sx); a row hides it, an end-of-row house shows it
     t = 0.15
     sgn = 1 if sx > 0 else -1
@@ -119,6 +124,8 @@ def side_frame(b, d, z0, hgt, sx, y0, rng, poor, win=True):
 
 
 def window(b, x, fy, z, w, h, boarded):
+    if SIMPLE:
+        return
     b.box((x, fy + 0.04, z), (w, 0.06, h), "RA_dark")
     b.box((x, fy + 0.09, z - h * 0.5 - 0.04), (w + 0.14, 0.14, 0.07), "RA_timber")
     if boarded:
@@ -210,4 +217,17 @@ kit = [
 ]
 for ob in kit:
     export(ob)
-print("KIT_DONE", len(kit))
+SIMPLE = True
+bpy.ops.wm.read_factory_settings(use_empty=True)
+lods = [
+    narrow("house_narrow_a_lod1", 2.8, 6.0, 3, "RA_shingle", False, 1),
+    narrow("house_narrow_b_lod1", 3.4, 6.5, 2, "RA_thatch", False, 2),
+    narrow("house_narrow_c_lod1", 4.6, 7.0, 3, "RA_shingle", False, 3),
+    narrow("house_narrow_poor_a_lod1", 2.6, 5.5, 2, "RA_thatch", True, 4),
+    narrow("house_narrow_poor_b_lod1", 3.2, 5.8, 2, "RA_shingle", True, 5),
+    hovel("house_hovel_a_lod1", 3.6, 4.4, "RA_thatch", 6),
+    hovel("house_hovel_b_lod1", 3.0, 4.0, "RA_thatch", 7, lean=True),
+]
+for ob in lods:
+    export(ob)
+print("KIT_DONE", len(kit) + len(lods))

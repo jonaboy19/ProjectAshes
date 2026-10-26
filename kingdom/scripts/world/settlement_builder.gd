@@ -345,15 +345,15 @@ func _build_co(s: Dictionary, sync: bool, spread: bool) -> Node3D:
 		var poor_lot := int(lot.get("tier", 1)) == 2      # towns medieval pass: the poor quarter's stoops: firewood, hay, sacks
 		var kk: Array = ["woodpile", "hay", "sack_pile", "barrel"] if poor_lot else kinds
 		var depth := BuildingProfiles.size_of(String(lot["asset"])).z * 0.5 + 0.9 if bool(lot.get("infill", false)) else 4.0
-		for k in rng.randi_range(1, 3) if not bool(lot.get("infill", false)) else rng.randi_range(0, 1):
+		for k in rng.randi_range(1, 3) if not bool(lot.get("infill", false)) else (0 if _low() else rng.randi_range(0, 1)):   # LOW / iGPU: infill lots bare
 			var kind: String = kk[rng.randi() % kk.size()]
 			var q := p + fwd * (depth + rng.randf_range(-0.4, 0.4)) + side * rng.randf_range(-3.2, 3.2) * (0.35 if bool(lot.get("infill", false)) else 1.0) * (1.0 if k % 2 == 0 else -1.0)
 			if not door_clutter.has(kind):
 				door_clutter[kind] = []
 			door_clutter[kind].append(Transform3D(Basis(Vector3.UP, rng.randf() * TAU), Vector3(q.x, WorldGen.height(q.x, q.y) - 0.03, q.y)))
 	for st: Dictionary in plan["streets"]:
-		if not bool(st.get("alley", false)):
-			continue
+		if not bool(st.get("alley", false)) or _low():
+			continue      # LOW / iGPU: no alley laundry
 		var al: Vector2 = st["a"]
 		var ab: Vector2 = st["b"]
 		var ad := (ab - al).normalized()

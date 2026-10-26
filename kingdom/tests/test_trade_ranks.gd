@@ -64,3 +64,14 @@ func test_player_decrees_need_the_claim() -> void:
 func test_thief_ranks_by_unseen_thefts() -> void:
 	var t := TR.new()
 	assert_array(t.update(null, {"stole_unseen": 30.0})).contains(["You are now a Thief."])
+
+
+func test_named_heir_goes_first_and_saves() -> void:
+	var Fam := preload("res://scripts/sim/family.gd")
+	var f: RefCounted = Fam.new()
+	f.designated_heir = 7
+	var g: RefCounted = Fam.new()
+	g.deserialize(f.serialize())
+	assert_int(g.designated_heir).is_equal(7)
+	var s: GDScript = load("res://scripts/ui/family_screen.gd")
+	assert_bool(s.can_instantiate()).is_true()
