@@ -104,10 +104,16 @@ void fragment() {
 	for i in 40:
 		await physics_frame
 	var rig: Node = _p.get("_rig")
+	if OS.get_cmdline_user_args().has("--only_hands"):
+		for n in _p.find_children("*", "MeshInstance3D", true, false):
+			if not String(n.name).contains("hands"):
+				(n as Node3D).visible = false
 	if OS.get_cmdline_user_args().has("--list_attach"):
-		for n in _p.find_children("*", "", true, false):
-			if String(n.name).to_lower().contains("sword") or String(n.name).to_lower().contains("blade"):
-				print("SWORDNODE ", n.get_path(), " ", n.get_class(), " vis=", (n as Node3D).visible if n is Node3D else "-")
+		for n in _p.find_children("*", "MeshInstance3D", true, false):
+			var mi3 := n as MeshInstance3D
+			if mi3.is_visible_in_tree():
+				var bb := mi3.global_transform * mi3.get_aabb()
+				print("MESH %s size=%s centre=%s" % [str(mi3.get_path()).get_slice("@Node3D@35/", 1), bb.size.snapped(Vector3(0.01, 0.01, 0.01)), bb.get_center().snapped(Vector3(0.01, 0.01, 0.01))])
 		for att in _p.find_children("*", "BoneAttachment3D", true, false):
 			var names: Array = []
 			for c in att.get_children():
@@ -122,8 +128,13 @@ void fragment() {
 	if case == "sprint":
 		Input.action_press("sprint")
 	var t := 0.0
+	var fired := false
 	while t < seconds:
+		if OS.get_cmdline_user_args().has("--attack") and t > 0.8 and not fired:
+			fired = true
+			(_p.get("_animator") as RefCounted).call("play_full", "Sword_Regular_A", 1.0)
 		await physics_frame
+		await process_frame
 		_apply_sword_rot()
 		t += 1.0 / 60.0
 		var pp := _p.global_position
@@ -140,12 +151,19 @@ void fragment() {
 
 
 func _apply_sword_rot() -> void:
+	# The rig's prop springs rewrite every prop's transform from its captured rest transform each frame: change the rest.
 	for a in OS.get_cmdline_user_args():
-		if a.begins_with("--sword_rot="):      # QA: try a grip rotation (degrees x,y,z, hand_r space) on the starter sword
+		if a.begins_with("--sword_rot="):
 			var v := a.substr(12).split(",")
-			for att in _p.find_children("*", "BoneAttachment3D", true, false):
-				if (att as BoneAttachment3D).bone_name == "hand_r":
-					for prop in att.get_children():
-						(prop as Node3D).rotation_degrees = Vector3(float(v[0]), float(v[1]), float(v[2]))
-						if Engine.get_process_frames() % 30 == 0:
-							print("SWORDROT ", prop.name, " ", (prop as Node3D).rotation_degrees, " global_z=", (prop as Node3D).global_basis.y)
+			var rig: Node = _p.get("_rig")
+			if rig == null:
+				return
+			for pr: Dictionary in rig.get("_props"):
+				var node: Node3D = pr["node"]
+				if not is_instance_valid(node) or not String(node.name).begins_with("Sword"):
+					continue
+				if not pr.has("rest0"):
+					pr["rest0"] = pr["rest"]
+				var r0: Transform3D = pr["rest0"]
+				var sc := r0.basis.get_scale()
+				pr["rest"] = Transform3D(Basis.from_euler(Vector3(deg_to_rad(float(v[0])), deg_to_rad(float(v[1])), deg_to_rad(float(v[2])))).scaled(sc), r0.origin)

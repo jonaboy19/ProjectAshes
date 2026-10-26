@@ -59,6 +59,8 @@ const LOCK_OFF_LIFT := 0.065     # ... and ends above this (hysteresis)
 const LOCK_MAX := 0.25           # m of lag between the pinned and the animated foot before the pin is dragged along
 const LOCK_BLEND := 0.05         # s: 3 frames at 60 Hz
 const LOCK_MIN_SPEED := 0.35     # m/s: below this the clip is a standing idle, nothing to pin
+const WEAPON_CARRY_DEG := 45.0
+const WEAPON_CARRY_RATE := 7.0   # 1/s
 const PROP_GAIN := 0.0045
 const PROP_MAX := 0.12
 const PROP_STIFF := 160.0
@@ -123,6 +125,10 @@ var _hit_n: Array[Vector3] = [Vector3.UP, Vector3.UP]
 var _ground: Array[float] = [0.0, 0.0]      # smoothed offset from the base plane
 var _normal: Array[Vector3] = [Vector3.UP, Vector3.UP]
 var _plant: Array[float] = [0.0, 0.0]
+## The starter sword is authored for the swing poses (blade perpendicular to the fist); between swings it is carried lowered: the owner
+## sets weapon_carry, the hand prop eases WEAPON_CARRY_DEG around its grip axis and back (docs/plans/AAA_PROGRESS.md, idle sword).
+var weapon_carry := false
+var _carry_w := 0.0
 var foot_lock := true                         # QA switch (tools_qa/anim_states/loco_slide.gd --no-lock)
 var _ball: Array[int] = []
 var _leaf: Array[int] = []
@@ -812,10 +818,15 @@ func _prop_springs(delta: float) -> void:
 		return
 	var xf := _skeleton.global_transform
 	var dt := minf(delta, 0.05)
+	_carry_w = move_toward(_carry_w, 1.0 if weapon_carry else 0.0, WEAPON_CARRY_RATE * delta)
 	for p: Dictionary in _props:
 		var node: Node3D = p["node"]
 		if not is_instance_valid(node) or p["bone"] < 0:
 			continue
+		var rest: Transform3D = p["rest"]
+		if _carry_w > 0.001 and String(node.name).begins_with("Sword") and String(_skeleton.get_bone_name(p["bone"])) == "hand_r":
+			rest.basis = rest.basis * Basis(Vector3(0, 0, 1), deg_to_rad(WEAPON_CARRY_DEG * _carry_w))
+
 		var bone_xf: Transform3D = xf * _skeleton.get_bone_global_pose(p["bone"])
 		var grip := bone_xf.origin
 		var last: Vector3 = p["last"]
@@ -843,7 +854,7 @@ func _prop_springs(delta: float) -> void:
 		var axis_world := r_world.cross(off) / (r_len * r_len)
 		var angle := axis_world.length()
 		if angle < 0.0005:
-			node.transform = p["rest"]
+			node.transform = rest
 			continue
 		var axis_local := att_basis.inverse() * (axis_world / angle)
-		node.transform = Transform3D(Basis(axis_local.normalized(), angle), Vector3.ZERO) * (p["rest"] as Transform3D)
+		node.transform = Transform3D(Basis(axis_local.normalized(), angle), Vector3.ZERO) * rest
