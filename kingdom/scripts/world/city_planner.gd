@@ -203,6 +203,8 @@ static func plan(s: Dictionary, gate_angles: Array[float], seed_value: int) -> D
 	_civic_lots(lots, c, r, walled, result["inner_wall"], landmarks)
 	_zone_districts(result, kind, c, r, plaza_r, walled, seed_value, prof)
 	TownLots.enforce(result, s, fits)   # town kit: forces the lots the village life needs (no-op for a settlement without a town file)
+	if not off and frontage_enabled:
+		_frontage(result, kind, seed_value)   # towns medieval pass: continuous street frontage (lots APPENDED, earlier indices unchanged)
 	result["paths"] = _door_paths(lots, streets)
 	return result
 
@@ -543,3 +545,133 @@ static func street_distance(plan_data: Dictionary, p: Vector2) -> float:
 		var q := Geometry2D.get_closest_point_to_segment(p, st["a"], st["b"])
 		best = minf(best, p.distance_to(q) - st["w"] * 0.5)
 	return best
+
+
+## Towns medieval pass (docs/plans/TOWNS_MEDIEVAL_PASS.md): continuous street frontage. The grid above leaves 3-8 m of lawn
+## between houses; a medieval street is a wall of facades on narrow plots. This walks both sides of every ring street and lane
+## (not the broad gate / market roads) and puts a house into every gap its footprint fits, eaves almost touching its neighbours.
+## Save compatibility: the new lots are APPENDED after every planned lot and flagged `infill`, so every existing lot keeps its
+## index, asset, position and district (property ids "s<i>:l<j>", town-kit bids, ownership all key off those); Property skips
+## infill lots. Wealth gradient: the plot copies a house of its own town (roof mix and palette stay the town's), tall
+## townhouses toward the centre, the small cottages toward the wall.
+static var frontage_enabled := true   # tests: plan with and without, the shared prefix must be identical (save compatibility)
+const FRONT_GAP := 0.35          # metres between two footprints (eaves touch, walls do not)
+const FRONT_STEP := 1.0
+const FRONT_MAX_FRACTION := 0.7  # at most this many new lots per planned lot
+
+
+static func _frontage(plan_data: Dictionary, kind: String, seed_value: int) -> void:
+	var lots: Array = plan_data["lots"]
+	var streets: Array = plan_data["streets"]
+	var landmarks: Array = plan_data["landmarks"]
+	var c: Vector2 = plan_data["centre"]
+	var r: float = plan_data["wall_radius"]
+	var walled: bool = plan_data["walls"]
+	var inner: float = plan_data["inner_wall"]
+	var plaza_r: float = plan_data["plaza_r"]
+	var rng := RandomNumberGenerator.new()
+	rng.seed = hash([seed_value, "frontage", int(c.x), int(c.y)])
+	# The town's own plain houses (its roof mix), split by footprint: tall townhouses and small homes.
+	var tall: Array[String] = []
+	var small: Array[String] = []
+	for lot: Dictionary in lots:
+		var a := String(lot["asset"])
+		if not a.begins_with("house"):
+			continue
+		var sz := BuildingProfiles.size_of(a)
+		if sz.x > 8.0 or sz.z > 10.6:
+			continue
+		if a.begins_with("house_town"):
+			if not tall.has(a):
+				tall.append(a)
+		elif not small.has(a):
+			small.append(a)
+	if small.is_empty() and tall.is_empty():
+		return
+	var polys: Array = []
+	var doors: Array[Vector2] = []
+	for lot: Dictionary in lots:
+		polys.append(_lot_poly(lot["pos"], lot["yaw"], String(lot["asset"])))
+		doors.append(door_point(lot))
+	for lm: Dictionary in landmarks:
+		var half: Vector2 = LANDMARK_HALF.get(String(lm["asset"]), Vector2(3.0, 3.0))
+		polys.append(_rect(lm["pos"], lm["yaw"], half.x, half.y))
+	var cap := int(lots.size() * FRONT_MAX_FRACTION)
+	var added := 0
+	for st: Dictionary in streets:
+		if float(st["w"]) >= 11.0:
+			continue          # walled towns' broad gate / market roads keep their stalls and set-back townhouses
+		var a: Vector2 = st["a"]
+		var b: Vector2 = st["b"]
+		var length := a.distance_to(b)
+		if length < 4.0:
+			continue
+		var dir := (b - a) / length
+		var normal := Vector2(-dir.y, dir.x)
+		for side: float in [-1.0, 1.0]:
+			var t := 0.5
+			while t < length - 0.5 and added < cap:
+				var frac := (a + dir * t).distance_to(c) / r
+				var pool: Array[String] = tall if (walled and frac < 0.6 and not tall.is_empty() and rng.randf() < 0.75) else small
+				if pool.is_empty():
+					pool = tall
+				var asset: String = pool[rng.randi() % pool.size()]
+				var sz := BuildingProfiles.size_of(asset)
+				var p := a + dir * t + normal * side * (float(st["w"]) * 0.5 + 0.6 + sz.z * 0.5)
+				var face := -normal * side
+				var yaw := atan2(face.x, face.y)
+				if _frontage_ok(p, yaw, asset, c, r, plaza_r, walled, inner, streets, landmarks, polys, doors):
+					var lot := {"asset": asset, "pos": p, "yaw": yaw, "infill": true}
+					lot["district"] = district_at(plan_data, p)
+					lot["wealth"] = clampf(1.0 - frac, 0.1, 0.9)
+					lot["seed"] = hash([seed_value, roundi(p.x * 4.0), roundi(p.y * 4.0)])
+					lots.append(lot)
+					polys.append(_lot_poly(p, yaw, asset))
+					doors.append(door_point(lot))
+					added += 1
+					t += sz.x + FRONT_GAP
+				else:
+					t += FRONT_STEP
+	plan_data["infill_from"] = lots.size() - added
+
+
+static func _rect(p: Vector2, yaw: float, hx: float, hz: float) -> PackedVector2Array:
+	var ex := Vector2(cos(yaw), -sin(yaw))
+	var ez := Vector2(sin(yaw), cos(yaw))
+	return PackedVector2Array([p - ex * hx - ez * hz, p + ex * hx - ez * hz, p + ex * hx + ez * hz, p - ex * hx + ez * hz])
+
+
+static func _lot_poly(p: Vector2, yaw: float, asset: String) -> PackedVector2Array:
+	var sz := BuildingProfiles.size_of(asset)
+	return _rect(p, yaw, sz.x * 0.5, sz.z * 0.5)
+
+
+static func _frontage_ok(p: Vector2, yaw: float, asset: String, c: Vector2, r: float, plaza_r: float, walled: bool, inner: float,
+		streets: Array, landmarks: Array, polys: Array, doors: Array[Vector2]) -> bool:
+	var d := p.distance_to(c)
+	if d < plaza_r + 5.0 or (not walled and d > r * 0.86):
+		return false
+	if not fits(asset, p, yaw, c, r, walled, inner, landmarks):
+		return false
+	var poly := _lot_poly(p, yaw, asset)
+	var reach := 14.0
+	for q: PackedVector2Array in polys:
+		if q[0].distance_to(p) > reach + 12.0:
+			continue
+		if _poly_gap(poly, q) < FRONT_GAP:
+			return false
+	# no street, lane or gate road may run through it (its own street included: the front stays 0.6 m off the edge)
+	var pts := Array(poly)
+	for i in 4:
+		pts.append((poly[i] + poly[(i + 1) % 4]) * 0.5)
+	pts.append(p)
+	for st: Dictionary in streets:
+		for v: Vector2 in pts:
+			var q2 := Geometry2D.get_closest_point_to_segment(v, st["a"], st["b"])
+			if v.distance_to(q2) < float(st["w"]) * 0.5 + 0.4:
+				return false
+	# keep every existing front door reachable (2.4 m in front of it)
+	for dp: Vector2 in doors:
+		if dp.distance_to(p) < 16.0 and _poly_gap(poly, PackedVector2Array([dp + Vector2(-1.2, -1.2), dp + Vector2(1.2, -1.2), dp + Vector2(1.2, 1.2), dp + Vector2(-1.2, 1.2)])) < 0.3:
+			return false
+	return true

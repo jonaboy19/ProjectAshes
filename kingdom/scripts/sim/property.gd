@@ -101,7 +101,7 @@ func _ensure_registered(settlement_idx: int) -> void:
 	var inn_idx := -1
 	for i in lots.size():
 		var asset := String(lots[i]["asset"])
-		if BuildingProfiles.is_house(asset):
+		if BuildingProfiles.is_house(asset) and not bool(lots[i].get("infill", false)):   # frontage infill: not for sale (keeps old save lot ids)
 			house_idx.append(i)
 		elif asset == "inn" and inn_idx < 0:
 			inn_idx = i
