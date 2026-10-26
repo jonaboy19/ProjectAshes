@@ -5,7 +5,6 @@ extends Node3D
 ##   Godot --path kingdom --rendering-method mobile res://tools_qa/anim/aaa_review.tscn --write-movie o.png --fixed-fps 30
 ##         --quit-after N -- --clips=Locomotion:Run_Turn_Bank_L,Combat_Adv:Parry_High_Deflect [--view=q34|side|front] [--travel]
 
-
 func _ready() -> void:
 	var args := {}
 	for a: String in OS.get_cmdline_user_args():
@@ -32,6 +31,7 @@ func _ready() -> void:
 	g.material_override = gm
 	add_child(g)
 	var clips: PackedStringArray = String(args.get("clips", "")).split(",", false)
+	var manifest: Dictionary = JSON.parse_string(FileAccess.get_file_as_string("res://data/anim/aaa_clips.json"))["packs"]
 	var travel := args.has("travel")
 	var n := mini(clips.size(), 3)
 	for i in n:
@@ -47,6 +47,7 @@ func _ready() -> void:
 		var skp := String(ap.get_node(ap.root_node).get_path_to(sk))
 		var a: Animation
 		var play_name := "rv/rv"
+		var playback_len := 0.0
 		if pk == "GAME" or pk == "LIFE":
 			if pk == "LIFE":
 				LifeLibrary.install(ap)
@@ -55,11 +56,17 @@ func _ready() -> void:
 				continue
 			a = ap.get_animation(clip)
 			play_name = clip
+			playback_len = a.length
 		else:
 			var src: Node = (load(path) as PackedScene).instantiate()
 			var sap: AnimationPlayer = src.find_children("*", "AnimationPlayer", true, false)[0]
 			a = sap.get_animation(clip).duplicate(true)
 			src.free()
+			var decision: Dictionary = manifest.get(path, {}).get(clip, {})
+			if decision.get("trim") is Array:
+				AaaClips._trim(a, float(decision["trim"][0]), float(decision["trim"][1]))
+			a.loop_mode = Animation.LOOP_LINEAR if bool(decision.get("loop", false)) else Animation.LOOP_NONE
+			playback_len = a.length
 			for t in a.get_track_count():
 				var tp := String(a.track_get_path(t))
 				var colon := tp.find(":")
@@ -70,10 +77,9 @@ func _ready() -> void:
 			var lib := AnimationLibrary.new()
 			lib.add_animation("rv", a)
 			ap.add_animation_library("rv", lib)
-		a.loop_mode = Animation.LOOP_LINEAR
 		ap.play(play_name)
 		var lbl := Label3D.new()
-		lbl.text = "%s (%.1fs)" % [clip, a.length]
+		lbl.text = "%s (%.1fs)" % [clip, playback_len]
 		lbl.font_size = 36
 		lbl.pixel_size = 0.004
 		lbl.billboard = BaseMaterial3D.BILLBOARD_ENABLED

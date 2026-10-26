@@ -1,0 +1,16 @@
+{
+  "views": [
+    {
+      "name": "w06_rift_marches_aerial120_noon_diagnostic",
+      "at": [1020, 900],
+      "look": [1130, 1004],
+      "up": 120,
+      "look_up": 8,
+      "hour": 12.0,
+      "warm": 60,
+      "fov": 60,
+      "expect_t3d": true,
+      "probe": [[205, 395], [130, 360], [280, 450], [360, 80], [250, 250]]
+    }
+  ]
+}

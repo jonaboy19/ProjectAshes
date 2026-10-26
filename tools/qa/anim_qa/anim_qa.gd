@@ -8,15 +8,15 @@ extends SceneTree
 ## Optionally renders 8-frame side-view strips and contact sheets on the GPU.
 ##
 ## Run (from the repo root; see README.md):
-##   godot --path kingdom -s <abs>/tools/qa/anim_qa/anim_qa.gd -- [--no-strips] [--only=<substr>]
-## Outputs: docs/qa/anim_qa_report.md, docs/qa/anim_qa_results.csv, docs/qa/anim_strips/, docs/qa/anim_sheet_*.png
+##   godot --path kingdom -s <abs>/tools/qa/anim_qa/anim_qa.gd -- [--no-strips] [--only=<substr>] [--out-dir=<path>]
+## Outputs: docs/qa/anim_qa_report.md, docs/qa/anim_qa_results.csv, docs/qa/anim_strips/, docs/qa/anim_sheet_*.jpg
 
 const FPS := 30.0
 const CRITTER_GAIT_FPS := 120.0 # Short quadruped contacts can fall between 30 Hz samples.
 const Catalog := preload("catalog.gd")
 
 # ---- thresholds (see the report's "Thresholds" section for the reasoning) ----
-const SLIDE_WARN := 8.0          # cm/s, p90 planted-foot slip vs. the clip's own ground speed
+const SLIDE_WARN := 8.0          # cm/s, p75 planted-foot slip vs. the clip's own ground speed
 const SLIDE_FAIL := 20.0
 const PEN_WARN := 2.0            # cm below the floor (lowest skinned vertex or foot joint)
 const PEN_FAIL := 5.0
@@ -42,6 +42,7 @@ const TPOSE_DEG := 4.0           # mean major-bone deviation from rest below thi
 const STATIC_DEG := 0.5          # an idle loop moving less than this looks frozen
 const SPEED_OK := [0.85, 1.18]   # game speed / clip ground speed
 const SPEED_WARN := [0.7, 1.4]
+const MIN_SPEED_EVIDENCE := 0.20 # m/s; lower gait estimates usually mean no stable planted-foot track
 
 const EXCLUDE_MAJOR := ["index", "middle", "ring", "pinky", "thumb", "leaf", "ik", "pole", "target",
 	"_end", "headfront", "jaw", "tongue", "eye"]
@@ -49,6 +50,7 @@ const EXCLUDE_MAJOR := ["index", "middle", "ring", "pinky", "thumb", "leaf", "ik
 var repo := ""
 var out_dir := ""
 var strips_on := true
+var all_strips := false
 var only := ""
 var dump := ""
 var results: Array[Dictionary] = []     # one per subject x clip
@@ -64,8 +66,14 @@ func _initialize() -> void:
 	for a in OS.get_cmdline_user_args():
 		if a == "--no-strips":
 			strips_on = false
+		elif a == "--all-strips":
+			all_strips = true
 		elif a.begins_with("--dump="):
 			dump = a.substr(7)
+		elif a.begins_with("--out-dir="):
+			var requested_out := a.substr(10).strip_edges()
+			if requested_out != "":
+				out_dir = requested_out if requested_out.is_absolute_path() else repo.path_join(requested_out).simplify_path()
 		elif a.begins_with("--only="):
 			only = a.substr(7)
 	if DisplayServer.get_name() == "headless":
@@ -806,12 +814,19 @@ func _measure(s: Dictionary, r: Rig, clip: String, info: Dictionary) -> Dictiona
 					notes.append("planted feet move FORWARD (moonwalk / reversed clip)")
 					st["direction"] = "FAIL"
 			var errs := PackedFloat32Array()
-			for v in vels:
-				errs.append((v - ref).length() * 100.0)
-			slide = _pct(errs, 0.75)
-			st["slide"] = _grade(slide, SLIDE_WARN, SLIDE_FAIL)
-			if slide >= SLIDE_WARN:
-				notes.append("planted foot slips %.0f cm/s (p75)" % slide)
+			if kind == "loco" and ground_speed < MIN_SPEED_EVIDENCE:
+				# The slip residual is relative to the median planted-foot vector. If
+				# that vector collapses to nearly zero, it is not a valid treadmill
+				# reference and would turn ordinary foot motion into a false slip fail.
+				slide = -1.0
+				notes.append("planted-foot slip unscored: clip ground-speed estimate below %.2f m/s" % MIN_SPEED_EVIDENCE)
+			else:
+				for v in vels:
+					errs.append((v - ref).length() * 100.0)
+				slide = _pct(errs, 0.75)
+				st["slide"] = _grade(slide, SLIDE_WARN, SLIDE_FAIL)
+				if slide >= SLIDE_WARN:
+					notes.append("planted foot slips %.0f cm/s (p75)" % slide)
 		elif kind in ["loco", "loop"]:
 			notes.append("no ground-contact frames found")
 		if kind == "loco" and ground_speed == 0.0 and String(s["kind"]) == "ual":
@@ -1043,21 +1058,27 @@ func _speed_table() -> Array[Dictionary]:
 		var driven_clip_speed := v_eff * playback_rate
 		if not is_equal_approx(playback_rate, 1.0):
 			desc += " x%.2f" % playback_rate
-		var ratio := speed / driven_clip_speed if driven_clip_speed > 0.01 else INF
+		var enough_evidence := v_eff >= MIN_SPEED_EVIDENCE
+		var ratio := speed / driven_clip_speed if enough_evidence and driven_clip_speed > 0.01 else -1.0
 		var status := "PASS"
-		if ratio < SPEED_WARN[0] or ratio > SPEED_WARN[1]:
+		if not enough_evidence:
+			status = "INSUFFICIENT"
+		elif ratio < SPEED_WARN[0] or ratio > SPEED_WARN[1]:
 			status = "FAIL"
 		elif ratio < SPEED_OK[0] or ratio > SPEED_OK[1]:
 			status = "WARN"
 		var effect := "ok"
-		if ratio > SPEED_OK[1]:
+		if not enough_evidence:
+			effect = "insufficient planted-foot evidence for clip-speed estimate"
+		elif ratio > SPEED_OK[1]:
 			effect = "ice-skating (body outruns the feet)"
 		elif ratio < SPEED_OK[0]:
 			effect = "moonwalk / treadmill (feet outrun the body)"
 		out.append({"agent": c["agent"], "subject": sid, "speed": speed, "anim": desc, "clip_speed": v_eff,
 			"clip": String(c.get("clip", "")), "rate": playback_rate,
-			"ratio": ratio, "status": status, "effect": effect, "src": c["src"],
-			"slip_cm_s": absf(speed - driven_clip_speed) * 100.0,
+			"ratio": ratio, "ratio_text": ("%.2f" % ratio) if enough_evidence else "n/a",
+			"status": status, "effect": effect, "src": c["src"],
+			"slip_cm_s": absf(speed - driven_clip_speed) * 100.0 if enough_evidence else -1.0,
 			"fix_scale": speed / driven_clip_speed if driven_clip_speed > 0.01 else 0.0})
 	return out
 
@@ -1117,7 +1138,7 @@ func _write_report(speeds: Array[Dictionary]) -> void:
 		counts[r["status"]] += 1
 		if r["game"]:
 			game_counts[r["status"]] += 1
-	var sp_counts := {"PASS": 0, "WARN": 0, "FAIL": 0}
+	var sp_counts := {"PASS": 0, "WARN": 0, "FAIL": 0, "INSUFFICIENT": 0}
 	for c in speeds:
 		sp_counts[c["status"]] += 1
 	var L: PackedStringArray = []
@@ -1127,7 +1148,7 @@ func _write_report(speeds: Array[Dictionary]) -> void:
 	L.append("")
 	L.append("**Clip checks: %d rows: %d PASS, %d WARN, %d FAIL** (clips the game plays today: %d PASS, %d WARN, %d FAIL)." % [results.size(), counts["PASS"], counts["WARN"], counts["FAIL"], game_counts["PASS"], game_counts["WARN"], game_counts["FAIL"]])
 	L.append("")
-	L.append("**Speed checks: %d cases: %d PASS, %d WARN, %d FAIL.**" % [speeds.size(), sp_counts["PASS"], sp_counts["WARN"], sp_counts["FAIL"]])
+	L.append("**Speed checks: %d cases: %d PASS, %d WARN, %d FAIL, %d INSUFFICIENT.**" % [speeds.size(), sp_counts["PASS"], sp_counts["WARN"], sp_counts["FAIL"], sp_counts["INSUFFICIENT"]])
 	L.append("")
 	L.append(manual)
 	L.append("")
@@ -1136,7 +1157,7 @@ func _write_report(speeds: Array[Dictionary]) -> void:
 	L.append("")
 	L.append("Speed mismatches first (they affect every frame of locomotion), then clip rows by how far their worst metric is past its FAIL line. Rows that share one clip file across many characters are merged.")
 	L.append("")
-	var bad_speed := speeds.filter(func(c: Dictionary) -> bool: return c["status"] != "PASS")
+	var bad_speed := speeds.filter(func(c: Dictionary) -> bool: return c["status"] in ["WARN", "FAIL"])
 	bad_speed.sort_custom(func(a: Dictionary, b: Dictionary) -> bool: return absf(log(a["ratio"])) > absf(log(b["ratio"])))
 	var rank := 1
 	for c in bad_speed:
@@ -1165,11 +1186,13 @@ func _write_report(speeds: Array[Dictionary]) -> void:
 	L.append("## Playback speed vs. movement speed")
 	L.append("")
 	L.append("Clip ground speed = the speed at which the planted foot travels backwards in the in-place clip (median over contact frames, at the in-game model size). Ratio = game speed / clip speed. Above %.2f the body outruns the feet (ice-skating); below %.2f the feet outrun the body (moonwalking / treadmill)." % [SPEED_OK[1], SPEED_OK[0]])
+	L.append("A measured clip speed below %.2f m/s is marked INSUFFICIENT because the planted-foot extractor did not produce a usable treadmill-speed estimate; this is not evidence of a speed mismatch." % MIN_SPEED_EVIDENCE)
 	L.append("")
 	L.append("| status | agent | game speed m/s | animation | clip speed m/s | ratio | foot slip cm/s | effect | source |")
 	L.append("|---|---|---:|---|---:|---:|---:|---|---|")
 	for c in speeds:
-		L.append("| %s | %s | %.2f | %s | %.2f | %.2f | %.0f | %s | `%s` |" % [c["status"], c["agent"], c["speed"], c["anim"], c["clip_speed"], c["ratio"], c["slip_cm_s"], c["effect"], c["src"]])
+		var slip_text := "%.0f" % c["slip_cm_s"] if c["slip_cm_s"] >= 0.0 else "n/a"
+		L.append("| %s | %s | %.2f | %s | %.2f | %s | %s | %s | `%s` |" % [c["status"], c["agent"], c["speed"], c["anim"], c["clip_speed"], c["ratio_text"], slip_text, c["effect"], c["src"]])
 	L.append("")
 	L.append("Natural ground speed of every locomotion clip (use these as blend-space points / speed_scale references):")
 	L.append("")
@@ -1183,7 +1206,7 @@ func _write_report(speeds: Array[Dictionary]) -> void:
 	# per character tables
 	L.append("## Per character x clip")
 	L.append("")
-	L.append("Columns: slide = p90 planted-foot slip (cm/s); pen = deepest point below the floor (cm); hover = lowest foot above the floor (cm); air = longest both-feet-off time (s); str = max bone-length change (%); scl = max bone scale away from 1 (%); pops = angular-acceleration spikes; seam = pose gap at the loop seam (deg); drift = hips travel over the clip (cm). `*` = clip not used by the game yet.")
+	L.append("Columns: slide = p75 planted-foot slip (cm/s); `-1` means the treadmill-speed reference was too small to score; pen = deepest point below the floor (cm); hover = lowest foot above the floor (cm); air = longest both-feet-off time (s); str = max bone-length change (%); scl = max bone scale away from 1 (%); pops = angular-acceleration spikes; seam = pose gap at the loop seam (deg); drift = hips travel over the clip (cm). `*` = clip not used by the game yet.")
 	L.append("")
 	var by_subject := {}
 	for r in results:
@@ -1218,7 +1241,7 @@ func _thresholds(L: PackedStringArray) -> void:
 	L.append("")
 	L.append("| check | PASS | WARN | FAIL | why |")
 	L.append("|---|---|---|---|---|")
-	L.append("| foot slide (p90 slip of a planted foot, cm/s) | < %.0f | < %.0f | >= %.0f | A foot is 'planted' when it is within 2.5 cm of its lowest height in the clip. For in-place locomotion the slip is measured against the clip's own treadmill speed, so this is sliding baked into the clip; speed mismatches with the game are a separate table. ~8 cm/s is about where slip becomes visible at third-person distance; 20 cm/s reads as skating. |" % [SLIDE_WARN, SLIDE_FAIL, SLIDE_FAIL])
+	L.append("| foot slide (p75 slip of a planted foot, cm/s) | < %.0f | < %.0f | >= %.0f | A foot is 'planted' when it is within 2.5 cm of its lowest height in the clip. For in-place locomotion the slip is measured against the clip's own treadmill speed; rows without a usable treadmill-speed estimate are unscored. Speed mismatches with the game are a separate table. ~8 cm/s is about where slip becomes visible at third-person distance; 20 cm/s reads as skating. |" % [SLIDE_WARN, SLIDE_FAIL, SLIDE_FAIL])
 	L.append("| ground penetration (cm) | < %.0f | < %.0f | >= %.0f | Lowest skinned vertex (feet-region vertices plus a 900-vertex sample of the body) or foot joint below y = 0. 2 cm hides in grass/terrain; 5 cm visibly sinks a boot or clips a body through the floor. |" % [PEN_WARN, PEN_FAIL, PEN_FAIL])
 	L.append("| hover (cm) | < %.0f | < %.0f | >= %.0f | The lowest foot never gets closer than this to the floor during a standing / moving clip: the character floats. |" % [HOVER_WARN, HOVER_FAIL, HOVER_FAIL])
 	L.append("| airborne (s) | < %.2f | < %.2f | >= %.2f | Both feet > %.0f cm above their contact height in a row, in non-jump clips. A real run has ~0.1 s flight per stride; > 0.2 s looks floaty. |" % [AIR_WARN, AIR_FAIL, AIR_FAIL, AIR_H])
@@ -1333,7 +1356,7 @@ func _render_all(subs: Array[Dictionary], speeds: Array[Dictionary]) -> void:
 	# worst rows not already covered get a strip too
 	var wanted := {}
 	for s in subs:
-		wanted[s["id"]] = (s["strips"] as Array).duplicate()
+		wanted[s["id"]] = (s["clips"] as Dictionary).keys() if all_strips else (s["strips"] as Array).duplicate()
 	var bad := results.filter(func(r: Dictionary) -> bool: return r["status"] == "FAIL" and not r.get("missing", false))
 	bad.sort_custom(func(a: Dictionary, b: Dictionary) -> bool: return _severity(a) > _severity(b))
 	for r in bad.slice(0, 20):
