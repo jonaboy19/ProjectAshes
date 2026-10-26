@@ -60,7 +60,7 @@ const LOCK_MAX := 0.25           # m of lag between the pinned and the animated 
 const LOCK_BLEND := 0.05         # s: 3 frames at 60 Hz
 const LOCK_MIN_SPEED := 0.35     # m/s: below this the clip is a standing idle, nothing to pin
 const WEAPON_CARRY_DEG := 45.0
-const WEAPON_CARRY_RATE := 7.0   # 1/s
+const WEAPON_CARRY_RATE := 14.0  # 1/s
 const PROP_GAIN := 0.0045
 const PROP_MAX := 0.12
 const PROP_STIFF := 160.0
@@ -157,6 +157,8 @@ var _arm_markers: Array[Node3D] = []      # [target_l, target_r, pole_l, pole_r]
 var _arms_state := 0                      # 0 = not built, 1 = built, -1 = rig has no arms
 var _brace_pt: Array[Vector3] = [Vector3.ZERO, Vector3.ZERO]
 var _brace_w: Array[float] = [0.0, 0.0]
+var _assist_pt: Array[Vector3] = [Vector3.ZERO, Vector3.ZERO]     # two-handed weapon: the off hand rides on the weapon (own channel, wall braces win)
+var _assist_w: Array[float] = [0.0, 0.0]
 var _brace_rot: Array[Quaternion] = [Quaternion.IDENTITY, Quaternion.IDENTITY]
 var _torso_yaw := 0.0
 var _axis_anim := Vector3.ZERO
@@ -209,6 +211,16 @@ func set_hand_brace(side: int, point: Vector3, _normal: Vector3, weight: float) 
 	_brace_pt[side] = point
 	_brace_w[side] = clampf(weight, 0.0, 1.0)
 	if _brace_w[side] > 0.001 and _arms_state == 0 and always_near and _use_ik:
+		_build_arms()
+
+
+## Off-hand assist for two-handed weapons (own channel next to set_hand_brace). side 0 = left.
+func set_hand_assist(side: int, point: Vector3, weight: float) -> void:
+	if side < 0 or side > 1:
+		return
+	_assist_pt[side] = point
+	_assist_w[side] = clampf(weight, 0.0, 1.0)
+	if _assist_w[side] > 0.001 and _arms_state == 0 and always_near and _use_ik:
 		_build_arms()
 
 
@@ -698,6 +710,63 @@ func _update_lock(i: int, delta: float) -> void:
 	_lock_w[i] = move_toward(_lock_w[i], 1.0 if _lock_on[i] else 0.0, delta / LOCK_BLEND)
 
 
+## Two-handed weapons: between swings the weapon stands upright beside the body (shortest-arc rotation of its blade axis onto world
+## up, weight = carry), during swings the off hand is pulled onto the weapon (spear: forward on the shaft, great weapons: on the pommel).
+var _wprops: Array = []     # [{node, rest}] equipped two-handed weapons (EquipmentVisuals sets meta wclass on the prop)
+
+
+func _update_two_handed(_delta: float) -> void:
+	if Engine.get_process_frames() % 20 == 0:
+		_wprops = _wprops.filter(func(e: Dictionary) -> bool:
+			var nv: Variant = e["node"]
+			return is_instance_valid(nv) and (nv as Node).is_inside_tree())
+		for att in _skeleton.get_children():
+			if att is BoneAttachment3D:
+				for c in att.get_children():
+					if c is Node3D and c.has_meta(&"wclass") and (c as Node3D).visible:
+						var known := false
+						for e: Dictionary in _wprops:
+							var ev: Variant = e["node"]
+							if is_instance_valid(ev) and ev == c:
+								known = true
+						if not known:
+							_wprops.append({"node": c, "rest": (c as Node3D).transform})
+	if _wprops.is_empty():
+		if _assist_w[0] > 0.0:
+			set_hand_assist(0, Vector3.ZERO, 0.0)
+		return
+	for e: Dictionary in _wprops:
+		var nv: Variant = e["node"]
+		if not is_instance_valid(nv):
+			continue
+		var node := nv as Node3D
+		if node.visible:
+			node.transform = _two_hand_rest(node, e["rest"])
+
+
+func _two_hand_rest(node: Node3D, rest: Transform3D) -> Transform3D:
+	var wc := String(node.get_meta(&"wclass"))
+	if wc != "polearm" and wc != "great":
+		return rest
+	var parent := node.get_parent_node_3d()
+	if parent == null:
+		return rest
+	var ax: Vector3 = node.get_meta(&"axis", Vector3.UP)
+	var cur := parent.global_basis * rest.basis
+	var axis_w := (cur * ax).normalized()
+	if _carry_w > 0.001 and axis_w.dot(Vector3.UP) > -0.98:
+		var q := Quaternion(axis_w, Vector3.UP)
+		rest.basis = parent.global_basis.inverse() * (Basis(Quaternion.IDENTITY.slerp(q, _carry_w)) * cur)
+		axis_w = (parent.global_basis * rest.basis * ax).normalized()
+	var assist := 1.0 - _carry_w
+	_set_assist_now(node.global_position + axis_w * float(node.get_meta(&"grip2", 0.4)), assist if assist > 0.01 else 0.0)
+	return rest
+
+
+func _set_assist_now(point: Vector3, weight: float) -> void:
+	set_hand_assist(0, point, weight)
+
+
 func _torso_yaw_wanted() -> bool:
 	return always_near          # only the player's rig measures its shoulder line (WallContact squares the chest to a wall)
 
@@ -721,6 +790,10 @@ func _apply_torso_yaw() -> void:
 func _arms_pre(xf: Transform3D, fwd: Vector3) -> void:
 	for s in 2:
 		var w := _brace_w[s]
+		var bp := _brace_pt[s]
+		if _assist_w[s] > w:
+			w = _assist_w[s]
+			bp = _assist_pt[s]
 		var ik := _arm_ik[s]
 		var shoulder := xf * _skeleton.get_bone_global_pose(_arm[s][0]).origin
 		var hand_pose := _skeleton.get_bone_global_pose(_arm[s][2])
@@ -730,7 +803,7 @@ func _arms_pre(xf: Transform3D, fwd: Vector3) -> void:
 			ik.influence = 0.0
 			continue
 		ik.influence = 1.0
-		_arm_markers[s].global_position = hand.lerp(_brace_pt[s], w)
+		_arm_markers[s].global_position = hand.lerp(bp, w)
 		var side := -1.0 if s == 0 else 1.0
 		var out := fwd.cross(Vector3.UP).normalized() * side      # away from the body on this side
 		# elbows point out, back and down (a push against a wall, arms out to the sides): the pole sits there, relative to the shoulder
@@ -757,7 +830,7 @@ func _post_modify(delta: float) -> void:
 			_skeleton.set_bone_pose_rotation(foot, (parent_q.inverse() * foot_q.slerp(desired, ik_w)).normalized())
 	if _arms_state == 1:
 		for s in 2:
-			if _brace_w[s] > 0.001:
+			if maxf(_brace_w[s], _assist_w[s]) > 0.001:
 				# keep the animated hand orientation (the solved forearm would twist it)
 				var hand := _arm[s][2]
 				var fa_q := _skeleton.get_bone_global_pose(_arm[s][1]).basis.get_rotation_quaternion()
@@ -819,6 +892,7 @@ func _prop_springs(delta: float) -> void:
 	var xf := _skeleton.global_transform
 	var dt := minf(delta, 0.05)
 	_carry_w = move_toward(_carry_w, 1.0 if weapon_carry else 0.0, WEAPON_CARRY_RATE * delta)
+	_update_two_handed(delta)
 	for p: Dictionary in _props:
 		var node: Node3D = p["node"]
 		if not is_instance_valid(node) or p["bone"] < 0:

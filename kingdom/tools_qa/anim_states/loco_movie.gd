@@ -104,6 +104,8 @@ void fragment() {
 	for i in 40:
 		await physics_frame
 	var rig: Node = _p.get("_rig")
+	if OS.get_cmdline_user_args().has("--no_props") and rig != null:
+		rig.set("_props", [])
 	if OS.get_cmdline_user_args().has("--only_hands"):
 		for n in _p.find_children("*", "MeshInstance3D", true, false):
 			if not String(n.name).contains("hands"):

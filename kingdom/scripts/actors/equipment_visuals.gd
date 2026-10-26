@@ -50,6 +50,13 @@ var equipment: Object
 var _nodes: Dictionary = {}          # slot -> Array[BoneAttachment3D] added by this object
 var _hidden: Dictionary = {}         # slot -> Array[Node3D] default props hidden for it
 var _defaults: Dictionary = {}       # lower-case bone name -> Array[BoneAttachment3D] that existed before (starter gear)
+var _two_hidden: Array = []          # off-hand attachments hidden because a two-handed weapon is wielded
+
+## Weapon classes (docs/plans/AAA_PROGRESS.md equipment matrix): polearm / great (two-handed, carried upright, left hand assists in
+## combat) and bow (two-handed, no shield). Everything else is one-handed.
+const TWO_HANDED := ["polearm", "great", "bow"]
+## Longest side (m) of a shield model of the off hand, by item id: a bare model is far bigger than a held shield.
+const SHIELD_LEN := {"buckler": 0.38, "kite": 0.85, "default": 0.62}
 
 
 func _init(sk: Skeleton3D, eq: Object) -> void:
@@ -138,9 +145,22 @@ func _set_slot(slot: String, id: String) -> void:
 				seat_pos -= Basis.from_euler(rot_deg * (PI / 180.0)) * axis * (box.position[axis_i] + float(fit[1]) * box.size[axis_i]) * k \
 					if float(fit[1]) >= 0.0 else Vector3.ZERO
 				style_weapon(inst)
+		if String(bones[i]) == "lowerarm_l" and fit.is_empty() and prop.get_child_count() > 0:
+			# held shields are fitted by size too (the raw models are up to 1.4 m across)
+			var sbox := Assets.visual_aabb(prop.get_child(0) as Node3D)
+			var slong := maxf(sbox.size.x, maxf(sbox.size.y, sbox.size.z))
+			var want: float = SHIELD_LEN["buckler"] if id.contains("buckler") else (SHIELD_LEN["kite"] if id.contains("kite") else SHIELD_LEN["default"])
+			if slong > 0.001:
+				prop.scale = prop.scale * (want * absf(float(v.get("scale", 1.0))) / slong)
 		prop.scale = prop.scale / rig_scale
 		prop.position = seat_pos / rig_scale
 		prop.rotation_degrees = rot_deg
+		var wc := _weapon_class(id, String(v.get("model", "")))
+		if wc != "" and String(bones[i]).begins_with("hand"):
+			prop.set_meta(&"wclass", wc)
+			var fa := fit_for(String(v.get("model", "")))
+			prop.set_meta(&"axis", Vector3(0, 1, 0) if fa.size() < 3 else (Vector3(1, 0, 0) if int(fa[2]) == 0 else Vector3(0, 0, 1)))
+			prop.set_meta(&"grip2", 0.5 if wc == "polearm" else -0.22)
 		att.add_child(prop)
 		list.append(att)
 	if list.is_empty():
@@ -155,6 +175,41 @@ func _set_slot(slot: String, id: String) -> void:
 				hide.append(d)
 	if not hide.is_empty():
 		_hidden[slot] = hide
+	_update_two_handed()
+
+
+## "polearm" | "great" | "bow" | "" (one-handed / not a weapon) from the item id and model.
+static func _weapon_class(id: String, model: String) -> String:
+	var base := model.get_file().get_basename().to_lower()
+	if id.contains("greatsword") or id.contains("battleaxe") or id.contains("warhammer"):
+		return "great"
+	if base.begins_with("spear") or base.begins_with("halberd") or base.begins_with("staff"):
+		return "polearm"
+	if base.begins_with("bow") or base.begins_with("crossbow"):
+		return "bow"
+	return ""
+
+
+## A two-handed weapon in the main hand takes the shield (starter and equipped) off the arm; it comes back when the weapon goes.
+func _update_two_handed() -> void:
+	var two := false
+	for att in _nodes.get("main_hand", []):
+		for c in (att as Node).get_children():
+			if c.has_meta(&"wclass") and TWO_HANDED.has(String(c.get_meta(&"wclass"))):
+				two = true
+	for d in _two_hidden:
+		if is_instance_valid(d):
+			(d as Node3D).visible = true
+	_two_hidden.clear()
+	if not two:
+		return
+	var shields: Array = (_defaults.get("lowerarm_l", []) as Array).duplicate()
+	for att in _nodes.get("off_hand", []):
+		shields.append(att)
+	for d in shields:
+		if is_instance_valid(d) and (d as Node3D).visible:
+			(d as Node3D).visible = false
+			_two_hidden.append(d)
 
 
 func _clear_slot(slot: String) -> void:
@@ -169,6 +224,7 @@ func _clear_slot(slot: String) -> void:
 		if is_instance_valid(d):
 			(d as Node3D).visible = true
 	_hidden.erase(slot)
+	_update_two_handed()
 
 
 ## The skeleton's bone matching `name` ignoring case ("head" finds the UAL rig's "Head"); "" when absent.
