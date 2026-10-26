@@ -84,7 +84,6 @@ var _timer := 0.0
 var _villagers: Array = []        # the Villager nodes in _full, shared with each of them
 var _held: Dictionary = {}        # person id -> true while its departure is held back
 var _last_time := -1.0
-var _sprite_cache: Dictionary = {}   # person id -> [raw pos, pushed-out ground point]
 var _sprite_hidden: Dictionary = {}  # person id -> true while suppressed inside SPRITE_MIN_DIST
 ## Street scenes (cart passing, funeral, gates closing ...) of the settlement the player is in.
 var micro: Node
@@ -96,7 +95,41 @@ var _spawn_queued: Dictionary = {}
 var _want_full: Dictionary = {}
 ## False: refresh() builds its bodies at once (tests, screenshot tools) instead of one per frame.
 var queue_spawns := true
-var _query_r := 0.0             # adaptive people_near radius (see refresh)
+## Sprite / VAT pass (perf60): refresh() decides WHO is drawn (rank, at most 1 Hz or after the focus moved RERANK_MOVE);
+## the sweep keeps WHAT is drawn current. Per-row state lives in packed arrays indexed by WorldSim row.
+const SPRITE_SLICE_US := 1000          # per frame
+const SPRITE_FRAME_CAP := 48           # instances touched per frame
+const RERANK_MOVE := 4.0
+const RERANK_SECS := 1.0
+const ROUTE_NEAREST := 40              # only the nearest drawn residents plan street routes
+const MOVE_EPS2 := 0.0025              # 0.05 m: a drawn row that moved less is left alone
+const NO_POS := Vector2(1.0e9, 1.0e9)
+## 0 full body, 1 VAT, 2 sprite, 3 record (data only). No gameplay code reads it.
+var tier := PackedByteArray()
+var _want := PackedByteArray()         # tier the last rank asked for
+var _stamp := PackedInt32Array()       # rank generation that last listed the row
+var _slot := PackedInt32Array()        # MultiMesh slot of a sprite row
+var _rli := PackedByteArray()          # look index of a sprite row
+var _raw := PackedVector2Array()       # WorldSim.pos at the last placement
+var _gpos := PackedVector2Array()      # where the ground sample was taken
+var _rt := PackedByteArray()          # 1: one of the nearest ROUTE_NEAREST sprites (plans street routes)
+var _hold_cursor := 0
+var _cl_goal := PackedVector2Array()    # goal for which the straight line from the row was last found clear
+var _gdraw := PackedVector2Array()     # drawn x/z (after push_out)
+var _gy := PackedFloat32Array()
+var _t_adv := PackedFloat64Array()     # seconds clock of the last placement (route integration step)
+var _vis_rows := PackedInt32Array()    # rows wanted as VAT or sprite, nearest first
+var _vis_cursor := 0
+var _sweeping := false
+var _looks: Array = []                 # look ids, index = look index
+var _mm_list: Array = []               # MultiMesh per look index
+var _job_li := PackedInt32Array()      # job -> look index
+var _slot_rows := PackedInt32Array()   # look index * MAX_SPRITES + slot -> row
+var _slot_n := PackedInt32Array()      # used slots per look index
+var _rank_gen := 0
+var _rank_age := 0.0
+var _rank_focus := NO_POS
+var _rank_head := 0                    # entries of the last rank that were ordered by full-body weight
 ## Living world (docs/anim/patches/P13_population_lod_vat.md). CrowdAnimLOD gives embodied villagers an animation LOD
 ## (NEAR full rate / MID stepped / FAR VAT twin). VatResidents draws residents WITHOUT a body inside VAT_RANGE as
 ## vertex-animated instances (no nodes); it replaces the sprite there and also fills the 20 m hole around the
@@ -128,6 +161,13 @@ func setup(baker: ImpostorBaker) -> void:
 		mmi.custom_aabb = AABB(Vector3(-5000, -500, -5000), Vector3(10000, 1500, 10000))
 		add_child(mmi)
 		_multimeshes[look] = mm
+		_looks.append(look)
+		_mm_list.append(mm)
+	_job_li.resize(JOB_LOOK.size())
+	for j in JOB_LOOK.size():
+		_job_li[j] = _looks.find(JOB_LOOK[j])
+	_slot_rows.resize(_looks.size() * MAX_SPRITES)
+	_slot_n.resize(_looks.size())
 	_anim_lod = CrowdAnimLOD.new()
 	if int(Quality.tier) >= 1:
 		_vat = VatResidents.new()
@@ -149,9 +189,9 @@ func _process(delta: float) -> void:
 	_tick_presence(delta)
 	_timer -= delta
 	_refresh_elapsed += delta
-	if not _sj.is_empty():
-		_sprite_job_step(SPRITE_SLICE_US)
-	if _timer <= 0.0 and _sj.is_empty():
+	if _sweeping:
+		_sweep(SPRITE_SLICE_US)
+	if _timer <= 0.0 and not _sweeping:
 		_timer = 0.25
 		var step := _refresh_elapsed
 		_refresh_elapsed = 0.0
@@ -214,6 +254,8 @@ func evict_person(id: int) -> void:
 	_villagers.erase(v)
 	v.queue_free()
 	_full.erase(id)
+	_ensure_arrays()
+	tier[id] = 3
 
 
 func queued_spawns() -> int:
@@ -222,8 +264,10 @@ func queued_spawns() -> int:
 
 func refresh(step_delta := 0.25, spread := false) -> void:
 	spread = spread and not Probe.legacy
-	if not _sj.is_empty():
-		_sprite_job_step(0)        # a sync caller (teleport, tool): finish the pass in flight first
+	if _sweeping:
+		_sweep(0)        # a sync caller (teleport, tool): finish the pass in flight first
+	_ensure_arrays()
+	_rank_age += step_delta
 	var _pt := Probe.t()
 	var skipped := _clock_skipped()
 	if skipped:
@@ -233,7 +277,9 @@ func refresh(step_delta := 0.25, spread := false) -> void:
 		for id in _sprite_routes:
 			WorldSim.set_external_position_owner(int(id), get_instance_id(), false)
 		_sprite_routes.clear()
-		_sprite_cache.clear()
+		_raw.fill(NO_POS)
+		_gpos.fill(NO_POS)
+		_cl_goal.fill(NO_POS)
 		for id in _full:
 			(_full[id] as Villager).resync()
 	else:
@@ -241,6 +287,15 @@ func refresh(step_delta := 0.25, spread := false) -> void:
 	Probe.add("pop.write_back", _pt)
 	_pt = Probe.t()
 	var p2 := Vector2(focus.x, focus.z)
+	# Transform-only refresh: the ranking (who is drawn, who gets a body) is redone at most once a second or after the
+	# focus moved RERANK_MOVE; in between the sweep just follows the rows that moved. Sync callers always re-rank.
+	if spread and not skipped and _rank_focus != NO_POS and _rank_age < RERANK_SECS \
+			and p2.distance_squared_to(_rank_focus) < RERANK_MOVE * RERANK_MOVE:
+		_sweep_begin()
+		_sweep(SPRITE_SLICE_US)
+		return
+	_rank_age = 0.0
+	_rank_focus = p2
 	_full_range = CellStreamer.shared().distance("population", "full")      # F12: the cell manager owns the bands
 	_sprite_range = CellStreamer.shared().distance("population", "load")
 	_vat_range = VAT_RANGE
@@ -248,18 +303,14 @@ func refresh(step_delta := 0.25, spread := false) -> void:
 		_full_range = float(Quality.value("pop_full_range"))
 		_sprite_range = float(Quality.value("pop_sprite_range"))
 		_vat_range = float(Quality.value("vat_range"))
-	# Perf (release QA 2026-10-06): in the capital people_near returned ~1-2k residents and every refresh filtered, weighted and
-	# lambda-sorted all of them (~20 ms on the PC, ~100 ms on the S22, 4x a second) to keep ~22 (LOW). The query radius now
-	# adapts so about 4x what the tier can show come back; it never drops below the full-model band, so bodies are unchanged.
-	var want_n := (NEAR_HARD_CAP + mini(MAX_FULL, Quality.npc_full) + mini(MAX_SPRITES, Quality.npc_sprites)) * 4
-	if _query_r <= 0.0 or _query_r > _sprite_range:
-		_query_r = _sprite_range
-	var ids := WorldSim.people_near(p2, _query_r)
-	if ids.size() > want_n:
-		_query_r = maxf(_full_range + 6.0, _query_r * 0.8)
-	elif ids.size() < want_n / 2:
-		_query_r = minf(_sprite_range, _query_r * 1.15)
+	# The nearest want_n residents come straight out of the cell grid (WorldSim.index), nearest first: no whole-settlement scan,
+	# no full sort. want_n is what the tier can show (bodies + sprites) with headroom for the ones filtered out below.
+	var want_n := (NEAR_HARD_CAP + mini(MAX_FULL, Quality.npc_full) + mini(MAX_SPRITES, Quality.npc_sprites)) * 5
+	var ids := WorldSim.people_in_ring(p2, 0.0, _sprite_range, want_n)
+	Probe.add("pop.q_ring", _pt)
+	var _ph := Probe.t()
 	_update_holds(ids)
+	Probe.add("pop.q_holds", _ph)
 	Probe.add("pop.query", _pt)
 	_pt = Probe.t()
 	var morning := WorldSim.time_of_day >= 6.0 and WorldSim.time_of_day < 6.0 + DailyRhythm.MAX_DELAY
@@ -276,7 +327,24 @@ func refresh(step_delta := 0.25, spread := false) -> void:
 		dists.append([d2, i, (d2 * KEEP_BIAS if _full.has(i) else d2) * TownRoster.embody_weight(i)])
 	Probe.add("pop.dists", _pt)
 	_pt = Probe.t()
-	dists.sort_custom(func(a: Array, b: Array) -> bool: return a[2] < b[2])
+	# `dists` is already nearest first. Only the head (everyone who could win a full body: weighted distance within the full
+	# band, or inside NEAR_ALWAYS) is re-ordered by weighted distance; the tail keeps its order.
+	var head_r2 := maxf(_full_range * _full_range, NEAR_ALWAYS * NEAR_ALWAYS) / (KEEP_BIAS * 0.55)
+	var head_n := 0
+	while head_n < dists.size() and (dists[head_n] as Array)[0] <= head_r2:
+		head_n += 1
+	if head_n > 1:
+		var keys := PackedFloat64Array()
+		keys.resize(head_n)
+		for k in head_n:
+			keys[k] = floorf(float((dists[k] as Array)[2]) * 256.0) * 1024.0 + float(k)       # native sort, ties by list order
+		keys.sort()
+		var ordered: Array = []
+		ordered.resize(head_n)
+		for k in head_n:
+			ordered[k] = dists[int(fposmod(keys[k], 1024.0))]
+		dists = ordered + dists.slice(head_n)
+	_rank_head = head_n
 	Probe.add("pop.sort", _pt)
 	_pt = Probe.t()
 
@@ -308,6 +376,7 @@ func refresh(step_delta := 0.25, spread := false) -> void:
 		_villagers.erase(v)
 		v.queue_free()
 		_full.erase(id)
+		tier[id] = 3
 	# Bodies on the ground (killed / knocked out, also after a load) near the player get a lying body.
 	if Takedown.down_count() > 0:
 		for did: int in Takedown.persons():
@@ -339,7 +408,8 @@ func refresh(step_delta := 0.25, spread := false) -> void:
 	full_count = _full.size()
 	var nearest_id: int = -1
 	var nearest_d := 20.0     # squared: the one name plate shows within ~4.5 m (was 6 m)
-	for entry in dists:
+	for k in head_n:
+		var entry: Array = dists[k]
 		if _full.has(entry[1]) and entry[0] < nearest_d:
 			nearest_d = entry[0]
 			nearest_id = entry[1]
@@ -347,13 +417,15 @@ func refresh(step_delta := 0.25, spread := false) -> void:
 		(_full[id] as Villager).show_tag = id == nearest_id
 	# Reactive presence (observers, glances, greetings) only for the nearest full-AI bodies on PC (NPC density research: think-count small).
 	_presence_bodies = []
-	for entry in dists:
+	for k in head_n:
+		var entry: Array = dists[k]
 		if _full.has(entry[1]):
 			_presence_bodies.append(_full[entry[1]])
 			if _presence_bodies.size() >= PRESENCE_MAX:
 				break
 	var physics_candidates: Array = []
-	for entry in dists:
+	for k in head_n:
+		var entry: Array = dists[k]
 		var candidate_id: int = entry[1]
 		if not _full.has(candidate_id):
 			continue
@@ -372,149 +444,271 @@ func refresh(step_delta := 0.25, spread := false) -> void:
 
 	Probe.add("pop.physics_pick", _pt)
 	_pt = Probe.t()
-	_sprite_job_begin(dists, step_delta)
+	_rank_visible(dists)
+	Probe.add("pop.rank", _pt)
+	_pt = Probe.t()
+	_sweep_begin()
 	if spread:
-		_sprite_job_step(SPRITE_SLICE_US)      # the rest runs from _process, a slice per frame
+		_sweep(SPRITE_SLICE_US)      # the rest runs from _process, a slice per frame
 	else:
-		_sprite_job_step(0)
+		_sweep(0)
 	Probe.add("pop.sprites", _pt)
 
 
-## The sprite pass of refresh() as a resumable job: 100+ residents were placed in one go (27 ms avg, 60-125 ms worst, 4x a second in a
-## capital), now a slice of SPRITE_SLICE_US per frame. Same loop, same results; only the frame the last sprite lands in moves.
-const SPRITE_SLICE_US := 4000
-var _sj: Dictionary = {}
+func _ensure_arrays() -> void:
+	var n := WorldSim.population()
+	if tier.size() == n:
+		return
+	tier.resize(n)
+	tier.fill(3)
+	_want.resize(n)
+	_want.fill(3)
+	_stamp.resize(n)
+	_stamp.fill(0)
+	_slot.resize(n)
+	_slot.fill(-1)
+	_rli.resize(n)
+	_raw.resize(n)
+	_raw.fill(NO_POS)
+	_gpos.resize(n)
+	_gpos.fill(NO_POS)
+	_cl_goal.resize(n)
+	_cl_goal.fill(NO_POS)
+	_rt.resize(n)
+	_rt.fill(0)
+	_gdraw.resize(n)
+	_gy.resize(n)
+	_t_adv.resize(n)
+	_t_adv.fill(0.0)
+	_vis_rows = PackedInt32Array()
+	_slot_n.fill(0)
+	sprite_count = 0
+	for mm: MultiMesh in _mm_list:
+		mm.visible_instance_count = 0
 
 
-func _sprite_job_begin(dists: Array, step_delta: float) -> void:
-	var used := {}
-	for look in _multimeshes:
-		used[look] = 0
-	if _vat:
-		_vat.begin()
-	if _sprite_hidden.size() > 4000:
-		_sprite_hidden.clear()
-	_sj = {"dists": dists, "i": 0, "used": used, "total": 0, "active": {}, "step": step_delta}
-
-
-func sprite_job_busy() -> bool:
-	return not _sj.is_empty()
-
-
-## Runs the pending sprite pass for at most slice_us (0 = to the end). Returns true when it finished.
-func _sprite_job_step(slice_us: int) -> bool:
-	if _sj.is_empty():
-		return true
-	var _pt := Probe.t()
-	var t_start := Time.get_ticks_usec()
-	var dists: Array = _sj["dists"]
-	var dn := dists.size()
-	var i: int = _sj["i"]
-	var used: Dictionary = _sj["used"]
-	var sprite_total: int = _sj["total"]
-	var active_sprite_ids: Dictionary = _sj["active"]
-	var step_delta: float = _sj["step"]
-	var sprite_budget: int = mini(MAX_SPRITES, Quality.npc_sprites)
+## Decide who is drawn: walk the ranked list nearest first and give every row its tier. Rows that dropped out of the list leave
+## now (one swap-remove for a sprite); rows that entered or changed tier are placed by the sweep, a slice per frame.
+func _rank_visible(dists: Array) -> void:
+	_rank_gen += 1
+	var gen := _rank_gen
+	var sprite_budget := mini(MAX_SPRITES, Quality.npc_sprites)
 	var vat_r2 := _vat_range * _vat_range
 	var enter_r2 := SPRITE_MIN_DIST * SPRITE_MIN_DIST
 	var release_r2 := SPRITE_MIN_DIST_RELEASE * SPRITE_MIN_DIST_RELEASE
-	var break_early := false
-	while i < dn:
-		var entry: Array = dists[i]
-		i += 1
-		if slice_us > 0 and (i & 7) == 0 and Time.get_ticks_usec() - t_start > slice_us:
-			break_early = true
-			break
-		# dists is sorted nearest-first, so once the budget is spent everyone
-		# further away is skipped: the crowd is capped in total, not per look.
+	var vat_cap: int = _vat.cap if _vat != null else 0
+	var vat_planned := 0
+	var sprite_total := 0
+	var vis := PackedInt32Array()
+	if _sprite_hidden.size() > 4000:
+		_sprite_hidden.clear()
+	for entry: Array in dists:
 		var id: int = entry[1]
-		var vat_ok: bool = _vat != null and entry[0] < vat_r2
+		var d2: float = entry[0]
+		var vat_ok: bool = _vat != null and d2 < vat_r2 and vat_planned < vat_cap
+		# dists is nearest first, so once the budget is spent everyone further away is skipped: the crowd is capped in total.
 		if sprite_total >= sprite_budget and not vat_ok:
-			i = dn
 			break
 		if _full.has(id):
 			_sprite_hidden.erase(id)
 			_sprite_routes.erase(id)
 			continue
-		# Nobody without a full model is drawn as a sprite this close (see
-		# SPRITE_MIN_DIST above); hysteresis keeps the on/off edge from chattering.
-		# VAT residents are drawn instead (below), so they skip this test unless the VAT cap is reached.
 		if not vat_ok:
+			# Nobody without a full model is drawn as a sprite this close (SPRITE_MIN_DIST); hysteresis keeps the edge calm.
 			if _sprite_hidden.get(id, false):
-				if entry[0] < release_r2:
+				if d2 < release_r2:
 					continue
 				_sprite_hidden.erase(id)
-			elif entry[0] < enter_r2:
+			elif d2 < enter_r2:
 				_sprite_hidden[id] = true
 				continue
-		active_sprite_ids[id] = true
-		var raw := WorldSim.pos[id]
-		var _ps1 := Probe.t()
-		var graph := _sprite_route_graph(id, raw, WorldSim.target[id])
-		Probe.add("sprj.graph", _ps1)
-		_ps1 = Probe.t()
-		var pp := _advance_sprite_route(id, raw, graph, step_delta)
-		Probe.add("sprj.advance", _ps1)
-		var look: String = JOB_LOOK[WorldSim.job[id]]
-		var n: int = used[look]
-		var heading := _sprite_heading(id, WorldSim.target[id]) - pp
-		var yaw := atan2(heading.x, heading.y) if heading.length() > 0.1 else float(id % 628) / 100.0
-		# WorldSim moves distant residents in straight lines; never draw one
-		# standing inside a house it is cutting through.
-		# push_out + terrain height for every sprite each refresh was a spike in
-		# the capital; reuse the result while the person hasn't moved.
-		if _sprite_cache.size() > 4000:
-			_sprite_cache.clear()
-		_ps1 = Probe.t()
-		var cached: Array = _sprite_cache.get(id, [])
-		var ground: Vector3
-		if not cached.is_empty() and (cached[0] as Vector2).distance_squared_to(pp) < 0.0025:
-			ground = cached[1]
-		else:
-			var ground_raw := pp
-			var ground_graph := StreetGraph.for_person(id) as StreetGraph
-			if ground_graph and entry[0] < 90.0 * 90.0:
-				pp = ground_graph.push_out(pp, 0.3)
-			ground = Vector3(pp.x, WorldGen.height(pp.x, pp.y), pp.y)
-			_sprite_cache[id] = [ground_raw, ground]
-		Probe.add("sprj.ground", _ps1)
-		_ps1 = Probe.t()
+		_stamp[id] = gen
+		vis.append(id)
 		if vat_ok:
-			if _vat.want(id, pp, WorldSim.target[id], WorldSim.job[id], WorldSim.phase[id], ground.y):
-				_sprite_hidden.erase(id)
-				continue
-			# VAT cap reached: the old sprite rules apply
-			if sprite_total >= sprite_budget:
-				continue
-			if _sprite_hidden.get(id, false):
-				if entry[0] < release_r2:
-					continue
-				_sprite_hidden.erase(id)
-			elif entry[0] < enter_r2:
-				_sprite_hidden[id] = true
-				continue
-		Probe.add("sprj.vat", _ps1)
-		var t := Transform3D(Basis(Vector3.UP, yaw), ground)
-		(_multimeshes[look] as MultiMesh).set_instance_transform(n, t)
-		used[look] = n + 1
-		sprite_total += 1
-	_sj["i"] = i
-	_sj["total"] = sprite_total
-	if break_early:
-		Probe.add("pop.sprites_slice", _pt)
+			_want[id] = 1
+			vat_planned += 1
+		else:
+			_want[id] = 2
+			_rt[id] = 1 if sprite_total < ROUTE_NEAREST else 0
+			sprite_total += 1
+	# Leavers: drawn last time, not listed now.
+	for id in _vis_rows:
+		if _stamp[id] != gen:
+			_want[id] = 3
+			if tier[id] == 1 or tier[id] == 2:
+				_leave(id)
+	# Anything still drawn that this rank dropped before it was ever in the list (full-body takeovers happen in _spawn).
+	_vis_rows = vis
+
+
+func _leave(r: int) -> void:
+	var t := tier[r]
+	if t == 2:
+		_slot_remove(r)
+	elif t == 1 and _vat != null:
+		_vat.release(r)
+	tier[r] = 3
+	_raw[r] = NO_POS
+	_cl_goal[r] = NO_POS
+	if _sprite_routes.has(r):
+		_release_sprite_route(r)
+
+
+func _slot_add(r: int, li: int, xf: Transform3D) -> bool:
+	var n := _slot_n[li]
+	if n >= MAX_SPRITES:
 		return false
-	_sj = {}
-	if _vat:
-		_vat.end()
-	for id in _sprite_routes.keys():
-		if not active_sprite_ids.has(id) and not _full.has(id):
-			_release_sprite_route(int(id))
-	sprite_count = 0
-	for look in _multimeshes:
-		(_multimeshes[look] as MultiMesh).visible_instance_count = used[look]
-		sprite_count += used[look]
-	Probe.add("pop.sprites_slice", _pt)
+	var mm := _mm_list[li] as MultiMesh
+	mm.set_instance_transform(n, xf)
+	_slot_rows[li * MAX_SPRITES + n] = r
+	_slot[r] = n
+	_rli[r] = li
+	_slot_n[li] = n + 1
+	mm.visible_instance_count = n + 1
+	sprite_count += 1
 	return true
+
+
+func _slot_remove(r: int) -> void:
+	var li := _rli[r]
+	var at := _slot[r]
+	var last := _slot_n[li] - 1
+	var mm := _mm_list[li] as MultiMesh
+	if at != last:
+		var moved := _slot_rows[li * MAX_SPRITES + last]
+		mm.set_instance_transform(at, mm.get_instance_transform(last))
+		_slot_rows[li * MAX_SPRITES + at] = moved
+		_slot[moved] = at
+	_slot_n[li] = last
+	mm.visible_instance_count = last
+	_slot[r] = -1
+	sprite_count -= 1
+
+
+## A full body took this row over (see _spawn): it is no longer a sprite or VAT figure.
+func _drop_visible(r: int) -> void:
+	if tier.size() != WorldSim.population():
+		return
+	_want[r] = 0
+	if tier[r] == 1 or tier[r] == 2:
+		_leave(r)
+	tier[r] = 0
+
+
+func sprite_job_busy() -> bool:
+	return _sweeping
+
+
+func _sweep_begin() -> void:
+	_vis_cursor = 0
+	_sweeping = true
+
+
+## Walk the drawn set: enter / change-tier rows are placed, the others only when they moved more than 5 cm (or follow a route).
+## At most SPRITE_FRAME_CAP rows are touched and SPRITE_SLICE_US spent per call (0 = to the end). Returns true when the pass is done.
+func _sweep(slice_us: int) -> bool:
+	if not _sweeping:
+		return true
+	var _pt := Probe.t()
+	var t_start := Time.get_ticks_usec()
+	var p2 := Vector2(focus.x, focus.z)
+	var n := _vis_rows.size()
+	var work := 0
+	var checked := 0
+	var now := Time.get_ticks_msec() * 0.001
+	while _vis_cursor < n:
+		if slice_us > 0:
+			checked += 1
+			if work >= SPRITE_FRAME_CAP or (((checked & 15) == 0 or (work & 3) == 3) and Time.get_ticks_usec() - t_start > slice_us):
+				break
+		var idx := _vis_cursor
+		_vis_cursor += 1
+		var r := _vis_rows[idx]
+		var wt := _want[r]
+		if wt == 0 or wt == 3:
+			continue
+		if tier[r] == wt:
+			# Cadence: nearest sprites (street routes) 4 Hz; VAT figures walk on their own between updates and everyone else
+			# follows at 1 Hz.
+			if now - _t_adv[r] < (0.2 if _rt[r] != 0 and wt == 2 else 1.0):
+				continue
+		elif _full.has(r):
+			continue
+		if tier[r] != wt:
+			if tier[r] != 3:
+				_leave(r)
+			_place(r, idx, p2)
+			work += 1
+			continue
+		if (WorldSim.pos[r] - _raw[r]).length_squared() <= MOVE_EPS2 and not _sprite_routes.has(r) \
+				and not (wt == 1 and _vat.walking(r)):
+			continue
+		_place(r, idx, p2)
+		work += 1
+	Probe.add("pop.sprites_slice", _pt)
+	if _vis_cursor < n:
+		return false
+	_sweeping = false
+	return true
+
+
+## Put one resident on screen (enter) or bring it up to date (moved): route step for the nearest ROUTE_NEAREST, ground sample,
+## then the VAT figure or the sprite slot.
+func _place(r: int, rank_i: int, p2: Vector2) -> void:
+	var raw := WorldSim.pos[r]
+	var tgt := WorldSim.target[r]
+	var now := Time.get_ticks_msec() * 0.001
+	var dt := clampf(now - _t_adv[r], 0.0, 1.0) if _t_adv[r] > 0.0 else 0.25
+	_t_adv[r] = now
+	var pp := raw
+	var _ps := Probe.t()
+	if _rt[r] != 0 and _want[r] == 2:
+		# WorldSim walks straight toward the goal: a line that was clear stays clear until the goal changes.
+		if _cl_goal[r] != tgt or _sprite_routes.has(r):
+			pp = _advance_sprite_route(r, raw, _sprite_route_graph(r, raw, tgt), dt)
+			_cl_goal[r] = NO_POS if _sprite_routes.has(r) else tgt
+	elif _sprite_routes.has(r):
+		_release_sprite_route(r)
+	Probe.add("sprj.advance", _ps)
+	_raw[r] = raw
+	_ps = Probe.t()
+	var near_ground := pp.distance_squared_to(p2) < 8100.0       # push_out and terrain height only matter within 90 m
+	if _gpos[r] == NO_POS or pp.distance_squared_to(_gpos[r]) > (MOVE_EPS2 if near_ground else 9.0):
+		var q := pp
+		if near_ground:
+			var g := StreetGraph.for_person(r) as StreetGraph
+			if g:
+				q = g.push_out(pp, 0.3)
+		_gdraw[r] = q
+		_gy[r] = WorldGen.height(q.x, q.y)
+		_gpos[r] = pp
+	Probe.add("sprj.ground", _ps)
+	var q2 := _gdraw[r]
+	var gy := _gy[r]
+	var wt := _want[r]
+	if wt == 1:
+		_ps = Probe.t()
+		var ok := _vat != null and _vat.want(r, q2, tgt, WorldSim.job[r], WorldSim.phase[r], gy)
+		Probe.add("sprj.vat", _ps)
+		if ok:
+			tier[r] = 1
+			_sprite_hidden.erase(r)
+			return
+		# VAT cap reached or no bake fits: the sprite rules apply
+		if sprite_count >= mini(MAX_SPRITES, Quality.npc_sprites) or pp.distance_squared_to(p2) < SPRITE_MIN_DIST * SPRITE_MIN_DIST:
+			_want[r] = 3
+			return
+		_want[r] = 2
+	var li := _job_li[WorldSim.job[r]]
+	var heading := _sprite_heading(r, tgt) - pp
+	var yaw := atan2(heading.x, heading.y) if heading.length() > 0.1 else float(r % 628) / 100.0
+	var xf := Transform3D(Basis(Vector3.UP, yaw), Vector3(q2.x, gy, q2.y))
+	if tier[r] == 2:
+		(_mm_list[li] as MultiMesh).set_instance_transform(_slot[r], xf)
+	elif _slot_add(r, li, xf):
+		tier[r] = 2
+	else:
+		_want[r] = 3
 
 
 ## Use the home's street graph only while this resident is near that settlement.
@@ -631,7 +825,6 @@ func _sprite_heading(id: int, fallback: Vector2) -> Vector2:
 
 func _release_sprite_route(id: int, final_position := Vector2.INF) -> void:
 	_sprite_routes.erase(id)
-	_sprite_cache.erase(id)
 	if final_position == Vector2.INF:
 		WorldSim.set_external_position_owner(id, get_instance_id(), false, WorldSim.pos[id])
 	else:
@@ -664,7 +857,15 @@ func _update_holds(ids: PackedInt32Array) -> void:
 				_release_hold(id)
 	if not DailyRhythm.in_lag_window():
 		return
-	for i in ids:
+	# lagging() is ~16 us a row: the 40 nearest are checked every rank, the rest of the list in rotating slices of 48.
+	var n := ids.size()
+	var near_n := mini(n, 40)
+	var rest := n - near_n
+	var todo := near_n + mini(rest, 48)
+	var start := _hold_cursor % maxi(rest, 1)
+	_hold_cursor += 48
+	for k in todo:
+		var i := ids[k] if k < near_n else ids[near_n + (start + k - near_n) % rest]
 		if not _held.has(i) and not _full.has(i) and DailyRhythm.lagging(i):
 			_held[i] = true
 			WorldSim.target[i] = WorldSim.pos[i]
@@ -687,4 +888,5 @@ func _spawn(id: int) -> Villager:
 	_villagers.append(v)
 	add_child(v)
 	v.register_anim_lod(_anim_lod)
+	_drop_visible(id)
 	return v

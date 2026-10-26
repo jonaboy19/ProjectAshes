@@ -40,6 +40,7 @@ var cap := 140
 var _live: Dictionary = {}     # id -> {pos: Vector3, target: Vector3, walking: bool, clip, scale, look}
 var _seen: Dictionary = {}
 var _walkers := PackedInt32Array()
+var _walk_dirty := false
 var _frame := 0
 var usec := 0
 
@@ -92,6 +93,7 @@ func want(id: int, pos: Vector2, target: Vector2, job: int, phase: int, ground_y
 		var s := 1.72 / a.height * (0.95 + 0.1 * _h(id, 1))
 		e = {"pos": p3, "target": Vector3(target.x, ty, target.y), "walking": walking, "clip": clip, "scale": s, "look": look, "yaw": _h(id, 6) * TAU}
 		_live[id] = e
+		_walk_dirty = true
 		var tint := Color(0.4 + 0.2 * _h(id, 2), 0.4 + 0.2 * _h(id, 3), 0.4 + 0.2 * _h(id, 4))
 		crowd.put(id, look, _xf(e), clip, -1.0, 0.94 + 0.12 * _h(id, 5), tint)
 	else:
@@ -99,11 +101,25 @@ func want(id: int, pos: Vector2, target: Vector2, job: int, phase: int, ground_y
 		if (e["pos"] as Vector3).distance_to(p3) > 3.0:
 			e["pos"] = p3
 		e["target"] = Vector3(target.x, ty, target.y)
+		if e["walking"] != walking:
+			_walk_dirty = true
 		e["walking"] = walking
 		if e["clip"] != clip:
 			e["clip"] = clip
 			crowd.play(id, clip, -1.0, 0.94 + 0.12 * _h(id, 5))
 	return true
+
+
+## Drop one resident's figure now (it left the VAT set or got a full body). The persistent-instance counterpart of end().
+func release(id: int) -> void:
+	if _live.has(id):
+		crowd.remove(id)
+		_live.erase(id)
+		_walk_dirty = true
+
+
+func walking(id: int) -> bool:
+	return _live.has(id) and bool((_live[id] as Dictionary)["walking"])
 
 
 func end() -> void:
@@ -128,6 +144,12 @@ func _process(delta: float) -> void:
 	_frame += 1
 	if crowd.camera == null or not is_instance_valid(crowd.camera):
 		crowd.camera = get_viewport().get_camera_3d()
+	if _walk_dirty:
+		_walk_dirty = false
+		_walkers.clear()
+		for wid: int in _live:
+			if _live[wid]["walking"]:
+				_walkers.append(wid)
 	var n := _walkers.size()
 	var i := _frame & 1
 	while i < n:

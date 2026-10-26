@@ -54,7 +54,7 @@ func _assert_parity(seed_value: int) -> void:
 		var last := -1.0
 		for i in ring:
 			var d2 := WorldSim.pos[i].distance_squared_to(p)
-			assert_bool(d2 >= last).is_true()
+			assert_bool(d2 + 0.001 >= last).is_true()      # keys are quantised to 1/4096 m^2
 			last = d2
 		total += want.size()
 	assert_int(total).is_greater(0)       # the cases do hit people
@@ -95,7 +95,10 @@ func test_ring_returns_the_nearest_n_in_order() -> void:
 			var d2 := WorldSim.pos[i].distance_squared_to(p)
 			if d2 >= r0 * r0:
 				all.append([d2, i])
-		all.sort_custom(func(a: Array, b: Array) -> bool: return a[0] < b[0] or (a[0] == b[0] and a[1] < b[1]))
+		all.sort_custom(func(a: Array, b: Array) -> bool:
+			var qa := floorf(a[0] * 4096.0)
+			var qb := floorf(b[0] * 4096.0)
+			return qa < qb or (qa == qb and a[1] < b[1]))
 		var want := []
 		for k in mini(n, all.size()):
 			want.append(all[k][1])

@@ -127,58 +127,58 @@ func rows_in_circle(p: Vector2, radius: float, settlements: Array, health: Packe
 	return ids
 
 
-## The nearest `max_n` living rows with r0 <= d < r1, nearest first. Visits cells by Chebyshev ring around p and stops once
-## `max_n` rows are certainly the nearest (everything left lies at least `ring * CELL` away).
+## The nearest `max_n` living rows with r0 <= d < r1, nearest first. Occupied cells are bucketed by Chebyshev ring around p and
+## visited ring by ring; it stops once the max_n-th nearest found is certainly nearer than anything in the rings left
+## (they lie at least `ring * CELL` away). The few candidates are ordered with a native sort of packed (distance, row) keys.
 func rows_in_ring(p: Vector2, r0: float, r1: float, max_n: int, settlements: Array, health: PackedByteArray,
 		pos: PackedVector2Array) -> PackedInt32Array:
-	var near_sids: Array[int] = []
-	for s: Dictionary in settlements:
-		if p.distance_to(s["pos"]) <= r1 + float(s["radius"]) * 2.0 and not grids[int(s["id"])].is_empty():
-			near_sids.append(int(s["id"]))
-	var ids := PackedInt32Array()
-	var d2 := PackedFloat32Array()
-	if near_sids.is_empty() or max_n <= 0:
-		return ids
+	var out := PackedInt32Array()
+	if max_n <= 0:
+		return out
 	var lo2 := r0 * r0
 	var hi2 := r1 * r1
 	var pcx := int(floorf(p.x * INV_CELL))
 	var pcy := int(floorf(p.y * INV_CELL))
 	var max_ring := int(ceilf(r1 * INV_CELL)) + 1
-	for ring in range(0, max_ring + 1):
-		# Everything in rings < `ring` is already collected; a row in ring >= `ring` is at least (ring - 1) * CELL away.
-		if ids.size() >= max_n:
-			var guaranteed := 0
-			var safe := float(maxi(ring - 1, 0)) * CELL
-			var safe2 := safe * safe
-			for d in d2:
-				if d <= safe2:
-					guaranteed += 1
-			if guaranteed >= max_n:
-				break
-		for sid in near_sids:
-			var g: Dictionary = grids[sid]
-			if ring == 0:
-				_ring_cell(g, pcx, pcy, p, lo2, hi2, health, pos, ids, d2)
+	var buckets: Array = []
+	buckets.resize(max_ring + 1)
+	for k in max_ring + 1:
+		buckets[k] = []
+	var any := false
+	for s: Dictionary in settlements:
+		var sid := int(s["id"])
+		if p.distance_to(s["pos"]) > r1 + float(s["radius"]) * 2.0:
+			continue
+		var g: Dictionary = grids[sid]
+		for key: int in g:
+			var cx := key / STRIDE - BIAS
+			var cy := key % STRIDE - BIAS
+			var ring := maxi(absi(cx - pcx), absi(cy - pcy))
+			if ring > max_ring:
 				continue
-			for dx in range(-ring, ring + 1):
-				_ring_cell(g, pcx + dx, pcy - ring, p, lo2, hi2, health, pos, ids, d2)
-				_ring_cell(g, pcx + dx, pcy + ring, p, lo2, hi2, health, pos, ids, d2)
-			for dy in range(-ring + 1, ring):
-				_ring_cell(g, pcx - ring, pcy + dy, p, lo2, hi2, health, pos, ids, d2)
-				_ring_cell(g, pcx + ring, pcy + dy, p, lo2, hi2, health, pos, ids, d2)
-	# Order the (at most a couple of rings' worth of) candidates nearest first and cut to max_n.
+			if _cell_min_d2(p, cx, cy) >= hi2:
+				continue
+			(buckets[ring] as Array).append(g[key])      # the cell's rows (PackedInt32Array) itself
+			any = true
+	if not any:
+		return out
+	var ids := PackedInt32Array()
+	var d2 := PackedFloat32Array()
+	for ring in max_ring + 1:
+		for rows: PackedInt32Array in buckets[ring]:
+			_take_cell(rows, p, lo2, hi2, health, pos, ids, d2)
+		if ids.size() >= max_n:
+			var probe := d2.duplicate()
+			probe.sort()
+			var safe := float(ring) * CELL
+			if probe[max_n - 1] <= safe * safe:
+				break
 	var n := ids.size()
-	var order := range(n)
-	order.sort_custom(func(a: int, b: int) -> bool:
-		return d2[a] < d2[b] or (d2[a] == d2[b] and ids[a] < ids[b]))
-	var out := PackedInt32Array()
+	var keys := PackedFloat64Array()
+	keys.resize(n)
+	for k in n:
+		keys[k] = floorf(d2[k] * 4096.0) * 131072.0 + float(ids[k])
+	keys.sort()
 	for k in mini(n, max_n):
-		out.append(ids[order[k]])
+		out.append(int(fposmod(keys[k], 131072.0)))
 	return out
-
-
-func _ring_cell(g: Dictionary, cx: int, cy: int, p: Vector2, lo2: float, hi2: float, health: PackedByteArray,
-		pos: PackedVector2Array, ids: PackedInt32Array, d2: PackedFloat32Array) -> void:
-	var k := (cx + BIAS) * STRIDE + (cy + BIAS)
-	if g.has(k) and _cell_min_d2(p, cx, cy) < hi2:
-		_take_cell(g[k], p, lo2, hi2, health, pos, ids, d2)

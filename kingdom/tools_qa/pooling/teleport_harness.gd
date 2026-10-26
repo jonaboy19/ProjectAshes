@@ -199,7 +199,7 @@ func _row(label: String, p: Vector2) -> void:
 		"dressing_bake_cache": _region._bake_cache.size(),
 		"terrain_plans": _terrain._plans.size(),
 		"caches": _cache_sizes(),
-		"population": [_population.full_count, _population.sprite_count, _population._sprite_cache.size()] if _population != null else [],
+		"population": [_population.full_count, _population.sprite_count, _population._vis_rows.size()] if _population != null else [],
 		"cell_teleports": CellStreamer.shared().teleports,
 	}
 	_rows.append(row)
