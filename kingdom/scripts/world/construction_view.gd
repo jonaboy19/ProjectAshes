@@ -534,6 +534,15 @@ func _update_site(n: SiteNode, cons: RefCounted, player: Vector2, ctx: Dictionar
 		vis_pct = maxf(0.0, (pct - UPGRADE_SWAP) / (1.0 - UPGRADE_SWAP))
 	n.pct = vis_pct
 	var done := n.state == "done"
+	if n.kind == "campfire":   # a lit camp fire warms (Life heat_source) and lights the camp
+		var lit: Node = n.get_node_or_null(^"Fire")
+		if done and lit == null:
+			var fire: Node3D = preload("res://scripts/world/campfire.gd").new()
+			fire.set("with_model", false)
+			fire.name = "Fire"
+			n.add_child(fire)
+		elif not done and lit != null:
+			lit.queue_free()
 	# an old building under upgrade disappears once the new frame starts
 	var hide_old := false
 	if upgrading.has(n.id):

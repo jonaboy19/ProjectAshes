@@ -9,6 +9,8 @@ const WeatherScript := preload("res://scripts/world/weather.gd")
 const HEAT_RADIUS := 4.0
 const GROUP := &"heat_source"
 
+## False when the host already draws the stones and logs (construction sites use the same model).
+var with_model := true
 var _light: OmniLight3D
 var _flames: GPUParticles3D
 var _smoke: GPUParticles3D
@@ -33,47 +35,20 @@ static func wind_push(wind: float) -> Vector3:
 
 
 func _build() -> void:
-	var stone := StandardMaterial3D.new()
-	stone.albedo_color = Color(0.45, 0.43, 0.40)
-	stone.roughness = 0.95
-	var wood := StandardMaterial3D.new()
-	wood.albedo_color = Color(0.32, 0.21, 0.12)
-	var ember := StandardMaterial3D.new()
-	ember.albedo_color = Color(0.15, 0.07, 0.04)
-	ember.emission_enabled = true
-	ember.emission = Color(1.0, 0.35, 0.08)
-	ember.emission_energy_multiplier = 2.0
-	for i in 9:
-		var a := TAU * i / 9.0
+	const MODEL := "res://assets/generated/region/ruins/campfire.glb"   # the world's ruin campfire (stones + logs)
+	if not with_model:
+		pass
+	elif ResourceLoader.exists(MODEL):
+		var m: Node3D = (load(MODEL) as PackedScene).instantiate()
+		add_child(m)
+	else:
 		var mi := MeshInstance3D.new()
-		var bm := SphereMesh.new()
-		bm.radius = 0.13
-		bm.height = 0.18
-		mi.mesh = bm
-		mi.material_override = stone
-		mi.position = Vector3(cos(a) * 0.48, 0.06, sin(a) * 0.48)
-		mi.scale = Vector3(1.0 + 0.2 * sin(i * 3.1), 1.0, 0.9)
+		var cyl := CylinderMesh.new()
+		cyl.top_radius = 0.45
+		cyl.bottom_radius = 0.5
+		cyl.height = 0.12
+		mi.mesh = cyl
 		add_child(mi)
-	for i in 3:
-		var mi := MeshInstance3D.new()
-		var cm := CylinderMesh.new()
-		cm.top_radius = 0.05
-		cm.bottom_radius = 0.06
-		cm.height = 0.7
-		mi.mesh = cm
-		mi.material_override = wood
-		mi.rotation = Vector3(deg_to_rad(70.0), TAU * i / 3.0, 0.0)
-		mi.position = Vector3(0, 0.14, 0)
-		add_child(mi)
-	var bed := MeshInstance3D.new()
-	var cyl := CylinderMesh.new()
-	cyl.top_radius = 0.3
-	cyl.bottom_radius = 0.34
-	cyl.height = 0.04
-	bed.mesh = cyl
-	bed.material_override = ember
-	bed.position.y = 0.02
-	add_child(bed)
 	_light = OmniLight3D.new()
 	_light.light_color = Color(1.0, 0.62, 0.3)
 	_light.omni_range = 7.0
