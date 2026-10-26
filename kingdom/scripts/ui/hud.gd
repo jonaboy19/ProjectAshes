@@ -866,8 +866,8 @@ func update_status(soldiers: int, order_name: String, target_node: Node3D, perf:
 	if mag is Object and aw is Object and bool(aw.get("done")):
 		soul_frac = clampf(float(mag.current) / maxf(float(mag.effective_max()), 1.0), 0.0, 1.0)
 	(card as HudCard.Card).set_state(Game.rank_name(), Game.rank, job_line, Game.gold, Game.merit,
-		"%s  ·  %s  ·  %s  ·  %s" % [n.hunger_label(), n.thirst_label(), n.rest_label(), n.warmth_label()],
-		n.food >= 25.0 and n.rest >= 30.0 and n.water >= 25.0 and n.warmth >= 35.0, soldiers_text, soul_frac,
+		"%s  ·  %s  ·  %s  ·  %s" % [n.hunger_label(), n.thirst_label(), n.rest_label(), n.warmth_label() + ("  ·  " + n.load_label() if n.load_label() != "" else "")],
+		n.food >= 25.0 and n.rest >= 30.0 and n.water >= 25.0 and n.warmth >= 35.0 and n.load_ratio <= 1.0, soldiers_text, soul_frac,
 		clampf(n.food / 100.0, 0.0, 1.0))
 	var low := n.food < 40.0 and Life.best_food() != ""
 	if low != _food_low:

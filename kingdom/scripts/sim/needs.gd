@@ -21,6 +21,8 @@ var warmth := 80.0
 ## Exposure for the next tick, set by the world each life tick (see exposure()):
 ## {wet: 0..1 (rain / swimming), cold: 0..1 (night, snow, altitude), shelter: bool, fire: bool}
 var env := {}
+## Carried weight / carry capacity (Life sets it each tick from the inventory). Over 1 = overburdened.
+var load_ratio := 0.0
 
 
 func tick(hours: float) -> void:
@@ -84,6 +86,8 @@ func stamina_regen() -> float:
 		f *= 0.6
 	if warmth < 25.0:
 		f *= 0.7
+	if load_ratio > 1.0:
+		f *= 0.7
 	return f
 
 
@@ -96,7 +100,18 @@ func speed() -> float:
 	var k := 0.8 if rest < 10.0 else 1.0
 	if warmth < 15.0:
 		k *= 0.85     # numb with cold
-	return k
+	return k * encumbrance_speed(load_ratio)
+
+
+## Speed multiplier for carried load: free up to capacity, then 0.75 down to 0.45 at 150 %.
+static func encumbrance_speed(ratio: float) -> float:
+	if ratio <= 1.0:
+		return 1.0
+	return lerpf(0.75, 0.45, clampf((ratio - 1.0) / 0.5, 0.0, 1.0))
+
+
+func load_label() -> String:
+	return "Overburdened" if load_ratio > 1.0 else ""
 
 
 ## Health lost per in-game hour while starving.

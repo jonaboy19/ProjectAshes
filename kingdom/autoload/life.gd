@@ -1864,6 +1864,9 @@ func _update_exposure() -> void:
 			break
 	needs.env = RANeeds.exposure(t < 6.0 or t > 20.5, raining, snowing, depth > 0.9 or bool(player.get("swimming")), pos.y,
 		sheltered, fire, bool(player.get("_winded")) == false and Vector2(player.velocity.x, player.velocity.z).length() > 5.0)
+	var MD := load("res://scripts/ui/gamemenu/menu_data.gd")
+	var cap: float = MD.carry_capacity(MD.attribute_value(mastery, MD.ATTRIBUTES[0]["from"], player_level()))
+	needs.load_ratio = float(MD.carry_weight(MD.stacks())) / maxf(cap, 1.0)
 	if depth > 0.4 and needs.water < 95.0:
 		needs.drink(20.0)   # wading in fresh water: cup a drink (rivers and lakes are fresh in Valencious)
 

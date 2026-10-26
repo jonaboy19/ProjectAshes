@@ -41,7 +41,7 @@ Paths are relative to `kingdom/`. This audit comes from grep plus code reading o
 |---|---|---|
 | Gathering: trees/rocks/plants | Works | `gather_run.gd`, `forage_nodes.gd`, `ore_vein.gd`, `sim/gathering_items.gd` |
 | Hunting / fishing | Works | `sim/hunting.gd`, `fishing_spot.gd` (Mixamo fishing clips wired) |
-| Inventory + weight | Stub | weight is shown (`gamemenu/menu_data.gd carry_weight`) but has **no encumbrance effect** |
+| Inventory + weight | Works *(built)* | `needs.load_ratio` from `menu_data.carry_weight / carry_capacity`; over capacity = speed 0.75 to 0.45 and stamina regen x0.7, HUD shows "Overburdened" |
 | Crafting | Works | `sim/crafting.gd`, `ui/crafting_screen.gd` |
 | Hunger / fatigue | Works | `sim/needs.gd` |
 | Thirst | Works *(built)* | `needs.gd` water (25 h to empty), auto-drink when wading > 0.4 m, damage when parched |
@@ -78,7 +78,7 @@ Paths are relative to `kingdom/`. This audit comes from grep plus code reading o
 
 ## Remaining gaps, ranked by player impact
 1. Traversal reads the SurfaceQuery flags (climbable / vaultable walls, AC free climb). a93 (S3.2).
-2. Encumbrance: carry weight slows sprint/stamina past a limit (`menu_data.carry_weight` + player speed hook).
+2. ~~Encumbrance~~ done (M2).
 3. Snow/mud footprint decals, and NPC footsteps on SurfaceQuery.
 4. Wells / waterskin drink interaction; player campfire + cooking.
 5. Weather gameplay: slippery wet stone (lower slide threshold), rain lowers NPC hearing (`weather.noise_mult` exists).

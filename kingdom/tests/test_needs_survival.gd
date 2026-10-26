@@ -50,3 +50,15 @@ func test_save_round_trip_and_old_saves() -> void:
 	var old := Needs.new()
 	old.deserialize({"food": 10.0, "rest": 20.0})
 	assert_float(old.water).is_equal(85.0)
+
+
+func test_encumbrance_slows_and_tires() -> void:
+	var n := Needs.new()
+	n.load_ratio = 0.9
+	assert_float(n.speed()).is_equal(1.0)
+	n.load_ratio = 1.2
+	assert_float(n.speed()).is_less(0.75)
+	assert_float(n.stamina_regen()).is_less(1.0)
+	assert_str(n.load_label()).is_equal("Overburdened")
+	n.load_ratio = 3.0
+	assert_float(n.speed()).is_equal_approx(0.45, 0.001)
