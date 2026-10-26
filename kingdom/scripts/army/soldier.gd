@@ -371,6 +371,19 @@ func break_guard(seconds: float) -> void:
 		_busy = maxf(_busy, t)
 
 
+## Side of the killing blow from the last hit position (Right / Left / Front / Back).
+func _death_side() -> String:
+	if _hit_from == Vector3.INF:
+		return "Front"
+	var to := _hit_from - global_position
+	to.y = 0.0
+	var forward := global_transform.basis.z.normalized()
+	var right := Vector3.UP.cross(forward).dot(to)
+	if absf(forward.dot(to)) >= absf(right):
+		return "Front" if forward.dot(to) > 0.0 else "Back"
+	return "Right" if right > 0.0 else "Left"
+
+
 func _hit_side(from: Node) -> String:
 	if not (from is Node3D):
 		return "Front"
@@ -391,7 +404,7 @@ func _die() -> void:
 	remove_from_group("combatant")
 	_actor_shape.set_deferred("disabled", true)
 	if not (_ragdoll and _ragdoll.die(_impulse, _hit_from)):
-		_animator.play_terminal("Death01")
+		_animator.play_terminal(SoldierAaaScript.death_clip(self, _keep, _death_side()))
 	died.emit(self)
 	var tween := create_tween()
 	tween.tween_interval(5.0)

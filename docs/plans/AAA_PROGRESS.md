@@ -39,4 +39,22 @@ Commit trailer: `Co-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>` (Claud
 
 ### Owner downloads needed
 - None blocking. Optional Mixamo (in place, 30 fps, no skin, FBX): "Walking" (a plain 1.2-1.5 m/s walk), "Brisk Walk"/"Fast Walk" (~2 m/s), "Jog Forward", "Run Forward", "Sprint", "Injured Walk", "Sneaking Forward", "Strafe Left/Right (run)", "Turn 90/180 (walk and run)", "Breathing Idle", "Happy Idle", "Bored" for idle variety. The locomotion limit now is heel-strike settle and retarget quality, not a missing clip.
+| 2026-10-26 | S3.mx owner_set | done | S3.mx commits | tools/anim/mixamo_to_ual.py (Blender batch, 52-bone Mixamo->UAL map incl. fingers, root-motion flag, inplace_z, foot-plant IK lock). 24 owner clips retargeted into animations/mixamo_owner/UAL_Mixamo_Owner.glb (18) + animations/life/UAL_Life_Mixamo.glb (6, sidecar .life.json). Foot lock on stationary clips: stance slip mean/max 0.017-0.038/0.12-0.15 -> 0.004-0.009/0.023-0.040 m/s. anim_qa library mode (player_young) + front-view check sheets docs/qa/golden/mixamo_owner/sheet_*.jpg (read): GOLD 10 = Life_Mx_Pick_Fruit, Life_Mx_Salute, Life_Mx_Thankful, Life_Mx_Tell_Secret, Mx_Bow_Aim_Idle, Mx_Bow_Shoot, Mx_SnS_Block_Crouch_Idle, Mx_Death_Left, Mx_GreatSword_Death, Mx_Fall; PROBATION 8 = Mx_Dodge (4.6 cm/s), Mx_Sword_Draw (17 cm/s), Mx_GreatSword_Draw (17/65), Mx_Punch_Combo (22), Mx_Sword_Slash_Inward (10), Mx_Headbutt (49, travel in pelvis), Mx_Hit_Uppercut (1.1 m pelvis travel, needs root motion), Mx_Run_Turn_180 (needs root motion); BANNED 6 = Life_Mx_Dig_Plant (hands 22 cm through floor), Life_Mx_Plank_Start (8.6 cm pen), Mx_Crawl (0.8 m/s slide, 15.8 deg seam), Mx_GreatSword_Strafe (0.21/2.4 m/s), Mx_Ladder_Climb (rung spacing unverified), Mx_SnS_Run_Owner (slide, seam). WIRED: field_harvest += Pick_Fruit, conversation += Tell_Secret, guard_post between += Salute, villager greet: guards salute / high-regard townsfolk Thankful, BOW reaction 1/3 Thankful; soldier death: 2H -> Mx_GreatSword_Death, blow from the right -> Mx_Death_Left. Godot windowed clip_gallery on the villager rig: docs/qa/golden/mixamo_owner/godot_clip_gallery_life.jpg (feet on ground, no clipping). Tests: golden_set, life, life_aaa_sidecar, scripts_parse, smart_object_variants, aaa_clips, career_soldier = 81 cases green | owner downloads below; bow/draw wiring into player needs player.gd owner |
 
+## Owner downloads needed
+
+Mixamo, character: any (X Bot), **In Place** ticked where offered, FBX Binary, 30 fps, **Without Skin**; drop into `ProjectAshes_art_staging/downloads/mixamo/owner_set2/`. Exact search names:
+
+- Chop Wood / work: "Chopping Wood" (axe overhead onto block)
+- Mining: "Mining" (pickaxe swing)
+- Smithing: "Hammering" , "Blacksmith Hammering" if listed (else "Hammering" + "Working On Device")
+- Carrying: "Carrying" , "Carry Box Walk" (search "Box Walk") , "Lifting" , "Put Down" (search "Box Put Down")
+- Sitting / eating: "Sitting" , "Sitting Idle" , "Sitting Talking" , "Sit To Stand" , "Stand To Sit" , "Eating" (seated)
+- Sleeping: "Sleeping Idle" , "Lying Down" , "Getting Up" (search "Stand Up")
+- Fishing: "Fishing Cast" , "Fishing Idle" , "Pulling" (reel)
+- Cooking: "Stirring" , "Cutting" (search "Chopping" / "Cut")
+- Sweeping: "Sweeping"
+- Farming replacement for the banned Dig And Plant Seeds: "Planting A Plant" , "Pulling A Plant" , "Hoeing" if listed (else "Digging")
+- Bartering / market: "Bargaining" , "Counting" (search "Counting Money")
+- Combat with root motion (uncheck In Place) to replace probation clips: "Stable Sword Inward Slash" (re-download without In Place), "Receiving An Uppercut" (root), "Sword And Shield Crouch Block" (block reaction), "Sheath Sword 1" , "Sheath Sword 2"
+- Traversal: "Climbing Up Wall" , "Climbing To Top" (ladder top exit) , "Crawl" (In Place) to replace banned Crawling

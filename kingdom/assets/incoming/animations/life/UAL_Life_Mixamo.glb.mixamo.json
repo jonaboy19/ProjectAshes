@@ -1,0 +1,190 @@
+{
+ "map": {
+  "pelvis": "Hips",
+  "spine_01": "Spine",
+  "spine_02": "Spine1",
+  "spine_03": "Spine2",
+  "neck_01": "Neck",
+  "Head": "Head",
+  "clavicle_l": "LeftShoulder",
+  "upperarm_l": "LeftArm",
+  "lowerarm_l": "LeftForeArm",
+  "hand_l": "LeftHand",
+  "thigh_l": "LeftUpLeg",
+  "calf_l": "LeftLeg",
+  "foot_l": "LeftFoot",
+  "ball_l": "LeftToeBase",
+  "thumb_01_l": "LeftHandThumb1",
+  "thumb_02_l": "LeftHandThumb2",
+  "thumb_03_l": "LeftHandThumb3",
+  "index_01_l": "LeftHandIndex1",
+  "index_02_l": "LeftHandIndex2",
+  "index_03_l": "LeftHandIndex3",
+  "middle_01_l": "LeftHandMiddle1",
+  "middle_02_l": "LeftHandMiddle2",
+  "middle_03_l": "LeftHandMiddle3",
+  "ring_01_l": "LeftHandRing1",
+  "ring_02_l": "LeftHandRing2",
+  "ring_03_l": "LeftHandRing3",
+  "pinky_01_l": "LeftHandPinky1",
+  "pinky_02_l": "LeftHandPinky2",
+  "pinky_03_l": "LeftHandPinky3",
+  "clavicle_r": "RightShoulder",
+  "upperarm_r": "RightArm",
+  "lowerarm_r": "RightForeArm",
+  "hand_r": "RightHand",
+  "thigh_r": "RightUpLeg",
+  "calf_r": "RightLeg",
+  "foot_r": "RightFoot",
+  "ball_r": "RightToeBase",
+  "thumb_01_r": "RightHandThumb1",
+  "thumb_02_r": "RightHandThumb2",
+  "thumb_03_r": "RightHandThumb3",
+  "index_01_r": "RightHandIndex1",
+  "index_02_r": "RightHandIndex2",
+  "index_03_r": "RightHandIndex3",
+  "middle_01_r": "RightHandMiddle1",
+  "middle_02_r": "RightHandMiddle2",
+  "middle_03_r": "RightHandMiddle3",
+  "ring_01_r": "RightHandRing1",
+  "ring_02_r": "RightHandRing2",
+  "ring_03_r": "RightHandRing3",
+  "pinky_01_r": "RightHandPinky1",
+  "pinky_02_r": "RightHandPinky2",
+  "pinky_03_r": "RightHandPinky3"
+ },
+ "clips": {
+  "Life_Mx_Dig_Plant_Loop": {
+   "before": [
+    0.015,
+    0.099
+   ],
+   "after": [
+    0.0,
+    0.0
+   ],
+   "stance_frames": 0,
+   "locked_frames": 238,
+   "hand_seam_cm": 1.7,
+   "frames": 165,
+   "source": "Dig And Plant Seeds.fbx",
+   "seconds": 5.47,
+   "floor_fix_m": -0.01,
+   "contact_lift_m": 0.0,
+   "min_foot_m": -0.0,
+   "travel_m": 0.0,
+   "hip_scale": 0.8509,
+   "loop": true
+  },
+  "Life_Mx_Pick_Fruit_Loop": {
+   "before": [
+    0.038,
+    0.15
+   ],
+   "after": [
+    0.009,
+    0.035
+   ],
+   "stance_frames": 370,
+   "locked_frames": 372,
+   "hand_seam_cm": 1.5,
+   "frames": 186,
+   "source": "Pick Fruit.fbx",
+   "seconds": 6.17,
+   "floor_fix_m": 0.054,
+   "contact_lift_m": 0.0,
+   "min_foot_m": -0.0,
+   "travel_m": 0.0,
+   "hip_scale": 0.8509,
+   "loop": true
+  },
+  "Life_Mx_Salute": {
+   "before": [
+    0.017,
+    0.116
+   ],
+   "after": [
+    0.005,
+    0.023
+   ],
+   "stance_frames": 170,
+   "locked_frames": 172,
+   "hand_seam_cm": 0.0,
+   "frames": 86,
+   "source": "Salute.fbx",
+   "seconds": 2.83,
+   "floor_fix_m": 0.05,
+   "contact_lift_m": 0.0,
+   "min_foot_m": -0.0,
+   "travel_m": 0.0,
+   "hip_scale": 0.8509,
+   "loop": false
+  },
+  "Life_Mx_Thankful": {
+   "before": [
+    0.032,
+    0.128
+   ],
+   "after": [
+    0.006,
+    0.026
+   ],
+   "stance_frames": 180,
+   "locked_frames": 182,
+   "hand_seam_cm": 0.0,
+   "frames": 91,
+   "source": "Thankful.fbx",
+   "seconds": 3.0,
+   "floor_fix_m": 0.054,
+   "contact_lift_m": 0.0,
+   "min_foot_m": -0.0,
+   "travel_m": 0.0,
+   "hip_scale": 0.8509,
+   "loop": false
+  },
+  "Life_Mx_Tell_Secret": {
+   "before": [
+    0.019,
+    0.139
+   ],
+   "after": [
+    0.004,
+    0.04
+   ],
+   "stance_frames": 654,
+   "locked_frames": 656,
+   "hand_seam_cm": 0.0,
+   "frames": 328,
+   "source": "Telling A Secret.fbx",
+   "seconds": 10.9,
+   "floor_fix_m": 0.058,
+   "contact_lift_m": 0.0,
+   "min_foot_m": -0.0,
+   "travel_m": 0.0,
+   "hip_scale": 0.8509,
+   "loop": false
+  },
+  "Life_Mx_Plank_Start": {
+   "before": [
+    0.088,
+    0.227
+   ],
+   "after": [
+    0.0,
+    0.0
+   ],
+   "stance_frames": 0,
+   "locked_frames": 55,
+   "hand_seam_cm": 53.3,
+   "frames": 148,
+   "source": "Start Plank.fbx",
+   "seconds": 4.9,
+   "floor_fix_m": 0.159,
+   "contact_lift_m": 0.05,
+   "min_foot_m": 0.005,
+   "travel_m": 0.0,
+   "hip_scale": 0.8509,
+   "loop": false
+  }
+ }
+}

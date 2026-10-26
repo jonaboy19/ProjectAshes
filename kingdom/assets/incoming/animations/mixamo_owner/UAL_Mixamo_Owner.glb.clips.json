@@ -1,0 +1,344 @@
+[
+ {
+  "name": "Mx_Punch_Combo",
+  "loop": false,
+  "seconds": 1.27,
+  "frames": 39,
+  "keys": 613,
+  "source": "Punching.fbx",
+  "range_s": [
+   null,
+   null
+  ],
+  "autotrim": null,
+  "loop_pts": null,
+  "floor_fix_m": 0.059,
+  "contact_lift_m": 0.0,
+  "min_foot_m": -0.001,
+  "travel_m": 0.0,
+  "hip_scale": 0.8509
+ },
+ {
+  "name": "Mx_Headbutt",
+  "loop": false,
+  "seconds": 2.1,
+  "frames": 64,
+  "keys": 985,
+  "source": "Headbutt.fbx",
+  "range_s": [
+   null,
+   null
+  ],
+  "autotrim": null,
+  "loop_pts": null,
+  "floor_fix_m": 0.051,
+  "contact_lift_m": 0.0,
+  "min_foot_m": -0.004,
+  "travel_m": 0.0,
+  "hip_scale": 0.8509
+ },
+ {
+  "name": "Mx_Dodge",
+  "loop": false,
+  "seconds": 1.63,
+  "frames": 50,
+  "keys": 845,
+  "source": "Dodging.fbx",
+  "range_s": [
+   null,
+   null
+  ],
+  "autotrim": null,
+  "loop_pts": null,
+  "floor_fix_m": 0.054,
+  "contact_lift_m": 0.0,
+  "min_foot_m": -0.001,
+  "travel_m": 0.0,
+  "hip_scale": 0.8509
+ },
+ {
+  "name": "Mx_Sword_Draw",
+  "loop": false,
+  "seconds": 0.5,
+  "frames": 16,
+  "keys": 594,
+  "source": "Draw Sword 1.fbx",
+  "range_s": [
+   null,
+   null
+  ],
+  "autotrim": null,
+  "loop_pts": null,
+  "floor_fix_m": 0.045,
+  "contact_lift_m": 0.0,
+  "min_foot_m": 0.0,
+  "travel_m": 0.0,
+  "hip_scale": 0.8509
+ },
+ {
+  "name": "Mx_GreatSword_Draw",
+  "loop": false,
+  "seconds": 0.8,
+  "frames": 25,
+  "keys": 703,
+  "source": "Draw A Great Sword 2.fbx",
+  "range_s": [
+   null,
+   null
+  ],
+  "autotrim": null,
+  "loop_pts": null,
+  "floor_fix_m": 0.053,
+  "contact_lift_m": 0.0,
+  "min_foot_m": -0.0,
+  "travel_m": 0.0,
+  "hip_scale": 0.8509
+ },
+ {
+  "name": "Mx_GreatSword_Strafe",
+  "loop": true,
+  "seconds": 1.13,
+  "frames": 35,
+  "keys": 536,
+  "source": "Great Sword Strafe.fbx",
+  "range_s": [
+   0.0,
+   1.1333333333333333
+  ],
+  "autotrim": null,
+  "loop_pts": null,
+  "floor_fix_m": 0.055,
+  "contact_lift_m": 0.0,
+  "min_foot_m": -0.0,
+  "travel_m": 1.2,
+  "hip_scale": 0.8509
+ },
+ {
+  "name": "Mx_Sword_Slash_Inward",
+  "loop": false,
+  "seconds": 2.2,
+  "frames": 67,
+  "keys": 1015,
+  "source": "Stable Sword Inward Slash.fbx",
+  "range_s": [
+   null,
+   null
+  ],
+  "autotrim": null,
+  "loop_pts": null,
+  "floor_fix_m": 0.056,
+  "contact_lift_m": 0.0,
+  "min_foot_m": -0.005,
+  "travel_m": 0.0,
+  "hip_scale": 0.8509
+ },
+ {
+  "name": "Mx_SnS_Block_Crouch_Idle",
+  "loop": true,
+  "seconds": 0.47,
+  "frames": 15,
+  "keys": 124,
+  "source": "Sword And Shield Crouch Block Idle.fbx",
+  "range_s": [
+   0.0,
+   0.4666666666666667
+  ],
+  "autotrim": null,
+  "loop_pts": null,
+  "floor_fix_m": 0.0,
+  "contact_lift_m": 0.0,
+  "min_foot_m": -0.016,
+  "travel_m": 0.0,
+  "hip_scale": 0.8509
+ },
+ {
+  "name": "Mx_SnS_Run_Owner",
+  "loop": true,
+  "seconds": 0.67,
+  "frames": 21,
+  "keys": 484,
+  "source": "Sword And Shield Run.fbx",
+  "range_s": [
+   0.0,
+   0.6666666666666666
+  ],
+  "autotrim": null,
+  "loop_pts": null,
+  "floor_fix_m": 0.074,
+  "contact_lift_m": 0.0,
+  "min_foot_m": -0.006,
+  "travel_m": 2.35,
+  "hip_scale": 0.8509
+ },
+ {
+  "name": "Mx_Hit_Uppercut",
+  "loop": false,
+  "seconds": 1.67,
+  "frames": 51,
+  "keys": 952,
+  "source": "Receiving An Uppercut.fbx",
+  "range_s": [
+   null,
+   null
+  ],
+  "autotrim": null,
+  "loop_pts": null,
+  "floor_fix_m": 0.036,
+  "contact_lift_m": 0.0,
+  "min_foot_m": -0.004,
+  "travel_m": 0.0,
+  "hip_scale": 0.8509
+ },
+ {
+  "name": "Mx_Death_Left",
+  "loop": false,
+  "seconds": 2.27,
+  "frames": 69,
+  "keys": 1597,
+  "source": "Standing Death Left 01.fbx",
+  "range_s": [
+   null,
+   null
+  ],
+  "autotrim": null,
+  "loop_pts": null,
+  "floor_fix_m": 0.037,
+  "contact_lift_m": 0.0,
+  "min_foot_m": -0.013,
+  "travel_m": 0.0,
+  "hip_scale": 0.8509
+ },
+ {
+  "name": "Mx_GreatSword_Death",
+  "loop": false,
+  "seconds": 2.4,
+  "frames": 73,
+  "keys": 1448,
+  "source": "Two Handed Sword Death.fbx",
+  "range_s": [
+   null,
+   null
+  ],
+  "autotrim": null,
+  "loop_pts": null,
+  "floor_fix_m": 0.081,
+  "contact_lift_m": 0.011,
+  "min_foot_m": -0.003,
+  "travel_m": 0.0,
+  "hip_scale": 0.8509
+ },
+ {
+  "name": "Mx_Bow_Aim_Idle",
+  "loop": true,
+  "seconds": 3.73,
+  "frames": 113,
+  "keys": 453,
+  "source": "Standing Aim Idle 01.fbx",
+  "range_s": [
+   0.0,
+   3.7333333333333334
+  ],
+  "autotrim": null,
+  "loop_pts": null,
+  "floor_fix_m": 0.052,
+  "contact_lift_m": 0.0,
+  "min_foot_m": -0.0,
+  "travel_m": 0.0,
+  "hip_scale": 0.8509
+ },
+ {
+  "name": "Mx_Bow_Shoot",
+  "loop": false,
+  "seconds": 5.0,
+  "frames": 151,
+  "keys": 2060,
+  "source": "Shooting Arrow.fbx",
+  "range_s": [
+   null,
+   null
+  ],
+  "autotrim": null,
+  "loop_pts": null,
+  "floor_fix_m": 0.044,
+  "contact_lift_m": 0.0,
+  "min_foot_m": -0.001,
+  "travel_m": 0.0,
+  "hip_scale": 0.8509
+ },
+ {
+  "name": "Mx_Run_Turn_180",
+  "loop": false,
+  "seconds": 2.27,
+  "frames": 69,
+  "keys": 1872,
+  "source": "Running To Turn.fbx",
+  "range_s": [
+   null,
+   null
+  ],
+  "autotrim": null,
+  "loop_pts": null,
+  "floor_fix_m": 0.047,
+  "contact_lift_m": 0.0,
+  "min_foot_m": -0.004,
+  "travel_m": 3.0,
+  "hip_scale": 0.8509
+ },
+ {
+  "name": "Mx_Crawl",
+  "loop": true,
+  "seconds": 1.77,
+  "frames": 54,
+  "keys": 1376,
+  "source": "Crawling.fbx",
+  "range_s": [
+   0.0,
+   1.7666666666666666
+  ],
+  "autotrim": null,
+  "loop_pts": null,
+  "floor_fix_m": 0.117,
+  "contact_lift_m": 0.09,
+  "min_foot_m": 0.059,
+  "travel_m": 0.76,
+  "hip_scale": 0.8509
+ },
+ {
+  "name": "Mx_Fall",
+  "loop": true,
+  "seconds": 4.47,
+  "frames": 135,
+  "keys": 2296,
+  "source": "Falling.fbx",
+  "range_s": [
+   0.0,
+   4.466666666666667
+  ],
+  "autotrim": null,
+  "loop_pts": null,
+  "floor_fix_m": 0.0,
+  "contact_lift_m": 0.0,
+  "min_foot_m": 0.469,
+  "travel_m": 0.0,
+  "hip_scale": 0.8509
+ },
+ {
+  "name": "Mx_Ladder_Climb",
+  "loop": true,
+  "seconds": 0.73,
+  "frames": 23,
+  "keys": 836,
+  "source": "Climbing Ladder.fbx",
+  "range_s": [
+   0.0,
+   0.7333333333333333
+  ],
+  "autotrim": null,
+  "loop_pts": null,
+  "floor_fix_m": 0.0,
+  "contact_lift_m": 0.0,
+  "min_foot_m": 0.806,
+  "travel_m": 0.0,
+  "hip_scale": 0.8509
+ }
+]

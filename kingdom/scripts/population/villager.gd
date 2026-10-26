@@ -1932,8 +1932,16 @@ func _maybe_greet(here: Vector2, player_distance: float, now: int) -> void:
 	elif cat == "greet_neutral" and hr < 10.5 and person % 2 == 0:
 		cat = "greet_morning"
 	var clips: Array = GREET_CLIPS["warm" if _regard > 0.25 else ("cold" if _regard < -0.25 else "neutral")]
+	var greet_s := 1.9
+	# Mixamo owner set: guards salute anyone not disliked; townsfolk who owe the player a lot thank them (hand on heart).
+	if _regard >= -0.25 and WorldSim.job[person] == SmartObjects.JOBS.find("Guard"):
+		clips = ["Life_Mx_Salute"] + clips
+		greet_s = 2.8
+	elif _regard > 0.6 and person % 2 == 1:
+		clips = ["Life_Mx_Thankful"] + clips
+		greet_s = 3.0
 	if _so_phase < SmartObjects.Session.ENTER:
-		_begin_oneshot(clips, 1.9)
+		_begin_oneshot(clips, greet_s)
 		_oneshot_face_player = true
 		if _path_i < _path.size() or not _arrived:
 			_wait = maxf(_wait, 1.5)
@@ -2424,7 +2432,7 @@ func presence_react(kind: int, target: int, _info: Dictionary) -> void:
 			if kind == K.WAVE:
 				_begin_oneshot(["Life_Social_Wave_Greet", "Life_Social_Nod"], 1.5)
 			elif kind == K.BOW:
-				_begin_oneshot(["Life_Social_Bow", "Life_Social_Nod"], 1.4)
+				_begin_oneshot(["Life_Mx_Thankful", "Life_Social_Bow", "Life_Social_Nod"] if person % 3 == 0 else ["Life_Social_Bow", "Life_Social_Nod"], 1.4)
 		K.LOOK_AWAY:
 			_react_away_until = now + 1800
 			_react_look_until = 0

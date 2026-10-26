@@ -1,0 +1,153 @@
+{
+ "library": "res://assets/incoming/animations/life/UAL_Life_Mixamo.glb",
+ "fps": 30,
+ "clips": {
+  "Life_Mx_Dig_Plant": {
+   "layer": "full",
+   "props": [],
+   "enter": null,
+   "exit": null,
+   "blend_in": 0.3,
+   "blend_out": 0.3,
+   "events": {},
+   "anchor": null,
+   "speed_mps": 0.0,
+   "pair": null,
+   "ik_l_on_prop": null,
+   "mask_from": null,
+   "source": "Mixamo owner_set (tools/anim/mixamo_to_ual.py)",
+   "category": "work/farm",
+   "loop": true,
+   "tags": [
+    "farm",
+    "spring",
+    "kneel"
+   ],
+   "note": "kneel, dig a hole with the hand, drop seeds, cover, stand; hands go into the soil (use on tilled field rows only)",
+   "frames": 165,
+   "seconds": 5.467
+  },
+  "Life_Mx_Pick_Fruit": {
+   "layer": "full",
+   "props": [],
+   "enter": null,
+   "exit": null,
+   "blend_in": 0.3,
+   "blend_out": 0.3,
+   "events": {},
+   "anchor": null,
+   "speed_mps": 0.0,
+   "pair": null,
+   "ik_l_on_prop": null,
+   "mask_from": null,
+   "source": "Mixamo owner_set (tools/anim/mixamo_to_ual.py)",
+   "category": "work/farm",
+   "loop": true,
+   "tags": [
+    "farm",
+    "autumn",
+    "orchard"
+   ],
+   "note": "reach up into a tree/bush, pick, drop into apron at the waist; both feet planted",
+   "frames": 186,
+   "seconds": 6.167
+  },
+  "Life_Mx_Salute": {
+   "layer": "full",
+   "props": [],
+   "enter": null,
+   "exit": null,
+   "blend_in": 0.3,
+   "blend_out": 0.3,
+   "events": {},
+   "anchor": null,
+   "speed_mps": 0.0,
+   "pair": null,
+   "ik_l_on_prop": null,
+   "mask_from": null,
+   "source": "Mixamo owner_set (tools/anim/mixamo_to_ual.py)",
+   "category": "social/react",
+   "loop": false,
+   "tags": [
+    "greet",
+    "guard",
+    "respect"
+   ],
+   "note": "right-hand brow salute, 2.8 s",
+   "frames": 86,
+   "seconds": 2.833
+  },
+  "Life_Mx_Thankful": {
+   "layer": "full",
+   "props": [],
+   "enter": null,
+   "exit": null,
+   "blend_in": 0.3,
+   "blend_out": 0.3,
+   "events": {},
+   "anchor": null,
+   "speed_mps": 0.0,
+   "pair": null,
+   "ik_l_on_prop": null,
+   "mask_from": null,
+   "source": "Mixamo owner_set (tools/anim/mixamo_to_ual.py)",
+   "category": "social/react",
+   "loop": false,
+   "tags": [
+    "gratitude",
+    "greet"
+   ],
+   "note": "hand on heart, small bow",
+   "frames": 91,
+   "seconds": 3.0
+  },
+  "Life_Mx_Tell_Secret": {
+   "layer": "full",
+   "props": [],
+   "enter": null,
+   "exit": null,
+   "blend_in": 0.3,
+   "blend_out": 0.3,
+   "events": {},
+   "anchor": null,
+   "speed_mps": 0.0,
+   "pair": null,
+   "ik_l_on_prop": null,
+   "mask_from": null,
+   "source": "Mixamo owner_set (tools/anim/mixamo_to_ual.py)",
+   "category": "social/talk",
+   "loop": false,
+   "tags": [
+    "gossip",
+    "pair"
+   ],
+   "note": "lean in and whisper behind the hand, 10.9 s; partner should face the speaker",
+   "frames": 328,
+   "seconds": 10.9
+  },
+  "Life_Mx_Plank_Start": {
+   "layer": "full",
+   "props": [],
+   "enter": null,
+   "exit": null,
+   "blend_in": 0.3,
+   "blend_out": 0.3,
+   "events": {},
+   "anchor": null,
+   "speed_mps": 0.0,
+   "pair": null,
+   "ik_l_on_prop": null,
+   "mask_from": null,
+   "source": "Mixamo owner_set (tools/anim/mixamo_to_ual.py)",
+   "category": "work/guard",
+   "loop": false,
+   "tags": [
+    "training",
+    "exercise"
+   ],
+   "note": "stand -> drop to plank; ends on the ground (hold last frame)",
+   "frames": 148,
+   "seconds": 4.9
+  }
+ }
+}

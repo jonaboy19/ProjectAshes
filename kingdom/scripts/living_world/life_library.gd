@@ -21,6 +21,7 @@ const LIBS := [
 	"res://assets/incoming/animations/life/UAL_Life_Social.glb",
 	"res://assets/incoming/animations/life/UAL_Life_Mocap.glb",
 	"res://assets/incoming/animations/life/UAL_Life_AAA.glb",      # 3 reviewed AAA sit clips (docs/anim/aaa_wiring/)
+	"res://assets/incoming/animations/life/UAL_Life_Mixamo.glb",   # owner Mixamo set: dig/plant, pick fruit, salute, thankful, whisper, plank (tools/anim/mixamo_to_ual.py)
 ]
 ## Bones that an "upper" layer clip owns (spine_01 and everything above it).
 const LOWER_BONES := ["root", "pelvis", "thigh_l", "calf_l", "foot_l", "ball_l", "ball_leaf_l",

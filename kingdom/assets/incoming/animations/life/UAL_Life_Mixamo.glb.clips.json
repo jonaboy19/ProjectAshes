@@ -1,0 +1,116 @@
+[
+ {
+  "name": "Life_Mx_Dig_Plant",
+  "loop": true,
+  "seconds": 5.47,
+  "frames": 165,
+  "keys": 2885,
+  "source": "Dig And Plant Seeds.fbx",
+  "range_s": [
+   0.0,
+   5.466666666666667
+  ],
+  "autotrim": null,
+  "loop_pts": null,
+  "floor_fix_m": -0.01,
+  "contact_lift_m": 0.0,
+  "min_foot_m": -0.0,
+  "travel_m": 0.0,
+  "hip_scale": 0.8509
+ },
+ {
+  "name": "Life_Mx_Pick_Fruit",
+  "loop": true,
+  "seconds": 6.17,
+  "frames": 186,
+  "keys": 2777,
+  "source": "Pick Fruit.fbx",
+  "range_s": [
+   0.0,
+   6.166666666666667
+  ],
+  "autotrim": null,
+  "loop_pts": null,
+  "floor_fix_m": 0.054,
+  "contact_lift_m": 0.0,
+  "min_foot_m": -0.0,
+  "travel_m": 0.0,
+  "hip_scale": 0.8509
+ },
+ {
+  "name": "Life_Mx_Salute",
+  "loop": false,
+  "seconds": 2.83,
+  "frames": 86,
+  "keys": 979,
+  "source": "Salute.fbx",
+  "range_s": [
+   null,
+   null
+  ],
+  "autotrim": null,
+  "loop_pts": null,
+  "floor_fix_m": 0.05,
+  "contact_lift_m": 0.0,
+  "min_foot_m": -0.0,
+  "travel_m": 0.0,
+  "hip_scale": 0.8509
+ },
+ {
+  "name": "Life_Mx_Thankful",
+  "loop": false,
+  "seconds": 3.0,
+  "frames": 91,
+  "keys": 1258,
+  "source": "Thankful.fbx",
+  "range_s": [
+   null,
+   null
+  ],
+  "autotrim": null,
+  "loop_pts": null,
+  "floor_fix_m": 0.054,
+  "contact_lift_m": 0.0,
+  "min_foot_m": -0.0,
+  "travel_m": 0.0,
+  "hip_scale": 0.8509
+ },
+ {
+  "name": "Life_Mx_Tell_Secret",
+  "loop": false,
+  "seconds": 10.9,
+  "frames": 328,
+  "keys": 1587,
+  "source": "Telling A Secret.fbx",
+  "range_s": [
+   null,
+   null
+  ],
+  "autotrim": null,
+  "loop_pts": null,
+  "floor_fix_m": 0.058,
+  "contact_lift_m": 0.0,
+  "min_foot_m": -0.0,
+  "travel_m": 0.0,
+  "hip_scale": 0.8509
+ },
+ {
+  "name": "Life_Mx_Plank_Start",
+  "loop": false,
+  "seconds": 4.9,
+  "frames": 148,
+  "keys": 2042,
+  "source": "Start Plank.fbx",
+  "range_s": [
+   null,
+   null
+  ],
+  "autotrim": null,
+  "loop_pts": null,
+  "floor_fix_m": 0.159,
+  "contact_lift_m": 0.05,
+  "min_foot_m": 0.005,
+  "travel_m": 0.0,
+  "hip_scale": 0.8509
+ }
+]

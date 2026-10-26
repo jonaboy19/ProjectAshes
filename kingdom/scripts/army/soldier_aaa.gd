@@ -50,3 +50,14 @@ static func guard_break(soldier: Node, seconds: float) -> float:
 	if animator != null:
 		animator.call("play_full", String(Moves.DUEL["guard_break"]), 1.0)
 	return maxf(seconds, 0.6)
+
+
+## Death clip (owner Mixamo set, tools/anim/mixamo_to_ual.py): greatsword carriers fall to their knees and over, a blow from
+## the right throws the body to its left; otherwise the stock Death01. Travel stays in the pelvis (terminal clip, no snap back).
+static func death_clip(soldier: Node, keep: Array, side: String) -> String:
+	var clip := ""
+	if keep.has("2H_Sword"):
+		clip = "Mx_GreatSword_Death"
+	elif side == "Right":
+		clip = "Mx_Death_Left"
+	return clip if _has(soldier, clip) else "Death01"
