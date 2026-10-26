@@ -387,7 +387,7 @@ func play_ui(sound: String, volume_db := 0.0) -> void:
 	p.play()
 
 
-const STEP_FALLBACK := {"water": "dirt", "mud": "dirt", "sand": "dirt", "snow": "grass", "metal": "stone"}
+const STEP_FALLBACK := {"water": "dirt", "mud": "dirt", "sand": "dirt", "metal": "stone"}
 
 
 ## One footstep on a surface ("" = look it up at `position`).
