@@ -25,6 +25,8 @@ const TABS := ["Appearance", "Background", "Starting Path", "Review"]
 const SKINS := [Color("f1d3bb"), Color("e0b48c"), Color("c68f65"), Color("94633f"), Color("5f3d26")]
 const HAIR_TINTS := [Color("2a1c14"), Color("5b3a22"), Color("a4743f"), Color("d9b46a"), Color("a63f22")]
 const HAIR_TINT_NAMES := ["Black", "Brown", "Chestnut", "Blond", "Ginger"]
+## Skin multiplier ceiling (1.0 = the baked texture, which clips to white under the sun on Fair / Light).
+const SKIN_EXPOSURE := 0.88
 const SKIN_NAMES := ["Fair", "Light", "Tan", "Brown", "Dark"]
 ## Body row = the outfit set: name, armour, boots, gloves mesh suffixes (same names on both sexes).
 const OUTFITS := [
@@ -130,7 +132,7 @@ static func build_model(look: Dictionary, height := 1.75, keep: Array[String] = 
 	# The model's own texture is a light tan: divide by it so "Light" is the untouched texture.
 	var sw: Color = SKINS[clampi(int(look.get("skin", 1)), 0, SKINS.size() - 1)]
 	var base: Color = SKINS[1]
-	var skin := Color(minf(sw.r / base.r, 1.0), minf(sw.g / base.g, 1.0), minf(sw.b / base.b, 1.0))
+	var skin := Color(minf(sw.r / base.r, 1.0) * SKIN_EXPOSURE, minf(sw.g / base.g, 1.0) * SKIN_EXPOSURE, minf(sw.b / base.b, 1.0) * SKIN_EXPOSURE)   # <1: Fair/Light clipped to white in the sun
 	var hair_col: Color = HAIR_TINTS[clampi(int(look.get("hair_color", 1)), 0, HAIR_TINTS.size() - 1)]
 	var want := {
 		"head_default" if head_i == 0 else "head_%d" % (head_i + 1): "skin",

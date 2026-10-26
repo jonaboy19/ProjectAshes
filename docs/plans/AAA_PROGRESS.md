@@ -149,3 +149,15 @@ Read sheets: spear, unarmed, sword_shield (plus earlier eq6/eq7 sheets). The shi
 - Death: weapons still 19-72 cm below floor (spear 68, staff 72, bow 51): ground_guard is off when dead. Open: drop/detach props on death.
 - Harness artifact: first-state `idle` ground_cm 58000 (player still falling when sampled); ignore.
 - "unarmed" still carries the starter sword + round shield (visible on sheet).
+
+### Blender/character pass, engine-side (S3.0b)
+- Fair skin: root cause = hero_tier_a._creator_tints used an UNCAPPED ratio (Fair = 1.07/1.17/1.28 x texture) so Fair clipped to white; both tint paths now cap at 1 and scale by CharacterCreation.SKIN_EXPOSURE 0.88. Sheet hero2/hero1_fairblond_face.png READ: face now shows nose/cheek shading instead of white-out (Light/default also 12% darker).
+- Hood: face opening was a stair of culled triangles on a 24x36 shell; now 48x72 with vertices inside the opening snapped onto its rim (smooth edge). Sheet hero2/hero1_darkhood_face34.png READ: edge smooth, but the opening is wide with a thin lip and the interior still reads dark. NOT AAA: needs a real cloth-fold hood mesh in Blender.
+- Collar shards (white shirt neck plane) not fixed: needs torso mesh edit in Blender. Mixamo traversal clips: decision DROP for now (ledge pull-up 3.8 s with 34 cm root drift, climb-low banned, no wall rig); authored traversal clips stay.
+| Item | Status |
+|---|---|
+| Shield fling / post-swing snap | NOT BUGS (holster arc; sword jump 0.0) |
+| Dense block/hit | block tile 0.0 jumps, hit reads ok (sheets read) |
+| Full matrix | DONE, findings above |
+| Mixamo traversal | DROPPED (logged) |
+| Fair skin | FIXED; hood edge IMPROVED; collar OPEN |
