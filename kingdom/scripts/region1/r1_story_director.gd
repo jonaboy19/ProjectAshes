@@ -26,6 +26,8 @@ const Spine := preload("res://scripts/region1/progression_spine.gd")
 const QUEST_PATH := "res://data/region1/quests/r1_main.json"
 const CAST_PATH := "res://data/region1/quests/cast.json"
 const Probe := preload("res://scripts/core/perf_probe.gd")
+const SeasonsPass := preload("res://scripts/region1/seasons_pass.gd")
+const LifeEventPopup := preload("res://scripts/ui/life_event_popup.gd")
 const SS := preload("res://scripts/ui/frontend/settings_store.gd")
 const STATE_KEY := &"story_director"
 
@@ -132,6 +134,12 @@ func setup(p_glue: Node, p_hud: Node, p_player: Node3D, p_world: Node3D) -> Regi
 	var MD := preload("res://scripts/ui/gamemenu/menu_data.gd")
 	MD.extra_quests.append(Callable(self, "quest_entries"))
 	MD.extra_journal.append(Callable(self, "journal_page"))
+	# READY_V1 C3: founding a camp (build_kit.claim) satisfies the a3_found_camp step; sleeping at a time gate offers the seasons-pass card
+	var bk: Object = Life.realm.mod("build_kit") if Life.get("realm") != null else null
+	if bk != null and not bk.founded.is_connected(_on_camp_founded):
+		bk.founded.connect(_on_camp_founded)
+	if not Life.slept.is_connected(_on_slept):
+		Life.slept.connect(_on_slept)
 	if Life.has_signal("region1_kill"):
 		Life.region1_kill.connect(_on_kill)
 	_timer = Timer.new()
@@ -271,6 +279,20 @@ func notify(type: StringName, params: Dictionary = {}) -> void:
 func set_flag(f: String) -> void:
 	if story != null:
 		_handle(story.set_flag(f, ctx()))
+
+
+func _on_camp_founded(_gid: int, _fid: int) -> void:
+	set_flag("r1.a3.camp_founded")
+
+
+## Sleeping while the story waits on the years or on a festival: offer to let the seasons pass (a card, never forced).
+func _on_slept(_hours: float) -> void:
+	if not enabled or story == null or hud == null or not is_instance_valid(player):
+		return
+	var g := SeasonsPass.gate(story, ctx())
+	if g.is_empty():
+		return
+	LifeEventPopup.present(hud, SeasonsPass.card(g, func() -> void: _on_tick()))
 
 
 func note_ancestor(name: String, stone_name: String) -> void:

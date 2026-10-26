@@ -116,7 +116,8 @@
 		"blessing_dual": "life.gd awakening",
 		"came_of_age": "life.gd at 16",
 		"spirit_seen": "hidden_triggers.gd, shrine at age 8",
-		"ember.has_ancestor": "ember_legacy.gd (L10): a previous character of this family rests in a stone"
+		"ember.has_ancestor": "ember_legacy.gd (L10): a previous character of this family rests in a stone",
+		"r1.a3.camp_founded": "build_kit.founded -> r1_story_director (READY_V1 C3: the player founded a camp)"
 	},
 
 	"exported_flags": {

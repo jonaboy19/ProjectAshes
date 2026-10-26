@@ -771,6 +771,10 @@ static func _play_once(q: Dictionary, reg: Dictionary, dialogues: Dictionary, pi
 					ctx["age"] = int(o["min"])
 					ctx["child"] = int(o["min"]) < 16
 					progressed = true
+			elif t == "flag" and (reg.get("external_flags", {}) as Dictionary).has(String(o.get("flag", ""))):
+				# a flag the game itself sets (r1.a3.camp_founded: build_kit.founded -> director): the autoplay does what the game does
+				_apply_events(sq.set_flag(String(o["flag"]), ctx), ctx)
+				progressed = true
 			elif StoryQuest.EVENT_TYPES.has(t) or t == "any":
 				var ev := _synth(o, reg, chosen)
 				if ev.is_empty():

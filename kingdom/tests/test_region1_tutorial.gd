@@ -44,9 +44,9 @@ func _pump(d: Director, ctx: Dictionary, seconds: float) -> void:
 		t += 0.1
 
 
-func test_there_are_twelve_prompts_covering_the_brief() -> void:
+func test_there_are_thirteen_prompts_covering_the_brief() -> void:
 	assert_array(Array(Director.ids())).contains_exactly_in_any_order(
-		["move", "look", "talk", "interact", "eat", "sleep", "fight", "block", "dodge", "carve", "map", "ashsight"])
+		["move", "look", "talk", "interact", "eat", "sleep", "fight", "block", "dodge", "carve", "map", "ashsight", "found_camp"])
 
 
 func test_every_prompt_shows_in_context_and_only_its_real_action_dismisses_it() -> void:
