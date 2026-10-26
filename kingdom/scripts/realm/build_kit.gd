@@ -940,8 +940,9 @@ func serialize() -> Dictionary:
 	var gg := {}
 	for gid: int in grids:
 		var g: Dictionary = grids[gid]
+		var packed := pack_pieces(gid)
 		gg[str(gid)] = {"id": gid, "name": g["name"], "origin": g["origin"], "roads": (g["roads"] as Array).duplicate(true),
-			"claim": String(g.get("claim", "squat")), "packed": Marshalls.raw_to_base64(pack_pieces(gid))}
+			"claim": String(g.get("claim", "squat")), "packed": Marshalls.raw_to_base64(packed) if not packed.is_empty() else ""}
 	return {"grids": gg, "next_grid": _next_grid, "log": log_lines.duplicate()}
 
 

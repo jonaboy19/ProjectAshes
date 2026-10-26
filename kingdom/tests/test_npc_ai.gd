@@ -332,3 +332,26 @@ func test_a_hostile_in_the_open_is_seen_and_feared() -> void:
 	beast.queue_free()
 	assert_int(seen).is_greater(0)
 	assert_float(danger).is_greater(0.7)
+
+
+func test_sensing_skips_viewers_and_targets_outside_the_scene_tree() -> void:
+	var b := UtilityBrain.new(99, 0)
+	var outside_viewer := Node3D.new()
+	var outside_result: Dictionary = b.sense_threats(outside_viewer, get_tree(), 1)
+	assert_bool((outside_result["visible"] as PackedVector2Array).is_empty()).is_true()
+	outside_viewer.free()
+
+	var viewer := Node3D.new()
+	var target := CharacterBody3D.new()
+	target.add_to_group("team1")
+	target.add_to_group("combatant")
+	get_tree().root.add_child(viewer)
+	get_tree().root.add_child(target)
+	await get_tree().process_frame
+	UtilityBrain._threat_samples = [[target.global_position, target.get_instance_id()]]
+	UtilityBrain._sense_ms = Time.get_ticks_msec()
+	get_tree().root.remove_child(target)
+	var stale_result: Dictionary = b.sense_threats(viewer, get_tree(), 1)
+	assert_bool((stale_result["visible"] as PackedVector2Array).is_empty()).is_true()
+	viewer.queue_free()
+	target.free()

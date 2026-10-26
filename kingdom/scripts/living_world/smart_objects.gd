@@ -171,6 +171,9 @@ func find(pos: Vector3, filter: Dictionary, radius := 60.0, person := -1, avoid 
 			if not _slot_matches(slots[k], filter):
 				continue
 			var score := d + float(absi(hash(person * 7 + id * 131 + k)) % 100) * 0.03
+			if sp["holders"][k] != person and id == int(filter.get("recent_spot", -1)):
+				# Soft preference only: a sole station remains eligible; owned refreshes stay stable.
+				score += clampf(float(filter.get("recent_penalty", 0.0)), 0.0, 10.0)
 			if sp["holders"][k] == person:
 				score -= 1.0  # small hysteresis keeps a valid activity stable
 			if score < best_s:
@@ -397,6 +400,7 @@ class Session:
 	var spot := -1
 	var slot := 0
 	var phase := APPROACH
+	var completed_naturally := false
 	var act: Dictionary
 	var time_left := 30.0
 	var cycles_left := 2
@@ -406,6 +410,15 @@ class Session:
 	var _t := 0.0
 	var _event_sent := false
 	var _claim_token := -1
+	# Keep activity timing on the original stable RNG. Visual clip variation gets
+	# its own day/time-scoped bags so later visits get an independent take order,
+	# while same-time reloads stay stable. A random permutation may still recur.
+	var _variant_day := 1
+	var _variant_time_bucket := 0
+	var _variant_seed_person := -1
+	var _variant_bags: Dictionary = {}
+	var _variant_bag_cycles: Dictionary = {}
+	var _last_variant: Dictionary = {}
 
 	func _init(o: SmartObjects, p: int, sp: int, sl: int, sd: int) -> void:
 		so = o
@@ -414,6 +427,9 @@ class Session:
 		slot = sl
 		_claim_token = o.claim_token(p)
 		_rng.seed = hash(sd * 7919 + sp)
+		_variant_day = int(WorldSim.day)
+		_variant_time_bucket = int(floor(float(WorldSim.time_of_day) * 60.0))
+		_variant_seed_person = sd
 		act = o.activity(sp, sl)
 		var dur: Array = act.get("duration", [30, 60])
 		time_left = _rng.randf_range(float(dur[0]), float(dur[1]))
@@ -424,6 +440,7 @@ class Session:
 		cycles_left = _rng.randi_range(int(c[0]), int(c[1]))
 
 	func interrupt() -> void:
+		completed_naturally = false
 		if phase in [ENTER, LOOP, BETWEEN]:
 			_go(EXIT if act.get("exit", "") != "" else DONE)
 		elif phase in [APPROACH, ALIGN]:
@@ -433,6 +450,7 @@ class Session:
 	## Immediate teardown path for a body that is being removed and cannot play
 	## its exit animation. Normal gameplay interruptions should use interrupt().
 	func cancel_now() -> void:
+		completed_naturally = false
 		_go(DONE)
 
 	func stand() -> Transform3D:
@@ -448,11 +466,10 @@ class Session:
 				if clip == "":
 					_go(LOOP)
 			LOOP:
-				var loops: Array = act.get("loop", ["Idle"])
-				clip = loops[_rng.randi() % loops.size()]
+				clip = _next_variant("loop", act.get("loop", ["Idle"]))
 			BETWEEN:
 				var b: Array = act.get("between", [])
-				clip = b[_rng.randi() % b.size()]
+				clip = _next_variant("between", b)
 			EXIT:
 				clip = act.get("exit", "")
 				if clip == "":
@@ -460,10 +477,56 @@ class Session:
 			DONE:
 				so.release_claim(person, spot, slot, _claim_token)
 
+	func _variant_seed(kind: String, day: int, cycle: int) -> int:
+		var material := "%d|%d|%d|%d|%d|%d|%d|%s|%d" % [
+			WorldSim.SEED, day, _variant_time_bucket, person, spot, slot, _variant_seed_person, kind, cycle]
+		var result := hash(material)
+		return 1 if result == 0 else result
+
+	func _shuffled_variants(choices: Array, kind: String, day: int, cycle: int) -> Array:
+		var bag: Array = []
+		for choice in choices:
+			if not bag.has(choice):
+				bag.append(choice)
+		var rng := RandomNumberGenerator.new()
+		rng.seed = _variant_seed(kind, day, cycle)
+		for i in range(bag.size() - 1, 0, -1):
+			var j := rng.randi_range(0, i)
+			var tmp: Variant = bag[i]
+			bag[i] = bag[j]
+			bag[j] = tmp
+		return bag
+
+	func _next_variant(kind: String, source: Array) -> String:
+		if source.is_empty():
+			return ""
+		var bag: Array = _variant_bags.get(kind, [])
+		if bag.is_empty():
+			var cycle := int(_variant_bag_cycles.get(kind, 0))
+			bag = _shuffled_variants(source, kind, _variant_day, cycle)
+			var avoid := String(_last_variant.get(kind, ""))
+			if cycle == 0 and _variant_day > 1:
+				var previous := _shuffled_variants(source, kind, _variant_day - 1, 0)
+				if not previous.is_empty():
+					avoid = String(previous[0])
+			if bag.size() > 1 and String(bag[0]) == avoid:
+				for i in range(1, bag.size()):
+					if String(bag[i]) != avoid:
+						var tmp: Variant = bag[0]
+						bag[0] = bag[i]
+						bag[i] = tmp
+						break
+			_variant_bag_cycles[kind] = cycle + 1
+		var selected := String(bag.pop_front())
+		_variant_bags[kind] = bag
+		_last_variant[kind] = selected
+		return selected
+
 	func update(delta: float, body: Vector3, clip_done: bool) -> Dictionary:
 		# A replacement schedule, despawn, or LOD handoff may revoke this claim.
 		# Stop producing clips/events immediately, without touching a newer lease.
 		if phase != DONE and not so.owns_claim(person, spot, slot, _claim_token):
+			completed_naturally = false
 			phase = DONE
 			clip = ""
 			return {"phase": DONE, "move_to": null, "face": NAN, "clip": "",
@@ -504,6 +567,7 @@ class Session:
 					if d > 0.0:
 						so.spots[spot]["drift"] = fposmod(float(so.spots[spot]["drift"]) + d, 6.0)
 					if time_left <= 0.0:
+						completed_naturally = true
 						_go(EXIT if act.get("exit", "") != "" else DONE)
 					elif cycles_left <= 0 and not (act.get("between", []) as Array).is_empty():
 						_go(BETWEEN)

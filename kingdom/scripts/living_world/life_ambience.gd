@@ -63,6 +63,12 @@ func _h(k: int) -> float:
 	return float(absi(hash(person * 92821 + k * 68917)) % 10000) / 10000.0
 
 
+static func weather_kind(raining: bool, snowing: bool) -> String:
+	if snowing:
+		return "cold"
+	return "rain" if raining else "clear"
+
+
 ## ctx keys: idle (bool: standing without an activity), walking, pos (Vector3), fwd (Vector3), hour (0-24),
 ## weather ("clear" | "rain" | "hot" | "cold"), player_pos (Vector3 or null), partner_pos (Vector3 or null), tired (bool)
 func think(dt: float, ctx: Dictionary) -> Dictionary:

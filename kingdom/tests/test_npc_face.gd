@@ -4,6 +4,18 @@ extends GdUnitTestSuite
 const FaceState := preload("res://scripts/living_world/face_state.gd")
 const DialogueRunner := preload("res://scripts/sim/dialogue_runner.gd")
 const UtilityBrain := preload("res://scripts/population/utility_brain.gd")
+const HeroFaceDriver := preload("res://scripts/actors/hero_face_driver.gd")
+
+
+func test_hero_face_setup_reads_quality_while_model_is_off_tree() -> void:
+	var skeleton := Skeleton3D.new()
+	skeleton.add_bone("Head")
+	var driver := HeroFaceDriver.new()
+	driver.setup(skeleton, {}, null)
+	var quality: Node = get_tree().root.get_node("Quality")
+	assert_bool(driver.lids_allowed == (int(quality.get("tier")) >= 1)).is_true()
+	driver.free()
+	skeleton.free()
 
 
 func test_blink_happens_and_lids_return() -> void:
