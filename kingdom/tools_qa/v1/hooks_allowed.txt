@@ -6,3 +6,4 @@ age N -> N (four years pass; the story opens at eight)
 age N -> N (the years pass)
 carve ward via the canvas's own 'Choose a glyph' fallback (headless: no mouse drawing)
 teleport to (N, N)
+the wolf bolted on try N: a fresh wolf takes its place

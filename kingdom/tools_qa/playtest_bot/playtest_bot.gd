@@ -574,6 +574,7 @@ func _run_all() -> void:
 		["st_a4", _s_st_a4], ["st_a5", _s_st_a5], ["st_save", _s_st_save], ["st_probe", _s_st_probe],
 		["v1_recruit", _s_v1_recruit],
 		["v1_hunt", _s_v1_hunt],
+		["v1_tame", _s_v1_tame],
 	]
 	for e: Array in list:
 		if not _want(String(e[0])) and (String(e[0]) != "adult" or only.contains("st_")):
@@ -611,6 +612,7 @@ func _stage_limit(name: String) -> float:
 		"st_load", "st_probe": return 400.0
 		"v1_recruit": return 600.0
 		"v1_hunt": return 240.0
+		"v1_tame": return 240.0
 		"st_save": return 200.0
 		"st_birth", "st_a1", "st_a2", "st_a3", "st_a4", "st_a5": return 1500.0
 	return 150.0
@@ -5141,6 +5143,77 @@ func _s_v1_hunt() -> void:
 	var jr: Dictionary = Life.crafting.craft("game_jerky", Life, null, {"roll": 0.5})
 	check("venison and salt make jerky", bool(jr.get("ok", false)) and Life.count("jerky") >= 2, str(jr.get("text", "")))
 	CorpseLoot.reset()
+
+
+func _s_v1_tame() -> void:
+	await _st_ready()
+	var c: Vector2 = ashford()["pos"]
+	var spot := c + Vector2(70, 40)
+	await teleport(spot, 0.0, 1.5)
+	heal_player()
+	var fm: RefCounted = Life.realm.mod("followers")
+	var w := Wolf.new()
+	w.species = "wolf"
+	w.home = spot + Vector2(0, -3)
+	main.world.add_child(w)
+	w.global_position = Vector3(spot.x, WorldGen.height(spot.x, spot.y - 2.0) + 0.3, spot.y - 2.0)
+	await wait(0.6)
+	check("a healthy wolf is not calmable", not TameTarget.calmable(w), "hp %d/%d" % [w.health, w.max_health])
+	w.health = maxi(1, int(w.max_health * 0.2))
+	w._busy = 60.0        # hold still while the bot works (scene-side only; the wolf script is untouched)
+	player.global_position = w.global_position + Vector3(1.4, 0.2, 0.0)
+	await wait(1.4)
+	check("a beaten wolf is calmable", TameTarget.calmable(w), "hp %d/%d" % [w.health, w.max_health])
+	var best := Interaction.best(player)
+	var lab := Interaction.label_of(best)
+	check("the beaten wolf prompts 'Calm'", String(lab.get("text", lab)).to_lower().contains("calm"), str(lab).left(100))
+	check("calming is a hold action", float(best.get("hold_time", 0.0)) > 0.0)
+	var cid := TameTarget.creature_id(w)
+	var tried := 0
+	while tried < 8 and is_instance_valid(w) and not w.has_meta("tamed"):
+		tried += 1
+		w.health = maxi(1, int(w.max_health * 0.2))
+		player.global_position = w.global_position + Vector3(1.4, 0.2, 0.0)
+		await wait(0.7)
+		var cur := Interaction.best(player)
+		var ht := float(cur.get("hold_time", 2.5))
+		var ev := InputEventKey.new()
+		ev.keycode = KEY_E
+		ev.physical_keycode = KEY_E
+		ev.pressed = true
+		Input.parse_input_event(ev)
+		await wait(ht + 0.6)
+		var up := InputEventKey.new()
+		up.keycode = KEY_E
+		up.physical_keycode = KEY_E
+		up.pressed = false
+		Input.parse_input_event(up)
+		await wait(0.3)
+		if String(fm.creature(cid).get("status", "")) == "fled":
+			L("[HOOK] the wolf bolted on try %d: a fresh wolf takes its place" % tried)
+			w.queue_free()
+			w = Wolf.new()
+			w.species = "wolf"
+			main.world.add_child(w)
+			w.global_position = Vector3(spot.x, WorldGen.height(spot.x, spot.y - 2.0) + 0.3, spot.y - 2.0)
+			await wait(0.4)
+			w._busy = 60.0
+			cid = TameTarget.creature_id(w)
+	check("holding E calms the wolf until it is tamed", is_instance_valid(w) and w.has_meta("tamed"), "after %d holds, status %s trust %.2f" % [tried, str(fm.creature(cid).get("status", "?")), float(fm.creature(cid).get("trust", 0.0))])
+	if not is_instance_valid(w) or not w.has_meta("tamed"):
+		return
+	check("a tamed wolf is on the pet list, off the wild AI", w.is_in_group("tamed_pet") and not w.is_in_group("combatant"))
+	check("the tamed wolf is in the save data", String(fm.creature(cid).get("status", "")) == "tamed" and bool(fm.creature(cid).get("pet", false)))
+	var far := Vector3(player.global_position.x + 12.0, player.global_position.y, player.global_position.z)
+	var d0 := w.global_position.distance_to(player.global_position)
+	player.global_position = far
+	await wait(3.0)
+	check("a tamed wolf follows the player", w.global_position.distance_to(player.global_position) < d0 + 6.0, "dist %.1f" % w.global_position.distance_to(player.global_position))
+	var pet: TamedPet = w.get_node("TamedPet")
+	pet.set_mode("guard", fm)
+	check("guard mode makes it a settlement guard", String(fm.creature(cid).get("role", "")) == "guarding" and fm.guard_bonus(String(fm.creature(cid).get("loc", "s0"))) > 0.0)
+	var json := JSON.stringify(Life.realm.serialize())
+	check("the tamed wolf survives a save round trip", json.contains(cid) and json.contains("guarding"))
 
 
 func _s_st_a2() -> void:

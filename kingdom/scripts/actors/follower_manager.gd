@@ -40,6 +40,7 @@ static func owns(row: int) -> bool:
 func _ready() -> void:
 	add_to_group("follower_manager")
 	ctx["owner"] = get_instance_id()
+	add_child(TameWatcher.new())      # v1 hook (READY_V1)
 
 
 func _exit_tree() -> void:

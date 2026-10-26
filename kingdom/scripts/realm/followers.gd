@@ -483,6 +483,47 @@ func attempt_taming(creature_id: String, action: String, day := -1) -> Dictionar
 	return {"ok": gain > 0.0, "msg": msg, "trust": c["trust"], "status": c["status"]}
 
 
+## READY_V1 C8: one hold-to-calm step on a beaten creature. `fear` 0..1 (how beaten it is); trust is what earlier
+## calms built. Chance rises with both, a success is a big trust step (two calms make a friend), a failure costs a
+## little and may scare it off. Deterministic per (day, creature, attempt). Returns {ok, msg, trust, status, chance}.
+const CALM_BASE := 0.30
+const CALM_TRUST_W := 0.5
+const CALM_FEAR_W := 0.3
+const CALM_STEP := 0.5
+const CALM_FAIL := 0.05
+const CALM_FLEE := 0.10
+
+
+static func calm_chance(trust: float, fear: float) -> float:
+	return clampf(CALM_BASE + CALM_TRUST_W * trust + CALM_FEAR_W * fear, 0.1, 0.95)
+
+
+func calm_step(creature_id: String, fear: float, day := -1) -> Dictionary:
+	var c: Dictionary = _creatures.get(creature_id, {})
+	if c.is_empty() or c["status"] not in ["wild", "taming"]:
+		return {"ok": false, "msg": "", "trust": 0.0, "status": c.get("status", "none"), "chance": 0.0}
+	var sp: Dictionary = SPECIES[c["species"]]
+	if sp["method"] == "none":
+		return {"ok": false, "msg": "The %s can never be tamed." % c["name"], "trust": 0.0, "status": c["status"], "chance": 0.0}
+	if sp.get("needs_young", false) and not c["young"]:
+		return {"ok": false, "msg": "A grown %s will not be tamed." % c["name"], "trust": c["trust"], "status": c["status"], "chance": 0.0}
+	c["attempts"] += 1
+	c["status"] = "taming"
+	var chance := calm_chance(float(c["trust"]), fear)
+	var r := _rng("calm", _day if day < 0 else day, "%s%d" % [creature_id, c["attempts"]])
+	if r.randf() < chance:
+		c["trust"] = clampf(float(c["trust"]) + CALM_STEP, 0.0, 1.0)
+		if c["trust"] >= 1.0:
+			c["status"] = "tamed"
+			return {"ok": true, "msg": "The %s settles beside you. It is yours." % c["name"], "trust": c["trust"], "status": "tamed", "chance": chance}
+		return {"ok": true, "msg": "The %s stops snarling and watches you." % c["name"], "trust": c["trust"], "status": "taming", "chance": chance}
+	c["trust"] = clampf(float(c["trust"]) - CALM_FAIL, 0.0, 1.0)
+	if r.randf() < CALM_FLEE:
+		c["status"] = "fled"
+		return {"ok": false, "msg": "The %s bolts and is gone." % c["name"], "trust": c["trust"], "status": "fled", "chance": chance}
+	return {"ok": false, "msg": "The %s will not be soothed yet." % c["name"], "trust": c["trust"], "status": "taming", "chance": chance}
+
+
 func tamed() -> Array:
 	var out: Array = []
 	var ids := _creatures.keys()
