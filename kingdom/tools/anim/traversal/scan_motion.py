@@ -85,10 +85,25 @@ for name, act in acts.items():
 # world-locked contact windows from the sidecar: drift of the wrist (hand_*) / ball of the foot (ball_*) head, largest distance from the mean, in cm
 side = GLB + ".clips.json"
 if os.path.exists(side):
-    rows = dict((r["name"], r) for r in json.load(open(side)))
+    sidecar = json.load(open(side))
+    if isinstance(sidecar, list):
+        rows = dict((r["name"], r) for r in sidecar if isinstance(r, dict) and "name" in r)
+    elif isinstance(sidecar, dict):
+        rows = sidecar.get("clips", sidecar)
+        rows = rows if isinstance(rows, dict) else {}
+    else:
+        rows = {}
     for name, act in acts.items():
         base = name[:-5] if name.endswith("_Loop") else name
         if (ONLY and name not in ONLY) or base not in rows or "contacts" not in rows[base]:
+            continue
+        # Some libraries describe contact windows by foot label or key-frame
+        # counts rather than exported bone/frame/frame tuples. Motion metrics
+        # are still useful for those packs; only skip the unsupported contact
+        # comparison instead of aborting the entire library scan.
+        contacts = rows[base]["contacts"]
+        if not isinstance(contacts, list) or any(not isinstance(c, (list, tuple)) or len(c) != 3 for c in contacts):
+            print("CONTACT_SKIP %-22s unsupported sidecar schema" % name, flush=True)
             continue
         for pb in arm.pose.bones:
             pb.location = (0, 0, 0); pb.rotation_quaternion = (1, 0, 0, 0); pb.scale = (1, 1, 1)
@@ -96,7 +111,7 @@ if os.path.exists(side):
         if len(act.slots):
             arm.animation_data.action_slot = act.slots[0]
         drift = []
-        for bone, f0, f1 in rows[base]["contacts"]:
+        for bone, f0, f1 in contacts:
             pts = []
             for f in range(f0, f1 + 1):
                 sc.frame_set(f)

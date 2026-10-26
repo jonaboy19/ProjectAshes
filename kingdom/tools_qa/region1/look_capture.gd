@@ -18,6 +18,7 @@ var _env_saved: Dictionary = {}
 var _t3d_saved: Dictionary = {}
 var _mat_saved: Dictionary = {}
 var aa_arg := 0
+var quickshot := false
 var only: PackedStringArray = []
 var budget_s := 900
 var main: Node
@@ -30,6 +31,7 @@ var wait := 0
 var samples: PackedFloat32Array = []
 var last_us := 0
 var perf_lines: Array[String] = []
+var _finishing := false
 
 
 func _initialize() -> void:
@@ -39,14 +41,36 @@ func _initialize() -> void:
 		elif a.begins_with("--out="): out_dir = a.substr(6)
 		elif a.begins_with("--tag="): tag = a.substr(6)
 		elif a.begins_with("--aa="): aa_arg = int(a.substr(5))   # Quality.aa_mode: 0 tier default, 1 FXAA+FSR1, 2 TAA, 3 FSR2 (FSR2 + Terrain3D crashes on 4.6.3)
+		elif a == "--quickshot": quickshot = true
 		elif a.begins_with("--weather="): weather_arg = "" if a.substr(10) == "auto" else a.substr(10)
 		elif a.begins_with("--only="): only = a.substr(7).split(",", false)
 		elif a.begins_with("--budget="): budget_s = int(a.substr(9))
 	var parsed: Variant = JSON.parse_string(FileAccess.get_file_as_string(views_path))
-	for v: Dictionary in (parsed as Dictionary)["views"]:
-		if only.is_empty() or String(v["name"]) in only:
-			views.append(v)
-	DirAccess.make_dir_recursive_absolute(out_dir)
+	if not parsed is Dictionary or not (parsed as Dictionary).get("views") is Array:
+		push_error("look capture views file must be JSON with a 'views' array: " + views_path)
+		quit(2)
+		return
+	for entry: Variant in (parsed as Dictionary)["views"]:
+		if not entry is Dictionary or not (entry as Dictionary).has("name"):
+			push_error("every look capture view must be an object with a name: " + views_path)
+			quit(2)
+			return
+		var view := entry as Dictionary
+		if only.is_empty() or String(view["name"]) in only:
+			views.append(view)
+	if views.is_empty():
+		push_error("look capture selected zero views from: " + views_path)
+		quit(2)
+		return
+	if out_dir.is_empty():
+		push_error("look capture requires --out=<absolute output directory>")
+		quit(2)
+		return
+	var mkdir_error := DirAccess.make_dir_recursive_absolute(out_dir)
+	if mkdir_error != OK:
+		push_error("could not create look capture output directory: " + out_dir)
+		quit(2)
+		return
 	t0 = Time.get_ticks_msec()
 	var ps := load("res://scenes/main.tscn") as PackedScene
 	main = ps.instantiate()
@@ -54,11 +78,13 @@ func _initialize() -> void:
 
 
 func _process(_dt: float) -> bool:
+	if _finishing:
+		return false
 	frame += 1
 	if Time.get_ticks_msec() - t0 > budget_s * 1000:
 		print("WATCHDOG quit")
 		_finish()
-		return true
+		return false
 	if frame < 600:
 		return false
 	if frame == 600:
@@ -79,13 +105,19 @@ func _process(_dt: float) -> bool:
 		return false
 	if idx >= views.size():
 		_finish()
-		return true
+		return false
 	# Pin the clock every frame: intro/sleep events advance_hours() and drifted shots to night (env pass 2026-10-05).
 	root.get_node("WorldSim").set("time_of_day", float((views[idx] as Dictionary).get("hour", 16.2)))
 	match phase:
 		0:   # streaming / warm-up
 			wait -= 1
 			if wait <= 0:
+				if quickshot:
+					# Save immediately after the requested warm-up. Full-game scenes can
+					# hit renderer teardown/resource limits before the longer perf window ends.
+					_save()
+					_finish()
+					return false
 				phase = 1
 				_clear_overlays()
 				wait = 90
@@ -189,12 +221,20 @@ func _next() -> void:
 	if br:
 		t3h = br.call("sampled_height", at.x, at.y)
 	print("[diag] ", v["name"], " wg_h=", WorldGen.height(at.x, at.y), " t3d_h=", t3h, " cam_y=", cam.global_position.y, " regions=", br.call("region_count") if br else -1)
+	if bool(v.get("expect_t3d", false)) and (br == null or not is_finite(t3h) or int(br.call("region_count")) <= 0):
+		push_error("expected Terrain3D is not ready at view %s; refusing invalid capture" % String(v["name"]))
+		_finish()
+		quit(3)
+		return
 	if br and v.has("probe"):
 		var t3: Object = (br.get("terrain") as Object).get("data")
+		var scar: Variant = Region1State.sim(&"scar_tide")
 		for off: Array in v["probe"]:
 			var px := at.x + float(off[0])
 			var pz := at.y + float(off[1])
-			print("[probe] ", v["name"], " off=", off, " wg=", WorldGen.height(px, pz), " t3d=", t3.call("get_height", Vector3(px, 0, pz)), " ctrl=0x%x" % int(t3.call("get_control", Vector3(px, 0, pz))), " hole=", t3.call("get_control_hole", Vector3(px, 0, pz)) if t3.has_method("get_control_hole") else "n/a")
+			var ctrl := int(t3.call("get_control", Vector3(px, 0, pz)))
+			var scar_v := float(scar.call("intensity_at", Vector2(px, pz))) if scar != null else -1.0
+			print("[probe] ", v["name"], " off=", off, " wg=", WorldGen.height(px, pz), " t3d=", t3.call("get_height", Vector3(px, 0, pz)), " ctrl=0x%x" % ctrl, " ids=", (ctrl >> 27) & 31, "/", (ctrl >> 22) & 31, " blend=", (ctrl >> 14) & 255, " scar=", scar_v, " hole=", t3.call("get_control_hole", Vector3(px, 0, pz)) if t3.has_method("get_control_hole") else "n/a")
 	# per-view Environment overrides ({"env": {"ssr_enabled": false}}), restored before the next view
 	var envn: Environment = main.get("env")
 	if envn:
@@ -266,28 +306,53 @@ func _save() -> void:
 	var img := root.get_viewport().get_texture().get_image()
 	var p := "%s/%s%s.png" % [out_dir, v["name"], ("_" + tag) if tag != "" else ""]
 	img.save_png(p)
-	var s := samples.duplicate()
-	s.sort()
-	var avg := 0.0
-	for x in s:
-		avg += x
-	avg /= maxf(1.0, s.size())
 	var vp: Viewport = root.get_viewport()
 	var sub: SubViewport = main.get("viewport")
 	var rv: Viewport = sub if sub else vp
-	var line := "%s avg_ms=%.2f p95_ms=%.2f fps=%.0f draws=%d prims=%d objs=%d" % [v["name"], avg, s[int(s.size() * 0.95)] if s.size() > 0 else 0.0,
-		1000.0 / maxf(avg, 0.01),
-		rv.get_render_info(Viewport.RENDER_INFO_TYPE_VISIBLE, Viewport.RENDER_INFO_DRAW_CALLS_IN_FRAME),
-		rv.get_render_info(Viewport.RENDER_INFO_TYPE_VISIBLE, Viewport.RENDER_INFO_PRIMITIVES_IN_FRAME),
-		rv.get_render_info(Viewport.RENDER_INFO_TYPE_VISIBLE, Viewport.RENDER_INFO_OBJECTS_IN_FRAME)]
+	var line: String
+	if quickshot:
+		line = "%s image_only=true draws=%d prims=%d objs=%d" % [v["name"],
+			rv.get_render_info(Viewport.RENDER_INFO_TYPE_VISIBLE, Viewport.RENDER_INFO_DRAW_CALLS_IN_FRAME),
+			rv.get_render_info(Viewport.RENDER_INFO_TYPE_VISIBLE, Viewport.RENDER_INFO_PRIMITIVES_IN_FRAME),
+			rv.get_render_info(Viewport.RENDER_INFO_TYPE_VISIBLE, Viewport.RENDER_INFO_OBJECTS_IN_FRAME)]
+	else:
+		var s := samples.duplicate()
+		s.sort()
+		var avg := 0.0
+		for x in s:
+			avg += x
+		avg /= maxf(1.0, s.size())
+		line = "%s avg_ms=%.2f p95_ms=%.2f fps=%.0f draws=%d prims=%d objs=%d" % [v["name"], avg, s[int(s.size() * 0.95)] if s.size() > 0 else 0.0,
+			1000.0 / maxf(avg, 0.01),
+			rv.get_render_info(Viewport.RENDER_INFO_TYPE_VISIBLE, Viewport.RENDER_INFO_DRAW_CALLS_IN_FRAME),
+			rv.get_render_info(Viewport.RENDER_INFO_TYPE_VISIBLE, Viewport.RENDER_INFO_PRIMITIVES_IN_FRAME),
+			rv.get_render_info(Viewport.RENDER_INFO_TYPE_VISIBLE, Viewport.RENDER_INFO_OBJECTS_IN_FRAME)]
 	perf_lines.append(line)
 	print("[perf] ", line)
 	print("SAVED ", p, " t=", (Time.get_ticks_msec() - t0) / 1000)
 
 
 func _finish() -> void:
+	if _finishing:
+		return
+	_finishing = true
 	var f := FileAccess.open("%s/perf%s.txt" % [out_dir, ("_" + tag) if tag != "" else ""], FileAccess.WRITE)
 	if f:
 		f.store_string("\n".join(perf_lines) + "\n")
 		f.close()
+	# Keep RenderingServer/WorkerThreadPool alive while streamed scene resources
+	# are released. Immediate SceneTree shutdown can stall after a saved Vulkan
+	# capture with the complete terrain scene still attached.
+	call_deferred("_drain_and_quit")
+
+
+func _drain_and_quit() -> void:
+	if is_instance_valid(main):
+		main.process_mode = Node.PROCESS_MODE_DISABLED
+		main.queue_free()
+		main = null
+	cam = null
+	for i in 10:
+		await process_frame
+	print("LOOK_CAPTURE_DRAINED")
 	quit(0)

@@ -71,6 +71,24 @@ func test_danger_makes_flee_win() -> void:
 	assert_str(_name(_winner(10.0, {"danger": 0.9, "guard": 1.0, "sched_work": 1.0}))).is_equal("work")
 
 
+func test_persistent_fear_changes_response_only_when_danger_is_sensed() -> void:
+	var quiet := UtilityBrain.make_context(12.0, {"danger": 0.0, "spectacle": 1.0}, {"courage": 0.7})
+	var quiet_before := UtilityBrain.scores(quiet)
+	UtilityBrain.apply_psyche_caution(quiet, 0.9, 1.0)
+	var quiet_after := UtilityBrain.scores(quiet)
+	for i in quiet_before.size():
+		assert_float(quiet_after[i]).is_equal(quiet_before[i])
+	assert_float(float(quiet["courage"])).is_equal_approx(0.7, 0.0001)
+
+	var calm := UtilityBrain.make_context(12.0, {"danger": 0.9, "a_susp": 1.0, "a_search": 1.0}, {"courage": 0.7})
+	calm["nerve"] = float(calm["brave"])
+	var wary := calm.duplicate(true)
+	UtilityBrain.apply_psyche_caution(wary, 0.9, 1.0)
+	assert_float(UtilityBrain.score(Act.FLEE, wary)).is_greater(UtilityBrain.score(Act.FLEE, calm))
+	assert_float(float(wary["nerve"])).is_less(float(calm["nerve"]))
+	assert_float(UtilityBrain.score(Act.INVESTIGATE, wary)).is_less(UtilityBrain.score(Act.INVESTIGATE, calm))
+
+
 func test_needs_time_and_traits() -> void:
 	assert_str(_name(_winner(12.5, {"hungry": 0.7}))).is_equal("eat")
 	assert_str(_name(_winner(2.0, {"tired": 0.6, "rest": 0.4}))).is_equal("sleep")
@@ -122,6 +140,7 @@ func test_context_follows_schedule_and_career_shift() -> void:
 	var b := UtilityBrain.new(9, 2)
 	var ctx := b.context(10.0, 1, false, 0.0, 0.0, false, 0.5)
 	assert_float(float(ctx["sched_work"])).is_equal(1.0)
+	assert_float(float(ctx["courage"])).is_equal_approx(float(b.traits["courage"]), 0.0001)
 	# An innkeeper's shift (11-23) overrides the shared work schedule.
 	var keeper := UtilityBrain.new(9, 2, Vector2(11, 23), "inn")
 	assert_float(float(keeper.context(10.0, 1, false, 0.0, 0.0, false, 0.5)["sched_work"])).is_equal(0.0)

@@ -34,6 +34,9 @@ const MASK_N := 17
 var _mask_img := Image.create(MASK_N, MASK_N, false, Image.FORMAT_R8)
 var _mask_tex: ImageTexture
 var _mask_sig := 0
+var _ground_mask_sig := 0
+var _ground_mask_img: Image
+var _ground_mask_tex: ImageTexture
 ## LOW keeps the ground and trims the canopy range.
 var blob_range := 1700.0
 ## Biome map (set by Region1Look) for the far ground tint and fields.
@@ -95,7 +98,12 @@ func _process(_d: float) -> void:
 	var chunks: Dictionary = _terrain.get("_chunks")
 	var f: Vector3 = _terrain.get("focus")
 	var c := Vector2i(floori(f.x / 64.0), floori(f.z / 64.0))
-	var sig := hash([c, chunks.size()])
+	_update_ground_mask(f)
+	# Membership can change without a count change while chunks stream in/out.
+	var membership: Array = []
+	for key: Vector2i in chunks:
+		membership.append([key, is_instance_valid(chunks[key])])
+	var sig := hash([c, membership])
 	if sig == _mask_sig:
 		return
 	_mask_sig = sig
@@ -107,8 +115,48 @@ func _process(_d: float) -> void:
 			_mask_img.set_pixel(m.x, m.y, Color(1, 0, 0))
 	_mask_tex.update(_mask_img)
 	var origin := Vector2(o.x * 64.0, o.y * 64.0)
-	for mat: ShaderMaterial in [_ground_mat, _blob_mat]:
-		mat.set_shader_parameter("mask_origin", origin)
+	_blob_mat.set_shader_parameter("mask_origin", origin)
+	if _terrain.get("_bridge") == null:
+		_ground_mat.set_shader_parameter("built_mask", _mask_tex)
+		_ground_mat.set_shader_parameter("mask_cells", float(MASK_N))
+		_ground_mat.set_shader_parameter("mask_origin", origin)
+
+
+## Terrain3D ground spans a larger footprint than the vegetation/collision chunks.
+## Give ground its own mask; canopy must still wait for real vegetation chunks.
+func _update_ground_mask(focus: Vector3) -> void:
+	var bridge := _terrain.get("_bridge") as Terrain3DBridge
+	if bridge == null:
+		return
+	var center := Terrain3DBridge.region_of(focus.x, focus.z)
+	# The bridge retains radius + 1; one extra region covers center alignment.
+	var radius := bridge.region_radius + 2
+	var regions: Array[Vector2i] = []
+	for dz in range(-radius, radius + 1):
+		for dx in range(-radius, radius + 1):
+			var loc := center + Vector2i(dx, dz)
+			var at := Terrain3DBridge.region_origin(loc)
+			if bridge.has_region_at(at.x + 1.0, at.y + 1.0):
+				regions.append(loc)
+	var sig := hash([center, radius, regions])
+	if sig == _ground_mask_sig:
+		return
+	_ground_mask_sig = sig
+	var cells_per_region := int(Terrain3DBridge.REGION_M / 64.0)
+	var count := (radius * 2 + 1) * cells_per_region
+	var origin_region := center - Vector2i(radius, radius)
+	_ground_mask_img = Image.create(count, count, false, Image.FORMAT_R8)
+	_ground_mask_img.fill(Color.BLACK)
+	for loc: Vector2i in regions:
+		var cell := (loc - origin_region) * cells_per_region
+		_ground_mask_img.fill_rect(Rect2i(cell, Vector2i(cells_per_region, cells_per_region)), Color.WHITE)
+	if _ground_mask_tex == null or _ground_mask_tex.get_width() != count:
+		_ground_mask_tex = ImageTexture.create_from_image(_ground_mask_img)
+	else:
+		_ground_mask_tex.update(_ground_mask_img)
+	_ground_mat.set_shader_parameter("built_mask", _ground_mask_tex)
+	_ground_mat.set_shader_parameter("mask_cells", float(count))
+	_ground_mat.set_shader_parameter("mask_origin", Vector2(origin_region) * Terrain3DBridge.REGION_M)
 
 
 func _find_terrain() -> Node:

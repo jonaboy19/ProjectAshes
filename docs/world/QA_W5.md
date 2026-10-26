@@ -127,3 +127,7 @@ Read as 6-up sheets (640x360 per image); the fix shots were also read at full si
 | aerial flight 9 km at 70 m/s, 400 m up, terrain3d + valencious | p50 133.3 ms, p99 145.8; draws 81-147, 0.26-0.3 M prims; VRAM 3162 MB; 159 Terrain3D regions added; **region bake hitch (main thread add_region): avg 15.4 ms, worst 77.4 ms** (inflated by the loaded machine; headless W1e measured 5 ms); static 1185 MB; process RAM not sampled (OS reports 15.6 GB physical) |
 | aerial flight, legacy + noise | did not finish (run ended without FLIGHT_SUM; first windows p50 124 / 75 ms) |
 Take-aways that are not fps: Terrain3D + macro costs about +190 MB static memory and +6 000 nodes (ProtonScatter) in town; draw count is lower than legacy at the same spot; VRAM equal.
+
+## 2026-10-26 visual spot-check (PC / RTX 4070)
+
+Fresh Vulkan Forward+ 1280×720 quickshots are stored under `work/terrain_experiment_20261026/gpu_capture/`. The Rift Marches ground view (`w06_rift_marches_ground_noon.png`) resolves terrain and vegetation at ground level, but the paired slope lighting is high contrast and needs comparison against the Style G reference before grading changes. The 600 m grid aerial is strongly fogged and only useful for far-field/horizon review. These quickshots use the opt-in terrain-only startup mode and omit Region1Glue gameplay mask wiring; they are not population/gameplay captures or performance runs. Details and image-only tool output are in `work/terrain_experiment_20261026/README.md`.

@@ -330,11 +330,10 @@
   },
   "res://assets/incoming/animations/aaa/UAL_AAA_Combat_Reactions.glb": {
    "Hit_React_Head_Flinch_R": {
-    "status": "add",
-    "role": "soldier",
-    "why": "sheet p13: head-snap rock with guard hands up; light-hit alternative",
-    "layer": "upper",
-    "as": "Hit_Head_R",
+    "status": "skip",
+    "role": "",
+    "why": "same 14_01 6.0-7.4 source range as _L; not a right-side take or true mirror",
+    "layer": "full",
     "loop": false,
     "mirror_of": null,
     "source": "014/14_01.bvh [6.0, 7.4]"
@@ -342,7 +341,7 @@
    "Hit_React_Head_Flinch_L": {
     "status": "add",
     "role": "soldier",
-    "why": "same 14_01 6.0-7.4 range as _R (not a true mirror); kept so L/R picks exist",
+    "why": "sheet p13: head-snap rock with guard hands up; only distinct take in this pair",
     "layer": "upper",
     "as": "Hit_Head_L",
     "loop": false,

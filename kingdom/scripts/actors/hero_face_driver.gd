@@ -39,7 +39,8 @@ func setup(skeleton: Skeleton3D, p: Dictionary, garment: MeshInstance3D) -> void
 	_pel = sk.find_bone("pelvis")
 	_head = sk.find_bone("Head")
 	_body_mat = parts.get("BodyMat")
-	var q := get_node_or_null("/root/Quality")
+	var tree := Engine.get_main_loop() as SceneTree
+	var q: Node = tree.root.get_node_or_null("Quality") if tree != null else null
 	lids_allowed = q == null or int(q.get("tier")) >= 1
 	# mouth card on the Head bone, every tier (one draw, the hero is always near); placement from face_offsets.json["hero"]
 	var o := NpcFaceCard.offsets_for("hero")

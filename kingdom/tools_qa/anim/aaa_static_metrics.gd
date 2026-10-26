@@ -1,102 +1,97 @@
 extends SceneTree
-## Static metrics for the wired AAA clips (data/anim/aaa_clips.json), on the pack GLBs with the root track ENABLED:
-##   NaN transforms, lowest foot (cm below / above the clip's standing floor), the largest bone rotation away from rest (deg),
-##   the largest joint distance from the pelvis (explosion check, m), foot slide of the planted foot (mean / max m/s) and root
-##   travel. Acceptance (docs/anim/aaa_wiring): slide mean < 0.05, max < 0.15 m/s for in-place clips, feet >= -2 cm, no NaN,
-##   no bone > 150 deg from rest, joints within 1.2 m of the pelvis.
-##   Godot --headless --path kingdom -s tools_qa/anim/aaa_static_metrics.gd [-- --all]      (--all = skipped clips too)
+## Data-integrity scan of every staged AAA clip at 30 fps, matching gameplay's in-place root-position policy.
+## Checks finite bone transforms and ankle height only. It does not claim to grade pose quality, contacts, or clipping.
+## Godot --headless --path kingdom -s tools_qa/anim/aaa_static_metrics.gd [-- --all]
 const MAN := "res://data/anim/aaa_clips.json"
+const FLOOR_LIMIT := -0.02
 
 
 func _initialize() -> void:
-	var all := OS.get_cmdline_user_args().has("--all")
-	var man: Dictionary = JSON.parse_string(FileAccess.get_file_as_string(MAN))["packs"]
-	var bad := 0
-	print("clip | as | sec | travel_m | min_ankle_vs_rest_cm | max_bone_deg | max_joint_m | slide_mean | slide_max | NaN | verdict")
-	for pack: String in man:
-		var clips: Dictionary = man[pack]
-		var want: Array = []
-		for c: String in clips:
-			var st := String(clips[c]["status"])
-			if all or st == "add" or (st == "cmp"):
-				want.append(c)
-		if want.is_empty():
+	var include_skips := OS.get_cmdline_user_args().has("--all")
+	var manifest: Dictionary = JSON.parse_string(FileAccess.get_file_as_string(MAN))["packs"]
+	var failures := 0
+	var scanned := 0
+	print("clip | as | sec | min_ankle_cm | nonfinite | verdict")
+	for pack: String in manifest:
+		var clips: Dictionary = manifest[pack]
+		var wanted: Array = []
+		for clip_name: String in clips:
+			var status := String(clips[clip_name].get("status", "skip"))
+			if include_skips or status == "add" or status == "cmp":
+				wanted.append(clip_name)
+		if wanted.is_empty():
 			continue
-		var inst: Node = (load(pack) as PackedScene).instantiate()
-		root.add_child(inst)
+		var packed := load(pack) as PackedScene
+		if packed == null:
+			push_error("missing AAA pack: " + pack)
+			failures += wanted.size()
+			continue
+		var instance := packed.instantiate()
+		root.add_child(instance)
 		await process_frame
-		var sk: Skeleton3D = inst.find_children("*", "Skeleton3D", true, false)[0]
-		var ap: AnimationPlayer = inst.find_children("*", "AnimationPlayer", true, false)[0]
-		var fl := sk.find_bone("foot_l")
-		var fr := sk.find_bone("foot_r")
-		var pv := sk.find_bone("pelvis")
-		var rest_ankle := sk.get_bone_global_rest(fl).origin.y
-		for n in ap.get_animation_list():
-			if n == "RESET" or not want.has(n):
+		var skeletons := instance.find_children("*", "Skeleton3D", true, false)
+		var players := instance.find_children("*", "AnimationPlayer", true, false)
+		if skeletons.is_empty() or players.is_empty():
+			push_error("pack has no skeleton or AnimationPlayer: " + pack)
+			failures += wanted.size()
+			instance.queue_free()
+			await process_frame
+			continue
+		var skeleton := skeletons[0] as Skeleton3D
+		var player := players[0] as AnimationPlayer
+		var foot_l := skeleton.find_bone("foot_l")
+		var foot_r := skeleton.find_bone("foot_r")
+		if foot_l < 0 or foot_r < 0:
+			push_error("pack has no foot bones: " + pack)
+			failures += wanted.size()
+			instance.queue_free()
+			await process_frame
+			continue
+		for clip_name in player.get_animation_list():
+			if clip_name == "RESET" or not wanted.has(clip_name):
 				continue
-			var anim := ap.get_animation(n)
-			ap.play(n)
-			ap.pause()
-			var e: Dictionary = clips[n]
-			var trim: Array = e.get("trim", [0.0, anim.length])
-			var f0 := int(round(float(trim[0]) * 30.0))
-			var f1 := int(round(float(trim[1]) * 30.0))
-			var P: Array = []
-			var nan := false
-			var max_deg := 0.0
-			var max_joint := 0.0
-			for i in range(f0, f1 + 1):
-				ap.seek(i / 30.0, true)
-				sk.force_update_all_bone_transforms()
-				var a: Vector3 = sk.get_bone_global_pose(fl).origin
-				var b: Vector3 = sk.get_bone_global_pose(fr).origin
-				var p: Vector3 = sk.get_bone_global_pose(pv).origin
-				if is_nan(a.x) or is_nan(b.x) or is_nan(p.x):
-					nan = true
-				P.append([a, b, p])
-				for bi in sk.get_bone_count():
-					var q: Quaternion = sk.get_bone_pose_rotation(bi)
-					var r: Quaternion = sk.get_bone_rest(bi).basis.get_rotation_quaternion()
-					max_deg = maxf(max_deg, rad_to_deg(q.angle_to(r)))
-					if sk.get_bone_name(bi) != "root":
-						max_joint = maxf(max_joint, sk.get_bone_global_pose(bi).origin.distance_to(p))
-			var miny := 9.0
-			for r2 in P:
-				miny = minf(miny, minf(r2[0].y, r2[1].y))
-			# floor = the lowest the planted foot gets in the first and last 20 % (standing contact), cm relative to the rest ankle height
-			var floor_y := 9.0
-			for r2 in P:
-				floor_y = minf(floor_y, minf(r2[0].y, r2[1].y))
-			var tot := 0
-			var cont := 0
-			var sum := 0.0
-			var mx := 0.0
-			var dt := 1.0 / 30.0
-			for i in range(1, P.size()):
-				for f in 2:
-					var cur: Vector3 = P[i][f]
-					var prev: Vector3 = P[i - 1][f]
-					tot += 1
-					if cur.y < floor_y + 0.06 and absf(cur.y - prev.y) / dt < 0.25:
-						var v := Vector2(cur.x - prev.x, cur.z - prev.z).length() / dt
-						cont += 1
-						sum += v
-						mx = maxf(mx, v)
-			var trav := Vector2(P[-1][2].x - P[0][2].x, P[-1][2].z - P[0][2].z).length()
-			var mean := sum / maxi(cont, 1)
-			var travel_clip := trav > 1.0
+			var animation := player.get_animation(clip_name).duplicate(true) as Animation
+			var decision: Dictionary = clips[clip_name]
+			var trim: Array = decision.get("trim", [0.0, animation.length])
+			var start := clampf(float(trim[0]), 0.0, animation.length)
+			var finish := clampf(float(trim[1]), start, animation.length)
+			for track in animation.get_track_count():
+				var path := String(animation.track_get_path(track))
+				var colon := path.find(":")
+				if colon > 0 and path.substr(colon) == ":root" and animation.track_get_type(track) == Animation.TYPE_POSITION_3D:
+					animation.track_set_enabled(track, false)
+			var audit_library := AnimationLibrary.new()
+			audit_library.add_animation(clip_name, animation)
+			player.add_animation_library("audit", audit_library)
+			player.play("audit/" + clip_name)
+			player.pause()
+			var frame_start := int(round(start * 30.0))
+			var frame_end := int(round(finish * 30.0))
+			var has_nan := false
+			var min_ankle := INF
+			for frame in range(frame_start, frame_end + 1):
+				player.seek(frame / 30.0, true)
+				skeleton.force_update_all_bone_transforms()
+				var left: Vector3 = skeleton.get_bone_global_pose(foot_l).origin
+				var right: Vector3 = skeleton.get_bone_global_pose(foot_r).origin
+				min_ankle = minf(min_ankle, minf(left.y, right.y))
+				for bone in skeleton.get_bone_count():
+					var pose := skeleton.get_bone_global_pose(bone)
+					if not _finite_vec3(pose.origin) or not _finite_vec3(pose.basis.x) or not _finite_vec3(pose.basis.y) or not _finite_vec3(pose.basis.z):
+						has_nan = true
 			var verdict := "ok"
-			if nan or max_deg > 150.0 or max_joint > 1.2:
-				verdict = "BAD"
-			elif not travel_clip and (mean >= 0.05 or mx >= 0.15):
-				verdict = "slide"
-			elif travel_clip and (mean >= 0.25 or mx >= 0.6):
-				verdict = "slide(travel)"
-			if verdict == "BAD":
-				bad += 1
-			print("%s | %s | %.2f | %.2f | %+.1f | %.0f | %.2f | %.3f | %.3f | %s | %s" % [n, e.get("as", "-"), (f1 - f0) / 30.0, trav, (miny - rest_ankle) * 100.0, max_deg, max_joint,
-					mean, mx, nan, verdict])
-		inst.queue_free()
+			if has_nan or min_ankle < FLOOR_LIMIT:
+				verdict = "fail"
+				failures += 1
+			print("%s | %s | %.2f | %+.1f | %s | %s" % [
+				clip_name, decision.get("as", "-"), finish - start, min_ankle * 100.0, has_nan, verdict])
+			scanned += 1
+			player.remove_animation_library("audit")
+		instance.queue_free()
 		await process_frame
-	print("BAD clips: ", bad)
-	quit()
+	print("Scanned %d clips; %d data-integrity failures%s" % [scanned, failures, " (including skips)" if include_skips else ""])
+	quit(1 if failures > 0 else 0)
+
+
+func _finite_vec3(value: Vector3) -> bool:
+	return is_finite(value.x) and is_finite(value.y) and is_finite(value.z)

@@ -39,9 +39,15 @@ const UAL_CLIPS := {
 	"Block_Hit": {"kind": "once", "game": true, "upper": true},
 	"Dodge_Forward": {"kind": "once", "game": true},
 	"Hit_A": {"kind": "once", "game": true, "upper": true},
-	"Hit_B": {"kind": "once", "game": true},
-	"Death_A": {"kind": "death", "game": true},
-	"Death_B": {"kind": "death", "game": true},
+	# These legacy KayKit names are aliases, not the clips played at runtime.
+	# Assets.ual_character() resolves Death_A/B to Death01; CharacterAnimator
+	# can then prefer Stagger_Back for Hit_B. Keep the source clips in the audit,
+	# but don't count their defects as live-game defects.
+	"Hit_B": {"kind": "once", "game": false},
+	"Death_A": {"kind": "death", "game": false},
+	"Death_B": {"kind": "death", "game": false},
+	"Stagger_Back": {"kind": "once", "game": true},
+	"Death01": {"kind": "death", "game": true},
 	"Sitting_Idle": {"kind": "sit", "game": true},
 	"Sitting_Talking": {"kind": "sit", "game": false},
 	"Cheer": {"kind": "once", "game": true},
@@ -56,7 +62,7 @@ const UAL_CLIPS := {
 }
 ## Strips rendered for every humanoid; the extra list only for the representatives.
 const UAL_STRIPS := ["Idle", "Walking_A", "Running_A", "1H_Melee_Attack_Chop", "Hit_A", "Death_A"]
-const UAL_STRIPS_EXTRA := ["Sprint", "Blocking", "1H_Melee_Attack_Stab", "Block_Hit", "Dodge_Forward", "Hit_B", "Death_B",
+const UAL_STRIPS_EXTRA := ["Sprint", "Blocking", "1H_Melee_Attack_Stab", "Block_Hit", "Dodge_Forward", "Hit_B", "Death_B", "Stagger_Back", "Death01",
 	"Sitting_Idle", "Idle_Talking", "Farm_Harvest", "TreeChopping", "Fixing_Kneeling", "Walk_Carry", "Cheer"]
 const UAL_REPS := ["player_young", "villager_woman_a", "cdmir_monk", "g6_m_blacksmith_apron", "guard", "orc_warchief"]
 
@@ -90,7 +96,7 @@ static func subjects() -> Array[Dictionary]:
 	# --- Quaternius goblins / orcs (CampMonster): scaled to height by visual AABB.
 	var gob_clips := {"Idle": {"kind": "loop", "game": true}, "Walk": {"kind": "loco", "game": true},
 		"Run": {"kind": "loco", "game": true}, "SwordSlash": {"kind": "once", "game": true},
-		"Punch": {"kind": "once", "game": true}, "RecieveHit": {"kind": "once", "game": true},
+		"Punch": {"kind": "once", "game": false}, "RecieveHit": {"kind": "once", "game": true},
 		"SitDown": {"kind": "sit", "game": true}, "StandUp": {"kind": "sit", "game": true},
 		"Death": {"kind": "death", "game": true}}
 	var gob_strips := ["Idle", "Walk", "Run", "SwordSlash", "Punch", "RecieveHit", "SitDown", "Death"]
@@ -158,7 +164,7 @@ const CRITTERS := {
 	"rabbit": ["procedural/rabbit.glb", 0.7, 5.0], "dog": ["quaternius/dog.glb", 1.1, 4.0],
 	"sheepdog": ["quaternius/sheepdog.glb", 1.1, 4.0], "cat": ["quaternius/cat.glb", 0.5, 2.5],
 	"cat_ginger": ["quaternius/cat_ginger.glb", 0.5, 2.5], "cow": ["quaternius/cow.glb", 0.7, 2.0],
-	"ox": ["quaternius/ox.glb", 0.7, 2.0], "sheep": ["quaternius/sheep.glb", 0.6, 2.4],
+	"ox": ["quaternius/ox.glb", 0.7, 2.0], "sheep": ["res://assets/generated/animals/sheep_contact_walk.glb", 0.6, 2.4],
 	"pig": ["quaternius/pig.glb", 0.6, 2.2], "goat": ["quaternius/goat.glb", 0.7, 2.8],
 	"horse": ["quaternius/horse_riding.glb", 0.9, 5.0], "horse_grey": ["quaternius/horse_grey.glb", 0.9, 5.0],
 	"horse_draft": ["quaternius/horse_draft.glb", 0.8, 4.0], "donkey": ["quaternius/donkey.glb", 0.7, 3.0],
@@ -172,11 +178,11 @@ const CRITTERS := {
 const CRITTER_CLIP_SPEEDS := {
 	"dog": {"Walk": 0.70, "Run": 1.71}, "sheepdog": {"Walk": 0.71, "Run": 1.73},
 	"cow": {"Walk": 1.06, "Run": 4.99}, "ox": {"Walk": 1.01, "Run": 4.64},
-	"sheep": {"Run": 1.92}, "pig": {"Run": 1.29},
+	"sheep": {"Walk": 0.60, "Run": 1.92}, "pig": {"Run": 1.29},
 	"horse": {"Walk": 1.41, "Run": 5.86}, "horse_grey": {"Walk": 1.36, "Run": 5.68},
-	"horse_draft": {"Walk": 1.53, "Run": 6.41}, "donkey": {"Walk": 1.30},
-	"deer": {"Walk": 1.06}, "stag": {"Walk": 1.31}, "fox": {"Walk": 0.44, "Run": 1.87},
-	"goat": {"Walk": 0.76},
+	"horse_draft": {"Walk": 1.53, "Run": 6.41}, "donkey": {"Walk": 1.30, "Run": 5.94},
+	"deer": {"Walk": 1.06, "Run": 5.56}, "stag": {"Walk": 1.31}, "fox": {"Walk": 0.44, "Run": 1.87},
+	"goat": {"Walk": 0.76, "Run": 4.01},
 }
 
 

@@ -51,6 +51,8 @@ const UAL_FILES := [
 	# directional hit reactions, staggers, parry/riposte, finishers, heavy/run/2H/spear/bow, deaths.
 	# Timing markers: animations/combat/combat_markers.json (CombatMarkers). Root track disabled like the rest.
 	UAL_ANIM_DIR + "combat/UAL_Combat.glb",
+	# Reviewed unarmed technique strikes (docs/anim/free_library/review_results.md); unique MA_Punch_* names.
+	"res://assets/incoming/animations_free/martial_arts_unarmed/UAL_Free_MartialArtsUnarmed.glb",
 	# Elemental casting v2 (docs/anim/free_library/polish_casting.md): Cast_<Element>_Charge / _Release, Cast_AoE_Slam,
 	# Cast_Channel_Beam. In place, so no root handling is needed.
 	"res://assets/incoming/animations_free/casting/UAL_Free_CastingElements.glb"]

@@ -351,7 +351,9 @@ func serialize() -> Dictionary:
 	var last := _ids.size()
 	while last > 0 and _ids[last - 1] == 0:
 		last -= 1
-	return {"v": 1, "ids": Marshalls.raw_to_base64(_ids.slice(0, last).to_byte_array()), "b": Marshalls.raw_to_base64(_buf.slice(0, last * STRIDE))}
+	var ids_raw := _ids.slice(0, last).to_byte_array()
+	var buf_raw := _buf.slice(0, last * STRIDE)
+	return {"v": 1, "ids": Marshalls.raw_to_base64(ids_raw) if not ids_raw.is_empty() else "", "b": Marshalls.raw_to_base64(buf_raw) if not buf_raw.is_empty() else ""}
 
 
 func deserialize(d: Dictionary) -> void:

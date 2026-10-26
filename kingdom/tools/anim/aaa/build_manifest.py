@@ -81,8 +81,8 @@ d(P, "Knockback_3Step_Stumble_Recoil", "cmp", "Stagger_Back_Mocap", "soldier", w
 d(P, "Guard_Impact_Heavy_Stagger", "skip", why="duplicate of Blade_Clash_Lock (144_07 1.8-3.4)")
 # --- Combat_Reactions
 P = "Combat_Reactions"
-d(P, "Hit_React_Head_Flinch_R", "add", "Hit_Head_R", "soldier", layer="upper", why="sheet p13: head-snap rock with guard hands up; light-hit alternative")
-d(P, "Hit_React_Head_Flinch_L", "add", "Hit_Head_L", "soldier", layer="upper", why="same 14_01 6.0-7.4 range as _R (not a true mirror); kept so L/R picks exist")
+d(P, "Hit_React_Head_Flinch_R", "skip", why="same 14_01 6.0-7.4 source range as _L; not a right-side take or true mirror")
+d(P, "Hit_React_Head_Flinch_L", "add", "Hit_Head_L", "soldier", layer="upper", why="sheet p13: head-snap rock with guard hands up; only distinct take in this pair")
 d(P, "Hit_React_Gut_Wind_Knockout", "skip", why="duplicate of Guard_Break_Stumble (14_03 3.2-4.5)")
 d(P, "Hit_React_Leg_Sweep_Trip", "skip", why="foot 6.7 cm below floor (min_foot_m -0.067)")
 d(P, "Knockdown_Hard_Landing", "skip", why="sheet p04: standing idle then a lean, not a knockdown (090_17)")

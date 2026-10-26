@@ -1,0 +1,5 @@
+group,subject,clip,kind,game_uses,status,length_s,looping,slide_cm_s,ground_speed_m_s,penetration_cm,hover_cm,airborne_s,stretch_pct,scale_pct,pops,max_ang_acc_deg_f2,seam_deg,seam_cm,drift_cm,tpose_frames,notes
+animals,animal_chicken,Idle,loop,true,PASS,2.00,true,0.0,0.00,0.0,0.0,0.00,0.00,0.00,0,4.0,0.0,0.0,0.0,241,""
+animals,animal_chicken,Walk,loco,true,FAIL,1.04,true,47.1,0.00,0.1,0.0,0.00,0.00,0.00,0,10.0,0.0,0.0,0.0,63,"planted foot slips 47 cm/s (p75)"
+animals,animal_chicken,Run,loco,true,FAIL,0.54,true,121.1,0.00,0.0,0.7,0.00,0.00,0.00,0,59.0,0.0,0.0,0.0,0,"planted foot slips 121 cm/s (p75)"
+animals,animal_chicken,Eat,loop,true,WARN,2.00,true,11.3,0.00,0.7,0.0,0.00,0.00,0.00,2,28.5,0.0,0.0,0.0,155,"planted foot slips 11 cm/s (p75); 2 pop(s), worst on 'neck' at 0.53 s (29 deg/frame^2)"

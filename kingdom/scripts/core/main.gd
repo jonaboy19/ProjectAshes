@@ -62,6 +62,7 @@ var _raids_cleared := 0
 
 func _ready() -> void:
 	pixel_mode = _user_args().has("pixel")
+	var qa_terrain_capture := _user_args().has("qa_terrain_capture")
 	var container := SubViewportContainer.new()
 	container.set_anchors_preset(Control.PRESET_FULL_RECT)
 	container.stretch = true
@@ -96,30 +97,38 @@ func _ready() -> void:
 	hud.add_action_button("lock_on", "Lock", "lock_on", "glyph:lock")
 	hud.add_action_button("crouch", "Sneak", "crouch", "walk")
 
-	hud.set_loading_text("Painting sprites...", 0.04)
-	await get_tree().process_frame
-	await baker.bake("soldier", "Knight", ["Knight_Helmet", "1H_Sword", "Round_Shield"])
-	await baker.bake("raider", "Barbarian", ["1H_Axe", "Barbarian_Round_Shield", "Barbarian_Hat"])
-	var looks_done := 0
-	for look: String in PopulationLOD.LOOK_MODEL:
-		hud.set_loading_text("Painting sprites...", 0.08 + 0.32 * looks_done / maxf(1.0, PopulationLOD.LOOK_MODEL.size()))
-		looks_done += 1
-		var model: Array = PopulationLOD.LOOK_MODEL[look]
-		var keep: Array[String] = []
-		keep.assign(model[1])
-		await baker.bake(look, model[0], keep, "Walking_A")
+	if not qa_terrain_capture:
+		hud.set_loading_text("Painting sprites...", 0.04)
+		await get_tree().process_frame
+		await baker.bake("soldier", "Knight", ["Knight_Helmet", "1H_Sword", "Round_Shield"])
+		await baker.bake("raider", "Barbarian", ["1H_Axe", "Barbarian_Round_Shield", "Barbarian_Hat"])
+		var looks_done := 0
+		for look: String in PopulationLOD.LOOK_MODEL:
+			hud.set_loading_text("Painting sprites...", 0.08 + 0.32 * looks_done / maxf(1.0, PopulationLOD.LOOK_MODEL.size()))
+			looks_done += 1
+			var model: Array = PopulationLOD.LOOK_MODEL[look]
+			var keep: Array[String] = []
+			keep.assign(model[1])
+			await baker.bake(look, model[0], keep, "Walking_A")
 
 	hud.set_loading_text("Raising the land...", 0.45)
 	await get_tree().process_frame
 	terrain = TerrainStreamer.new()
 	world.add_child(terrain)
+	if qa_terrain_capture:
+		terrain.set_process(false)
 	water = WaterStreamer.new()
 	world.add_child(water)
 	settlements = SettlementBuilder.new()
 	world.add_child(settlements)
+	if qa_terrain_capture:
+		settlements.set_process(false)
 	population = PopulationLOD.new()
 	world.add_child(population)
-	population.setup(baker)
+	if not qa_terrain_capture:
+		population.setup(baker)
+	if qa_terrain_capture:
+		population.set_process(false)
 	frontier = FrontierPresence.new()
 	world.add_child(frontier)
 	Frontier.frontier_event.connect(func(text: String, _pos: Vector2) -> void: Game.say(text))
@@ -131,11 +140,18 @@ func _ready() -> void:
 	terrain.view_radius = 2
 	hud.set_loading_text("Raising the land...", 0.5)
 	await get_tree().process_frame
-	terrain.build_all_now()
-	terrain.view_radius = 4
+	if not qa_terrain_capture:
+		terrain.build_all_now()
+	terrain.view_radius = 2 if qa_terrain_capture else 4
 	hud.set_loading_text("Building the villages...", 0.7)
 	await get_tree().process_frame
-	settlements.update_now()
+	# World look captures teleport after the game has finished booting. Building the
+	# home town first wastes memory on assets outside the requested view and can
+	# starve the GPU capture on lower-memory PCs. This opt-in QA flag leaves the
+	# normal startup path untouched; look_capture builds a town explicitly when
+	# its selected camera actually needs one.
+	if not qa_terrain_capture:
+		settlements.update_now()
 
 	world.add_child(player)
 	player.global_position = spawn
@@ -147,6 +163,17 @@ func _ready() -> void:
 	InteriorDoor.external_dispatch = true
 	player.health_changed.connect(_on_player_health)
 	player.died.connect(_on_player_died)
+	if qa_terrain_capture:
+		Life.player = player
+		region = RegionDressing.new()
+		world.add_child(region)
+		weather = preload("res://scripts/world/weather.gd").new()
+		weather.name = "Weather"
+		weather.add_to_group("weather")
+		world.add_child(weather)
+		weather.setup(env, sun, player.camera)
+		hud.visible = false
+		return
 
 	captain = Captain.new()
 	world.add_child(captain)
@@ -637,10 +664,13 @@ func _teleport(p: Vector2, yaw: float) -> void:
 	water.focus = pos
 	water.build_all_now()
 	settlements.focus = pos
-	for i in 4:
-		settlements.update_now()
 	population.focus = pos
-	population.refresh()
+	if not _user_args().has("qa_terrain_capture"):
+		for i in 4:
+			settlements.update_now()
+		population.refresh()
+	elif _user_args().has("qa_terrain_capture"):
+		terrain.set_process(true)
 
 
 func _run_demo() -> void:

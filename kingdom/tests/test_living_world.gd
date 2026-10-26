@@ -113,6 +113,21 @@ func test_ambience_is_stable_per_person() -> void:
 	assert_bool(a.walk_speed != c.walk_speed or a.anim_rate != c.anim_rate).is_true()
 
 
+func test_snow_selects_cold_ambience_over_rain() -> void:
+	assert_str(LifeAmbience.weather_kind(false, true)).is_equal("cold")
+	assert_str(LifeAmbience.weather_kind(true, false)).is_equal("rain")
+	assert_str(LifeAmbience.weather_kind(false, false)).is_equal("clear")
+
+
+func test_fatigue_selects_tired_gait() -> void:
+	var amb := LifeAmbience.new(42)
+	amb.walk_style = "Walk"
+	var rested := amb.think(0.3, {"weather": "clear", "hour": 12.0, "tired": false, "walking": true})
+	var tired := amb.think(0.3, {"weather": "clear", "hour": 12.0, "tired": true, "walking": true})
+	assert_str(String(rested["walk"])).is_equal("Walk")
+	assert_str(String(tired["walk"])).is_equal("Life_Walk_Tired")
+
+
 ## A new body with no clip playing must be posed (Idle) before CrowdAnimLOD may freeze it, never left at bind pose.
 func test_anim_lod_never_freezes_a_bind_pose() -> void:
 	var lod := CrowdAnimLOD.new()

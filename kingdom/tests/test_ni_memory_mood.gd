@@ -11,6 +11,14 @@ const Core := preload("res://scripts/sim/utility_core.gd")
 static var _world := false
 
 
+func test_empty_psyche_serializes_without_empty_base64_error() -> void:
+	var psyche := Psyche.new()
+	var data: Dictionary = psyche.serialize()
+	assert_int(int(data["z"])).is_equal(0)
+	assert_str(String(data["d"])).is_empty()
+	psyche.deserialize(data)
+
+
 func _hub() -> RefCounted:
 	if not _world:
 		WorldGen.setup(2024)

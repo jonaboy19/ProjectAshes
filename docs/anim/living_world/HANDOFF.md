@@ -154,3 +154,13 @@ blender -b -P kingdom/tools/blender/make_life_props.py -- [names] [--sheet]
 Godot --path kingdom res://tools_qa/living_world/vat_bake.tscn [-- --looks=a,b]
 py kingdom/tools/anim/check_unique_clips.py kingdom/assets/incoming/animations/life
 ```
+
+## 2026-10-26 cold-weather ambience fix
+
+`villager.gd::_ambience_tick()` previously sent only `"rain"` or `"clear"` to `LifeAmbience`, so snow never activated its existing cold-weather fidgets and reactions. `UtilityBrain` now resolves the current weather node per `SceneTree` and exposes `is_snowing()`; `LifeAmbience.weather_kind()` maps snow/rain/clear; villagers pass that kind to the ambience controller. Focused GdUnit run on Godot 4.6.3: 24 cases passed across `test_living_world.gd` and `test_utility_brain.gd`. The test process still reports the existing shutdown ObjectDB/resource-leak warning (74 resources in use); this is not a clean whole-game boot or visual capture. Runtime snow behavior still needs a PC in-game capture.
+
+## 2026-10-26 work-loop animation variation
+
+`scripts/living_world/smart_objects.gd::Session` now chooses `loop` and `between` takes from separate deterministic shuffled bags keyed by world seed, day, in-game minute, resident, smart-object spot, slot, and optional session seed. Different visit-time buckets receive independent orders (which can still match by chance); the first take is explicitly changed across adjacent days when the action pool has alternatives. Identical day/time reloads remain stable. The original RNG stream for activity duration and cycle count is preserved; target, claim, schedule, activity state, and emitted event behavior are unchanged. Confirmed `data/living_world/smart_objects.json` has no duplicate loop/between clip entries, so deduplicating the bag does not remove intentional duplicate weighting.
+
+Regression suite: `tests/test_smart_object_variants.gd` (4 passed, including a same-day different-time sequence check) and existing `tests/test_living_world.gd` (12 passed in the earlier run). Godot 4.6.3 then crashed during shutdown after reporting 74 resources still in use; assertion results passed, but this is not clean process shutdown. No multi-day in-game visual capture has been recorded yet. Details: `work/living_world_emergence_review_20261026/README.md`.

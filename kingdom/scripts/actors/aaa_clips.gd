@@ -100,7 +100,6 @@ static func merge_into(lib: AnimationLibrary, sk: String) -> int:
 				_trim(a, float(e["trim"][0]), float(e["trim"][1]))
 			a.loop_mode = Animation.LOOP_LINEAR if bool(e.get("loop", false)) else Animation.LOOP_NONE
 			a.set_meta("aaa_source", pack.get_file() + ":" + clip)      # tests tell AAA clips from same-named existing ones
-			a.set_meta("aaa_source", pack.get_file() + ":" + clip)      # tests tell AAA clips from same-named existing ones
 			lib.add_animation(game_name, a)
 			added += 1
 		inst.free()
