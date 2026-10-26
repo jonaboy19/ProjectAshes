@@ -14,6 +14,7 @@ const ORDER_KINDS := [["move", "Move"], ["attack", "Attack"], ["hold", "Hold"], 
 const RETREATS := ["orderly", "rout", "feigned", "scorched"]
 const FORMATIONS := ["line", "wedge", "square", "skirmish", "column"]
 const NEEDS_TARGET := ["move", "attack", "retreat"]
+const Ledger := preload("res://scripts/realm/settlement_ledger.gd")
 const WarMap := preload("res://scripts/ui/war/war_map.gd")
 const War := preload("res://scripts/sim/war_sim.gd")
 const TOUCH_H := 64.0
@@ -444,6 +445,7 @@ func _signature(id: String) -> Array:
 				s.append_array([fa.call("factions").size(), fa.call("relation", "player", "church"), fa.call("kingship_paths"),
 					fa.call("marriages"), fa.call("sects"), fa.call("news", 6)])
 		"land":
+			s.append(Ledger.rows(mod("founding")))
 			var la := mod("land")
 			var se := mod("settlements")
 			if la != null:
@@ -924,6 +926,7 @@ func _fill_diplomacy(box: VBoxContainer) -> void:
 func _fill_land(box: VBoxContainer) -> void:
 	var la := mod("land")
 	var se := mod("settlements")
+	_fill_settlements(box)
 	if la == null and se == null:
 		_empty(box)
 		return
@@ -1110,3 +1113,45 @@ func _fill_enterprise(box: VBoxContainer) -> void:
 	for line: String in log.slice(maxi(0, log.size() - 4)):
 		own.add_child(Kit.lbl(line, 14, AF.TEXT_DIM, true, "italic"))
 	box.add_child(_framed(own))
+
+## Your settlements (founding.gd): scale, what the next scale needs, stage, blockers, problems, actions. READY_V1 C4 ledger.
+func _fill_settlements(box: VBoxContainer) -> void:
+	var fd := mod("founding")
+	var rows: Array = Ledger.rows(fd)
+	box.add_child(Kit.section("Your settlements"))
+	if rows.is_empty():
+		_empty(box, "You hold no settlement yet. Open the Build menu and place a first piece on open ground to found a camp.")
+		return
+	for r: Dictionary in rows:
+		var v := _card()
+		var head := HBoxContainer.new()
+		head.add_child(Kit.lbl(String(r["name"]), 19, AF.TEXT, false, "title_bold"))
+		head.add_child(Kit.hspacer())
+		head.add_child(Kit.lbl(String(r["scale"]).capitalize(), 17, AF.GOLD_BRIGHT))
+		v.add_child(head)
+		v.add_child(Kit.lbl(String(r["stage_words"]), 15, AF.TEXT_DIM, true, "italic"))
+		if String(r["next_scale"]) != "":
+			v.add_child(_stat_bar("To %s" % String(r["next_scale"]), float(r["progress"]), AF.GOLD, "%d%%" % roundi(float(r["progress"]) * 100.0)))
+			v.add_child(_stat_bar("People", Ledger.ratio(int(r["pop"]), int(r["pop_need"])), Color("7fb3d9"), "%d / %d" % [int(r["pop"]), int(r["pop_need"])]))
+			v.add_child(_stat_bar("Services", Ledger.ratio(int(r["services"]), int(r["services_need"])), Color("9fd18b"), "%d / %d" % [int(r["services"]), int(r["services_need"])]))
+			v.add_child(_stat_bar("Works", Ledger.ratio(int(r["infra"]), int(r["infra_need"])), Color("d9b77f"), "%d / %d" % [int(r["infra"]), int(r["infra_need"])]))
+		if not (r["service_list"] as Array).is_empty():
+			v.add_child(Kit.lbl("Has: " + ", ".join(r["service_list"]), 15, AF.TEXT_DIM, true))
+		for bl: String in r["blockers"]:
+			v.add_child(Kit.lbl("• Next: " + bl, 15, AF.TEXT, true))
+		for pr: String in r["problems"]:
+			v.add_child(Kit.lbl("• " + pr, 15, Color("e08a6a"), true))
+		if String(r["escalation_words"]) != "":
+			v.add_child(Kit.lbl(String(r["land_words"]) + "  " + String(r["escalation_words"]), 14, AF.TEXT_DIM, true, "italic"))
+		var fid := int(r["fid"])
+		if "petition" in (r["actions"] as Array):
+			v.add_child(_btn("File a petition for recognition", func() -> void:
+				var res: Dictionary = fd.call("file_petition", fid)
+				Game.say("Petition filed." if bool(res.get("ok", false)) else String(res.get("reason", "")))
+				_rebuild("land", true), true))
+		if "appoint" in (r["actions"] as Array):
+			v.add_child(_btn("Appoint reeve, captain and steward from your settlers", func() -> void:
+				var n := int(fd.call("appoint_from_settlers", fid))
+				Game.say("%d officials appointed." % n)
+				_rebuild("land", true), true))
+		box.add_child(_framed(v))
