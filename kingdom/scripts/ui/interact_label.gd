@@ -98,6 +98,14 @@ static func from_prompt(p: String) -> Dictionary:
 	return {"verb": t.left(sp), "target": rest}
 
 
+## The label with the trigger glyph in front: "[E] Talk — Roland Ward" (a copy; `glyph` also kept as its own key).
+static func with_glyph(lab: Dictionary, glyph: String) -> Dictionary:
+	var out := lab.duplicate()
+	out["glyph"] = glyph
+	out["text"] = ("[%s] %s" % [glyph, String(lab.get("text", ""))]) if glyph != "" else String(lab.get("text", ""))
+	return out
+
+
 ## {verb, target, text, icon} from a verb and a target (what Interactable.label() ends in).
 static func pack(verb: String, target: String) -> Dictionary:
 	return _pack(verb, target)

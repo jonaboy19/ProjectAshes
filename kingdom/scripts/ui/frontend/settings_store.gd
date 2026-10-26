@@ -7,6 +7,12 @@ extends RefCounted
 ##   SS.get_value("cam_sens")   # read from anywhere in game code
 
 const PATH := "user://settings.cfg"
+## Tests point the [controls] section at a scratch file (set back to "" afterwards).
+static var controls_path_override := ""
+## Keys a rebind may never take: Esc cancels the capture and always opens the pause menu.
+const RESERVED_KEYS := [KEY_ESCAPE]
+## Actions that share digit keys on purpose (hotbar / army orders / hand seals; see tests/test_controls_scheme.gd).
+const CONTEXTUAL_PREFIXES := ["order_", "seal_"]
 
 const RES_OPTIONS := ["1280 x 720", "1600 x 900", "1920 x 1080", "2560 x 1440"]
 const LEVELS := ["Low", "Medium", "High", "Ultra"]
@@ -43,7 +49,13 @@ const ACTIONS := [
 	["quick_save", "Quick Save"], ["quick_load", "Quick Load"], ["lock_on", "Lock On"], ["crouch", "Crouch / Sneak"],
 	["ability_dash", "Shadow Dash"], ["menu_inventory", "Inventory"], ["menu_skills", "Skills"],
 	["menu_treasury", "Treasury"], ["menu_followers", "Followers"], ["menu_court", "Court"], ["menu_letters", "Letters"],
+	["technique_wheel", "Technique Wheel"], ["technique_1", "Technique 1"], ["technique_2", "Technique 2"],
+	["technique_3", "Technique 3"], ["technique_4", "Technique 4"], ["zoom_in", "Camera Zoom In"], ["zoom_out", "Camera Zoom Out"],
 ]
+## Section headers of the Controls tab: the first action of each block -> its title.
+const ACTION_GROUPS := {
+	"move_forward": "Movement", "attack": "Combat", "interact": "World", "journal": "Menus", "technique_wheel": "Techniques",
+}
 
 
 ## The four level rows from a loaded config as Quality overrides (-1 = follow the preset).
@@ -217,28 +229,96 @@ static func apply_volume(key: String, pct: int) -> void:
 	AudioServer.set_bus_mute(idx, pct <= 0)
 
 
-## Re-applies saved key rebinds ([controls] action = physical keycode).
+## Re-applies saved key rebinds ([controls] action = physical keycode). Saved rebinds were validated when made, so a
+## swap (A takes B's key, B takes A's) loads without tripping the conflict check.
 static func apply_controls() -> void:
 	var cf := ConfigFile.new()
-	if cf.load(PATH) != OK or not cf.has_section("controls"):
+	var path := controls_path()
+	if cf.load(path) != OK or not cf.has_section("controls"):
 		return
 	for key: String in cf.get_section_keys("controls"):
-		set_binding(key, int(cf.get_value("controls", key)), false)
+		_apply_binding(key, int(cf.get_value("controls", key)))
 
 
+static func controls_path() -> String:
+	return controls_path_override if controls_path_override != "" else PATH
+
+
+## First keyboard key of the action as text ("E"), "-" when it has none.
 static func binding_text(action: String) -> String:
 	if not InputMap.has_action(action):
 		return "-"
 	for ev in InputMap.action_get_events(action):
 		if ev is InputEventKey:
 			var k := ev as InputEventKey
-			var code: Key = k.physical_keycode if k.physical_keycode != KEY_NONE else k.keycode
-			return OS.get_keycode_string(DisplayServer.keyboard_get_keycode_from_physical(code))
+			return preload("res://scripts/ui/input_glyphs.gd").key_text(k.physical_keycode if k.physical_keycode != KEY_NONE else k.keycode)
 	return "-"
 
 
-## Replaces the first keyboard binding of `action` with `keycode` (physical).
-static func set_binding(action: String, keycode: int, save := true) -> void:
+## The other action that already owns `keycode` ("" = free). Hotbar / order / seal digits may be shared.
+static func conflict_for(action: String, keycode: int) -> String:
+	for a: Array in ACTIONS + [["order_follow", ""], ["order_hold", ""], ["order_charge", ""], ["order_retreat", ""],
+			["order_formation", ""], ["seal_1", ""], ["seal_2", ""], ["seal_3", ""], ["seal_4", ""], ["seal_5", ""], ["seal_6", ""]]:
+		var other := String(a[0])
+		if other == action or not InputMap.has_action(other):
+			continue
+		if _contextual(action) and _contextual(other):
+			continue
+		for ev in InputMap.action_get_events(other):
+			if ev is InputEventKey:
+				var k := ev as InputEventKey
+				if (k.physical_keycode if k.physical_keycode != KEY_NONE else k.keycode) == keycode:
+					return other
+	return ""
+
+
+static func _contextual(action: String) -> bool:
+	for p: String in CONTEXTUAL_PREFIXES:
+		if action.begins_with(p):
+			return true
+	return false
+
+
+## Why `keycode` cannot go on `action`: "" = it can, "reserved", or "conflict:<other action>".
+static func bind_problem(action: String, keycode: int) -> String:
+	if not InputMap.has_action(action):
+		return "unknown"
+	if RESERVED_KEYS.has(keycode):
+		return "reserved"
+	var other := conflict_for(action, keycode)
+	return "conflict:" + other if other != "" else ""
+
+
+## Rebinds the action's first keyboard key and saves it. Returns "" on success, else bind_problem()'s reason (nothing changes).
+## `swap` moves the key's old owner onto this action's old key instead of refusing.
+static func try_bind(action: String, keycode: int, swap := false) -> String:
+	var problem := bind_problem(action, keycode)
+	if problem.begins_with("conflict:") and swap:
+		var other := problem.substr(9)
+		var mine := _first_key(action)
+		_apply_binding(action, keycode)
+		_save_binding(action, keycode)
+		if mine != KEY_NONE:
+			_apply_binding(other, mine)
+			_save_binding(other, mine)
+		return ""
+	if problem != "":
+		return problem
+	_apply_binding(action, keycode)
+	_save_binding(action, keycode)
+	return ""
+
+
+static func _first_key(action: String) -> int:
+	for ev in InputMap.action_get_events(action):
+		if ev is InputEventKey:
+			var k := ev as InputEventKey
+			return k.physical_keycode if k.physical_keycode != KEY_NONE else k.keycode
+	return KEY_NONE
+
+
+## Replaces the first keyboard binding of `action` with `keycode` (physical); no checks.
+static func _apply_binding(action: String, keycode: int) -> void:
 	if not InputMap.has_action(action):
 		return
 	var replaced := false
@@ -249,18 +329,24 @@ static func set_binding(action: String, keycode: int, save := true) -> void:
 	var nk := InputEventKey.new()
 	nk.physical_keycode = keycode as Key
 	InputMap.action_add_event(action, nk)
-	if save:
-		var cf := ConfigFile.new()
-		cf.load(PATH)
-		cf.set_value("controls", action, keycode)
-		cf.save(PATH)
-		invalidate_cache()
 
 
+static func _save_binding(action: String, keycode: int) -> void:
+	var cf := ConfigFile.new()
+	var path := controls_path()
+	cf.load(path)
+	cf.set_value("controls", action, keycode)
+	cf.save(path)
+	invalidate_cache()
+
+
+## Back to the shipped defaults (Game.KEYS / Game.PADS): drops the saved rebinds and re-creates every action.
 static func reset_controls() -> void:
 	var cf := ConfigFile.new()
-	cf.load(PATH)
+	var path := controls_path()
+	cf.load(path)
 	if cf.has_section("controls"):
 		cf.erase_section("controls")
-		cf.save(PATH)
+		cf.save(path)
 		invalidate_cache()
+	Engine.get_main_loop().root.get_node("Game").call("_setup_input")
