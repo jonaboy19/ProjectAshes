@@ -95,7 +95,7 @@ func _ready() -> void:
 	process_physics_priority = 100    # after the player moved its camera
 	set_physics_process(active == self)
 	Interactable.attach(self, {"id_fn": func() -> String: return String(model.get("id")) if model != null else String(name),
-		"verb": "Enter", "enabled": false, "do": func(_pl: Node) -> void: use(),
+		"verb": "Enter", "priority": PICK_PRIORITY, "enabled": false, "do": func(_pl: Node) -> void: use(),
 		"label": func() -> Dictionary: return load("res://scripts/ui/interact_label.gd").legacy(self)})
 	if not is_exit:
 		add_to_group("entrance_door")
@@ -109,6 +109,9 @@ func _ready() -> void:
 		if bn != "":
 			set_meta("building_name", bn)       # read by the HUD's "Enter — <name>" label
 
+
+## Picker priority: a door beats a Station/NPC standing beside it (priority 0), so E at a doorstep enters.
+const PICK_PRIORITY := 2
 
 const INN_ADJ := ["Golden", "Rusty", "Silver", "Laughing", "Sleeping", "Crimson", "Wandering", "Merry", "Gilded", "Broken"]
 const INN_NOUN := ["Stag", "Anvil", "Lantern", "Crow", "Barrel", "Boar", "Crown", "Hound", "Oak", "Wheatsheaf"]
