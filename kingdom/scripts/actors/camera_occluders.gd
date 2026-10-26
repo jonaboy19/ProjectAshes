@@ -70,12 +70,17 @@ func _fadeable(gi: GeometryInstance3D, pivot: Vector3) -> bool:
 	if box.get_longest_axis_size() > MAX_SIZE or box.has_point(pivot):
 		return false
 	# skip the hero; villagers, horses and monsters between the lens and the hero DO fade (an NPC head filled the lens)
+	# ... except the person the hero is talking to: the dialogue close-up frames them, and a faded MakeHuman body shows its
+	# eyeballs and teeth through the skin ("googly eyes" in every portrait, first-hour QA 2026-10-27).
+	var partner: Variant = ignore_root.get("_talk_partner") if ignore_root != null else null
+	if not (partner is Node and is_instance_valid(partner)):
+		partner = null
 	var n: Node = gi
 	for i in 8:
 		n = n.get_parent()
 		if n == null:
 			break
-		if n == ignore_root:
+		if n == ignore_root or (partner != null and n == partner):
 			return false
 	return true
 
