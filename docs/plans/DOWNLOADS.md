@@ -70,3 +70,30 @@ Sources: https://kenney.nl/assets/<slug>.
 
 ## What each pack is for (from docs/plans/AAA_FINISH_PLAN.md)
 UAL2 = extra clips on our skeleton; animals = replacement creature gaits (horse/donkey/fox/dog/wolf/deer/cow); KayKit = extra combat/interaction clips (needs retarget); Kenney = UI icons + UI/foley sounds; CMU = retarget sources.
+
+## Open-source mechanics / tools evaluation (mechanics worker, 2026-10-26)
+Rule: permissive licences only (MIT/Apache/BSD/CC0), wrapped behind our own API. All the "already installed" rows were checked on disk (`kingdom/addons/*/LICENSE`).
+
+| Need (MECHANICS_AUDIT row) | Candidate | Status | Licence / size | Decision |
+|---|---|---|---|---|
+| NPC / combat AI | LimboAI (BT + HSM) | already installed | MIT, 63 MB | keep; Beehave not needed (it would duplicate LimboAI) |
+| Camera | Phantom Camera | already installed | MIT, 2 MB | keep (a93 lane) |
+| Inventory | GLoot | already installed | MIT, 0.5 MB | keep; encumbrance goes on our `menu_data.carry_weight`, not a new item DB (Pandora not adopted: it would duplicate `items_db.gd`) |
+| Dialogue | Dialogue Manager (Nathan Hoad) | already installed | MIT, 1 MB | keep; Dialogic 2 not adopted (duplicate) |
+| Physics | Jolt (built into 4.6) | enabled (`3d/physics_engine="Jolt Physics"`) | MIT | nothing to download |
+| Terrain / foliage / roads | Terrain3D, ProtonScatter, Road Generator, SimpleGrassTextured | already installed | MIT | keep; Spatial Gardener / SmartShape3D not needed |
+| Sky / weather | Sky3D | already installed | MIT | keep; weather logic stays in `weather.gd` |
+| Footsteps by surface | Godot Material Footsteps (Benny Zhu) | already installed, evaluated | MIT, 1 MB | **not used for terrain**: it maps mesh materials to sounds, but our ground is procedural paint (WorldGen weights). Our `surface_query.gd` + `surface_feedback.gd` cover terrain + tagged colliders; the addon stays available for hand-built interiors |
+| Tests | GdUnit4 | already installed | MIT | keep (all M1 tests) |
+| Debug overlay | Debug Menu (Calinou), Debug Draw 3D | already installed | MIT | keep |
+| Quests | Quest Weaver | already installed | MIT | keep |
+| Save system | SaveMadeEasy-type | not adopted | — | `sim/save_manager.gd` + `save_codec.gd` already work; a swap would risk old saves |
+| Interaction system addons | — | not adopted | — | `scripts/interaction/` already unified (kinds/*) |
+| State charts | Godot State Charts (MIT, ~1 MB) | recommend, not downloaded | MIT | only if a93 wants it for the traversal/climb HSM; LimboAI HSM covers the same need |
+| In-game console | LimboConsole (MIT, < 1 MB) | recommend, not downloaded | MIT | useful for QA teleports/needs cheats; download on request |
+| Level blockout | Cyclops Level Builder / Func Godot | not adopted | MIT | towns are procedural; no blockout need |
+| Rivers | Waterways | not adopted | MIT | water is WorldGen-driven (`water_streamer.gd`); a Waterways mesh would fork the source of truth |
+| Git in editor | Godot-Git plugin | not adopted | MIT | agents use git CLI |
+| Lint/format | gdtoolkit (gdlint/gdformat) | external, already at `C:\Users\Jonna\Tools\gdtoolkit` | MIT | use as is |
+| Audio | Kenney Impact Sounds `footstep_snow_000-004` | staged, already downloaded | CC0, ~60 KB | adopted as `step_snow_01-05.ogg` once an editor import makes `.import` files; held in scratch so headless runs don't break ("No loader found") |
+Net new downloads this pass: **none** (every gap was either covered by an installed MIT addon or is small enough to write behind our API).
