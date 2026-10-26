@@ -578,6 +578,40 @@ func resolve_petition(fid: int, granted: bool) -> bool:
 	return true
 
 
+## The realm answers a filed petition after PEND_DAYS: granted when the place is at least a village (scale 2) with two or more
+## officials and the land dispute has not reached enforcement. A granted player petition makes them "Lord of <name>" (sim/titles.gd).
+static func petition_verdict(scale: int, officials: int, esc_step: int) -> bool:
+	return scale >= 2 and officials >= 2 and esc_step < 5
+
+
+func _petition_step(f: Dictionary, day: int, msgs: Array) -> void:
+	var pet: Dictionary = f["pet"]
+	if String(pet.get("state", "")) != "filed" or day - int(pet.get("day", day)) < PEND_DAYS:
+		return
+	var ok := petition_verdict(int(f["sc"]), (f["off"] as Dictionary).size(), int((f["esc"] as Dictionary)["step"]))
+	resolve_petition(int(f["id"]), ok)
+	if ok:
+		_say(f, "%s answers: %s is recognised, and you are its lord." % [String(pet.get("to", "The Crown")), String(f["name"])], msgs)
+		_ev("founding", f, "recognition", "%s is recognised as a lordship" % String(f["name"]), 5)
+		if String(f["who"]) == "player":
+			_grant_lord_title(f, day)
+	else:
+		_say(f, "%s refuses to recognise %s yet (it must be a village with appointed officials)." % [String(pet.get("to", "The Crown")), String(f["name"])], msgs)
+		f["pet"] = {}   # the player may petition again later
+
+
+func _grant_lord_title(f: Dictionary, day: int) -> void:
+	var loop := Engine.get_main_loop() as SceneTree
+	var life: Node = loop.root.get_node_or_null(^"Life") if loop != null else null
+	if life == null or life.get("titles") == null:
+		return
+	var t: Object = life.get("titles")
+	var id := "lord_of_%d" % int(f["id"])
+	t.call("add", {"id": id, "name": "Lord of %s" % String(f["name"]), "desc": "Your settlement was recognised by %s." % String((f["pet"] as Dictionary).get("to", "the Crown")),
+		"effect": {"merit": 0}})
+	t.call("grant", id, day)
+
+
 # ------------------------------------------------------------------ officials (appointed, 6.11)
 
 func appoint(fid: int, role: String, who: Dictionary) -> bool:
@@ -1591,6 +1625,7 @@ func _week_f(f: Dictionary, weeks: float, day: int, msgs: Array) -> void:
 		_recruit(f, day, msgs)
 	t0 = _pf("w1 recruit", t0)
 	_residents_week(f, weeks, day)
+	_petition_step(f, day, msgs)
 	t0 = _pf("w2 residents", t0)
 	if bool(f["hid"]):
 		_hidden_week(f, weeks, msgs)

@@ -47,3 +47,10 @@ func test_realm_tab_script_compiles() -> void:
 	var s: GDScript = load("res://scripts/ui/gamemenu/tab_realm.gd")
 	assert_object(s).is_not_null()
 	assert_bool(s.can_instantiate()).is_true()
+
+
+func test_petition_verdict() -> void:
+	assert_bool(Founding.petition_verdict(2, 2, 0)).is_true()
+	assert_bool(Founding.petition_verdict(1, 3, 0)).is_false()
+	assert_bool(Founding.petition_verdict(3, 1, 0)).is_false()
+	assert_bool(Founding.petition_verdict(3, 3, 5)).is_false()
