@@ -128,11 +128,28 @@ void fragment() {
 	if case == "sprint":
 		Input.action_press("sprint")
 	var t := 0.0
-	var fired := false
+	var fired_n := 0
+	var script_steps: Array = []        # --do=jump@0.8,dodge@1.8,hit@2.8,block@3.5,die@4.5 : real player entry points at times (s)
+	for a in OS.get_cmdline_user_args():
+		if a.begins_with("--do="):
+			for st in a.substr(5).split(","):
+				var kv := st.split("@")
+				script_steps.append([kv[0], float(kv[1]), false])
 	while t < seconds:
-		if OS.get_cmdline_user_args().has("--attack") and t > 0.8 and not fired:
-			fired = true
-			(_p.get("_animator") as RefCounted).call("play_full", "Sword_Regular_A", 1.0)
+		for st: Array in script_steps:
+			if not st[2] and t >= float(st[1]):
+				st[2] = true
+				match String(st[0]):
+					"jump": _p.call("jump")
+					"dodge": _p.call("dodge")
+					"attack": _p.call("attack")
+					"hit": _p.call("take_damage", 3, null, Vector3(0, 0, 3.0), true)
+					"die": _p.call("take_damage", 9999, null, Vector3.ZERO, true)
+					"block": Input.action_press("block")
+					"unblock": Input.action_release("block")
+		if OS.get_cmdline_user_args().has("--attack") and t > 0.8 and int((t - 0.8) / 0.9) >= fired_n:
+			fired_n += 1
+			_p.call("attack")                    # Player.attack(): the same entry the attack button / touch control uses
 		await physics_frame
 		await process_frame
 		_apply_sword_rot()

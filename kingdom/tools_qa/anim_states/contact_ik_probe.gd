@@ -9,13 +9,82 @@ var clips := PackedStringArray(["Life_Mx_Pull_Plant", "Life_Mx_Pick_Ground", "Li
 var looks := PackedStringArray(["villager_man_a", "villager_woman_a", "villager_man_b", "villager_woman_b"])
 
 
+var shot := ""                  # --shot=<png>: windowed picture, clip x look grid with / without ContactIK
+var shot_t := 2.0
+
+
 func _initialize() -> void:
 	for a in OS.get_cmdline_user_args():
+		if a.begins_with("--shot="):
+			shot = a.substr(7)
+		elif a.begins_with("--t="):
+			shot_t = float(a.substr(4))
 		if a.begins_with("--clips="):
 			clips = PackedStringArray(a.substr(8).split(","))
 		elif a.begins_with("--looks="):
 			looks = PackedStringArray(a.substr(8).split(","))
-	_run.call_deferred()
+	if shot != "":
+		_shot.call_deferred()
+	else:
+		_run.call_deferred()
+
+
+func _shot() -> void:
+	var env := WorldEnvironment.new()
+	env.environment = Environment.new()
+	env.environment.background_mode = Environment.BG_COLOR
+	env.environment.background_color = Color(0.72, 0.78, 0.84)
+	env.environment.ambient_light_color = Color(0.6, 0.6, 0.65)
+	env.environment.ambient_light_source = Environment.AMBIENT_SOURCE_COLOR
+	root.add_child(env)
+	var sun := DirectionalLight3D.new()
+	sun.rotation_degrees = Vector3(-50, 30, 0)
+	sun.shadow_enabled = true
+	root.add_child(sun)
+	var floor_m := MeshInstance3D.new()
+	var pm := PlaneMesh.new()
+	pm.size = Vector2(30, 30)
+	floor_m.mesh = pm
+	var fm := StandardMaterial3D.new()
+	fm.albedo_color = Color(0.42, 0.5, 0.32)
+	floor_m.material_override = fm
+	root.add_child(floor_m)
+	var x := 0.0
+	for look in looks:
+		for clip in clips:
+			for use_ik in [false, true]:
+				var m := Assets.mh_character(look, 1.7)
+				root.add_child(m)
+				m.position = Vector3(x, 0, 0)
+				m.rotation_degrees.y = 90.0
+				x += 1.3
+				var ap := Assets.animation_player(m)
+				LifeLibrary.install(ap)
+				var sk: Skeleton3D = m.find_children("*", "Skeleton3D", true, false)[0]
+				if use_ik:
+					var ik := ContactIK.new()
+					sk.add_child(ik)
+					ik.hand_contact = bool(LifeLibrary.info(clip).get("hand_contact", false))
+				ap.play(clip)
+				ap.seek(shot_t, true)
+				ap.pause()
+				var l := Label3D.new()
+				l.text = "%s
+%s %s" % [clip.trim_prefix("Life_Mx_"), look.trim_prefix("villager_"), "IK" if use_ik else "raw"]
+				l.font_size = 22
+				l.position = Vector3(x - 1.3, 1.4, 0)
+				l.billboard = BaseMaterial3D.BILLBOARD_ENABLED
+				root.add_child(l)
+	var cam := Camera3D.new()
+	root.add_child(cam)
+	cam.position = Vector3((x - 1.3) * 0.5, 0.9, 5.2)
+	cam.fov = 60.0
+	cam.current = true
+	for i in 30:
+		await process_frame
+	root.get_viewport().get_texture().get_image().save_png(shot)
+	print("SHOT ", shot)
+	quit()
 
 
 func _contacts(sk: Skeleton3D) -> Vector2:
