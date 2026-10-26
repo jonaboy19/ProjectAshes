@@ -484,10 +484,9 @@ func _die(from: Node) -> void:
 		t.tween_property(self, "rotation:z", PI * 0.5, 0.45).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_IN)
 	var by_player := from != null and (from.is_in_group("player") or from.is_in_group("team0"))
 	if by_player:
-		var got := Gathering.give_drops(Life, kind)
 		Life.record("hunted")
-		if got != "":
-			Game.say("%s down. %s" % [kind.capitalize(), got])
+		CorpseLoot.attach_animal(self, kind)     # v1 hook (READY_V1): skin it for the haul (was give_drops)
+		Game.say("%s down. Hold to skin it." % kind.capitalize())
 	var fade := create_tween()
 	_death_tweens.append(fade)
 	fade.tween_interval(CORPSE_SECONDS)

@@ -59,3 +59,37 @@ static func search(key: String, table: Dictionary, _player: Node = null) -> Dict
 		parts.append("%s ×%d" % [Life.item_name(String(e[0])), int(e[1])])
 	Game.say("You search the body: %s." % (", ".join(parts) if not parts.is_empty() else "nothing of value"))
 	return loot
+
+
+# --- animal carcasses (READY_V1 C10) ----------------------------------------------------------------------------
+
+## Makes an animal carcass skinnable: hold the button to butcher it for meat, hide and antler (sim/hunting.gd; the haul
+## scales with the player's hunting mastery). A pooled body is reused, so each death gets a fresh component and key.
+## The body must have `dead` true for the prompt to show; the Interactable leaves the picker once skinned.
+static func attach_animal(body: Node3D, kind: String) -> Interactable:
+	if not Hunting.can_skin(kind):
+		return null
+	var old := Interactable.component_of(body)
+	if old != null:
+		old.free()
+	var serial := int(body.get_meta("skin_serial", 0)) + 1
+	body.set_meta("skin_serial", serial)
+	var key := "animal/%d/%d" % [body.get_instance_id(), serial]
+	return Interactable.attach(body, {"id": "carcass/" + key, "verb": "Skin", "target": kind.capitalize() + " carcass",
+		"range": 2.6, "hold_time": Hunting.HOLD_SECONDS,
+		"can": func(_p: Node) -> bool: return not looted.has(key) and bool(body.get("dead")),
+		"do": func(p: Node) -> void:
+			skin_animal(kind, key, p)
+			if is_instance_valid(body):
+				Interactable.set_active(body, false)})
+
+
+## Pays the skinning out. Returns the Hunting.skin result ({} when this carcass was already skinned).
+static func skin_animal(kind: String, key: String, _player: Node = null) -> Dictionary:
+	if looted.has(key):
+		return {}
+	looted[key] = true
+	var res := Hunting.skin(kind, key, Life, WorldSim.day)
+	Game.say(String(res["text"]))
+	Life.on_haul_skinned(res["items"])
+	return res
