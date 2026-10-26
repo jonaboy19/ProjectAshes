@@ -63,9 +63,35 @@ func evaluate(p: Vector2) -> Dictionary:
 	return {"total": clampf(total, 0.0, 100.0), "lines": lines, "coverage": cov}
 
 
+const TIERS_PATH := "res://data/region1/danger_tiers.json"
+static var _tiers: Array = []
+
+
+## Tier rows of data/region1/danger_tiers.json ({id, label, from, shield, level}), ascending by `from`.
+static func tiers() -> Array:
+	if _tiers.is_empty():
+		var parsed: Variant = JSON.parse_string(FileAccess.get_file_as_string(TIERS_PATH))
+		if parsed is Dictionary:
+			_tiers = parsed.get("tiers", [])
+		if _tiers.is_empty():
+			_tiers = [{"label": "Safe", "from": 0, "shield": 0}, {"label": "Watchful", "from": 10, "shield": 1},
+				{"label": "Dangerous", "from": 30, "shield": 2}, {"label": "Perilous", "from": 55, "shield": 3},
+				{"label": "Deadly", "from": 80, "shield": 4}]
+	return _tiers
+
+
+static func tier_of(t: float) -> Dictionary:
+	var row: Dictionary = tiers()[0]
+	for r: Dictionary in tiers():
+		if t >= float(r["from"]):
+			row = r
+	return row
+
+
 static func describe(t: float) -> String:
-	if t < 10.0: return "Safe"
-	if t < 30.0: return "Watchful"
-	if t < 55.0: return "Dangerous"
-	if t < 80.0: return "Perilous"
-	return "Deadly"
+	return String(tier_of(t)["label"])
+
+
+## Shield pips for the danger badge / compass at threat `t` (0 = Safe .. 4 = Deadly).
+static func shield(t: float) -> int:
+	return int(tier_of(t)["shield"])
