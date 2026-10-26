@@ -39,6 +39,10 @@ func _run() -> void:
 	_root3.add_child(cam)
 	cam.current = true
 	cam.global_position = Vector3(3.0, BASE + 1.3, 0.0)    # the foot rig only runs near the current camera
+	if OS.get_cmdline_user_args().has("--adult"):
+		var life: Node = root.get_node("Life")
+		life.life_path.set_age(16, root.get_node("WorldSim").day, root.get_node("WorldSim").time_of_day)    # full-size body (the game starts at age 4: 0.58)
+		_p.apply_age()
 	for i in 40:
 		await physics_frame
 	_sk = _p.find_children("*", "Skeleton3D", true, false)[0]

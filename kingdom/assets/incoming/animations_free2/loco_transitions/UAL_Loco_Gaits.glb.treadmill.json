@@ -1,0 +1,35 @@
+{
+ "Walk_Brisk_Loop": {
+  "before": [
+   0.067,
+   0.217
+  ],
+  "after": [
+   0.0,
+   0.0
+  ],
+  "frames_fixed": 22
+ },
+ "Jog_Mid_Loop": {
+  "before": [
+   0.19,
+   0.414
+  ],
+  "after": [
+   0.0,
+   0.0
+  ],
+  "frames_fixed": 20
+ },
+ "Run_Mid_Loop": {
+  "before": [
+   0.203,
+   0.585
+  ],
+  "after": [
+   0.0,
+   0.0
+  ],
+  "frames_fixed": 18
+ }
+}

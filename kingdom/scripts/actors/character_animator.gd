@@ -32,11 +32,11 @@ const LOWER_KEYS := ["root", "hips", "pelvis", "upperleg", "lowerleg", "thigh", 
 const WALK_CLIP_SPEED := 1.0
 const RUN_CLIP_SPEED := 6.0
 const BACK_CLIP_SPEED := 1.0
-## Extra gait loops between Walk and the run (UAL_Loco_Gaits.glb: CMU, make_cfg_gaits.py). The Mixamo set (UAL_Loco_Mixamo.glb) measured no better
-## in tools_qa/anim_states/loco_slide.gd (docs/plans/AAA_PROGRESS.md S3.1c) and stays in the library for armed/strafe/start/stop work: [clip, ground speed
+## Extra gait loops between Walk and the run (UAL_Loco_Mixamo.glb, make_cfg_mixamo.py; planted-foot paths cleaned to a constant-speed line by
+## tools/anim/loco/treadmill_ual.py): [clip, ground speed
 ## in m/s on the 1.8 m rig (gait_phase.gd stance-core speed of the ball of the foot), loop fraction at which the LEFT foot is furthest forward (tools/anim/loco/
 ## gait_phase.gd: used as start_offset so every cycle plants the left foot at t = 0, like Walk and Jog_Fwd)].
-const GAIT_EXTRA := [["Walk_Brisk", 2.25, 0.938], ["Jog_Mid", 3.00, 0.952]]
+const GAIT_EXTRA := [["Mx_Walk_Standard", 1.46, 0.176], ["Mx_Run_Slow", 2.99, 0.238], ["Mx_Run_Standard", 4.04, 0.238]]
 ## Above the run clip: [clip, speed, phase] for the sprint end of the blend space (the player's sprint drives the rig at ~11 m/s).
 const GAIT_TOP := []
 ## Measured body travel of the UAL strafe clips in rig space: Strafe_left moves

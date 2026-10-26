@@ -1,0 +1,145 @@
+{
+ "Mx_Walk_Careful_Loop": {
+  "before": [
+   0.059,
+   0.194
+  ],
+  "after": [
+   0.0,
+   0.0
+  ],
+  "frames_fixed": 166
+ },
+ "Mx_Walk_Standard_Loop": {
+  "before": [
+   0.065,
+   0.358
+  ],
+  "after": [
+   0.0,
+   0.0
+  ],
+  "frames_fixed": 43
+ },
+ "Mx_Walk_Unarmed_Loop": {
+  "before": [
+   0.041,
+   0.151
+  ],
+  "after": [
+   0.0,
+   0.0
+  ],
+  "frames_fixed": 54
+ },
+ "Mx_Run_Slow_Loop": {
+  "before": [
+   0.354,
+   0.94
+  ],
+  "after": [
+   0.0,
+   0.0
+  ],
+  "frames_fixed": 30
+ },
+ "Mx_Jog_Loop": {
+  "before": [
+   0.243,
+   0.874
+  ],
+  "after": [
+   0.0,
+   0.002
+  ],
+  "frames_fixed": 82
+ },
+ "Mx_Run_Medium_Loop": {
+  "before": [
+   0.337,
+   1.213
+  ],
+  "after": [
+   0.0,
+   0.0
+  ],
+  "frames_fixed": 18
+ },
+ "Mx_Run_Standard_Loop": {
+  "before": [
+   0.148,
+   0.271
+  ],
+  "after": [
+   0.0,
+   0.0
+  ],
+  "frames_fixed": 19
+ },
+ "Mx_Run_Fast_Loop": {
+  "before": [
+   0.335,
+   0.528
+  ],
+  "after": [
+   0.0,
+   0.0
+  ],
+  "frames_fixed": 11
+ },
+ "Mx_SnS_Walk_Loop": {
+  "before": [
+   0.057,
+   0.155
+  ],
+  "after": [
+   0.0,
+   0.0
+  ],
+  "frames_fixed": 40
+ },
+ "Mx_SnS_WalkBack_Loop": {
+  "before": [
+   0.07,
+   0.308
+  ],
+  "after": [
+   0.0,
+   0.0
+  ],
+  "frames_fixed": 53
+ },
+ "Mx_SnS_Run_Loop": {
+  "before": [
+   0.244,
+   1.088
+  ],
+  "after": [
+   0.003,
+   0.013
+  ],
+  "frames_fixed": 19
+ },
+ "Mx_Strafe_R_Loop": {
+  "before": [
+   0.225,
+   2.121
+  ],
+  "after": [
+   0.0,
+   0.0
+  ],
+  "frames_fixed": 77
+ },
+ "Mx_Strafe_L_Loop": {
+  "before": [
+   0.091,
+   0.522
+  ],
+  "after": [
+   0.0,
+   0.0
+  ],
+  "frames_fixed": 68
+ }
+}

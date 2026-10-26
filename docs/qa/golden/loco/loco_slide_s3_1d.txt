@@ -1,0 +1,16 @@
+[--adult --no-lock]
+LOCO slow body=0.60 m/s contact_samples=313 slide_mean=0.143 slide_max=0.916
+LOCO walk body=2.40 m/s contact_samples=192 slide_mean=0.543 slide_max=5.177
+LOCO sprint body=6.50 m/s contact_samples=29 slide_mean=0.175 slide_max=0.256
+[--adult]
+LOCO slow body=0.60 m/s contact_samples=243 slide_mean=0.097 slide_max=0.647
+LOCO walk body=2.40 m/s contact_samples=156 slide_mean=0.105 slide_max=0.694
+LOCO sprint body=6.50 m/s contact_samples=34 slide_mean=0.170 slide_max=0.479
+[--no-lock]
+LOCO slow body=0.60 m/s contact_samples=311 slide_mean=0.146 slide_max=0.922
+LOCO walk body=2.40 m/s contact_samples=118 slide_mean=0.672 slide_max=4.542
+LOCO sprint body=6.50 m/s contact_samples=30 slide_mean=1.537 slide_max=1.584
+[]
+LOCO slow body=0.60 m/s contact_samples=311 slide_mean=0.112 slide_max=0.645
+LOCO walk body=2.40 m/s contact_samples=120 slide_mean=0.154 slide_max=0.655
+LOCO sprint body=6.50 m/s contact_samples=30 slide_mean=0.163 slide_max=0.493
