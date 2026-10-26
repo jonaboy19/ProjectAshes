@@ -1,0 +1,353 @@
+{
+ "id": "companions/hesk_ironbrow",
+ "start": "greet",
+ "_comment": "Hesk Ironbrow, 52, a Durrow mason exiled from the Hollowdeep Holds. Bought out of debt at Silverford (120 gold). Flags: docs/regions/COMPANIONS_R1.md.",
+ "nodes": {
+  "greet": {
+   "speaker": "hesk_ironbrow",
+   "lines": [
+    {
+     "text": "Mind the footing. Stone shows you what it's carried. People hide it better.",
+     "if": {
+      "no_flag": "companion.hesk_ironbrow.recruit_yes"
+     },
+     "p": 1
+    },
+    {
+     "text": "That wall's got six years left and a hangover. I'd not lean.",
+     "if": {
+      "time": [
+       "afternoon",
+       "evening"
+      ],
+      "no_flag": "companion.hesk_ironbrow.recruit_yes"
+     },
+     "p": 2
+    },
+    {
+     "text": "Hammer and Moot, but this is a good pack on the back. Point and I'll haul.",
+     "if": {
+      "flag": "companion.hesk_ironbrow.recruit_yes",
+      "no_flag": "companion.hesk_ironbrow.done"
+     },
+     "p": 2
+    },
+    {
+     "text": "It's standing, the arch. Charter-form and ugly as a wet cat. I'm proud of it anyway.",
+     "if": {
+      "flag": "companion.hesk_ironbrow.path_charter"
+     },
+     "p": 3
+    },
+    {
+     "text": "Round as a loaf and twice as honest. The Guild can say what they like.",
+     "if": {
+      "flag": "companion.hesk_ironbrow.path_durrow"
+     },
+     "p": 3
+    },
+    {
+     "text": "You'd make a poor mason and a fair mate. I mean that as a compliment. Mostly.",
+     "if": {
+      "flag": "companion.hesk_ironbrow.courting"
+     },
+     "p": 4
+    },
+    {
+     "text": "Good. Friends hold more weight than they get credit for. Like keystones.",
+     "if": {
+      "flag": "companion.hesk_ironbrow.friends_only"
+     },
+     "p": 4
+    }
+   ],
+   "choices": [
+    {
+     "text": "Who are you?",
+     "goto": "bio",
+     "if": {
+      "no_flag": "companion.hesk_ironbrow.recruit_yes"
+     }
+    },
+    {
+     "text": "I'll buy your debt. Come work with me.",
+     "goto": "recruit",
+     "if": {
+      "no_flag": "companion.hesk_ironbrow.recruit_yes"
+     }
+    },
+    {
+     "text": "What happened to the Durrow arch?",
+     "goto": "arch",
+     "if": {
+      "flag": "companion.hesk_ironbrow.recruit_yes"
+     }
+    },
+    {
+     "text": "About that favour you mentioned...",
+     "goto": "favour_open",
+     "if": {
+      "flag": "companion.hesk_ironbrow.recruit_yes",
+      "no_flag": "companion.hesk_ironbrow.done"
+     }
+    },
+    {
+     "text": "Is there something between us?",
+     "goto": "courtship",
+     "if": {
+      "flag": [
+       "companion.hesk_ironbrow.done",
+       "hero.female"
+      ],
+      "no_flag": [
+       "companion.hesk_ironbrow.courting",
+       "companion.hesk_ironbrow.friends_only"
+      ]
+     }
+    },
+    {
+     "text": "Good day.",
+     "goto": "@end"
+    }
+   ]
+  },
+  "bio": {
+   "speaker": "hesk_ironbrow",
+   "lines": [
+    {
+     "text": "Hesk Ironbrow. Mason of the Durrow holds, fifty-two years. Silverford's debtor-house for the last two."
+    }
+   ],
+   "choices": [
+    {
+     "text": "And then?",
+     "goto": "bio_2"
+    }
+   ]
+  },
+  "bio_2": {
+   "speaker": "hesk_ironbrow",
+   "lines": [
+    {
+     "text": "My guild test piece was an arch. It stood the Long Dark tremor. The Hammer Moot wanted it pointed. I would not point it."
+    }
+   ],
+   "choices": [
+    {
+     "text": "Why tell me?",
+     "goto": "bio_3"
+    }
+   ]
+  },
+  "bio_3": {
+   "speaker": "hesk_ironbrow",
+   "lines": [
+    {
+     "text": "Because there's an arch I never finished, and a clerk here who holds my paper for a hundred and twenty crowns."
+    }
+   ],
+   "choices": [
+    {
+     "text": "I'll buy your debt. Come work with me.",
+     "goto": "recruit",
+     "if": {
+      "no_flag": "companion.hesk_ironbrow.recruit_yes"
+     }
+    },
+    {
+     "text": "I will think on it.",
+     "goto": "@end"
+    }
+   ]
+  },
+  "recruit": {
+   "speaker": "hesk_ironbrow",
+   "lines": [
+    {
+     "text": "Terms: no wage, a tenth of what we earn, and I say when a wall is rotten. You won't like it. You'll be right to hear it."
+    }
+   ],
+   "choices": [
+    {
+     "text": "Those are fair terms.",
+     "goto": "recruit_yes"
+    },
+    {
+     "text": "Not yet.",
+     "goto": "recruit_no"
+    }
+   ]
+  },
+  "recruit_yes": {
+   "speaker": "hesk_ironbrow",
+   "lines": [
+    {
+     "text": "Then I'm yours. Stone tier, keeps, towers, the lot. Give me a cut-stone quarry and a month of dry weather."
+    }
+   ],
+   "choices": [
+    {
+     "text": "Walk with me.",
+     "goto": "@end",
+     "do": [
+      [
+       "flag",
+       "companion.hesk_ironbrow.recruit_yes"
+      ]
+     ]
+    }
+   ]
+  },
+  "recruit_no": {
+   "speaker": "hesk_ironbrow",
+   "lines": [
+    {
+     "text": "A hundred and twenty is a lot of coin for an old man's opinions. Think on it."
+    }
+   ],
+   "choices": [
+    {
+     "text": "I will.",
+     "goto": "@end"
+    }
+   ]
+  },
+  "favour_open": {
+   "speaker": "hesk_ironbrow",
+   "lines": [
+    {
+     "text": "My test arch. Twelve cut stones, a keystone, and the nerve to set it in front of Odrin Thale. It never got finished."
+    }
+   ],
+   "choices": [
+    {
+     "text": "Tell me more.",
+     "goto": "favour_2"
+    },
+    {
+     "text": "Another day.",
+     "goto": "@end"
+    }
+   ]
+  },
+  "favour_2": {
+   "speaker": "hesk_ironbrow",
+   "lines": [
+    {
+     "text": "Hollin's Cut has the stone. Silverford has the Guild. Which of us do you want to be right, me or the Charter?"
+    }
+   ],
+   "choices": [
+    {
+     "text": "I will see to it.",
+     "goto": "@end",
+     "do": [
+      [
+       "flag",
+       "companion.hesk_ironbrow.quest_asked"
+      ],
+      [
+       "quests"
+      ]
+     ]
+    }
+   ]
+  },
+  "courtship": {
+   "speaker": "hesk_ironbrow",
+   "lines": [
+    {
+     "text": "I've buried a wife and eight winters of nerve. You, I like. That's a hard thing for a mason to say out loud."
+    }
+   ],
+   "choices": [
+    {
+     "text": "Walk beside me, if it's not too heavy.",
+     "goto": "court_yes"
+    },
+    {
+     "text": "Friends is plenty.",
+     "goto": "court_friends"
+    },
+    {
+     "text": "Not now.",
+     "goto": "@end"
+    }
+   ]
+  },
+  "court_yes": {
+   "speaker": "hesk_ironbrow",
+   "lines": [
+    {
+     "text": "Slow, then. Stone sets slow. It sets forever."
+    }
+   ],
+   "choices": [
+    {
+     "text": "Then we go slowly.",
+     "goto": "@end",
+     "do": [
+      [
+       "flag",
+       "companion.hesk_ironbrow.courting"
+      ]
+     ]
+    }
+   ]
+  },
+  "court_friends": {
+   "speaker": "hesk_ironbrow",
+   "lines": [
+    {
+     "text": "Right. Good. A mason's never short of a friend with a sound back."
+    }
+   ],
+   "choices": [
+    {
+     "text": "Friends.",
+     "goto": "@end",
+     "do": [
+      [
+       "flag",
+       "companion.hesk_ironbrow.friends_only"
+      ]
+     ]
+    }
+   ]
+  },
+  "arch": {
+   "speaker": "hesk_ironbrow",
+   "lines": [
+    {
+     "text": "Round, the way my grandfather's grandfather cut it. The Moot said round is for cellars. They sent me out the door."
+    }
+   ],
+   "choices": [
+    {
+     "text": "And the Charter?",
+     "goto": "arch_2"
+    }
+   ]
+  },
+  "arch_2": {
+   "speaker": "hesk_ironbrow",
+   "lines": [
+    {
+     "text": "Odrin Thale wrote the Charter's pointed form himself. Fussy man. Honest. Afraid of something, I'd say."
+    }
+   ],
+   "choices": [
+    {
+     "text": "Maybe he'll come round.",
+     "goto": "@end",
+     "do": [
+      [
+       "flag",
+       "companion.hesk_ironbrow.told_arch"
+      ]
+     ]
+    }
+   ]
+  }
+ }
+}

@@ -1,0 +1,139 @@
+{
+ "id": "companion_ashes_of_the_hand",
+ "title": "Ashes of the Hand",
+ "summary": "Brannoc Tallow wants to read the ash of his old Ashen Hand camp at Duskbriar and find the fence who sold what the Hand stole.",
+ "giver": {
+  "npc": "brannoc_tallow",
+  "name": "Brannoc Tallow",
+  "place": "duskbriar_bandit_camp"
+ },
+ "offer_text": "The old camp at Duskbriar. The ash there remembers me. I'd like to know what it remembers about the fence.",
+ "stages": [
+  {
+   "id": "camp",
+   "title": "Back to the burnt camp",
+   "mode": "all",
+   "objectives": [
+    {
+     "id": "reach_camp",
+     "type": "goto",
+     "place": "duskbriar_bandit_camp",
+     "text": "Walk Brannoc back to the Ashen Hand camp at Duskbriar"
+    }
+   ]
+  },
+  {
+   "id": "ash",
+   "title": "What the ash remembers",
+   "mode": "sequence",
+   "objectives": [
+    {
+     "id": "ash_clues",
+     "type": "investigate",
+     "clues": [
+      "duskbriar/ash/cold_hearth",
+      "duskbriar/ash/ledger_page",
+      "duskbriar/ash/dropped_boot"
+     ],
+     "count": 3,
+     "text": "Read the ash: hearth, ledger page, boot"
+    },
+    {
+     "id": "fence_fate",
+     "type": "choose",
+     "npc": "brannoc_tallow",
+     "options": [
+      {
+       "id": "law",
+       "text": "Hand Mab to Captain Hollis's Guard",
+       "say": "Brannoc nods once. \"Then it's the cells and a clerk. Cleaner than the road.\""
+      },
+      {
+       "id": "quiet",
+       "text": "Burn the ledger and let Mab run",
+       "say": "Brannoc turns the page over in the fire. \"Fine. But I'll remember it was you who did it.\""
+      }
+     ]
+    }
+   ],
+   "branches": {
+    "law": "law",
+    "quiet": "quiet"
+   }
+  },
+  {
+   "id": "law",
+   "title": "Mab in irons",
+   "mode": "all",
+   "objectives": [
+    {
+     "id": "to_hollis",
+     "type": "talk_to",
+     "npc": "bram_hollis",
+     "text": "Hand Mab Larkin and the ledger to Captain Hollis"
+    }
+   ],
+   "end": true,
+   "rewards": {
+    "rep": {
+     "ashford": 8,
+     "ashen_hand": -6
+    },
+    "flags": [
+     "companion.brannoc_tallow.path_law"
+    ],
+    "relationship": [
+     {
+      "npc": "brannoc_tallow",
+      "label": "You gave the fence to the law",
+      "value": 10,
+      "days": 120
+     }
+    ]
+   }
+  },
+  {
+   "id": "quiet",
+   "title": "A quiet word with Mab",
+   "mode": "all",
+   "objectives": [
+    {
+     "id": "to_mab",
+     "type": "talk_to",
+     "npc": "mab_larkin",
+     "text": "Give Mab Larkin the ash and a day's head start"
+    }
+   ],
+   "end": true,
+   "rewards": {
+    "rep": {
+     "ashford": -4,
+     "ashen_hand": 6
+    },
+    "flags": [
+     "companion.brannoc_tallow.path_quiet"
+    ],
+    "relationship": [
+     {
+      "npc": "brannoc_tallow",
+      "label": "You kept the Hand's secret",
+      "value": 14,
+      "days": 120
+     }
+    ]
+   }
+  }
+ ],
+ "rewards": {
+  "gold": 60,
+  "items": {
+   "lockpicks": 1,
+   "bandage": 3
+  },
+  "flags": [
+   "companion.brannoc_tallow.done",
+   "companion.brannoc_tallow.spy_role",
+   "mechanic.ashsight.used_with_companion"
+  ]
+ }
+}
