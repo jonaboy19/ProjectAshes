@@ -128,3 +128,4 @@ Open (logged, not fixed): (1) bows do not draw / aim (attack with a bow plays th
 
 
 - Dodge (backward/neutral) now plays Dodge_back instead of the aliased forward roll: equip matrix sword_shield/greatsword dodge ground dip 0.0 cm, no prop jumps (was 7-24 cm). Forward roll weapon dip still open.
+| 2026-10-26 | G3 apprenticeships + pupils | done (visual pending) | G3 commit | society.gd already simulated apprenticeships (5 kinds of master terms, 40 lesson days, dismissal after 6 missed days, craft learned to 55) and teaching pupils, but nothing called it. New Realm > Masters tab: masters nearby who teach a craft (smith > smithing, physician > alchemy, ...), apply, attend the daily lesson, pupil requests, take and teach pupils. Model scripts/realm/apprentice_view.gd, tests/test_apprentice_view.gd (3) green | academy adult entry next |

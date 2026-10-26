@@ -9,11 +9,12 @@ extends "res://scripts/ui/gamemenu/gm_tab.gd"
 ## on a sub-view switch, after an action, and by one 1 s Timer only when its data changed.
 ## The War Room shows campaign.known_map() only, never the true enemy positions.
 
-const VIEWS := [["war", "War Room"], ["diplomacy", "Diplomacy"], ["land", "Land"], ["followers", "Followers"], ["enterprise", "Enterprise"]]
+const VIEWS := [["war", "War Room"], ["diplomacy", "Diplomacy"], ["land", "Land"], ["followers", "Followers"], ["masters", "Masters"], ["enterprise", "Enterprise"]]
 const ORDER_KINDS := [["move", "Move"], ["attack", "Attack"], ["hold", "Hold"], ["camp", "Camp"], ["retreat", "Retreat"]]
 const RETREATS := ["orderly", "rout", "feigned", "scorched"]
 const FORMATIONS := ["line", "wedge", "square", "skirmish", "column"]
 const NEEDS_TARGET := ["move", "attack", "retreat"]
+const Apprentice := preload("res://scripts/realm/apprentice_view.gd")
 const Ledger := preload("res://scripts/realm/settlement_ledger.gd")
 const WarMap := preload("res://scripts/ui/war/war_map.gd")
 const War := preload("res://scripts/sim/war_sim.gd")
@@ -254,7 +255,7 @@ func build() -> void:
 	_pages["war"] = war
 	_scrolls["war"] = side_scroll
 	_boxes["war"] = side_scroll.get_child(0)
-	for id: String in ["diplomacy", "land", "followers", "enterprise"]:
+	for id: String in ["diplomacy", "land", "followers", "masters", "enterprise"]:
 		var sc := _make_scroll()
 		sc.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 		sc.visible = false
@@ -422,6 +423,8 @@ func _rebuild(id: String, force: bool) -> void:
 			_fill_land(box)
 		"followers":
 			_fill_followers(box)
+		"masters":
+			_fill_masters(box)
 		"enterprise":
 			_fill_enterprise(box)
 	if keep > 0:
@@ -459,6 +462,10 @@ func _signature(id: String) -> Array:
 			var fo := mod("followers")
 			if fo != null:
 				s.append_array([fo.call("list"), fo.call("arrivals"), fo.call("disputes"), fo.call("tamed"), _msgs])
+		"masters":
+			var so := mod("society")
+			if so != null:
+				s.append_array([so.get("apprenticeship"), so.get("students"), so.call("student_requests"), _msgs])
 		"enterprise":
 			var en := mod("enterprise")
 			if en != null:
@@ -1154,4 +1161,70 @@ func _fill_settlements(box: VBoxContainer) -> void:
 				var n := int(fd.call("appoint_from_settlers", fid))
 				Game.say("%d officials appointed." % n)
 				_rebuild("land", true), true))
+		box.add_child(_framed(v))
+
+## Masters and pupils (society.gd L40/41): apply to a local master, attend the daily lesson, take and teach pupils.
+func _fill_masters(box: VBoxContainer) -> void:
+	var so := mod("society")
+	if so == null:
+		_empty(box)
+		return
+	var cur: Dictionary = Apprentice.current(so)
+	box.add_child(Kit.section("Your apprenticeship"))
+	if cur.is_empty():
+		_empty(box, "You are no one's apprentice. Ask a master below; each has their own terms.")
+	else:
+		var v := _card()
+		v.add_child(Kit.lbl("%s teaches you %s" % [String(cur["master"]), String(cur["craft"])], 18, AF.TEXT, true, "title_bold"))
+		v.add_child(_stat_bar("Lessons", float(cur["progress"]), AF.GOLD, "%d / %d" % [int(cur["days"]), int(cur["need"])]))
+		if int(cur["missed"]) > 0:
+			v.add_child(Kit.lbl("Missed %d day(s) in a row; at 6 your master gives up on you." % int(cur["missed"]), 15, Color("e08a6a"), true))
+		v.add_child(_btn("Attend today's lesson", func() -> void:
+			so.call("attend_lesson")
+			Game.say("You spend the day at your master's side.")
+			_rebuild("masters", true), true))
+		box.add_child(_framed(v))
+	if cur.is_empty():
+		box.add_child(Kit.section("Masters nearby"))
+		var ms: Array = Apprentice.masters(so)
+		if ms.is_empty():
+			_empty(box, "No master here takes apprentices. Try a bigger town.")
+		for m: Dictionary in ms:
+			var v := _card()
+			var head := HBoxContainer.new()
+			head.add_child(Kit.lbl("%s, %s" % [String(m["name"]), String(m["job"])], 17, AF.TEXT, false, "title_bold"))
+			head.add_child(Kit.hspacer())
+			head.add_child(Kit.lbl("teaches %s" % String(m["craft"]), 15, AF.GOLD_BRIGHT))
+			v.add_child(head)
+			v.add_child(Kit.lbl("Mastery %d. %s %s." % [int(m["tier"]), String(m["name"]).get_slice(" ", 0), String(Apprentice.TERM_WORDS.get(String(m["term"]), ""))], 15, AF.TEXT_DIM, true))
+			var mid := String(m["id"])
+			var craft := String(m["craft"])
+			v.add_child(_btn("Ask to be taken on", func() -> void:
+				var r: Dictionary = so.call("apply_apprenticeship", mid, craft)
+				Game.say(String(r.get("reason", "")))
+				_rebuild("masters", true)))
+			box.add_child(_framed(v))
+	box.add_child(Kit.section("Your pupils"))
+	var studs: Array = so.get("students")
+	var npcs: Dictionary = so.get("npcs")
+	if studs.is_empty():
+		_empty(box, "No pupils. Once you master a craft (skill 50), people will ask you to teach them.")
+	else:
+		var v := _card()
+		for s: Dictionary in studs:
+			v.add_child(_stat_bar(String((npcs.get(String(s["npc"]), {}) as Dictionary).get("name", "Pupil")).get_slice(" ", 0), clampf(float(s["days"]) / maxf(float(s["need"]), 1.0), 0.0, 1.0), Color("9fd18b"), String(s["craft"])))
+		v.add_child(_btn("Teach today's lesson", func() -> void:
+			so.call("teach_lesson")
+			Game.say("You spend the day teaching.")
+			_rebuild("masters", true), true))
+		box.add_child(_framed(v))
+	for rq: Dictionary in so.call("student_requests"):
+		var v := _card()
+		v.add_child(Kit.lbl(String(rq["text"]), 16, AF.TEXT, true))
+		var nid := String(rq["npc"])
+		var cr := String(rq["craft"])
+		v.add_child(_btn("Take them as your pupil", func() -> void:
+			var r: Dictionary = so.call("take_student", nid, cr)
+			Game.say("A new pupil." if bool(r.get("ok", false)) else String(r.get("reason", "")))
+			_rebuild("masters", true)))
 		box.add_child(_framed(v))
