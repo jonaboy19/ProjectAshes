@@ -10,9 +10,9 @@ const HUNGER_PER_HOUR := 2.8       # full to empty in ~36 in-game hours
 const FATIGUE_PER_HOUR := 4.5      # rested to exhausted in ~22 awake hours
 const SLEEP_PER_HOUR := 14.0       # ~7 hours to fully rest in a good bed
 
-const THIRST_PER_HOUR := 4.0       # full to parched in ~25 in-game hours
+const THIRST_PER_HOUR := 2.5       # full to parched in ~40 in-game hours (a day is 12 real minutes: ~20 min)
 ## Warmth drifts toward the exposure target at this rate (points per in-game hour).
-const WARMTH_RATE := 30.0
+const WARMTH_RATE := 12.0          # a cold night takes ~3 in-game hours (~1.5 real min) to chill you through
 
 var food := 85.0
 var rest := 90.0
@@ -67,6 +67,17 @@ func eat(nutrition: float) -> void:
 func sleep(hours: float, quality := 1.0) -> void:
 	rest = clampf(rest + SLEEP_PER_HOUR * quality * hours, 0.0, 100.0)
 	food = clampf(food - HUNGER_PER_HOUR * 0.5 * hours, 0.0, 100.0)
+	water = clampf(water - THIRST_PER_HOUR * 0.5 * hours, 0.0, 100.0)   # you wake up thirsty, not parched
+	warmth = maxf(warmth, lerpf(45.0, 80.0, clampf(quality, 0.0, 1.0)))  # a bed (or bedroll) warms you through
+	changed.emit()
+
+
+## After a death: nobody wakes up still starving, parched or frozen (that would loop straight back to death).
+func revive_floor(level := 30.0) -> void:
+	food = maxf(food, level)
+	water = maxf(water, level)
+	warmth = maxf(warmth, level + 20.0)
+	rest = maxf(rest, level)
 	changed.emit()
 
 

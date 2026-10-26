@@ -8,19 +8,19 @@ func test_thirst_drains_and_drink_restores() -> void:
 	var n := Needs.new()
 	n.water = 50.0
 	n.tick(5.0)
-	assert_float(n.water).is_equal_approx(30.0, 0.01)
+	assert_float(n.water).is_equal_approx(37.5, 0.01)
 	n.drink(40.0)
-	assert_float(n.water).is_equal_approx(70.0, 0.01)
+	assert_float(n.water).is_equal_approx(77.5, 0.01)
 
 
 func test_cold_wet_night_chills_fire_warms() -> void:
 	var n := Needs.new()
 	n.warmth = 80.0
 	n.env = Needs.exposure(true, false, true, true, 50.0, false, false)
-	n.tick(3.0)
+	n.tick(6.0)
 	assert_float(n.warmth).is_less(20.0)
 	n.env = Needs.exposure(true, false, true, false, 50.0, false, true)
-	n.tick(3.0)
+	n.tick(8.0)
 	assert_float(n.warmth).is_greater(80.0)
 
 
@@ -62,3 +62,22 @@ func test_encumbrance_slows_and_tires() -> void:
 	assert_str(n.load_label()).is_equal("Overburdened")
 	n.load_ratio = 3.0
 	assert_float(n.speed()).is_equal_approx(0.45, 0.001)
+
+
+func test_sleep_drains_thirst_at_half_rate_and_warms() -> void:
+	var n := Needs.new()
+	n.water = 60.0
+	n.warmth = 10.0
+	n.sleep(8.0, 1.0)
+	assert_float(n.water).is_equal_approx(60.0 - 10.0, 0.01)
+	assert_float(n.warmth).is_greater_equal(80.0)
+
+
+func test_revive_floor_breaks_death_loops() -> void:
+	var n := Needs.new()
+	n.food = 0.0
+	n.water = 0.0
+	n.warmth = 0.0
+	n.revive_floor()
+	assert_float(n.starvation()).is_equal(0.0)
+	assert_float(n.water).is_equal(30.0)

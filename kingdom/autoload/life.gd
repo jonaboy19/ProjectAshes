@@ -312,6 +312,7 @@ func apply_death_penalty() -> Dictionary:
 	if picked != "":
 		injuries.add(picked, WorldSim.day)
 		magicules.apply_effects(injuries.effects())
+	needs.revive_floor()   # survival needs never respawn at zero (death loop)
 	var inj_name := String(RAInjuries.info(picked).get("name", "")) if picked != "" else ""
 	var text := "You wake at home, bruised."
 	if lost > 0:
