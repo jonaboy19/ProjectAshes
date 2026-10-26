@@ -9,7 +9,7 @@ const Skills := preload("res://scripts/sim/skills.gd")
 ## animation choice must be one of these so it always has something to play.
 const STOCK_CLIPS := ["Idle", "Interact", "Jump", "Punch_Cross", "Punch_Jab", "Roll", "Spell_Simple_Enter",
 	"Spell_Simple_Exit", "Spell_Simple_Idle", "Spell_Simple_Shoot", "Sprint", "Sword_Attack", "Sword_Idle",
-	"Farm_Harvest", "Farm_PlantSeed", "Farm_Watering", "Fixing_Kneeling", "Melee_Hook", "NinjaJump_Start",
+	"Farm_Harvest", "Farm_PlantSeed", "Farm_Watering", "Fixing_Kneeling", "Melee_Hook", "MA_Punch_Hook_R_A", "NinjaJump_Start",
 	"OverhandThrow", "Slide", "Sword_Block", "Sword_Dash", "Sword_Heavy_Combo", "Sword_Regular_A",
 	"Sword_Regular_B", "Sword_Regular_C", "Sword_Regular_Combo", "TreeChopping", "Attack_Ground_Pound",
 	"Backflip", "Bow_Release", "Meditate", "Sword_Attack_Air_Vertical", "Throw_Object", "Cheering_Two_Hands",

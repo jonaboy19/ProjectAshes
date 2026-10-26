@@ -16,3 +16,5 @@ Commit trailer: `Co-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>` (Claud
 | time | step | status | commit | evidence | next |
 |---|---|---|---|---|---|
 | 2026-10-26 | S0 | started | - | Claude takes over from Codex; remote backup `origin/backup/anim-codex-wip-2026-10-26`=026719f8 exists; worktree has 1325 dirty paths (697 .import churn, 419 qa strips, rest source) | S0.a docs/QA |
+| 2026-10-26 | S0.a-g | done | 52df5ff3..711378d3 | 7 logical commits; `--import` clean (exit 0); run_tests.sh 10: 2277 cases, 1 failure (test_skills STOCK_CLIPS missing MA_Punch_Hook_R_A from S0.f) | S0.h fix, push, S1 |
+
