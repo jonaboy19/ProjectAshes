@@ -49,6 +49,7 @@
   {"id": "workbench", "name": "Workbench", "cat": "craft", "tier": 1, "snap": "free", "layer": "prop", "fp": [1, 1], "mat": "", "cost": {"log": 6, "tools": 1}, "hours": 2.0, "hp": 120, "station": "workbench"},
   {"id": "sawhorse_bench", "name": "Sawhorse", "cat": "craft", "tier": 1, "snap": "free", "layer": "prop", "fp": [1, 1], "mat": "", "cost": {"log": 4}, "hours": 1.0, "hp": 100, "station": "sawhorse"},
   {"id": "loom", "name": "Loom", "cat": "craft", "tier": 2, "snap": "free", "layer": "prop", "fp": [1, 1], "mat": "", "cost": {"plank": 6, "cloth": 1}, "hours": 3.0, "hp": 100, "station": "loom"},
+  {"id": "campfire", "name": "Campfire", "cat": "craft", "tier": 1, "snap": "free", "layer": "prop", "fp": [1, 1], "mat": "", "cost": {"log": 3, "stone": 4}, "hours": 0.25, "hp": 60, "station": "campfire", "low": true},
   {"id": "oven", "name": "Bread oven", "cat": "craft", "tier": 1, "snap": "free", "layer": "prop", "fp": [1, 1], "mat": "", "cost": {"clay": 8, "stone": 4}, "hours": 3.0, "hp": 200, "station": "oven"},
   {"id": "storage_crates", "name": "Crates and sacks", "cat": "craft", "tier": 0, "snap": "free", "layer": "prop", "fp": [1, 1], "mat": "", "cost": {"log": 3}, "hours": 1.0, "hp": 80, "store": 40},
   {"id": "meshy_chest_metal_wood", "name": "Storage chest", "cat": "craft", "tier": 1, "snap": "free", "layer": "prop", "fp": [1, 1], "mat": "", "cost": {"plank": 3, "iron_ingot": 1}, "hours": 1.0, "hp": 100, "store": 30},

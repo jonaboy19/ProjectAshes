@@ -84,3 +84,46 @@ func test_ground_probe_hits_a_tagged_floor() -> void:
 	assert_bool(g["hit"]).is_true()
 	assert_str(String(g["material"])).is_equal("wood")
 	assert_str(String(g["kind"])).is_equal("ground")
+
+
+func test_footprint_material_table() -> void:
+	var FX := preload("res://scripts/world/surface_feedback.gd")
+	assert_bool(FX.PRINT.has(&"snow")).is_true()
+	assert_bool(FX.PRINT.has(&"mud")).is_true()
+	assert_bool(FX.PRINT.has(&"grass")).is_false()
+	assert_int(FX.PRINT_POOL).is_less_equal(64)
+
+
+func test_wet_surfaces_slide_earlier() -> void:
+	assert_float(SQ.slide_min_deg(&"stone", 0.0)).is_equal(40.0)
+	assert_float(SQ.slide_min_deg(&"stone", 1.0)).is_equal(26.0)
+	assert_float(SQ.slide_min_deg(&"mud", 0.0)).is_less(40.0)
+	assert_float(SQ.slide_min_deg(&"dirt", 1.0)).is_equal(40.0)
+
+
+func test_campfire_weather_response() -> void:
+	var CF := preload("res://scripts/world/campfire.gd")
+	assert_float(CF.flame_strength(1.0, 1.0)).is_less(CF.flame_strength(0.0, 1.0))
+	assert_float(CF.flame_strength(0.0, 2.5)).is_greater(1.0)
+	assert_float(CF.wind_push(2.4).length()).is_greater(CF.wind_push(1.0).length())
+
+
+func test_well_action() -> void:
+	var W := preload("res://scripts/interaction/kinds/well.gd")
+	assert_str(W.action_for(40.0, 0)).is_equal("drink")
+	assert_str(W.action_for(95.0, 0)).is_equal("fill")
+	assert_str(W.action_for(95.0, 3)).is_equal("drink")
+
+
+func test_rain_masks_sounds() -> void:
+	var P := preload("res://scripts/population/perception.gd")
+	P.rain_mask_override = 0.6
+	assert_float(P.rain_mask()).is_equal(0.6)
+	P.rain_mask_override = -1.0
+
+
+func test_weapon_impact_table() -> void:
+	var SI := preload("res://scripts/combat/surface_impact.gd")
+	assert_str(String(SI.impact_for(&"wood")[0])).is_equal("hit_wood")
+	assert_str(String(SI.impact_for(&"metal")[0])).is_equal("hit_metal")
+	assert_str(String(SI.impact_for(&"unknown")[0])).is_equal("block")

@@ -85,6 +85,34 @@ static func terrain_material(x: float, z: float) -> StringName:
 	return &"grass"
 
 
+## Ground wetness 0..1 from the weather node (soaked ground after rain), 0 without weather.
+static func wetness() -> float:
+	var loop := Engine.get_main_loop() as SceneTree
+	var w: Node = loop.get_first_node_in_group(&"weather") if loop != null else null
+	if w == null:
+		return 0.0
+	var v: Variant = w.get("wetness")
+	return clampf(float(v), 0.0, 1.0) if v != null else 0.0
+
+
+## Steepest slope (deg) you can stand on without sliding, for a material and wetness:
+## wet stone / cobble / wood lose up to 14 deg, mud slides early, snow a little. `base` = the dry limit.
+static func slide_min_deg(material: StringName, wet: float, base := 40.0) -> float:
+	var w := clampf(wet, 0.0, 1.0)
+	match material:
+		&"stone", &"cobble", &"metal":
+			return base - 14.0 * w
+		&"wood":
+			return base - 10.0 * w
+		&"mud":
+			return base - 8.0 - 6.0 * w
+		&"snow":
+			return base - 5.0
+		&"grass", &"leaves":
+			return base - 4.0 * w
+	return base
+
+
 static func _raining() -> bool:
 	var loop := Engine.get_main_loop() as SceneTree
 	if loop == null:

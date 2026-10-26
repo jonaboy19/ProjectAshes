@@ -180,6 +180,8 @@ func _ready() -> void:
 	captain.global_position = Vector3(-7, WorldGen.height(-7, 3), 3)
 	captain.recruit_requested.connect(_recruit)
 	Life.player = player
+	player.set_meta(&"surface_impact", preload("res://scripts/combat/surface_impact.gd").new())
+	(player.get_meta(&"surface_impact") as RefCounted).call("bind", player)   # sword on walls / trees / ground: per-material clang + sparks
 	services = VillageServices.new()
 	services.setup(hud, captain, func() -> int: return army.alive(), _recruit)
 	world.add_child(services)

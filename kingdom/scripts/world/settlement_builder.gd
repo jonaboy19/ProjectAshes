@@ -365,6 +365,7 @@ func _build_co(s: Dictionary, sync: bool, spread: bool) -> Node3D:
 		var lm_y := _ground_snap(lm["pos"], lm["yaw"], lm_size)
 		var landmark := _piece(root, lm["asset"], lm["pos"], lm_y, lm["yaw"])
 		if lm["asset"] == "well":
+			preload("res://scripts/interaction/kinds/well.gd").spawn(root, Vector3(lm["pos"].x, lm_y + 0.4, lm["pos"].y))   # drink / fill flask
 			# The well roof overhangs its walk collider. Let the camera detect its
 			# full visual bounds without making the extra space solid to actors.
 			var well_mesh := Assets.building_mesh("well")

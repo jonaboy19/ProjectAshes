@@ -22,8 +22,8 @@ Paths are relative to `kingdom/`. This audit comes from grep plus code reading o
 |---|---|---|
 | Footstep audio per material | Works *(built)* | before: the player played grass/stone only. Now `surface_feedback.gd` gives wood/stone/cobble/dirt/leaves/grass/water from colliders + terrain. Snow uses Kenney CC0 `footstep_snow_*` (files staged, need an editor import before commit; falls back to grass until then) |
 | Footstep particles (dust/snow/mud/splash) | Works *(built)* | `SurfaceFeedback._puff` (18 m camera range, at most 12/s) |
-| Footprint decals | Missing | snow/mud prints would be next (`ground_decals.gd` exists for combat) |
-| NPC footsteps by material | Stub | `villager.gd _footstep` uses its own cached `_surface`; switch it to SurfaceQuery (afc/a93 area) |
+| Footprint decals | Works *(built M4)* | `SurfaceFeedback._footprint`: shared pool of 48 Decals, left/right, snow/mud/sand only, 18 m camera range, fade over 25 s |
+| NPC footsteps by material | Works *(built M4)* | `villager.gd _footstep` goes through SurfaceFeedback (sound, puff and prints within 11 m of the player) |
 | Foot IK on slopes/stairs | Works | `procedural_rig.gd` TwoBoneIK legs (a93) |
 | Body lean | Works | `ground_realism.gd` slope lean, `player.gd` accel lean |
 | Landing impact / fall damage | Works *(feedback built)* | `player.gd _land_jump` (roll / hard land / damage); now with a per-material landing sound + puff |
@@ -48,8 +48,8 @@ Paths are relative to `kingdom/`. This audit comes from grep plus code reading o
 | Body temperature | Works *(built)* | `needs.gd` warmth from night / snow / rain / swim / altitude, shelter (interiors) and fire (`fire_hazard` group within 4 m); penalties to regen and speed, damage when freezing; HUD card shows all four needs |
 | Sleep | Works | `needs.sleep`, `bed_prop.gd` |
 | Day/night, weather | Works | `world_sim.gd`, `weather.gd` (Markov daily schedule, rain/snow) |
-| Weather effects on gameplay | Stub, improved *(built)* | rain now wets you (warmth), dirt turns to mud underfoot; no slippery-surface or visibility gameplay yet |
-| Cooking / campfire for the player | Stub | campfires exist in camps/dungeons; no player cooking station |
+| Weather effects on gameplay | Works *(built M1/M4)* | rain wets you (warmth), mud underfoot, rain muffles NPC hearing (`Perception.emit_sound` x `noise_mult`), wind leans and fans campfires and rain damps them; wet-surface slip API `SQ.slide_min_deg` is waiting on a93 to wire it into ground_realism |
+| Cooking / campfire for the player | Works *(built M4)* | build-kit piece `campfire` (3 logs + 4 stone) = `campfire` crafting station (stew / grilled fish / soup / venison roast) + `heat_source` (warmth), `scripts/world/campfire.gd` |
 
 ## 5. Combat
 | Mechanic | Rating | Where |
@@ -57,7 +57,7 @@ Paths are relative to `kingdom/`. This audit comes from grep plus code reading o
 | Hit detection, stagger, block/parry, stamina | Works | `combat/hit_resolver.gd`, `combat_stats.gd`, `knockdown_state.gd`, `combat_feel.gd` |
 | AI | Works | `npc_fighter.gd`, LimboAI, `creature_attack_tokens.gd` |
 | Damage by armour | Works | `combat_stats.gd`, `sim/equipment.gd` |
-| Hit sound by surface (sword on stone wall) | Stub | `hit_wood/metal/flesh` exist; misses on walls could use `SurfaceQuery.probe` |
+| Hit sound by surface (sword on stone wall) | Works *(built M4)* | `combat/surface_impact.gd` listener: a swing that hits no body probes 1.5 m ahead, per-material clang/thunk + sparks/chips |
 
 ## 6. Interaction and settlement
 | Mechanic | Rating | Where |
@@ -66,7 +66,7 @@ Paths are relative to `kingdom/`. This audit comes from grep plus code reading o
 | Pickup, containers, doors, NPC talk, trade, recruit | Works | `kinds/*`, `talk_session.gd`, `trade_screen.gd`, `recruitment_ui.gd` |
 | Building (Palworld-style kit) | Works | `build/build_mode.gd`, `build_renderer.gd`, `realm/build_kit.gd` |
 | Property / homes | Works | `sim/property.gd`, `realm/homes.gd` |
-| Drink at wells / water skins | Missing | only wading drinks for now; needs a `well` interaction kind + waterskin item |
+| Drink at wells / flasks | Works *(built M4)* | `interaction/kinds/well.gd` on every town well: Drink, or Fill flask (clean_water, at most 3); drinks quench via `Life.use_item` |
 
 ## 7. Systems polish
 | Mechanic | Rating | Where |

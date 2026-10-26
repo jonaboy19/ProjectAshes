@@ -101,11 +101,18 @@ func rebuild(gid: int) -> void:
 		(groups[key] as Array).append(xf)
 		if body != null and look == "done":
 			_add_collider(body, String(r["kind"]), xf)
+		if look == "done" and String(r["kind"]) == "campfire":
+			var fire := preload("res://scripts/world/campfire.gd").new()
+			fire.name = "Campfire%d" % pid
+			root.add_child(fire)
+			fire.transform = xf
 	var lod1_from := LOD1_FROM if low_tier else LOD1_FROM_HIGH
 	for key: String in groups:
 		var kind := key.get_slice("|", 0)
 		var look := key.get_slice("|", 1)
 		var xfs: Array = groups[key]
+		if kind == "campfire" and look == "done":
+			continue     # drawn by its Campfire node (stones, logs, flames)
 		stats["pieces"] = int(stats.get("pieces", 0)) + xfs.size()
 		if look == "plan":
 			_mmi(root, KitMeshes.mesh(kind, 1), xfs, 0.0, FAR_END * 0.5, KitMeshes.ghost_material("blueprint"))

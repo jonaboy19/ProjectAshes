@@ -34,7 +34,7 @@ const SLOT_NAME := ["c", "ex", "ez", "free"]
 
 ## Build-kit station pieces (pieces.json "station") -> the crafting bench kind in data/recipes.json they register as, and the
 ## construction building kind (crew stations, prerequisites, know-how) a few of them stand for. See sync_realm().
-const CRAFT_BENCH := {"forge": "anvil", "anvil": "anvil", "workbench": "workbench", "sawhorse": "workbench", "loom": "loom", "oven": "oven"}
+const CRAFT_BENCH := {"forge": "anvil", "anvil": "anvil", "workbench": "workbench", "sawhorse": "workbench", "loom": "loom", "oven": "oven", "campfire": "campfire"}
 const BUILDING_KIND := {"sawhorse": "sawhorse", "workbench": "workbench"}
 const STATION_PREFIX := "kit:"
 const MAX_ROUTE_SEGMENTS := 160         # road chords handed to the crews' route search (it scans them per cell)

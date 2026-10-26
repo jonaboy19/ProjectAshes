@@ -1505,7 +1505,7 @@ func use_item(item: String) -> String:
 		return "You have no %s." % item_name(item)
 	var nutrition := float(item_prop(item, "nutrition", 0.0))
 	var heal := int(item_prop(item, "heal", 0))
-	if nutrition <= 0.0 and heal <= 0:
+	if nutrition <= 0.0 and heal <= 0 and String(item_prop(item, "type", "")) != "drink":
 		return "You can't use %s." % item_name(item)
 	nutrition *= ItemsDB.freshness(item, food_age(item))     # stale food feeds less (spoilage)
 	take(item)
@@ -1513,6 +1513,9 @@ func use_item(item: String) -> String:
 		needs.eat(nutrition)
 	if heal > 0 and player and player.has_method("heal"):
 		player.heal(heal)
+	if bool(item_prop(item, "drink", false)) or String(item_prop(item, "type", "")) in ["drink", "ale", "wine"]:
+		needs.drink(float(item_prop(item, "quench", 40.0)))
+		return "%s. You feel %s." % [item_name(item), needs.thirst_label().to_lower()]
 	return "%s. You feel %s." % [item_name(item), needs.hunger_label().to_lower()]
 
 
@@ -1858,6 +1861,10 @@ func _update_exposure() -> void:
 	var depth := WorldGen.water_depth(pos.x, pos.z)
 	var sheltered := InteriorDoor.active != null
 	var fire := false
+	for f: Node in get_tree().get_nodes_in_group(&"heat_source"):
+		if f is Node3D and (f as Node3D).global_position.distance_squared_to(pos) < 16.0:
+			fire = true
+			break
 	for f: Node in get_tree().get_nodes_in_group(&"fire_hazard"):
 		if f is Node3D and (f as Node3D).global_position.distance_squared_to(pos) < 16.0:
 			fire = true

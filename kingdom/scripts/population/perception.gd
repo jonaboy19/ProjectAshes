@@ -520,9 +520,22 @@ static func occlusion_class(graph: RefCounted, source: Vector2, listener: Vector
 static func emit_sound(kind: int, pos: Vector2, loudness_m := -1.0, maker := "", occ := Occ.SAME_CELL, sid := -1) -> int:
 	_ensure()
 	var loud := loudness_m if loudness_m > 0.0 else float(SOUND_LOUDNESS[kind])
+	loud *= rain_mask()   # rain and storms drown sounds out (Weather.noise_mult)
 	var eid := new_event_id()
 	(load(NPC_WORLD) as GDScript).call("report_sound", kind, pos, loud * float(OCC_MULT[occ]), eid, float(SOUND_CAP[kind]), sid)
 	return eid
+
+
+## 0.4..1 loudness multiplier from the weather (1 = dry and calm). Tests set rain_mask_override.
+static var rain_mask_override := -1.0
+static func rain_mask() -> float:
+	if rain_mask_override >= 0.0:
+		return rain_mask_override
+	var tree := Engine.get_main_loop() as SceneTree
+	var w: Node = tree.get_first_node_in_group(&"weather") if tree != null else null
+	if w != null and w.has_method("noise_mult"):
+		return clampf(float(w.call("noise_mult")), 0.4, 1.0)
+	return 1.0
 
 
 ## Alert gain a listener at `here` would get from the loudest live sound (0 when none reaches it) and where

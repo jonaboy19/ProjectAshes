@@ -37,8 +37,11 @@ func run(m: Node) -> void:
 				found[m2] = p
 	spots.merge(found)
 	print("SURFQA spots ", spots)
+	var only_prints := OS.get_cmdline_user_args().has("--prints")
 	for k: String in spots:
-		await _visit(k, spots[k])
+		if not only_prints:
+			await _visit(k, spots[k])
+	await _prints_demo(spots.get("dirt", home + Vector2(20, 0)))
 	print("SURFQA needs water=%.1f warmth=%.1f env=%s" % [Life.needs.water, Life.needs.warmth, Life.needs.env])
 	get_tree().quit(0)
 
@@ -59,3 +62,73 @@ func _visit(name: String, p: Vector2) -> void:
 	print("SURFQA ", txt)
 	await get_tree().create_timer(0.12).timeout
 	main.get_viewport().get_texture().get_image().save_png(out.path_join("surface_%s.png" % name))
+
+
+## Footprints: an invisible snow-tagged slab on the ground, a line of 12 steps, one screenshot.
+func _prints_demo(p: Vector2) -> void:
+	main.call("_teleport", p, 0.0)
+	await get_tree().create_timer(2.5).timeout
+	var pl: Node3D = main.player
+	var slab := StaticBody3D.new()
+	var cs := CollisionShape3D.new()
+	var box := BoxShape3D.new()
+	box.size = Vector3(12, 0.1, 12)
+	cs.shape = box
+	slab.add_child(cs)
+	slab.collision_layer = 0x80000   # a layer the player does not stand on
+	SQ.tag(slab, &"mud")
+	main.world.add_child(slab)
+	slab.global_position = pl.global_position + Vector3(0, 0.06, 0)
+	await get_tree().physics_frame
+	await get_tree().physics_frame
+	var fwd := -pl.global_transform.basis.z
+	fwd.y = 0.0
+	fwd = fwd.normalized()
+	for i in 12:
+		var at := pl.global_position + fwd * (0.4 + i * 0.35) + Vector3(fwd.z, 0, -fwd.x) * 1.6
+		var gg: Dictionary = FX.footstep(pl, at, -10.0, 3.0)
+		print("SURFQA step ", at, " -> ", gg["position"], " ", gg["material"], " ", gg["collider"])
+		await get_tree().create_timer(0.05).timeout
+	_label.text = "footprints: %d pooled decals (mud)" % FX.print_count()
+	for d: Decal in FX._prints:
+		print("SURFQA decal ", d.global_position, " in_tree=", d.is_inside_tree(), " mix=", d.albedo_mix, " vis=", d.is_visible_in_tree())
+	var cam := pl.get_viewport().get_camera_3d()
+	print("SURFQA cam ", cam.global_position, " player ", pl.global_position, " fwd ", fwd)
+	print("SURFQA prints ", FX.print_count())
+	await get_tree().create_timer(0.3).timeout
+	main.get_viewport().get_texture().get_image().save_png(out.path_join("surface_prints.png"))
+	await _survival_demo()
+
+
+## Campfire (heat + cooking station), a well use, a sword-on-stone impact: one screenshot each.
+func _survival_demo() -> void:
+	var pl: Node3D = main.player
+	var fwd := -pl.global_transform.basis.z
+	fwd.y = 0.0
+	fwd = fwd.normalized()
+	var fire: Node3D = load("res://scripts/world/campfire.gd").new()
+	main.world.add_child(fire)
+	var fp := pl.global_position + fwd * 2.2
+	fire.global_position = Vector3(fp.x, WorldGen.height(fp.x, fp.z), fp.z)
+	Life.needs.warmth = 30.0
+	await get_tree().create_timer(2.0).timeout
+	Life.call("_update_exposure")
+	_label.text = "campfire: fire=%s warmth target=%.0f" % [Life.needs.env.get("fire"), RANeeds.warmth_target(Life.needs.env)]
+	print("SURFQA campfire env ", Life.needs.env)
+	await get_tree().create_timer(0.2).timeout
+	main.get_viewport().get_texture().get_image().save_png(out.path_join("surface_campfire.png"))
+	var SI := load("res://scripts/combat/surface_impact.gd")
+	for i in 3:
+		SI.play(pl, fire.global_position + Vector3(0, 0.3, 0), -fwd, &"stone")
+		await get_tree().create_timer(0.03).timeout
+	main.get_viewport().get_texture().get_image().save_png(out.path_join("surface_impact.png"))
+	var wells := get_tree().root.find_children("WaterSource", "", true, false)
+	print("SURFQA wells ", wells.size())
+	if not wells.is_empty():
+		Life.needs.water = 20.0
+		var w: Node3D = wells[0]
+		var m1: String = w.call("use")
+		Life.needs.water = 95.0
+		var m2: String = w.call("use")
+		print("SURFQA well ", m1, " | ", m2, " flasks=", Life.count("clean_water"))
+		print("SURFQA drink flask: ", Life.use_item("clean_water"))
