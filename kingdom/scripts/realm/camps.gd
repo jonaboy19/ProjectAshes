@@ -186,6 +186,19 @@ func found_camp(pos: Vector2, camp_name := "", day := 0) -> int:
 	return id
 
 
+## Takes a camp off the map with its trails (a founding given up). True when it existed.
+func remove_camp(id: int) -> bool:
+	if not _camps.has(id):
+		return false
+	_camps.erase(id)
+	var node := "c%d" % id
+	for k: String in _edges.keys():
+		var e: Dictionary = _edges[k]
+		if String(e.get("a", "")) == node or String(e.get("b", "")) == node:
+			_edges.erase(k)
+	return true
+
+
 func camps() -> Array:
 	var out: Array = []
 	var ids := _camps.keys()

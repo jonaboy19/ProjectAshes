@@ -233,13 +233,20 @@ func test_place_check_is_fast() -> void:
 
 # --- hooks for the rest of the game (HOOKS_FOR_CLOUD.md, "Build kit hooks") ------------------------------------------
 
-func _valid_claims(n: int) -> Array[Vector3]:
+func _founds(k: RefCounted, p: Vector2) -> bool:
+	var ev: Dictionary = k.hub.mod("founding").evaluate_site(p)
+	return String(ev["blocked"]) == "" and float(ev["overall"]) >= 0.2 and float(ev["camp"]) >= float(k.hub.mod("camps").MIN_CAMP_SCORE)
+
+
+## Sites LandClaim allows AND the founding record accepts (a claim starts a founding: READY_V1 C2), so the kit must be a hub's.
+func _valid_claims(n: int, k: RefCounted = null) -> Array[Vector3]:
 	var out: Array[Vector3] = []
 	var step := 450.0
 	for ix in range(-8, 9):
 		for iz in range(-8, 9):
 			var p := Vector2(ix * step, iz * step)
-			if LandClaim.block_reason(p) == "" and not WorldGen.is_water(p.x, p.y):
+			if LandClaim.block_reason(p) == "" and not WorldGen.is_water(p.x, p.y) \
+					and (k == null or _founds(k, p)):
 				out.append(Vector3(p.x, 0, p.y))
 				if out.size() >= n:
 					return out
@@ -256,11 +263,11 @@ func test_claim_flow_founds_through_ensure_grid_with_land_rules_and_the_cap() ->
 	assert_str(String(refused["reason"])).contains("Too close")
 	assert_int(k.grids.size()).is_equal(0)
 	# Open country is: three settlements, recorded as squats, then the cap (OWNER_DECISIONS: at most 3).
-	var spots := _valid_claims(4)
+	var spots := _valid_claims(4, k)
 	assert_int(spots.size()).is_equal(4)
 	for i in 3:
 		var r: Dictionary = k.claim(spots[i])
-		assert_bool(bool(r["ok"])).is_true()
+		assert_bool(bool(r["ok"])).override_failure_message(String(r["reason"])).is_true()
 		assert_bool(bool(r["founded"])).is_true()
 		assert_str(String(k.grids[int(r["gid"])]["claim"])).is_equal("squat")
 	var fourth: Dictionary = k.claim(spots[3])

@@ -5,6 +5,11 @@ Who owns which area: `docs/LOCAL_SESSION_HANDOFF.md`.
 
 _Last update: 2026-10-06 (animation behaviour takeover: Codex merge, P9/P5/P2b/casting v2 wired); before that 2026-10-06 (AAA camera + clean screen pass); before that 2026-10-05 (build kit + Palworld-style building; medieval towns pass, 153 Meshy models placed); before that 2026-10-01 (Codex animation + living-world branches merged and reviewed in game, see CODEX_INTEGRATION_REVIEW.md; Style G art-director pass); before that 2026-09-30 (horses and riding: rig, 50 horse + 57 rider clips, HorseRig/RiderSync/RiderIK, VAT herds, P14; living world: 188 life clips, VAT crowds, animation LOD, smart objects, P13; combat animation director pass: COMBAT_AUDIT.md, 44 combat clips, weapon trail, markers, P9-P12; world map review); Region 1 look pass: Hollin's Reach valley, 5 landmarks, far horizon, biome patchwork, parchment map)_
 
+## Ready v1 (cloud)
+| Date | What | Where | Branch |
+|---|---|---|---|
+| 10-23 | **C1 headless release harness**: `run_v1.sh [stages]` = import, full gdUnit, headless playtest bot, `verdict.py` (non-zero on failed CHECK / SCRIPT ERROR / stuck stage). Bot is headless-safe (no shots/fps, buttons pressed directly, carve via canvas fallback). Found and fixed on the way: `Array != bool` in `R1StoryDirector.ctx` (script error on 4.6.3), off-tree nodes in `sense_threats` / `threat_plates`, empty `raw_to_base64` in persona/psyche saves, headless impostor bake. `boot,intro,menus,st_birth,st_a1` passes headless (Godot 4.6.3). `boot_wiring_wip.patch` is NOT applied (does not apply cleanly). Open: Godot aborts at exit (exit 134, malloc) after the bot reports done. | `kingdom/tools_qa/v1/`, `playtest_bot.gd` | claude/v1-harness |
+
 ## Done (recent)
 | Date | What | Where | Commit |
 |---|---|---|---|
@@ -719,3 +724,11 @@ AAA-review backlog from this task:
 
 ## 2026-10-06 baked quality phase 2
 LOW draws 172 -> 131, HIGH ~700 -> ~530 in the gate-market bench (targets 120 / 300 not met). See docs/art/baked_quality/README.md and skill ashes-baked-quality.
+
+## Ready v1 (cloud)
+- C2 one settlement model (`claude/v1-settlement-unify`): `BuildKit.claim()` now starts the `founding.gd` record (`claim_site`) and its civilization row; grid stores `fid`/`node`; `BuildKit.abandon(gid)` / `founding.abandon` clear all three; `RealmHub.player_settlements()` / `settlement_of_grid(gid)`; max 3 kept. Tests `tests/test_v1_settlement_unify.gd`.
+- C6 companions in combat (`claude/v1-companions`): followers engage the player's lock-on target; 0 HP = Down 30 s with hold-E revive; unrevived = death, or a 3-day injury on Story difficulty; the Call (key `N`, `FollowerManager.call_followers()`) uses the summon delay. Tests `tests/test_v1_companions.gd`, bot stage `v1_recruit`. Missing clips and the wolf-targeting gap are listed in the PR.
+- C7 named companions content (`claude/v1-companion-content`): Brannoc Tallow, Sister Oriel Vane, Hesk Ironbrow with bios, recruit dialogue and a 3-step personal quest each (`data/quests/companions/`, `dialogue/companions/`, `docs/regions/COMPANIONS_R1.md`); data only. Open hooks: set `hero.male`/`hero.female` in `Life.life_path` (courtship gate), place the `duskbriar/ash/*` clue props, read the `companion.<id>.*` flags in recruitment/follower code.
+- C10 Hunting loop (claude/v1-hunting): kills leave a carcass; hold E "Skin" (`CorpseLoot.attach_animal`, rules in `sim/hunting.gd`) pays venison/hide/antler scaled by hunting mastery (hide-tearing under level 19), trains hunting; recipes `tan_hide`, `game_jerky`; guild "Hunter" posts; bot stage `v1_hunt`; test `tests/test_v1_hunting.gd`. v1 hook: `actors/critter.gd _die` (2 lines). Needs a GPU-session look at the skin hold prompt + a Skin clip.
+- C11 PC controls + prompts (`claude/v1-pc-controls`): Controls tab with grouped rows, conflict refusal, press-again-to-swap, reset to defaults, persisted in `[controls]`; `input_glyphs.gd` keyboard/mouse/gamepad glyphs for the HUD hint strip, interact key cap and tutorial prompts (dodge prompt said Space, key is K: fixed); `VirtualJoystick` touch-only. Tests `tests/test_v1_pc_controls.gd`. Pad rebinding not done.
+- C13 combat balance (`claude/v1-balance`): `kingdom/tools_qa/v1/duel_sim.gd` (player level N vs wolf pack / bandit / goblin through combat_stats + hit_resolver) and `data/region1/danger_tiers.json` (tiers, shield pips, recommended levels). Wolf `dmg` 1.0 -> 4.1, goblin `dmg` 6.3 -> 6.6 in `archetypes.json`; win rate at the recommended level 75 / 77 / 77 % (band 70-85). `RAThreatMap` reads the tiers (`shield()` for the badge).

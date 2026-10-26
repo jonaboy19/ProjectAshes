@@ -1,0 +1,8 @@
+# Allowed [HOOK] kinds for the v1 release gate: one normalised line per kind (numbers become N).
+# Generated from a bot run: `grep -h '\[HOOK\]' v1_out/bot_out.txt | sed 's/.*\[HOOK\] //; s/-\?[0-9]\+\(\.[0-9]\+\)\?/N/g' | sort -u`
+# Baseline = the hooks observed in boot,intro,menus,st_birth,st_a1 (C1). Enforce with V1_HOOKS_STRICT=1.
+Kindling Night: the festival signal (the calendar date is N days away)
+age N -> N (four years pass; the story opens at eight)
+age N -> N (the years pass)
+carve ward via the canvas's own 'Choose a glyph' fallback (headless: no mouse drawing)
+teleport to (N, N)

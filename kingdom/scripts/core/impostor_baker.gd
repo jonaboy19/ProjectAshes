@@ -41,6 +41,12 @@ func _ready() -> void:
 
 ## Bakes one look. `keep` = weapon/hat parts to show, `pose` = animation frame to freeze.
 func bake(look_id: String, file: String, keep: Array[String], pose := "Idle") -> void:
+	if DisplayServer.get_name() == "headless":
+		# dummy renderer: the viewport has no texture to read back, so use an empty atlas (headless QA only)
+		var blank := ShaderMaterial.new()
+		blank.shader = SHADER
+		materials[look_id] = blank
+		return
 	_viewport.render_target_update_mode = SubViewport.UPDATE_ALWAYS
 	var model := Assets.character(file, 1.75, keep)
 	_holder.add_child(model)

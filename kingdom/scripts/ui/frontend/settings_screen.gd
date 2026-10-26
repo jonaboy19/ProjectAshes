@@ -24,6 +24,8 @@ var _caption: Label
 var _dirty_label: Label
 var _loading_tab := false
 var _paused_by_me := false
+var _key_rows := {}            # action -> SelRow (Controls tab)
+var _pending_swap := {}        # {action, key, other}: a conflicting rebind waiting for "press it again to swap"
 
 
 static func open(parent: Node, over_game := false, tab := 0) -> Control:
@@ -197,16 +199,21 @@ func _tab_gameplay() -> void:
 
 
 func _tab_controls() -> void:
-	var note := AF.label("Select a key and press Enter (or tap it), then press the new key. Esc cancels.", 15, AF.TEXT_DIM, true)
+	_key_rows.clear()
+	_pending_swap = {}
+	var note := AF.label("Select a key and press Enter (or click it), then press the new key. Esc cancels. Mouse look follows Camera Sensitivity (Gameplay). Gamepad buttons are fixed (see docs/controls.md).", 15, AF.TEXT_DIM, true)
 	_content.add_child(note)
 	for a: Array in SS.ACTIONS:
 		var act := String(a[0])
 		if not InputMap.has_action(act):
 			continue
+		if SS.ACTION_GROUPS.has(act):
+			_content.add_child(AF.label(String(SS.ACTION_GROUPS[act]), 17, AF.GOLD_BRIGHT, true))
 		var r := SelRow.new()
 		r.setup("act:" + act, String(a[1]), "key", [], SS.binding_text(act))
 		r.changed.connect(_on_changed)
 		_content.add_child(r)
+		_key_rows[act] = r
 
 
 func _tab_language() -> void:
@@ -228,7 +235,7 @@ func _tab_access() -> void:
 
 func _on_changed(key: String, value: Variant) -> void:
 	if key.begins_with("act:"):
-		SS.set_binding(key.substr(4), int(value))
+		_rebind(key.substr(4), int(value))
 		return
 	_vals[key] = value
 	if SS.BUSES.has(key):
@@ -236,6 +243,41 @@ func _on_changed(key: String, value: Variant) -> void:
 	elif SS.LEVEL_KEYS.has(key):
 		SS.apply_levels(get_tree(), _vals)   # view distance / shadows / textures / effects show at once
 	_update_caption()
+
+
+## One rebind from the Controls tab. Reserved keys are refused; a key another action owns is refused too, but pressing
+## the same key again on the same row swaps the two actions.
+func _rebind(action: String, code: int) -> void:
+	var swap: bool = _pending_swap.get("action", "") == action and int(_pending_swap.get("key", -1)) == code
+	var problem := SS.try_bind(action, code, swap)
+	var row: SelRow = _key_rows.get(action)
+	if problem == "":
+		_pending_swap = {}
+		_dirty_label.text = "%s is now %s." % [_action_name(action), SS.binding_text(action)]
+		_refresh_key_rows()
+		return
+	if problem.begins_with("conflict:"):
+		var other := problem.substr(9)
+		_pending_swap = {"action": action, "key": code}
+		_dirty_label.text = "%s is already %s. Choose another key, or press it again to swap." % [
+			SS.binding_text(other), _action_name(other)]
+	else:
+		_pending_swap = {}
+		_dirty_label.text = "That key can't be used."
+	if row:
+		row.set_value(SS.binding_text(action))     # the capture row had already shown the refused key
+
+
+func _refresh_key_rows() -> void:
+	for act: String in _key_rows:
+		(_key_rows[act] as SelRow).set_value(SS.binding_text(act))
+
+
+static func _action_name(action: String) -> String:
+	for a: Array in SS.ACTIONS:
+		if a[0] == action:
+			return String(a[1])
+	return action
 
 
 func _update_caption() -> void:
@@ -265,11 +307,7 @@ func _apply() -> void:
 func _reset() -> void:
 	var keep_controls: bool = TABS[_tab] != "Controls"
 	if not keep_controls:
-		SS.reset_controls()
-		InputMap.load_from_project_settings()
-		var g := get_tree().root.get_node_or_null("Game")
-		if g:
-			g.call("_setup_input")
+		SS.reset_controls()      # drops the saved rebinds and re-creates every action from Game.KEYS / Game.PADS
 	else:
 		_vals = SS.DEFAULTS.duplicate()
 		_vals["preset"] = 0

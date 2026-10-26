@@ -330,7 +330,7 @@ func _make_gather(g: Dictionary, source: String, day: int) -> Dictionary:
 	var c := _base("gather", source, rank, clampf(amount / 12.0, 0.0, 1.0), day, int(DEADLINE_DAYS["gather"]))
 	c["target"] = {"item": String(g["item"])}
 	c["required"] = amount
-	c["title"] = "Gather %d %s" % [amount, String(g["item"]).replace("_", " ")]
+	c["title"] = String(g["title"]) % amount if g.has("title") else "Gather %d %s" % [amount, String(g["item"]).replace("_", " ")]
 	return c
 
 

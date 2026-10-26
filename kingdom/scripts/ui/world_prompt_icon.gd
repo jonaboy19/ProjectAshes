@@ -7,6 +7,7 @@ extends Control
 const SIZE := 46.0               # px at 1080p
 var target: Node3D
 var verb := ""
+var glyph := ""                  # PC: the key / pad button that triggers it, drawn as a small key cap beside the icon
 var who := ""                    # small name under the verb (the focused villager); replaces the floating name plate
 var face: Texture2D
 var _a := 0.0
@@ -50,6 +51,18 @@ func _draw() -> void:
 	var s := SIZE * k * lerpf(0.85, 1.0, _a)
 	var c := Color(1, 1, 1, _a)
 	draw_texture_rect(face, Rect2(_pos - Vector2(s, s) * 0.5, Vector2(s, s)), false, c)
+	if glyph != "":
+		var gs := int(15.0 * k)
+		var gw := maxf(_font.get_string_size(glyph, HORIZONTAL_ALIGNMENT_CENTER, -1, gs).x + 12.0 * k, 24.0 * k)
+		var cap := Rect2(_pos + Vector2(s * 0.5 + 6.0 * k, -11.0 * k), Vector2(gw, 22.0 * k))
+		var sb := StyleBoxFlat.new()
+		sb.bg_color = Color(0.05, 0.04, 0.03, 0.85 * _a)
+		sb.border_color = Color(0.95, 0.8, 0.45, _a)
+		sb.set_border_width_all(max(1, int(round(1.5 * k))))
+		sb.set_corner_radius_all(int(5.0 * k))
+		draw_style_box(sb, cap)
+		draw_string(_font, cap.position + Vector2((gw - _font.get_string_size(glyph, HORIZONTAL_ALIGNMENT_CENTER, -1, gs).x) * 0.5, 16.0 * k),
+			glyph, HORIZONTAL_ALIGNMENT_LEFT, -1, gs, Color(1.0, 0.93, 0.75, _a))
 	var line := verb if who == "" or who == verb else "%s  %s" % [verb, who]
 	if line != "":
 		var fs := int(15.0 * k)

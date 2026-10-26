@@ -116,7 +116,7 @@ func _draw() -> void:
 	var items: Array = []
 	for r: Dictionary in _picked:
 		var n := r["node"] as Node3D
-		if not is_instance_valid(n):
+		if not is_instance_valid(n) or not n.is_inside_tree():
 			continue
 		var id := n.get_instance_id()
 		_fade[id] = move_toward(float(_fade.get(id, 0.0)), 1.0, 0.18)
