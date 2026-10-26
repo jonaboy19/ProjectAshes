@@ -108,42 +108,42 @@ const TURN_SECONDS := 4.0
 const ACT_CLIPS := {
 	Act.SHOP: ["Life_Market_Browse", "Idle_Talking", "Interact"],
 	Act.INN: ["Life_Tavern_Lean_Bar", "Idle_Talking", "Cheering_Two_Hands"],
-	Act.PRAY: ["Life_Pray_Kneel", "Life_Pray_Stand", "G6_pray", "Taichi_Idle", "Meditate", "Fixing_Kneeling"],
+	Act.PRAY: ["Life_Mx_Pray_Kneel", "Life_Pray_Stand"],
 	Act.WATER: ["Life_Chore_Well_Crank", "G6_gathering", "Chore_Pick_Up_Box", "Interact", "PickUp_Table"],
 	Act.SHELTER: ["Life_Mocap_Cold", "Life_Ambient_Rub_Arms", "Shivering", "Idle_Subtle"],
 	Act.FLEE: ["Shivering", "Idle_Hurt"],
 	Act.WATCH: ["Life_Ambient_Shade_Eyes", "Idle_Listening", "Idle_Subtle"],
-	Act.SLEEP: ["Life_Rest_Sleep_Ground", "Lie_Down_Idle", "Sitting_Idle"],
-	Act.HOME: ["Life_Chore_Sweep", "Chore_Sweep", "Sitting_Idle"],
+	Act.SLEEP: ["Life_Mx_Sit_Floor", "Sitting_Idle"],
+	Act.HOME: ["Life_Chore_Sweep", "Sitting_Idle"],
 	Act.EAT: ["Life_Eat_Bread_Stand", "Consume_Item", "Sitting_Idle"],
 	Act.SIT: ["Sitting_Idle", "Idle_Subtle"],
 	Act.PLAY: ["Life_Kid_Run_Play", "Idle_Subtle"],
 	Act.HIDE: ["Life_Mocap_Cold", "Shivering", "Idle_Subtle"],
 	Act.PROTEST: ["Life_Social_Argue_A", "Life_Social_Shake_Head", "Idle_Hurt", "Idle_Talking"],
 	Act.ALARM: ["Life_Social_Point_Directions", "Life_Mocap_Directions", "Idle_Talking"],
-	Act.FIREFIGHT: ["Life_Carry_Put_Down", "Life_Carry_Pick_Up", "Chore_Pick_Up_Box", "Interact"],
-	Act.CHORE: ["Life_Chore_Sweep", "Chore_Sweep", "Interact"],
+	Act.FIREFIGHT: ["Life_Mx_Pick_Up", "Chore_Pick_Up_Box", "Interact"],
+	Act.CHORE: ["Life_Chore_Sweep", "Interact"],
 	Act.PATROL: ["Life_Guard_Look_Out", "Idle_Shield", "Idle_Subtle"],
 	Act.TRAIN: ["Life_Guard_Attention", "Idle_Shield", "Idle_Subtle"],
 	Act.MOURN: ["Life_Social_Mourn_Stand", "Life_Mocap_Sad", "Life_Pray_Stand", "Idle_Subtle"],
-	Act.FESTIVE: ["Dance", "Life_Tavern_Cheer", "Life_Social_Laugh", "Cheering_Two_Hands"],
+	Act.FESTIVE: ["Life_Tavern_Cheer", "Life_Social_Laugh", "Cheering_Two_Hands"],
 	Act.QUEUE: ["Life_Ambient_Shift_Weight", "Life_Ambient_Look_Around", "Life_Ambient_Wipe_Brow", "Idle_Subtle"],
 	Act.NOTICE: ["Life_Ambient_Shade_Eyes", "Life_Ambient_Look_Around", "Idle_Listening", "Idle_Subtle"],
 	Act.INVESTIGATE: ["Life_Ambient_Look_Around", "Idle_Listening", "Idle_Subtle"],
 	Act.SEARCH: ["Life_Ambient_Look_Around", "Life_Guard_Look_Out", "Idle_Subtle"],
 }
 ## Clips of the same act varied per person: the devout kneel at a funeral, some dance and some cheer.
-const MOURN_KNEEL := ["Life_Social_Mourn_Kneel", "Life_Pray_Kneel"]
-const FESTIVE_DANCE := ["Dance", "Life_Tavern_Cheer", "Life_Social_Laugh", "Life_Mocap_Happy"]
+const MOURN_KNEEL := ["Life_Social_Mourn_Kneel", "Life_Mx_Pray_Kneel"]
+const FESTIVE_DANCE := ["Life_Tavern_Cheer", "Life_Social_Laugh", "Life_Mocap_Happy"]
 const POOR_MEAL := ["Life_Mocap_Eat_Soup", "Life_Eat_Bread_Stand", "Consume_Item"]
-const WAKE_CLIPS := ["Life_Ambient_Stretch_Morning", "Life_Ambient_Yawn", "Life_Mocap_Stretch_Yawn", "Idle_Subtle"]
+const WAKE_CLIPS := ["Life_Ambient_Yawn", "Life_Mocap_Stretch_Yawn", "Idle_Subtle"]
 const FaceState := preload("res://scripts/living_world/face_state.gd")
 const NpcFaceCard := preload("res://scripts/living_world/npc_face_card.gd")
-const TALK_CLIPS := ["Life_Talk_Casual", "Life_Talk_Explain", "Life_Talk_Gossip", "Life_Talk_Emphatic", "Idle_Talking"]
+const TALK_CLIPS := ["Life_Talk_Casual", "Life_Talk_Explain", "Life_Talk_Gossip", "Idle_Talking"]
 const LISTEN_CLIPS := ["Life_Talk_Listen_Nod", "Life_Talk_Listen_Hips", "Idle_Listening", "Head_Nod", "Idle_Talking"]
 const ALONE_CLIPS := ["Life_Ambient_Shift_Weight", "Idle_Subtle"]
-const JOB_CLIPS := [["Life_Farm_Hoe", "Farm_Harvest"], ["Life_Smith_Hammer", "Fixing_Kneeling"], ["Life_Market_Call_Out", "Idle_Talking"],
-	["Life_Guard_Lean_Spear", "Idle_Shield"], ["Life_Carp_Saw", "Interact"], ["Life_Wood_Chop", "TreeChopping"]]
+const JOB_CLIPS := [["Life_Farm_Hoe", "Farm_Harvest"], ["Life_Smith_Hammer", "Idle_Subtle"], ["Life_Market_Call_Out", "Idle_Talking"],
+	["Life_Guard_Lean_Spear", "Idle_Shield"], ["Life_Carp_Saw", "Interact"], ["Life_Mocap_Chop_Wood", "TreeChopping"]]
 ## One-shot greeting clips by how the town regards the player.
 const GREET_CLIPS := {"warm": ["Life_Mx_Wave", "Life_Social_Wave_Greet", "Life_Social_Nod"], "neutral": ["Life_Social_Nod", "Head_Nod"],
 	"cold": ["Life_Social_Shake_Head", "Idle_Subtle"]}
@@ -2141,7 +2141,7 @@ func take_damage(amount: int, from: Node = null, _knockback := Vector3.ZERO) -> 
 	if _hp <= 0:
 		go_down(Takedown.Kind.KILL)
 		return
-	_begin_oneshot(["Villager_Hit_Chest", "Idle_Hurt", "Hit_Light"], 0.9)      # AAA mocap stumble when the library has it
+	_begin_oneshot(["Idle_Hurt", "Hit_Light"], 0.9)      # AAA mocap stumble when the library has it
 	var now := Time.get_ticks_msec()
 	Perception.set_class_at_least(_slot, Perception.Cls.ALARMED, from_pos, now)
 	_crime_until = now + 25000
