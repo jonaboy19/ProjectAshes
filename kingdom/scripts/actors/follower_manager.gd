@@ -11,8 +11,13 @@ extends Node3D
 
 const Brain := preload("res://scripts/actors/follower_brain.gd")
 const Body := preload("res://scripts/actors/follower_body.gd")
+const SettingsStore := preload("res://scripts/ui/frontend/settings_store.gd")
 
 const CHECK := 0.5
+## The Call: how long before it can be sounded again (seconds).
+const CALL_COOLDOWN := 4.0
+## Tests set this to read the difficulty from somewhere else than SettingsStore (name or index).
+static var difficulty_override: Variant = null
 
 ## row -> fid for every row this manager owns (PopulationLOD reads it through owns()).
 static var owned_rows: Dictionary = {}
@@ -25,6 +30,7 @@ var _acc := 0.0
 var _last_pp := Vector3.INF
 ## Tests and tools can hand in a hub; null means the game's Life.realm.
 var hub: RefCounted = null
+var _call_cd := 0.0
 
 
 static func owns(row: int) -> bool:
@@ -92,7 +98,14 @@ func _physics_process(_delta: float) -> void:
 	# a waiter that is still next to the door (needs_teleport also needs them to be far).
 
 
+func _unhandled_input(event: InputEvent) -> void:
+	if InputMap.has_action("call_followers") and event.is_action_pressed("call_followers"):
+		call_followers()
+		get_viewport().set_input_as_handled()
+
+
 func _process(delta: float) -> void:
+	_call_cd = maxf(0.0, _call_cd - delta)
 	if not _queue.is_empty():
 		var q: Array = _queue.pop_front()
 		_build(String(q[0]), q[1] as Vector2)
@@ -121,6 +134,8 @@ func refresh() -> void:
 		var row := int(f.get("person", -1))
 		if f.is_empty() or row < 0 or row >= WorldSim.population() or String(f["status"]) != "present":
 			continue
+		if fol.is_injured(fid):
+			continue                  # recovering: no body, the row stays where the village schedule has it
 		var eo: Dictionary = rc.effective_order(fid)
 		var ord := String(eo["order"])
 		var duty := String((rc.contract_of(fid).get("t", {}) as Dictionary).get("d", "labor"))
@@ -145,8 +160,10 @@ func refresh() -> void:
 	# bodies that are no longer wanted (or whose recruit is gone) go back to data only
 	for fid: String in _bodies.keys():
 		var b: Node3D = _bodies[fid]
-		if not want_set.has(fid) or not info.has(fid) or bool(b.get("finished")):
+		if not want_set.has(fid) or not info.has(fid) or bool(b.get("finished")) or bool(b.get("fallen")):
 			_remove_body(fid)
+		elif fol.is_down(fid):
+			fol.set_down_left(fid, float(b.call("down_left")))    # a save made now comes back Down
 	var slot_i := 0
 	for fid: String in want:
 		var inf: Dictionary = info[fid]
@@ -264,9 +281,96 @@ func _build(fid: String, at: Vector2) -> void:
 	add_child(b)
 	b.call("place_at", at)
 	b.set("slot", _slot_for(fid))
+	b.connect("downed", _on_downed)
+	b.connect("revived", _on_revived)
+	b.connect("down_expired", _on_down_expired)
+	if fol.is_down(fid):
+		b.call("go_down", fol.down_left(fid))
 	_hold(int(f["person"]), Vector2.INF)
 	WorldSim.set_external_position_owner(int(f["person"]), int(ctx["owner"]), true, b.call("sim_position"))
 	_bodies[fid] = b
+
+
+# --------------------------------------------------------------------------- Down, revive, the fall
+
+func _difficulty() -> Variant:
+	if difficulty_override != null:
+		return difficulty_override
+	return SettingsStore.get_value("difficulty")
+
+
+func _on_downed(fid: String) -> void:
+	var fol := _followers()
+	if fol != null:
+		fol.mark_down(fid, Brain.DOWN_SECONDS if not _bodies.has(fid) else float(_bodies[fid].call("down_left")))
+	Game.say("%s is down! Hold %s to revive." % [_fname(fid), SettingsStore.binding_text("interact")])
+
+
+func _on_revived(fid: String) -> void:
+	var fol := _followers()
+	if fol != null:
+		fol.revive(fid)
+	Game.say("%s struggles back to their feet." % _fname(fid))
+
+
+## Nobody came in time: gone for good, or (Story difficulty) hurt for Brain.INJURY_DAYS days.
+func _on_down_expired(fid: String) -> void:
+	var fol := _followers()
+	if fol == null:
+		return
+	var f: Dictionary = fol.get_follower(fid)
+	var row := int(f.get("person", -1))
+	var res: Dictionary = fol.resolve_down(fid, _difficulty())
+	if not bool(res["ok"]):
+		return
+	if res["outcome"] == Brain.OUTCOME_DEAD:
+		var at := Vector2.INF
+		if _bodies.has(fid):
+			at = _bodies[fid].call("sim_position")
+		Game.say("%s has died of their wounds." % res["name"])
+		_remove_body(fid)
+		if row >= 0:
+			_release(row)
+			WorldSim.kill_person(row, at)
+		var rc := _recruitment()
+		if rc != null:
+			rc.call("report_death", fid)
+	else:
+		Game.say("%s is badly hurt and needs %d days to recover." % [res["name"], Brain.INJURY_DAYS])
+		_remove_body(fid)
+
+
+func _fname(fid: String) -> String:
+	var fol := _followers()
+	return String(fol.get_follower(fid).get("name", "Your companion")) if fol != null else "Your companion"
+
+
+## The Call: every fit companion is sent for with the usual summon (travel hours and all), put back on "follow",
+## and bodies near you hear it. Returns followers.call_party()'s dictionary plus `called_orders`.
+func call_followers() -> Dictionary:
+	var fol := _followers()
+	var rc := _recruitment()
+	var pl: Node3D = ctx["player"]
+	if fol == null or pl == null or _call_cd > 0.0:
+		return {"called": [], "responses": [], "eta": 0.0, "refused": [], "called_orders": []}
+	_call_cd = CALL_COOLDOWN
+	var res: Dictionary = fol.call_party(Vector2(pl.global_position.x, pl.global_position.z))
+	var orders: Array = []
+	if rc != null:
+		for fid: String in rc.active_ids():
+			if fol.is_down(fid) or fol.is_injured(fid):
+				continue
+			if String(rc.effective_order(fid)["order"]) != "follow" and bool(rc.set_order(fid, "follow")["ok"]):
+				orders.append(fid)
+	for fid: String in _bodies:
+		_bodies[fid].call("hear_call")
+	res["called_orders"] = orders
+	var n: int = (res["called"] as Array).size() + orders.size() + _bodies.size()
+	if n > 0:
+		Game.say("You call your companions.%s" % ((" The farthest will take %d hours." % int(ceil(float(res["eta"])))) if float(res["eta"]) >= 1.0 else ""))
+	else:
+		Game.say("No one answers the call.")
+	return res
 
 
 func _slot_for(fid: String) -> int:

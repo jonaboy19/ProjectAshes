@@ -572,6 +572,7 @@ func _run_all() -> void:
 		["towns", _s_towns], ["townsweep", _s_townsweep],
 		["st_load", _s_st_load], ["st_birth", _s_st_birth], ["st_a1", _s_st_a1], ["st_a2", _s_st_a2], ["st_a3", _s_st_a3],
 		["st_a4", _s_st_a4], ["st_a5", _s_st_a5], ["st_save", _s_st_save], ["st_probe", _s_st_probe],
+		["v1_recruit", _s_v1_recruit],
 	]
 	for e: Array in list:
 		if not _want(String(e[0])) and (String(e[0]) != "adult" or only.contains("st_")):
@@ -607,6 +608,7 @@ func _stage_limit(name: String) -> float:
 		"towns": return 900.0 * float(maxi(1, _town_list().size()))
 		"townsweep": return 60.0 * float(maxi(1, _sweep_list().size())) + 120.0
 		"st_load", "st_probe": return 400.0
+		"v1_recruit": return 600.0
 		"st_save": return 200.0
 		"st_birth", "st_a1", "st_a2", "st_a3", "st_a4", "st_a5": return 1500.0
 	return 150.0
@@ -1770,6 +1772,108 @@ func _fight(e: Node3D, label: String, limit: float) -> bool:
 	if not dead:
 		L("%s survived: health %s state %s" % [label, str(e.get("health")), str(e.get("state"))])
 	return dead
+
+
+## Ready v1 C6: post a vacancy on the Ashford inn board (the same calls the board menu makes), hire three applicants,
+## let their bodies appear, fight three wolves together, then Down + revive and the Call.
+func _s_v1_recruit() -> void:
+	if Life.age() < 18:
+		set_age(18)
+	Game.add_gold(300)
+	L("[HOOK] +300 gold for the notice fee and wages")
+	var c: Vector2 = ashford()["pos"]
+	await teleport(c + Vector2(0, 10), 0.0, 1.5)
+	heal_player()
+	var rc: RefCounted = Life.realm.mod("recruitment")
+	var fol: RefCounted = Life.realm.mod("followers")
+	var posted: Dictionary = rc.post_notice(0, "inn", rc.make_terms(8, "guard", 0, false), "", 10, "", 80.0)
+	check("a vacancy is posted on the Ashford inn board", bool(posted["ok"]), str(posted.get("line", "")))
+	var apps: Array = []
+	var ctx := {"gold": Game.gold, "season": "summer", "at_war": false, "abs_hours": 0, "player_pos": player.global_position, "life": Life}
+	for d in 8:
+		rc.tick_day(WorldSim.day + d + 1, ctx)
+		apps = rc.applicants(String(posted["nid"]))
+		if apps.size() >= 3:
+			break
+	L("[HOOK] the notice's applicants are drawn by ticking recruitment days (%d applicants)" % apps.size())
+	check("at least three applicants answered the notice", apps.size() >= 3, "%d applicants" % apps.size())
+	var hired: Array = []
+	for a: Dictionary in apps:
+		if hired.size() >= 3:
+			break
+		var res: Dictionary = rc.hire_applicant(String(posted["nid"]), int(a["row"]), {}, {"trust": 40.0, "reputation": 80.0})
+		if bool(res["ok"]):
+			hired.append(String(res["fid"]))
+		else:
+			L("[HOOK] %s counters (%s): signing at their own ask" % [str(a["name"]), str(res.get("line", ""))])
+			var t: Dictionary = rc.make_terms(int(a["ask"]) + 2, "guard", 0, false)
+			var res2: Dictionary = rc.engage(int(a["row"]), t, "personal", "", {"trust": 40.0, "reputation": 80.0})
+			if bool(res2["ok"]):
+				hired.append(String(res2["fid"]))
+	check("three companions are recruited", hired.size() == 3, str(hired))
+	for fid in hired:
+		fol.get_follower(fid)["skills"]["combat"] = 0.7
+		rc.set_order(fid, "follow")
+	L("[HOOK] companions' combat skill set to 0.7 (fighters)")
+	var mgr: Node = get_tree().get_first_node_in_group("follower_manager")
+	check("the follower manager is in the world", mgr != null)
+	if mgr == null:
+		return
+	mgr.call("refresh")
+	var bodies_ok: bool = await wait_until(func() -> bool: return int(mgr.call("body_count")) >= 3, 15.0)
+	check("three companion bodies stand beside the player", bodies_ok, "%d bodies" % int(mgr.call("body_count")))
+	await shot("v1_companions")
+	# fight three wolves together
+	var fwd := Vector2(-sin(player._yaw), -cos(player._yaw))
+	var wolves: Array = []
+	for i in 3:
+		var w := Wolf.new()
+		w.species = "wolf"
+		w.home = Vector2(player.global_position.x, player.global_position.z) + fwd * (7.0 + i) + Vector2(-fwd.y, fwd.x) * (float(i) - 1.0) * 2.0
+		w.territory = 200.0
+		main.world.add_child(w)
+		w.global_position = Vector3(w.home.x, WorldGen.height(w.home.x, w.home.y) + 0.3, w.home.y)
+		w._provoked = 8.0
+		wolves.append(w)
+	var hp0 := 0
+	for w in wolves:
+		hp0 += int(w.health)
+	var t0 := now()
+	while now() - t0 < 40.0:
+		heal_player()
+		var alive := wolves.filter(func(w: Variant) -> bool: return is_instance_valid(w) and not bool(w.dead))
+		if alive.is_empty():
+			break
+		var tgt: Node3D = alive[0]
+		face(Vector2(tgt.global_position.x, tgt.global_position.z), -0.2)
+		await key(KEY_J)
+		await wait(0.4)
+	var hp1 := 0
+	for w in wolves:
+		hp1 += maxi(int(w.health), 0) if is_instance_valid(w) else 0
+	check("the wolves took damage in the fight", hp1 < hp0, "wolf hp %d -> %d" % [hp0, hp1])
+	await shot("v1_fight")
+	for w in wolves:
+		if is_instance_valid(w) and not bool(w.dead):
+			w.queue_free()
+	# Down + revive
+	var body: Node3D = mgr.call("body_of", hired[0])
+	check("a companion body exists to be Downed", body != null)
+	if body != null:
+		body.call("take_damage", 9999)
+		check("0 HP puts a companion Down", bool(body.call("is_down")) and fol.is_down(hired[0]))
+		body.call("revive")
+		check("reviving stands them up", not bool(body.call("is_down")) and not fol.is_down(hired[0]))
+	# the Call
+	await teleport(c + Vector2(40, 10), 0.0, 1.5)
+	rc.set_order(hired[1], "wait")
+	var called: Dictionary = mgr.call("call_followers")
+	L("the Call: %s" % str(called))
+	check("the Call puts a waiting companion back on follow", String(rc.effective_order(hired[1])["order"]) == "follow", str(called))
+	await wait(2.0)
+	check("companions catch up after the Call", int(mgr.call("body_count")) >= 3, "%d bodies" % int(mgr.call("body_count")))
+	for fid in hired:
+		rc.dismiss(fid, 0)
 
 
 func _s_fight() -> void:
