@@ -1,0 +1,1441 @@
+{
+ "_doc": "Hand-authored gameplay slots (id -> primary clip, variants, fallback). golden_gate.py validates them against measured clips. Creature clips are keyed <subject>/<clip> (anim_qa catalog subject ids).",
+ "slots": {
+  "player.loco.idle": {
+   "category": "locomotion",
+   "primary": "Idle",
+   "variants": [
+    "Idle_Subtle",
+    "Idle_FoldArms",
+    "Idle_No",
+    "Idle_Listening"
+   ],
+   "fallback": "Idle"
+  },
+  "player.loco.walk": {
+   "category": "locomotion",
+   "primary": "Walk",
+   "variants": [
+    "Walk_Formal"
+   ],
+   "fallback": "Idle"
+  },
+  "player.loco.jog": {
+   "category": "locomotion",
+   "primary": "Jog_Fwd",
+   "variants": [],
+   "fallback": "Idle"
+  },
+  "player.loco.run": {
+   "category": "locomotion",
+   "primary": "Jog_Fwd",
+   "variants": [],
+   "fallback": "Idle"
+  },
+  "player.loco.sprint": {
+   "category": "locomotion",
+   "primary": "Sprint",
+   "variants": [],
+   "fallback": "Idle"
+  },
+  "player.loco.walk_back": {
+   "category": "locomotion",
+   "primary": "Walk_Backwards",
+   "variants": [],
+   "fallback": "Idle"
+  },
+  "player.loco.strafe_l": {
+   "category": "locomotion",
+   "primary": "Strafe_left",
+   "variants": [],
+   "fallback": "Idle"
+  },
+  "player.loco.strafe_r": {
+   "category": "locomotion",
+   "primary": "Strafe_right",
+   "variants": [],
+   "fallback": "Idle"
+  },
+  "player.loco.crouch_idle": {
+   "category": "locomotion",
+   "primary": "Crouch_Idle",
+   "variants": [],
+   "fallback": "Idle"
+  },
+  "player.loco.crouch_fwd": {
+   "category": "locomotion",
+   "primary": "Crouch_Fwd",
+   "variants": [
+    "Walk_Stealth",
+    "Run_Stealth"
+   ],
+   "fallback": "Idle"
+  },
+  "player.loco.swim_idle": {
+   "category": "locomotion",
+   "primary": "Swim_Idle",
+   "variants": [],
+   "fallback": "Idle"
+  },
+  "player.loco.swim_fwd": {
+   "category": "locomotion",
+   "primary": "Swim_Fwd",
+   "variants": [
+    "Swim_Freestyle"
+   ],
+   "fallback": "Idle"
+  },
+  "player.loco.walk_start_fwd": {
+   "category": "locomotion",
+   "primary": "Loco_WalkStart_F",
+   "variants": [],
+   "fallback": "Idle"
+  },
+  "player.loco.run_start_fwd": {
+   "category": "locomotion",
+   "primary": "Loco_RunStart_F",
+   "variants": [],
+   "fallback": "Idle"
+  },
+  "player.loco.walk_stop": {
+   "category": "locomotion",
+   "primary": "Loco_WalkStop",
+   "variants": [],
+   "fallback": "Idle"
+  },
+  "player.loco.run_stop_l": {
+   "category": "locomotion",
+   "primary": "Loco_RunStop_L",
+   "variants": [],
+   "fallback": "Idle"
+  },
+  "player.loco.run_stop_r": {
+   "category": "locomotion",
+   "primary": "Loco_RunStop_R",
+   "variants": [],
+   "fallback": "Idle"
+  },
+  "player.loco.sprint_stop": {
+   "category": "locomotion",
+   "primary": "Loco_Sprint_Stop_Skid",
+   "variants": [],
+   "fallback": "Idle"
+  },
+  "player.loco.turn_90_l": {
+   "category": "locomotion",
+   "primary": "Loco_TurnInPlace_90_L",
+   "variants": [
+    "Turn_Left_90"
+   ],
+   "fallback": "Idle"
+  },
+  "player.loco.turn_90_r": {
+   "category": "locomotion",
+   "primary": "Loco_TurnInPlace_90_R",
+   "variants": [
+    "Turn_Right_90"
+   ],
+   "fallback": "Idle"
+  },
+  "player.loco.turn_180_l": {
+   "category": "locomotion",
+   "primary": "Loco_TurnInPlace_180",
+   "variants": [
+    "Turn_Left_180"
+   ],
+   "fallback": "Idle"
+  },
+  "player.loco.turn_180_r": {
+   "category": "locomotion",
+   "primary": "Loco_TurnInPlace_180_R",
+   "variants": [
+    "Turn_Right_180"
+   ],
+   "fallback": "Idle"
+  },
+  "player.loco.pivot_180_run_l": {
+   "category": "locomotion",
+   "primary": "Loco_Pivot180_Run_L",
+   "variants": [],
+   "fallback": "Idle"
+  },
+  "player.loco.pivot_180_run_r": {
+   "category": "locomotion",
+   "primary": "Loco_Pivot180_Run_R",
+   "variants": [],
+   "fallback": "Idle"
+  },
+  "player.loco.carry_walk": {
+   "category": "locomotion",
+   "primary": "Walk_Carry",
+   "variants": [],
+   "fallback": "Idle"
+  },
+  "player.loco.hurt_idle": {
+   "category": "locomotion",
+   "primary": "Idle_Hurt",
+   "variants": [],
+   "fallback": "Idle"
+  },
+  "player.loco.torch_idle": {
+   "category": "locomotion",
+   "primary": "Idle_Torch",
+   "variants": [
+    "Idle_Lantern"
+   ],
+   "fallback": "Idle"
+  },
+  "player.trav.jump_start": {
+   "category": "traversal",
+   "primary": "Jump_Start",
+   "variants": [],
+   "fallback": "Idle"
+  },
+  "player.trav.jump_running_start": {
+   "category": "traversal",
+   "primary": "Jump_Running_Start",
+   "variants": [],
+   "fallback": "Idle"
+  },
+  "player.trav.jump_rise": {
+   "category": "traversal",
+   "primary": "Jump_Rise",
+   "variants": [],
+   "fallback": "Idle"
+  },
+  "player.trav.jump_fall": {
+   "category": "traversal",
+   "primary": "Jump_Fall",
+   "variants": [],
+   "fallback": "Idle"
+  },
+  "player.trav.land_soft": {
+   "category": "traversal",
+   "primary": "Jump_Land_Soft",
+   "variants": [],
+   "fallback": "Idle"
+  },
+  "player.trav.land_hard": {
+   "category": "traversal",
+   "primary": "Jump_Land_Hard",
+   "variants": [],
+   "fallback": "Idle"
+  },
+  "player.trav.land_roll": {
+   "category": "traversal",
+   "primary": "Jump_Land_Roll",
+   "variants": [
+    "Roll"
+   ],
+   "fallback": "Idle"
+  },
+  "player.trav.land_running": {
+   "category": "traversal",
+   "primary": "Jump_Land_Running",
+   "variants": [],
+   "fallback": "Idle"
+  },
+  "player.trav.vault_low": {
+   "category": "traversal",
+   "primary": "Vault_Low",
+   "variants": [],
+   "fallback": "Idle"
+  },
+  "player.trav.vault_low_b": {
+   "category": "traversal",
+   "primary": "Vault_Low_B",
+   "variants": [],
+   "fallback": "Idle"
+  },
+  "player.trav.mantle_low": {
+   "category": "traversal",
+   "primary": "Mantle_Low",
+   "variants": [
+    "ClimbUp_1m"
+   ],
+   "fallback": "Idle"
+  },
+  "player.trav.mantle_high": {
+   "category": "traversal",
+   "primary": "Mantle_High",
+   "variants": [],
+   "fallback": "Idle"
+  },
+  "player.trav.ledge_grab": {
+   "category": "traversal",
+   "primary": "Ledge_Grab",
+   "variants": [],
+   "fallback": "Idle"
+  },
+  "player.trav.ledge_hang": {
+   "category": "traversal",
+   "primary": "Ledge_Hang_Idle",
+   "variants": [
+    "Ledge_Hang"
+   ],
+   "fallback": "Idle"
+  },
+  "player.trav.ledge_shimmy_l": {
+   "category": "traversal",
+   "primary": "Ledge_Shimmy_L",
+   "variants": [],
+   "fallback": "Idle"
+  },
+  "player.trav.ledge_shimmy_r": {
+   "category": "traversal",
+   "primary": "Ledge_Shimmy_R",
+   "variants": [],
+   "fallback": "Idle"
+  },
+  "player.trav.ledge_climb_up": {
+   "category": "traversal",
+   "primary": "Ledge_Climb_Up",
+   "variants": [],
+   "fallback": "Idle"
+  },
+  "player.trav.ledge_drop": {
+   "category": "traversal",
+   "primary": "Ledge_Drop_Down",
+   "variants": [],
+   "fallback": "Idle"
+  },
+  "player.trav.ladder_up": {
+   "category": "traversal",
+   "primary": "Ladder_Climb_Up",
+   "variants": [
+    "Climb_Ladder"
+   ],
+   "fallback": "Idle"
+  },
+  "player.trav.ladder_down": {
+   "category": "traversal",
+   "primary": "Ladder_Climb_Down",
+   "variants": [],
+   "fallback": "Idle"
+  },
+  "player.trav.wall_climb": {
+   "category": "traversal",
+   "primary": "Wall_Climb_Up",
+   "variants": [
+    "Climb_Wall"
+   ],
+   "fallback": "Idle"
+  },
+  "player.trav.slide": {
+   "category": "traversal",
+   "primary": "Slide",
+   "variants": [
+    "Slide_Loop"
+   ],
+   "fallback": "Idle"
+  },
+  "player.trav.roll": {
+   "category": "traversal",
+   "primary": "Roll",
+   "variants": [
+    "Souls_Roll"
+   ],
+   "fallback": "Idle"
+  },
+  "player.trav.dodge_back": {
+   "category": "traversal",
+   "primary": "Dodge_back",
+   "variants": [],
+   "fallback": "Idle"
+  },
+  "player.trav.dodge_left": {
+   "category": "traversal",
+   "primary": "Dodge_left",
+   "variants": [],
+   "fallback": "Idle"
+  },
+  "player.trav.dodge_right": {
+   "category": "traversal",
+   "primary": "Dodge_right",
+   "variants": [],
+   "fallback": "Idle"
+  },
+  "player.combat.light_1": {
+   "category": "combat",
+   "primary": "Sword_Light_1",
+   "variants": [
+    "Sword_Regular_A"
+   ],
+   "fallback": "Idle"
+  },
+  "player.combat.light_2": {
+   "category": "combat",
+   "primary": "Sword_Light_2",
+   "variants": [
+    "Sword_Regular_B"
+   ],
+   "fallback": "Idle"
+  },
+  "player.combat.light_3": {
+   "category": "combat",
+   "primary": "Sword_Light_3",
+   "variants": [
+    "Sword_Regular_C"
+   ],
+   "fallback": "Idle"
+  },
+  "player.combat.light_4": {
+   "category": "combat",
+   "primary": "Sword_Light_4",
+   "variants": [],
+   "fallback": "Idle"
+  },
+  "player.combat.light_1_upper": {
+   "category": "combat",
+   "primary": "Sword_Light_1_Upper",
+   "variants": [],
+   "fallback": "Idle"
+  },
+  "player.combat.light_2_upper": {
+   "category": "combat",
+   "primary": "Sword_Light_2_Upper",
+   "variants": [],
+   "fallback": "Idle"
+  },
+  "player.combat.light_3_upper": {
+   "category": "combat",
+   "primary": "Sword_Light_3_Upper",
+   "variants": [],
+   "fallback": "Idle"
+  },
+  "player.combat.light_4_upper": {
+   "category": "combat",
+   "primary": "Sword_Light_4_Upper",
+   "variants": [],
+   "fallback": "Idle"
+  },
+  "player.combat.heavy_charge": {
+   "category": "combat",
+   "primary": "Sword_Heavy_Charge_Start",
+   "variants": [],
+   "fallback": "Idle"
+  },
+  "player.combat.heavy_release": {
+   "category": "combat",
+   "primary": "Sword_Heavy_Release",
+   "variants": [
+    "Sword_Heavy_Combo"
+   ],
+   "fallback": "Idle"
+  },
+  "player.combat.run_attack": {
+   "category": "combat",
+   "primary": "Sword_Run_Attack",
+   "variants": [],
+   "fallback": "Idle"
+  },
+  "player.combat.thrust": {
+   "category": "combat",
+   "primary": "Sword_Attack",
+   "variants": [
+    "Spear_Thrust_1"
+   ],
+   "fallback": "Idle"
+  },
+  "player.combat.parry": {
+   "category": "combat",
+   "primary": "Sword_Parry",
+   "variants": [
+    "Parry_Quick"
+   ],
+   "fallback": "Idle"
+  },
+  "player.combat.riposte": {
+   "category": "combat",
+   "primary": "Sword_Riposte",
+   "variants": [],
+   "fallback": "Idle"
+  },
+  "player.combat.block_hit": {
+   "category": "combat",
+   "primary": "Block_Hit",
+   "variants": [
+    "Sword_Block",
+    "Souls_Guard_Hit"
+   ],
+   "fallback": "Idle"
+  },
+  "player.combat.guard_idle": {
+   "category": "combat",
+   "primary": "Idle_Shield",
+   "variants": [
+    "Souls_Guard"
+   ],
+   "fallback": "Idle"
+  },
+  "player.combat.shield_bash": {
+   "category": "combat",
+   "primary": "Shield_Bash",
+   "variants": [
+    "Shield_Bash_Step"
+   ],
+   "fallback": "Idle"
+  },
+  "player.combat.hit_light_front": {
+   "category": "combat",
+   "primary": "Hit_Light_Front",
+   "variants": [
+    "Hit_Chest"
+   ],
+   "fallback": "Idle"
+  },
+  "player.combat.hit_light_back": {
+   "category": "combat",
+   "primary": "Hit_Light_Back",
+   "variants": [],
+   "fallback": "Idle"
+  },
+  "player.combat.hit_light_left": {
+   "category": "combat",
+   "primary": "Hit_Light_Left",
+   "variants": [],
+   "fallback": "Idle"
+  },
+  "player.combat.hit_light_right": {
+   "category": "combat",
+   "primary": "Hit_Light_Right",
+   "variants": [],
+   "fallback": "Idle"
+  },
+  "player.combat.hit_heavy_front": {
+   "category": "combat",
+   "primary": "Hit_Heavy_Front",
+   "variants": [],
+   "fallback": "Idle"
+  },
+  "player.combat.hit_heavy_back": {
+   "category": "combat",
+   "primary": "Hit_Heavy_Back",
+   "variants": [],
+   "fallback": "Idle"
+  },
+  "player.combat.hit_heavy_left": {
+   "category": "combat",
+   "primary": "Hit_Heavy_Left",
+   "variants": [],
+   "fallback": "Idle"
+  },
+  "player.combat.hit_heavy_right": {
+   "category": "combat",
+   "primary": "Hit_Heavy_Right",
+   "variants": [],
+   "fallback": "Idle"
+  },
+  "player.combat.hit_head": {
+   "category": "combat",
+   "primary": "Hit_Head",
+   "variants": [
+    "Hit_Head_L",
+    "Hit_Head_R"
+   ],
+   "fallback": "Idle"
+  },
+  "player.combat.stagger_back": {
+   "category": "combat",
+   "primary": "Stagger_Back",
+   "variants": [
+    "Stagger_Back_Mocap"
+   ],
+   "fallback": "Idle"
+  },
+  "player.combat.stagger_forward": {
+   "category": "combat",
+   "primary": "Stagger_Forward",
+   "variants": [],
+   "fallback": "Idle"
+  },
+  "player.combat.knockback": {
+   "category": "combat",
+   "primary": "Hit_Knockback",
+   "variants": [],
+   "fallback": "Idle"
+  },
+  "player.combat.finisher_stab": {
+   "category": "combat",
+   "primary": "Finisher_Stab_Through",
+   "variants": [],
+   "fallback": "Idle"
+  },
+  "player.combat.finisher_cleave": {
+   "category": "combat",
+   "primary": "Finisher_Overhead_Cleave",
+   "variants": [],
+   "fallback": "Idle"
+  },
+  "player.combat.finisher_spin": {
+   "category": "combat",
+   "primary": "Finisher_Spin_Slash",
+   "variants": [],
+   "fallback": "Idle"
+  },
+  "player.combat.bow_draw": {
+   "category": "combat",
+   "primary": "Bow_Draw",
+   "variants": [],
+   "fallback": "Idle"
+  },
+  "player.combat.bow_hold": {
+   "category": "combat",
+   "primary": "Bow_Hold",
+   "variants": [],
+   "fallback": "Idle"
+  },
+  "player.combat.bow_loose": {
+   "category": "combat",
+   "primary": "Bow_Loose",
+   "variants": [],
+   "fallback": "Idle"
+  },
+  "player.combat.punch_cross": {
+   "category": "combat",
+   "primary": "Punch_Cross",
+   "variants": [
+    "MA_Punch_Cross_R_Head_A"
+   ],
+   "fallback": "Idle"
+  },
+  "player.combat.punch_jab": {
+   "category": "combat",
+   "primary": "Punch_Jab",
+   "variants": [
+    "MA_Punch_Jab_L_Head_A"
+   ],
+   "fallback": "Idle"
+  },
+  "player.combat.cast_fire": {
+   "category": "combat",
+   "primary": "Cast_Fire_Release",
+   "variants": [],
+   "fallback": "Idle"
+  },
+  "player.combat.cast_charge_fire": {
+   "category": "combat",
+   "primary": "Cast_Fire_Charge",
+   "variants": [],
+   "fallback": "Idle"
+  },
+  "player.combat.spell_shoot": {
+   "category": "combat",
+   "primary": "Spell_Simple_Shoot",
+   "variants": [],
+   "fallback": "Idle"
+  },
+  "player.death.death_front": {
+   "category": "death",
+   "primary": "Death_1H_Front",
+   "variants": [
+    "Death01"
+   ],
+   "fallback": "Death01"
+  },
+  "player.death.death_back": {
+   "category": "death",
+   "primary": "Death_1H_Back",
+   "variants": [],
+   "fallback": "Death01"
+  },
+  "player.death.death_knees": {
+   "category": "death",
+   "primary": "Death_2H_Knees",
+   "variants": [],
+   "fallback": "Death01"
+  },
+  "player.death.death_generic": {
+   "category": "death",
+   "primary": "Death01",
+   "variants": [
+    "Death_A"
+   ],
+   "fallback": "Death01"
+  },
+  "villager.sit_enter": {
+   "category": "interaction",
+   "primary": "Sitting_Enter",
+   "variants": [],
+   "fallback": "Idle"
+  },
+  "villager.sit_idle": {
+   "category": "interaction",
+   "primary": "Sitting_Idle",
+   "variants": [],
+   "fallback": "Idle"
+  },
+  "villager.sit_exit": {
+   "category": "interaction",
+   "primary": "Sitting_Exit",
+   "variants": [],
+   "fallback": "Idle"
+  },
+  "villager.sit_talk": {
+   "category": "interaction",
+   "primary": "Sitting_Talking",
+   "variants": [],
+   "fallback": "Idle"
+  },
+  "villager.interact": {
+   "category": "interaction",
+   "primary": "Interact",
+   "variants": [],
+   "fallback": "Idle"
+  },
+  "villager.pickup": {
+   "category": "interaction",
+   "primary": "PickUp_Table",
+   "variants": [
+    "Chore_Pick_Up_Box"
+   ],
+   "fallback": "Idle"
+  },
+  "villager.open_door": {
+   "category": "interaction",
+   "primary": "Open_Door",
+   "variants": [],
+   "fallback": "Idle"
+  },
+  "villager.open_chest": {
+   "category": "interaction",
+   "primary": "Open_Chest",
+   "variants": [
+    "Chest_Open"
+   ],
+   "fallback": "Idle"
+  },
+  "villager.talk": {
+   "category": "interaction",
+   "primary": "Idle_Talking",
+   "variants": [
+    "Idle_TalkingPhone"
+   ],
+   "fallback": "Idle"
+  },
+  "villager.push": {
+   "category": "interaction",
+   "primary": "Push",
+   "variants": [],
+   "fallback": "Idle"
+  },
+  "villager.farm_harvest": {
+   "category": "interaction",
+   "primary": "Farm_Harvest",
+   "variants": [],
+   "fallback": "Idle"
+  },
+  "villager.farm_plant": {
+   "category": "interaction",
+   "primary": "Farm_PlantSeed",
+   "variants": [],
+   "fallback": "Idle"
+  },
+  "villager.farm_water": {
+   "category": "interaction",
+   "primary": "Farm_Watering",
+   "variants": [],
+   "fallback": "Idle"
+  },
+  "villager.chop_tree": {
+   "category": "interaction",
+   "primary": "TreeChopping",
+   "variants": [],
+   "fallback": "Idle"
+  },
+  "villager.fishing_cast": {
+   "category": "interaction",
+   "primary": "Fishing_Cast",
+   "variants": [],
+   "fallback": "Idle"
+  },
+  "villager.fishing_reel": {
+   "category": "interaction",
+   "primary": "Fishing_Reel",
+   "variants": [],
+   "fallback": "Idle"
+  },
+  "villager.fishing_catch": {
+   "category": "interaction",
+   "primary": "Fishing_Catch",
+   "variants": [],
+   "fallback": "Idle"
+  },
+  "villager.sweep": {
+   "category": "interaction",
+   "primary": "Chore_Sweep",
+   "variants": [],
+   "fallback": "Idle"
+  },
+  "villager.drink": {
+   "category": "interaction",
+   "primary": "Drink_Potion",
+   "variants": [
+    "Consume"
+   ],
+   "fallback": "Idle"
+  },
+  "villager.cheer": {
+   "category": "interaction",
+   "primary": "Yes",
+   "variants": [
+    "Cheering_Two_Hands"
+   ],
+   "fallback": "Idle"
+  },
+  "villager.salute": {
+   "category": "interaction",
+   "primary": "Salute",
+   "variants": [],
+   "fallback": "Idle"
+  },
+  "villager.lie_down": {
+   "category": "interaction",
+   "primary": "Lie_Down",
+   "variants": [],
+   "fallback": "Idle"
+  },
+  "villager.stand_from_floor": {
+   "category": "interaction",
+   "primary": "Stand_From_Floor",
+   "variants": [],
+   "fallback": "Idle"
+  },
+  "villager.fix_kneeling": {
+   "category": "interaction",
+   "primary": "Fixing_Kneeling",
+   "variants": [],
+   "fallback": "Idle"
+  },
+  "villager.pray": {
+   "category": "interaction",
+   "primary": "G6_pray",
+   "variants": [],
+   "fallback": "Idle"
+  },
+  "animal_chicken.idle": {
+   "category": "creature",
+   "primary": "animal_chicken/Idle",
+   "variants": [],
+   "fallback": "Idle"
+  },
+  "animal_chicken.walk": {
+   "category": "creature",
+   "primary": "animal_chicken/Walk",
+   "variants": [],
+   "fallback": "animal_chicken/Idle"
+  },
+  "animal_chicken.run": {
+   "category": "creature",
+   "primary": "animal_chicken/Run",
+   "variants": [],
+   "fallback": "animal_chicken/Idle"
+  },
+  "animal_chicken.eat": {
+   "category": "creature",
+   "primary": "animal_chicken/Eat",
+   "variants": [],
+   "fallback": "animal_chicken/Idle"
+  },
+  "animal_rooster.idle": {
+   "category": "creature",
+   "primary": "animal_rooster/Idle",
+   "variants": [],
+   "fallback": "Idle"
+  },
+  "animal_rooster.walk": {
+   "category": "creature",
+   "primary": "animal_rooster/Walk",
+   "variants": [],
+   "fallback": "animal_rooster/Idle"
+  },
+  "animal_rooster.run": {
+   "category": "creature",
+   "primary": "animal_rooster/Run",
+   "variants": [],
+   "fallback": "animal_rooster/Idle"
+  },
+  "animal_rooster.eat": {
+   "category": "creature",
+   "primary": "animal_rooster/Eat",
+   "variants": [],
+   "fallback": "animal_rooster/Idle"
+  },
+  "animal_duck.idle": {
+   "category": "creature",
+   "primary": "animal_duck/Idle",
+   "variants": [],
+   "fallback": "Idle"
+  },
+  "animal_duck.walk": {
+   "category": "creature",
+   "primary": "animal_duck/Walk",
+   "variants": [],
+   "fallback": "animal_duck/Idle"
+  },
+  "animal_duck.run": {
+   "category": "creature",
+   "primary": "animal_duck/Run",
+   "variants": [],
+   "fallback": "animal_duck/Idle"
+  },
+  "animal_duck.eat": {
+   "category": "creature",
+   "primary": "animal_duck/Eat",
+   "variants": [],
+   "fallback": "animal_duck/Idle"
+  },
+  "animal_goose.idle": {
+   "category": "creature",
+   "primary": "animal_goose/Idle",
+   "variants": [],
+   "fallback": "Idle"
+  },
+  "animal_goose.walk": {
+   "category": "creature",
+   "primary": "animal_goose/Walk",
+   "variants": [],
+   "fallback": "animal_goose/Idle"
+  },
+  "animal_goose.run": {
+   "category": "creature",
+   "primary": "animal_goose/Run",
+   "variants": [],
+   "fallback": "animal_goose/Idle"
+  },
+  "animal_goose.eat": {
+   "category": "creature",
+   "primary": "animal_goose/Eat",
+   "variants": [],
+   "fallback": "animal_goose/Idle"
+  },
+  "animal_pigeon.idle": {
+   "category": "creature",
+   "primary": "animal_pigeon/Idle",
+   "variants": [],
+   "fallback": "Idle"
+  },
+  "animal_pigeon.walk": {
+   "category": "creature",
+   "primary": "animal_pigeon/Walk",
+   "variants": [],
+   "fallback": "animal_pigeon/Idle"
+  },
+  "animal_pigeon.run": {
+   "category": "creature",
+   "primary": "animal_pigeon/Run",
+   "variants": [],
+   "fallback": "animal_pigeon/Idle"
+  },
+  "animal_pigeon.eat": {
+   "category": "creature",
+   "primary": "animal_pigeon/Eat",
+   "variants": [],
+   "fallback": "animal_pigeon/Idle"
+  },
+  "animal_crow.idle": {
+   "category": "creature",
+   "primary": "animal_crow/Idle",
+   "variants": [],
+   "fallback": "Idle"
+  },
+  "animal_crow.walk": {
+   "category": "creature",
+   "primary": "animal_crow/Walk",
+   "variants": [],
+   "fallback": "animal_crow/Idle"
+  },
+  "animal_crow.run": {
+   "category": "creature",
+   "primary": "animal_crow/Run",
+   "variants": [],
+   "fallback": "animal_crow/Idle"
+  },
+  "animal_crow.eat": {
+   "category": "creature",
+   "primary": "animal_crow/Eat",
+   "variants": [],
+   "fallback": "animal_crow/Idle"
+  },
+  "animal_rabbit.idle": {
+   "category": "creature",
+   "primary": "animal_rabbit/Idle",
+   "variants": [],
+   "fallback": "Idle"
+  },
+  "animal_rabbit.walk": {
+   "category": "creature",
+   "primary": "animal_rabbit/Walk",
+   "variants": [],
+   "fallback": "animal_rabbit/Idle"
+  },
+  "animal_rabbit.run": {
+   "category": "creature",
+   "primary": "animal_rabbit/Run",
+   "variants": [],
+   "fallback": "animal_rabbit/Idle"
+  },
+  "animal_rabbit.eat": {
+   "category": "creature",
+   "primary": "animal_rabbit/Eat",
+   "variants": [],
+   "fallback": "animal_rabbit/Idle"
+  },
+  "animal_dog.idle": {
+   "category": "creature",
+   "primary": "animal_dog/Idle",
+   "variants": [],
+   "fallback": "Idle"
+  },
+  "animal_dog.walk": {
+   "category": "creature",
+   "primary": "animal_dog/Walk",
+   "variants": [],
+   "fallback": "animal_dog/Idle"
+  },
+  "animal_dog.run": {
+   "category": "creature",
+   "primary": "animal_dog/Run",
+   "variants": [],
+   "fallback": "animal_dog/Idle"
+  },
+  "animal_dog.eat": {
+   "category": "creature",
+   "primary": "animal_dog/Eat",
+   "variants": [],
+   "fallback": "animal_dog/Idle"
+  },
+  "animal_sheepdog.idle": {
+   "category": "creature",
+   "primary": "animal_sheepdog/Idle",
+   "variants": [],
+   "fallback": "Idle"
+  },
+  "animal_sheepdog.walk": {
+   "category": "creature",
+   "primary": "animal_sheepdog/Walk",
+   "variants": [],
+   "fallback": "animal_sheepdog/Idle"
+  },
+  "animal_sheepdog.run": {
+   "category": "creature",
+   "primary": "animal_sheepdog/Run",
+   "variants": [],
+   "fallback": "animal_sheepdog/Idle"
+  },
+  "animal_sheepdog.eat": {
+   "category": "creature",
+   "primary": "animal_sheepdog/Eat",
+   "variants": [],
+   "fallback": "animal_sheepdog/Idle"
+  },
+  "animal_cat.idle": {
+   "category": "creature",
+   "primary": "animal_cat/Idle",
+   "variants": [],
+   "fallback": "Idle"
+  },
+  "animal_cat.walk": {
+   "category": "creature",
+   "primary": "animal_cat/Walk",
+   "variants": [],
+   "fallback": "animal_cat/Idle"
+  },
+  "animal_cat.run": {
+   "category": "creature",
+   "primary": "animal_cat/Run",
+   "variants": [],
+   "fallback": "animal_cat/Idle"
+  },
+  "animal_cat.eat": {
+   "category": "creature",
+   "primary": "animal_cat/Eat",
+   "variants": [],
+   "fallback": "animal_cat/Idle"
+  },
+  "animal_cat_ginger.idle": {
+   "category": "creature",
+   "primary": "animal_cat_ginger/Idle",
+   "variants": [],
+   "fallback": "Idle"
+  },
+  "animal_cat_ginger.walk": {
+   "category": "creature",
+   "primary": "animal_cat_ginger/Walk",
+   "variants": [],
+   "fallback": "animal_cat_ginger/Idle"
+  },
+  "animal_cat_ginger.run": {
+   "category": "creature",
+   "primary": "animal_cat_ginger/Run",
+   "variants": [],
+   "fallback": "animal_cat_ginger/Idle"
+  },
+  "animal_cat_ginger.eat": {
+   "category": "creature",
+   "primary": "animal_cat_ginger/Eat",
+   "variants": [],
+   "fallback": "animal_cat_ginger/Idle"
+  },
+  "animal_cow.idle": {
+   "category": "creature",
+   "primary": "animal_cow/Idle",
+   "variants": [],
+   "fallback": "Idle"
+  },
+  "animal_cow.walk": {
+   "category": "creature",
+   "primary": "animal_cow/Walk",
+   "variants": [],
+   "fallback": "animal_cow/Idle"
+  },
+  "animal_cow.run": {
+   "category": "creature",
+   "primary": "animal_cow/Run",
+   "variants": [],
+   "fallback": "animal_cow/Idle"
+  },
+  "animal_cow.eat": {
+   "category": "creature",
+   "primary": "animal_cow/Eat",
+   "variants": [],
+   "fallback": "animal_cow/Idle"
+  },
+  "animal_ox.idle": {
+   "category": "creature",
+   "primary": "animal_ox/Idle",
+   "variants": [],
+   "fallback": "Idle"
+  },
+  "animal_ox.walk": {
+   "category": "creature",
+   "primary": "animal_ox/Walk",
+   "variants": [],
+   "fallback": "animal_ox/Idle"
+  },
+  "animal_ox.run": {
+   "category": "creature",
+   "primary": "animal_ox/Run",
+   "variants": [],
+   "fallback": "animal_ox/Idle"
+  },
+  "animal_ox.eat": {
+   "category": "creature",
+   "primary": "animal_ox/Eat",
+   "variants": [],
+   "fallback": "animal_ox/Idle"
+  },
+  "animal_sheep.idle": {
+   "category": "creature",
+   "primary": "animal_sheep/Idle",
+   "variants": [],
+   "fallback": "Idle"
+  },
+  "animal_sheep.walk": {
+   "category": "creature",
+   "primary": "animal_sheep/Walk",
+   "variants": [],
+   "fallback": "animal_sheep/Idle"
+  },
+  "animal_sheep.run": {
+   "category": "creature",
+   "primary": "animal_sheep/Run",
+   "variants": [],
+   "fallback": "animal_sheep/Idle"
+  },
+  "animal_sheep.eat": {
+   "category": "creature",
+   "primary": "animal_sheep/Eat",
+   "variants": [],
+   "fallback": "animal_sheep/Idle"
+  },
+  "animal_pig.idle": {
+   "category": "creature",
+   "primary": "animal_pig/Idle",
+   "variants": [],
+   "fallback": "Idle"
+  },
+  "animal_pig.walk": {
+   "category": "creature",
+   "primary": "animal_pig/Walk",
+   "variants": [],
+   "fallback": "animal_pig/Idle"
+  },
+  "animal_pig.run": {
+   "category": "creature",
+   "primary": "animal_pig/Run",
+   "variants": [],
+   "fallback": "animal_pig/Idle"
+  },
+  "animal_pig.eat": {
+   "category": "creature",
+   "primary": "animal_pig/Eat",
+   "variants": [],
+   "fallback": "animal_pig/Idle"
+  },
+  "animal_goat.idle": {
+   "category": "creature",
+   "primary": "animal_goat/Idle",
+   "variants": [],
+   "fallback": "Idle"
+  },
+  "animal_goat.walk": {
+   "category": "creature",
+   "primary": "animal_goat/Walk",
+   "variants": [],
+   "fallback": "animal_goat/Idle"
+  },
+  "animal_goat.run": {
+   "category": "creature",
+   "primary": "animal_goat/Run",
+   "variants": [],
+   "fallback": "animal_goat/Idle"
+  },
+  "animal_goat.eat": {
+   "category": "creature",
+   "primary": "animal_goat/Eat",
+   "variants": [],
+   "fallback": "animal_goat/Idle"
+  },
+  "animal_horse.idle": {
+   "category": "creature",
+   "primary": "animal_horse/Idle",
+   "variants": [],
+   "fallback": "Idle"
+  },
+  "animal_horse.walk": {
+   "category": "creature",
+   "primary": "animal_horse/Walk",
+   "variants": [],
+   "fallback": "animal_horse/Idle"
+  },
+  "animal_horse.run": {
+   "category": "creature",
+   "primary": "animal_horse/Run",
+   "variants": [],
+   "fallback": "animal_horse/Idle"
+  },
+  "animal_horse.eat": {
+   "category": "creature",
+   "primary": "animal_horse/Eat",
+   "variants": [],
+   "fallback": "animal_horse/Idle"
+  },
+  "animal_horse_grey.idle": {
+   "category": "creature",
+   "primary": "animal_horse_grey/Idle",
+   "variants": [],
+   "fallback": "Idle"
+  },
+  "animal_horse_grey.walk": {
+   "category": "creature",
+   "primary": "animal_horse_grey/Walk",
+   "variants": [],
+   "fallback": "animal_horse_grey/Idle"
+  },
+  "animal_horse_grey.run": {
+   "category": "creature",
+   "primary": "animal_horse_grey/Run",
+   "variants": [],
+   "fallback": "animal_horse_grey/Idle"
+  },
+  "animal_horse_grey.eat": {
+   "category": "creature",
+   "primary": "animal_horse_grey/Eat",
+   "variants": [],
+   "fallback": "animal_horse_grey/Idle"
+  },
+  "animal_horse_draft.idle": {
+   "category": "creature",
+   "primary": "animal_horse_draft/Idle",
+   "variants": [],
+   "fallback": "Idle"
+  },
+  "animal_horse_draft.walk": {
+   "category": "creature",
+   "primary": "animal_horse_draft/Walk",
+   "variants": [],
+   "fallback": "animal_horse_draft/Idle"
+  },
+  "animal_horse_draft.run": {
+   "category": "creature",
+   "primary": "animal_horse_draft/Run",
+   "variants": [],
+   "fallback": "animal_horse_draft/Idle"
+  },
+  "animal_horse_draft.eat": {
+   "category": "creature",
+   "primary": "animal_horse_draft/Eat",
+   "variants": [],
+   "fallback": "animal_horse_draft/Idle"
+  },
+  "animal_donkey.idle": {
+   "category": "creature",
+   "primary": "animal_donkey/Idle",
+   "variants": [],
+   "fallback": "Idle"
+  },
+  "animal_donkey.walk": {
+   "category": "creature",
+   "primary": "animal_donkey/Walk",
+   "variants": [],
+   "fallback": "animal_donkey/Idle"
+  },
+  "animal_donkey.run": {
+   "category": "creature",
+   "primary": "animal_donkey/Run",
+   "variants": [],
+   "fallback": "animal_donkey/Idle"
+  },
+  "animal_donkey.eat": {
+   "category": "creature",
+   "primary": "animal_donkey/Eat",
+   "variants": [],
+   "fallback": "animal_donkey/Idle"
+  },
+  "animal_deer.idle": {
+   "category": "creature",
+   "primary": "animal_deer/Idle",
+   "variants": [],
+   "fallback": "Idle"
+  },
+  "animal_deer.walk": {
+   "category": "creature",
+   "primary": "animal_deer/Walk",
+   "variants": [],
+   "fallback": "animal_deer/Idle"
+  },
+  "animal_deer.run": {
+   "category": "creature",
+   "primary": "animal_deer/Run",
+   "variants": [],
+   "fallback": "animal_deer/Idle"
+  },
+  "animal_deer.eat": {
+   "category": "creature",
+   "primary": "animal_deer/Eat",
+   "variants": [],
+   "fallback": "animal_deer/Idle"
+  },
+  "animal_stag.idle": {
+   "category": "creature",
+   "primary": "animal_stag/Idle",
+   "variants": [],
+   "fallback": "Idle"
+  },
+  "animal_stag.walk": {
+   "category": "creature",
+   "primary": "animal_stag/Walk",
+   "variants": [],
+   "fallback": "animal_stag/Idle"
+  },
+  "animal_stag.run": {
+   "category": "creature",
+   "primary": "animal_stag/Run",
+   "variants": [],
+   "fallback": "animal_stag/Idle"
+  },
+  "animal_stag.eat": {
+   "category": "creature",
+   "primary": "animal_stag/Eat",
+   "variants": [],
+   "fallback": "animal_stag/Idle"
+  },
+  "animal_fox.idle": {
+   "category": "creature",
+   "primary": "animal_fox/Idle",
+   "variants": [],
+   "fallback": "Idle"
+  },
+  "animal_fox.walk": {
+   "category": "creature",
+   "primary": "animal_fox/Walk",
+   "variants": [],
+   "fallback": "animal_fox/Idle"
+  },
+  "animal_fox.run": {
+   "category": "creature",
+   "primary": "animal_fox/Run",
+   "variants": [],
+   "fallback": "animal_fox/Idle"
+  },
+  "animal_fox.eat": {
+   "category": "creature",
+   "primary": "animal_fox/Eat",
+   "variants": [],
+   "fallback": "animal_fox/Idle"
+  },
+  "wolf.idle": {
+   "category": "creature",
+   "primary": "q_wolf/Idle",
+   "variants": [],
+   "fallback": "Idle"
+  },
+  "wolf.walk": {
+   "category": "creature",
+   "primary": "q_wolf/Walk",
+   "variants": [],
+   "fallback": "q_wolf/Idle"
+  },
+  "wolf.gallop": {
+   "category": "creature",
+   "primary": "q_wolf/Gallop",
+   "variants": [],
+   "fallback": "q_wolf/Idle"
+  },
+  "wolf.attack": {
+   "category": "creature",
+   "primary": "q_wolf/Attack",
+   "variants": [],
+   "fallback": "q_wolf/Idle"
+  },
+  "wolf.idle_hitreact1": {
+   "category": "creature",
+   "primary": "q_wolf/Idle_HitReact1",
+   "variants": [],
+   "fallback": "q_wolf/Idle"
+  },
+  "wolf.death": {
+   "category": "creature",
+   "primary": "q_wolf/Death",
+   "variants": [],
+   "fallback": "q_wolf/Idle"
+  },
+  "goblin.idle": {
+   "category": "creature",
+   "primary": "q_goblin_male/Idle",
+   "variants": [],
+   "fallback": "Idle"
+  },
+  "goblin.walk": {
+   "category": "creature",
+   "primary": "q_goblin_male/Walk",
+   "variants": [],
+   "fallback": "q_goblin_male/Idle"
+  },
+  "goblin.run": {
+   "category": "creature",
+   "primary": "q_goblin_male/Run",
+   "variants": [],
+   "fallback": "q_goblin_male/Idle"
+  },
+  "goblin.swordslash": {
+   "category": "creature",
+   "primary": "q_goblin_male/SwordSlash",
+   "variants": [],
+   "fallback": "q_goblin_male/Idle"
+  },
+  "goblin.recievehit": {
+   "category": "creature",
+   "primary": "q_goblin_male/RecieveHit",
+   "variants": [],
+   "fallback": "q_goblin_male/Idle"
+  },
+  "goblin.death": {
+   "category": "creature",
+   "primary": "q_goblin_male/Death",
+   "variants": [],
+   "fallback": "q_goblin_male/Idle"
+  }
+ }
+}

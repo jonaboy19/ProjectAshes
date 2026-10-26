@@ -53,6 +53,10 @@ var strips_on := true
 var all_strips := false
 var only := ""
 var dump := ""
+var library := ""                        # --library=<id>[,<id>...]: measure EVERY clip of the game library on those subjects (golden set gate)
+var libs := PackedStringArray()
+var tag := ""                            # --tag=<name>: output suffix in library mode (golden_library_<tag>.json)
+var clip_filter := PackedStringArray()   # --clips=a,b,c: restrict library mode to these clips
 var results: Array[Dictionary] = []     # one per subject x clip
 var natural := {}                        # "subject|clip" -> ground speed m/s
 var subject_info := {}                   # id -> {height, group, ...}
@@ -76,6 +80,13 @@ func _initialize() -> void:
 				out_dir = requested_out if requested_out.is_absolute_path() else repo.path_join(requested_out).simplify_path()
 		elif a.begins_with("--only="):
 			only = a.substr(7)
+		elif a.begins_with("--library="):
+			library = a.substr(10)
+			libs = PackedStringArray(library.split(",", false))
+		elif a.begins_with("--tag="):
+			tag = a.substr(6)
+		elif a.begins_with("--clips="):
+			clip_filter = PackedStringArray(a.substr(8).split(",", false))
 	if DisplayServer.get_name() == "headless":
 		strips_on = false
 	DirAccess.make_dir_recursive_absolute(out_dir.path_join("anim_strips"))
@@ -88,21 +99,33 @@ func _main() -> void:
 	root.add_child(stage)
 	var subs := Catalog.subjects()
 	var t0 := Time.get_ticks_msec()
-	for s in subs:
-		if only != "" and not String(s["id"]).contains(only):
+	for si in subs.size():
+		var s: Dictionary = subs[si]
+		if library != "":
+			if not libs.has(String(s["id"])):
+				continue
+		elif only != "" and not String(s["id"]).contains(only):
 			continue
 		var node := _build(s)
 		if node == null:
 			printerr("SKIP (missing) ", s["id"])
 			continue
 		stage.add_child(node)
+		if library != "":
+			s = s.duplicate()
+			s["clips"] = _library_clips(Assets.animation_player(node))
+			s["strips"] = (s["clips"] as Dictionary).keys() if all_strips else []
+			subs[si] = s
 		_analyse(s, node)
 		node.queue_free()
 		await process_frame
 		print("analysed %-24s  %5.1fs" % [s["id"], (Time.get_ticks_msec() - t0) / 1000.0])
 	var speeds := _speed_table()
 	_write_csv()
-	_write_report(speeds)
+	if library != "":
+		_write_library_json()
+	else:
+		_write_report(speeds)
 	if strips_on:
 		await _render_all(subs, speeds)
 	print("ANIM_QA_DONE rows=%d" % results.size())
@@ -161,6 +184,57 @@ func _build(s: Dictionary) -> Node3D:
 			holder.add_child(model)
 			_set_loops(model, s)
 			return holder
+
+
+## Library mode: every clip of the subject's AnimationPlayer (what the game really has), kind guessed from the
+## name and loop flag. "upper" clips (name contains Upper) are not graded on leg/ground metrics.
+func _library_clips(ap: AnimationPlayer) -> Dictionary:
+	var out := {}
+	if ap == null:
+		return out
+	var loco_words := ["walk", "jog", "run", "sprint", "strafe", "crawl", "crouch_fwd", "crouch_walk", "trot", "limp", "swim", "march"]
+	for n: StringName in ap.get_animation_list():
+		var clip := String(n)
+		if clip == "RESET" or clip.contains("TPose"):
+			continue
+		if not clip_filter.is_empty() and not clip_filter.has(clip):
+			continue
+		var low := clip.to_lower()
+		var looping := ap.get_animation(clip).loop_mode != Animation.LOOP_NONE
+		var kind := "loop" if looping else "once"
+		if low.contains("death") or low.contains("dead") or low.begins_with("die"):
+			kind = "death"
+		elif low.begins_with("sit") or low.contains("_sit") or low.contains("sitting"):
+			kind = "sit"
+		elif low.contains("jump") or low.contains("fall") or low.contains("land"):
+			kind = "jump"
+		elif looping:
+			for w: String in loco_words:
+				if low.contains(w):
+					kind = "loco"
+					break
+		out[clip] = {"kind": kind, "game": true, "upper": low.contains("upper")}
+	return out
+
+
+## docs/qa/golden/ side file: per clip metrics + planted-foot contact windows for golden_gate.py / runtime foot locking.
+func _write_library_json() -> void:
+	var d := {}
+	for r in results:
+		if r.get("missing", false):
+			continue
+		if not d.has(String(r["subject"])):
+			d[String(r["subject"])] = {}
+		d[String(r["subject"])][String(r["clip"])] = {"subject": r["subject"], "kind": r["kind"], "length": r["length"], "looping": r["looping"],
+			"status": r["status"], "slide_p75": r["slide_cm_s"], "slide_mean": r.get("slide_mean_cm_s", -1.0),
+			"slide_max": r.get("slide_max_cm_s", -1.0), "pen_cm": r["penetration_cm"], "hover_cm": r["hover_cm"],
+			"airborne_s": r["airborne_s"], "stretch_pct": r["stretch_pct"], "scale_pct": r["scale_pct"], "pops": r["pops"],
+			"seam_deg": r["seam_deg"], "seam_cm": r["seam_cm"], "drift_cm": r["drift_cm"], "tpose_frames": r["tpose_frames"],
+			"ground_speed": r["ground_speed"], "upper": r.get("upper", false), "contacts": r.get("contacts", {}),
+			"contacts_fps": r.get("contacts_fps", FPS), "notes": r["notes"], "checks": r["checks"]}
+	var f := FileAccess.open(out_dir.path_join("golden_library_%s.json" % (tag if tag != "" else library.replace(",", "_"))), FileAccess.WRITE)
+	f.store_string(JSON.stringify(d, "	"))
+	f.close()
 
 
 func _set_loops(model: Node, s: Dictionary) -> void:
@@ -757,6 +831,8 @@ func _measure(s: Dictionary, r: Rig, clip: String, info: Dictionary) -> Dictiona
 
 	# ---- foot sliding and natural ground speed ----
 	var slide := -1.0
+	var slide_mean := -1.0
+	var slide_max := -1.0
 	var ground_speed := 0.0
 	var dt := 1.0 / sample_fps
 	if nf > 0 and kind != "death":
@@ -824,6 +900,12 @@ func _measure(s: Dictionary, r: Rig, clip: String, info: Dictionary) -> Dictiona
 				for v in vels:
 					errs.append((v - ref).length() * 100.0)
 				slide = _pct(errs, 0.75)
+				var esum := 0.0
+				slide_max = 0.0
+				for e in errs:
+					esum += e
+					slide_max = maxf(slide_max, e)
+				slide_mean = esum / maxf(errs.size(), 1)
 				st["slide"] = _grade(slide, SLIDE_WARN, SLIDE_FAIL)
 				if slide >= SLIDE_WARN:
 					notes.append("planted foot slips %.0f cm/s (p75)" % slide)
@@ -832,6 +914,29 @@ func _measure(s: Dictionary, r: Rig, clip: String, info: Dictionary) -> Dictiona
 		if kind == "loco" and ground_speed == 0.0 and String(s["kind"]) == "ual":
 			ground_speed = _joint_ground_speed(r, gps, hip_v, dt)
 	row["slide_cm_s"] = slide
+	row["slide_mean_cm_s"] = slide_mean
+	row["slide_max_cm_s"] = slide_max
+	row["upper"] = bool(info.get("upper", false))
+	# planted-foot contact windows (>= 3 samples), for runtime foot locking: foot bone name -> [[first, last], ...] at contacts_fps
+	var contacts := {}
+	if nf > 0 and kind != "death":
+		for fi in nf:
+			var wins: Array = []
+			var run_start := -1
+			for i in sole.size() + 1:
+				var planted := false
+				if i < sole.size():
+					var h: float = sole[i][fi]
+					planted = h - maxf(per_foot_min[fi], 0.0) < per_foot_thr[fi] and h < 6.0
+				if planted and run_start < 0:
+					run_start = i
+				elif not planted and run_start >= 0:
+					if i - run_start >= 3:
+						wins.append([run_start, i - 1])
+					run_start = -1
+			contacts[sk.get_bone_name((r.feet[fi] as PackedInt32Array)[0])] = wins
+	row["contacts"] = contacts
+	row["contacts_fps"] = sample_fps
 	row["ground_speed"] = ground_speed
 	if kind == "loco":
 		natural[String(s["id"]) + "|" + clip] = ground_speed
@@ -1347,7 +1452,7 @@ void fragment() {
 
 
 func _render_all(subs: Array[Dictionary], speeds: Array[Dictionary]) -> void:
-	if only == "":   # full run: drop strips of clips that are no longer tested
+	if only == "" and library == "":   # full run: drop strips of clips that are no longer tested
 		var sd := out_dir.path_join("anim_strips")
 		for f in DirAccess.get_files_at(sd):
 			if f.ends_with(".jpg"):
@@ -1373,7 +1478,10 @@ func _render_all(subs: Array[Dictionary], speeds: Array[Dictionary]) -> void:
 			game_rate[k] = float(c.get("rate", 1.0))
 	var groups := {}
 	for s in subs:
-		if only != "" and not String(s["id"]).contains(only):
+		if library != "":
+			if not libs.has(String(s["id"])):
+				continue
+		elif only != "" and not String(s["id"]).contains(only):
 			continue
 		var node := _build(s)
 		if node == null:
@@ -1512,4 +1620,6 @@ func _sheets(groups: Dictionary) -> void:
 
 ## Partial runs (--only=...) write their own report so the full report is never clobbered.
 func _suffix() -> String:
+	if library != "":
+		return "_library_" + (tag if tag != "" else library.replace(",", "_")).validate_filename()
 	return "" if only == "" else "_only_" + only.validate_filename()

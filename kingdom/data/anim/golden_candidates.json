@@ -1,0 +1,15 @@
+{
+ "_doc": "Clips that do not exist in the UAL library yet. Status stays probation until retargeted to UAL (Blender + Expy Kit), measured by anim_qa library mode and reviewed. Source: coordinator note 2026-10-26, C:/Users/Jonna/Documents/ProjectAshes_art_staging/meshy_anims/README.md (Meshy, 21 credits, Meshy rig, NOT UAL).",
+ "clips": {
+  "Cand_Revive_Kneel": {"rig": "ual", "category": "interaction", "kind": "once", "why": "Meshy Kneel_on_One_Knee_and_Stand (id 365): companion revive (C6); needs UAL retarget", "source": "meshy_anims/meshy_set_kneel_down_injuredwalk_balance_slide.glb"},
+  "Cand_Companion_Down_Fall": {"rig": "ual", "category": "death", "kind": "death", "why": "Meshy Fall_Dead_from_Abdominal_Injury (id 188): companion Down / death; needs UAL retarget", "source": "meshy_anims/meshy_set_kneel_down_injuredwalk_balance_slide.glb"},
+  "Cand_Injured_Walk": {"rig": "ual", "category": "locomotion", "kind": "loco", "why": "Meshy Injured_Walk_inplace (id 637): wounded walk; needs UAL retarget", "source": "meshy_anims/meshy_set_kneel_down_injuredwalk_balance_slide.glb"},
+  "Cand_Edge_Balance": {"rig": "ual", "category": "traversal", "kind": "loop", "why": "Meshy Stand_on_Pole_and_Balance (id 390): edge balance (wall_contact / ground_realism); needs UAL retarget", "source": "meshy_anims/meshy_set_kneel_down_injuredwalk_balance_slide.glb"},
+  "Cand_Slope_Slide": {"rig": "ual", "category": "traversal", "kind": "loop", "why": "Meshy slide_light (id 516): slope slide stance; needs UAL retarget", "source": "meshy_anims/meshy_set_kneel_down_injuredwalk_balance_slide.glb"},
+  "Cand_Horn_Blow": {"rig": "ual", "category": "interaction", "kind": "once", "why": "Meshy text-to-motion BVH 4 s: raise war horn, long blast, lower (the Call, C6); needs BVH retarget to UAL", "source": "meshy_anims/horn_blow_4s.bvh"},
+  "Cand_Calm_Animal": {"rig": "ual", "category": "interaction", "kind": "once", "why": "Meshy text-to-motion BVH 5 s: crouch toward a frightened animal, open hand, gentle stroke (taming Calm, C8); needs BVH retarget to UAL", "source": "meshy_anims/calm_animal_5s.bvh"},
+  "animal_sheep/Cand_Run_from_cow_gallop": {"rig": "animal_sheep", "category": "creature", "kind": "loco", "why": "S5: sheep/pig Run and Walk adapted in Blender from the Quaternius cow/donkey walk+gallop (shared quadruped rig); Meshy cannot rig/animate quadrupeds", "source": "downloads/quaternius_ultimate_animated_animals"},
+  "animal_pig/Cand_Walk_Run_from_cow": {"rig": "animal_pig", "category": "creature", "kind": "loco", "why": "S5: pig Walk/Run adapted from Quaternius cow/donkey gaits in Blender", "source": "downloads/quaternius_ultimate_animated_animals"},
+  "animal_chicken/Cand_Walk_authored": {"rig": "animal_chicken", "category": "creature", "kind": "loco", "why": "S5: chicken needs a simple authored loop (no CC0 chicken gait exists)", "source": "authored in Blender"}
+ }
+}
