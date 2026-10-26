@@ -1,0 +1,3787 @@
+{
+"version": 1,
+"world_version": 3,
+"generator": "kingdom/tools/world/real_layout.py",
+"valencious_box": [
+-12000,
+-7000,
+4000,
+9000
+],
+"spread": 1.3,
+"places": {
+"settlement:amberley": {
+"x": 1606.6,
+"z": 8294.6,
+"old": [
+2042.4,
+3359.0
+],
+"kind": "village",
+"name": "Amberley",
+"in_valencious": true
+},
+"settlement:ashford": {
+"x": 0.0,
+"z": 0.0,
+"old": [
+0.0,
+0.0
+],
+"kind": "village",
+"name": "Ashford",
+"in_valencious": true
+},
+"settlement:blackwater": {
+"x": -9694.1,
+"z": 8600.0,
+"old": [
+-5006.2,
+5359.8
+],
+"kind": "frontier_town",
+"name": "Blackwater",
+"in_valencious": true
+},
+"settlement:brackenmoor": {
+"x": -47.8,
+"z": 3191.9,
+"old": [
+377.7,
+1144.6
+],
+"kind": "frontier_town",
+"name": "Brackenmoor",
+"in_valencious": true
+},
+"settlement:cindermoor": {
+"x": -6635.9,
+"z": 2699.6,
+"old": [
+-2786.9,
+857.1
+],
+"kind": "village",
+"name": "Cindermoor",
+"in_valencious": true
+},
+"settlement:coldharbor": {
+"x": 2616.4,
+"z": -5785.6,
+"old": [
+3014.2,
+-3609.6
+],
+"kind": "village",
+"name": "Coldharbor",
+"in_valencious": true
+},
+"settlement:dunhallow": {
+"x": -4247.0,
+"z": -4000.9,
+"old": [
+-1834.4,
+-2200.2
+],
+"kind": "village",
+"name": "Dunhallow",
+"in_valencious": true
+},
+"settlement:duskwater": {
+"x": -4779.3,
+"z": 8600.0,
+"old": [
+-1395.6,
+4392.3
+],
+"kind": "village",
+"name": "Duskwater",
+"in_valencious": true
+},
+"settlement:eastmere": {
+"x": 826.1,
+"z": 4435.5,
+"old": [
+921.1,
+1361.9
+],
+"kind": "village",
+"name": "Eastmere",
+"in_valencious": true
+},
+"settlement:emberfall": {
+"x": -5593.6,
+"z": 6980.3,
+"old": [
+-1791.9,
+2464.1
+],
+"kind": "village",
+"name": "Emberfall",
+"in_valencious": true
+},
+"settlement:frostmere": {
+"x": -8104.7,
+"z": -2901.1,
+"old": [
+-3963.3,
+-1283.0
+],
+"kind": "village",
+"name": "Frostmere",
+"in_valencious": true
+},
+"settlement:greywatch": {
+"x": 1736.7,
+"z": 5095.2,
+"old": [
+1449.5,
+1561.9
+],
+"kind": "village",
+"name": "Greywatch",
+"in_valencious": true
+},
+"settlement:harrowgate": {
+"x": -2816.8,
+"z": 6947.8,
+"old": [
+-85.5,
+2935.1
+],
+"kind": "village",
+"name": "Harrowgate",
+"in_valencious": true
+},
+"settlement:highcliff": {
+"x": -114.3,
+"z": -2274.6,
+"old": [
+-20.7,
+-1457.2
+],
+"kind": "town",
+"name": "Highwatch Keep",
+"in_valencious": true
+},
+"settlement:hollowmere": {
+"x": 3600.0,
+"z": 1915.1,
+"old": [
+3892.1,
+-1278.5
+],
+"kind": "village",
+"name": "Hollowmere",
+"in_valencious": true
+},
+"settlement:ironmarch": {
+"x": 2567.9,
+"z": -2989.9,
+"old": [
+2092.4,
+-2007.3
+],
+"kind": "town",
+"name": "Silverford",
+"in_valencious": true
+},
+"settlement:kingsreach": {
+"x": 855.5,
+"z": 852.3,
+"old": [
+560.0,
+-420.0
+],
+"kind": "castle",
+"name": "Kingsreach",
+"in_valencious": true
+},
+"settlement:longmeadow": {
+"x": 3600.0,
+"z": 7620.3,
+"old": [
+3896.7,
+2380.6
+],
+"kind": "town",
+"name": "Longmeadow",
+"in_valencious": true
+},
+"settlement:marrowick": {
+"x": -6764.4,
+"z": -5872.8,
+"old": [
+-3364.6,
+-3405.1
+],
+"kind": "village",
+"name": "Marrowick",
+"in_valencious": true
+},
+"settlement:millbrook": {
+"x": 1908.6,
+"z": 3699.8,
+"old": [
+1050.8,
+816.4
+],
+"kind": "village",
+"name": "Millbrook",
+"in_valencious": true
+},
+"settlement:oakvale": {
+"x": -1909.4,
+"z": 675.0,
+"old": [
+-942.1,
+-633.4
+],
+"kind": "village",
+"name": "Greenhollow",
+"in_valencious": true
+},
+"settlement:ravenscar": {
+"x": 648.0,
+"z": -5003.6,
+"old": [
+913.2,
+-3304.1
+],
+"kind": "village",
+"name": "Ravenscar",
+"in_valencious": true
+},
+"settlement:redwater": {
+"x": 287.2,
+"z": -1256.6,
+"old": [
+810.8,
+-1387.8
+],
+"kind": "town",
+"name": "Redwater",
+"in_valencious": true
+},
+"settlement:saltwick": {
+"x": -8348.0,
+"z": 7887.3,
+"old": [
+-3516.6,
+3351.6
+],
+"kind": "frontier_town",
+"name": "Saltwick",
+"in_valencious": true
+},
+"settlement:skarholm": {
+"x": -3820.2,
+"z": -6291.4,
+"old": [
+-1618.7,
+-4190.0
+],
+"kind": "village",
+"name": "Skarholm",
+"in_valencious": true
+},
+"settlement:stonehollow": {
+"x": -3545.4,
+"z": 2542.1,
+"old": [
+-453.7,
+1156.4
+],
+"kind": "village",
+"name": "Stonehollow",
+"in_valencious": true
+},
+"settlement:thistledown": {
+"x": -1389.7,
+"z": 8600.0,
+"old": [
+616.4,
+4545.6
+],
+"kind": "village",
+"name": "Thistledown",
+"in_valencious": true
+},
+"settlement:thornfield": {
+"x": 1621.1,
+"z": 1730.3,
+"old": [
+1499.4,
+-211.4
+],
+"kind": "town",
+"name": "Thornfield",
+"in_valencious": true
+},
+"settlement:westfen": {
+"x": -1772.2,
+"z": 3091.8,
+"old": [
+34.5,
+1136.0
+],
+"kind": "frontier_town",
+"name": "Westfen",
+"in_valencious": true
+},
+"settlement:wolfsend": {
+"x": 3600.0,
+"z": 4081.3,
+"old": [
+3288.1,
+370.1
+],
+"kind": "village",
+"name": "Wolfsend",
+"in_valencious": true
+},
+"parchment:": {
+"x": -1353.8,
+"z": 215.6,
+"old": [
+-700.0,
+-215.0
+],
+"kind": "elder",
+"name": "",
+"in_valencious": true
+},
+"site:Amberley Apiary:2016:3459": {
+"x": 1571.7,
+"z": 8424.2,
+"old": [
+2015.6,
+3458.7
+],
+"kind": "landmark",
+"name": "Amberley Apiary",
+"in_valencious": true
+},
+"site:Amberley Coach Inn:2184:3343": {
+"x": 1790.6,
+"z": 8274.0,
+"old": [
+2184.0,
+3343.1
+],
+"kind": "waystation",
+"name": "Amberley Coach Inn",
+"in_valencious": true
+},
+"site:Amberley Farm:1990:3265": {
+"x": 1537.9,
+"z": 8172.2,
+"old": [
+1989.6,
+3264.8
+],
+"kind": "farm",
+"name": "Amberley Farm",
+"in_valencious": true
+},
+"site:Amberley Lookout:1879:3541": {
+"x": 1394.1,
+"z": 8531.1,
+"old": [
+1879.0,
+3540.9
+],
+"kind": "watchfort",
+"name": "Amberley Lookout",
+"in_valencious": true
+},
+"site:Ashen Hand Hideout:310:-1507": {
+"x": 315.8,
+"z": -2339.6,
+"old": [
+310.1,
+-1507.2
+],
+"kind": "hideout",
+"name": "Ashen Hand Hideout",
+"in_valencious": true
+},
+"site:Ashen Watch:4240:-3138": {
+"x": 4160.5,
+"z": -3140.9,
+"old": [
+4240.1,
+-3137.6
+],
+"kind": "tower_ruin",
+"name": "Ashen Watch",
+"in_valencious": false
+},
+"site:Ashford Coach Inn:133:-122": {
+"x": 173.2,
+"z": -159.1,
+"old": [
+133.2,
+-122.4
+],
+"kind": "waystation",
+"name": "Ashford Coach Inn",
+"in_valencious": true
+},
+"site:Ashford Farm:-105:26": {
+"x": -136.4,
+"z": 33.5,
+"old": [
+-104.9,
+25.8
+],
+"kind": "farm",
+"name": "Ashford Farm",
+"in_valencious": true
+},
+"site:ashford_garden": {
+"x": -135.1,
+"z": 135.1,
+"old": [
+-103.9,
+103.9
+],
+"kind": "roadside",
+"name": "Ashford Gardens",
+"in_valencious": true
+},
+"ashford_ring": {
+"x": 0.0,
+"z": 15.6,
+"old": [
+0.0,
+12.0
+],
+"kind": "story_place",
+"name": "Ashford runestone circle",
+"in_valencious": true
+},
+"site:Ashrun Bridge:-313:-211": {
+"x": -407.3,
+"z": -273.8,
+"old": [
+-313.3,
+-210.6
+],
+"kind": "bridge",
+"name": "Ashrun Bridge",
+"in_valencious": true
+},
+"site:Ashtooth Camp:-5666:-757": {
+"x": -11030.3,
+"z": -1557.5,
+"old": [
+-5665.8,
+-757.2
+],
+"kind": "bandit_camp",
+"name": "Ashtooth Camp",
+"in_valencious": true
+},
+"site:Bandit Camp:490:612": {
+"x": 800.8,
+"z": 2827.4,
+"old": [
+489.6,
+612.0
+],
+"kind": "bandit_camp",
+"name": "Bandit Camp",
+"in_valencious": true
+},
+"site:Black Rill Grotto:3246:3109": {
+"x": 3295.5,
+"z": 7865.7,
+"old": [
+3245.8,
+3108.8
+],
+"kind": "cave",
+"name": "Black Rill Grotto",
+"in_valencious": true
+},
+"site:Blackthorn Camp:1416:2203": {
+"x": 1254.0,
+"z": 6249.8,
+"old": [
+1415.6,
+2202.7
+],
+"kind": "bandit_camp",
+"name": "Blackthorn Camp",
+"in_valencious": true
+},
+"site:Blackthorn Hideout:3297:128": {
+"x": 3612.1,
+"z": 3766.7,
+"old": [
+3297.4,
+128.1
+],
+"kind": "hideout",
+"name": "Blackthorn Hideout",
+"in_valencious": true
+},
+"site:Blackwater Bastion:-5081:5614": {
+"x": -9744.0,
+"z": 8912.0,
+"old": [
+-5080.7,
+5613.7
+],
+"kind": "fort",
+"name": "Blackwater Bastion",
+"in_valencious": true
+},
+"site:Blackwater Coach Inn:-4812:5128": {
+"x": -9441.0,
+"z": 8298.1,
+"old": [
+-4811.5,
+5127.6
+],
+"kind": "waystation",
+"name": "Blackwater Coach Inn",
+"in_valencious": true
+},
+"site:Blackwater Farm:-5043:5482": {
+"x": -9741.7,
+"z": 8758.7,
+"old": [
+-5042.8,
+5481.9
+],
+"kind": "farm",
+"name": "Blackwater Farm",
+"in_valencious": true
+},
+"site:Blackwater Ford Post:-4864:5322": {
+"x": -9509.2,
+"z": 8550.5,
+"old": [
+-4864.0,
+5321.7
+],
+"kind": "landmark",
+"name": "Blackwater Ford Post",
+"in_valencious": true
+},
+"site:Blackwater Wayside Inn:-4694:4969": {
+"x": -9021.1,
+"z": 8361.9,
+"old": [
+-4693.8,
+4968.9
+],
+"kind": "waystation",
+"name": "Blackwater Wayside Inn",
+"in_valencious": true
+},
+"site:Brackenmoor Coach Inn:574:1161": {
+"x": 206.7,
+"z": 3213.6,
+"old": [
+573.5,
+1161.3
+],
+"kind": "waystation",
+"name": "Brackenmoor Coach Inn",
+"in_valencious": true
+},
+"site:brackenmoor_row": {
+"x": -252.8,
+"z": 3136.9,
+"old": [
+220.0,
+1102.3
+],
+"kind": "roadside",
+"name": "Brackenmoor Cottage Row",
+"in_valencious": true
+},
+"site:Brackenmoor Farm:413:1022": {
+"x": -1.6,
+"z": 3032.6,
+"old": [
+413.3,
+1022.1
+],
+"kind": "farm",
+"name": "Brackenmoor Farm",
+"in_valencious": true
+},
+"site:Bramblewick Burrow:1199:-732": {
+"x": 1412.1,
+"z": 422.9,
+"old": [
+1199.2,
+-732.3
+],
+"kind": "cave",
+"name": "Bramblewick Burrow",
+"in_valencious": true
+},
+"site:Broken Watch:-3002:-2234": {
+"x": -6583.7,
+"z": -4571.1,
+"old": [
+-3002.1,
+-2234.3
+],
+"kind": "tower_ruin",
+"name": "Broken Watch",
+"in_valencious": true
+},
+"site:Chapel of the Dawn Throne:840:-410": {
+"x": 1219.3,
+"z": 865.9,
+"old": [
+839.8,
+-409.5
+],
+"kind": "chapel",
+"name": "Chapel of the Dawn Throne",
+"in_valencious": true
+},
+"camp:cinderhollow_warren": {
+"x": 5200.6,
+"z": 1870.0,
+"old": [
+4961.0,
+-1276.0
+],
+"kind": "goblin_warren",
+"name": "Cinderhollow Warren",
+"in_valencious": false
+},
+"site:Cindermoor Coach Inn:-2707:1020": {
+"x": -6532.5,
+"z": 2910.9,
+"old": [
+-2707.4,
+1019.6
+],
+"kind": "waystation",
+"name": "Cindermoor Coach Inn",
+"in_valencious": true
+},
+"site:Cindermoor Farm:-2895:850": {
+"x": -6775.9,
+"z": 2689.9,
+"old": [
+-2894.6,
+849.6
+],
+"kind": "farm",
+"name": "Cindermoor Farm",
+"in_valencious": true
+},
+"site:Cindermoor Kilns:-2928:776": {
+"x": -6819.3,
+"z": 2593.7,
+"old": [
+-2928.0,
+775.6
+],
+"kind": "landmark",
+"name": "Cindermoor Kilns",
+"in_valencious": true
+},
+"site:Cindermoor Lookout:-2827:1059": {
+"x": -6688.4,
+"z": 2961.6,
+"old": [
+-2827.3,
+1058.6
+],
+"kind": "watchfort",
+"name": "Cindermoor Lookout",
+"in_valencious": true
+},
+"site:Cinderpost Waystation:277:-213": {
+"x": 360.4,
+"z": -277.4,
+"old": [
+277.2,
+-213.4
+],
+"kind": "waystation",
+"name": "Cinderpost Waystation",
+"in_valencious": true
+},
+"site:Coldharbor Farm:3010:-3525": {
+"x": 2610.5,
+"z": -5675.7,
+"old": [
+3009.7,
+-3525.1
+],
+"kind": "farm",
+"name": "Coldharbor Farm",
+"in_valencious": true
+},
+"site:Coldharbor Roadhouse:2399:-2577": {
+"x": 2912.1,
+"z": -4466.7,
+"old": [
+2399.4,
+-2577.1
+],
+"kind": "waystation",
+"name": "Coldharbor Roadhouse",
+"in_valencious": true
+},
+"site:Coldharbor Slip:2879:-3573": {
+"x": 2440.2,
+"z": -5738.4,
+"old": [
+2878.7,
+-3573.3
+],
+"kind": "landmark",
+"name": "Coldharbor Slip",
+"in_valencious": true
+},
+"site:Coldseam Mine:2783:-5622": {
+"x": 1756.8,
+"z": -7847.0,
+"old": [
+2782.7,
+-5622.3
+],
+"kind": "mine",
+"name": "Coldseam Mine",
+"in_valencious": false
+},
+"site:Cracked Obelisk:2579:2326": {
+"x": 3142.4,
+"z": 7030.3,
+"old": [
+2578.8,
+2326.3
+],
+"kind": "tower_ruin",
+"name": "Cracked Obelisk",
+"in_valencious": true
+},
+"site:Cragmouth Hideout:-401:3404": {
+"x": -3164.4,
+"z": 7841.2,
+"old": [
+-400.7,
+3403.6
+],
+"kind": "hideout",
+"name": "Cragmouth Hideout",
+"in_valencious": true
+},
+"crownstead": {
+"x": 686.5,
+"z": 1151.3,
+"old": [
+430.0,
+-190.0
+],
+"kind": "estate",
+"name": "Crownstead",
+"in_valencious": true
+},
+"elder_crownstead": {
+"x": 686.5,
+"z": 1148.7,
+"old": [
+430.0,
+-192.0
+],
+"kind": "elder_stone",
+"name": "Crownstead Elder Stone",
+"in_valencious": true
+},
+"site:Crownstead Mill Hill:430:-190": {
+"x": 686.5,
+"z": 1151.3,
+"old": [
+430.0,
+-190.0
+],
+"kind": "windmill_hill",
+"name": "Crownstead Mill Hill",
+"in_valencious": true
+},
+"site:Crownstead Steward's Hall:621:-80": {
+"x": 934.2,
+"z": 1294.3,
+"old": [
+620.5,
+-80.0
+],
+"kind": "estate",
+"name": "Crownstead Steward's Hall",
+"in_valencious": true
+},
+"site:crownstead_estate": {
+"x": 934.2,
+"z": 1294.3,
+"old": [
+620.5,
+-80.0
+],
+"kind": "estate",
+"name": "Crownstead Steward's Hall",
+"in_valencious": true
+},
+"camp:deepdark_warren": {
+"x": -6945.0,
+"z": -3425.4,
+"old": [
+-3191.0,
+-1605.0
+],
+"kind": "goblin_warren",
+"name": "Deepdark Warren",
+"in_valencious": true
+},
+"site:Deepvein Mine:-739:-2564": {
+"x": -2013.9,
+"z": -4331.4,
+"old": [
+-738.5,
+-2563.7
+],
+"kind": "mine",
+"name": "Deepvein Mine",
+"in_valencious": true
+},
+"site:Drowned Keep:-426:3982": {
+"x": -3109.2,
+"z": 8650.4,
+"old": [
+-425.6,
+3982.3
+],
+"kind": "tower_ruin",
+"name": "Drowned Keep",
+"in_valencious": true
+},
+"site:Dunhallow Coach Inn:-1761:-2035": {
+"x": -4151.6,
+"z": -3786.0,
+"old": [
+-1761.0,
+-2034.9
+],
+"kind": "waystation",
+"name": "Dunhallow Coach Inn",
+"in_valencious": true
+},
+"site:Dunhallow Farm:-1776:-2291": {
+"x": -4170.7,
+"z": -4118.8,
+"old": [
+-1775.7,
+-2290.9
+],
+"kind": "farm",
+"name": "Dunhallow Farm",
+"in_valencious": true
+},
+"site:dunhallow_gate": {
+"x": -4067.9,
+"z": -3977.4,
+"old": [
+-1696.6,
+-2182.1
+],
+"kind": "roadside",
+"name": "Dunhallow Gatehouse Yard",
+"in_valencious": true
+},
+"site:Dunhallow Lookout:-2153:-2205": {
+"x": -4661.4,
+"z": -4006.6,
+"old": [
+-2153.2,
+-2204.6
+],
+"kind": "watchfort",
+"name": "Dunhallow Lookout",
+"in_valencious": true
+},
+"site:Dunhallow Wagon Yard:-1848:-2094": {
+"x": -4265.2,
+"z": -3862.7,
+"old": [
+-1848.4,
+-2093.9
+],
+"kind": "landmark",
+"name": "Dunhallow Wagon Yard",
+"in_valencious": true
+},
+"lore:duskbriar_wood": {
+"x": 633.4,
+"z": 2276.5,
+"old": [
+380.0,
+480.0
+],
+"kind": "forest",
+"name": "Duskbriar Wood",
+"in_valencious": true
+},
+"lore:duskfen_wood": {
+"x": -2331.7,
+"z": -6321.0,
+"old": [
+-768.0,
+-4106.0
+],
+"kind": "forest",
+"name": "Duskfen Wood",
+"in_valencious": true
+},
+"site:Duskwater Farm:-1471:4430": {
+"x": -4877.9,
+"z": 8648.9,
+"old": [
+-1471.4,
+4429.9
+],
+"kind": "farm",
+"name": "Duskwater Farm",
+"in_valencious": true
+},
+"site:Duskwater Lamp Pier:-1322:4383": {
+"x": -4683.5,
+"z": 8587.4,
+"old": [
+-1321.9,
+4382.6
+],
+"kind": "landmark",
+"name": "Duskwater Lamp Pier",
+"in_valencious": true
+},
+"site:Duskwater Roadhouse:-832:3792": {
+"x": -3861.0,
+"z": 8495.8,
+"old": [
+-832.0,
+3792.3
+],
+"kind": "waystation",
+"name": "Duskwater Roadhouse",
+"in_valencious": true
+},
+"site:eastern_gate_outer": {
+"x": 4744.5,
+"z": 4887.4,
+"old": [
+3797.1,
+386.7
+],
+"kind": "roadside",
+"name": "Eastern Gate Outer Towers",
+"in_valencious": false
+},
+"site:Eastmere Coach Inn:1096:1409": {
+"x": 1053.2,
+"z": 4496.4,
+"old": [
+1095.8,
+1408.8
+],
+"kind": "waystation",
+"name": "Eastmere Coach Inn",
+"in_valencious": true
+},
+"site:Eastmere Dairy:885:1274": {
+"x": 778.7,
+"z": 4321.4,
+"old": [
+884.7,
+1274.2
+],
+"kind": "landmark",
+"name": "Eastmere Dairy",
+"in_valencious": true
+},
+"site:eastmere_dairy": {
+"x": 940.9,
+"z": 4369.2,
+"old": [
+1009.4,
+1310.9
+],
+"kind": "roadside",
+"name": "Eastmere Dairy Barns",
+"in_valencious": true
+},
+"site:Eastmere Farm:948:1467": {
+"x": 860.8,
+"z": 4571.6,
+"old": [
+947.8,
+1466.6
+],
+"kind": "farm",
+"name": "Eastmere Farm",
+"in_valencious": true
+},
+"site:Eastwatch Post:-2580:5311": {
+"x": -6260.4,
+"z": 9802.5,
+"old": [
+-2579.6,
+5311.0
+],
+"kind": "watchfort",
+"name": "Eastwatch Post",
+"in_valencious": false
+},
+"site:Elden Elder Stone:-1200:-91": {
+"x": -2538.8,
+"z": 867.6,
+"old": [
+-1199.6,
+-91.3
+],
+"kind": "elder_stone",
+"name": "Elden Elder Stone",
+"in_valencious": true
+},
+"site:elden_waymark_6": {
+"x": -2360.1,
+"z": 797.8,
+"old": [
+-1129.4,
+-110.0
+],
+"kind": "waystone",
+"name": "Elden Waymark",
+"in_valencious": true
+},
+"site:elden_waymark_5": {
+"x": -2195.2,
+"z": 748.7,
+"old": [
+-1055.6,
+-102.0
+],
+"kind": "waystone",
+"name": "Elden Waymark",
+"in_valencious": true
+},
+"site:elden_waymark_4": {
+"x": -2018.3,
+"z": 651.1,
+"old": [
+-986.7,
+-129.6
+],
+"kind": "waystone",
+"name": "Elden Waymark",
+"in_valencious": true
+},
+"site:elden_waymark_3": {
+"x": -1859.1,
+"z": 577.3,
+"old": [
+-912.9,
+-121.6
+],
+"kind": "waystone",
+"name": "Elden Waymark",
+"in_valencious": true
+},
+"site:elden_waymark_2": {
+"x": -1690.2,
+"z": 464.1,
+"old": [
+-844.0,
+-149.3
+],
+"kind": "waystone",
+"name": "Elden Waymark",
+"in_valencious": true
+},
+"site:elden_waymark_1": {
+"x": -1536.5,
+"z": 372.7,
+"old": [
+-770.1,
+-141.3
+],
+"kind": "waystone",
+"name": "Elden Waymark",
+"in_valencious": true
+},
+"site:Ember Watch:39:272": {
+"x": 51.0,
+"z": 353.5,
+"old": [
+39.2,
+271.9
+],
+"kind": "watchfort",
+"name": "Ember Watch",
+"in_valencious": true
+},
+"site:Emberfall Bridge:-2212:1785": {
+"x": -6005.6,
+"z": 5598.5,
+"old": [
+-2212.2,
+1785.2
+],
+"kind": "bridge",
+"name": "Emberfall Bridge",
+"in_valencious": true
+},
+"site:Emberfall Farm:-1727:2410": {
+"x": -5509.4,
+"z": 6909.5,
+"old": [
+-1727.1,
+2409.6
+],
+"kind": "farm",
+"name": "Emberfall Farm",
+"in_valencious": true
+},
+"site:Emberfall Glass Kiln:-1792:2382": {
+"x": -5593.6,
+"z": 6873.0,
+"old": [
+-1791.9,
+2381.5
+],
+"kind": "landmark",
+"name": "Emberfall Glass Kiln",
+"in_valencious": true
+},
+"site:emberfall_minster": {
+"x": -5764.8,
+"z": 6934.5,
+"old": [
+-1923.6,
+2428.8
+],
+"kind": "roadside",
+"name": "Emberfall Minster Yard",
+"in_valencious": true
+},
+"site:Emberfall Roadhouse:-807:2755": {
+"x": -4163.8,
+"z": 6940.0,
+"old": [
+-807.0,
+2754.6
+],
+"kind": "waystation",
+"name": "Emberfall Roadhouse",
+"in_valencious": true
+},
+"site:Emberglass East Landing:-322:300": {
+"x": -418.6,
+"z": 390.0,
+"old": [
+-322.0,
+300.0
+],
+"kind": "ferry",
+"name": "Emberglass East Landing",
+"in_valencious": true
+},
+"site:Emberglass Ferry:-552:300": {
+"x": -1455.7,
+"z": 693.5,
+"old": [
+-552.0,
+300.0
+],
+"kind": "ferry",
+"name": "Emberglass Ferry",
+"in_valencious": true
+},
+"lore:emberglass_mere": {
+"x": -1144.0,
+"z": 561.3,
+"old": [
+-420.0,
+300.0
+],
+"kind": "lake",
+"name": "Emberglass Mere",
+"in_valencious": true
+},
+"site:Fallen Beacon:-1802:-3324": {
+"x": -4236.9,
+"z": -5822.2,
+"old": [
+-1801.9,
+-3323.8
+],
+"kind": "tower_ruin",
+"name": "Fallen Beacon",
+"in_valencious": true
+},
+"site:Farsight Post:-4633:2753": {
+"x": -9411.9,
+"z": 5540.4,
+"old": [
+-4633.1,
+2752.6
+],
+"kind": "watchfort",
+"name": "Farsight Post",
+"in_valencious": true
+},
+"site:Farwatch Bastion:256:803": {
+"x": -206.0,
+"z": 2748.1,
+"old": [
+256.0,
+803.2
+],
+"kind": "fort",
+"name": "Farwatch Bastion",
+"in_valencious": true
+},
+"site:Fenwick Burrows:-1277:-618": {
+"x": -2345.0,
+"z": 694.8,
+"old": [
+-1277.2,
+-618.2
+],
+"kind": "warren_tunnels",
+"name": "Fenwick Burrows",
+"in_valencious": true
+},
+"site:Frostmere Coach Inn:-3796:-1278": {
+"x": -7887.1,
+"z": -2894.8,
+"old": [
+-3795.9,
+-1278.1
+],
+"kind": "waystation",
+"name": "Frostmere Coach Inn",
+"in_valencious": true
+},
+"site:Frostmere Farm:-3872:-1226": {
+"x": -7985.3,
+"z": -2827.0,
+"old": [
+-3871.5,
+-1226.0
+],
+"kind": "farm",
+"name": "Frostmere Farm",
+"in_valencious": true
+},
+"site:Frostmere Lookout:-3685:-1433": {
+"x": -7742.9,
+"z": -3096.0,
+"old": [
+-3685.0,
+-1432.9
+],
+"kind": "watchfort",
+"name": "Frostmere Lookout",
+"in_valencious": true
+},
+"site:Frostmere Smokehouse:-3990:-1383": {
+"x": -8139.4,
+"z": -3030.8,
+"old": [
+-3990.0,
+-1382.7
+],
+"kind": "landmark",
+"name": "Frostmere Smokehouse",
+"in_valencious": true
+},
+"site:Gallows Camp:4628:-678": {
+"x": 5120.5,
+"z": 3131.2,
+"old": [
+4627.8,
+-677.9
+],
+"kind": "bandit_camp",
+"name": "Gallows Camp",
+"in_valencious": false
+},
+"site:Gallows Hideout:-3700:-1940": {
+"x": -7877.5,
+"z": -4021.1,
+"old": [
+-3699.9,
+-1940.2
+],
+"kind": "hideout",
+"name": "Gallows Hideout",
+"in_valencious": true
+},
+"elder_glade": {
+"x": -2758.9,
+"z": -1109.2,
+"old": [
+-1345.0,
+-1060.0
+],
+"kind": "elder_stone",
+"name": "Glade Elder Stone",
+"in_valencious": true
+},
+"site:Gloamreach Cavern:-1709:-3166": {
+"x": -4041.0,
+"z": -5604.0,
+"old": [
+-1709.2,
+-3165.9
+],
+"kind": "cave",
+"name": "Gloamreach Cavern",
+"in_valencious": true
+},
+"camp:gnawbone_warren": {
+"x": 5229.6,
+"z": 5722.8,
+"old": [
+4604.0,
+1014.0
+],
+"kind": "goblin_warren",
+"name": "Gnawbone Warren",
+"in_valencious": false
+},
+"greenhollow": {
+"x": -1909.2,
+"z": 675.6,
+"old": [
+-942,
+-633
+],
+"kind": "village",
+"name": "Greenhollow",
+"in_valencious": true
+},
+"greenhollow_south_fields": {
+"x": -1779.9,
+"z": 701.7,
+"old": [
+-842.5,
+-612.9
+],
+"kind": "story_place",
+"name": "Greenhollow's south fields",
+"in_valencious": true
+},
+"site:Greyfell Post:812:5487": {
+"x": -1315.1,
+"z": 10045.8,
+"old": [
+811.5,
+5486.6
+],
+"kind": "watchfort",
+"name": "Greyfell Post",
+"in_valencious": false
+},
+"site:Greyseam Elder Stone:-188:-499": {
+"x": -468.3,
+"z": -151.2,
+"old": [
+-188.1,
+-499.2
+],
+"kind": "elder_stone",
+"name": "Greyseam Elder Stone",
+"in_valencious": true
+},
+"site:Greyseam Mine:-150:-470": {
+"x": -405.1,
+"z": -101.7,
+"old": [
+-150.0,
+-470.0
+],
+"kind": "mine",
+"name": "Greyseam Mine",
+"in_valencious": true
+},
+"site:Greywatch Coach Inn:1736:1545": {
+"x": 2109.0,
+"z": 5073.2,
+"old": [
+1735.9,
+1545.0
+],
+"kind": "waystation",
+"name": "Greywatch Coach Inn",
+"in_valencious": true
+},
+"site:Greywatch Farm:1355:1613": {
+"x": 1613.3,
+"z": 5162.2,
+"old": [
+1354.6,
+1613.4
+],
+"kind": "farm",
+"name": "Greywatch Farm",
+"in_valencious": true
+},
+"site:Greywatch Spear Hall:1432:1693": {
+"x": 1714.3,
+"z": 5265.2,
+"old": [
+1432.3,
+1692.7
+],
+"kind": "landmark",
+"name": "Greywatch Spear Hall",
+"in_valencious": true
+},
+"site:greywatch_ring": {
+"x": 1790.4,
+"z": 5224.9,
+"old": [
+1490.8,
+1661.7
+],
+"kind": "roadside",
+"name": "Greywatch Wall Ring",
+"in_valencious": true
+},
+"site:Greywater Caverns:3008:1951": {
+"x": 3863.2,
+"z": 6715.4,
+"old": [
+3008.0,
+1951.1
+],
+"kind": "cave",
+"name": "Greywater Caverns",
+"in_valencious": true
+},
+"lore:greywood": {
+"x": -5014.3,
+"z": 5685.7,
+"old": [
+-1494.0,
+1789.0
+],
+"kind": "forest",
+"name": "Greywood",
+"in_valencious": true
+},
+"site:Grimfen Pass:559:-3598": {
+"x": 144.0,
+"z": -5456.0,
+"old": [
+559.5,
+-3597.8
+],
+"kind": "pass",
+"name": "Grimfen Pass",
+"in_valencious": true
+},
+"site:grimfen_pass": {
+"x": 144.0,
+"z": -5456.0,
+"old": [
+559.5,
+-3597.8
+],
+"kind": "pass",
+"name": "Grimfen Pass",
+"in_valencious": true
+},
+"camp:grimtusk_hold": {
+"x": -4931.7,
+"z": 6491.5,
+"old": [
+-1294.0,
+2292.0
+],
+"kind": "orc_village",
+"name": "Grimtusk Hold",
+"in_valencious": true
+},
+"site:Hangman's Rest:-3089:2321": {
+"x": -7361.6,
+"z": 6040.6,
+"old": [
+-3088.8,
+2321.1
+],
+"kind": "bandit_camp",
+"name": "Hangman's Rest",
+"in_valencious": true
+},
+"exit:harrow_arch": {
+"x": -2963.1,
+"z": 6802.0,
+"old": [
+-198.0,
+2823.0
+],
+"kind": "exit",
+"name": "Harrow Arch",
+"in_valencious": true
+},
+"site:Harrow Arch and Caravan Stage:-198:2823": {
+"x": -2962.8,
+"z": 6801.8,
+"old": [
+-197.8,
+2822.8
+],
+"kind": "landmark",
+"name": "Harrow Arch and Caravan Stage",
+"in_valencious": true
+},
+"site:harrowgate_church": {
+"x": -2952.5,
+"z": 7003.9,
+"old": [
+-189.9,
+2978.3
+],
+"kind": "roadside",
+"name": "Harrowgate Chapel Close",
+"in_valencious": true
+},
+"site:Harrowgate Coach Inn:-264:2905": {
+"x": -3048.6,
+"z": 6908.0,
+"old": [
+-263.8,
+2904.5
+],
+"kind": "waystation",
+"name": "Harrowgate Coach Inn",
+"in_valencious": true
+},
+"site:Harrowgate Farm:-136:2839": {
+"x": -2882.1,
+"z": 6823.5,
+"old": [
+-135.7,
+2839.5
+],
+"kind": "farm",
+"name": "Harrowgate Farm",
+"in_valencious": true
+},
+"site:Harrowgate Lookout:58:2840": {
+"x": -2630.5,
+"z": 6824.0,
+"old": [
+57.8,
+2839.9
+],
+"kind": "watchfort",
+"name": "Harrowgate Lookout",
+"in_valencious": true
+},
+"site:Harrowgate Roadhouse:-17:2181": {
+"x": -2865.9,
+"z": 5293.1,
+"old": [
+-17.2,
+2180.7
+],
+"kind": "waystation",
+"name": "Harrowgate Roadhouse",
+"in_valencious": true
+},
+"site:Highcliff Armoury:187:-1371": {
+"x": 155.1,
+"z": -2162.9,
+"old": [
+186.5,
+-1371.3
+],
+"kind": "landmark",
+"name": "Highcliff Armoury",
+"in_valencious": true
+},
+"site:landmark_highcliff": {
+"x": 155.1,
+"z": -2162.9,
+"old": [
+186.5,
+-1371.3
+],
+"kind": "landmark",
+"name": "Highcliff Armoury",
+"in_valencious": true
+},
+"site:Highcliff Coach Inn:239:-1417": {
+"x": 223.9,
+"z": -2222.9,
+"old": [
+239.4,
+-1417.4
+],
+"kind": "waystation",
+"name": "Highcliff Coach Inn",
+"in_valencious": true
+},
+"site:Highcliff Farm:-171:-1555": {
+"x": -310.2,
+"z": -2401.4,
+"old": [
+-171.4,
+-1554.7
+],
+"kind": "farm",
+"name": "Highcliff Farm",
+"in_valencious": true
+},
+"site:highcliff_forge": {
+"x": -315.1,
+"z": -2191.4,
+"old": [
+-175.2,
+-1393.2
+],
+"kind": "roadside",
+"name": "Highcliff Forge Yard",
+"in_valencious": true
+},
+"site:Highwatch Elder Stone:105:-1650": {
+"x": 49.8,
+"z": -2525.4,
+"old": [
+105.5,
+-1650.1
+],
+"kind": "elder_stone",
+"name": "Highwatch Elder Stone",
+"in_valencious": true
+},
+"site:elder_highwatch": {
+"x": 49.8,
+"z": -2525.4,
+"old": [
+105.5,
+-1650.1
+],
+"kind": "elder_stone",
+"name": "Highwatch Elder Stone",
+"in_valencious": true
+},
+"site:Highwatch Keep:120:-1673": {
+"x": 69.0,
+"z": -2554.8,
+"old": [
+120.3,
+-1672.7
+],
+"kind": "keep",
+"name": "Highwatch Keep",
+"in_valencious": true
+},
+"site:highwatch_standards": {
+"x": 117.1,
+"z": -2471.4,
+"old": [
+157.3,
+-1608.6
+],
+"kind": "roadside",
+"name": "Highwatch Standards Yard",
+"in_valencious": true
+},
+"highwatch_gate": {
+"x": 56.7,
+"z": -2535.9,
+"old": [
+110.8,
+-1658.2
+],
+"kind": "story_place",
+"name": "Highwatch north gate",
+"in_valencious": true
+},
+"site:Hollin Falls:-146:-915": {
+"x": -547.0,
+"z": -649.8,
+"old": [
+-146.0,
+-915.0
+],
+"kind": "waterfall",
+"name": "Hollin Falls",
+"in_valencious": true
+},
+"site:Hollin Watch:-275:-784": {
+"x": -684.9,
+"z": -490.5,
+"old": [
+-275.0,
+-784.0
+],
+"kind": "lookout",
+"name": "Hollin Watch",
+"in_valencious": true
+},
+"site:Hollin's Reach:-205:-660": {
+"x": -544.8,
+"z": -293.0,
+"old": [
+-205.0,
+-660.0
+],
+"kind": "valley",
+"name": "Hollin's Reach",
+"in_valencious": true
+},
+"site:Hollin's Reach Ruins:-138:-478": {
+"x": -391.4,
+"z": -91.5,
+"old": [
+-138.0,
+-478.0
+],
+"kind": "ruins",
+"name": "Hollin's Reach Ruins",
+"in_valencious": true
+},
+"site:Hollow Keep:3340:3500": {
+"x": 3108.7,
+"z": 8166.4,
+"old": [
+3340.0,
+3500.2
+],
+"kind": "tower_ruin",
+"name": "Hollow Keep",
+"in_valencious": true
+},
+"lore:hollowfang_wood": {
+"x": 172.8,
+"z": 8528.3,
+"old": [
+1422.0,
+3959.0
+],
+"kind": "forest",
+"name": "Hollowfang Wood",
+"in_valencious": true
+},
+"site:Hollowmere Farm:3919:-1359": {
+"x": 3634.7,
+"z": 1810.7,
+"old": [
+3918.8,
+-1358.8
+],
+"kind": "farm",
+"name": "Hollowmere Farm",
+"in_valencious": true
+},
+"site:hollowmere_ruins": {
+"x": 3719.7,
+"z": 1795.2,
+"old": [
+3984.2,
+-1370.7
+],
+"kind": "roadside",
+"name": "Hollowmere Old Arches",
+"in_valencious": true
+},
+"site:Hollowmere Reed Cutters:3939:-1166": {
+"x": 3660.6,
+"z": 2061.4,
+"old": [
+3938.7,
+-1166.0
+],
+"kind": "landmark",
+"name": "Hollowmere Reed Cutters",
+"in_valencious": true
+},
+"site:Hollowmere Roadhouse:3622:-592": {
+"x": 4389.9,
+"z": 3222.6,
+"old": [
+3621.5,
+-592.3
+],
+"kind": "waystation",
+"name": "Hollowmere Roadhouse",
+"in_valencious": false
+},
+"site:Hunters' Lodge:236:1253": {
+"x": -231.7,
+"z": 3332.9,
+"old": [
+236.3,
+1253.1
+],
+"kind": "landmark",
+"name": "Hunters' Lodge",
+"in_valencious": true
+},
+"site:Hushwater Hollows:3486:3429": {
+"x": 3304.2,
+"z": 8096.4,
+"old": [
+3486.3,
+3429.0
+],
+"kind": "cave",
+"name": "Hushwater Hollows",
+"in_valencious": true
+},
+"site:Ironmarch Bastion:2421:-2294": {
+"x": 2995.7,
+"z": -3363.0,
+"old": [
+2421.5,
+-2294.3
+],
+"kind": "fort",
+"name": "Ironmarch Bastion",
+"in_valencious": true
+},
+"site:Ironmarch Bridge:2486:-2692": {
+"x": 2971.6,
+"z": -4589.1,
+"old": [
+2486.4,
+-2692.1
+],
+"kind": "bridge",
+"name": "Ironmarch Bridge",
+"in_valencious": true
+},
+"site:Ironmarch Coach Inn:1812:-1892": {
+"x": 2203.8,
+"z": -2839.9,
+"old": [
+1812.3,
+-1891.9
+],
+"kind": "waystation",
+"name": "Ironmarch Coach Inn",
+"in_valencious": true
+},
+"site:Ironmarch Farm:1914:-2022": {
+"x": 2335.3,
+"z": -3009.0,
+"old": [
+1913.5,
+-2022.0
+],
+"kind": "farm",
+"name": "Ironmarch Farm",
+"in_valencious": true
+},
+"site:Ironroot Mine:-4048:1305": {
+"x": -8711.0,
+"z": 3093.3,
+"old": [
+-4047.9,
+1304.6
+],
+"kind": "mine",
+"name": "Ironroot Mine",
+"in_valencious": true
+},
+"site:Ironroot Workings:-2557:117": {
+"x": -5830.6,
+"z": 994.4,
+"old": [
+-2557.2,
+117.0
+],
+"kind": "old_mine",
+"name": "Ironroot Workings",
+"in_valencious": true
+},
+"site:Kestrel's Folly:-665:-1133": {
+"x": -1431.2,
+"z": -1195.0,
+"old": [
+-665.4,
+-1133.1
+],
+"kind": "old_mine",
+"name": "Kestrel's Folly",
+"in_valencious": true
+},
+"site:Kingsreach Academy of Arms and Arts:241:-288": {
+"x": 441.2,
+"z": 1023.9,
+"old": [
+241.3,
+-288.0
+],
+"kind": "academy",
+"name": "Kingsreach Academy of Arms and Arts",
+"in_valencious": true
+},
+"site:Kingsreach Coach Inn:879:-368": {
+"x": 1269.8,
+"z": 920.3,
+"old": [
+878.7,
+-367.7
+],
+"kind": "waystation",
+"name": "Kingsreach Coach Inn",
+"in_valencious": true
+},
+"site:Kingsreach Farm:453:-654": {
+"x": 716.9,
+"z": 547.6,
+"old": [
+453.4,
+-654.4
+],
+"kind": "farm",
+"name": "Kingsreach Farm",
+"in_valencious": true
+},
+"site:Kingsreach Farm:611:-168": {
+"x": 921.4,
+"z": 1180.5,
+"old": [
+610.7,
+-167.5
+],
+"kind": "farm",
+"name": "Kingsreach Farm",
+"in_valencious": true
+},
+"site:Kingsreach Farm:810:-480": {
+"x": 1181.2,
+"z": 774.7,
+"old": [
+810.5,
+-479.7
+],
+"kind": "farm",
+"name": "Kingsreach Farm",
+"in_valencious": true
+},
+"site:kingsreach_fair": {
+"x": 1037.0,
+"z": 1088.8,
+"old": [
+699.6,
+-238.1
+],
+"kind": "roadside",
+"name": "Kingsreach Gate Fair",
+"in_valencious": true
+},
+"site:kingsreach_ward": {
+"x": 565.5,
+"z": 629.7,
+"old": [
+336.9,
+-591.2
+],
+"kind": "roadside",
+"name": "Kingsreach Outer Ward",
+"in_valencious": true
+},
+"site:Kingsroad Bastion:1018:-757": {
+"x": 1144.0,
+"z": 325.4,
+"old": [
+1017.7,
+-757.0
+],
+"kind": "fort",
+"name": "Kingsroad Bastion",
+"in_valencious": true
+},
+"site:Last Beacon:4767:-2995": {
+"x": 4539.5,
+"z": -2328.1,
+"old": [
+4767.3,
+-2994.9
+],
+"kind": "tower_ruin",
+"name": "Last Beacon",
+"in_valencious": false
+},
+"site:Longmeadow Bastion:4292:2474": {
+"x": 4114.0,
+"z": 7741.3,
+"old": [
+4292.1,
+2473.7
+],
+"kind": "fort",
+"name": "Longmeadow Bastion",
+"in_valencious": false
+},
+"site:Longmeadow Bridge:3099:2802": {
+"x": 3367.7,
+"z": 7599.4,
+"old": [
+3098.8,
+2801.6
+],
+"kind": "bridge",
+"name": "Longmeadow Bridge",
+"in_valencious": true
+},
+"site:Longmeadow Coach Inn:3663:2484": {
+"x": 3295.9,
+"z": 7754.3,
+"old": [
+3662.8,
+2483.7
+],
+"kind": "waystation",
+"name": "Longmeadow Coach Inn",
+"in_valencious": true
+},
+"site:Longmeadow Fair Green:3765:2552": {
+"x": 3428.9,
+"z": 7843.3,
+"old": [
+3765.1,
+2552.2
+],
+"kind": "landmark",
+"name": "Longmeadow Fair Green",
+"in_valencious": true
+},
+"site:Longmeadow Farm:4070:2385": {
+"x": 3824.9,
+"z": 7626.4,
+"old": [
+4069.7,
+2385.3
+],
+"kind": "farm",
+"name": "Longmeadow Farm",
+"in_valencious": true
+},
+"site:Marrowick Coach Inn:-3208:-3495": {
+"x": -6560.5,
+"z": -5990.2,
+"old": [
+-3207.8,
+-3495.4
+],
+"kind": "waystation",
+"name": "Marrowick Coach Inn",
+"in_valencious": true
+},
+"site:Marrowick Farm:-3469:-3434": {
+"x": -6899.8,
+"z": -5909.9,
+"old": [
+-3468.8,
+-3433.6
+],
+"kind": "farm",
+"name": "Marrowick Farm",
+"in_valencious": true
+},
+"site:Marrowick Lookout:-3264:-3570": {
+"x": -6633.2,
+"z": -6086.8,
+"old": [
+-3263.7,
+-3569.7
+],
+"kind": "watchfort",
+"name": "Marrowick Lookout",
+"in_valencious": true
+},
+"site:Marrowick Roadhouse:-3557:-2657": {
+"x": -7577.6,
+"z": -5100.6,
+"old": [
+-3556.8,
+-2657.5
+],
+"kind": "waystation",
+"name": "Marrowick Roadhouse",
+"in_valencious": true
+},
+"site:Marrowick Tannery:-3301:-3516": {
+"x": -6681.2,
+"z": -6017.0,
+"old": [
+-3300.6,
+-3516.0
+],
+"kind": "landmark",
+"name": "Marrowick Tannery",
+"in_valencious": true
+},
+"site:Marrowick Wayside Inn:-3485:-2912": {
+"x": -7432.2,
+"z": -5427.6,
+"old": [
+-3485.0,
+-2912.2
+],
+"kind": "waystation",
+"name": "Marrowick Wayside Inn",
+"in_valencious": true
+},
+"silverford_guild_hall": {
+"x": 2576.0,
+"z": -2736.0,
+"old": [
+2065.4,
+-1801.6
+],
+"kind": "story_place",
+"name": "Masons' and Runecarvers' Guild hall",
+"in_valencious": true
+},
+"site:Mereside Hollows:-247:-405": {
+"x": -525.2,
+"z": -163.4,
+"old": [
+-247.1,
+-404.6
+],
+"kind": "cave",
+"name": "Mereside Hollows",
+"in_valencious": true
+},
+"site:Millbrook Coach Inn:1127:686": {
+"x": 2008.1,
+"z": 3530.4,
+"old": [
+1127.3,
+686.1
+],
+"kind": "waystation",
+"name": "Millbrook Coach Inn",
+"in_valencious": true
+},
+"site:Millbrook Farm:943:811": {
+"x": 1768.5,
+"z": 3692.8,
+"old": [
+943.0,
+811.0
+],
+"kind": "farm",
+"name": "Millbrook Farm",
+"in_valencious": true
+},
+"site:Millbrook Great Mill:1033:681": {
+"x": 1885.6,
+"z": 3524.2,
+"old": [
+1033.1,
+681.3
+],
+"kind": "landmark",
+"name": "Millbrook Great Mill",
+"in_valencious": true
+},
+"lore:mistwood": {
+"x": -7088.8,
+"z": -1325.7,
+"old": [
+-3221.0,
+-614.0
+],
+"kind": "forest",
+"name": "Mistwood",
+"in_valencious": true
+},
+"camp:mossfang_warren": {
+"x": 1045.0,
+"z": 2133.7,
+"old": [
+560.0,
+250.0
+],
+"kind": "goblin_warren",
+"name": "Mossfang Warren",
+"in_valencious": true
+},
+"site:Moth-Eaten Crypt:-3062:-2372": {
+"x": -6696.4,
+"z": -4789.0,
+"old": [
+-3062.1,
+-2372.3
+],
+"kind": "crypt",
+"name": "Moth-Eaten Crypt",
+"in_valencious": true
+},
+"camp:mudtooth_burrow": {
+"x": 470.5,
+"z": -6986.6,
+"old": [
+1088.0,
+-4699.0
+],
+"kind": "goblin_warren",
+"name": "Mudtooth Burrow",
+"in_valencious": true
+},
+"site:Mudtooth Tunnels:2242:-4358": {
+"x": 2009.9,
+"z": -6777.6,
+"old": [
+2242.2,
+-4358.2
+],
+"kind": "warren_tunnels",
+"name": "Mudtooth Tunnels",
+"in_valencious": true
+},
+"site:Northreach Post:-2849:-5718": {
+"x": -6264.6,
+"z": -7798.3,
+"old": [
+-2849.4,
+-5717.9
+],
+"kind": "watchfort",
+"name": "Northreach Post",
+"in_valencious": false
+},
+"site:Oakvale Coach Inn:-802:-618": {
+"x": -1727.5,
+"z": 694.4,
+"old": [
+-802.2,
+-618.5
+],
+"kind": "waystation",
+"name": "Oakvale Coach Inn",
+"in_valencious": true
+},
+"site:Oakvale Farm:-934:-741": {
+"x": -1898.8,
+"z": 535.0,
+"old": [
+-934.0,
+-741.1
+],
+"kind": "farm",
+"name": "Oakvale Farm",
+"in_valencious": true
+},
+"site:Old Mill Staff Yard:126:0": {
+"x": 163.8,
+"z": 0.0,
+"old": [
+126.0,
+0.0
+],
+"kind": "landmark",
+"name": "Old Mill Staff Yard",
+"in_valencious": true
+},
+"site:Old Watchtower:-255:-40": {
+"x": -331.5,
+"z": -52.3,
+"old": [
+-255.0,
+-40.2
+],
+"kind": "tower_ruin",
+"name": "Old Watchtower",
+"in_valencious": true
+},
+"site:Owlgrave Warren:5291:2777": {
+"x": 5027.3,
+"z": 7190.0,
+"old": [
+5291.4,
+2777.2
+],
+"kind": "warren_tunnels",
+"name": "Owlgrave Warren",
+"in_valencious": false
+},
+"site:oakvale_farm": {
+"x": -1770.0,
+"z": 637.7,
+"old": [
+-834.9,
+-662.1
+],
+"kind": "roadside",
+"name": "Pennick Farm Yard",
+"in_valencious": true
+},
+"site:Pennick Farm, Greenhollow:-927:-519": {
+"x": -1889.7,
+"z": 823.9,
+"old": [
+-927.0,
+-518.9
+],
+"kind": "landmark",
+"name": "Pennick Farm, Greenhollow",
+"in_valencious": true
+},
+"greenhollow_farm": {
+"x": -1889.7,
+"z": 823.9,
+"old": [
+-927.0,
+-518.9
+],
+"kind": "story_place",
+"name": "Pennick farm, Greenhollow",
+"in_valencious": true
+},
+"site:Ratfang Tunnels:740:-1901": {
+"x": 607.1,
+"z": -2905.3,
+"old": [
+739.9,
+-1900.9
+],
+"kind": "warren_tunnels",
+"name": "Ratfang Tunnels",
+"in_valencious": true
+},
+"camp:ratfang_warren": {
+"x": -3043.3,
+"z": 1148.8,
+"old": [
+-1370.0,
+35.0
+],
+"kind": "goblin_warren",
+"name": "Ratfang Warren",
+"in_valencious": true
+},
+"site:Ravenfoot Camp:2608:-4707": {
+"x": 2158.2,
+"z": -7017.3,
+"old": [
+2607.8,
+-4707.0
+],
+"kind": "bandit_camp",
+"name": "Ravenfoot Camp",
+"in_valencious": false
+},
+"site:Ravenscar Farm:843:-3351": {
+"x": 556.5,
+"z": -5064.5,
+"old": [
+842.8,
+-3350.9
+],
+"kind": "farm",
+"name": "Ravenscar Farm",
+"in_valencious": true
+},
+"site:ravenscar_warren": {
+"x": 545.9,
+"z": -4976.2,
+"old": [
+834.7,
+-3283.0
+],
+"kind": "roadside",
+"name": "Ravenscar Goblin Warren",
+"in_valencious": true
+},
+"site:Ravenscar Raven Tower:1004:-3304": {
+"x": 766.0,
+"z": -5003.6,
+"old": [
+1004.0,
+-3304.1
+],
+"kind": "landmark",
+"name": "Ravenscar Raven Tower",
+"in_valencious": true
+},
+"site:Ravenscar Roadhouse:1313:-2838": {
+"x": 1476.2,
+"z": -4972.8,
+"old": [
+1312.6,
+-2838.1
+],
+"kind": "waystation",
+"name": "Ravenscar Roadhouse",
+"in_valencious": true
+},
+"site:Red Hand Camp:-617:-2050": {
+"x": -1679.2,
+"z": -3351.5,
+"old": [
+-617.2,
+-2050.2
+],
+"kind": "bandit_camp",
+"name": "Red Hand Camp",
+"in_valencious": true
+},
+"camp:redtusk_camp": {
+"x": -9543.5,
+"z": -2722.7,
+"old": [
+-4667.0,
+-1290.0
+],
+"kind": "orc_village",
+"name": "Redtusk Camp",
+"in_valencious": true
+},
+"site:Redtusk Mine:5460:2271": {
+"x": 5347.3,
+"z": 6747.7,
+"old": [
+5459.8,
+2270.7
+],
+"kind": "old_mine",
+"name": "Redtusk Mine",
+"in_valencious": false
+},
+"site:Redwater Coach Inn:735:-1167": {
+"x": 188.8,
+"z": -969.8,
+"old": [
+735.1,
+-1167.2
+],
+"kind": "waystation",
+"name": "Redwater Coach Inn",
+"in_valencious": true
+},
+"site:Redwater Dye Works:838:-1182": {
+"x": 322.5,
+"z": -988.8,
+"old": [
+838.0,
+-1181.8
+],
+"kind": "landmark",
+"name": "Redwater Dye Works",
+"in_valencious": true
+},
+"site:Redwater Farm:965:-1296": {
+"x": 487.5,
+"z": -1136.9,
+"old": [
+964.9,
+-1295.7
+],
+"kind": "farm",
+"name": "Redwater Farm",
+"in_valencious": true
+},
+"site:Rift's Edge Camp:1069:991": {
+"x": 1932.5,
+"z": 3926.9,
+"old": [
+1069.2,
+991.1
+],
+"kind": "rift_outpost",
+"name": "Rift's Edge Camp",
+"in_valencious": true
+},
+"site:Riftglass Cavern:1178:1295": {
+"x": 1160.3,
+"z": 4348.5,
+"old": [
+1178.2,
+1295.0
+],
+"kind": "cave",
+"name": "Riftglass Cavern",
+"in_valencious": true
+},
+"camp:rotspine_warren": {
+"x": -9686.2,
+"z": 2158.1,
+"old": [
+-4719.0,
+1057.0
+],
+"kind": "goblin_warren",
+"name": "Rotspine Warren",
+"in_valencious": true
+},
+"site:Royal Tourney Lists:323:-322": {
+"x": 548.1,
+"z": 979.7,
+"old": [
+323.5,
+-322.0
+],
+"kind": "landmark",
+"name": "Royal Tourney Lists",
+"in_valencious": true
+},
+"site:landmark_kingsreach": {
+"x": 548.1,
+"z": 979.7,
+"old": [
+323.5,
+-322.0
+],
+"kind": "landmark",
+"name": "Royal Tourney Lists",
+"in_valencious": true
+},
+"site:Saltmarch Post:-2548:3860": {
+"x": -6482.2,
+"z": 8480.9,
+"old": [
+-2548.2,
+3859.8
+],
+"kind": "watchfort",
+"name": "Saltmarch Post",
+"in_valencious": true
+},
+"site:Saltwick Bastion:-3777:3435": {
+"x": -8686.1,
+"z": 7995.2,
+"old": [
+-3776.7,
+3434.6
+],
+"kind": "fort",
+"name": "Saltwick Bastion",
+"in_valencious": true
+},
+"site:Saltwick Coach Inn:-3623:3525": {
+"x": -8486.0,
+"z": 8112.7,
+"old": [
+-3622.8,
+3525.0
+],
+"kind": "waystation",
+"name": "Saltwick Coach Inn",
+"in_valencious": true
+},
+"site:Saltwick Farm:-3642:3374": {
+"x": -8511.2,
+"z": 7915.9,
+"old": [
+-3642.2,
+3373.6
+],
+"kind": "farm",
+"name": "Saltwick Farm",
+"in_valencious": true
+},
+"site:saltwick_harbour": {
+"x": -8370.8,
+"z": 8060.3,
+"old": [
+-3534.2,
+3484.7
+],
+"kind": "roadside",
+"name": "Saltwick Landing",
+"in_valencious": true
+},
+"site:Saltwick Roadhouse:-2784:2995": {
+"x": -6931.0,
+"z": 7332.8,
+"old": [
+-2784.0,
+2994.8
+],
+"kind": "waystation",
+"name": "Saltwick Roadhouse",
+"in_valencious": true
+},
+"site:Saltwick Salt Works:-3412:3488": {
+"x": -8211.9,
+"z": 8064.6,
+"old": [
+-3411.9,
+3488.0
+],
+"kind": "landmark",
+"name": "Saltwick Salt Works",
+"in_valencious": true
+},
+"site:Saltwick Wayside Inn:-3800:3764": {
+"x": -8165.4,
+"z": 7632.5,
+"old": [
+-3800.1,
+3764.0
+],
+"kind": "waystation",
+"name": "Saltwick Wayside Inn",
+"in_valencious": true
+},
+"site:Scar Mouth Arena:2399:2468": {
+"x": 2790.1,
+"z": 7130.9,
+"old": [
+2398.8,
+2468.2
+],
+"kind": "scar_arena",
+"name": "Scar Mouth Arena",
+"in_valencious": true
+},
+"scar_arena": {
+"x": 3274.0,
+"z": 7371.4,
+"old": [
+2864.1,
+2586.4
+],
+"kind": "scar_arena",
+"name": "Scar Mouth Arena",
+"in_valencious": true
+},
+"site:Scar Watch:2470:2420": {
+"x": 2927.0,
+"z": 7101.1,
+"old": [
+2469.9,
+2419.7
+],
+"kind": "rift_outpost",
+"name": "Scar Watch",
+"in_valencious": true
+},
+"site:Shrine of the Sleeping Flame:-700:-160": {
+"x": -1378.5,
+"z": 259.6,
+"old": [
+-700.0,
+-160.0
+],
+"kind": "shrine",
+"name": "Shrine of the Sleeping Flame",
+"in_valencious": true
+},
+"silverford": {
+"x": 2567.4,
+"z": -2989.5,
+"old": [
+2092,
+-2007
+],
+"kind": "town",
+"name": "Silverford",
+"in_valencious": true
+},
+"proposed:silverford": {
+"x": -1926.3,
+"z": 1207.8,
+"old": [
+-640.0,
+480.0
+],
+"kind": "town",
+"name": "Silverford (parchment proposal)",
+"in_valencious": true
+},
+"site:Silverford Guild Hall:2065:-1802": {
+"x": 2576.0,
+"z": -2736.0,
+"old": [
+2065.4,
+-1801.6
+],
+"kind": "landmark",
+"name": "Silverford Guild Hall",
+"in_valencious": true
+},
+"silverford_market": {
+"x": 2576.0,
+"z": -2736.0,
+"old": [
+2066.2,
+-1807.5
+],
+"kind": "story_place",
+"name": "Silverford market",
+"in_valencious": true
+},
+"site:Silverrun Bridge:2697:178": {
+"x": 3817.5,
+"z": 3955.5,
+"old": [
+2696.7,
+177.8
+],
+"kind": "bridge",
+"name": "Silverrun Bridge",
+"in_valencious": true
+},
+"site:Skarholm Coach Inn:-1881:-4092": {
+"x": -4161.7,
+"z": -6163.5,
+"old": [
+-1881.4,
+-4091.6
+],
+"kind": "waystation",
+"name": "Skarholm Coach Inn",
+"in_valencious": true
+},
+"site:Skarholm Farm:-1645:-4295": {
+"x": -3854.6,
+"z": -6427.5,
+"old": [
+-1645.2,
+-4294.7
+],
+"kind": "farm",
+"name": "Skarholm Farm",
+"in_valencious": true
+},
+"site:Skarholm Lookout:-1554:-4008": {
+"x": -3736.5,
+"z": -6055.3,
+"old": [
+-1554.3,
+-4008.4
+],
+"kind": "watchfort",
+"name": "Skarholm Lookout",
+"in_valencious": true
+},
+"site:Skarholm Ore Yard:-1597:-4354": {
+"x": -3792.1,
+"z": -6504.1,
+"old": [
+-1597.1,
+-4353.6
+],
+"kind": "landmark",
+"name": "Skarholm Ore Yard",
+"in_valencious": true
+},
+"camp:skullmarch_hold": {
+"x": -5079.8,
+"z": 9793.9,
+"old": [
+-1716.0,
+5053.0
+],
+"kind": "orc_village",
+"name": "Skullmarch Hold",
+"in_valencious": false
+},
+"site:Skullpick Undercroft:3395:506": {
+"x": 3738.7,
+"z": 4257.5,
+"old": [
+3394.8,
+505.6
+],
+"kind": "warren_tunnels",
+"name": "Skullpick Undercroft",
+"in_valencious": true
+},
+"camp:skullpick_warren": {
+"x": 2558.9,
+"z": -4909.4,
+"old": [
+2098.0,
+-2663.0
+],
+"kind": "goblin_warren",
+"name": "Skullpick Warren",
+"in_valencious": true
+},
+"site:Solkar Caravan Camp:1991:-1831": {
+"x": 2576.0,
+"z": -2736.0,
+"old": [
+1990.9,
+-1831.4
+],
+"kind": "caravan_camp",
+"name": "Solkar Caravan Camp",
+"in_valencious": true
+},
+"site:Stagborn Glade:-1345:-1062": {
+"x": -2759.4,
+"z": -1114.4,
+"old": [
+-1345.0,
+-1062.0
+],
+"kind": "glade",
+"name": "Stagborn Glade",
+"in_valencious": true
+},
+"site:Stonehollow Coach Inn:-313:1417": {
+"x": -3362.5,
+"z": 2880.8,
+"old": [
+-313.0,
+1416.9
+],
+"kind": "waystation",
+"name": "Stonehollow Coach Inn",
+"in_valencious": true
+},
+"site:Stonehollow Farm:-507:1062": {
+"x": -3614.7,
+"z": 2419.9,
+"old": [
+-507.0,
+1062.4
+],
+"kind": "farm",
+"name": "Stonehollow Farm",
+"in_valencious": true
+},
+"site:Stonehollow Quarry:-454:1035": {
+"x": -3545.4,
+"z": 2383.8,
+"old": [
+-453.7,
+1034.6
+],
+"kind": "landmark",
+"name": "Stonehollow Quarry",
+"in_valencious": true
+},
+"site:Stonewatch Cave:1776:-3455": {
+"x": 1931.4,
+"z": -5911.8,
+"old": [
+1775.5,
+-3455.0
+],
+"kind": "cave",
+"name": "Stonewatch Cave",
+"in_valencious": true
+},
+"site:Sundered Tower:197:1992": {
+"x": -2285.3,
+"z": 4882.4,
+"old": [
+197.1,
+1991.8
+],
+"kind": "tower_ruin",
+"name": "Sundered Tower",
+"in_valencious": true
+},
+"site:The Ashen Scar:2509:2468": {
+"x": 2938.5,
+"z": 7167.9,
+"old": [
+2509.3,
+2468.2
+],
+"kind": "rift",
+"name": "The Ashen Scar",
+"in_valencious": true
+},
+"site:The Ashfall Spire:2288:-548": {
+"x": 3007.6,
+"z": 2074.4,
+"old": [
+2287.6,
+-548.0
+],
+"kind": "dungeon_tower",
+"name": "The Ashfall Spire",
+"in_valencious": true
+},
+"lore:ashrun_river": {
+"x": -1001.5,
+"z": 363.1,
+"old": [
+-400.0,
+220.0
+],
+"kind": "river",
+"name": "The Ashrun",
+"in_valencious": true
+},
+"site:The Drowned Bell:-446:318": {
+"x": -1229.5,
+"z": 625.8,
+"old": [
+-446.0,
+318.0
+],
+"kind": "sunken_chapel",
+"name": "The Drowned Bell",
+"in_valencious": true
+},
+"site:The Drowned Chapel:3228:3579": {
+"x": 2935.6,
+"z": 8236.9,
+"old": [
+3227.9,
+3579.2
+],
+"kind": "crypt",
+"name": "The Drowned Chapel",
+"in_valencious": true
+},
+"site:The Eastern Gate:3772:481": {
+"x": 4737.5,
+"z": 5017.1,
+"old": [
+3771.9,
+480.8
+],
+"kind": "border_gate",
+"name": "The Eastern Gate",
+"in_valencious": false
+},
+"lore:elden_road": {
+"x": -1942.7,
+"z": 622.0,
+"old": [
+-950.0,
+-120.0
+],
+"kind": "road",
+"name": "The Elden Road",
+"in_valencious": true
+},
+"greenhollow_road": {
+"x": -888.8,
+"z": -101.1,
+"old": [
+-471,
+-317
+],
+"kind": "story_place",
+"name": "The Greenhollow road",
+"in_valencious": true
+},
+"site:The Hollow Crown:-5446:-608": {
+"x": -10728.1,
+"z": -1341.2,
+"old": [
+-5445.7,
+-607.7
+],
+"kind": "tower_ruin",
+"name": "The Hollow Crown",
+"in_valencious": true
+},
+"kings_ember_road": {
+"x": 364.0,
+"z": -273.0,
+"old": [
+280,
+-210
+],
+"kind": "road",
+"name": "The King's Ember Road",
+"in_valencious": true
+},
+"miller_stone": {
+"x": 112.0,
+"z": -16.0,
+"old": [
+123.0,
+-14.0
+],
+"kind": "story_place",
+"name": "The Miller's Stone",
+"in_valencious": true
+},
+"site:The Old Beacon:2083:2084": {
+"x": 2673.9,
+"z": 6524.4,
+"old": [
+2082.9,
+2083.5
+],
+"kind": "tower_ruin",
+"name": "The Old Beacon",
+"in_valencious": true
+},
+"site:The Old Span:-259:-463": {
+"x": -559.9,
+"z": -183.6,
+"old": [
+-259.0,
+-463.0
+],
+"kind": "old_bridge",
+"name": "The Old Span",
+"in_valencious": true
+},
+"site:The Rift:1130:1004": {
+"x": 2011.8,
+"z": 3944.2,
+"old": [
+1130.2,
+1004.4
+],
+"kind": "rift",
+"name": "The Rift",
+"in_valencious": true
+},
+"rift_mouth": {
+"x": 3140.2,
+"z": 7266.3,
+"old": [
+2699.9,
+2513.4
+],
+"kind": "story_place",
+"name": "The Rift Mouth",
+"in_valencious": true
+},
+"lore:silverrun_river": {
+"x": 3827.8,
+"z": 4181.5,
+"old": [
+2640.0,
+336.0
+],
+"kind": "river",
+"name": "The Silverrun",
+"in_valencious": true
+},
+"site:The Stone Gap:-87:-656": {
+"x": -383.6,
+"z": -185.0,
+"old": [
+-87.0,
+-656.0
+],
+"kind": "standing_stones",
+"name": "The Stone Gap",
+"in_valencious": true
+},
+"site:The Weeping Arch:-5420:851": {
+"x": -10660.6,
+"z": 1486.4,
+"old": [
+-5420.2,
+850.9
+],
+"kind": "tower_ruin",
+"name": "The Weeping Arch",
+"in_valencious": true
+},
+"site:The Weeping Crypt:-503:3895": {
+"x": -3256.9,
+"z": 8555.3,
+"old": [
+-502.6,
+3895.2
+],
+"kind": "crypt",
+"name": "The Weeping Crypt",
+"in_valencious": true
+},
+"edge:the_western_reaches": {
+"x": -11472.0,
+"z": -208.0,
+"old": [
+-6000,
+0
+],
+"kind": "map_edge_text",
+"name": "The Western Reaches",
+"in_valencious": true
+},
+"site:The Wyrm's Ribs:-60:-1700": {
+"x": -165.4,
+"z": -2590.2,
+"old": [
+-60.0,
+-1700.0
+],
+"kind": "bones",
+"name": "The Wyrm's Ribs",
+"in_valencious": true
+},
+"greyseam_seam": {
+"x": -468.3,
+"z": -151.2,
+"old": [
+-188.1,
+-499.2
+],
+"kind": "story_place",
+"name": "The rift seam, lower Greyseam",
+"in_valencious": true
+},
+"site:Thistle Gap Hideout:-2495:1420": {
+"x": -6294.1,
+"z": 4552.1,
+"old": [
+-2495.3,
+1420.1
+],
+"kind": "hideout",
+"name": "Thistle Gap Hideout",
+"in_valencious": true
+},
+"site:Thistledown Coach Inn:774:4391": {
+"x": -1184.9,
+"z": 8399.1,
+"old": [
+774.0,
+4391.1
+],
+"kind": "waystation",
+"name": "Thistledown Coach Inn",
+"in_valencious": true
+},
+"site:Thistledown Farm:640:4651": {
+"x": -1358.5,
+"z": 8736.9,
+"old": [
+640.4,
+4650.9
+],
+"kind": "farm",
+"name": "Thistledown Farm",
+"in_valencious": true
+},
+"site:Thistledown Fold:515:4468": {
+"x": -1521.7,
+"z": 8498.7,
+"old": [
+514.9,
+4467.7
+],
+"kind": "landmark",
+"name": "Thistledown Fold",
+"in_valencious": true
+},
+"site:Thistledown Lookout:333:4790": {
+"x": -1757.8,
+"z": 8917.3,
+"old": [
+333.3,
+4789.7
+],
+"kind": "watchfort",
+"name": "Thistledown Lookout",
+"in_valencious": true
+},
+"site:Thistledown Roadhouse:226:3604": {
+"x": -1928.4,
+"z": 8031.0,
+"old": [
+225.8,
+3604.3
+],
+"kind": "waystation",
+"name": "Thistledown Roadhouse",
+"in_valencious": true
+},
+"site:Thistledown Roadhouse:1204:4033": {
+"x": -226.6,
+"z": 8598.9,
+"old": [
+1203.8,
+4033.4
+],
+"kind": "waystation",
+"name": "Thistledown Roadhouse",
+"in_valencious": true
+},
+"site:Thornfield Brewery:1306:-211": {
+"x": 1369.8,
+"z": 1730.3,
+"old": [
+1306.1,
+-211.4
+],
+"kind": "landmark",
+"name": "Thornfield Brewery",
+"in_valencious": true
+},
+"site:Thornfield Coach Inn:1411:36": {
+"x": 1506.1,
+"z": 2052.5,
+"old": [
+1410.9,
+36.4
+],
+"kind": "waystation",
+"name": "Thornfield Coach Inn",
+"in_valencious": true
+},
+"site:Thornfield Farm:1514:-390": {
+"x": 1639.7,
+"z": 1497.6,
+"old": [
+1513.7,
+-390.4
+],
+"kind": "farm",
+"name": "Thornfield Farm",
+"in_valencious": true
+},
+"site:Thornwatch:-4584:789": {
+"x": -9499.9,
+"z": 1613.2,
+"old": [
+-4584.0,
+789.3
+],
+"kind": "tower_ruin",
+"name": "Thornwatch",
+"in_valencious": true
+},
+"lore:thornwold": {
+"x": 3458.9,
+"z": -701.9,
+"old": [
+2908.0,
+-1820.0
+],
+"kind": "forest",
+"name": "Thornwold",
+"in_valencious": true
+},
+"edge:to_the_aurelis_patriarchate": {
+"x": 6005.8,
+"z": 4012.3,
+"old": [
+6050,
+0
+],
+"kind": "map_edge_text",
+"name": "To the Aurelis Patriarchate",
+"in_valencious": false
+},
+"edge:to_the_frostcrown_holds": {
+"x": -1758.9,
+"z": -8329.1,
+"old": [
+0,
+-6050
+],
+"kind": "map_edge_text",
+"name": "To the Frostcrown Holds",
+"in_valencious": false
+},
+"edge:to_the_solkar_dominion": {
+"x": -2598.8,
+"z": 10601.6,
+"old": [
+0,
+6050
+],
+"kind": "map_edge_text",
+"name": "To the Solkar Dominion",
+"in_valencious": false
+},
+"camp:tuskridge_hold": {
+"x": -148.8,
+"z": 2912.9,
+"old": [
+300.0,
+930.0
+],
+"kind": "orc_village",
+"name": "Tuskridge Hold",
+"in_valencious": true
+},
+"site:ward_glade": {
+"x": -3599.6,
+"z": 2673.0,
+"old": [
+-495.4,
+1257.1
+],
+"kind": "roadside",
+"name": "Ward-Stone Glade",
+"in_valencious": true
+},
+"site:Wayshrine:-4267:4352": {
+"x": -8635.0,
+"z": 7988.9,
+"old": [
+-4267.0,
+4351.5
+],
+"kind": "wayshrine",
+"name": "Wayshrine",
+"in_valencious": true
+},
+"site:Wayshrine:-3671:-2346": {
+"x": -7799.2,
+"z": -4650.2,
+"old": [
+-3670.7,
+-2345.9
+],
+"kind": "wayshrine",
+"name": "Wayshrine",
+"in_valencious": true
+},
+"site:Wayshrine:-2657:2902": {
+"x": -6766.0,
+"z": 7279.6,
+"old": [
+-2657.5,
+2901.6
+],
+"kind": "wayshrine",
+"name": "Wayshrine",
+"in_valencious": true
+},
+"site:Wayshrine:-2595:-2808": {
+"x": -5803.0,
+"z": -5408.5,
+"old": [
+-2595.2,
+-2808.2
+],
+"kind": "wayshrine",
+"name": "Wayshrine",
+"in_valencious": true
+},
+"site:Wayshrine:-2489:-3791": {
+"x": -5571.4,
+"z": -6411.3,
+"old": [
+-2488.8,
+-3791.2
+],
+"kind": "wayshrine",
+"name": "Wayshrine",
+"in_valencious": true
+},
+"site:Wayshrine:-2283:1657": {
+"x": -6061.2,
+"z": 5264.3,
+"old": [
+-2283.4,
+1656.9
+],
+"kind": "wayshrine",
+"name": "Wayshrine",
+"in_valencious": true
+},
+"site:Wayshrine:-1382:-1420": {
+"x": -2961.0,
+"z": -2064.5,
+"old": [
+-1382.2,
+-1420.3
+],
+"kind": "wayshrine",
+"name": "Wayshrine",
+"in_valencious": true
+},
+"site:Wayshrine:-937:2693": {
+"x": -4389.8,
+"z": 6917.6,
+"old": [
+-936.9,
+2692.8
+],
+"kind": "wayshrine",
+"name": "Wayshrine",
+"in_valencious": true
+},
+"site:Wayshrine:-746:3659": {
+"x": -3738.8,
+"z": 8303.8,
+"old": [
+-745.8,
+3659.0
+],
+"kind": "wayshrine",
+"name": "Wayshrine",
+"in_valencious": true
+},
+"site:Wayshrine:-467:-323": {
+"x": -881.7,
+"z": -106.2,
+"old": [
+-467.1,
+-322.5
+],
+"kind": "wayshrine",
+"name": "Wayshrine",
+"in_valencious": true
+},
+"site:Wayshrine:-210:1139": {
+"x": -3228.4,
+"z": 2519.8,
+"old": [
+-209.9,
+1139.2
+],
+"kind": "wayshrine",
+"name": "Wayshrine",
+"in_valencious": true
+},
+"site:Wayshrine:-33:2035": {
+"x": -2925.9,
+"z": 4932.7,
+"old": [
+-32.5,
+2035.1
+],
+"kind": "wayshrine",
+"name": "Wayshrine",
+"in_valencious": true
+},
+"site:Wayshrine:259:3743": {
+"x": -1865.9,
+"z": 8228.0,
+"old": [
+259.0,
+3743.2
+],
+"kind": "wayshrine",
+"name": "Wayshrine",
+"in_valencious": true
+},
+"site:Wayshrine:284:-204": {
+"x": 369.5,
+"z": -265.7,
+"old": [
+284.2,
+-204.4
+],
+"kind": "wayshrine",
+"name": "Wayshrine",
+"in_valencious": true
+},
+"site:Wayshrine:396:-1429": {
+"x": -252.5,
+"z": -1310.7,
+"old": [
+395.7,
+-1429.4
+],
+"kind": "wayshrine",
+"name": "Wayshrine",
+"in_valencious": true
+},
+"site:Wayshrine:652:1247": {
+"x": 308.8,
+"z": 3324.6,
+"old": [
+652.0,
+1246.7
+],
+"kind": "wayshrine",
+"name": "Wayshrine",
+"in_valencious": true
+},
+"site:Wayshrine:692:-902": {
+"x": 628.6,
+"z": -115.8,
+"old": [
+692.2,
+-902.1
+],
+"kind": "wayshrine",
+"name": "Wayshrine",
+"in_valencious": true
+},
+"site:Wayshrine:979:1088": {
+"x": 1815.4,
+"z": 4052.3,
+"old": [
+979.1,
+1087.5
+],
+"kind": "wayshrine",
+"name": "Wayshrine",
+"in_valencious": true
+},
+"site:Wayshrine:1028:-309": {
+"x": 1389.4,
+"z": 1386.0,
+"old": [
+1028.2,
+-308.9
+],
+"kind": "wayshrine",
+"name": "Wayshrine",
+"in_valencious": true
+},
+"site:Wayshrine:1183:1468": {
+"x": 1166.3,
+"z": 4574.0,
+"old": [
+1182.8,
+1468.5
+],
+"kind": "wayshrine",
+"name": "Wayshrine",
+"in_valencious": true
+},
+"site:Wayshrine:1269:300": {
+"x": 2271.7,
+"z": 2919.9,
+"old": [
+1268.7,
+299.7
+],
+"kind": "wayshrine",
+"name": "Wayshrine",
+"in_valencious": true
+},
+"site:Wayshrine:1334:3958": {
+"x": 24.4,
+"z": 8520.7,
+"old": [
+1333.9,
+3957.7
+],
+"kind": "wayshrine",
+"name": "Wayshrine",
+"in_valencious": true
+},
+"site:Wayshrine:1455:-1691": {
+"x": 1698.8,
+"z": -2224.8,
+"old": [
+1454.7,
+-1691.2
+],
+"kind": "wayshrine",
+"name": "Wayshrine",
+"in_valencious": true
+},
+"site:Wayshrine:1508:-2660": {
+"x": 1779.6,
+"z": -4808.2,
+"old": [
+1508.0,
+-2660.4
+],
+"kind": "wayshrine",
+"name": "Wayshrine",
+"in_valencious": true
+},
+"site:Wayshrine:2392:86": {
+"x": 3468.6,
+"z": 3466.2,
+"old": [
+2391.6,
+86.0
+],
+"kind": "wayshrine",
+"name": "Wayshrine",
+"in_valencious": true
+},
+"site:Wayshrine:2559:-2805": {
+"x": 3010.9,
+"z": -4712.6,
+"old": [
+2559.4,
+-2805.0
+],
+"kind": "wayshrine",
+"name": "Wayshrine",
+"in_valencious": true
+},
+"site:Wayshrine:2973:2876": {
+"x": 3176.5,
+"z": 7659.1,
+"old": [
+2972.8,
+2876.0
+],
+"kind": "wayshrine",
+"name": "Wayshrine",
+"in_valencious": true
+},
+"site:Wayshrine:3597:-452": {
+"x": 4408.2,
+"z": 3479.0,
+"old": [
+3596.7,
+-451.8
+],
+"kind": "wayshrine",
+"name": "Wayshrine",
+"in_valencious": false
+},
+"site:Westerly Post:4200:-2357": {
+"x": 4406.7,
+"z": -1182.9,
+"old": [
+4199.8,
+-2357.3
+],
+"kind": "watchfort",
+"name": "Westerly Post",
+"in_valencious": false
+},
+"site:Westfen Coach Inn:183:1240": {
+"x": -1578.6,
+"z": 3227.3,
+"old": [
+183.4,
+1240.2
+],
+"kind": "waystation",
+"name": "Westfen Coach Inn",
+"in_valencious": true
+},
+"site:Westfen Farm:-58:1223": {
+"x": -1892.9,
+"z": 3205.3,
+"old": [
+-58.4,
+1223.3
+],
+"kind": "farm",
+"name": "Westfen Farm",
+"in_valencious": true
+},
+"site:Westfen Herb Walk:34:999": {
+"x": -1772.2,
+"z": 2913.7,
+"old": [
+34.5,
+999.0
+],
+"kind": "landmark",
+"name": "Westfen Herb Walk",
+"in_valencious": true
+},
+"site:westfen_row": {
+"x": -1932.3,
+"z": 2999.3,
+"old": [
+-88.7,
+1064.8
+],
+"kind": "roadside",
+"name": "Westfen Stilt Row",
+"in_valencious": true
+},
+"exit:westfen_fen": {
+"x": -1772.8,
+"z": 2913.7,
+"old": [
+34.0,
+999.0
+],
+"kind": "exit",
+"name": "Westfen fen exit",
+"in_valencious": true
+},
+"site:Whisper Hollow:-560:520": {
+"x": -1809.6,
+"z": 1229.3,
+"old": [
+-560.0,
+520.0
+],
+"kind": "hollow",
+"name": "Whisper Hollow",
+"in_valencious": true
+},
+"site:Wolf-Howl Camp:-2758:4989": {
+"x": -6554.0,
+"z": 9466.0,
+"old": [
+-2757.5,
+4989.1
+],
+"kind": "bandit_camp",
+"name": "Wolf-Howl Camp",
+"in_valencious": false
+},
+"site:Wolfsend Coach Inn:3551:364": {
+"x": 3942.0,
+"z": 4073.3,
+"old": [
+3551.2,
+363.9
+],
+"kind": "waystation",
+"name": "Wolfsend Coach Inn",
+"in_valencious": true
+},
+"site:wolfsend_den": {
+"x": 3719.9,
+"z": 4065.6,
+"old": [
+3380.3,
+358.0
+],
+"kind": "roadside",
+"name": "Wolfsend Den",
+"in_valencious": true
+},
+"site:Wolfsend Farm:3306:477": {
+"x": 3623.0,
+"z": 4219.9,
+"old": [
+3305.8,
+476.7
+],
+"kind": "farm",
+"name": "Wolfsend Farm",
+"in_valencious": true
+},
+"site:Wolfsend Lookout:2954:460": {
+"x": 3165.3,
+"z": 4197.8,
+"old": [
+2953.7,
+459.7
+],
+"kind": "watchfort",
+"name": "Wolfsend Lookout",
+"in_valencious": true
+},
+"site:Wolfsend Watch Post:3233:504": {
+"x": 3528.1,
+"z": 4254.9,
+"old": [
+3232.8,
+503.6
+],
+"kind": "landmark",
+"name": "Wolfsend Watch Post",
+"in_valencious": true
+},
+"site:Wyrmbone Cavern:4797:1377": {
+"x": 5273.6,
+"z": 6098.8,
+"old": [
+4797.0,
+1376.6
+],
+"kind": "cave",
+"name": "Wyrmbone Cavern",
+"in_valencious": false
+}
+}
+}

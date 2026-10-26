@@ -97,3 +97,9 @@ Rule: permissive licences only (MIT/Apache/BSD/CC0), wrapped behind our own API.
 | Lint/format | gdtoolkit (gdlint/gdformat) | external, already at `C:\Users\Jonna\Tools\gdtoolkit` | MIT | use as is |
 | Audio | Kenney Impact Sounds `footstep_snow_000-004` | staged, already downloaded | CC0, ~60 KB | adopted as `step_snow_01-05.ogg` once an editor import makes `.import` files; held in scratch so headless runs don't break ("No loader found") |
 Net new downloads this pass: **none** (every gap was either covered by an installed MIT addon or is small enough to write behind our API).
+
+## Real-world elevation (world worker, 2026-10-26)
+| Name | URL | Size | Licence / attribution | Local |
+|---|---|---|---|---|
+| AWS Terrain Tiles, terrarium PNG, zoom 13, 16 x 15 tiles (x 4012-4027, y 2600-2614), English Lake District 54.40-54.76 N, 3.68-3.02 W | https://s3.amazonaws.com/elevation-tiles-prod/terrarium/13/{x}/{y}.png (registry: https://registry.opendata.aws/terrain-tiles/) | 21.1 MB tiles + 63 MB float32 mosaic (npy) | Open data, free. Credit required: "Terrain Tiles: Mapzen / Linux Foundation, hosted on AWS Open Data". Underlying for this area: SRTM (NASA, public domain), EU-DEM (Copernicus, produced with funding by the EU), OS Terrain 50 (contains OS data (c) Crown copyright and database right, Open Government Licence). Full list: https://github.com/tilezen/joerd/blob/master/docs/attribution.md | `ProjectAshes_art_staging\terrain_real\tiles\z13\`, `mosaic_z13.npy`, `mosaic_meta.json` |
+Fetched by `kingdom/tools/world/real_terrain_fetch.py` (cached, re-runnable). No OSM data used: lakes, coast and rivers are derived from the DEM itself (flat-surface lake detection + D8 flow accumulation). Add the credit line above to the game credits.
