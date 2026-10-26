@@ -1,0 +1,758 @@
+clip,rig,category,kind,length_s,status,slide_mean,slide_max,pen_cm,float_cm,pops,seam_deg,drift_cm,stretch_pct,review,why
+1H_Melee_Attack_Chop,ual,combat,once,0.433,probation,2.711,6.082,0.09,0.0,0,,4.8,0.0,,"metrics gold, no passing frame-sheet review yet"
+1H_Melee_Attack_Slice_Diagonal,ual,combat,once,0.533,probation,0.642,2.627,0.0,0.24,0,,3.4,0.0,,"metrics gold, no passing frame-sheet review yet"
+1H_Melee_Attack_Slice_Horizontal,ual,combat,once,2.0,banned,0.851,5.762,8.05,0.0,0,,5.3,0.0,,banned: ground penetration 8.1 cm
+1H_Melee_Attack_Stab,ual,combat,once,1.533,probation,0.715,7.289,0.12,0.0,2,,0.0,0.0,,probation: 2 pop(s)
+2H_Melee_Idle,ual,combat,loop,1.667,probation,0.005,0.021,0.0,0.44,0,0.0,0.0,0.0,,"metrics gold, no passing frame-sheet review yet"
+Angry,ual,combat,once,0.792,probation,0.023,0.042,0.07,0.0,0,,0.0,0.0,,"metrics gold, no passing frame-sheet review yet"
+Attack_Ground_Pound,ual,combat,once,2.667,banned,0.016,0.087,4.65,0.0,1,,1.4,0.0,,probation: 1 pop(s); banned: ground penetration 4.7 cm
+Backflip,ual,combat,once,2.458,banned,0.079,0.691,3.83,0.0,5,,0.3,0.0,,banned: 5 pop(s); banned: ground penetration 3.8 cm
+Bandit_Heavy_Chop,ual,combat,once,1.8,probation,0.09,0.206,0.61,0.0,0,,0.3,0.0,,"metrics gold, no passing frame-sheet review yet"
+Bandit_Light_1,ual,combat,once,1.2,probation,0.2,0.26,0.27,0.0,0,,2.0,0.0,,"metrics gold, no passing frame-sheet review yet"
+Bandit_Light_2,ual,combat,once,1.1,probation,0.16,0.252,0.1,0.0,0,,2.2,0.0,,"metrics gold, no passing frame-sheet review yet"
+Bandit_Light_3,ual,combat,once,1.4,probation,0.064,0.107,0.69,0.0,0,,1.1,0.0,,"metrics gold, no passing frame-sheet review yet"
+Block_Hit,ual,combat,once,1.233,banned,0.053,0.262,0.19,0.0,9,,0.0,0.0,,banned: 9 pop(s)
+Blocking,ual,combat,loop,2.5,probation,0.01,0.045,0.0,0.0,0,0.26,0.0,0.0,,"metrics gold, no passing frame-sheet review yet"
+Bow,ual,combat,once,3.708,probation,0.0,0.0,0.0,0.27,0,,0.0,0.0,,"metrics gold, no passing frame-sheet review yet"
+Bow_Aim_Down,ual,combat,once,0.1,probation,0.0,0.0,0.02,0.0,0,,0.0,0.0,,"metrics gold, no passing frame-sheet review yet"
+Bow_Aim_Up,ual,combat,once,0.1,probation,0.0,0.0,0.0,2.13,0,,0.0,0.0,,"metrics gold, no passing frame-sheet review yet"
+Bow_Draw,ual,combat,once,0.533,gold,0.52,1.057,0.0,0.01,0,,0.0,0.0,pass,
+Bow_Hold,ual,combat,loop,1.2,gold,0.0,0.0,0.0,0.75,0,0.0,0.0,0.0,pass,
+Bow_Loose,ual,combat,once,0.6,gold,,,0.0,0.01,0,,0.0,0.0,pass,
+Bow_Pull_Back,ual,combat,once,1.208,probation,0.0,0.0,0.0,0.27,0,,0.0,0.0,,"metrics gold, no passing frame-sheet review yet"
+Bow_Pull_Hold,ual,combat,once,0.208,probation,0.0,0.0,0.0,0.27,0,,0.0,0.0,,"metrics gold, no passing frame-sheet review yet"
+Bow_Release,ual,combat,once,0.458,probation,0.0,0.0,0.0,0.27,0,,0.0,0.0,,"metrics gold, no passing frame-sheet review yet"
+Cand_Calm_Animal,ual,interaction,once,0,probation,,,,,,,,,,"candidate: Meshy text-to-motion BVH 5 s: crouch toward a frightened animal, open hand, gentle stroke (taming Calm, C8); needs BVH retarget to UAL"
+Cand_Companion_Down_Fall,ual,death,death,0,probation,,,,,,,,,,candidate: Meshy Fall_Dead_from_Abdominal_Injury (id 188): companion Down / death; needs UAL retarget
+Cand_Edge_Balance,ual,traversal,loop,0,probation,,,,,,,,,,candidate: Meshy Stand_on_Pole_and_Balance (id 390): edge balance (wall_contact / ground_realism); needs UAL retarget
+Cand_Horn_Blow,ual,interaction,once,0,probation,,,,,,,,,,"candidate: Meshy text-to-motion BVH 4 s: raise war horn, long blast, lower (the Call, C6); needs BVH retarget to UAL"
+Cand_Injured_Walk,ual,locomotion,loco,0,probation,,,,,,,,,,candidate: Meshy Injured_Walk_inplace (id 637): wounded walk; needs UAL retarget
+Cand_Revive_Kneel,ual,interaction,once,0,probation,,,,,,,,,,candidate: Meshy Kneel_on_One_Knee_and_Stand (id 365): companion revive (C6); needs UAL retarget
+Cand_Slope_Slide,ual,traversal,loop,0,probation,,,,,,,,,,candidate: Meshy slide_light (id 516): slope slide stance; needs UAL retarget
+Cast_AoE_Slam,ual,combat,once,2.2,banned,0.118,0.615,0.0,0.09,6,,2.1,0.0,,banned: 6 pop(s)
+Cast_Channel_Beam,ual,combat,loop,1.2,probation,0.03,0.065,0.1,0.0,0,0.0,0.0,0.0,,"metrics gold, no passing frame-sheet review yet"
+Cast_Dark_Charge,ual,combat,loop,1.4,probation,0.027,0.076,0.03,0.0,0,0.0,0.0,0.0,,"metrics gold, no passing frame-sheet review yet"
+Cast_Dark_Release,ual,combat,once,1.933,banned,0.147,1.035,0.28,0.0,15,,3.2,0.0,,banned: 15 pop(s)
+Cast_Earth_Charge,ual,combat,loop,1.4,probation,0.015,0.057,0.0,0.42,0,0.0,0.0,0.0,,"metrics gold, no passing frame-sheet review yet"
+Cast_Earth_Release,ual,combat,once,2.267,banned,0.126,0.802,1.99,0.0,8,,2.1,0.0,,banned: 8 pop(s); probation: ground penetration 2.0 cm
+Cast_Fire_Charge,ual,combat,loop,1.2,probation,0.046,0.126,0.2,0.0,0,0.0,0.0,0.0,,probation: slide mean 0.05 m/s; probation: slide max 0.13 m/s
+Cast_Fire_Release,ual,combat,once,1.6,banned,0.124,1.032,0.33,0.0,4,,2.1,0.0,,banned: 4 pop(s)
+Cast_Ice_Charge,ual,combat,loop,1.2,probation,0.021,0.068,0.08,0.0,0,0.0,0.0,0.0,,"metrics gold, no passing frame-sheet review yet"
+Cast_Ice_Release,ual,combat,once,1.667,banned,0.06,0.584,3.46,0.0,2,,2.1,0.0,,probation: 2 pop(s); banned: ground penetration 3.5 cm
+Cast_Light_Charge,ual,combat,loop,1.6,banned,0.025,0.216,0.15,0.0,0,0.0,0.0,0.0,,banned: slide max 0.22 m/s
+Cast_Light_Release,ual,combat,once,2.133,banned,0.081,0.612,4.62,0.0,0,,2.1,0.0,,banned: ground penetration 4.6 cm
+Cast_Lightning_Charge,ual,combat,loop,1.2,probation,0.023,0.082,0.01,0.0,0,0.0,0.0,0.0,,"metrics gold, no passing frame-sheet review yet"
+Cast_Lightning_Release,ual,combat,once,1.6,banned,0.209,2.554,5.07,0.0,0,,3.2,0.0,,banned: ground penetration 5.1 cm
+Cast_Water_Charge,ual,combat,loop,1.4,probation,0.038,0.096,0.33,0.0,1,0.0,0.0,0.0,,probation: 1 pop(s); probation: slide mean 0.04 m/s
+Cast_Water_Release,ual,combat,once,1.867,probation,0.077,0.915,0.23,0.0,1,,2.1,0.0,,probation: 1 pop(s)
+Cast_Wind_Charge,ual,combat,loop,1.4,probation,0.036,0.102,0.12,0.0,2,0.0,0.0,0.0,,probation: 2 pop(s); probation: slide mean 0.04 m/s; probation: slide max 0.10 m/s
+Cast_Wind_Release,ual,combat,once,1.733,banned,0.245,1.438,0.08,0.0,13,,2.1,0.0,,banned: 13 pop(s)
+Cheer,ual,interaction,once,2.5,probation,0.009,0.063,0.0,0.04,0,,0.0,0.0,,"metrics gold, no passing frame-sheet review yet"
+Cheer_One_arm,ual,interaction,once,2.167,probation,0.01,0.023,0.0,0.07,0,,0.0,0.0,,"metrics gold, no passing frame-sheet review yet"
+Cheering_Two_Hands,ual,interaction,once,1.583,gold,0.019,0.077,0.0,0.03,0,,0.0,0.0,pass,
+Chest_Open,ual,interaction,once,1.367,gold,0.017,0.034,0.0,0.08,0,,0.0,0.0,pass,
+Chore_Pick_Up_Box,ual,combat,once,2.4,gold,1.065,2.488,0.5,0.0,0,,6.2,0.0,pass,
+Chore_Stool_Sit_Stand,ual,combat,sit,3.8,probation,0.155,0.769,1.34,0.0,0,,16.8,0.0,,probation: ground penetration 1.3 cm
+Chore_Sweep,ual,combat,loop,1.733,banned,0.707,0.932,1.2,0.0,0,0.0,0.0,0.0,,probation: ground penetration 1.2 cm; banned: slide mean 0.71 m/s; banned: slide max 0.93 m/s
+ClimbUp_1m,ual,traversal,once,0.667,gold,,,0.0,2.42,0,,0.0,0.0,pass,
+Climb_Ladder,ual,traversal,loop,3.583,banned,0.142,0.368,0.0,3.02,0,0.59,0.1,0.0,,banned: float 3.0 cm; banned: slide mean 0.14 m/s; banned: slide max 0.37 m/s
+Climb_Wall,ual,traversal,loop,2.042,banned,0.227,0.294,0.0,1.11,1,1.78,0.2,0.0,,probation: 1 pop(s); banned: slide mean 0.23 m/s; banned: slide max 0.29 m/s
+Confused,ual,combat,once,2.875,probation,0.004,0.024,0.0,0.01,0,,0.0,0.0,,"metrics gold, no passing frame-sheet review yet"
+Consume,ual,interaction,once,1.333,gold,0.007,0.026,0.0,0.08,0,,0.0,0.0,pass,
+Consume_Item,ual,interaction,once,4.125,probation,0.006,0.037,0.19,0.0,0,,0.0,0.0,,"metrics gold, no passing frame-sheet review yet"
+Crawl,ual,combat,loco,1.667,banned,2.67,4.324,14.93,0.0,0,1.57,0.0,0.0,,banned: planted feet move forward (moonwalk); banned: ground penetration 14.9 cm; banned: slide mean 2.67 m/s; banned: slide max 4.32 m/s
+Crouch_Fwd,ual,locomotion,loco,2.0,banned,0.375,4.173,0.0,0.37,0,0.0,0.0,0.0,,banned: slide mean 0.37 m/s; banned: slide max 4.17 m/s
+Crouch_Idle,ual,locomotion,loop,2.933,probation,0.004,0.01,0.0,2.65,0,0.0,0.0,0.0,,probation: float 2.6 cm
+Dance,ual,combat,loop,1.0,banned,0.052,0.213,0.2,0.0,0,0.0,0.0,0.0,,banned: slide mean 0.05 m/s; banned: slide max 0.21 m/s
+Dance_Body_Roll,ual,combat,loop,6.458,banned,0.089,0.476,0.46,0.0,1,0.0,0.0,0.0,,probation: 1 pop(s); banned: slide mean 0.09 m/s; banned: slide max 0.48 m/s
+Dance_Charleston,ual,combat,loop,2.292,banned,0.153,1.276,0.81,0.0,0,0.0,0.0,0.0,,banned: slide mean 0.15 m/s; banned: slide max 1.28 m/s
+Dance_Reach_Hip,ual,combat,loop,2.5,banned,0.155,0.263,0.36,0.0,0,0.0,0.0,0.0,,banned: slide mean 0.15 m/s; banned: slide max 0.26 m/s
+Death01,ual,death,death,2.4,banned,,,3.03,0.0,1,,48.4,0.0,,probation: 1 pop(s); banned: ground penetration 3.0 cm
+Death_1H_Back,ual,death,death,1.8,banned,,,25.14,0.0,8,,0.0,0.0,,banned: 8 pop(s); banned: ground penetration 25.1 cm
+Death_1H_Front,ual,death,death,1.6,probation,,,1.41,0.0,1,,0.0,0.0,,probation: 1 pop(s); probation: ground penetration 1.4 cm
+Death_2H_Knees,ual,death,death,2.2,banned,,,13.06,0.0,4,,0.0,0.0,,banned: 4 pop(s); banned: ground penetration 13.1 cm
+Death_A,ual,death,death,4.458,banned,,,20.68,0.0,0,,77.6,0.0,,banned: ground penetration 20.7 cm
+Death_B,ual,death,death,1.833,banned,,,17.32,0.0,0,,19.8,0.0,,banned: ground penetration 17.3 cm
+Death_Bow_Side,ual,death,death,1.5,banned,,,7.21,0.0,2,,0.0,0.0,,probation: 2 pop(s); banned: ground penetration 7.2 cm
+Death_C,ual,death,death,2.167,banned,,,2.8,0.0,1,,4.4,0.0,,probation: 1 pop(s); banned: ground penetration 2.8 cm
+Defend,ual,combat,once,0.917,probation,0.005,0.03,0.0,1.74,0,,0.0,0.0,,"metrics gold, no passing frame-sheet review yet"
+Dizzy,ual,combat,loop,2.375,probation,0.01,0.054,0.0,0.12,0,0.0,0.2,0.0,,"metrics gold, no passing frame-sheet review yet"
+Dodge_Backward,ual,combat,once,1.467,probation,0.537,8.464,1.26,0.0,3,,10.5,0.0,,probation: 3 pop(s); probation: ground penetration 1.3 cm
+Dodge_Forward,ual,combat,once,1.467,probation,0.537,8.464,1.26,0.0,3,,10.5,0.0,,probation: 3 pop(s); probation: ground penetration 1.3 cm
+Dodge_back,ual,combat,once,0.958,gold,1.538,3.75,0.4,0.0,0,,0.1,0.0,pass,
+Dodge_left,ual,combat,once,0.792,probation,0.809,2.579,1.05,0.0,0,,1.8,0.0,,probation: ground penetration 1.0 cm
+Dodge_right,ual,combat,once,0.792,gold,0.786,2.572,0.91,0.0,0,,1.8,0.0,pass,
+Door_Locked,ual,combat,once,1.7,probation,0.076,0.208,0.0,1.13,0,,2.1,0.0,,"metrics gold, no passing frame-sheet review yet"
+Drink_Potion,ual,combat,once,1.633,gold,0.019,0.095,0.0,1.14,0,,0.0,0.0,pass,
+Driving,ual,combat,loop,1.667,probation,0.0,0.0,0.0,2.43,0,0.0,0.0,0.0,,probation: float 2.4 cm
+Duel_Lunge,ual,combat,once,1.4,probation,0.232,0.432,0.0,0.08,0,,3.7,0.0,,"metrics gold, no passing frame-sheet review yet"
+Duel_Parry_High,ual,combat,once,1.2,probation,0.196,0.419,0.34,0.0,0,,4.7,0.0,,"metrics gold, no passing frame-sheet review yet"
+Duel_Riposte,ual,combat,once,1.3,probation,0.192,0.444,0.09,0.0,0,,4.8,0.0,,"metrics gold, no passing frame-sheet review yet"
+Farm_Harvest,ual,interaction,once,2.5,gold,0.029,0.067,0.56,0.07,0,,0.0,0.0,pass,
+Farm_PlantSeed,ual,interaction,once,2.767,banned,0.131,2.584,5.24,0.0,0,,0.0,0.0,,banned: ground penetration 5.2 cm
+Farm_Watering,ual,interaction,once,3.8,gold,0.005,0.026,0.0,0.06,0,,0.0,0.0,pass,
+Fighting_Idle,ual,combat,loop,1.667,probation,0.008,0.022,0.0,0.2,0,0.0,0.0,0.0,,"metrics gold, no passing frame-sheet review yet"
+Fighting_Left_Jab,ual,combat,once,0.875,probation,0.044,0.127,0.0,0.38,0,,0.0,0.0,,"metrics gold, no passing frame-sheet review yet"
+Fighting_Right_Jab,ual,combat,once,0.875,probation,0.039,0.085,0.0,0.16,0,,0.0,0.0,,"metrics gold, no passing frame-sheet review yet"
+Finisher_Overhead_Cleave,ual,combat,once,1.8,banned,0.203,3.513,3.58,0.0,9,,0.0,0.0,,banned: 9 pop(s); banned: ground penetration 3.6 cm
+Finisher_Overhead_Cleave_Victim,ual,combat,once,1.8,banned,0.216,0.669,15.8,0.0,6,,36.1,0.0,,banned: 6 pop(s); banned: ground penetration 15.8 cm
+Finisher_Spin_Slash,ual,combat,once,1.667,banned,0.783,5.835,0.17,0.0,4,,0.0,0.0,,banned: 4 pop(s)
+Finisher_Spin_Slash_Victim,ual,combat,once,1.667,probation,0.419,0.565,0.09,0.0,0,,69.4,0.0,,"metrics gold, no passing frame-sheet review yet"
+Finisher_Stab_Through,ual,combat,once,2.0,banned,0.268,4.456,0.18,0.0,4,,0.0,0.0,,banned: 4 pop(s)
+Finisher_Stab_Through_Victim,ual,combat,once,2.0,banned,0.288,4.788,14.94,0.0,0,,30.5,0.0,,banned: ground penetration 14.9 cm
+Fishing_Cast,ual,interaction,once,2.958,probation,0.037,0.485,0.0,0.38,1,,4.5,0.0,,probation: 1 pop(s)
+Fishing_Catch,ual,interaction,once,2.083,gold,0.055,0.145,0.65,0.0,0,,6.2,0.0,pass,
+Fishing_Reel,ual,interaction,loop,1.458,gold,0.012,0.032,0.07,0.0,0,0.0,0.0,0.0,pass,
+Fixing_Kneeling,ual,combat,once,5.2,banned,0.145,2.335,6.09,0.0,0,,0.0,0.0,,banned: ground penetration 6.1 cm
+G6_cast_dual_wield_melee,ual,combat,once,0.375,probation,0.0,0.0,0.0,1.04,0,,0.0,0.0,,"metrics gold, no passing frame-sheet review yet"
+G6_cast_dual_wield_melee_2,ual,combat,once,0.375,probation,0.0,0.0,0.0,1.04,0,,0.0,0.0,,"metrics gold, no passing frame-sheet review yet"
+G6_cast_dual_wield_melee_3,ual,combat,once,0.417,probation,0.0,0.0,0.0,1.04,0,,0.0,0.0,,"metrics gold, no passing frame-sheet review yet"
+G6_cast_dual_wield_melee_4,ual,combat,once,0.375,probation,0.0,0.0,0.0,1.04,0,,0.0,0.0,,"metrics gold, no passing frame-sheet review yet"
+G6_cast_main_hand_melee,ual,combat,once,0.375,probation,0.0,0.0,0.0,1.04,0,,0.0,0.0,,"metrics gold, no passing frame-sheet review yet"
+G6_cast_main_hand_melee_2,ual,combat,once,0.375,probation,0.0,0.0,0.0,1.04,0,,0.0,0.0,,"metrics gold, no passing frame-sheet review yet"
+G6_cast_main_hand_melee_3,ual,combat,once,0.375,probation,0.0,0.0,0.0,1.04,0,,0.0,0.0,,"metrics gold, no passing frame-sheet review yet"
+G6_cast_main_hand_wand,ual,combat,once,0.375,probation,0.0,0.0,0.0,1.04,0,,0.0,0.0,,"metrics gold, no passing frame-sheet review yet"
+G6_cast_off_hand_shield,ual,combat,once,0.375,probation,0.0,0.0,0.0,1.04,0,,0.0,0.0,,"metrics gold, no passing frame-sheet review yet"
+G6_cast_two_handed_bow,ual,combat,once,0.375,probation,0.0,0.0,0.0,1.04,0,,0.0,0.0,,"metrics gold, no passing frame-sheet review yet"
+G6_cast_two_handed_bow_2,ual,combat,once,0.375,probation,0.0,0.0,0.0,1.04,0,,0.0,0.0,,"metrics gold, no passing frame-sheet review yet"
+G6_cast_two_handed_crossbow,ual,combat,once,0.375,probation,0.0,0.0,0.0,1.04,0,,0.0,0.0,,"metrics gold, no passing frame-sheet review yet"
+G6_cast_two_handed_melee,ual,combat,once,0.375,probation,0.0,0.0,0.0,1.04,0,,0.0,0.0,,"metrics gold, no passing frame-sheet review yet"
+G6_cast_two_handed_melee_2,ual,combat,once,0.375,probation,2.127,4.192,0.0,3.91,0,,0.0,0.0,,"metrics gold, no passing frame-sheet review yet"
+G6_cast_two_handed_melee_3,ual,combat,once,0.375,banned,,,3.52,0.0,0,,11.7,0.0,,banned: ground penetration 3.5 cm
+G6_cast_two_handed_melee_4,ual,combat,once,0.375,banned,0.0,0.0,3.29,0.0,1,,0.0,0.0,,probation: 1 pop(s); banned: ground penetration 3.3 cm
+G6_cast_two_handed_melee_5,ual,combat,once,0.375,banned,0.0,0.0,3.29,0.0,0,,0.0,0.0,,banned: ground penetration 3.3 cm
+G6_cast_two_handed_staff,ual,combat,once,0.375,banned,0.0,0.0,3.29,0.0,0,,0.0,0.0,,banned: ground penetration 3.3 cm
+G6_cast_unarmed_magic,ual,combat,once,0.375,banned,0.0,0.0,3.29,0.0,0,,0.0,0.0,,banned: ground penetration 3.3 cm
+G6_cast_unarmed_magic_2,ual,combat,once,0.375,banned,0.0,0.0,3.29,0.0,0,,0.0,0.0,,banned: ground penetration 3.3 cm
+G6_channel_dual_wield_melee,ual,combat,loop,0.75,banned,0.0,0.0,3.29,0.0,0,1.5,0.0,0.0,,banned: ground penetration 3.3 cm
+G6_channel_main_hand_melee,ual,combat,loop,0.75,banned,0.0,0.0,3.29,0.0,0,0.0,0.0,0.0,,banned: ground penetration 3.3 cm
+G6_channel_main_hand_wand,ual,combat,loop,0.75,banned,0.0,0.0,3.29,0.0,0,0.0,0.0,0.0,,banned: ground penetration 3.3 cm
+G6_channel_two_handed_bow,ual,combat,loop,0.75,banned,0.0,0.0,3.29,0.0,0,0.0,0.0,0.0,,banned: ground penetration 3.3 cm
+G6_channel_two_handed_bow_2,ual,combat,loop,0.75,banned,0.0,0.0,3.29,0.0,0,92.39,0.0,0.0,,banned: ground penetration 3.3 cm; banned: loop seam 92.4 deg
+G6_channel_two_handed_crossbow,ual,combat,loop,0.75,banned,0.0,0.0,3.29,0.0,0,0.0,0.0,0.0,,banned: ground penetration 3.3 cm
+G6_channel_two_handed_melee,ual,combat,loop,0.75,banned,0.0,0.0,3.29,0.0,0,0.0,0.0,0.0,,banned: ground penetration 3.3 cm
+G6_channel_two_handed_staff,ual,combat,loop,0.75,banned,0.0,0.0,3.29,0.0,0,0.0,0.0,0.0,,banned: ground penetration 3.3 cm
+G6_channel_unarmed_magic,ual,combat,loop,0.75,banned,0.0,0.0,3.29,0.0,0,0.0,0.0,0.0,,banned: ground penetration 3.3 cm
+G6_death,ual,combat,death,0.792,probation,,,0.0,0.0,0,,9.2,0.0,,"metrics gold, no passing frame-sheet review yet"
+G6_drink_potion,ual,combat,once,0.375,probation,0.0,0.0,0.07,4.12,0,,0.0,0.0,,"metrics gold, no passing frame-sheet review yet"
+G6_gathering,ual,combat,once,0.75,probation,0.003,0.022,0.39,0.0,0,,0.0,0.0,,"metrics gold, no passing frame-sheet review yet"
+G6_idle,ual,combat,loop,0.75,probation,0.002,0.014,0.0,0.98,0,0.0,0.0,0.0,,"metrics gold, no passing frame-sheet review yet"
+G6_idle_combat_dual_wield_melee,ual,combat,loop,0.75,probation,0.002,0.017,0.0,0.43,0,0.0,0.0,0.0,,"metrics gold, no passing frame-sheet review yet"
+G6_idle_combat_main_hand_melee,ual,combat,loop,0.75,probation,0.002,0.017,0.0,0.43,0,0.0,0.0,0.0,,"metrics gold, no passing frame-sheet review yet"
+G6_idle_combat_main_hand_wand,ual,combat,loop,0.75,probation,0.002,0.017,0.0,0.43,0,0.0,0.0,0.0,,"metrics gold, no passing frame-sheet review yet"
+G6_idle_combat_two_handed_bow,ual,combat,loop,0.75,probation,0.002,0.017,0.0,0.43,0,0.0,0.0,0.0,,"metrics gold, no passing frame-sheet review yet"
+G6_idle_combat_two_handed_crossbow,ual,combat,loop,0.75,probation,0.002,0.017,0.0,0.43,0,0.0,0.0,0.0,,"metrics gold, no passing frame-sheet review yet"
+G6_idle_combat_two_handed_melee,ual,combat,loop,0.75,probation,0.002,0.017,0.0,0.43,0,0.0,0.0,0.0,,"metrics gold, no passing frame-sheet review yet"
+G6_idle_combat_two_handed_staff,ual,combat,loop,0.75,probation,0.002,0.017,0.0,0.43,0,0.0,0.0,0.0,,"metrics gold, no passing frame-sheet review yet"
+G6_idle_combat_unarmed,ual,combat,loop,0.75,probation,0.002,0.017,0.0,0.43,0,0.0,0.0,0.0,,"metrics gold, no passing frame-sheet review yet"
+G6_jump,ual,combat,jump,0.75,probation,0.001,0.003,0.0,0.0,0,,0.0,0.0,,"metrics gold, no passing frame-sheet review yet"
+G6_power_up,ual,combat,once,0.375,probation,0.0,0.0,0.0,3.45,0,,0.0,0.0,,"metrics gold, no passing frame-sheet review yet"
+G6_power_up_2,ual,combat,once,0.417,probation,0.822,1.021,0.0,0.22,0,,21.4,0.0,,"metrics gold, no passing frame-sheet review yet"
+G6_power_up_3,ual,combat,once,0.375,probation,,,0.0,10.71,0,,0.0,0.0,,"metrics gold, no passing frame-sheet review yet"
+G6_pray,ual,combat,once,0.001,banned,,,3.21,0.0,0,,0.0,0.0,,banned: ground penetration 3.2 cm
+G6_run,ual,combat,loco,0.75,banned,4.202,12.411,2.39,0.0,0,13.26,0.5,0.0,,banned: ground penetration 2.4 cm; banned: slide mean 4.20 m/s; banned: slide max 12.41 m/s; banned: loop seam 13.3 deg; banned: loop seam hips 3.2 cm
+GS_Guard,ual,combat,once,1.067,probation,0.537,1.449,1.51,0.0,0,,4.1,0.0,,probation: ground penetration 1.5 cm
+GS_Overhead,ual,combat,once,1.633,probation,0.409,1.474,1.37,0.0,3,,9.2,0.0,,probation: 3 pop(s); probation: ground penetration 1.4 cm
+GS_Slash,ual,combat,once,1.1,probation,0.801,4.747,1.51,0.0,0,,3.8,0.0,,probation: ground penetration 1.5 cm
+GS_Spin,ual,combat,once,2.4,probation,1.18,5.863,1.57,0.0,0,,4.0,0.0,,probation: ground penetration 1.6 cm
+GS_Thrust,ual,combat,once,1.6,probation,0.255,1.334,1.47,0.0,0,,6.9,0.0,,probation: ground penetration 1.5 cm
+Glide,ual,combat,once,0.75,probation,,,0.0,20.37,0,,0.1,0.0,,"metrics gold, no passing frame-sheet review yet"
+Greeting,ual,combat,once,4.792,probation,0.003,0.027,0.0,0.22,0,,0.0,0.0,,"metrics gold, no passing frame-sheet review yet"
+Guard_Break,ual,combat,once,1.3,banned,0.87,3.03,4.53,0.0,1,,8.6,0.0,,probation: 1 pop(s); banned: ground penetration 4.5 cm
+Head_Nod,ual,combat,once,0.833,probation,0.0,0.0,0.0,0.27,0,,0.0,0.0,,"metrics gold, no passing frame-sheet review yet"
+Help_One_Arm,ual,combat,once,2.667,probation,0.024,0.067,0.0,0.24,0,,0.0,0.0,,"metrics gold, no passing frame-sheet review yet"
+Help_Two_Arms,ual,combat,once,1.583,probation,0.035,0.112,0.81,0.0,0,,0.0,0.0,,"metrics gold, no passing frame-sheet review yet"
+Hit_A,ual,combat,once,0.333,probation,0.083,0.086,0.0,0.03,0,,2.9,0.0,,"metrics gold, no passing frame-sheet review yet"
+Hit_B,ual,combat,once,0.833,banned,0.326,0.829,3.65,0.0,0,,5.1,0.0,,banned: ground penetration 3.6 cm
+Hit_Chest,ual,combat,once,0.333,gold,0.083,0.086,0.0,0.03,0,,2.9,0.0,pass,
+Hit_Head,ual,combat,once,0.433,gold,0.007,0.03,0.0,0.08,0,,0.0,0.0,pass,
+Hit_Head_L,ual,combat,once,1.4,probation,0.325,1.233,1.36,0.0,0,,3.8,0.0,,probation: ground penetration 1.4 cm
+Hit_Heavy_Back,ual,combat,once,0.867,gold,0.066,1.039,0.12,0.0,0,,0.0,0.0,pass,
+Hit_Heavy_Front,ual,combat,once,0.867,gold,0.087,1.149,0.09,0.0,0,,0.0,0.0,pass,
+Hit_Heavy_Left,ual,combat,once,0.867,gold,0.082,0.897,0.07,0.0,0,,0.0,0.0,pass,
+Hit_Heavy_Right,ual,combat,once,0.867,gold,0.08,0.896,0.07,0.0,0,,0.0,0.0,pass,
+Hit_Knockback,ual,combat,once,0.833,banned,0.326,0.829,3.65,0.0,0,,5.1,0.0,,banned: ground penetration 3.6 cm
+Hit_Light_Back,ual,combat,once,0.5,gold,0.025,0.07,0.0,0.0,0,,0.0,0.0,pass,
+Hit_Light_Front,ual,combat,once,0.5,gold,0.035,0.11,0.1,0.0,0,,0.0,0.0,pass,
+Hit_Light_Left,ual,combat,once,0.5,gold,0.043,0.095,0.14,0.0,0,,0.0,0.0,pass,
+Hit_Light_Right,ual,combat,once,0.5,gold,0.042,0.111,0.14,0.0,0,,0.0,0.0,pass,
+Idle,ual,locomotion,loop,2.5,gold,0.01,0.045,0.0,0.0,0,0.29,0.0,0.0,pass,
+Idle_FoldArms,ual,locomotion,loop,2.5,gold,0.013,0.049,0.17,0.0,0,0.36,0.0,0.0,pass,
+Idle_Hurt,ual,locomotion,loop,1.625,gold,0.003,0.025,0.08,0.0,0,0.0,0.0,0.0,pass,
+Idle_Lantern,ual,locomotion,loop,2.5,gold,0.01,0.045,0.0,0.01,0,0.11,0.0,0.0,pass,
+Idle_Listening,ual,locomotion,loop,1.667,gold,0.003,0.017,0.07,0.0,0,0.0,0.0,0.0,pass,
+Idle_No,ual,locomotion,loop,2.5,gold,0.01,0.045,0.0,0.0,0,0.0,0.0,0.0,pass,
+Idle_Rail,ual,locomotion,loop,2.5,probation,0.003,0.012,0.0,0.08,0,0.0,0.0,0.0,,"metrics gold, no passing frame-sheet review yet"
+Idle_Rail_Call,ual,locomotion,once,2.5,probation,0.003,0.012,0.0,0.08,0,,0.0,0.0,,"metrics gold, no passing frame-sheet review yet"
+Idle_Shield,ual,locomotion,loop,2.5,gold,0.01,0.045,0.0,0.0,0,0.26,0.0,0.0,pass,
+Idle_Shield_Break,ual,locomotion,once,1.067,probation,0.03,0.193,0.04,0.0,1,,0.0,0.0,,probation: 1 pop(s)
+Idle_Subtle,ual,locomotion,loop,2.542,gold,0.002,0.017,0.0,0.23,0,0.0,0.0,0.0,pass,
+Idle_Talking,ual,locomotion,loop,2.933,gold,0.008,0.053,0.04,0.0,0,0.0,0.0,0.0,pass,
+Idle_TalkingPhone,ual,locomotion,loop,2.933,gold,0.008,0.053,0.04,0.0,0,0.0,0.0,0.0,pass,
+Idle_Torch,ual,locomotion,loop,1.267,gold,0.011,0.046,0.0,0.06,0,0.0,0.0,0.0,pass,
+Insult,ual,combat,once,2.792,probation,0.007,0.027,0.0,0.08,0,,0.0,0.0,,"metrics gold, no passing frame-sheet review yet"
+Interact,ual,interaction,once,2.0,gold,0.011,0.049,0.0,0.04,0,,0.0,0.0,pass,
+Jog_Fwd,ual,locomotion,loco,0.933,banned,0.146,0.207,0.0,0.98,0,0.0,0.0,0.0,,banned: slide mean 0.15 m/s; banned: slide max 0.21 m/s
+Jump,ual,traversal,jump,2.5,banned,0.012,0.024,13.31,0.0,0,,0.0,0.0,,banned: ground penetration 13.3 cm
+Jump_2,ual,traversal,jump,1.583,probation,0.249,1.506,0.78,0.0,0,,0.0,0.0,,"metrics gold, no passing frame-sheet review yet"
+Jump_Fall,ual,traversal,jump,0.8,banned,0.337,0.861,8.62,0.0,0,,0.0,0.0,,banned: ground penetration 8.6 cm
+Jump_Land,ual,traversal,jump,1.267,probation,0.035,0.065,0.0,0.0,0,,3.2,0.0,,"metrics gold, no passing frame-sheet review yet"
+Jump_Land_Hard,ual,traversal,jump,1.367,banned,0.644,1.329,7.81,0.0,0,,0.0,0.0,,banned: ground penetration 7.8 cm
+Jump_Land_Roll,ual,traversal,jump,1.667,banned,0.178,1.451,11.42,0.0,1,,0.0,0.0,,probation: 1 pop(s); banned: ground penetration 11.4 cm
+Jump_Land_Running,ual,traversal,jump,0.767,banned,4.038,4.304,7.71,0.0,0,,0.0,0.0,,banned: ground penetration 7.7 cm
+Jump_Land_Soft,ual,traversal,jump,0.867,banned,0.352,0.72,2.69,0.0,0,,0.0,0.0,,banned: ground penetration 2.7 cm
+Jump_Rise,ual,traversal,jump,0.8,banned,0.383,1.143,6.58,0.0,0,,0.0,0.0,,banned: ground penetration 6.6 cm
+Jump_Running_Start,ual,traversal,jump,0.4,banned,3.293,3.484,2.33,0.0,0,,0.0,0.0,,banned: ground penetration 2.3 cm
+Jump_Start,ual,traversal,jump,0.333,probation,,,1.28,0.0,0,,0.0,0.0,,probation: ground penetration 1.3 cm
+Jumping_Jacks,ual,traversal,jump,1.208,probation,0.305,0.79,0.07,0.0,0,,0.1,0.0,,"metrics gold, no passing frame-sheet review yet"
+Karate_Gedan_Barai,ual,combat,once,1.9,probation,0.392,2.266,0.19,0.0,2,,9.6,0.0,,probation: 2 pop(s)
+Karate_Mae_Geri,ual,combat,once,1.7,probation,0.555,2.196,0.87,0.0,0,,8.5,0.0,,"metrics gold, no passing frame-sheet review yet"
+Karate_Mawashi_Geri,ual,combat,once,1.8,banned,0.468,1.008,2.69,0.0,0,,5.5,0.0,,banned: ground penetration 2.7 cm
+Karate_Oi_Zuki,ual,combat,once,2.0,banned,0.4,1.155,0.28,0.0,4,,10.2,0.0,,banned: 4 pop(s)
+Karate_Shuto_Uke,ual,combat,once,1.8,probation,0.365,1.116,0.41,0.0,2,,8.7,0.0,,probation: 2 pop(s)
+Karate_Yoko_Geri,ual,combat,once,2.2,banned,0.419,1.141,2.29,0.0,0,,8.7,0.0,,banned: ground penetration 2.3 cm
+Kata_Bassai,ual,combat,once,50.033,banned,0.291,7.665,2.8,0.0,24,,3.8,0.0,,banned: 24 pop(s); banned: ground penetration 2.8 cm
+Kata_Empi,ual,combat,once,40.4,banned,0.304,6.782,6.75,0.0,30,,4.2,0.0,,banned: 30 pop(s); banned: ground penetration 6.7 cm
+Kata_Heian_Shodan,ual,combat,once,24.467,banned,0.58,3.525,0.74,0.0,16,,8.0,0.0,,banned: 16 pop(s)
+Kick_Breach,ual,combat,once,1.833,banned,0.567,1.046,2.44,0.0,0,,0.0,0.0,,banned: ground penetration 2.4 cm
+Kneeling_Tired,ual,combat,loop,0.792,probation,0.001,0.005,0.51,1.18,0,0.0,0.0,0.0,,"metrics gold, no passing frame-sheet review yet"
+Ladder_Climb_Down,ual,traversal,loop,1.2,banned,,,3.88,0.0,0,0.0,0.0,0.0,,banned: ground penetration 3.9 cm; note: slide unscored (no usable ground-speed reference)
+Ladder_Climb_Up,ual,traversal,loop,1.2,banned,,,3.88,0.0,0,0.0,0.0,0.0,,banned: ground penetration 3.9 cm; note: slide unscored (no usable ground-speed reference)
+Ladder_Idle,ual,traversal,loop,2.458,banned,0.003,0.014,3.53,0.0,0,0.0,0.0,0.0,,banned: ground penetration 3.5 cm
+Land_Three_Point,ual,traversal,jump,1.333,banned,0.814,2.998,5.18,0.0,0,,70.0,0.0,,banned: ground penetration 5.2 cm
+LayToIdle,ual,combat,once,1.533,banned,0.679,2.514,5.68,0.0,0,,16.1,0.0,,banned: ground penetration 5.7 cm
+Ledge_Climb_Up,ual,traversal,once,1.733,probation,0.027,0.075,0.0,0.04,2,,0.6,0.0,,probation: 2 pop(s)
+Ledge_Drop_Down,ual,traversal,once,1.067,gold,0.112,0.726,0.08,0.0,0,,3.2,0.0,pass,
+Ledge_Grab,ual,traversal,once,1.333,banned,0.106,0.252,2.16,0.0,0,,21.0,0.0,,banned: ground penetration 2.2 cm
+Ledge_Hang,ual,traversal,loop,1.875,banned,0.011,0.038,13.99,0.0,0,0.0,0.0,0.0,,banned: ground penetration 14.0 cm
+Ledge_Hang_Idle,ual,traversal,loop,2.0,banned,,,0.0,14.52,0,0.84,0.0,0.0,,banned: float 14.5 cm; note: slide unscored (no usable ground-speed reference)
+Ledge_Shimmy_L,ual,traversal,loop,1.0,banned,,,0.0,14.04,0,0.0,0.0,0.0,,banned: float 14.0 cm; note: slide unscored (no usable ground-speed reference)
+Ledge_Shimmy_R,ual,traversal,loop,1.0,banned,,,0.0,14.01,0,0.76,0.0,0.0,,banned: float 14.0 cm; note: slide unscored (no usable ground-speed reference)
+Lever_Pull_Floor,ual,combat,once,1.433,probation,0.635,1.385,0.0,1.92,0,,11.1,0.0,,"metrics gold, no passing frame-sheet review yet"
+Lever_Pull_Wall,ual,combat,once,1.333,probation,0.776,1.111,0.0,1.5,0,,5.2,0.0,,"metrics gold, no passing frame-sheet review yet"
+Lie_Down,ual,combat,once,5.7,banned,0.189,2.188,5.59,0.0,0,,0.4,0.0,,banned: ground penetration 5.6 cm
+Lie_Down_Get_Up,ual,combat,once,6.0,banned,0.127,0.737,6.16,0.0,0,,1.0,0.0,,banned: ground penetration 6.2 cm
+Lie_Down_Idle,ual,combat,loop,2.433,banned,0.023,0.365,5.77,0.0,0,0.0,0.0,0.0,,banned: ground penetration 5.8 cm; banned: slide max 0.36 m/s
+Loco_Pivot180_Run_L,ual,locomotion,once,1.233,banned,2.57,5.223,8.24,0.0,0,,32.5,0.0,,banned: ground penetration 8.2 cm
+Loco_Pivot180_Run_R,ual,locomotion,once,1.367,banned,2.785,6.22,8.26,0.0,0,,33.6,0.0,,banned: ground penetration 8.3 cm
+Loco_RunStart_F,ual,locomotion,once,0.633,banned,2.905,4.051,4.14,0.0,0,,0.0,0.0,,banned: ground penetration 4.1 cm
+Loco_RunStop_L,ual,locomotion,once,0.867,gold,1.282,3.386,0.64,0.0,0,,0.0,0.0,pass,
+Loco_RunStop_R,ual,locomotion,once,0.8,probation,1.87,4.281,1.0,0.0,0,,0.0,0.0,,probation: ground penetration 1.0 cm
+Loco_Sprint_Stop_Skid,ual,locomotion,once,0.9,probation,3.089,5.124,0.56,0.0,0,,0.0,0.0,hold,"metrics gold, no passing frame-sheet review yet"
+Loco_TurnInPlace_180,ual,locomotion,once,1.1,banned,0.774,1.388,8.28,0.0,0,,14.1,0.0,,banned: ground penetration 8.3 cm
+Loco_TurnInPlace_180_R,ual,locomotion,once,0.867,banned,0.445,0.976,3.5,0.0,0,,10.8,0.0,,banned: ground penetration 3.5 cm
+Loco_TurnInPlace_90_L,ual,locomotion,once,0.733,banned,0.289,0.612,6.89,0.0,0,,6.8,0.0,,banned: ground penetration 6.9 cm
+Loco_TurnInPlace_90_R,ual,locomotion,once,0.7,gold,0.235,0.532,0.65,0.0,0,,6.3,0.0,pass,
+Loco_WalkStart_F,ual,locomotion,once,1.267,probation,1.281,2.597,1.72,0.0,0,,0.0,0.0,,probation: ground penetration 1.7 cm
+Loco_WalkStop,ual,locomotion,once,1.367,gold,0.587,1.318,0.81,0.0,0,,0.0,0.0,pass,
+MA_Kick_Front_R_Quick,ual,combat,once,1.6,probation,0.226,0.969,1.69,0.0,0,,13.3,0.0,,probation: ground penetration 1.7 cm
+MA_Punch_Cross_L_Head,ual,combat,once,1.6,probation,0.371,2.223,0.72,0.0,0,,6.8,0.0,,"metrics gold, no passing frame-sheet review yet"
+MA_Punch_Cross_R_Head_A,ual,combat,once,1.6,gold,0.371,2.224,0.73,0.0,0,,6.8,0.0,pass,
+MA_Punch_Cross_R_Head_B,ual,combat,once,1.0,banned,0.322,1.139,4.68,0.0,0,,6.0,0.0,,banned: ground penetration 4.7 cm
+MA_Punch_Cross_R_Head_C,ual,combat,once,1.867,probation,0.121,0.885,0.34,0.0,0,,4.5,0.0,,"metrics gold, no passing frame-sheet review yet"
+MA_Punch_Hook_L_A,ual,combat,once,1.6,probation,0.158,0.737,0.05,0.0,0,,9.4,0.0,,"metrics gold, no passing frame-sheet review yet"
+MA_Punch_Hook_L_B,ual,combat,once,2.2,probation,0.123,1.033,0.49,0.0,0,,2.2,0.0,,"metrics gold, no passing frame-sheet review yet"
+MA_Punch_Hook_L_C,ual,combat,once,1.967,probation,0.09,0.482,0.67,0.0,0,,2.4,0.0,,"metrics gold, no passing frame-sheet review yet"
+MA_Punch_Hook_L_D,ual,combat,once,1.667,probation,0.265,1.487,1.36,0.0,0,,0.7,0.0,,probation: ground penetration 1.4 cm
+MA_Punch_Hook_R_A,ual,combat,once,1.6,probation,0.168,0.756,0.22,0.0,0,,9.4,0.0,,"metrics gold, no passing frame-sheet review yet"
+MA_Punch_Hook_R_B,ual,combat,once,2.2,probation,0.123,1.033,0.47,0.0,0,,2.2,0.0,,"metrics gold, no passing frame-sheet review yet"
+MA_Punch_Hook_R_Body,ual,combat,once,2.167,probation,0.351,2.243,1.77,0.0,0,,21.6,0.0,,probation: ground penetration 1.8 cm
+MA_Punch_Hook_R_C,ual,combat,once,1.633,probation,0.101,0.271,0.28,0.0,0,,0.9,0.0,,"metrics gold, no passing frame-sheet review yet"
+MA_Punch_Hook_R_D,ual,combat,once,1.967,probation,0.091,0.48,0.67,0.0,0,,2.4,0.0,,"metrics gold, no passing frame-sheet review yet"
+MA_Punch_Hook_R_E,ual,combat,once,1.667,probation,0.235,1.411,1.48,0.0,0,,0.7,0.0,,probation: ground penetration 1.5 cm
+MA_Punch_Jab_L_Body,ual,combat,once,1.667,probation,0.115,0.338,0.56,0.0,0,,2.6,0.0,,"metrics gold, no passing frame-sheet review yet"
+MA_Punch_Jab_L_Head_A,ual,combat,once,1.567,gold,0.105,0.536,0.04,0.0,0,,6.9,0.0,pass,
+MA_Punch_Jab_L_Head_B,ual,combat,once,1.9,probation,0.075,0.271,0.38,0.0,0,,3.0,0.0,,"metrics gold, no passing frame-sheet review yet"
+MA_Punch_Jab_R_Head,ual,combat,once,1.567,probation,0.105,0.494,0.04,0.0,0,,6.9,0.0,,"metrics gold, no passing frame-sheet review yet"
+Magic_Attack_1,ual,combat,once,1.3,probation,0.019,0.233,0.0,1.13,0,,0.1,0.0,,"metrics gold, no passing frame-sheet review yet"
+Magic_Attack_2,ual,combat,once,1.667,probation,0.214,1.455,0.2,0.0,0,,0.2,0.0,,"metrics gold, no passing frame-sheet review yet"
+Magic_Cast_L,ual,combat,once,1.4,banned,0.041,0.169,6.64,0.0,0,,0.0,0.0,,banned: ground penetration 6.6 cm
+Magic_Cast_R,ual,combat,once,1.4,banned,0.041,0.169,6.64,0.0,0,,0.0,0.0,,banned: ground penetration 6.6 cm
+Magic_Casting,ual,combat,loop,1.0,probation,0.04,0.076,0.0,1.13,0,0.0,0.0,0.0,,probation: slide mean 0.04 m/s
+Magic_Idle_L,ual,combat,loop,1.333,probation,0.0,0.0,0.0,1.13,0,0.0,0.0,0.0,,"metrics gold, no passing frame-sheet review yet"
+Mantle_High,ual,traversal,once,1.967,banned,0.038,0.093,2.08,0.0,4,,3.2,0.0,,banned: 4 pop(s); banned: ground penetration 2.1 cm
+Mantle_Low,ual,traversal,once,1.467,probation,0.809,1.618,0.0,0.0,0,,0.0,0.0,hold,"metrics gold, no passing frame-sheet review yet"
+Meditate,ual,combat,loop,1.458,banned,0.0,0.0,12.86,1.97,0,0.04,0.0,0.0,,banned: ground penetration 12.9 cm
+Melee_Hook,ual,combat,once,0.467,probation,1.249,2.323,0.03,0.0,0,,30.8,0.0,,"metrics gold, no passing frame-sheet review yet"
+Melee_Hook_Rec,ual,combat,once,0.6,probation,0.612,1.094,0.0,0.11,0,,35.1,0.0,,"metrics gold, no passing frame-sheet review yet"
+NinjaJump_Idle,ual,combat,jump,2.0,probation,,,0.0,0.0,0,,0.0,0.0,,"metrics gold, no passing frame-sheet review yet"
+NinjaJump_Land,ual,combat,jump,1.267,probation,0.039,0.142,0.0,0.0,0,,6.6,0.0,,"metrics gold, no passing frame-sheet review yet"
+NinjaJump_Start,ual,combat,jump,0.967,banned,,,3.04,0.0,5,,14.0,0.0,,banned: 5 pop(s); banned: ground penetration 3.0 cm
+Open_Chest,ual,combat,once,1.3,gold,0.116,0.233,0.0,2.19,0,,0.3,0.0,pass,
+Open_Door,ual,combat,once,2.5,gold,0.164,0.365,0.0,1.07,0,,1.4,0.0,pass,
+Open_Gate,ual,combat,once,2.5,probation,0.08,0.172,0.36,1.1,0,,3.2,0.0,,"metrics gold, no passing frame-sheet review yet"
+OverhandThrow,ual,combat,once,1.333,banned,0.581,2.614,2.13,0.08,1,,0.0,0.0,,probation: 1 pop(s); banned: ground penetration 2.1 cm
+Parry_Quick,ual,combat,once,0.5,gold,0.256,0.859,0.0,1.14,0,,2.7,0.0,pass,
+PickUp_Table,ual,interaction,once,0.833,gold,0.022,0.075,0.0,0.02,0,,0.0,0.0,pass,
+Pipe_Climb,ual,combat,loop,1.833,banned,0.128,0.186,2.8,0.0,0,0.0,0.2,0.0,,banned: ground penetration 2.8 cm; banned: slide mean 0.13 m/s; banned: slide max 0.19 m/s
+Pistol_Aim_Down,ual,combat,once,0.167,probation,0.0,0.0,0.0,0.08,0,,0.0,0.0,,"metrics gold, no passing frame-sheet review yet"
+Pistol_Aim_Neutral,ual,combat,once,0.167,probation,0.0,0.0,0.0,0.08,0,,0.0,0.0,,"metrics gold, no passing frame-sheet review yet"
+Pistol_Aim_Up,ual,combat,once,0.167,probation,0.0,0.0,0.0,0.08,0,,0.0,0.0,,"metrics gold, no passing frame-sheet review yet"
+Pistol_Idle,ual,combat,loop,1.667,probation,0.0,0.0,0.0,0.08,0,0.0,0.0,0.0,,"metrics gold, no passing frame-sheet review yet"
+Pistol_Reload,ual,combat,once,1.667,probation,0.004,0.025,0.0,0.07,0,,0.0,0.0,,"metrics gold, no passing frame-sheet review yet"
+Pistol_Shoot,ual,combat,once,0.633,probation,0.0,0.0,0.0,0.08,0,,0.0,0.0,,"metrics gold, no passing frame-sheet review yet"
+Punch_Cross,ual,combat,once,1.0,gold,0.027,0.148,0.0,0.06,0,,0.0,0.0,pass,
+Punch_Jab,ual,combat,once,0.867,probation,0.016,0.096,0.0,0.08,2,,0.0,0.0,,probation: 2 pop(s)
+Push,ual,interaction,loop,2.667,banned,0.373,0.83,0.51,0.0,0,0.0,0.0,0.0,,banned: slide mean 0.37 m/s; banned: slide max 0.83 m/s
+Pushup,ual,interaction,loop,1.5,banned,0.003,0.013,12.47,3.29,0,0.63,0.0,0.0,,banned: ground penetration 12.5 cm; banned: float 3.3 cm
+Reject,ual,combat,once,3.75,probation,0.003,0.02,0.0,0.24,0,,0.0,0.0,,"metrics gold, no passing frame-sheet review yet"
+Ride_Gallop,ual,combat,loop,0.533,banned,,,0.0,67.1,0,0.0,0.0,0.0,,banned: float 67.1 cm; note: slide unscored (no usable ground-speed reference)
+Ride_Idle,ual,combat,loop,2.0,banned,,,0.0,65.4,0,0.0,0.0,0.0,,banned: float 65.4 cm; note: slide unscored (no usable ground-speed reference)
+Ride_Lean_L,ual,combat,loop,1.0,banned,,,0.0,63.01,0,0.0,0.0,0.0,,banned: float 63.0 cm; note: slide unscored (no usable ground-speed reference)
+Ride_Lean_R,ual,combat,loop,1.0,banned,,,0.0,63.02,0,0.0,0.0,0.0,,banned: float 63.0 cm; note: slide unscored (no usable ground-speed reference)
+Ride_Trot,ual,combat,loco,0.667,banned,,,0.0,61.89,0,0.0,0.0,0.0,,banned: float 61.9 cm; note: slide unscored (no usable ground-speed reference)
+Ride_Walk,ual,combat,loco,1.2,banned,,,0.0,64.68,0,0.0,0.0,0.0,,banned: float 64.7 cm; note: slide unscored (no usable ground-speed reference)
+Roll,ual,traversal,once,1.467,probation,0.537,8.464,1.26,0.0,3,,10.5,0.0,,probation: 3 pop(s); probation: ground penetration 1.3 cm
+Run_Female,ual,locomotion,loco,0.792,banned,1.085,2.132,0.61,0.0,0,3.42,0.6,0.0,,banned: slide mean 1.09 m/s; banned: slide max 2.13 m/s; probation: loop seam 3.4 deg
+Run_Jump,ual,locomotion,jump,1.208,banned,0.057,0.077,4.26,0.0,0,,0.0,0.0,,banned: ground penetration 4.3 cm
+Run_Stealth,ual,locomotion,loco,0.5,banned,1.692,2.547,1.77,0.0,0,2.93,0.3,0.0,,probation: ground penetration 1.8 cm; banned: slide mean 1.69 m/s; banned: slide max 2.55 m/s
+Running_A,ual,locomotion,loco,0.933,banned,0.146,0.207,0.0,0.98,0,0.0,0.0,0.0,,banned: slide mean 0.15 m/s; banned: slide max 0.21 m/s
+Salute,ual,combat,once,4.417,gold,0.004,0.025,0.16,0.0,0,,0.0,0.0,pass,
+Shield_Bash,ual,combat,once,0.767,probation,1.025,3.04,0.0,2.24,0,,3.8,0.0,hold,"metrics gold, no passing frame-sheet review yet"
+Shield_Bash_Step,ual,combat,once,0.9,gold,0.427,3.128,0.48,0.0,0,,0.0,0.0,pass,
+Shield_Dash,ual,combat,once,1.1,banned,0.698,2.951,3.14,0.0,0,,7.4,0.0,,banned: ground penetration 3.1 cm
+Shield_OneShot,ual,combat,once,0.833,probation,0.019,0.069,0.0,0.08,0,,0.0,0.0,,"metrics gold, no passing frame-sheet review yet"
+Shivering,ual,combat,loop,0.208,probation,0.007,0.01,0.0,0.31,0,0.0,0.0,0.0,,"metrics gold, no passing frame-sheet review yet"
+Sit_Floor_Idle,ual,interaction,sit,1.667,probation,0.0,0.0,0.0,0.0,0,,0.0,0.0,,"metrics gold, no passing frame-sheet review yet"
+Sitting_Enter,ual,interaction,sit,1.3,gold,0.304,1.017,0.0,0.0,0,,25.8,0.0,pass,
+Sitting_Exit,ual,interaction,sit,1.033,gold,0.348,1.025,0.0,0.0,0,,25.8,0.0,pass,
+Sitting_Idle,ual,interaction,sit,1.667,gold,0.0,0.0,0.0,0.0,0,,0.0,0.0,pass,
+Sitting_Talking,ual,interaction,sit,2.933,gold,0.001,0.013,0.0,0.0,0,,0.0,0.0,pass,
+Sleeping,ual,combat,loop,1.625,banned,0.001,0.003,2.23,0.0,0,0.0,0.0,0.0,,banned: ground penetration 2.2 cm
+Slide,ual,traversal,loop,2.0,banned,0.064,0.12,3.94,0.25,0,0.0,0.0,0.0,,banned: ground penetration 3.9 cm; banned: slide mean 0.06 m/s; probation: slide max 0.12 m/s
+Slide_Exit,ual,traversal,once,0.5,banned,1.131,2.284,3.94,0.0,0,,7.2,0.0,,banned: ground penetration 3.9 cm
+Slide_Start,ual,traversal,once,0.833,banned,0.89,9.138,3.94,0.0,0,,7.2,0.0,,banned: ground penetration 3.9 cm
+Souls_Fall_Attack,ual,combat,jump,0.733,probation,0.023,0.032,1.56,0.0,0,,0.0,0.0,,probation: ground penetration 1.6 cm
+Souls_Fall_Attack_Start,ual,combat,jump,0.567,banned,0.351,0.556,4.65,0.0,0,,8.5,0.0,,banned: ground penetration 4.7 cm
+Souls_Fall_Land,ual,combat,jump,0.467,banned,0.17,0.749,2.95,0.0,0,,0.0,0.0,,banned: ground penetration 3.0 cm
+Souls_Fist_Attack,ual,combat,once,0.8,probation,0.58,1.917,0.0,1.13,0,,2.3,0.0,,"metrics gold, no passing frame-sheet review yet"
+Souls_Guard,ual,combat,loop,1.867,gold,0.0,0.0,0.0,1.35,0,0.0,0.0,0.0,pass,
+Souls_Guard_Hit,ual,combat,once,0.5,gold,0.216,0.28,0.0,1.43,0,,0.1,0.0,pass,
+Souls_Guard_Hurt,ual,combat,once,0.7,probation,0.028,0.048,0.0,1.12,0,,0.0,0.0,,"metrics gold, no passing frame-sheet review yet"
+Souls_Heavy_Attack_1,ual,combat,once,1.267,probation,1.458,8.372,0.0,1.61,0,,25.9,0.0,,"metrics gold, no passing frame-sheet review yet"
+Souls_Heavy_Attack_2,ual,combat,once,1.267,banned,1.219,5.048,0.0,1.25,9,,15.1,0.0,,banned: 9 pop(s)
+Souls_Heavy_Idle,ual,combat,loop,1.333,probation,0.002,0.02,0.0,1.13,0,0.0,0.0,0.0,,"metrics gold, no passing frame-sheet review yet"
+Souls_Heavy_Special,ual,combat,once,1.9,probation,0.817,2.897,0.0,1.45,2,,18.9,0.0,,probation: 2 pop(s)
+Souls_Heavy_Stab,ual,combat,once,1.833,probation,0.667,3.023,0.0,0.34,0,,0.2,0.0,,"metrics gold, no passing frame-sheet review yet"
+Souls_Light_Attack_1,ual,combat,once,0.667,probation,0.309,0.614,0.0,0.71,0,,1.3,0.0,,"metrics gold, no passing frame-sheet review yet"
+Souls_Light_Attack_2,ual,combat,once,0.6,probation,1.082,2.725,0.0,0.99,0,,12.9,0.0,,"metrics gold, no passing frame-sheet review yet"
+Souls_Light_Idle,ual,combat,loop,1.333,probation,0.015,0.038,0.0,1.13,0,0.0,0.0,0.0,,"metrics gold, no passing frame-sheet review yet"
+Souls_Light_Special_1,ual,combat,once,1.5,probation,0.75,2.326,0.99,0.0,0,,18.0,0.0,,"metrics gold, no passing frame-sheet review yet"
+Souls_Light_Special_2,ual,combat,once,1.667,probation,1.105,10.687,0.0,1.89,0,,3.0,0.0,,"metrics gold, no passing frame-sheet review yet"
+Souls_Roll,ual,combat,once,0.767,banned,,,4.68,2.94,0,,6.6,0.0,,banned: ground penetration 4.7 cm
+Souls_Shield_Idle,ual,combat,loop,1.333,probation,0.0,0.0,0.0,1.13,0,0.0,0.0,0.0,,"metrics gold, no passing frame-sheet review yet"
+Souls_Strafe_L,ual,combat,loco,0.5,banned,,,6.77,0.0,0,0.75,0.0,0.0,,banned: ground penetration 6.8 cm; note: slide unscored (no usable ground-speed reference)
+Souls_Strafe_R,ual,combat,loco,0.5,banned,,,6.76,0.0,0,2.7,0.0,0.0,,banned: ground penetration 6.8 cm; note: slide unscored (no usable ground-speed reference)
+Souls_Thrust_Attack_1,ual,combat,once,0.667,probation,0.167,0.252,0.0,2.2,0,,1.8,0.0,,"metrics gold, no passing frame-sheet review yet"
+Souls_Thrust_Attack_2,ual,combat,once,0.967,probation,0.614,3.623,0.0,1.36,1,,5.4,0.0,,probation: 1 pop(s)
+Souls_Thrust_Idle,ual,combat,loop,1.333,probation,0.015,0.038,0.0,1.13,0,0.0,0.0,0.0,,"metrics gold, no passing frame-sheet review yet"
+Souls_Thrust_Special,ual,combat,once,1.333,probation,1.723,7.799,0.0,0.29,3,,28.6,0.0,,probation: 3 pop(s)
+Souls_Visceral_Attack,ual,combat,once,2.167,probation,0.744,3.76,0.0,1.67,0,,3.3,0.0,,"metrics gold, no passing frame-sheet review yet"
+Spear_Thrust_1,ual,combat,once,0.8,gold,0.278,3.069,0.18,0.0,0,,0.0,0.0,pass,
+Spear_Thrust_2,ual,combat,once,0.933,probation,0.343,5.064,0.18,0.0,2,,0.0,0.0,,probation: 2 pop(s)
+Spear_Thrust_3,ual,combat,once,1.333,probation,0.048,0.17,0.21,0.0,0,,0.0,0.0,,"metrics gold, no passing frame-sheet review yet"
+Spell_Simple_Enter,ual,combat,once,0.533,probation,0.055,0.065,0.0,0.08,0,,2.6,0.0,,"metrics gold, no passing frame-sheet review yet"
+Spell_Simple_Exit,ual,combat,once,0.433,probation,0.068,0.079,0.0,0.08,0,,2.6,0.0,,"metrics gold, no passing frame-sheet review yet"
+Spell_Simple_Idle,ual,combat,loop,2.1,probation,0.003,0.017,0.0,0.1,0,0.0,0.0,0.0,,"metrics gold, no passing frame-sheet review yet"
+Spell_Simple_Shoot,ual,combat,once,0.5,gold,0.006,0.017,0.0,0.13,0,,0.0,0.0,pass,
+Spellcast_Raise,ual,combat,once,0.533,probation,0.055,0.065,0.0,0.08,0,,2.6,0.0,,"metrics gold, no passing frame-sheet review yet"
+Spellcast_Shoot,ual,combat,once,0.5,probation,0.006,0.017,0.0,0.13,0,,0.0,0.0,,"metrics gold, no passing frame-sheet review yet"
+Sprint,ual,locomotion,loco,0.667,banned,0.136,0.319,0.22,0.0,0,0.0,0.0,0.0,,banned: slide mean 0.14 m/s; banned: slide max 0.32 m/s
+Stagger_Back,ual,combat,once,1.333,gold,0.362,1.503,0.12,0.0,0,,0.0,0.0,pass,
+Stagger_Forward,ual,combat,once,1.333,probation,0.368,1.64,0.09,0.0,1,,0.0,0.0,,probation: 1 pop(s)
+Stand_From_Floor,ual,combat,once,2.0,banned,0.807,4.804,13.87,0.07,0,,4.7,0.0,,banned: ground penetration 13.9 cm
+Strafe_left,ual,locomotion,loco,0.958,banned,0.464,1.581,0.1,0.0,0,4.01,0.1,0.0,,banned: slide mean 0.46 m/s; banned: slide max 1.58 m/s; probation: loop seam 4.0 deg
+Strafe_right,ual,locomotion,loco,0.958,banned,0.59,1.451,1.29,0.0,0,4.01,0.1,0.0,,probation: ground penetration 1.3 cm; banned: slide mean 0.59 m/s; banned: slide max 1.45 m/s; probation: loop seam 4.0 deg
+Swim_Backstroke,ual,locomotion,loco,5.233,banned,,,7.12,0.0,0,0.0,0.0,0.0,,banned: ground penetration 7.1 cm; note: slide unscored (no usable ground-speed reference)
+Swim_Breaststroke,ual,locomotion,loco,4.767,banned,,,0.37,14.97,0,0.0,0.0,0.0,,banned: float 15.0 cm; note: slide unscored (no usable ground-speed reference)
+Swim_Freestyle,ual,locomotion,loco,5.0,banned,,,2.71,20.51,0,0.0,0.0,0.0,,banned: ground penetration 2.7 cm; banned: float 20.5 cm; note: slide unscored (no usable ground-speed reference)
+Swim_Fwd,ual,locomotion,loco,1.333,banned,,,65.94,0.0,0,0.0,0.0,0.0,,banned: ground penetration 65.9 cm; note: slide unscored (no usable ground-speed reference)
+Swim_Idle,ual,locomotion,loco,3.333,banned,0.719,1.016,145.94,0.0,0,0.0,0.0,0.0,,banned: ground penetration 145.9 cm; banned: slide mean 0.72 m/s; banned: slide max 1.02 m/s
+Sword_Attack,ual,combat,once,1.533,probation,0.715,7.289,0.12,0.0,2,,0.0,0.0,,probation: 2 pop(s)
+Sword_Attack_Air_Vertical,ual,combat,once,4.792,banned,,,0.0,9.72,11,,3.7,0.0,,banned: 11 pop(s)
+Sword_Block,ual,combat,once,1.233,banned,0.053,0.262,0.19,0.0,9,,0.0,0.0,,banned: 9 pop(s)
+Sword_Dash,ual,combat,once,1.567,probation,0.941,5.876,0.25,0.0,0,,0.0,0.0,,"metrics gold, no passing frame-sheet review yet"
+Sword_Heavy_Charge_Hold,ual,combat,loop,1.0,probation,0.02,0.051,0.0,0.25,0,0.0,0.0,0.0,,"metrics gold, no passing frame-sheet review yet"
+Sword_Heavy_Charge_Start,ual,combat,once,0.333,gold,0.586,0.691,0.01,0.0,0,,17.5,0.0,pass,
+Sword_Heavy_Combo,ual,combat,once,4.333,banned,1.32,19.55,5.67,0.0,4,,0.3,0.0,,banned: 4 pop(s); banned: ground penetration 5.7 cm
+Sword_Heavy_Release,ual,combat,once,1.2,probation,0.256,2.678,0.12,0.0,1,,17.5,0.0,,probation: 1 pop(s)
+Sword_Idle,ual,combat,loop,1.667,probation,0.005,0.021,0.0,0.44,0,0.0,0.0,0.0,,"metrics gold, no passing frame-sheet review yet"
+Sword_Light_1,ual,combat,once,1.0,gold,0.279,2.808,0.15,0.0,0,,0.0,0.0,pass,
+Sword_Light_1_Upper,ual,combat,once,1.0,gold,0.288,2.912,0.21,0.0,0,,0.0,0.0,pass,
+Sword_Light_2,ual,combat,once,1.0,probation,0.283,3.1,0.15,0.0,1,,0.0,0.0,,probation: 1 pop(s)
+Sword_Light_2_Upper,ual,combat,once,1.0,probation,0.279,2.978,0.15,0.0,2,,0.0,0.0,,probation: 2 pop(s)
+Sword_Light_3,ual,combat,once,1.067,banned,0.295,3.151,0.11,0.0,4,,0.0,0.0,,banned: 4 pop(s)
+Sword_Light_3_Upper,ual,combat,once,1.067,probation,0.296,3.286,0.15,0.0,1,,0.0,0.0,,probation: 1 pop(s)
+Sword_Light_4,ual,combat,once,1.367,banned,0.385,5.3,0.13,0.0,8,,0.0,0.0,,banned: 8 pop(s)
+Sword_Light_4_Upper,ual,combat,once,1.367,banned,0.383,5.414,0.13,0.0,14,,0.0,0.0,,banned: 14 pop(s)
+Sword_Parry,ual,combat,once,0.6,gold,0.039,0.126,0.07,0.0,0,,0.0,0.0,pass,
+Sword_Regular_A,ual,combat,once,0.433,gold,2.711,6.082,0.09,0.0,0,,4.8,0.0,pass,
+Sword_Regular_A_Rec,ual,combat,once,0.967,probation,0.429,1.023,0.0,0.07,0,,5.1,0.0,,"metrics gold, no passing frame-sheet review yet"
+Sword_Regular_B,ual,combat,once,0.533,gold,0.642,2.627,0.0,0.24,0,,3.4,0.0,pass,
+Sword_Regular_B_Rec,ual,combat,once,1.033,probation,0.722,3.193,0.0,0.08,0,,5.1,0.0,,"metrics gold, no passing frame-sheet review yet"
+Sword_Regular_C,ual,combat,once,2.0,banned,0.851,5.762,8.05,0.0,0,,5.3,0.0,,banned: ground penetration 8.1 cm
+Sword_Regular_Combo,ual,combat,once,3.0,banned,1.069,6.384,8.23,0.0,0,,0.2,0.0,,banned: ground penetration 8.2 cm
+Sword_Riposte,ual,combat,once,1.1,gold,0.334,3.188,0.17,0.0,0,,0.0,0.0,pass,
+Sword_Run_Attack,ual,combat,once,1.0,probation,0.3,5.414,0.25,0.0,1,,3.2,0.0,,probation: 1 pop(s)
+Swordplay_A,ual,combat,once,18.433,probation,0.112,0.395,1.27,0.0,0,,0.5,0.0,,probation: ground penetration 1.3 cm
+Swordplay_B,ual,combat,once,12.2,probation,0.182,1.058,0.83,0.0,0,,2.7,0.0,,"metrics gold, no passing frame-sheet review yet"
+Swordplay_C,ual,combat,once,8.3,probation,0.189,1.252,0.89,0.0,1,,2.2,0.0,,probation: 1 pop(s)
+Taichi_Form,ual,combat,once,40.0,probation,0.107,0.375,0.81,0.0,0,,2.1,0.0,,"metrics gold, no passing frame-sheet review yet"
+Taichi_Idle,ual,combat,loop,12.7,probation,0.018,0.121,0.56,0.0,0,0.0,0.0,0.0,,probation: slide max 0.12 m/s
+Throw_Object,ual,combat,once,1.833,probation,0.074,0.222,0.0,0.35,1,,3.4,0.0,,probation: 1 pop(s)
+Tired_Hunched,ual,combat,loop,1.0,banned,0.001,0.002,3.63,0.0,0,0.0,0.0,0.0,,banned: ground penetration 3.6 cm
+Torch_Idle,ual,combat,loop,1.3,probation,0.001,0.001,0.0,1.35,0,0.0,0.0,0.0,,"metrics gold, no passing frame-sheet review yet"
+TreeChopping,ual,interaction,loop,0.967,probation,0.025,0.1,0.0,0.42,2,0.0,0.0,0.0,,probation: 2 pop(s); probation: slide max 0.10 m/s
+Turn_Left_180,ual,locomotion,once,2.125,probation,0.253,1.245,1.01,0.0,0,,7.3,0.0,,probation: ground penetration 1.0 cm
+Turn_Left_90,ual,locomotion,once,2.0,gold,0.266,0.772,0.0,0.05,0,,24.8,0.0,pass,
+Turn_Right_180,ual,locomotion,once,1.5,gold,0.351,1.33,0.59,0.0,0,,30.0,0.0,pass,
+Turn_Right_90,ual,locomotion,once,2.0,gold,0.102,0.917,0.75,0.0,0,,5.8,0.0,pass,
+TwoHand_Overhead,ual,combat,once,1.5,banned,0.148,4.039,0.32,0.0,10,,0.0,0.0,,banned: 10 pop(s)
+Vault_Low,ual,traversal,once,2.0,banned,0.797,1.387,2.6,0.0,0,,3.2,0.0,,banned: ground penetration 2.6 cm
+Vault_Low_B,ual,traversal,once,2.0,banned,0.797,1.387,2.66,0.0,0,,3.2,0.0,,banned: ground penetration 2.7 cm
+Vault_Run,ual,traversal,once,1.5,banned,2.515,3.964,8.7,0.0,0,,61.0,0.0,,banned: ground penetration 8.7 cm
+Victory,ual,combat,once,1.625,probation,0.123,0.72,0.3,0.0,0,,0.0,0.0,,"metrics gold, no passing frame-sheet review yet"
+Victory_Fist_Pump,ual,combat,once,2.208,probation,0.011,0.274,0.0,0.18,0,,0.4,0.0,,"metrics gold, no passing frame-sheet review yet"
+Villager_Hit_Chest,ual,combat,once,1.2,banned,0.89,2.936,4.49,0.0,0,,8.0,0.0,,banned: ground penetration 4.5 cm
+Walk,ual,locomotion,loco,1.333,banned,0.134,0.787,1.34,0.0,0,0.0,0.0,0.0,,probation: ground penetration 1.3 cm; banned: slide mean 0.13 m/s; banned: slide max 0.79 m/s
+Walk_Backwards,ual,locomotion,loco,0.958,banned,0.536,1.859,0.0,0.15,0,0.0,0.0,0.0,,banned: planted feet move forward (moonwalk); banned: slide mean 0.54 m/s; banned: slide max 1.86 m/s
+Walk_Carry,ual,locomotion,loco,2.0,banned,0.083,0.676,0.95,0.0,0,0.0,0.0,0.0,,banned: slide mean 0.08 m/s; banned: slide max 0.68 m/s
+Walk_Female,ual,locomotion,loco,1.333,banned,0.261,1.007,0.0,0.18,0,2.68,0.1,0.0,,banned: slide mean 0.26 m/s; banned: slide max 1.01 m/s
+Walk_Formal,ual,locomotion,loco,1.333,banned,0.128,0.778,1.3,0.0,0,0.68,0.0,0.0,,probation: ground penetration 1.3 cm; banned: slide mean 0.13 m/s; banned: slide max 0.78 m/s
+Walk_Large,ual,locomotion,loco,1.375,banned,0.22,0.797,0.0,0.17,0,4.06,0.1,0.0,,banned: slide mean 0.22 m/s; banned: slide max 0.80 m/s; probation: loop seam 4.1 deg
+Walk_Stealth,ual,locomotion,loco,1.458,banned,0.472,1.623,0.0,0.24,0,0.0,0.0,0.0,,banned: slide mean 0.47 m/s; banned: slide max 1.62 m/s
+Walking_A,ual,locomotion,loco,1.333,banned,0.134,0.787,1.34,0.0,0,0.0,0.0,0.0,,probation: ground penetration 1.3 cm; banned: slide mean 0.13 m/s; banned: slide max 0.79 m/s
+Wall_Climb_Up,ual,traversal,loop,1.4,probation,,,1.48,0.0,1,0.0,0.0,0.0,,probation: 1 pop(s); probation: ground penetration 1.5 cm; note: slide unscored (no usable ground-speed reference)
+Yes,ual,interaction,once,2.5,gold,0.009,0.063,0.0,0.04,0,,0.0,0.0,pass,
+Zombie_Idle,ual,combat,loop,1.333,probation,0.01,0.029,0.0,0.14,0,0.98,0.0,0.0,,"metrics gold, no passing frame-sheet review yet"
+Zombie_Scratch,ual,combat,once,1.8,banned,0.257,1.441,0.38,0.12,4,,0.0,0.0,,banned: 4 pop(s)
+Zombie_Walk_Fwd,ual,combat,loco,1.333,banned,0.812,3.354,2.85,0.0,0,0.0,0.0,0.0,,banned: ground penetration 2.8 cm; banned: slide mean 0.81 m/s; banned: slide max 3.35 m/s
+animal_cat/Death,animal_cat,creature,death,1.667,banned,,,3.46,0.0,0,,0.0,0.0,,banned: ground penetration 3.5 cm
+animal_cat/Eat,animal_cat,creature,loop,2.0,probation,0.0,0.0,0.0,0.0,0,0.0,0.0,0.0,,"metrics gold, no passing frame-sheet review yet"
+animal_cat/Idle,animal_cat,creature,loop,1.708,probation,0.001,0.006,0.4,0.0,0,0.04,0.0,0.0,,"metrics gold, no passing frame-sheet review yet"
+animal_cat/Run,animal_cat,creature,loco,0.833,banned,,,0.91,0.0,2,0.16,0.0,20.96,,banned: bone stretch 21.0%; probation: 2 pop(s); note: slide unscored (no usable ground-speed reference)
+animal_cat/Walk,animal_cat,creature,loco,1.708,banned,,,0.91,0.0,6,0.27,0.0,20.99,,banned: bone stretch 21.0%; banned: 6 pop(s); note: slide unscored (no usable ground-speed reference)
+animal_cat_ginger/Death,animal_cat_ginger,creature,death,1.667,banned,,,3.46,0.0,0,,0.0,0.0,,banned: ground penetration 3.5 cm
+animal_cat_ginger/Eat,animal_cat_ginger,creature,loop,2.0,probation,0.0,0.0,0.0,0.0,0,0.0,0.0,0.0,,"metrics gold, no passing frame-sheet review yet"
+animal_cat_ginger/Idle,animal_cat_ginger,creature,loop,1.708,probation,0.001,0.006,0.4,0.0,0,0.04,0.0,0.0,,"metrics gold, no passing frame-sheet review yet"
+animal_cat_ginger/Run,animal_cat_ginger,creature,loco,0.833,banned,,,0.91,0.0,2,0.16,0.0,20.96,,banned: bone stretch 21.0%; probation: 2 pop(s); note: slide unscored (no usable ground-speed reference)
+animal_cat_ginger/Walk,animal_cat_ginger,creature,loco,1.708,banned,,,0.91,0.0,6,0.27,0.0,20.99,,banned: bone stretch 21.0%; banned: 6 pop(s); note: slide unscored (no usable ground-speed reference)
+animal_chicken/Cand_Walk_authored,animal_chicken,creature,loco,0,probation,,,,,,,,,,candidate: S5: chicken needs a simple authored loop (no CC0 chicken gait exists)
+animal_chicken/Death,animal_chicken,creature,death,1.25,banned,,,21.54,0.0,0,,22.0,0.0,,banned: ground penetration 21.5 cm
+animal_chicken/Eat,animal_chicken,creature,loop,2.0,banned,0.06,0.24,0.71,0.0,2,0.0,0.0,0.0,,probation: 2 pop(s); banned: slide mean 0.06 m/s; banned: slide max 0.24 m/s
+animal_chicken/Flutter,animal_chicken,creature,once,0.667,probation,0.0,0.0,0.0,0.0,0,,0.0,0.0,,"metrics gold, no passing frame-sheet review yet"
+animal_chicken/Idle,animal_chicken,creature,loop,2.0,probation,0.0,0.0,0.0,0.0,0,0.0,0.0,0.0,,"metrics gold, no passing frame-sheet review yet"
+animal_chicken/Run,animal_chicken,creature,loco,0.542,probation,,,0.0,0.74,0,0.0,0.0,0.0,,note: slide unscored (no usable ground-speed reference)
+animal_chicken/Walk,animal_chicken,creature,loco,1.042,probation,,,0.11,0.0,0,0.0,0.0,0.0,,note: slide unscored (no usable ground-speed reference)
+animal_cow/Attack,animal_cow,creature,once,1.0,banned,0.064,0.204,0.86,0.0,1,,0.0,5.93,,banned: bone stretch 5.9%; probation: 1 pop(s)
+animal_cow/Attack_Kick,animal_cow,creature,once,1.0,probation,0.25,0.977,0.76,0.0,0,,4.5,0.0,,"metrics gold, no passing frame-sheet review yet"
+animal_cow/Death,animal_cow,creature,death,1.0,banned,,,36.07,0.0,0,,130.8,0.0,,banned: ground penetration 36.1 cm
+animal_cow/Eat,animal_cow,creature,loop,6.0,banned,0.012,0.985,0.26,0.0,3,0.0,0.0,0.26,,probation: 3 pop(s); banned: slide max 0.98 m/s
+animal_cow/Hit,animal_cow,creature,once,0.667,probation,0.118,0.275,0.19,0.0,0,,0.0,0.2,,"metrics gold, no passing frame-sheet review yet"
+animal_cow/Hit_Alt,animal_cow,creature,once,0.667,probation,0.091,0.264,0.19,0.0,0,,0.0,0.2,,"metrics gold, no passing frame-sheet review yet"
+animal_cow/Idle,animal_cow,creature,loop,3.333,banned,0.011,1.033,0.05,0.0,5,0.0,0.0,0.28,,banned: 5 pop(s); banned: slide max 1.03 m/s
+animal_cow/Idle_Alt,animal_cow,creature,once,3.333,banned,0.032,1.425,0.12,0.0,0,,0.0,6.24,,banned: bone stretch 6.2%
+animal_cow/Idle_HeadLow,animal_cow,creature,once,3.333,banned,0.054,2.964,2.91,0.0,0,,0.0,0.6,,probation: bone stretch 0.6%; banned: ground penetration 2.9 cm
+animal_cow/Jump,animal_cow,creature,jump,1.458,banned,2.618,7.107,4.87,0.0,0,,0.1,6.64,,banned: bone stretch 6.6%; banned: ground penetration 4.9 cm
+animal_cow/Jump_Land,animal_cow,creature,jump,1.708,banned,1.559,6.579,4.26,0.0,0,,5.2,8.58,,banned: bone stretch 8.6%; banned: ground penetration 4.3 cm
+animal_cow/Run,animal_cow,creature,loco,0.583,banned,1.021,2.596,1.84,0.0,1,7.91,0.5,5.96,,banned: bone stretch 6.0%; probation: 1 pop(s); probation: ground penetration 1.8 cm; banned: slide mean 1.02 m/s; banned: slide max 2.60 m/s; banned: loop seam 7.9 deg
+animal_cow/Walk,animal_cow,creature,loco,1.167,banned,0.606,2.334,3.23,0.0,1,0.0,0.0,0.82,,probation: bone stretch 0.8%; probation: 1 pop(s); banned: ground penetration 3.2 cm; banned: slide mean 0.61 m/s; banned: slide max 2.33 m/s
+animal_crow/Death,animal_crow,creature,death,1.25,banned,,,16.11,0.0,0,,16.0,0.0,,banned: ground penetration 16.1 cm
+animal_crow/Eat,animal_crow,creature,loop,2.0,banned,0.044,0.176,0.84,0.0,2,0.0,0.0,0.0,,probation: 2 pop(s); probation: slide mean 0.04 m/s; banned: slide max 0.18 m/s
+animal_crow/Fly,animal_crow,creature,once,0.542,probation,,,0.0,21.77,0,,0.0,0.0,,"metrics gold, no passing frame-sheet review yet"
+animal_crow/Glide,animal_crow,creature,once,2.0,probation,,,0.0,23.3,0,,0.0,0.0,,"metrics gold, no passing frame-sheet review yet"
+animal_crow/Idle,animal_crow,creature,loop,2.0,probation,0.0,0.0,0.0,0.0,0,0.0,0.0,0.0,,"metrics gold, no passing frame-sheet review yet"
+animal_crow/Run,animal_crow,creature,loco,0.542,probation,,,0.0,0.12,0,0.0,0.0,0.0,,note: slide unscored (no usable ground-speed reference)
+animal_crow/Walk,animal_crow,creature,loco,1.042,probation,,,0.68,0.0,0,0.0,0.0,0.0,,note: slide unscored (no usable ground-speed reference)
+animal_deer/Attack,animal_deer,creature,once,0.792,banned,0.104,0.472,1.66,0.0,0,,0.0,2.9,,banned: bone stretch 2.9%; probation: ground penetration 1.7 cm
+animal_deer/Attack_Kick,animal_deer,creature,once,0.792,banned,0.143,0.341,2.24,0.0,0,,2.3,0.0,,banned: ground penetration 2.2 cm
+animal_deer/Death,animal_deer,creature,death,0.833,banned,,,20.15,0.0,0,,69.3,0.0,,banned: ground penetration 20.2 cm
+animal_deer/Eat,animal_deer,creature,loop,6.0,banned,0.006,0.46,0.32,0.0,3,0.0,0.0,0.66,,probation: bone stretch 0.7%; probation: 3 pop(s); banned: slide max 0.46 m/s
+animal_deer/Hit,animal_deer,creature,once,0.458,probation,0.074,0.2,0.46,0.0,0,,0.1,0.97,,probation: bone stretch 1.0%
+animal_deer/Hit_Alt,animal_deer,creature,once,0.5,probation,0.076,0.187,1.19,0.0,0,,0.2,0.96,,probation: bone stretch 1.0%; probation: ground penetration 1.2 cm
+animal_deer/Idle,animal_deer,creature,loop,3.333,banned,0.007,0.498,0.36,0.0,5,0.0,0.0,0.71,,probation: bone stretch 0.7%; banned: 5 pop(s); banned: slide max 0.50 m/s
+animal_deer/Idle_Alt,animal_deer,creature,once,3.333,banned,0.02,1.261,0.51,0.0,0,,0.0,2.85,,banned: bone stretch 2.8%
+animal_deer/Idle_HeadLow,animal_deer,creature,once,3.333,banned,0.045,2.385,2.62,0.0,0,,0.0,1.86,,banned: bone stretch 1.9%; banned: ground penetration 2.6 cm
+animal_deer/Jump,animal_deer,creature,jump,1.375,banned,3.694,6.379,6.07,0.0,0,,0.6,6.8,,banned: bone stretch 6.8%; banned: ground penetration 6.1 cm
+animal_deer/Jump_Land,animal_deer,creature,jump,1.5,banned,1.17,4.845,4.17,0.0,0,,2.8,6.8,,banned: bone stretch 6.8%; banned: ground penetration 4.2 cm
+animal_deer/Run,animal_deer,creature,loco,0.5,banned,0.332,1.177,1.34,0.0,1,24.46,1.3,6.09,,banned: bone stretch 6.1%; probation: 1 pop(s); probation: ground penetration 1.3 cm; banned: slide mean 0.33 m/s; banned: slide max 1.18 m/s; banned: loop seam 24.5 deg
+animal_deer/Walk,animal_deer,creature,loco,1.167,banned,0.454,1.87,3.98,0.0,2,0.0,0.0,2.08,,banned: bone stretch 2.1%; probation: 2 pop(s); banned: ground penetration 4.0 cm; banned: slide mean 0.45 m/s; banned: slide max 1.87 m/s
+animal_dog/Attack,animal_dog,creature,once,1.167,probation,0.08,0.245,1.73,0.0,0,,0.1,0.0,,probation: ground penetration 1.7 cm
+animal_dog/Death,animal_dog,creature,death,1.042,banned,,,5.61,0.0,0,,39.0,0.0,,banned: ground penetration 5.6 cm
+animal_dog/Eat,animal_dog,creature,loop,2.667,probation,0.004,0.031,0.36,0.0,0,0.04,0.0,0.0,,"metrics gold, no passing frame-sheet review yet"
+animal_dog/Hit,animal_dog,creature,once,0.667,banned,0.027,0.107,0.02,0.0,0,,0.0,1.8,,banned: bone stretch 1.8%
+animal_dog/Hit_Alt,animal_dog,creature,once,0.667,banned,0.03,0.107,0.02,0.0,0,,0.0,1.8,,banned: bone stretch 1.8%
+animal_dog/Idle,animal_dog,creature,loop,3.333,probation,0.002,0.013,0.03,0.0,0,0.0,0.0,0.0,,"metrics gold, no passing frame-sheet review yet"
+animal_dog/Idle_Alt,animal_dog,creature,once,3.333,banned,0.003,0.025,0.28,0.0,0,,0.0,10.57,,banned: bone stretch 10.6%
+animal_dog/Idle_HeadLow,animal_dog,creature,once,4.0,probation,0.001,0.006,0.46,0.0,0,,0.0,0.0,,"metrics gold, no passing frame-sheet review yet"
+animal_dog/Jump,animal_dog,creature,jump,0.917,banned,,,4.24,0.0,0,,0.0,32.28,,banned: bone stretch 32.3%; banned: ground penetration 4.2 cm
+animal_dog/Jump_Land,animal_dog,creature,jump,1.333,banned,0.587,2.901,4.24,0.0,0,,6.0,32.28,,banned: bone stretch 32.3%; banned: ground penetration 4.2 cm
+animal_dog/Run,animal_dog,creature,loco,0.542,banned,0.751,1.359,3.1,0.0,1,4.76,0.5,32.28,,banned: bone stretch 32.3%; probation: 1 pop(s); banned: ground penetration 3.1 cm; banned: slide mean 0.75 m/s; banned: slide max 1.36 m/s; probation: loop seam 4.8 deg
+animal_dog/Walk,animal_dog,creature,loco,1.042,banned,0.381,0.849,2.63,0.0,1,2.75,0.0,0.0,,probation: 1 pop(s); banned: ground penetration 2.6 cm; banned: slide mean 0.38 m/s; banned: slide max 0.85 m/s
+animal_donkey/Attack,animal_donkey,creature,once,1.583,banned,0.143,0.502,2.4,0.0,0,,2.9,16.94,,banned: bone stretch 16.9%; banned: ground penetration 2.4 cm
+animal_donkey/Attack_Kick,animal_donkey,creature,once,0.792,banned,0.169,0.438,2.06,0.0,0,,2.9,0.0,,banned: ground penetration 2.1 cm
+animal_donkey/Death,animal_donkey,creature,death,1.0,banned,,,11.38,0.0,0,,87.2,0.0,,banned: ground penetration 11.4 cm
+animal_donkey/Eat,animal_donkey,creature,loop,6.0,banned,0.007,0.63,0.39,0.0,4,0.0,0.0,0.6,,probation: bone stretch 0.6%; banned: 4 pop(s); banned: slide max 0.63 m/s
+animal_donkey/Hit,animal_donkey,creature,once,0.458,probation,0.064,0.149,0.84,0.0,0,,0.1,0.67,,probation: bone stretch 0.7%
+animal_donkey/Hit_Alt,animal_donkey,creature,once,0.5,probation,0.071,0.223,1.65,0.0,0,,0.2,0.65,,probation: bone stretch 0.7%; probation: ground penetration 1.7 cm
+animal_donkey/Idle,animal_donkey,creature,loop,3.333,banned,0.01,0.738,0.37,0.0,6,0.0,0.0,0.64,,probation: bone stretch 0.6%; banned: 6 pop(s); banned: slide max 0.74 m/s
+animal_donkey/Idle_Alt,animal_donkey,creature,once,3.333,banned,0.026,1.534,0.49,0.0,0,,0.0,27.09,,banned: bone stretch 27.1%
+animal_donkey/Idle_HeadLow,animal_donkey,creature,once,3.333,banned,0.041,1.536,1.93,0.0,0,,0.0,1.52,,banned: bone stretch 1.5%; probation: ground penetration 1.9 cm
+animal_donkey/Jump,animal_donkey,creature,jump,1.375,banned,3.376,5.866,6.47,0.0,0,,0.7,30.7,,banned: bone stretch 30.7%; banned: ground penetration 6.5 cm
+animal_donkey/Jump_Land,animal_donkey,creature,jump,1.5,banned,1.64,7.16,4.49,0.0,0,,3.5,33.93,,banned: bone stretch 33.9%; banned: ground penetration 4.5 cm
+animal_donkey/Run,animal_donkey,creature,loco,0.5,banned,0.723,1.371,2.55,0.0,1,18.0,1.6,28.06,,banned: bone stretch 28.1%; probation: 1 pop(s); banned: ground penetration 2.5 cm; banned: slide mean 0.72 m/s; banned: slide max 1.37 m/s; banned: loop seam 18.0 deg
+animal_donkey/Walk,animal_donkey,creature,loco,1.167,banned,0.553,2.474,4.28,0.0,3,0.0,0.0,1.33,,banned: bone stretch 1.3%; probation: 3 pop(s); banned: ground penetration 4.3 cm; banned: slide mean 0.55 m/s; banned: slide max 2.47 m/s
+animal_duck/Death,animal_duck,creature,death,1.25,banned,,,18.82,0.0,0,,15.0,0.0,,banned: ground penetration 18.8 cm
+animal_duck/Eat,animal_duck,creature,loop,2.0,banned,0.042,0.166,1.61,0.0,2,0.0,0.0,0.0,,probation: 2 pop(s); probation: ground penetration 1.6 cm; probation: slide mean 0.04 m/s; banned: slide max 0.17 m/s
+animal_duck/Fly,animal_duck,creature,once,0.542,probation,,,0.0,19.69,0,,0.0,0.0,,"metrics gold, no passing frame-sheet review yet"
+animal_duck/Glide,animal_duck,creature,once,2.0,probation,,,0.0,21.12,0,,0.0,0.0,,"metrics gold, no passing frame-sheet review yet"
+animal_duck/Idle,animal_duck,creature,loop,2.0,probation,0.0,0.0,0.0,0.0,0,0.0,0.0,0.0,,"metrics gold, no passing frame-sheet review yet"
+animal_duck/Run,animal_duck,creature,loco,0.542,probation,,,1.74,0.0,0,0.0,0.0,0.0,,probation: ground penetration 1.7 cm; note: slide unscored (no usable ground-speed reference)
+animal_duck/Walk,animal_duck,creature,loco,1.042,banned,,,2.59,0.0,0,0.0,0.0,0.0,,banned: ground penetration 2.6 cm; note: slide unscored (no usable ground-speed reference)
+animal_fox/Attack,animal_fox,creature,once,1.333,banned,0.035,0.173,4.4,0.0,0,,0.0,0.0,,banned: ground penetration 4.4 cm
+animal_fox/Death,animal_fox,creature,death,1.042,banned,,,6.82,0.0,0,,31.8,0.0,,banned: ground penetration 6.8 cm
+animal_fox/Eat,animal_fox,creature,loop,2.5,banned,0.034,0.221,1.53,0.0,7,0.44,0.2,0.0,,banned: 7 pop(s); probation: ground penetration 1.5 cm; probation: slide mean 0.03 m/s; banned: slide max 0.22 m/s
+animal_fox/Hit,animal_fox,creature,once,0.667,banned,0.018,0.073,0.08,0.0,0,,0.0,2.06,,banned: bone stretch 2.1%
+animal_fox/Hit_Alt,animal_fox,creature,once,0.667,banned,0.022,0.073,0.08,0.0,0,,0.0,2.06,,banned: bone stretch 2.1%
+animal_fox/Idle,animal_fox,creature,loop,3.333,probation,0.001,0.007,0.01,0.0,0,0.0,0.0,0.0,,"metrics gold, no passing frame-sheet review yet"
+animal_fox/Idle_Alt,animal_fox,creature,once,3.333,banned,0.002,0.018,0.22,0.0,0,,0.0,14.25,,banned: bone stretch 14.3%
+animal_fox/Idle_HeadLow,animal_fox,creature,once,4.0,probation,0.001,0.006,0.24,0.0,0,,0.0,0.0,,"metrics gold, no passing frame-sheet review yet"
+animal_fox/Jump,animal_fox,creature,jump,0.917,banned,,,2.02,0.0,0,,0.0,30.34,,banned: bone stretch 30.3%; banned: ground penetration 2.0 cm
+animal_fox/Jump_Land,animal_fox,creature,jump,1.333,banned,0.449,1.396,2.02,0.0,0,,4.9,30.34,,banned: bone stretch 30.3%; banned: ground penetration 2.0 cm
+animal_fox/Run,animal_fox,creature,loco,0.542,banned,0.414,1.343,2.34,0.0,3,17.22,0.4,1.74,,banned: bone stretch 1.7%; probation: 3 pop(s); banned: ground penetration 2.3 cm; banned: slide mean 0.41 m/s; banned: slide max 1.34 m/s; banned: loop seam 17.2 deg
+animal_fox/Walk,animal_fox,creature,loco,1.042,banned,0.229,0.723,1.89,0.0,0,2.84,0.0,0.0,,probation: ground penetration 1.9 cm; banned: slide mean 0.23 m/s; banned: slide max 0.72 m/s
+animal_goat/Attack,animal_goat,creature,once,0.792,banned,0.075,0.34,1.2,0.0,0,,0.0,2.9,,banned: bone stretch 2.9%; probation: ground penetration 1.2 cm
+animal_goat/Attack_Kick,animal_goat,creature,once,0.792,probation,0.103,0.245,1.61,0.0,0,,1.7,0.0,,probation: ground penetration 1.6 cm
+animal_goat/Death,animal_goat,creature,death,0.833,banned,,,13.93,0.0,0,,49.9,0.0,,banned: ground penetration 13.9 cm
+animal_goat/Eat,animal_goat,creature,loop,6.0,banned,0.004,0.362,0.23,0.0,3,0.0,0.0,0.66,,probation: bone stretch 0.7%; probation: 3 pop(s); banned: slide max 0.36 m/s
+animal_goat/Hit,animal_goat,creature,once,0.458,probation,0.053,0.144,0.33,0.0,0,,0.0,0.97,,probation: bone stretch 1.0%
+animal_goat/Hit_Alt,animal_goat,creature,once,0.5,probation,0.055,0.134,0.85,0.0,0,,0.1,0.96,,probation: bone stretch 1.0%
+animal_goat/Idle,animal_goat,creature,loop,3.333,banned,0.005,0.358,0.26,0.0,5,0.0,0.0,0.71,,probation: bone stretch 0.7%; banned: 5 pop(s); banned: slide max 0.36 m/s
+animal_goat/Idle_Alt,animal_goat,creature,once,3.333,banned,0.015,0.908,0.37,0.0,0,,0.0,2.85,,banned: bone stretch 2.8%
+animal_goat/Idle_HeadLow,animal_goat,creature,once,3.333,banned,0.033,1.717,1.89,0.0,0,,0.0,1.86,,banned: bone stretch 1.9%; probation: ground penetration 1.9 cm
+animal_goat/Jump,animal_goat,creature,jump,1.375,banned,2.066,4.593,4.37,0.0,0,,0.4,6.8,,banned: bone stretch 6.8%; banned: ground penetration 4.4 cm
+animal_goat/Jump_Land,animal_goat,creature,jump,1.5,banned,0.869,3.489,3.0,0.0,0,,2.0,6.8,,banned: bone stretch 6.8%; banned: ground penetration 3.0 cm
+animal_goat/Run,animal_goat,creature,loco,0.5,banned,0.219,0.848,0.96,0.0,1,24.46,1.0,6.09,,banned: bone stretch 6.1%; probation: 1 pop(s); banned: slide mean 0.22 m/s; banned: slide max 0.85 m/s; banned: loop seam 24.5 deg
+animal_goat/Walk,animal_goat,creature,loco,1.167,banned,0.329,1.346,2.87,0.0,2,0.0,0.0,2.08,,banned: bone stretch 2.1%; probation: 2 pop(s); banned: ground penetration 2.9 cm; banned: slide mean 0.33 m/s; banned: slide max 1.35 m/s
+animal_goose/Death,animal_goose,creature,death,1.25,banned,,,28.26,0.0,0,,26.0,0.0,,banned: ground penetration 28.3 cm
+animal_goose/Eat,animal_goose,creature,loop,2.0,banned,0.064,0.279,2.29,0.0,2,0.0,0.0,0.0,,probation: 2 pop(s); banned: ground penetration 2.3 cm; banned: slide mean 0.06 m/s; banned: slide max 0.28 m/s
+animal_goose/Fly,animal_goose,creature,once,0.542,probation,,,0.0,35.12,0,,0.0,0.0,,"metrics gold, no passing frame-sheet review yet"
+animal_goose/Glide,animal_goose,creature,once,2.0,probation,,,0.0,37.68,0,,0.0,0.0,,"metrics gold, no passing frame-sheet review yet"
+animal_goose/Idle,animal_goose,creature,loop,2.0,probation,0.0,0.0,0.0,0.0,0,0.04,0.0,0.0,,"metrics gold, no passing frame-sheet review yet"
+animal_goose/Run,animal_goose,creature,loco,0.542,banned,,,2.02,0.0,0,0.0,0.0,0.0,,banned: ground penetration 2.0 cm; note: slide unscored (no usable ground-speed reference)
+animal_goose/Walk,animal_goose,creature,loco,1.042,banned,,,3.38,0.0,0,0.0,0.0,0.0,,banned: ground penetration 3.4 cm; note: slide unscored (no usable ground-speed reference)
+animal_horse/Attack,animal_horse,creature,once,1.0,banned,0.111,0.488,2.2,0.0,1,,0.0,13.15,,banned: bone stretch 13.2%; probation: 1 pop(s); banned: ground penetration 2.2 cm
+animal_horse/Attack_Kick,animal_horse,creature,once,1.0,probation,0.252,1.156,1.69,0.0,0,,4.0,0.0,,probation: ground penetration 1.7 cm
+animal_horse/Death,animal_horse,creature,death,1.0,banned,,,9.58,0.0,0,,118.3,0.0,,banned: ground penetration 9.6 cm
+animal_horse/Eat,animal_horse,creature,loop,6.0,banned,0.01,0.91,0.45,0.0,4,0.04,0.0,0.48,,banned: 4 pop(s); banned: slide max 0.91 m/s
+animal_horse/Hit,animal_horse,creature,once,0.667,probation,0.078,0.225,0.35,0.0,0,,0.0,0.58,,probation: bone stretch 0.6%
+animal_horse/Hit_Alt,animal_horse,creature,once,0.667,probation,0.09,0.225,1.5,0.0,0,,0.0,0.58,,probation: bone stretch 0.6%; probation: ground penetration 1.5 cm
+animal_horse/Idle,animal_horse,creature,loop,3.333,banned,0.014,1.028,0.48,0.0,6,0.04,0.0,0.52,,probation: bone stretch 0.5%; banned: 6 pop(s); banned: slide max 1.03 m/s
+animal_horse/Idle_Alt,animal_horse,creature,once,3.333,banned,0.033,1.73,0.7,0.0,0,,0.0,13.74,,banned: bone stretch 13.7%
+animal_horse/Idle_HeadLow,animal_horse,creature,once,3.333,banned,0.051,1.828,2.96,0.0,0,,0.0,1.25,,banned: bone stretch 1.3%; banned: ground penetration 3.0 cm
+animal_horse/Jump,animal_horse,creature,jump,1.458,banned,3.465,8.674,5.87,0.0,0,,0.2,16.55,,banned: bone stretch 16.5%; banned: ground penetration 5.9 cm
+animal_horse/Jump_Land,animal_horse,creature,jump,1.708,banned,1.683,6.445,4.12,0.0,0,,3.9,19.78,,banned: bone stretch 19.8%; banned: ground penetration 4.1 cm
+animal_horse/Run,animal_horse,creature,loco,0.583,banned,1.115,3.091,0.85,0.0,1,3.15,0.6,15.44,,banned: bone stretch 15.4%; probation: 1 pop(s); banned: slide mean 1.11 m/s; banned: slide max 3.09 m/s; probation: loop seam 3.2 deg
+animal_horse/Walk,animal_horse,creature,loco,1.167,banned,0.656,2.979,4.25,0.0,3,0.0,0.0,1.33,,banned: bone stretch 1.3%; probation: 3 pop(s); banned: ground penetration 4.2 cm; banned: slide mean 0.66 m/s; banned: slide max 2.98 m/s
+animal_horse_draft/Attack,animal_horse_draft,creature,once,1.0,banned,0.123,0.534,2.4,0.0,1,,0.0,13.15,,banned: bone stretch 13.2%; probation: 1 pop(s); banned: ground penetration 2.4 cm
+animal_horse_draft/Attack_Kick,animal_horse_draft,creature,once,1.0,probation,0.276,1.263,1.85,0.0,0,,4.4,0.0,,probation: ground penetration 1.9 cm
+animal_horse_draft/Death,animal_horse_draft,creature,death,1.0,banned,,,14.56,0.0,0,,129.3,0.0,,banned: ground penetration 14.6 cm
+animal_horse_draft/Eat,animal_horse_draft,creature,loop,6.0,banned,0.011,0.996,0.5,0.0,4,0.0,0.0,0.48,,banned: 4 pop(s); banned: slide max 1.00 m/s
+animal_horse_draft/Hit,animal_horse_draft,creature,once,0.667,probation,0.088,0.244,0.77,0.0,0,,0.0,0.58,,probation: bone stretch 0.6%
+animal_horse_draft/Hit_Alt,animal_horse_draft,creature,once,0.667,banned,0.103,0.244,2.0,0.0,0,,0.0,0.58,,probation: bone stretch 0.6%; banned: ground penetration 2.0 cm
+animal_horse_draft/Idle,animal_horse_draft,creature,loop,3.333,banned,0.015,1.125,0.53,0.0,6,0.0,0.0,0.52,,probation: bone stretch 0.5%; banned: 6 pop(s); banned: slide max 1.12 m/s
+animal_horse_draft/Idle_Alt,animal_horse_draft,creature,once,3.333,banned,0.036,1.895,0.82,0.0,0,,0.0,13.74,,banned: bone stretch 13.7%
+animal_horse_draft/Idle_HeadLow,animal_horse_draft,creature,once,3.333,banned,0.066,1.999,3.24,0.0,0,,0.0,1.25,,banned: bone stretch 1.3%; banned: ground penetration 3.2 cm
+animal_horse_draft/Jump,animal_horse_draft,creature,jump,1.458,banned,3.795,9.501,6.47,0.0,0,,0.2,16.55,,banned: bone stretch 16.5%; banned: ground penetration 6.5 cm
+animal_horse_draft/Jump_Land,animal_horse_draft,creature,jump,1.708,banned,1.821,7.064,4.55,0.0,0,,4.2,19.78,,banned: bone stretch 19.8%; banned: ground penetration 4.5 cm
+animal_horse_draft/Run,animal_horse_draft,creature,loco,0.583,banned,1.287,3.063,1.1,0.0,1,3.15,0.7,15.44,,banned: bone stretch 15.4%; probation: 1 pop(s); probation: ground penetration 1.1 cm; banned: slide mean 1.29 m/s; banned: slide max 3.06 m/s; probation: loop seam 3.2 deg
+animal_horse_draft/Walk,animal_horse_draft,creature,loco,1.167,banned,0.727,3.252,4.74,0.0,3,0.0,0.0,1.33,,banned: bone stretch 1.3%; probation: 3 pop(s); banned: ground penetration 4.7 cm; banned: slide mean 0.73 m/s; banned: slide max 3.25 m/s
+animal_horse_grey/Attack,animal_horse_grey,creature,once,1.0,banned,0.108,0.473,2.13,0.0,1,,0.0,13.15,,banned: bone stretch 13.2%; probation: 1 pop(s); banned: ground penetration 2.1 cm
+animal_horse_grey/Attack_Kick,animal_horse_grey,creature,once,1.0,probation,0.244,1.119,1.64,0.0,0,,3.9,0.0,,probation: ground penetration 1.6 cm
+animal_horse_grey/Death,animal_horse_grey,creature,death,1.0,banned,,,9.28,0.0,0,,114.6,0.0,,banned: ground penetration 9.3 cm
+animal_horse_grey/Eat,animal_horse_grey,creature,loop,6.0,banned,0.01,0.881,0.44,0.0,4,0.01,0.0,0.48,,banned: 4 pop(s); banned: slide max 0.88 m/s
+animal_horse_grey/Hit,animal_horse_grey,creature,once,0.667,probation,0.075,0.218,0.34,0.0,0,,0.0,0.58,,probation: bone stretch 0.6%
+animal_horse_grey/Hit_Alt,animal_horse_grey,creature,once,0.667,probation,0.087,0.218,1.45,0.0,0,,0.0,0.58,,probation: bone stretch 0.6%; probation: ground penetration 1.5 cm
+animal_horse_grey/Idle,animal_horse_grey,creature,loop,3.333,banned,0.013,0.996,0.47,0.0,6,0.01,0.0,0.52,,probation: bone stretch 0.5%; banned: 6 pop(s); banned: slide max 1.00 m/s
+animal_horse_grey/Idle_Alt,animal_horse_grey,creature,once,3.333,banned,0.032,1.676,0.68,0.0,0,,0.0,13.74,,banned: bone stretch 13.7%
+animal_horse_grey/Idle_HeadLow,animal_horse_grey,creature,once,3.333,banned,0.048,1.771,2.87,0.0,0,,0.0,1.25,,banned: bone stretch 1.3%; banned: ground penetration 2.9 cm
+animal_horse_grey/Jump,animal_horse_grey,creature,jump,1.458,banned,3.357,8.403,5.69,0.0,0,,0.1,16.55,,banned: bone stretch 16.5%; banned: ground penetration 5.7 cm
+animal_horse_grey/Jump_Land,animal_horse_grey,creature,jump,1.708,banned,1.63,6.244,3.99,0.0,0,,3.7,19.78,,banned: bone stretch 19.8%; banned: ground penetration 4.0 cm
+animal_horse_grey/Run,animal_horse_grey,creature,loco,0.583,banned,1.08,2.995,0.82,0.0,1,3.15,0.6,15.44,,banned: bone stretch 15.4%; probation: 1 pop(s); banned: slide mean 1.08 m/s; banned: slide max 2.99 m/s; probation: loop seam 3.2 deg
+animal_horse_grey/Walk,animal_horse_grey,creature,loco,1.167,banned,0.636,2.886,4.12,0.0,3,0.0,0.0,1.33,,banned: bone stretch 1.3%; probation: 3 pop(s); banned: ground penetration 4.1 cm; banned: slide mean 0.64 m/s; banned: slide max 2.89 m/s
+animal_ox/Attack,animal_ox,creature,once,1.0,banned,0.059,0.189,0.8,0.0,1,,0.0,5.93,,banned: bone stretch 5.9%; probation: 1 pop(s)
+animal_ox/Attack_Kick,animal_ox,creature,once,1.0,probation,0.221,0.907,0.71,0.0,0,,4.2,0.0,,"metrics gold, no passing frame-sheet review yet"
+animal_ox/Death,animal_ox,creature,death,1.0,banned,,,34.59,0.0,0,,121.4,0.0,,banned: ground penetration 34.6 cm
+animal_ox/Eat,animal_ox,creature,loop,6.0,banned,0.011,0.914,0.24,0.0,3,0.0,0.0,0.26,,probation: 3 pop(s); banned: slide max 0.91 m/s
+animal_ox/Hit,animal_ox,creature,once,0.667,probation,0.107,0.252,0.18,0.0,0,,0.0,0.2,,"metrics gold, no passing frame-sheet review yet"
+animal_ox/Hit_Alt,animal_ox,creature,once,0.667,probation,0.088,0.247,0.18,0.0,0,,0.0,0.2,,"metrics gold, no passing frame-sheet review yet"
+animal_ox/Idle,animal_ox,creature,loop,3.333,banned,0.01,0.959,0.05,0.0,5,0.0,0.0,0.28,,banned: 5 pop(s); banned: slide max 0.96 m/s
+animal_ox/Idle_Alt,animal_ox,creature,once,3.333,banned,0.029,1.323,0.11,0.0,0,,0.0,6.24,,banned: bone stretch 6.2%
+animal_ox/Idle_HeadLow,animal_ox,creature,once,3.333,banned,0.05,2.752,2.7,0.0,0,,0.0,0.6,,probation: bone stretch 0.6%; banned: ground penetration 2.7 cm
+animal_ox/Jump,animal_ox,creature,jump,1.458,banned,2.431,6.6,4.52,0.0,0,,0.1,6.64,,banned: bone stretch 6.6%; banned: ground penetration 4.5 cm
+animal_ox/Jump_Land,animal_ox,creature,jump,1.708,banned,1.448,6.109,3.89,0.0,0,,4.8,8.58,,banned: bone stretch 8.6%; banned: ground penetration 3.9 cm
+animal_ox/Run,animal_ox,creature,loco,0.583,banned,0.948,2.407,1.66,0.0,1,7.91,0.5,5.96,,banned: bone stretch 6.0%; probation: 1 pop(s); probation: ground penetration 1.7 cm; banned: slide mean 0.95 m/s; banned: slide max 2.41 m/s; banned: loop seam 7.9 deg
+animal_ox/Walk,animal_ox,creature,loco,1.167,banned,0.559,2.171,3.0,0.0,1,0.0,0.0,0.82,,probation: bone stretch 0.8%; probation: 1 pop(s); banned: ground penetration 3.0 cm; banned: slide mean 0.56 m/s; banned: slide max 2.17 m/s
+animal_pig/Cand_Walk_Run_from_cow,animal_pig,creature,loco,0,probation,,,,,,,,,,candidate: S5: pig Walk/Run adapted from Quaternius cow/donkey gaits in Blender
+animal_pig/Death,animal_pig,creature,death,1.292,banned,,,9.3,0.0,0,,0.0,31.57,,banned: bone stretch 31.6%; banned: ground penetration 9.3 cm
+animal_pig/Eat,animal_pig,creature,loop,2.0,probation,0.0,0.0,1.4,0.0,0,0.0,0.0,0.0,,probation: ground penetration 1.4 cm
+animal_pig/Idle,animal_pig,creature,loop,6.292,banned,0.0,0.006,0.08,0.0,0,0.04,0.0,1.21,,banned: bone stretch 1.2%
+animal_pig/Jump,animal_pig,creature,jump,1.542,banned,0.603,1.933,0.7,0.0,0,,0.0,151.61,,banned: bone stretch 151.6%
+animal_pig/Run,animal_pig,creature,loco,1.458,banned,0.697,1.606,2.41,0.0,52,0.0,0.0,79.19,,banned: bone stretch 79.2%; banned: 52 pop(s); banned: ground penetration 2.4 cm; banned: slide mean 0.70 m/s; banned: slide max 1.61 m/s
+animal_pig/Walk,animal_pig,creature,loco,3.375,banned,,,1.04,0.0,27,0.04,0.0,39.24,,banned: bone stretch 39.2%; banned: 27 pop(s); probation: ground penetration 1.0 cm; note: slide unscored (no usable ground-speed reference)
+animal_pig/Walk_Slow,animal_pig,creature,loco,2.125,banned,0.165,0.675,1.09,0.0,11,0.0,0.0,52.28,,banned: bone stretch 52.3%; banned: 11 pop(s); probation: ground penetration 1.1 cm; banned: slide mean 0.16 m/s; banned: slide max 0.67 m/s
+animal_pigeon/Death,animal_pigeon,creature,death,1.25,banned,,,12.83,0.0,0,,11.0,0.0,,banned: ground penetration 12.8 cm
+animal_pigeon/Eat,animal_pigeon,creature,loop,2.0,probation,0.03,0.12,0.55,0.0,2,0.0,0.0,0.0,,probation: 2 pop(s); probation: slide mean 0.03 m/s; probation: slide max 0.12 m/s
+animal_pigeon/Fly,animal_pigeon,creature,once,0.542,probation,,,0.0,14.94,0,,0.0,0.0,,"metrics gold, no passing frame-sheet review yet"
+animal_pigeon/Glide,animal_pigeon,creature,once,2.0,probation,,,0.0,15.99,0,,0.0,0.0,,"metrics gold, no passing frame-sheet review yet"
+animal_pigeon/Idle,animal_pigeon,creature,loop,2.0,probation,0.0,0.0,0.0,0.0,0,0.0,0.0,0.0,,"metrics gold, no passing frame-sheet review yet"
+animal_pigeon/Run,animal_pigeon,creature,loco,0.542,probation,,,0.0,0.1,0,0.0,0.0,0.0,,note: slide unscored (no usable ground-speed reference)
+animal_pigeon/Walk,animal_pigeon,creature,loco,1.042,probation,,,0.38,0.0,0,0.0,0.0,0.0,,note: slide unscored (no usable ground-speed reference)
+animal_rabbit/Death,animal_rabbit,creature,death,1.25,banned,,,10.56,0.0,0,,9.5,0.0,,banned: ground penetration 10.6 cm
+animal_rabbit/Eat,animal_rabbit,creature,loop,2.0,banned,0.016,0.136,2.93,0.0,0,0.0,0.0,0.0,,banned: ground penetration 2.9 cm; probation: slide max 0.14 m/s
+animal_rabbit/Idle,animal_rabbit,creature,loop,2.0,probation,0.0,0.0,0.0,0.0,0,0.0,0.0,0.0,,"metrics gold, no passing frame-sheet review yet"
+animal_rabbit/Run,animal_rabbit,creature,loco,0.542,probation,,,1.76,0.0,0,0.0,0.0,0.0,,probation: ground penetration 1.8 cm; note: slide unscored (no usable ground-speed reference)
+animal_rabbit/Walk,animal_rabbit,creature,loco,0.875,banned,,,2.02,0.0,0,0.0,0.0,0.0,,banned: ground penetration 2.0 cm; note: slide unscored (no usable ground-speed reference)
+animal_rooster/Death,animal_rooster,creature,death,1.25,banned,,,23.77,0.0,0,,26.0,0.0,,banned: ground penetration 23.8 cm
+animal_rooster/Eat,animal_rooster,creature,loop,2.0,banned,0.071,0.283,0.73,0.0,2,0.0,0.0,0.0,,probation: 2 pop(s); banned: slide mean 0.07 m/s; banned: slide max 0.28 m/s
+animal_rooster/Flutter,animal_rooster,creature,once,0.667,probation,0.0,0.0,0.0,0.0,0,,0.0,0.0,,"metrics gold, no passing frame-sheet review yet"
+animal_rooster/Idle,animal_rooster,creature,loop,2.0,probation,0.0,0.0,0.0,0.0,0,0.0,0.0,0.0,,"metrics gold, no passing frame-sheet review yet"
+animal_rooster/Run,animal_rooster,creature,loco,0.542,probation,,,0.0,0.96,0,0.0,0.0,0.0,,note: slide unscored (no usable ground-speed reference)
+animal_rooster/Walk,animal_rooster,creature,loco,1.042,probation,,,0.0,0.01,0,0.0,0.0,0.0,,note: slide unscored (no usable ground-speed reference)
+animal_sheep/Cand_Run_from_cow_gallop,animal_sheep,creature,loco,0,probation,,,,,,,,,,candidate: S5: sheep/pig Run and Walk adapted in Blender from the Quaternius cow/donkey walk+gallop (shared quadruped rig); Meshy cannot rig/animate quadrupeds
+animal_sheep/Death,animal_sheep,creature,death,1.292,banned,,,2.67,0.0,0,,33.8,26.02,,banned: bone stretch 26.0%; banned: ground penetration 2.7 cm
+animal_sheep/Eat,animal_sheep,creature,loop,2.0,probation,0.0,0.0,0.0,0.0,0,0.0,0.0,0.0,,"metrics gold, no passing frame-sheet review yet"
+animal_sheep/Idle,animal_sheep,creature,loop,6.292,probation,0.001,0.006,0.17,0.0,0,0.04,0.0,0.28,,"metrics gold, no passing frame-sheet review yet"
+animal_sheep/Jump,animal_sheep,creature,jump,1.167,banned,1.142,2.586,1.77,0.0,0,,0.0,65.85,,banned: bone stretch 65.8%; probation: ground penetration 1.8 cm
+animal_sheep/Run,animal_sheep,creature,loco,1.458,banned,1.132,2.261,1.33,0.22,47,0.0,0.0,77.04,,banned: bone stretch 77.0%; banned: 47 pop(s); probation: ground penetration 1.3 cm; banned: slide mean 1.13 m/s; banned: slide max 2.26 m/s
+animal_sheep/Walk,animal_sheep,creature,loco,1.5,banned,0.026,0.415,0.88,0.0,0,0.0,0.0,0.0,,banned: slide max 0.42 m/s
+animal_sheep/Walk_Slow,animal_sheep,creature,loco,2.125,banned,0.233,0.665,1.88,0.0,20,0.0,0.0,42.64,,banned: bone stretch 42.6%; banned: 20 pop(s); probation: ground penetration 1.9 cm; banned: slide mean 0.23 m/s; banned: slide max 0.66 m/s
+animal_sheepdog/Attack,animal_sheepdog,creature,once,1.167,probation,0.076,0.236,1.86,0.0,0,,0.1,0.0,,probation: ground penetration 1.9 cm
+animal_sheepdog/Death,animal_sheepdog,creature,death,1.042,banned,,,4.27,0.0,0,,38.9,0.0,,banned: ground penetration 4.3 cm
+animal_sheepdog/Eat,animal_sheepdog,creature,loop,2.667,probation,0.005,0.031,0.36,0.0,0,0.0,0.0,0.0,,"metrics gold, no passing frame-sheet review yet"
+animal_sheepdog/Hit,animal_sheepdog,creature,once,0.667,banned,0.027,0.108,0.0,0.0,0,,0.0,1.86,,banned: bone stretch 1.9%
+animal_sheepdog/Hit_Alt,animal_sheepdog,creature,once,0.667,banned,0.031,0.108,0.0,0.0,0,,0.0,1.86,,banned: bone stretch 1.9%
+animal_sheepdog/Idle,animal_sheepdog,creature,loop,3.333,probation,0.002,0.013,0.0,0.0,0,0.02,0.0,0.0,,"metrics gold, no passing frame-sheet review yet"
+animal_sheepdog/Idle_Alt,animal_sheepdog,creature,once,3.333,banned,0.001,0.02,0.44,0.0,0,,0.0,10.57,,banned: bone stretch 10.6%
+animal_sheepdog/Idle_HeadLow,animal_sheepdog,creature,once,4.0,probation,0.001,0.007,0.4,0.0,0,,0.0,0.0,,"metrics gold, no passing frame-sheet review yet"
+animal_sheepdog/Jump,animal_sheepdog,creature,jump,0.917,banned,1.771,2.944,4.17,0.0,0,,0.0,2.58,,banned: bone stretch 2.6%; banned: ground penetration 4.2 cm
+animal_sheepdog/Jump_Land,animal_sheepdog,creature,jump,1.333,banned,0.634,2.899,4.17,0.0,0,,6.0,13.57,,banned: bone stretch 13.6%; banned: ground penetration 4.2 cm
+animal_sheepdog/Run,animal_sheepdog,creature,loco,0.542,banned,0.684,1.241,3.01,0.0,1,4.75,0.5,2.58,,banned: bone stretch 2.6%; probation: 1 pop(s); banned: ground penetration 3.0 cm; banned: slide mean 0.68 m/s; banned: slide max 1.24 m/s; probation: loop seam 4.8 deg
+animal_sheepdog/Walk,animal_sheepdog,creature,loco,1.042,banned,0.374,0.891,2.87,0.0,1,2.75,0.0,0.0,,probation: 1 pop(s); banned: ground penetration 2.9 cm; banned: slide mean 0.37 m/s; banned: slide max 0.89 m/s
+animal_stag/Attack,animal_stag,creature,once,0.792,banned,0.105,0.427,2.45,0.0,0,,0.0,4.29,,banned: bone stretch 4.3%; banned: ground penetration 2.4 cm
+animal_stag/Attack_Kick,animal_stag,creature,once,0.792,banned,0.168,0.411,2.86,0.0,0,,3.4,0.0,,banned: ground penetration 2.9 cm
+animal_stag/Death,animal_stag,creature,death,1.083,banned,,,62.5,0.0,0,,101.1,0.0,,banned: ground penetration 62.5 cm
+animal_stag/Eat,animal_stag,creature,loop,12.083,probation,0.003,0.014,0.61,0.0,0,0.04,0.0,0.0,,"metrics gold, no passing frame-sheet review yet"
+animal_stag/Hit,animal_stag,creature,once,0.458,probation,0.092,0.243,0.85,0.0,0,,0.1,0.48,,"metrics gold, no passing frame-sheet review yet"
+animal_stag/Hit_Alt,animal_stag,creature,once,0.5,probation,0.095,0.227,1.94,0.0,0,,0.3,0.47,,probation: ground penetration 1.9 cm
+animal_stag/Idle,animal_stag,creature,loop,3.333,banned,0.01,0.695,0.65,0.0,7,0.0,0.0,0.55,,probation: bone stretch 0.6%; banned: 7 pop(s); banned: slide max 0.69 m/s
+animal_stag/Idle_Alt,animal_stag,creature,once,3.333,banned,0.028,1.604,0.97,0.0,0,,0.0,3.84,,banned: bone stretch 3.8%
+animal_stag/Idle_HeadLow,animal_stag,creature,once,3.333,banned,0.057,2.94,3.16,0.0,0,,0.0,1.26,,banned: bone stretch 1.3%; banned: ground penetration 3.2 cm
+animal_stag/Jump,animal_stag,creature,jump,1.375,banned,3.781,7.988,6.68,0.0,0,,0.7,6.19,,banned: bone stretch 6.2%; banned: ground penetration 6.7 cm
+animal_stag/Jump_Land,animal_stag,creature,jump,1.5,banned,1.793,7.817,4.69,0.0,0,,3.5,6.84,,banned: bone stretch 6.8%; banned: ground penetration 4.7 cm
+animal_stag/Run,animal_stag,creature,loco,0.5,banned,0.719,1.643,2.17,0.0,0,21.6,1.6,5.59,,banned: bone stretch 5.6%; banned: ground penetration 2.2 cm; banned: slide mean 0.72 m/s; banned: slide max 1.64 m/s; banned: loop seam 21.6 deg
+animal_stag/Walk,animal_stag,creature,loco,1.167,banned,0.59,2.383,5.66,0.0,2,0.0,0.0,0.98,,probation: bone stretch 1.0%; probation: 2 pop(s); banned: ground penetration 5.7 cm; banned: slide mean 0.59 m/s; banned: slide max 2.38 m/s
+meshy_bear/attack,meshy_bear,creature,once,1.5,banned,,,10.2,0.0,0,0.0,,0.0,,10.2 cm below floor (foot joint); planted foot slips 23 cm/s (p75)
+meshy_bear/death,meshy_bear,creature,death,1.07,banned,,,14.8,0.0,0,0.0,,0.0,,14.8 cm below floor (foot joint)
+meshy_bear/hit,meshy_bear,creature,once,0.67,probation,,,0.6,0.0,0,0.0,,2.04,,planted foot slips 13 cm/s (p75); bone 'FrontShoulder.R' stretches 2.0 %
+meshy_bear/idle,meshy_bear,creature,loop,3.33,probation,,,0.3,0.0,0,0.0,,0.0,,
+meshy_bear/run,meshy_bear,creature,loco,0.57,banned,,,6.9,0.0,0,0.0,,0.35,,6.9 cm below floor (foot joint); no ground-contact frames found
+meshy_bear/walk,meshy_bear,creature,loco,1.07,banned,,,0.7,0.0,0,0.0,,0.0,,planted foot slips 160 cm/s (p75)
+meshy_boar/attack,meshy_boar,creature,once,1.13,banned,,,9.1,0.0,0,0.0,,0.0,,9.1 cm below floor (mesh); planted foot slips 13 cm/s (p75)
+meshy_boar/death,meshy_boar,creature,death,1.0,probation,,,4.3,0.0,0,0.0,,0.0,,4.3 cm below floor (mesh)
+meshy_boar/hit,meshy_boar,creature,once,0.67,banned,,,0.2,0.0,0,0.0,,1.25,,planted foot slips 37 cm/s (p75); bone 'FrontShoulder.R' stretches 1.2 %
+meshy_boar/idle,meshy_boar,creature,loop,3.33,probation,,,0.4,0.0,0,0.0,,0.08,,
+meshy_boar/run,meshy_boar,creature,loco,0.6,banned,,,4.8,0.0,0,0.0,,3.84,,4.8 cm below floor (foot joint); planted foot slips 195 cm/s (p75); bone 'BackShoulder.R' stretches 3.8 %
+meshy_boar/walk,meshy_boar,creature,loco,1.17,probation,,,3.4,0.0,0,0.0,,2.99,,3.4 cm below floor (foot joint); planted foot slips 19 cm/s (p75); bone 'FrontShoulder.R' stretches 3.0 %
+meshy_goblin/attack,meshy_goblin,creature,once,1.33,banned,,,0.0,0.0,6,0.0,,0.0,,"6 pop(s), worst on 'LeftArm' at 0.60 s (47 deg/frame^2)"
+meshy_goblin/death,meshy_goblin,creature,death,2.27,probation,,,1.3,0.0,0,0.0,,0.0,,
+meshy_goblin/hit,meshy_goblin,creature,once,1.67,banned,,,0.0,0.2,0,0.0,,0.0,,planted foot slips 31 cm/s (p75)
+meshy_goblin/idle,meshy_goblin,creature,loop,4.03,probation,,,0.5,0.0,0,0.0,,0.0,,
+meshy_goblin/run,meshy_goblin,creature,loco,0.67,probation,,,0.5,0.0,0,0.0,,0.0,,
+meshy_goblin/walk,meshy_goblin,creature,loco,1.07,probation,,,1.3,0.0,0,0.0,,0.0,,planted foot slips 10 cm/s (p75)
+meshy_orc/attack,meshy_orc,creature,once,2.13,banned,,,0.0,0.0,5,0.0,,0.0,,"5 pop(s), worst on 'RightLeg' at 0.83 s (51 deg/frame^2)"
+meshy_orc/attack_charged,meshy_orc,creature,once,6.33,banned,,,3.4,0.0,22,0.0,,0.0,,"3.4 cm below floor (mesh); all feet off the ground for 0.40 s; planted foot slips 8 cm/s (p75); 22 pop(s), worst on 'LeftForeArm' at 5.13 s (167 deg/frame^2); one-shot moves the body 52 cm (baked root motion; snaps back after)"
+meshy_orc/death,meshy_orc,creature,death,2.27,probation,,,0.5,0.0,0,0.0,,0.0,,
+meshy_orc/hit,meshy_orc,creature,once,1.67,banned,,,0.0,0.2,0,0.0,,0.0,,planted foot slips 68 cm/s (p75)
+meshy_orc/idle,meshy_orc,creature,loop,4.03,probation,,,0.3,0.0,0,0.0,,0.0,,
+meshy_orc/run,meshy_orc,creature,loco,0.67,banned,,,1.4,0.0,0,0.0,,0.01,,planted foot slips 20 cm/s (p75)
+meshy_orc/walk,meshy_orc,creature,loco,1.07,probation,,,1.1,0.0,0,0.0,,0.0,,planted foot slips 17 cm/s (p75)
+meshy_spider/attack,meshy_spider,creature,once,1.0,banned,,,5.1,0.0,2,0.0,,0.0,,"5.1 cm below floor (mesh); 2 pop(s), worst on 'femur_R4' at 0.50 s (25 deg/frame^2)"
+meshy_spider/death,meshy_spider,creature,death,1.5,banned,,,10.2,0.0,0,0.0,,0.0,,10.2 cm below floor (mesh)
+meshy_spider/hit,meshy_spider,creature,once,0.47,probation,,,1.4,0.0,0,0.0,,0.0,,
+meshy_spider/idle,meshy_spider,creature,loop,2.0,probation,,,0.1,0.0,0,0.0,,0.0,,
+meshy_spider/walk,meshy_spider,creature,loco,0.8,banned,,,0.6,0.0,0,0.0,,0.0,,planted feet move FORWARD (moonwalk / reversed clip)
+meshy_troll/attack,meshy_troll,creature,once,2.63,banned,,,0.2,0.0,15,0.0,,0.0,,"15 pop(s), worst on 'RightForeArm' at 1.17 s (243 deg/frame^2)"
+meshy_troll/death,meshy_troll,creature,death,2.27,probation,,,0.5,0.0,0,0.0,,0.0,,
+meshy_troll/hit,meshy_troll,creature,once,1.67,banned,,,0.0,0.0,0,0.0,,0.0,,planted foot slips 123 cm/s (p75)
+meshy_troll/idle,meshy_troll,creature,loop,4.03,probation,,,1.7,0.0,0,0.0,,0.0,,
+meshy_troll/run,meshy_troll,creature,loco,0.67,probation,,,0.5,0.0,0,0.0,,0.0,,planted foot slips 17 cm/s (p75)
+meshy_troll/slam,meshy_troll,creature,once,3.43,banned,,,0.2,0.0,16,0.0,,0.0,,"all feet off the ground for 0.83 s; 16 pop(s), worst on 'RightForeArm' at 1.73 s (173 deg/frame^2)"
+meshy_troll/walk,meshy_troll,creature,loco,1.07,banned,,,0.5,0.0,0,0.0,,0.0,,planted foot slips 196 cm/s (p75)
+meshy_wolf/attack,meshy_wolf,creature,once,1.33,banned,,,3.5,0.0,0,0.0,,0.0,,3.5 cm below floor (foot joint); all feet off the ground for 0.50 s; planted foot slips 123 cm/s (p75)
+meshy_wolf/death,meshy_wolf,creature,death,1.07,banned,,,11.2,0.0,0,0.0,,0.0,,11.2 cm below floor (mesh)
+meshy_wolf/hit,meshy_wolf,creature,once,0.67,probation,,,0.6,0.0,0,0.0,,2.15,,planted foot slips 16 cm/s (p75); bone 'FrontShoulder.R' stretches 2.1 %
+meshy_wolf/idle,meshy_wolf,creature,loop,3.33,probation,,,0.5,0.0,0,0.0,,0.0,,
+meshy_wolf/run,meshy_wolf,creature,loco,0.57,banned,,,0.9,0.0,0,0.0,,23.49,,no ground-contact frames found; bone 'FrontUpperLeg.L' stretches 23.5 %
+meshy_wolf/walk,meshy_wolf,creature,loco,1.07,banned,,,0.0,0.0,0,0.0,,43.84,,planted foot slips 9 cm/s (p75); bone 'BackLeg.L' stretches 43.8 %
+meshy_wyvern/attack,meshy_wyvern,creature,once,1.2,banned,,,8.4,0.0,0,0.0,,0.0,,8.4 cm below floor (mesh)
+meshy_wyvern/death,meshy_wyvern,creature,death,1.67,banned,,,5.2,0.0,0,0.0,,0.0,,5.2 cm below floor (mesh)
+meshy_wyvern/flap,meshy_wyvern,creature,jump,0.8,probation,,,2.4,0.0,0,0.0,,0.0,,2.4 cm below floor (mesh)
+meshy_wyvern/hit,meshy_wyvern,creature,once,0.53,probation,,,0.0,0.0,0,0.0,,0.0,,
+meshy_wyvern/idle,meshy_wyvern,creature,loop,2.0,probation,,,0.1,0.0,0,0.0,,0.0,,
+meshy_wyvern/walk,meshy_wyvern,creature,loco,1.07,probation,,,0.8,4.9,0,0.0,,0.0,,feet never touch the floor (lowest 4.9 cm above)
+q_goblin_female/Death,q_goblin_female,creature,death,2.29,banned,,,11.3,0.0,1,0.0,,4.35,,"11.3 cm below floor (mesh); bone 'UpperLeg.L' stretches 4.3 %; 1 pop(s), worst on 'Foot.R' at 1.67 s (27 deg/frame^2)"
+q_goblin_female/Idle,q_goblin_female,creature,loop,4.17,probation,,,0.5,0.0,0,0.0,,4.82,,bone 'Shoulder.R' stretches 4.8 %
+q_goblin_female/Punch,q_goblin_female,creature,once,0.75,banned,,,0.5,0.0,0,0.0,,94.09,,bone 'Shoulder.R' stretches 94.1 %
+q_goblin_female/RecieveHit,q_goblin_female,creature,once,0.63,probation,,,0.5,0.0,0,0.0,,0.0,,
+q_goblin_female/Run,q_goblin_female,creature,loco,0.88,probation,,,2.8,0.0,0,4.8,,4.12,,2.8 cm below floor (foot joint); no ground-contact frames found; bone 'UpperLeg.L' stretches 4.1 %; loop seam jumps 4.8 deg ('LowerLeg.L')
+q_goblin_female/SitDown,q_goblin_female,creature,sit,0.96,probation,,,0.5,0.0,0,0.0,,0.0,,planted foot slips 15 cm/s (p75)
+q_goblin_female/StandUp,q_goblin_female,creature,sit,1.29,probation,,,0.5,0.0,0,0.0,,0.0,,planted foot slips 11 cm/s (p75)
+q_goblin_female/SwordSlash,q_goblin_female,creature,once,1.04,probation,,,0.5,0.0,0,0.0,,4.35,,bone 'UpperLeg.L' stretches 4.3 %
+q_goblin_female/Walk,q_goblin_female,creature,loco,1.25,banned,,,0.6,0.0,0,0.0,,4.35,,planted foot slips 43 cm/s (p75); bone 'UpperLeg.L' stretches 4.3 %
+q_goblin_male/Death,q_goblin_male,creature,death,2.292,banned,,,7.69,0.0,1,,29.9,4.35,,banned: bone stretch 4.3%; probation: 1 pop(s); banned: ground penetration 7.7 cm
+q_goblin_male/Defeat,q_goblin_male,creature,once,2.5,probation,0.0,0.001,0.48,0.0,0,,0.0,0.0,,"metrics gold, no passing frame-sheet review yet"
+q_goblin_male/Idle,q_goblin_male,creature,loop,4.167,banned,0.0,0.001,0.49,0.0,0,0.0,0.0,4.82,,banned: bone stretch 4.8%
+q_goblin_male/Jump,q_goblin_male,creature,jump,1.042,banned,0.003,0.012,0.52,0.0,0,,0.0,3.0,,banned: bone stretch 3.0%
+q_goblin_male/PickUp,q_goblin_male,creature,once,1.25,banned,0.001,0.003,0.48,0.0,0,,0.0,3.58,,banned: bone stretch 3.6%
+q_goblin_male/Punch,q_goblin_male,creature,once,0.75,banned,0.003,0.031,0.51,0.0,0,,0.0,94.09,,banned: bone stretch 94.1%
+q_goblin_male/RecieveHit,q_goblin_male,creature,once,0.625,probation,0.001,0.001,0.48,0.0,0,,0.0,0.0,,"metrics gold, no passing frame-sheet review yet"
+q_goblin_male/Roll,q_goblin_male,creature,once,0.917,banned,1.219,3.104,6.5,0.0,0,,0.0,448.15,,banned: bone stretch 448.2%; banned: ground penetration 6.5 cm
+q_goblin_male/Run,q_goblin_male,creature,loco,0.875,banned,,,2.82,0.0,0,4.77,0.0,4.12,,banned: bone stretch 4.1%; banned: ground penetration 2.8 cm; note: slide unscored (no usable ground-speed reference); probation: loop seam 4.8 deg
+q_goblin_male/Run_Carry,q_goblin_male,creature,once,0.875,banned,,,2.82,0.0,0,,0.0,4.12,,banned: bone stretch 4.1%; banned: ground penetration 2.8 cm
+q_goblin_male/Shoot_OneHanded,q_goblin_male,creature,once,0.542,probation,0.0,0.001,0.48,0.0,0,,0.0,0.0,,"metrics gold, no passing frame-sheet review yet"
+q_goblin_male/SitDown,q_goblin_male,creature,sit,0.958,probation,0.149,0.151,0.49,0.0,0,,14.3,0.0,,"metrics gold, no passing frame-sheet review yet"
+q_goblin_male/StandUp,q_goblin_male,creature,once,1.292,probation,0.111,0.114,0.49,0.0,0,,14.3,0.0,,"metrics gold, no passing frame-sheet review yet"
+q_goblin_male/SwordSlash,q_goblin_male,creature,once,1.042,banned,0.001,0.005,0.5,0.0,0,,0.0,4.35,,banned: bone stretch 4.3%
+q_goblin_male/Victory,q_goblin_male,creature,once,1.875,banned,0.001,0.003,0.49,0.0,0,,0.0,56.37,,banned: bone stretch 56.4%
+q_goblin_male/Walk,q_goblin_male,creature,loco,1.25,banned,0.315,1.026,0.57,0.0,0,0.0,0.0,4.35,,banned: bone stretch 4.3%; banned: slide mean 0.32 m/s; banned: slide max 1.03 m/s
+q_goblin_male/Walk_Carry,q_goblin_male,creature,once,1.25,banned,0.631,1.198,0.57,0.0,0,,0.0,4.35,,banned: 7 T-pose frame(s); banned: bone stretch 4.3%
+q_orc/Death,q_orc,creature,death,2.292,banned,,,14.33,0.0,1,,55.7,4.35,,banned: bone stretch 4.3%; probation: 1 pop(s); banned: ground penetration 14.3 cm
+q_orc/Defeat,q_orc,creature,once,2.5,probation,0.0,0.002,0.9,0.0,0,,0.0,0.0,,"metrics gold, no passing frame-sheet review yet"
+q_orc/Idle,q_orc,creature,loop,4.167,banned,0.0,0.002,0.91,0.0,0,0.0,0.0,4.82,,banned: bone stretch 4.8%
+q_orc/Jump,q_orc,creature,jump,1.042,banned,0.006,0.022,0.97,0.0,0,,0.0,3.0,,banned: bone stretch 3.0%
+q_orc/PickUp,q_orc,creature,once,1.25,banned,0.002,0.006,0.9,0.0,0,,0.0,3.58,,banned: bone stretch 3.6%
+q_orc/Punch,q_orc,creature,once,0.75,banned,0.006,0.057,0.95,0.0,0,,0.0,94.09,,banned: bone stretch 94.1%
+q_orc/RecieveHit,q_orc,creature,once,0.625,probation,0.001,0.003,0.9,0.0,0,,0.0,0.0,,"metrics gold, no passing frame-sheet review yet"
+q_orc/Roll,q_orc,creature,once,0.917,banned,2.272,5.784,12.11,0.0,0,,0.0,448.15,,banned: bone stretch 448.2%; banned: ground penetration 12.1 cm
+q_orc/Run,q_orc,creature,loco,0.875,banned,,,5.26,0.0,0,4.77,0.0,4.12,,banned: bone stretch 4.1%; banned: ground penetration 5.3 cm; note: slide unscored (no usable ground-speed reference); probation: loop seam 4.8 deg
+q_orc/Run_Carry,q_orc,creature,once,0.875,banned,,,5.26,0.0,0,,0.0,4.12,,banned: bone stretch 4.1%; banned: ground penetration 5.3 cm
+q_orc/Shoot_OneHanded,q_orc,creature,once,0.542,probation,0.001,0.003,0.9,0.0,0,,0.0,0.0,,"metrics gold, no passing frame-sheet review yet"
+q_orc/SitDown,q_orc,creature,sit,0.958,probation,0.278,0.281,0.91,0.0,0,,26.6,0.0,,"metrics gold, no passing frame-sheet review yet"
+q_orc/StandUp,q_orc,creature,once,1.292,probation,0.206,0.213,0.92,0.0,0,,26.6,0.0,,"metrics gold, no passing frame-sheet review yet"
+q_orc/SwordSlash,q_orc,creature,once,1.042,banned,0.002,0.009,0.93,0.0,0,,0.0,4.35,,banned: bone stretch 4.3%
+q_orc/Victory,q_orc,creature,once,1.875,banned,0.002,0.006,0.91,0.0,0,,0.0,56.37,,banned: bone stretch 56.4%
+q_orc/Walk,q_orc,creature,loco,1.25,banned,0.522,1.266,1.07,0.0,0,0.0,0.0,4.35,,banned: bone stretch 4.3%; probation: ground penetration 1.1 cm; banned: slide mean 0.52 m/s; banned: slide max 1.27 m/s
+q_orc/Walk_Carry,q_orc,creature,once,1.25,banned,1.214,2.233,1.07,0.0,0,,0.0,4.35,,banned: 7 T-pose frame(s); banned: bone stretch 4.3%; probation: ground penetration 1.1 cm
+q_wolf/Attack,q_wolf,creature,once,1.333,banned,0.038,1.515,0.69,0.0,0,,0.0,7.07,,banned: bone stretch 7.1%
+q_wolf/Death,q_wolf,creature,death,1.067,banned,,,5.84,0.0,0,,6.0,0.0,,banned: ground penetration 5.8 cm
+q_wolf/Eating,q_wolf,creature,once,2.533,probation,0.009,0.642,0.0,0.0,0,,0.0,0.0,,"metrics gold, no passing frame-sheet review yet"
+q_wolf/Gallop,q_wolf,creature,loop,0.567,banned,2.549,3.119,2.35,0.0,0,0.0,0.0,6.08,,banned: bone stretch 6.1%; banned: ground penetration 2.4 cm; banned: slide mean 2.55 m/s; banned: slide max 3.12 m/s
+q_wolf/Gallop_Jump,q_wolf,creature,jump,0.933,banned,2.071,2.939,5.27,0.0,0,,0.0,6.15,,banned: bone stretch 6.1%; banned: ground penetration 5.3 cm
+q_wolf/Idle,q_wolf,creature,loop,3.333,probation,0.0,0.0,0.0,0.0,0,0.0,0.0,0.0,,"metrics gold, no passing frame-sheet review yet"
+q_wolf/Idle_2,q_wolf,creature,loop,3.333,banned,0.0,0.001,0.0,0.0,0,0.0,0.0,15.01,,banned: bone stretch 15.0%
+q_wolf/Idle_2_HeadLow,q_wolf,creature,once,4.0,probation,0.0,0.0,0.0,0.0,0,,0.0,0.0,,"metrics gold, no passing frame-sheet review yet"
+q_wolf/Idle_HitReact1,q_wolf,creature,once,0.667,banned,0.0,0.002,0.0,0.0,0,,0.0,2.06,,banned: bone stretch 2.1%
+q_wolf/Idle_HitReact2,q_wolf,creature,once,0.667,banned,0.0,0.003,0.0,0.0,0,,0.0,2.06,,banned: bone stretch 2.1%
+q_wolf/Jump_ToIdle,q_wolf,creature,jump,1.333,banned,1.004,2.944,5.27,0.0,0,,0.7,8.52,,banned: bone stretch 8.5%; banned: ground penetration 5.3 cm
+q_wolf/Walk,q_wolf,creature,loco,1.067,banned,0.542,2.019,1.42,0.0,0,0.0,0.0,1.88,,banned: bone stretch 1.9%; probation: ground penetration 1.4 cm; banned: slide mean 0.54 m/s; banned: slide max 2.02 m/s

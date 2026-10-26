@@ -1,0 +1,453 @@
+{
+ "Bow_Draw": {
+  "sheet": "docs/qa/golden/anim_strips/player_young__Bow_Draw.jpg",
+  "verdict": "pass",
+  "by": "claude (side-view 8-frame strip, ground grid)",
+  "date": "2026-10-26"
+ },
+ "Bow_Hold": {
+  "sheet": "docs/qa/golden/anim_strips/player_young__Bow_Hold.jpg",
+  "verdict": "pass",
+  "by": "claude (side-view 8-frame strip, ground grid)",
+  "date": "2026-10-26"
+ },
+ "Bow_Loose": {
+  "sheet": "docs/qa/golden/anim_strips/player_young__Bow_Loose.jpg",
+  "verdict": "pass",
+  "by": "claude (side-view 8-frame strip, ground grid)",
+  "date": "2026-10-26"
+ },
+ "Cheering_Two_Hands": {
+  "sheet": "docs/qa/golden/anim_strips/player_young__Cheering_Two_Hands.jpg",
+  "verdict": "pass",
+  "by": "claude (side-view 8-frame strip, ground grid)",
+  "date": "2026-10-26"
+ },
+ "Chest_Open": {
+  "sheet": "docs/qa/golden/anim_strips/player_young__Chest_Open.jpg",
+  "verdict": "pass",
+  "by": "claude (side-view 8-frame strip, ground grid)",
+  "date": "2026-10-26"
+ },
+ "Chore_Pick_Up_Box": {
+  "sheet": "docs/qa/golden/anim_strips/player_young__Chore_Pick_Up_Box.jpg",
+  "verdict": "pass",
+  "by": "claude (side-view 8-frame strip, ground grid)",
+  "date": "2026-10-26"
+ },
+ "ClimbUp_1m": {
+  "sheet": "docs/qa/golden/anim_strips/player_young__ClimbUp_1m.jpg",
+  "verdict": "pass",
+  "by": "claude (side-view 8-frame strip, ground grid)",
+  "date": "2026-10-26"
+ },
+ "Consume": {
+  "sheet": "docs/qa/golden/anim_strips/player_young__Consume.jpg",
+  "verdict": "pass",
+  "by": "claude (side-view 8-frame strip, ground grid)",
+  "date": "2026-10-26"
+ },
+ "Dodge_back": {
+  "sheet": "docs/qa/golden/anim_strips/player_young__Dodge_back.jpg",
+  "verdict": "pass",
+  "by": "claude (side-view 8-frame strip, ground grid)",
+  "date": "2026-10-26"
+ },
+ "Dodge_right": {
+  "sheet": "docs/qa/golden/anim_strips/player_young__Dodge_right.jpg",
+  "verdict": "pass",
+  "by": "claude (side-view 8-frame strip, ground grid)",
+  "date": "2026-10-26"
+ },
+ "Drink_Potion": {
+  "sheet": "docs/qa/golden/anim_strips/player_young__Drink_Potion.jpg",
+  "verdict": "pass",
+  "by": "claude (side-view 8-frame strip, ground grid)",
+  "date": "2026-10-26"
+ },
+ "Farm_Harvest": {
+  "sheet": "docs/qa/golden/anim_strips/player_young__Farm_Harvest.jpg",
+  "verdict": "pass",
+  "by": "claude (side-view 8-frame strip, ground grid)",
+  "date": "2026-10-26"
+ },
+ "Farm_Watering": {
+  "sheet": "docs/qa/golden/anim_strips/player_young__Farm_Watering.jpg",
+  "verdict": "pass",
+  "by": "claude (side-view 8-frame strip, ground grid)",
+  "date": "2026-10-26"
+ },
+ "Fishing_Catch": {
+  "sheet": "docs/qa/golden/anim_strips/player_young__Fishing_Catch.jpg",
+  "verdict": "pass",
+  "by": "claude (side-view 8-frame strip, ground grid)",
+  "date": "2026-10-26"
+ },
+ "Fishing_Reel": {
+  "sheet": "docs/qa/golden/anim_strips/player_young__Fishing_Reel.jpg",
+  "verdict": "pass",
+  "by": "claude (side-view 8-frame strip, ground grid)",
+  "date": "2026-10-26"
+ },
+ "Hit_Chest": {
+  "sheet": "docs/qa/golden/anim_strips/player_young__Hit_Chest.jpg",
+  "verdict": "pass",
+  "by": "claude (side-view 8-frame strip, ground grid)",
+  "date": "2026-10-26",
+  "note": "side view cannot verify left/right direction; reaction pose reads clean, no pops/penetration"
+ },
+ "Hit_Head": {
+  "sheet": "docs/qa/golden/anim_strips/player_young__Hit_Head.jpg",
+  "verdict": "pass",
+  "by": "claude (side-view 8-frame strip, ground grid)",
+  "date": "2026-10-26",
+  "note": "side view cannot verify left/right direction; reaction pose reads clean, no pops/penetration"
+ },
+ "Hit_Heavy_Back": {
+  "sheet": "docs/qa/golden/anim_strips/player_young__Hit_Heavy_Back.jpg",
+  "verdict": "pass",
+  "by": "claude (side-view 8-frame strip, ground grid)",
+  "date": "2026-10-26",
+  "note": "side view cannot verify left/right direction; reaction pose reads clean, no pops/penetration"
+ },
+ "Hit_Heavy_Front": {
+  "sheet": "docs/qa/golden/anim_strips/player_young__Hit_Heavy_Front.jpg",
+  "verdict": "pass",
+  "by": "claude (side-view 8-frame strip, ground grid)",
+  "date": "2026-10-26",
+  "note": "side view cannot verify left/right direction; reaction pose reads clean, no pops/penetration"
+ },
+ "Hit_Heavy_Left": {
+  "sheet": "docs/qa/golden/anim_strips/player_young__Hit_Heavy_Left.jpg",
+  "verdict": "pass",
+  "by": "claude (side-view 8-frame strip, ground grid)",
+  "date": "2026-10-26",
+  "note": "side view cannot verify left/right direction; reaction pose reads clean, no pops/penetration"
+ },
+ "Hit_Heavy_Right": {
+  "sheet": "docs/qa/golden/anim_strips/player_young__Hit_Heavy_Right.jpg",
+  "verdict": "pass",
+  "by": "claude (side-view 8-frame strip, ground grid)",
+  "date": "2026-10-26",
+  "note": "side view cannot verify left/right direction; reaction pose reads clean, no pops/penetration"
+ },
+ "Hit_Light_Back": {
+  "sheet": "docs/qa/golden/anim_strips/player_young__Hit_Light_Back.jpg",
+  "verdict": "pass",
+  "by": "claude (side-view 8-frame strip, ground grid)",
+  "date": "2026-10-26",
+  "note": "side view cannot verify left/right direction; reaction pose reads clean, no pops/penetration"
+ },
+ "Hit_Light_Front": {
+  "sheet": "docs/qa/golden/anim_strips/player_young__Hit_Light_Front.jpg",
+  "verdict": "pass",
+  "by": "claude (side-view 8-frame strip, ground grid)",
+  "date": "2026-10-26",
+  "note": "side view cannot verify left/right direction; reaction pose reads clean, no pops/penetration"
+ },
+ "Hit_Light_Left": {
+  "sheet": "docs/qa/golden/anim_strips/player_young__Hit_Light_Left.jpg",
+  "verdict": "pass",
+  "by": "claude (side-view 8-frame strip, ground grid)",
+  "date": "2026-10-26",
+  "note": "side view cannot verify left/right direction; reaction pose reads clean, no pops/penetration"
+ },
+ "Hit_Light_Right": {
+  "sheet": "docs/qa/golden/anim_strips/player_young__Hit_Light_Right.jpg",
+  "verdict": "pass",
+  "by": "claude (side-view 8-frame strip, ground grid)",
+  "date": "2026-10-26",
+  "note": "side view cannot verify left/right direction; reaction pose reads clean, no pops/penetration"
+ },
+ "Idle": {
+  "sheet": "docs/qa/golden/anim_strips/player_young__Idle.jpg",
+  "verdict": "pass",
+  "by": "claude (side-view 8-frame strip, ground grid)",
+  "date": "2026-10-26"
+ },
+ "Idle_FoldArms": {
+  "sheet": "docs/qa/golden/anim_strips/player_young__Idle_FoldArms.jpg",
+  "verdict": "pass",
+  "by": "claude (side-view 8-frame strip, ground grid)",
+  "date": "2026-10-26"
+ },
+ "Idle_Hurt": {
+  "sheet": "docs/qa/golden/anim_strips/player_young__Idle_Hurt.jpg",
+  "verdict": "pass",
+  "by": "claude (side-view 8-frame strip, ground grid)",
+  "date": "2026-10-26"
+ },
+ "Idle_Lantern": {
+  "sheet": "docs/qa/golden/anim_strips/player_young__Idle_Lantern.jpg",
+  "verdict": "pass",
+  "by": "claude (side-view 8-frame strip, ground grid)",
+  "date": "2026-10-26"
+ },
+ "Idle_Listening": {
+  "sheet": "docs/qa/golden/anim_strips/player_young__Idle_Listening.jpg",
+  "verdict": "pass",
+  "by": "claude (side-view 8-frame strip, ground grid)",
+  "date": "2026-10-26"
+ },
+ "Idle_No": {
+  "sheet": "docs/qa/golden/anim_strips/player_young__Idle_No.jpg",
+  "verdict": "pass",
+  "by": "claude (side-view 8-frame strip, ground grid)",
+  "date": "2026-10-26"
+ },
+ "Idle_Shield": {
+  "sheet": "docs/qa/golden/anim_strips/player_young__Idle_Shield.jpg",
+  "verdict": "pass",
+  "by": "claude (side-view 8-frame strip, ground grid)",
+  "date": "2026-10-26"
+ },
+ "Idle_Subtle": {
+  "sheet": "docs/qa/golden/anim_strips/player_young__Idle_Subtle.jpg",
+  "verdict": "pass",
+  "by": "claude (side-view 8-frame strip, ground grid)",
+  "date": "2026-10-26"
+ },
+ "Idle_Talking": {
+  "sheet": "docs/qa/golden/anim_strips/player_young__Idle_Talking.jpg",
+  "verdict": "pass",
+  "by": "claude (side-view 8-frame strip, ground grid)",
+  "date": "2026-10-26"
+ },
+ "Idle_TalkingPhone": {
+  "sheet": "docs/qa/golden/anim_strips/player_young__Idle_TalkingPhone.jpg",
+  "verdict": "pass",
+  "by": "claude (side-view 8-frame strip, ground grid)",
+  "date": "2026-10-26"
+ },
+ "Idle_Torch": {
+  "sheet": "docs/qa/golden/anim_strips/player_young__Idle_Torch.jpg",
+  "verdict": "pass",
+  "by": "claude (side-view 8-frame strip, ground grid)",
+  "date": "2026-10-26"
+ },
+ "Interact": {
+  "sheet": "docs/qa/golden/anim_strips/player_young__Interact.jpg",
+  "verdict": "pass",
+  "by": "claude (side-view 8-frame strip, ground grid)",
+  "date": "2026-10-26"
+ },
+ "Ledge_Drop_Down": {
+  "sheet": "docs/qa/golden/anim_strips/player_young__Ledge_Drop_Down.jpg",
+  "verdict": "pass",
+  "by": "claude (side-view 8-frame strip, ground grid)",
+  "date": "2026-10-26"
+ },
+ "Loco_RunStop_L": {
+  "sheet": "docs/qa/golden/anim_strips/player_young__Loco_RunStop_L.jpg",
+  "verdict": "pass",
+  "by": "claude (side-view 8-frame strip, ground grid)",
+  "date": "2026-10-26"
+ },
+ "Loco_Sprint_Stop_Skid": {
+  "sheet": "docs/qa/golden/anim_strips/player_young__Loco_Sprint_Stop_Skid.jpg",
+  "verdict": "hold",
+  "by": "claude (side-view 8-frame strip, ground grid)",
+  "date": "2026-10-26",
+  "note": "arms flail wide and torso twists at the end of the skid (t=0.5-0.8 s); not convincing, re-check in motion"
+ },
+ "Loco_TurnInPlace_90_R": {
+  "sheet": "docs/qa/golden/anim_strips/player_young__Loco_TurnInPlace_90_R.jpg",
+  "verdict": "pass",
+  "by": "claude (side-view 8-frame strip, ground grid)",
+  "date": "2026-10-26"
+ },
+ "Loco_WalkStop": {
+  "sheet": "docs/qa/golden/anim_strips/player_young__Loco_WalkStop.jpg",
+  "verdict": "pass",
+  "by": "claude (side-view 8-frame strip, ground grid)",
+  "date": "2026-10-26"
+ },
+ "MA_Punch_Cross_R_Head_A": {
+  "sheet": "docs/qa/golden/anim_strips/player_young__MA_Punch_Cross_R_Head_A.jpg",
+  "verdict": "pass",
+  "by": "claude (side-view 8-frame strip, ground grid)",
+  "date": "2026-10-26"
+ },
+ "MA_Punch_Jab_L_Head_A": {
+  "sheet": "docs/qa/golden/anim_strips/player_young__MA_Punch_Jab_L_Head_A.jpg",
+  "verdict": "pass",
+  "by": "claude (side-view 8-frame strip, ground grid)",
+  "date": "2026-10-26"
+ },
+ "Mantle_Low": {
+  "sheet": "docs/qa/golden/anim_strips/player_young__Mantle_Low.jpg",
+  "verdict": "hold",
+  "by": "claude (side-view 8-frame strip, ground grid)",
+  "date": "2026-10-26",
+  "note": "legs tuck to the chest in a tumble-like pose at t=0.4-0.8 s (not following an obstacle); re-check with the traversal driver (S3.2)"
+ },
+ "Open_Chest": {
+  "sheet": "docs/qa/golden/anim_strips/player_young__Open_Chest.jpg",
+  "verdict": "pass",
+  "by": "claude (side-view 8-frame strip, ground grid)",
+  "date": "2026-10-26"
+ },
+ "Open_Door": {
+  "sheet": "docs/qa/golden/anim_strips/player_young__Open_Door.jpg",
+  "verdict": "pass",
+  "by": "claude (side-view 8-frame strip, ground grid)",
+  "date": "2026-10-26"
+ },
+ "Parry_Quick": {
+  "sheet": "docs/qa/golden/anim_strips/player_young__Parry_Quick.jpg",
+  "verdict": "pass",
+  "by": "claude (side-view 8-frame strip, ground grid)",
+  "date": "2026-10-26"
+ },
+ "PickUp_Table": {
+  "sheet": "docs/qa/golden/anim_strips/player_young__PickUp_Table.jpg",
+  "verdict": "pass",
+  "by": "claude (side-view 8-frame strip, ground grid)",
+  "date": "2026-10-26"
+ },
+ "Punch_Cross": {
+  "sheet": "docs/qa/golden/anim_strips/player_young__Punch_Cross.jpg",
+  "verdict": "pass",
+  "by": "claude (side-view 8-frame strip, ground grid)",
+  "date": "2026-10-26"
+ },
+ "Salute": {
+  "sheet": "docs/qa/golden/anim_strips/player_young__Salute.jpg",
+  "verdict": "pass",
+  "by": "claude (side-view 8-frame strip, ground grid)",
+  "date": "2026-10-26"
+ },
+ "Shield_Bash": {
+  "sheet": "docs/qa/golden/anim_strips/player_young__Shield_Bash.jpg",
+  "verdict": "hold",
+  "by": "claude (side-view 8-frame strip, ground grid)",
+  "date": "2026-10-26",
+  "note": "torso dives to knee height at t=0.33 s with the head below the hips; looks like a lunge-fall, re-check in motion"
+ },
+ "Shield_Bash_Step": {
+  "sheet": "docs/qa/golden/anim_strips/player_young__Shield_Bash_Step.jpg",
+  "verdict": "pass",
+  "by": "claude (side-view 8-frame strip, ground grid)",
+  "date": "2026-10-26"
+ },
+ "Sitting_Enter": {
+  "sheet": "docs/qa/golden/anim_strips/player_young__Sitting_Enter.jpg",
+  "verdict": "pass",
+  "by": "claude (side-view 8-frame strip, ground grid)",
+  "date": "2026-10-26"
+ },
+ "Sitting_Exit": {
+  "sheet": "docs/qa/golden/anim_strips/player_young__Sitting_Exit.jpg",
+  "verdict": "pass",
+  "by": "claude (side-view 8-frame strip, ground grid)",
+  "date": "2026-10-26"
+ },
+ "Sitting_Idle": {
+  "sheet": "docs/qa/golden/anim_strips/player_young__Sitting_Idle.jpg",
+  "verdict": "pass",
+  "by": "claude (side-view 8-frame strip, ground grid)",
+  "date": "2026-10-26"
+ },
+ "Sitting_Talking": {
+  "sheet": "docs/qa/golden/anim_strips/player_young__Sitting_Talking.jpg",
+  "verdict": "pass",
+  "by": "claude (side-view 8-frame strip, ground grid)",
+  "date": "2026-10-26"
+ },
+ "Souls_Guard": {
+  "sheet": "docs/qa/golden/anim_strips/player_young__Souls_Guard.jpg",
+  "verdict": "pass",
+  "by": "claude (side-view 8-frame strip, ground grid)",
+  "date": "2026-10-26"
+ },
+ "Souls_Guard_Hit": {
+  "sheet": "docs/qa/golden/anim_strips/player_young__Souls_Guard_Hit.jpg",
+  "verdict": "pass",
+  "by": "claude (side-view 8-frame strip, ground grid)",
+  "date": "2026-10-26"
+ },
+ "Spear_Thrust_1": {
+  "sheet": "docs/qa/golden/anim_strips/player_young__Spear_Thrust_1.jpg",
+  "verdict": "pass",
+  "by": "claude (side-view 8-frame strip, ground grid)",
+  "date": "2026-10-26"
+ },
+ "Spell_Simple_Shoot": {
+  "sheet": "docs/qa/golden/anim_strips/player_young__Spell_Simple_Shoot.jpg",
+  "verdict": "pass",
+  "by": "claude (side-view 8-frame strip, ground grid)",
+  "date": "2026-10-26"
+ },
+ "Stagger_Back": {
+  "sheet": "docs/qa/golden/anim_strips/player_young__Stagger_Back.jpg",
+  "verdict": "pass",
+  "by": "claude (side-view 8-frame strip, ground grid)",
+  "date": "2026-10-26"
+ },
+ "Sword_Heavy_Charge_Start": {
+  "sheet": "docs/qa/golden/anim_strips/player_young__Sword_Heavy_Charge_Start.jpg",
+  "verdict": "pass",
+  "by": "claude (side-view 8-frame strip, ground grid)",
+  "date": "2026-10-26"
+ },
+ "Sword_Light_1": {
+  "sheet": "docs/qa/golden/anim_strips/player_young__Sword_Light_1.jpg",
+  "verdict": "pass",
+  "by": "claude (side-view 8-frame strip, ground grid)",
+  "date": "2026-10-26"
+ },
+ "Sword_Light_1_Upper": {
+  "sheet": "docs/qa/golden/anim_strips/player_young__Sword_Light_1_Upper.jpg",
+  "verdict": "pass",
+  "by": "claude (side-view 8-frame strip, ground grid)",
+  "date": "2026-10-26"
+ },
+ "Sword_Parry": {
+  "sheet": "docs/qa/golden/anim_strips/player_young__Sword_Parry.jpg",
+  "verdict": "pass",
+  "by": "claude (side-view 8-frame strip, ground grid)",
+  "date": "2026-10-26"
+ },
+ "Sword_Regular_A": {
+  "sheet": "docs/qa/golden/anim_strips/player_young__Sword_Regular_A.jpg",
+  "verdict": "pass",
+  "by": "claude (side-view 8-frame strip, ground grid)",
+  "date": "2026-10-26"
+ },
+ "Sword_Regular_B": {
+  "sheet": "docs/qa/golden/anim_strips/player_young__Sword_Regular_B.jpg",
+  "verdict": "pass",
+  "by": "claude (side-view 8-frame strip, ground grid)",
+  "date": "2026-10-26"
+ },
+ "Sword_Riposte": {
+  "sheet": "docs/qa/golden/anim_strips/player_young__Sword_Riposte.jpg",
+  "verdict": "pass",
+  "by": "claude (side-view 8-frame strip, ground grid)",
+  "date": "2026-10-26"
+ },
+ "Turn_Left_90": {
+  "sheet": "docs/qa/golden/anim_strips/player_young__Turn_Left_90.jpg",
+  "verdict": "pass",
+  "by": "claude (side-view 8-frame strip, ground grid)",
+  "date": "2026-10-26"
+ },
+ "Turn_Right_180": {
+  "sheet": "docs/qa/golden/anim_strips/player_young__Turn_Right_180.jpg",
+  "verdict": "pass",
+  "by": "claude (side-view 8-frame strip, ground grid)",
+  "date": "2026-10-26"
+ },
+ "Turn_Right_90": {
+  "sheet": "docs/qa/golden/anim_strips/player_young__Turn_Right_90.jpg",
+  "verdict": "pass",
+  "by": "claude (side-view 8-frame strip, ground grid)",
+  "date": "2026-10-26"
+ },
+ "Yes": {
+  "sheet": "docs/qa/golden/anim_strips/player_young__Yes.jpg",
+  "verdict": "pass",
+  "by": "claude (side-view 8-frame strip, ground grid)",
+  "date": "2026-10-26"
+ }
+}
