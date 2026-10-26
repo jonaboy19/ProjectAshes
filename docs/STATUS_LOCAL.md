@@ -8,6 +8,7 @@ _Last update: 2026-10-06 (animation behaviour takeover: Codex merge, P9/P5/P2b/c
 ## Ready v1 (cloud)
 | Date | What | Where | Branch |
 |---|---|---|---|
+| 10-26 | **Labyrinth dungeons (Aincrad style)**: seeded multi-floor generator (room graph, A* corridors, safe room, mid-boss, boss behind a big door, secret rooms, traps, loot, difficulty per floor), progress/unlock/save state, entrance hooks for Deepdark / Ironmarch mines / Rift ruins, placeholder geometry + nav mesh. 20 gdUnit tests incl. 100-seed fuzz. No addon adopted (evaluation in DOWNLOADS.md). Runtime director and art pass still open. | `kingdom/scripts/dungeon/`, `tests/test_labyrinth.gd`, `docs/plans/DUNGEONS_LABYRINTH.md` | claude/dungeons |
 | 10-23 | **C1 headless release harness**: `run_v1.sh [stages]` = import, full gdUnit, headless playtest bot, `verdict.py` (non-zero on failed CHECK / SCRIPT ERROR / stuck stage). Bot is headless-safe (no shots/fps, buttons pressed directly, carve via canvas fallback). Found and fixed on the way: `Array != bool` in `R1StoryDirector.ctx` (script error on 4.6.3), off-tree nodes in `sense_threats` / `threat_plates`, empty `raw_to_base64` in persona/psyche saves, headless impostor bake. `boot,intro,menus,st_birth,st_a1` passes headless (Godot 4.6.3). `boot_wiring_wip.patch` is NOT applied (does not apply cleanly). Open: Godot aborts at exit (exit 134, malloc) after the bot reports done. | `kingdom/tools_qa/v1/`, `playtest_bot.gd` | claude/v1-harness |
 
 ## Done (recent)
