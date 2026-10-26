@@ -59,3 +59,8 @@ func test_player_decrees_need_the_claim() -> void:
 	assert_int(int(gov.law_level(sid, "curfew"))).is_equal(want)
 	var s: GDScript = load("res://scripts/ui/lord_council.gd")
 	assert_bool(s.can_instantiate()).is_true()
+
+
+func test_thief_ranks_by_unseen_thefts() -> void:
+	var t := TR.new()
+	assert_array(t.update(null, {"stole_unseen": 30.0})).contains(["You are now a Thief."])
