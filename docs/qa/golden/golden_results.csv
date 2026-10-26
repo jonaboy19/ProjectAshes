@@ -258,9 +258,9 @@ Life_Mx_Scythe,ual,interaction,loop,2.367,banned,0.487,1.173,0.0,0.47,0,0.03,0.0
 Life_Mx_Sit_Chair,ual,interaction,sit,2.933,gold,0.0,0.0,0.0,0.0,0,,0.0,0.0,pass,
 Life_Mx_Sit_Chair_Talk,ual,interaction,sit,44.933,probation,0.004,0.028,0.0,0.0,1,,0.0,0.0,hold,probation: 1 pop(s)
 Life_Mx_Sit_Floor,ual,interaction,sit,10.833,gold,,,0.0,0.0,0,,0.0,0.0,pass,
-Life_Mx_Sit_To_Stand,ual,interaction,sit,4.833,probation,0.083,0.124,0.0,0.0,0,,38.5,0.0,hold,"metrics gold, no passing frame-sheet review yet"
+Life_Mx_Sit_To_Stand,ual,interaction,sit,4.833,gold,0.083,0.124,0.0,0.0,0,,38.5,0.0,pass,
 Life_Mx_Sleep_Bed,ual,interaction,loop,1.667,gold,0.003,0.007,0.0,0.12,0,0.26,0.0,0.0,pass,
-Life_Mx_Stand_To_Sit,ual,interaction,sit,2.233,probation,0.225,0.598,0.0,0.0,0,,43.4,0.0,hold,"metrics gold, no passing frame-sheet review yet"
+Life_Mx_Stand_To_Sit,ual,interaction,sit,2.233,gold,0.225,0.598,0.0,0.0,0,,43.4,0.0,pass,
 Life_Mx_Talk_Chat,ual,interaction,loop,14.367,gold,0.005,0.033,0.0,0.53,0,0.0,0.0,0.0,pass,
 Life_Mx_Tell_Secret,ual,interaction,once,10.9,gold,0.005,0.036,0.0,1.31,0,,0.0,0.0,pass,
 Life_Mx_Thankful,ual,interaction,once,3.0,gold,0.008,0.036,0.0,0.75,0,,0.0,0.0,pass,

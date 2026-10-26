@@ -65,6 +65,8 @@ func _shot() -> void:
 					var ik := ContactIK.new()
 					sk.add_child(ik)
 					ik.hand_contact = bool(LifeLibrary.info(clip).get("hand_contact", false))
+					ik.ground_y = 0.0
+					ik._clamp()
 				ap.play(clip)
 				ap.seek(shot_t, true)
 				ap.pause()

@@ -1801,6 +1801,11 @@ func _so_apply(out: Dictionary) -> void:
 	if _so_snap:
 		_so_snap_to = (snap as Transform3D).origin
 		_so_snap_to.y = global_position.y
+		if bool(out.get("snap_hard", false)):
+			global_position = _so_snap_to     # root-motion enter: the clip carries the body, the root jumps under it
+	var exit_to: Variant = out.get("exit_to")
+	if exit_to != null:
+		global_position = Vector3((exit_to as Vector3).x, global_position.y, (exit_to as Vector3).z)
 	var ev: Variant = out["event"]
 	if ev != null:
 		LivingEvents.emit(String((ev as Dictionary).get("kind", "work")), global_position, float((ev as Dictionary).get("radius", 10.0)), 2.0)

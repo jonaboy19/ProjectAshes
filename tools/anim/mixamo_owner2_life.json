@@ -57,7 +57,8 @@
    "inplace": "none",
    "knee_lift": true,
    "hand_margin_extra": 0.03,
-   "lock_wander": 0.15
+   "lock_wander": 0.15,
+   "lock_vel": 0.6
   },
   {
    "name": "Life_Mx_Pick_Up",
@@ -120,15 +121,24 @@
    "inplace": "none",
    "floor": "min",
    "lock_vel": 0.4,
-   "lock_wander": 0.12
+   "lock_wander": 0.12,
+   "shift_m": [
+    -0.012,
+    -0.176
+   ]
   },
   {
    "name": "Life_Mx_Sit_To_Stand",
-   "file": "sit_to_stand_chair.fbx",
+   "file": "stand_to_sit_chair.fbx",
    "inplace": "none",
    "floor": "min",
    "lock_vel": 0.4,
-   "lock_wander": 0.12
+   "lock_wander": 0.12,
+   "reverse": true,
+   "shift_m": [
+    0.011,
+    0.237
+   ]
   },
   {
    "name": "Life_Mx_Sleep_Bed",
