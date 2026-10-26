@@ -682,10 +682,10 @@
   "date": "2026-10-26"
  },
  "Life_Mx_Pray_Kneel": {
-  "sheet": "docs/qa/golden/mixamo_owner/sheet2_life_2.jpg",
+  "sheet": "docs/qa/golden/mixamo_owner/sheet3_life_2.jpg",
   "verdict": "pass",
-  "note": "kneel, hands together; knees on the floor after +4.5 cm lift (probation only because the metric has no ground-speed reference)",
-  "by": "claude (Mixamo owner_set2 front-view 8-frame check sheet, 25 cm checker floor)",
+  "note": "knees on the floor, gold on player + man (woman 2.4 cm float = dress)",
+  "by": "claude (rescue pass: anim_qa player_young + villager_man_a + villager_woman_a, sheet3 front view)",
   "date": "2026-10-26"
  },
  "Life_Mx_Carry_Box_Walk": {
@@ -696,10 +696,10 @@
   "date": "2026-10-26"
  },
  "Life_Mx_Pick_Ground": {
-  "sheet": "docs/qa/golden/mixamo_owner/sheet2_life_1.jpg",
+  "sheet": "docs/qa/golden/mixamo_owner/sheet3_life_1.jpg",
   "verdict": "hold",
-  "note": "1.8 cm penetration and 3.6 m/s slide spike while kneeling",
-  "by": "claude (Mixamo owner_set2 front-view 8-frame check sheet, 25 cm checker floor)",
+  "note": "RESCUED pen 1.8 -> 0.5 cm (gold metrics) but a 3.6 m/s foot slide spike while kneeling down remains",
+  "by": "claude (rescue pass: anim_qa player_young + villager_man_a + villager_woman_a, sheet3 front view)",
   "date": "2026-10-26"
  },
  "Life_Mx_Sit_Chair_Talk": {
@@ -710,10 +710,10 @@
   "date": "2026-10-26"
  },
  "Life_Mx_Get_Up_Back": {
-  "sheet": "docs/qa/golden/mixamo_owner/sheet2_life_1.jpg",
-  "verdict": "hold",
-  "note": "10 cm/s foot slide while rising",
-  "by": "claude (Mixamo owner_set2 front-view 8-frame check sheet, 25 cm checker floor)",
+  "sheet": "docs/qa/golden/mixamo_owner/sheet3_life_1.jpg",
+  "verdict": "pass",
+  "note": "RESCUED: looser foot lock (0.4 m/s, 12 cm wander) - 10 cm/s mean slide is the deliberate foot repositioning while rising; gold on 3 rigs",
+  "by": "claude (rescue pass: anim_qa player_young + villager_man_a + villager_woman_a, sheet3 front view)",
   "date": "2026-10-26"
  },
  "Life_Mx_Lift_Heavy": {
@@ -738,10 +738,10 @@
   "date": "2026-10-26"
  },
  "Life_Mx_Sit_To_Stand": {
-  "sheet": "docs/qa/golden/mixamo_owner/sheet2_life_3.jpg",
+  "sheet": "docs/qa/golden/mixamo_owner/sheet3_life_3.jpg",
   "verdict": "hold",
-  "note": "first frame is already half-standing; does not match Life_Mx_Sit_Chair",
-  "by": "claude (Mixamo owner_set2 front-view 8-frame check sheet, 25 cm checker floor)",
+  "note": "metrics gold but the first frame is half-standing (source starts on a high seat) - does not chain from Life_Mx_Sit_Chair",
+  "by": "claude (rescue pass: anim_qa player_young + villager_man_a + villager_woman_a, sheet3 front view)",
   "date": "2026-10-26"
  },
  "Mx_Sword_Combat_To_Sheath": {
@@ -773,10 +773,10 @@
   "date": "2026-10-26"
  },
  "Life_Mx_Chop_Wood": {
-  "sheet": "docs/qa/golden/mixamo_owner/sheet2_life_0.jpg",
+  "sheet": "docs/qa/golden/mixamo_owner/sheet3_life_0.jpg",
   "verdict": "fail",
-  "note": "11.4 deg loop seam and 0.12/0.55 m/s slide (native and crossfaded loop both fail); the swing itself reads well - reauthor a seamless cycle",
-  "by": "claude (Mixamo owner_set2 front-view 8-frame check sheet, 25 cm checker floor)",
+  "note": "UNFIXABLE: crossfaded loop seam is now 0 deg, but the actor steps forward and back every swing (0.16-0.23 m/s slide, foot lock cannot pin a foot that really relocates); Meshy candidate #1",
+  "by": "claude (rescue pass: anim_qa player_young + villager_man_a + villager_woman_a, sheet3 front view)",
   "date": "2026-10-26"
  },
  "Life_Mx_Lute": {
@@ -787,59 +787,59 @@
   "date": "2026-10-26"
  },
  "Life_Mx_Milk_Cow": {
-  "sheet": "docs/qa/golden/mixamo_owner/sheet2_life_1.jpg",
-  "verdict": "fail",
-  "note": "4.1 cm float as retargeted, 21 cm penetration when lowered (deep squat: feet vs pelvis)",
-  "by": "claude (Mixamo owner_set2 front-view 8-frame check sheet, 25 cm checker floor)",
+  "sheet": "docs/qa/golden/mixamo_owner/sheet3_life_1.jpg",
+  "verdict": "pass",
+  "note": "RESCUED: -3.5 cm offset applied correctly after the bake fix; gold player, 1.2 cm pen on man (hides in straw)",
+  "by": "claude (rescue pass: anim_qa player_young + villager_man_a + villager_woman_a, sheet3 front view)",
   "date": "2026-10-26"
  },
  "Life_Mx_Plant_Kneel": {
-  "sheet": "docs/qa/golden/mixamo_owner/sheet2_life_2.jpg",
+  "sheet": "docs/qa/golden/mixamo_owner/sheet3_life_2.jpg",
   "verdict": "fail",
-  "note": "hands 36 cm through the floor",
-  "by": "claude (Mixamo owner_set2 front-view 8-frame check sheet, 25 cm checker floor)",
+  "note": "UNFIXABLE by IK: the hands need +30 cm (UAL arm reach vs the actor), contact IK removes the penetration (0 cm) but the arm runs at full extension and pops 10-19 times; Meshy candidate #3",
+  "by": "claude (rescue pass: anim_qa player_young + villager_man_a + villager_woman_a, sheet3 front view)",
   "date": "2026-10-26"
  },
  "Life_Mx_Pull_Plant": {
-  "sheet": "docs/qa/golden/mixamo_owner/sheet2_life_2.jpg",
-  "verdict": "fail",
-  "note": "hands 21 cm through the floor",
-  "by": "claude (Mixamo owner_set2 front-view 8-frame check sheet, 25 cm checker floor)",
+  "sheet": "docs/qa/golden/mixamo_owner/sheet3_life_2.jpg",
+  "verdict": "hold",
+  "note": "RESCUED on the reference rig (contact IK + knee lift: pen 21 -> 0 cm, gold) but 2.4 cm float on villager_man_a and 3.4 cm on villager_woman_a: arm/leg proportions differ per rig, a static bake cannot satisfy all; needs runtime hand IK",
+  "by": "claude (rescue pass: anim_qa player_young + villager_man_a + villager_woman_a, sheet3 front view)",
   "date": "2026-10-26"
  },
  "Life_Mx_Scythe": {
-  "sheet": "docs/qa/golden/mixamo_owner/sheet2_life_2.jpg",
+  "sheet": "docs/qa/golden/mixamo_owner/sheet3_life_2.jpg",
   "verdict": "fail",
-  "note": "in-place scythe slides 0.5/1.2 m/s (source walks forward)",
-  "by": "claude (Mixamo owner_set2 front-view 8-frame check sheet, 25 cm checker floor)",
+  "note": "UNFIXABLE in place: the source walks while mowing; as a loco clip (Scythe_Walk) the stop-go steps still slide 0.22 m/s against a constant capsule speed; needs root-motion runtime or Meshy #13",
+  "by": "claude (rescue pass: anim_qa player_young + villager_man_a + villager_woman_a, sheet3 front view)",
   "date": "2026-10-26"
  },
  "Life_Mx_Sleep_Bed": {
-  "sheet": "docs/qa/golden/mixamo_owner/sheet2_life_3.jpg",
-  "verdict": "fail",
-  "note": "lying 0.9 m above the floor (bed height baked in); lowering breaks contact - needs a bed-anchored version",
-  "by": "claude (Mixamo owner_set2 front-view 8-frame check sheet, 25 cm checker floor)",
+  "sheet": "docs/qa/golden/mixamo_owner/sheet3_life_3.jpg",
+  "verdict": "pass",
+  "note": "RESCUED: the lift_m offset bug (sequential per-frame edits accumulated through sparse keys) fixed by baking edited bones per frame; now lies on the floor (0 cm pen, 0.1 cm float) on player + man + woman; the bed type lifts it 0.45 m via the slot stand height",
+  "by": "claude (rescue pass: anim_qa player_young + villager_man_a + villager_woman_a, sheet3 front view)",
   "date": "2026-10-26"
  },
  "Life_Mx_Talk_Chat": {
-  "sheet": "docs/qa/golden/mixamo_owner/sheet2_life_3.jpg",
-  "verdict": "fail",
-  "note": "0.82 m/s slide spike (shuffle step) in the 44 s take",
-  "by": "claude (Mixamo owner_set2 front-view 8-frame check sheet, 25 cm checker floor)",
+  "sheet": "docs/qa/golden/mixamo_owner/sheet3_life_3.jpg",
+  "verdict": "pass",
+  "note": "RESCUED: shuffle steps (frames 57-233, 682-685) cut out, 8.0-22.6 s stationary section crossfade-looped; slide 0.5/3 cm/s, seam 0",
+  "by": "claude (rescue pass: anim_qa player_young + villager_man_a + villager_woman_a, sheet3 front view)",
   "date": "2026-10-26"
  },
  "Life_Mx_Wheelbarrow_Walk": {
-  "sheet": "docs/qa/golden/mixamo_owner/sheet2_life_4.jpg",
+  "sheet": "docs/qa/golden/mixamo_owner/sheet3_life_4.jpg",
   "verdict": "fail",
-  "note": "in-place walk slides 0.78/5.95 m/s; no handle pose",
-  "by": "claude (Mixamo owner_set2 front-view 8-frame check sheet, 25 cm checker floor)",
+  "note": "UNFIXABLE: 0.68-1.08 m/s slide with linear and smooth travel extraction (irregular steps), Meshy #14",
+  "by": "claude (rescue pass: anim_qa player_young + villager_man_a + villager_woman_a, sheet3 front view)",
   "date": "2026-10-26"
  },
  "Mx_Get_Up_Knockdown": {
-  "sheet": "docs/qa/golden/mixamo_owner/sheet2_combat_0.jpg",
-  "verdict": "fail",
-  "note": "2.8 cm penetration + 2.4 m/s slide spike",
-  "by": "claude (Mixamo owner_set2 front-view 8-frame check sheet, 25 cm checker floor)",
+  "sheet": "docs/qa/golden/mixamo_owner/sheet3_combat_0.jpg",
+  "verdict": "hold",
+  "note": "RESCUED pen 2.8 -> 0 cm and 8 IK pops -> 0 (quaternion hemisphere fix); a 2.4 m/s foot spike on the push-up step remains, so the player getup is not repointed",
+  "by": "claude (rescue pass: anim_qa player_young + villager_man_a + villager_woman_a, sheet3 front view)",
   "date": "2026-10-26"
  },
  "Mx_Trav_Climb_Low": {

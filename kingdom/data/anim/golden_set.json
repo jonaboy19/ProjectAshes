@@ -10699,7 +10699,7 @@
     "pen_cm": 0.0,
     "float_cm": 0.52,
     "pops": 0,
-    "seam_deg": 0.09,
+    "seam_deg": 0.07,
     "drift_cm": 0.0,
     "speed": 0.01,
     "stretch_pct": 0.0
@@ -10742,14 +10742,14 @@
    "rig": "ual",
    "category": "interaction",
    "kind": "loop",
-   "length_s": 2.033,
+   "length_s": 1.967,
    "metrics": {
-    "slide_mean": 0.175,
-    "slide_max": 0.541,
+    "slide_mean": 0.228,
+    "slide_max": 0.786,
     "pen_cm": 0.0,
-    "float_cm": 1.82,
+    "float_cm": 2.74,
     "pops": 0,
-    "seam_deg": 9.4,
+    "seam_deg": 0.0,
     "drift_cm": 0.0,
     "speed": null,
     "stretch_pct": 0.0
@@ -10757,36 +10757,44 @@
    "foot_contacts": {
     "foot_l": [
      [
-      19,
-      37
+      5,
+      10
+     ],
+     [
+      56,
+      58
      ]
     ],
     "foot_r": [
      [
       0,
-      5
+      6
      ],
      [
-      12,
-      14
+      8,
+      12
      ],
      [
-      21,
-      35
+      18,
+      32
+     ],
+     [
+      57,
+      59
      ]
     ]
    },
    "contacts_fps": 30.0,
    "upper": false,
    "review": {
-    "sheet": "docs/qa/golden/mixamo_owner/sheet2_life_0.jpg",
+    "sheet": "docs/qa/golden/mixamo_owner/sheet3_life_0.jpg",
     "verdict": "fail",
-    "note": "11.4 deg loop seam and 0.12/0.55 m/s slide (native and crossfaded loop both fail); the swing itself reads well - reauthor a seamless cycle",
-    "by": "claude (Mixamo owner_set2 front-view 8-frame check sheet, 25 cm checker floor)",
+    "note": "UNFIXABLE: crossfaded loop seam is now 0 deg, but the actor steps forward and back every swing (0.16-0.23 m/s slide, foot lock cannot pin a foot that really relocates); Meshy candidate #1",
+    "by": "claude (rescue pass: anim_qa player_young + villager_man_a + villager_woman_a, sheet3 front view)",
     "date": "2026-10-26"
    },
    "status": "banned",
-   "why": "banned: slide mean 0.17 m/s; banned: slide max 0.54 m/s; banned: loop seam 9.4 deg"
+   "why": "probation: float 2.7 cm; banned: slide mean 0.23 m/s; banned: slide max 0.79 m/s"
   },
   "Life_Mx_Dig_Plant": {
    "rig": "ual",
@@ -10837,12 +10845,12 @@
    "length_s": 8.833,
    "metrics": {
     "slide_mean": 0.006,
-    "slide_max": 0.042,
+    "slide_max": 0.038,
     "pen_cm": 0.0,
     "float_cm": 0.84,
     "pops": 0,
     "seam_deg": 0.48,
-    "drift_cm": 0.1,
+    "drift_cm": 0.0,
     "speed": null,
     "stretch_pct": 0.0
    },
@@ -10882,12 +10890,12 @@
    "kind": "loop",
    "length_s": 40.467,
    "metrics": {
-    "slide_mean": 0.006,
+    "slide_mean": 0.005,
     "slide_max": 0.043,
     "pen_cm": 0.0,
     "float_cm": 0.41,
     "pops": 0,
-    "seam_deg": 0.07,
+    "seam_deg": 0.09,
     "drift_cm": 0.0,
     "speed": null,
     "stretch_pct": 0.0
@@ -10908,7 +10916,7 @@
      ],
      [
       632,
-      699
+      698
      ],
      [
       749,
@@ -10941,7 +10949,7 @@
       273
      ],
      [
-      314,
+      311,
       965
      ],
      [
@@ -10968,7 +10976,7 @@
    "kind": "once",
    "length_s": 8.767,
    "metrics": {
-    "slide_mean": 0.048,
+    "slide_mean": 0.049,
     "slide_max": 0.35,
     "pen_cm": 0.0,
     "float_cm": 0.83,
@@ -11083,14 +11091,14 @@
    "contacts_fps": 30.0,
    "upper": false,
    "review": {
-    "sheet": "docs/qa/golden/mixamo_owner/sheet2_life_1.jpg",
-    "verdict": "hold",
-    "note": "10 cm/s foot slide while rising",
-    "by": "claude (Mixamo owner_set2 front-view 8-frame check sheet, 25 cm checker floor)",
+    "sheet": "docs/qa/golden/mixamo_owner/sheet3_life_1.jpg",
+    "verdict": "pass",
+    "note": "RESCUED: looser foot lock (0.4 m/s, 12 cm wander) - 10 cm/s mean slide is the deliberate foot repositioning while rising; gold on 3 rigs",
+    "by": "claude (rescue pass: anim_qa player_young + villager_man_a + villager_woman_a, sheet3 front view)",
     "date": "2026-10-26"
    },
-   "status": "probation",
-   "why": "metrics gold, no passing frame-sheet review yet"
+   "status": "gold",
+   "why": ""
   },
   "Life_Mx_Lift_Heavy": {
    "rig": "ual",
@@ -11164,10 +11172,10 @@
    "kind": "loop",
    "length_s": 4.167,
    "metrics": {
-    "slide_mean": 0.026,
-    "slide_max": 0.195,
+    "slide_mean": 0.023,
+    "slide_max": 0.158,
     "pen_cm": 0.0,
-    "float_cm": 1.01,
+    "float_cm": 1.23,
     "pops": 0,
     "seam_deg": 0.0,
     "drift_cm": 0.0,
@@ -11177,31 +11185,35 @@
    "foot_contacts": {
     "foot_l": [
      [
-      9,
-      15
+      0,
+      2
      ],
      [
-      28,
+      8,
+      18
+     ],
+     [
+      27,
       38
      ],
      [
-      45,
-      54
+      44,
+      55
      ],
      [
       63,
-      73
+      74
      ],
      [
-      82,
-      84
+      81,
+      88
      ],
      [
       98,
-      103
+      107
      ],
      [
-      117,
+      116,
       125
      ]
     ],
@@ -11254,7 +11266,7 @@
     "date": "2026-10-26"
    },
    "status": "banned",
-   "why": "banned: slide max 0.20 m/s"
+   "why": "banned: slide max 0.16 m/s"
   },
   "Life_Mx_Milk_Cow": {
    "rig": "ual",
@@ -11262,10 +11274,10 @@
    "kind": "loop",
    "length_s": 4.5,
    "metrics": {
-    "slide_mean": 0.007,
-    "slide_max": 0.02,
-    "pen_cm": 20.87,
-    "float_cm": 0.0,
+    "slide_mean": 0.005,
+    "slide_max": 0.023,
+    "pen_cm": 0.0,
+    "float_cm": 0.42,
     "pops": 0,
     "seam_deg": 0.26,
     "drift_cm": 0.0,
@@ -11289,14 +11301,14 @@
    "contacts_fps": 30.0,
    "upper": false,
    "review": {
-    "sheet": "docs/qa/golden/mixamo_owner/sheet2_life_1.jpg",
-    "verdict": "fail",
-    "note": "4.1 cm float as retargeted, 21 cm penetration when lowered (deep squat: feet vs pelvis)",
-    "by": "claude (Mixamo owner_set2 front-view 8-frame check sheet, 25 cm checker floor)",
+    "sheet": "docs/qa/golden/mixamo_owner/sheet3_life_1.jpg",
+    "verdict": "pass",
+    "note": "RESCUED: -3.5 cm offset applied correctly after the bake fix; gold player, 1.2 cm pen on man (hides in straw)",
+    "by": "claude (rescue pass: anim_qa player_young + villager_man_a + villager_woman_a, sheet3 front view)",
     "date": "2026-10-26"
    },
-   "status": "banned",
-   "why": "banned: ground penetration 20.9 cm"
+   "status": "gold",
+   "why": ""
   },
   "Life_Mx_Pick_Fruit": {
    "rig": "ual",
@@ -11348,7 +11360,7 @@
    "metrics": {
     "slide_mean": 0.225,
     "slide_max": 3.56,
-    "pen_cm": 1.76,
+    "pen_cm": 0.47,
     "float_cm": 1.53,
     "pops": 0,
     "seam_deg": null,
@@ -11389,14 +11401,14 @@
    "contacts_fps": 30.0,
    "upper": false,
    "review": {
-    "sheet": "docs/qa/golden/mixamo_owner/sheet2_life_1.jpg",
+    "sheet": "docs/qa/golden/mixamo_owner/sheet3_life_1.jpg",
     "verdict": "hold",
-    "note": "1.8 cm penetration and 3.6 m/s slide spike while kneeling",
-    "by": "claude (Mixamo owner_set2 front-view 8-frame check sheet, 25 cm checker floor)",
+    "note": "RESCUED pen 1.8 -> 0.5 cm (gold metrics) but a 3.6 m/s foot slide spike while kneeling down remains",
+    "by": "claude (rescue pass: anim_qa player_young + villager_man_a + villager_woman_a, sheet3 front view)",
     "date": "2026-10-26"
    },
    "status": "probation",
-   "why": "probation: ground penetration 1.8 cm"
+   "why": "metrics gold, no passing frame-sheet review yet"
   },
   "Life_Mx_Pick_Up": {
    "rig": "ual",
@@ -11500,11 +11512,11 @@
    "kind": "loop",
    "length_s": 7.533,
    "metrics": {
-    "slide_mean": 0.034,
-    "slide_max": 0.146,
-    "pen_cm": 35.82,
-    "float_cm": 0.0,
-    "pops": 0,
+    "slide_mean": 0.03,
+    "slide_max": 0.09,
+    "pen_cm": 0.0,
+    "float_cm": 1.55,
+    "pops": 10,
     "seam_deg": 0.09,
     "drift_cm": 0.0,
     "speed": null,
@@ -11513,32 +11525,60 @@
    "foot_contacts": {
     "foot_l": [
      [
-      20,
-      206
+      34,
+      47
+     ],
+     [
+      82,
+      91
+     ],
+     [
+      107,
+      109
+     ],
+     [
+      151,
+      154
+     ],
+     [
+      168,
+      188
      ]
     ],
     "foot_r": [
      [
-      30,
-      51
+      83,
+      91
      ],
      [
-      62,
-      201
+      107,
+      111
+     ],
+     [
+      122,
+      125
+     ],
+     [
+      151,
+      157
+     ],
+     [
+      168,
+      186
      ]
     ]
    },
    "contacts_fps": 30.0,
    "upper": false,
    "review": {
-    "sheet": "docs/qa/golden/mixamo_owner/sheet2_life_2.jpg",
+    "sheet": "docs/qa/golden/mixamo_owner/sheet3_life_2.jpg",
     "verdict": "fail",
-    "note": "hands 36 cm through the floor",
-    "by": "claude (Mixamo owner_set2 front-view 8-frame check sheet, 25 cm checker floor)",
+    "note": "UNFIXABLE by IK: the hands need +30 cm (UAL arm reach vs the actor), contact IK removes the penetration (0 cm) but the arm runs at full extension and pops 10-19 times; Meshy candidate #3",
+    "by": "claude (rescue pass: anim_qa player_young + villager_man_a + villager_woman_a, sheet3 front view)",
     "date": "2026-10-26"
    },
    "status": "banned",
-   "why": "banned: ground penetration 35.8 cm; probation: slide mean 0.03 m/s; probation: slide max 0.15 m/s"
+   "why": "banned: 10 pop(s)"
   },
   "Life_Mx_Plant_Tree": {
    "rig": "ual",
@@ -11588,45 +11628,13 @@
    "kind": "loop",
    "length_s": 1.9,
    "metrics": {
-    "slide_mean": null,
-    "slide_max": null,
+    "slide_mean": 0.005,
+    "slide_max": 0.02,
     "pen_cm": 0.0,
-    "float_cm": 0.22,
+    "float_cm": 0.24,
     "pops": 0,
-    "seam_deg": 0.14,
+    "seam_deg": 0.03,
     "drift_cm": 0.0,
-    "speed": null,
-    "stretch_pct": 0.0
-   },
-   "foot_contacts": {
-    "foot_l": [],
-    "foot_r": []
-   },
-   "contacts_fps": 30.0,
-   "upper": false,
-   "review": {
-    "sheet": "docs/qa/golden/mixamo_owner/sheet2_life_2.jpg",
-    "verdict": "pass",
-    "note": "kneel, hands together; knees on the floor after +4.5 cm lift (probation only because the metric has no ground-speed reference)",
-    "by": "claude (Mixamo owner_set2 front-view 8-frame check sheet, 25 cm checker floor)",
-    "date": "2026-10-26"
-   },
-   "status": "probation",
-   "why": "note: slide unscored (no usable ground-speed reference)"
-  },
-  "Life_Mx_Pull_Plant": {
-   "rig": "ual",
-   "category": "interaction",
-   "kind": "loop",
-   "length_s": 4.7,
-   "metrics": {
-    "slide_mean": 0.033,
-    "slide_max": 0.224,
-    "pen_cm": 21.4,
-    "float_cm": 0.0,
-    "pops": 0,
-    "seam_deg": 0.36,
-    "drift_cm": 0.2,
     "speed": null,
     "stretch_pct": 0.0
    },
@@ -11634,12 +11642,62 @@
     "foot_l": [
      [
       0,
+      57
+     ]
+    ],
+    "foot_r": [
+     [
+      0,
+      57
+     ]
+    ]
+   },
+   "contacts_fps": 30.0,
+   "upper": false,
+   "review": {
+    "sheet": "docs/qa/golden/mixamo_owner/sheet3_life_2.jpg",
+    "verdict": "pass",
+    "note": "knees on the floor, gold on player + man (woman 2.4 cm float = dress)",
+    "by": "claude (rescue pass: anim_qa player_young + villager_man_a + villager_woman_a, sheet3 front view)",
+    "date": "2026-10-26"
+   },
+   "status": "gold",
+   "why": ""
+  },
+  "Life_Mx_Pull_Plant": {
+   "rig": "ual",
+   "category": "interaction",
+   "kind": "loop",
+   "length_s": 4.7,
+   "metrics": {
+    "slide_mean": 0.011,
+    "slide_max": 0.05,
+    "pen_cm": 0.0,
+    "float_cm": 1.53,
+    "pops": 0,
+    "seam_deg": 0.02,
+    "drift_cm": 0.0,
+    "speed": null,
+    "stretch_pct": 0.0
+   },
+   "foot_contacts": {
+    "foot_l": [
+     [
+      0,
+      69
+     ],
+     [
+      81,
       141
      ]
     ],
     "foot_r": [
      [
       0,
+      70
+     ],
+     [
+      81,
       141
      ]
     ]
@@ -11647,14 +11705,14 @@
    "contacts_fps": 30.0,
    "upper": false,
    "review": {
-    "sheet": "docs/qa/golden/mixamo_owner/sheet2_life_2.jpg",
-    "verdict": "fail",
-    "note": "hands 21 cm through the floor",
-    "by": "claude (Mixamo owner_set2 front-view 8-frame check sheet, 25 cm checker floor)",
+    "sheet": "docs/qa/golden/mixamo_owner/sheet3_life_2.jpg",
+    "verdict": "hold",
+    "note": "RESCUED on the reference rig (contact IK + knee lift: pen 21 -> 0 cm, gold) but 2.4 cm float on villager_man_a and 3.4 cm on villager_woman_a: arm/leg proportions differ per rig, a static bake cannot satisfy all; needs runtime hand IK",
+    "by": "claude (rescue pass: anim_qa player_young + villager_man_a + villager_woman_a, sheet3 front view)",
     "date": "2026-10-26"
    },
-   "status": "banned",
-   "why": "banned: ground penetration 21.4 cm; probation: slide mean 0.03 m/s; banned: slide max 0.22 m/s"
+   "status": "probation",
+   "why": "metrics gold, no passing frame-sheet review yet"
   },
   "Life_Mx_Salute": {
    "rig": "ual",
@@ -11704,12 +11762,12 @@
    "kind": "loop",
    "length_s": 2.367,
    "metrics": {
-    "slide_mean": 0.496,
+    "slide_mean": 0.487,
     "slide_max": 1.173,
     "pen_cm": 0.0,
     "float_cm": 0.47,
     "pops": 0,
-    "seam_deg": 4.96,
+    "seam_deg": 0.03,
     "drift_cm": 0.0,
     "speed": null,
     "stretch_pct": 0.0
@@ -11743,7 +11801,7 @@
       60
      ],
      [
-      67,
+      65,
       71
      ]
     ]
@@ -11751,14 +11809,14 @@
    "contacts_fps": 30.0,
    "upper": false,
    "review": {
-    "sheet": "docs/qa/golden/mixamo_owner/sheet2_life_2.jpg",
+    "sheet": "docs/qa/golden/mixamo_owner/sheet3_life_2.jpg",
     "verdict": "fail",
-    "note": "in-place scythe slides 0.5/1.2 m/s (source walks forward)",
-    "by": "claude (Mixamo owner_set2 front-view 8-frame check sheet, 25 cm checker floor)",
+    "note": "UNFIXABLE in place: the source walks while mowing; as a loco clip (Scythe_Walk) the stop-go steps still slide 0.22 m/s against a constant capsule speed; needs root-motion runtime or Meshy #13",
+    "by": "claude (rescue pass: anim_qa player_young + villager_man_a + villager_woman_a, sheet3 front view)",
     "date": "2026-10-26"
    },
    "status": "banned",
-   "why": "banned: slide mean 0.50 m/s; banned: slide max 1.17 m/s; probation: loop seam 5.0 deg"
+   "why": "banned: slide mean 0.49 m/s; banned: slide max 1.17 m/s"
   },
   "Life_Mx_Sit_Chair": {
    "rig": "ual",
@@ -11809,7 +11867,7 @@
    "length_s": 44.933,
    "metrics": {
     "slide_mean": 0.004,
-    "slide_max": 0.026,
+    "slide_max": 0.028,
     "pen_cm": 0.0,
     "float_cm": 0.0,
     "pops": 1,
@@ -11825,27 +11883,51 @@
       767
      ],
      [
-      788,
-      835
+      789,
+      808
      ],
      [
-      842,
-      878
+      812,
+      820
      ],
      [
-      896,
-      951
+      822,
+      824
      ],
      [
-      955,
-      1067
+      843,
+      859
      ],
      [
-      1072,
-      1173
+      864,
+      876
      ],
      [
-      1178,
+      897,
+      943
+     ],
+     [
+      960,
+      988
+     ],
+     [
+      991,
+      1027
+     ],
+     [
+      1056,
+      1058
+     ],
+     [
+      1073,
+      1115
+     ],
+     [
+      1117,
+      1169
+     ],
+     [
+      1180,
       1348
      ]
     ],
@@ -11928,10 +12010,10 @@
    "contacts_fps": 30.0,
    "upper": false,
    "review": {
-    "sheet": "docs/qa/golden/mixamo_owner/sheet2_life_3.jpg",
+    "sheet": "docs/qa/golden/mixamo_owner/sheet3_life_3.jpg",
     "verdict": "hold",
-    "note": "first frame is already half-standing; does not match Life_Mx_Sit_Chair",
-    "by": "claude (Mixamo owner_set2 front-view 8-frame check sheet, 25 cm checker floor)",
+    "note": "metrics gold but the first frame is half-standing (source starts on a high seat) - does not chain from Life_Mx_Sit_Chair",
+    "by": "claude (rescue pass: anim_qa player_young + villager_man_a + villager_woman_a, sheet3 front view)",
     "date": "2026-10-26"
    },
    "status": "probation",
@@ -11943,10 +12025,10 @@
    "kind": "loop",
    "length_s": 1.667,
    "metrics": {
-    "slide_mean": null,
-    "slide_max": null,
-    "pen_cm": 497.55,
-    "float_cm": 0.0,
+    "slide_mean": 0.003,
+    "slide_max": 0.007,
+    "pen_cm": 0.0,
+    "float_cm": 0.12,
     "pops": 0,
     "seam_deg": 0.26,
     "drift_cm": 0.0,
@@ -11970,14 +12052,14 @@
    "contacts_fps": 30.0,
    "upper": false,
    "review": {
-    "sheet": "docs/qa/golden/mixamo_owner/sheet2_life_3.jpg",
-    "verdict": "fail",
-    "note": "lying 0.9 m above the floor (bed height baked in); lowering breaks contact - needs a bed-anchored version",
-    "by": "claude (Mixamo owner_set2 front-view 8-frame check sheet, 25 cm checker floor)",
+    "sheet": "docs/qa/golden/mixamo_owner/sheet3_life_3.jpg",
+    "verdict": "pass",
+    "note": "RESCUED: the lift_m offset bug (sequential per-frame edits accumulated through sparse keys) fixed by baking edited bones per frame; now lies on the floor (0 cm pen, 0.1 cm float) on player + man + woman; the bed type lifts it 0.45 m via the slot stand height",
+    "by": "claude (rescue pass: anim_qa player_young + villager_man_a + villager_woman_a, sheet3 front view)",
     "date": "2026-10-26"
    },
-   "status": "banned",
-   "why": "banned: ground penetration 497.5 cm; note: slide unscored (no usable ground-speed reference)"
+   "status": "gold",
+   "why": ""
   },
   "Life_Mx_Stand_To_Sit": {
    "rig": "ual",
@@ -11985,8 +12067,8 @@
    "kind": "sit",
    "length_s": 2.233,
    "metrics": {
-    "slide_mean": 0.256,
-    "slide_max": 0.687,
+    "slide_mean": 0.225,
+    "slide_max": 0.598,
     "pen_cm": 0.0,
     "float_cm": 0.0,
     "pops": 0,
@@ -11999,7 +12081,7 @@
     "foot_l": [
      [
       0,
-      37
+      18
      ]
     ],
     "foot_r": [
@@ -12025,51 +12107,43 @@
    "rig": "ual",
    "category": "interaction",
    "kind": "loop",
-   "length_s": 44.533,
+   "length_s": 14.367,
    "metrics": {
-    "slide_mean": 0.031,
-    "slide_max": 0.817,
+    "slide_mean": 0.005,
+    "slide_max": 0.033,
     "pen_cm": 0.0,
-    "float_cm": 0.46,
+    "float_cm": 0.53,
     "pops": 0,
-    "seam_deg": 1.07,
-    "drift_cm": 0.1,
+    "seam_deg": 0.0,
+    "drift_cm": 0.0,
     "speed": null,
     "stretch_pct": 0.0
    },
    "foot_contacts": {
     "foot_l": [
      [
-      48,
-      71
-     ],
-     [
-      73,
-      78
-     ],
-     [
-      84,
-      196
+      0,
+      431
      ]
     ],
     "foot_r": [
      [
-      90,
-      190
+      0,
+      431
      ]
     ]
    },
    "contacts_fps": 30.0,
    "upper": false,
    "review": {
-    "sheet": "docs/qa/golden/mixamo_owner/sheet2_life_3.jpg",
-    "verdict": "fail",
-    "note": "0.82 m/s slide spike (shuffle step) in the 44 s take",
-    "by": "claude (Mixamo owner_set2 front-view 8-frame check sheet, 25 cm checker floor)",
+    "sheet": "docs/qa/golden/mixamo_owner/sheet3_life_3.jpg",
+    "verdict": "pass",
+    "note": "RESCUED: shuffle steps (frames 57-233, 682-685) cut out, 8.0-22.6 s stationary section crossfade-looped; slide 0.5/3 cm/s, seam 0",
+    "by": "claude (rescue pass: anim_qa player_young + villager_man_a + villager_woman_a, sheet3 front view)",
     "date": "2026-10-26"
    },
-   "status": "banned",
-   "why": "probation: slide mean 0.03 m/s; banned: slide max 0.82 m/s"
+   "status": "gold",
+   "why": ""
   },
   "Life_Mx_Tell_Secret": {
    "rig": "ual",
@@ -12173,13 +12247,13 @@
    "kind": "loop",
    "length_s": 0.5,
    "metrics": {
-    "slide_mean": 0.013,
-    "slide_max": 0.036,
+    "slide_mean": 0.011,
+    "slide_max": 0.028,
     "pen_cm": 0.0,
     "float_cm": 0.26,
     "pops": 0,
-    "seam_deg": 1.76,
-    "drift_cm": 0.3,
+    "seam_deg": 0.4,
+    "drift_cm": 0.0,
     "speed": null,
     "stretch_pct": 0.0
    },
@@ -12215,12 +12289,12 @@
    "kind": "loco",
    "length_s": 0.933,
    "metrics": {
-    "slide_mean": 0.78,
+    "slide_mean": 1.077,
     "slide_max": 5.946,
-    "pen_cm": 0.0,
-    "float_cm": 0.44,
+    "pen_cm": 0.01,
+    "float_cm": 0.0,
     "pops": 0,
-    "seam_deg": 1.61,
+    "seam_deg": 0.27,
     "drift_cm": 0.0,
     "speed": 1.69,
     "stretch_pct": 0.0
@@ -12228,12 +12302,8 @@
    "foot_contacts": {
     "foot_l": [
      [
-      0,
-      2
-     ],
-     [
       8,
-      23
+      26
      ]
     ],
     "foot_r": [
@@ -12244,20 +12314,24 @@
      [
       14,
       16
+     ],
+     [
+      23,
+      28
      ]
     ]
    },
    "contacts_fps": 30.0,
    "upper": false,
    "review": {
-    "sheet": "docs/qa/golden/mixamo_owner/sheet2_life_4.jpg",
+    "sheet": "docs/qa/golden/mixamo_owner/sheet3_life_4.jpg",
     "verdict": "fail",
-    "note": "in-place walk slides 0.78/5.95 m/s; no handle pose",
-    "by": "claude (Mixamo owner_set2 front-view 8-frame check sheet, 25 cm checker floor)",
+    "note": "UNFIXABLE: 0.68-1.08 m/s slide with linear and smooth travel extraction (irregular steps), Meshy #14",
+    "by": "claude (rescue pass: anim_qa player_young + villager_man_a + villager_woman_a, sheet3 front view)",
     "date": "2026-10-26"
    },
    "status": "banned",
-   "why": "banned: slide mean 0.78 m/s; banned: slide max 5.95 m/s"
+   "why": "banned: slide mean 1.08 m/s; banned: slide max 5.95 m/s"
   },
   "Loco_Pivot180_Run_L": {
    "rig": "ual",
@@ -14368,7 +14442,7 @@
    "metrics": {
     "slide_mean": 0.192,
     "slide_max": 2.448,
-    "pen_cm": 2.77,
+    "pen_cm": 0.0,
     "float_cm": 0.38,
     "pops": 0,
     "seam_deg": null,
@@ -14393,14 +14467,14 @@
    "contacts_fps": 30.0,
    "upper": false,
    "review": {
-    "sheet": "docs/qa/golden/mixamo_owner/sheet2_combat_0.jpg",
-    "verdict": "fail",
-    "note": "2.8 cm penetration + 2.4 m/s slide spike",
-    "by": "claude (Mixamo owner_set2 front-view 8-frame check sheet, 25 cm checker floor)",
+    "sheet": "docs/qa/golden/mixamo_owner/sheet3_combat_0.jpg",
+    "verdict": "hold",
+    "note": "RESCUED pen 2.8 -> 0 cm and 8 IK pops -> 0 (quaternion hemisphere fix); a 2.4 m/s foot spike on the push-up step remains, so the player getup is not repointed",
+    "by": "claude (rescue pass: anim_qa player_young + villager_man_a + villager_woman_a, sheet3 front view)",
     "date": "2026-10-26"
    },
-   "status": "banned",
-   "why": "banned: ground penetration 2.8 cm"
+   "status": "probation",
+   "why": "metrics gold, no passing frame-sheet review yet"
   },
   "Mx_GreatSword_Death": {
    "rig": "ual",

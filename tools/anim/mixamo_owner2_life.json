@@ -5,7 +5,11 @@
    "file": "chop_wood_axe_downward.fbx",
    "inplace": "none",
    "loop": true,
-   "loop_native": false
+   "loop_native": false,
+   "loop_blend": 0.3,
+   "loop_search": 1.0,
+   "lock_wander": 0.2,
+   "lock_vel": 0.5
   },
   {
    "name": "Life_Mx_Plant_Kneel",
@@ -13,7 +17,10 @@
    "inplace": "none",
    "loop": true,
    "contact": false,
-   "floor": "min"
+   "floor": "min",
+   "knee_lift": true,
+   "hand_margin_extra": 0.1,
+   "ik_smooth": 16
   },
   {
    "name": "Life_Mx_Plant_Tree",
@@ -26,7 +33,9 @@
    "inplace": "none",
    "loop": true,
    "contact": false,
-   "floor": "min"
+   "floor": "min",
+   "knee_lift": true,
+   "hand_margin_extra": 0.09
   },
   {
    "name": "Life_Mx_Scythe",
@@ -40,12 +49,14 @@
    "inplace": "none",
    "loop": true,
    "floor": "min",
-   "lift_m": -0.04
+   "lift_m": -0.035
   },
   {
    "name": "Life_Mx_Pick_Ground",
    "file": "pick_from_ground.fbx",
-   "inplace": "none"
+   "inplace": "none",
+   "knee_lift": true,
+   "hand_margin_extra": 0.03
   },
   {
    "name": "Life_Mx_Pick_Up",
@@ -106,13 +117,17 @@
    "name": "Life_Mx_Stand_To_Sit",
    "file": "stand_to_sit_chair.fbx",
    "inplace": "none",
-   "floor": "min"
+   "floor": "min",
+   "lock_vel": 0.4,
+   "lock_wander": 0.12
   },
   {
    "name": "Life_Mx_Sit_To_Stand",
    "file": "sit_to_stand_chair.fbx",
    "inplace": "none",
-   "floor": "min"
+   "floor": "min",
+   "lock_vel": 0.4,
+   "lock_wander": 0.12
   },
   {
    "name": "Life_Mx_Sleep_Bed",
@@ -122,13 +137,15 @@
    "floor": "none",
    "contact": false,
    "foot_lock": false,
-   "lift_m": -0.9
+   "lift_m": -0.855
   },
   {
    "name": "Life_Mx_Get_Up_Back",
    "file": "get_up_from_back.fbx",
    "inplace": "none",
-   "floor": "min"
+   "floor": "min",
+   "lock_vel": 0.4,
+   "lock_wander": 0.12
   },
   {
    "name": "Life_Mx_Drink",
@@ -146,7 +163,10 @@
    "name": "Life_Mx_Talk_Chat",
    "file": "talking_standing_chat.fbx",
    "inplace": "none",
-   "loop": true
+   "loop": true,
+   "start": 8.0,
+   "end": 22.6,
+   "loop_native": false
   },
   {
    "name": "Life_Mx_Pray_Kneel",

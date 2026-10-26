@@ -2,9 +2,9 @@
  {
   "name": "Life_Mx_Chop_Wood",
   "loop": true,
-  "seconds": 2.03,
-  "frames": 62,
-  "keys": 1447,
+  "seconds": 1.97,
+  "frames": 60,
+  "keys": 1423,
   "source": "chop_wood_axe_downward.fbx",
   "range_s": [
    null,
@@ -12,9 +12,9 @@
   ],
   "autotrim": null,
   "loop_pts": [
-   0.23,
+   0.3,
    2.27,
-   10.11
+   11.7
   ],
   "floor_fix_m": 0.068,
   "contact_lift_m": 0.0,
@@ -424,19 +424,23 @@
  {
   "name": "Life_Mx_Talk_Chat",
   "loop": true,
-  "seconds": 44.53,
-  "frames": 1337,
-  "keys": 6637,
+  "seconds": 14.37,
+  "frames": 432,
+  "keys": 2401,
   "source": "talking_standing_chat.fbx",
   "range_s": [
-   0.0,
-   44.53333333333333
+   8.0,
+   22.6
   ],
   "autotrim": null,
-  "loop_pts": null,
-  "floor_fix_m": 0.091,
+  "loop_pts": [
+   0.23,
+   14.6,
+   2.01
+  ],
+  "floor_fix_m": 0.048,
   "contact_lift_m": 0.0,
-  "min_foot_m": -0.003,
+  "min_foot_m": -0.001,
   "travel_m": 0.0,
   "hip_scale": 0.8509
  },

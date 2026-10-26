@@ -113,7 +113,7 @@ const ACT_CLIPS := {
 	Act.SHELTER: ["Life_Mocap_Cold", "Life_Ambient_Rub_Arms", "Shivering", "Idle_Subtle"],
 	Act.FLEE: ["Shivering", "Idle_Hurt"],
 	Act.WATCH: ["Life_Ambient_Shade_Eyes", "Idle_Listening", "Idle_Subtle"],
-	Act.SLEEP: ["Life_Mx_Sit_Floor", "Sitting_Idle"],
+	Act.SLEEP: ["Life_Mx_Sleep_Bed", "Life_Mx_Sit_Floor", "Sitting_Idle"],
 	Act.HOME: ["Life_Chore_Sweep", "Sitting_Idle"],
 	Act.EAT: ["Life_Eat_Bread_Stand", "Consume_Item", "Sitting_Idle"],
 	Act.SIT: ["Sitting_Idle", "Idle_Subtle"],
@@ -991,6 +991,10 @@ func _apply_plan(here: Vector2, hazard: Vector2, look: Vector2) -> void:
 		_begin_oneshot(["Life_Ambient_Look_Around", "Idle_Subtle"], 3.2)
 		if _scared_at != Vector2.INF:
 			_say(NpcWorld.line("hide", person, now / 1000), 2.6)
+	elif not was_inside and _prev_act == Act.SLEEP and _act != Act.SLEEP and _anim != null and _anim.has_animation("Life_Mx_Get_Up_Back"):
+		# Slept outdoors on the ground (Life_Mx_Sleep_Bed is floor-level): get up from the back before walking off.
+		_begin_oneshot(["Life_Mx_Get_Up_Back"], 7.0)
+		_wait = maxf(_wait, 7.0)
 	elif was_inside and (_prev_act == Act.SLEEP or _prev_act == Act.HOME or _prev_act == Act.EAT) and _act != _prev_act \
 			and not _plan_indoors and DailyRhythm.local_time(person) >= 5.0 and DailyRhythm.local_time(person) < 10.0:
 		# Wake: the morning stretch at the door before the day begins.
@@ -1505,11 +1509,9 @@ func _footstep() -> void:
 	var now := Time.get_ticks_msec()
 	if now - _last_step_ms < 70:
 		return
-	var sound := "step_" + _surface
-	if Audio.has_method("has_sound") and not Audio.has_sound(sound):
-		return
 	_last_step_ms = now
-	Audio.play_sfx(sound, global_position, -17.0, 0.08)
+	# Per-material step + puff from SurfaceQuery (wood floors, bridges, snow, water); only within STEP_RANGE of the player.
+	preload("res://scripts/world/surface_feedback.gd").footstep(self, global_position, -13.0, velocity.length())
 
 
 func _add_head_look(model: Node3D) -> void:

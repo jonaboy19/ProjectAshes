@@ -25,6 +25,9 @@ METHOD (the retarget core is kingdom/tools/anim/retarget_bvh.py, shared with the
   * keys: Douglas-Peucker reduction (0.3 deg / 2 mm), linear interpolation, 30 fps.
 POST PASSES (this file, on the baked actions):
   * inplace_z (per clip, e.g. ladder climb): linear vertical travel removed from the pelvis.
+  * CONTACT IK (default on, contact_ik=false to skip): hands / finger tips clamped above the floor with two-bone arm IK,
+    lift max-filtered and smoothed (no pops). Per-clip lock_vel / lock_wander tune the foot lock.
+  * knee_lift (per clip): per-frame smoothed pelvis raise keeping the knees KNEE_MARGIN above the floor (kneeling).
   * lift_m (per clip): constant pelvis height offset after measuring mesh contact (kneel/sit/lie poses).
   * FOOT LOCK: per foot, frames where the ball AND ankle are within 4 cm of the clip floor and move < 0.25 m/s for
     >= 4 frames are a plant; the ankle is pinned (x/y; z never below the plant-start height) with an analytic two-bone IK on thigh/calf (knee stays in its plane), the foot keeps its world rotation,
@@ -57,6 +60,11 @@ for _s, _S in (("l", "Left"), ("r", "Right")):
 MAP = {k: MX + v for k, v in BODY.items()}
 
 REPO = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", ".."))
+HAND_MARGIN = 0.035      # hand joint centre above the floor (palm thickness)
+TIP_MARGIN = 0.012       # finger joints above the floor
+KNEE_MARGIN = 0.06       # knee joint centre above the floor (knee_lift clips: kneeling)
+ELBOW_MARGIN = 0.05      # elbow joint above the floor when the arm IK swings the bend plane
+ANKLE_MARGIN = 0.06      # ankle joint above the floor when the shin rests on it
 RETARGET = os.path.join(REPO, "kingdom", "tools", "anim", "retarget_bvh.py")
 UAL = os.path.join(REPO, "kingdom", "assets", "incoming", "quaternius", "universal-animation-library",
                    "Unreal-Godot", "UAL1_Standard.glb")
@@ -121,7 +129,7 @@ def build_cfg(a):
 def post(g, cfg, foot_lock):
     import bpy
     import numpy as np
-    from mathutils import Vector, Matrix
+    from mathutils import Vector, Matrix, Quaternion
     scene = bpy.context.scene
     bpy.context.preferences.edit.keyframe_new_interpolation_type = "LINEAR"
     tgt = g["tgt"]
@@ -163,6 +171,85 @@ def post(g, cfg, foot_lock):
         sl = np.array(sl)
         return float(sl.mean()), float(sl.max()), len(sl), pen
 
+    def fcurves_of(act):
+        if hasattr(act, "fcurves") and len(getattr(act, "fcurves", [])):
+            return list(act.fcurves)
+        out = []
+        for layer in getattr(act, "layers", []):
+            for strip in layer.strips:
+                for bag in getattr(strip, "channelbags", []):
+                    out.extend(bag.fcurves)
+        return out
+
+    def quat_continuity(act):
+        """Keys written per frame by the IK passes can land in the opposite quaternion hemisphere of their neighbour;
+        flip them so every consumer (linear or slerp) takes the short way."""
+        groups = {}
+        for fc in fcurves_of(act):
+            if fc.data_path.endswith("rotation_quaternion"):
+                groups.setdefault(fc.data_path, {})[fc.array_index] = fc
+        for path, g4 in groups.items():
+            if len(g4) != 4:
+                continue
+            frames = sorted({kp.co[0] for fc in g4.values() for kp in fc.keyframe_points})
+            prev = None
+            for fr in frames:
+                q = [g4[i].evaluate(fr) for i in range(4)]
+                if prev is not None and sum(a * b for a, b in zip(q, prev)) < 0:
+                    for i in range(4):
+                        for kp in g4[i].keyframe_points:
+                            if abs(kp.co[0] - fr) < 1e-3:
+                                kp.co[1] = -kp.co[1]
+                    q = [-x for x in q]
+                prev = q
+            for fc in g4.values():
+                fc.update()
+
+    def two_bone(up, lo, en, mt, mc, mf, T, mid_min=None, swing=None, probe=False):
+        """Analytic two-bone IK in armature space: end joint to T, middle joint stays in its bend plane, end keeps its rotation."""
+        hip, knee, ank = mt.translation, mc.translation, mf.translation
+        la, lb = (knee - hip).length, (ank - knee).length
+        d = min((T - hip).length, (la + lb) * 0.9995)
+        u = (T - hip).normalized()
+        v = (knee - hip) - u * (knee - hip).dot(u)
+        if v.length < 1e-6:
+            return False
+        v.normalize()
+        ca_ = max(-1.0, min(1.0, (la * la + d * d - lb * lb) / (2 * la * d)))
+        al = math.acos(ca_)
+        knee2 = hip + (u * math.cos(al) + v * math.sin(al)) * la
+        if swing is not None:
+            if abs(swing) > 1e-4:
+                vv = Quaternion(u, swing) @ v
+                knee2 = hip + (u * math.cos(al) + vv * math.sin(al)) * la
+        elif mid_min is not None and (mw @ knee2).z < mid_min:
+            # the middle joint (elbow) would go through the floor: swing the bend plane about the limb axis to the
+            # nearest orientation that keeps it above mid_min
+            best = None
+            for k in range(1, 37):
+                for sgn in (1, -1):
+                    q = Quaternion(u, sgn * math.radians(5 * k))
+                    vv = q @ v
+                    kk = hip + (u * math.cos(al) + vv * math.sin(al)) * la
+                    if (mw @ kk).z >= mid_min:
+                        best = kk
+                        break
+                if best is not None:
+                    break
+            if best is not None:
+                knee2 = best
+                if probe:
+                    return sgn * math.radians(5 * k)
+        if probe:
+            return 0.0
+        T2 = hip + u * d
+        r1 = (knee - hip).rotation_difference(knee2 - hip)
+        r2 = (r1 @ (ank - knee)).rotation_difference(T2 - knee2)
+        pb[up].matrix = Matrix.Translation(hip) @ (r1.to_matrix().to_4x4() @ mt.to_3x3().to_4x4()); upd()
+        pb[lo].matrix = Matrix.Translation(knee2) @ ((r2 @ r1).to_matrix().to_4x4() @ mc.to_3x3().to_4x4()); upd()
+        pb[en].matrix = Matrix.Translation(T2) @ mf.to_3x3().to_4x4(); upd()
+        return True
+
     def key_bones(names, f):
         for nm in names:
             pb[nm].keyframe_insert("rotation_quaternion", frame=f)
@@ -174,6 +261,19 @@ def post(g, cfg, foot_lock):
         assign(tgt, act)
         n = int(round(act.frame_range[1])) + 1
         rec = {}
+        # bake every frame of the bones the passes edit, so a per-frame edit never bleeds into the interpolation of the next
+        # frame (sparse Douglas-Peucker keys + sequential edits used to accumulate: the old lift_m bug)
+        BAKE = ["pelvis"] + [b + "_" + s for s in ("l", "r") for b in ("thigh", "calf", "foot", "upperarm", "lowerarm", "hand")]
+        snap = []
+        for f in range(n):
+            scene.frame_set(f)
+            snap.append({b: (pb[b].rotation_quaternion.copy(), pb[b].location.copy()) for b in BAKE})
+        for f in range(n):
+            for b in BAKE:
+                pb[b].rotation_quaternion, pb[b].location = snap[f][b]
+                pb[b].keyframe_insert("rotation_quaternion", frame=f)
+                if b == "pelvis":
+                    pb[b].keyframe_insert("location", frame=f)
         # --- vertical in-place (ladder): remove the linear pelvis z ramp
         if c.get("inplace_z"):
             P0 = [None] * n
@@ -192,13 +292,41 @@ def post(g, cfg, foot_lock):
         # --- constant vertical offset (lift_m > 0 raises, < 0 lowers): knees / buttocks resting on the floor, lying poses
         if c.get("lift_m"):
             dz = (mw.inverted().to_3x3() @ Vector((0, 0, 1))) / mw.to_scale().z
+            mats = []
             for f in range(n):
                 scene.frame_set(f)
-                m = pb["pelvis"].matrix.copy()
+                mats.append(pb["pelvis"].matrix.copy())
+            for f in range(n):
+                scene.frame_set(f)
+                m = mats[f].copy()
                 m.translation = m.translation + dz * float(c["lift_m"])
                 pb["pelvis"].matrix = m
                 pb["pelvis"].keyframe_insert("location", frame=f)
             rec["lift_m"] = c["lift_m"]
+        # --- knee/shin floor contact: per-frame pelvis raise so the knee joints stay KNEE_MARGIN above the floor
+        if c.get("knee_lift"):
+            dz = (mw.inverted().to_3x3() @ Vector((0, 0, 1))) / mw.to_scale().z
+            need = []
+            for f in range(n):
+                scene.frame_set(f)
+                kz = min((mw @ pb["calf_" + s].head).z for s in ("l", "r"))
+                az = min((mw @ pb["foot_" + s].head).z for s in ("l", "r"))      # ankle: the shin lies on the floor
+                need.append(max(0.0, KNEE_MARGIN - kz, ANKLE_MARGIN - az))
+            rr = 4
+            mxn = [max(need[max(0, t - rr): t + rr + 1]) for t in range(n)]
+            sm = [sum(mxn[max(0, t - 3): t + 4]) / len(mxn[max(0, t - 3): t + 4]) for t in range(n)]
+            lift = [max(a, b) for a, b in zip(sm, need)]
+            mats = []
+            for f in range(n):
+                scene.frame_set(f)
+                mats.append(pb["pelvis"].matrix.copy())
+            for f in range(n):
+                scene.frame_set(f)
+                m = mats[f].copy()
+                m.translation = m.translation + dz * lift[f]
+                pb["pelvis"].matrix = m
+                pb["pelvis"].keyframe_insert("location", frame=f)
+            rec["knee_lift_max"] = round(max(lift), 3)
         A, B, P = sample(n)
         floor = min(min(b.z for b in B["l"]), min(b.z for b in B["r"]))
         rec["before"] = [round(x, 3) for x in stance_stats(A, B, floor)[:2]]
@@ -209,7 +337,7 @@ def post(g, cfg, foot_lock):
                 low = [(A[s][t].z - min(a.z for a in A[s]) < 0.04) and (B[s][t].z - floor < 0.04) for t in range(n)]
                 vel = [0.0] + [((A[s][t].xy - A[s][t - 1].xy).length + (B[s][t].xy - B[s][t - 1].xy).length) * 15.0
                                for t in range(1, n)]
-                plant = [low[t] and vel[t] < 0.25 for t in range(n)]
+                plant = [low[t] and vel[t] < float(c.get("lock_vel", 0.25)) for t in range(n)]
                 segs, t = [], 0
                 while t < n:
                     if plant[t]:
@@ -224,7 +352,7 @@ def post(g, cfg, foot_lock):
                 for (s0, s1) in segs:
                     xs = sorted(A[s][f].x for f in range(s0, s1 + 1)); ys = sorted(A[s][f].y for f in range(s0, s1 + 1))
                     pin = Vector((xs[len(xs) // 2], ys[len(ys) // 2], A[s][s0].z))
-                    if max((A[s][f].xy - pin.xy).length for f in range(s0, s1 + 1)) > 0.06:
+                    if max((A[s][f].xy - pin.xy).length for f in range(s0, s1 + 1)) > float(c.get("lock_wander", 0.06)):
                         continue          # the source foot really travels (pivot / shuffle): not a plant, leave it
                     R = 5
                     lo, hi = max(0, s0 - R), min(n - 1, s1 + R)
@@ -274,6 +402,84 @@ def post(g, cfg, foot_lock):
             for fc in act.fcurves if hasattr(act, "fcurves") else []:
                 for kp in fc.keyframe_points:
                     kp.interpolation = "LINEAR"
+        # --- contact IK: hands (and finger tips) never below the floor. Per-frame two-bone IK on upperarm/lowerarm with the
+        # hand's world rotation kept; the needed lift is max-filtered over +-0.13 s and smoothed so the arm never pops.
+        if c.get("contact_ik", True):
+            hm = float(c.get("hand_margin_extra", 0.0))   # game characters' arms reach lower than the UAL mannequin's
+            for s in ("l", "r"):
+                up, lo, en = "upperarm_" + s, "lowerarm_" + s, "hand_" + s
+                tips = [fb + "_0%d_" % i + s for fb in ("thumb", "index", "middle", "ring", "pinky") for i in (1, 2, 3) if fb + "_0%d_" % i + s in pb]
+                need = []
+                for f in range(n):
+                    scene.frame_set(f)
+                    hz = (mw @ pb[en].head).z
+                    tz = min(min((mw @ pb[t].head).z, (mw @ pb[t].tail).z) for t in tips) if tips else hz
+                    need.append(max(0.0, HAND_MARGIN + hm - hz, TIP_MARGIN + hm - tz))
+                if max(need) < 0.003:
+                    continue
+                rr = int(c.get("ik_smooth", 4))
+                mxn = [max(need[max(0, t - rr): t + rr + 1]) for t in range(n)]
+                h2 = max(2, rr // 2)
+                sm = [sum(mxn[max(0, t - h2): t + h2 + 1]) / len(mxn[max(0, t - h2): t + h2 + 1]) for t in range(n)]
+                lift = [max(a, b) for a, b in zip(sm, need)]
+                fixed = 0
+                # pass 1: elbow swing angle each frame needs (0 = keep the bend plane); smoothed so the elbow glides
+                sw = [0.0] * n
+                for f in range(n):
+                    if lift[f] > 0.0005:
+                        scene.frame_set(f)
+                        mu, ml, me = pb[up].matrix.copy(), pb[lo].matrix.copy(), pb[en].matrix.copy()
+                        T = mw.inverted() @ ((mw @ me.translation) + Vector((0, 0, lift[f])))
+                        sw[f] = two_bone(up, lo, en, mu, ml, me, T, mid_min=ELBOW_MARGIN + hm, probe=True) or 0.0
+                ext = []
+                for t in range(n):
+                    win = sw[max(0, t - rr * 2): t + rr * 2 + 1]
+                    ext.append(max(win, key=abs))
+                sws = [sum(ext[max(0, t - rr): t + rr + 1]) / len(ext[max(0, t - rr): t + rr + 1]) for t in range(n)]
+                for f in range(n):
+                    scene.frame_set(f)
+                    if lift[f] > 0.0005 or abs(sws[f]) > 1e-4:
+                        mu, ml, me = pb[up].matrix.copy(), pb[lo].matrix.copy(), pb[en].matrix.copy()
+                        T = mw.inverted() @ ((mw @ me.translation) + Vector((0, 0, lift[f])))
+                        if two_bone(up, lo, en, mu, ml, me, T, swing=sws[f]):
+                            fixed += 1
+                    key_bones((up, lo, en), f)
+                rec["hand_ik_" + s] = [fixed, round(max(need), 3)]
+        # loops: the passes above edit legs/arms per frame, which can open the loop seam again; blend the last
+        # SEAM frames of every edited bone back onto frame 0 (smoothstep) so last == first
+        if c.get("loop") and (locked or c.get("knee_lift") or c.get("lift_m")):
+            K = min(int(c.get("seam_blend", 8)), n // 3)
+            first = {}
+            scene.frame_set(0)
+            for b in BAKE:
+                first[b] = (pb[b].rotation_quaternion.copy(), pb[b].location.copy())
+            for j in range(K):
+                f = n - K + j
+                w = (j + 1) / K
+                w = w * w * (3 - 2 * w)
+                scene.frame_set(f)
+                for b in BAKE:
+                    q0, l0 = first[b]
+                    q = pb[b].rotation_quaternion.copy()
+                    if q.dot(q0) < 0:
+                        q0 = -q0
+                    pb[b].rotation_quaternion = q.slerp(q0, w)
+                    pb[b].location = pb[b].location.lerp(l0, w)
+                for b in BAKE:
+                    pb[b].keyframe_insert("rotation_quaternion", frame=f)
+                    if b == "pelvis":
+                        pb[b].keyframe_insert("location", frame=f)
+        quat_continuity(act)
+        low = {}
+        for f in range(0, n, 2):
+            scene.frame_set(f)
+            for b in pb:
+                if "leaf" in b.name or b.name == "root":
+                    continue
+                z = min((mw @ b.head).z, (mw @ b.tail).z)
+                if z < low.get(b.name, 9.0):
+                    low[b.name] = z
+        rec["lowest_joints"] = [(k, round(v, 3)) for k, v in sorted(low.items(), key=lambda kv: kv[1])[:4]]
         A2, B2, _ = sample(n)
         st = stance_stats(A2, B2, floor)
         rec["after"] = [round(x, 3) for x in st[:2]]

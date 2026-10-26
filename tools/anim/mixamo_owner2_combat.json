@@ -4,7 +4,8 @@
    "name": "Mx_Get_Up_Knockdown",
    "file": "get_up_knockdown.fbx",
    "inplace": "none",
-   "floor": "min"
+   "floor": "min",
+   "hand_margin_extra": 0.03
   },
   {
    "name": "Mx_Sword_Sheath",

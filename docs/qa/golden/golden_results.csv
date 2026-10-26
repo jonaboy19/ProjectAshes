@@ -234,38 +234,38 @@ Lever_Pull_Wall,ual,combat,once,1.333,probation,0.776,1.111,0.0,1.5,0,,5.2,0.0,,
 Lie_Down,ual,combat,once,5.7,banned,0.189,2.188,5.59,0.0,0,,0.4,0.0,,banned: ground penetration 5.6 cm
 Lie_Down_Get_Up,ual,combat,once,6.0,banned,0.127,0.737,6.16,0.0,0,,1.0,0.0,,banned: ground penetration 6.2 cm
 Lie_Down_Idle,ual,combat,loop,2.433,banned,0.023,0.365,5.77,0.0,0,0.0,0.0,0.0,,banned: ground penetration 5.8 cm; banned: slide max 0.36 m/s
-Life_Mx_Carry_Box_Walk,ual,interaction,loco,6.267,probation,,,0.0,0.52,0,0.09,0.0,0.0,pass,note: slide unscored (no usable ground-speed reference)
-Life_Mx_Chop_Wood,ual,interaction,loop,2.033,banned,0.175,0.541,0.0,1.82,0,9.4,0.0,0.0,fail,banned: slide mean 0.17 m/s; banned: slide max 0.54 m/s; banned: loop seam 9.4 deg
+Life_Mx_Carry_Box_Walk,ual,interaction,loco,6.267,probation,,,0.0,0.52,0,0.07,0.0,0.0,pass,note: slide unscored (no usable ground-speed reference)
+Life_Mx_Chop_Wood,ual,interaction,loop,1.967,banned,0.228,0.786,0.0,2.74,0,0.0,0.0,0.0,fail,probation: float 2.7 cm; banned: slide mean 0.23 m/s; banned: slide max 0.79 m/s
 Life_Mx_Dig_Plant,ual,interaction,loop,5.467,banned,0.025,0.175,21.92,0.0,0,0.0,0.0,0.0,fail,banned: ground penetration 21.9 cm; banned: slide max 0.18 m/s
-Life_Mx_Drink,ual,interaction,loop,8.833,gold,0.006,0.042,0.0,0.84,0,0.48,0.1,0.0,pass,
-Life_Mx_Fiddle,ual,interaction,loop,40.467,gold,0.006,0.043,0.0,0.41,0,0.07,0.0,0.0,pass,
-Life_Mx_Fish_Cast_Reel,ual,interaction,once,8.767,gold,0.048,0.35,0.0,0.83,0,,0.0,0.0,pass,
+Life_Mx_Drink,ual,interaction,loop,8.833,gold,0.006,0.038,0.0,0.84,0,0.48,0.0,0.0,pass,
+Life_Mx_Fiddle,ual,interaction,loop,40.467,gold,0.005,0.043,0.0,0.41,0,0.09,0.0,0.0,pass,
+Life_Mx_Fish_Cast_Reel,ual,interaction,once,8.767,gold,0.049,0.35,0.0,0.83,0,,0.0,0.0,pass,
 Life_Mx_Fish_Idle,ual,interaction,loop,3.5,gold,0.004,0.047,0.0,0.07,0,0.07,0.0,0.0,pass,
-Life_Mx_Get_Up_Back,ual,interaction,once,8.267,probation,0.103,0.301,0.0,1.18,0,,77.1,0.0,hold,"metrics gold, no passing frame-sheet review yet"
+Life_Mx_Get_Up_Back,ual,interaction,once,8.267,gold,0.103,0.301,0.0,1.18,0,,77.1,0.0,pass,
 Life_Mx_Lift_Heavy,ual,interaction,once,11.5,probation,0.081,2.618,0.0,0.74,0,,0.0,0.0,hold,"metrics gold, no passing frame-sheet review yet"
-Life_Mx_Lute,ual,interaction,loop,4.167,banned,0.026,0.195,0.0,1.01,0,0.0,0.0,0.0,fail,banned: slide max 0.20 m/s
-Life_Mx_Milk_Cow,ual,interaction,loop,4.5,banned,0.007,0.02,20.87,0.0,0,0.26,0.0,0.0,fail,banned: ground penetration 20.9 cm
+Life_Mx_Lute,ual,interaction,loop,4.167,banned,0.023,0.158,0.0,1.23,0,0.0,0.0,0.0,fail,banned: slide max 0.16 m/s
+Life_Mx_Milk_Cow,ual,interaction,loop,4.5,gold,0.005,0.023,0.0,0.42,0,0.26,0.0,0.0,pass,
 Life_Mx_Pick_Fruit,ual,interaction,loop,6.167,gold,0.011,0.094,0.0,1.18,0,0.33,0.0,0.0,pass,
-Life_Mx_Pick_Ground,ual,interaction,once,7.1,probation,0.225,3.56,1.76,1.53,0,,0.0,0.0,hold,probation: ground penetration 1.8 cm
+Life_Mx_Pick_Ground,ual,interaction,once,7.1,probation,0.225,3.56,0.47,1.53,0,,0.0,0.0,hold,"metrics gold, no passing frame-sheet review yet"
 Life_Mx_Pick_Up,ual,interaction,once,9.567,gold,0.027,0.206,0.0,4.27,0,,3.7,0.0,pass,
 Life_Mx_Plank_Start,ual,interaction,once,4.9,banned,0.061,0.418,8.6,2.74,0,,1.0,0.0,fail,banned: ground penetration 8.6 cm
-Life_Mx_Plant_Kneel,ual,interaction,loop,7.533,banned,0.034,0.146,35.82,0.0,0,0.09,0.0,0.0,fail,banned: ground penetration 35.8 cm; probation: slide mean 0.03 m/s; probation: slide max 0.15 m/s
+Life_Mx_Plant_Kneel,ual,interaction,loop,7.533,banned,0.03,0.09,0.0,1.55,10,0.09,0.0,0.0,fail,banned: 10 pop(s)
 Life_Mx_Plant_Tree,ual,interaction,once,9.267,probation,0.087,0.932,0.0,1.31,0,,0.0,0.0,hold,"metrics gold, no passing frame-sheet review yet"
-Life_Mx_Pray_Kneel,ual,interaction,loop,1.9,probation,,,0.0,0.22,0,0.14,0.0,0.0,pass,note: slide unscored (no usable ground-speed reference)
-Life_Mx_Pull_Plant,ual,interaction,loop,4.7,banned,0.033,0.224,21.4,0.0,0,0.36,0.2,0.0,fail,banned: ground penetration 21.4 cm; probation: slide mean 0.03 m/s; banned: slide max 0.22 m/s
+Life_Mx_Pray_Kneel,ual,interaction,loop,1.9,gold,0.005,0.02,0.0,0.24,0,0.03,0.0,0.0,pass,
+Life_Mx_Pull_Plant,ual,interaction,loop,4.7,probation,0.011,0.05,0.0,1.53,0,0.02,0.0,0.0,hold,"metrics gold, no passing frame-sheet review yet"
 Life_Mx_Salute,ual,interaction,once,2.833,gold,0.006,0.03,0.0,0.22,0,,0.0,0.0,pass,
-Life_Mx_Scythe,ual,interaction,loop,2.367,banned,0.496,1.173,0.0,0.47,0,4.96,0.0,0.0,fail,banned: slide mean 0.50 m/s; banned: slide max 1.17 m/s; probation: loop seam 5.0 deg
+Life_Mx_Scythe,ual,interaction,loop,2.367,banned,0.487,1.173,0.0,0.47,0,0.03,0.0,0.0,fail,banned: slide mean 0.49 m/s; banned: slide max 1.17 m/s
 Life_Mx_Sit_Chair,ual,interaction,sit,2.933,gold,0.0,0.0,0.0,0.0,0,,0.0,0.0,pass,
-Life_Mx_Sit_Chair_Talk,ual,interaction,sit,44.933,probation,0.004,0.026,0.0,0.0,1,,0.0,0.0,hold,probation: 1 pop(s)
+Life_Mx_Sit_Chair_Talk,ual,interaction,sit,44.933,probation,0.004,0.028,0.0,0.0,1,,0.0,0.0,hold,probation: 1 pop(s)
 Life_Mx_Sit_Floor,ual,interaction,sit,10.833,gold,,,0.0,0.0,0,,0.0,0.0,pass,
 Life_Mx_Sit_To_Stand,ual,interaction,sit,4.833,probation,0.083,0.124,0.0,0.0,0,,38.5,0.0,hold,"metrics gold, no passing frame-sheet review yet"
-Life_Mx_Sleep_Bed,ual,interaction,loop,1.667,banned,,,497.55,0.0,0,0.26,0.0,0.0,fail,banned: ground penetration 497.5 cm; note: slide unscored (no usable ground-speed reference)
-Life_Mx_Stand_To_Sit,ual,interaction,sit,2.233,probation,0.256,0.687,0.0,0.0,0,,43.4,0.0,hold,"metrics gold, no passing frame-sheet review yet"
-Life_Mx_Talk_Chat,ual,interaction,loop,44.533,banned,0.031,0.817,0.0,0.46,0,1.07,0.1,0.0,fail,probation: slide mean 0.03 m/s; banned: slide max 0.82 m/s
+Life_Mx_Sleep_Bed,ual,interaction,loop,1.667,gold,0.003,0.007,0.0,0.12,0,0.26,0.0,0.0,pass,
+Life_Mx_Stand_To_Sit,ual,interaction,sit,2.233,probation,0.225,0.598,0.0,0.0,0,,43.4,0.0,hold,"metrics gold, no passing frame-sheet review yet"
+Life_Mx_Talk_Chat,ual,interaction,loop,14.367,gold,0.005,0.033,0.0,0.53,0,0.0,0.0,0.0,pass,
 Life_Mx_Tell_Secret,ual,interaction,once,10.9,gold,0.005,0.036,0.0,1.31,0,,0.0,0.0,pass,
 Life_Mx_Thankful,ual,interaction,once,3.0,gold,0.008,0.036,0.0,0.75,0,,0.0,0.0,pass,
-Life_Mx_Wave,ual,interaction,loop,0.5,gold,0.013,0.036,0.0,0.26,0,1.76,0.3,0.0,pass,
-Life_Mx_Wheelbarrow_Walk,ual,interaction,loco,0.933,banned,0.78,5.946,0.0,0.44,0,1.61,0.0,0.0,fail,banned: slide mean 0.78 m/s; banned: slide max 5.95 m/s
+Life_Mx_Wave,ual,interaction,loop,0.5,gold,0.011,0.028,0.0,0.26,0,0.4,0.0,0.0,pass,
+Life_Mx_Wheelbarrow_Walk,ual,interaction,loco,0.933,banned,1.077,5.946,0.01,0.0,0,0.27,0.0,0.0,fail,banned: slide mean 1.08 m/s; banned: slide max 5.95 m/s
 Loco_Pivot180_Run_L,ual,locomotion,once,1.233,banned,2.57,5.223,8.24,0.0,0,,32.5,0.0,,banned: ground penetration 8.2 cm
 Loco_Pivot180_Run_R,ual,locomotion,once,1.367,banned,2.785,6.22,8.26,0.0,0,,33.6,0.0,,banned: ground penetration 8.3 cm
 Loco_RunStart_F,ual,locomotion,once,0.633,banned,2.905,4.051,4.14,0.0,0,,0.0,0.0,,banned: ground penetration 4.1 cm
@@ -314,7 +314,7 @@ Mx_Crawl,ual,combat,loco,1.767,banned,0.805,1.787,10.03,5.52,0,15.84,0.0,0.0,fai
 Mx_Death_Left,ual,combat,death,2.267,gold,,,0.66,0.0,0,,105.2,0.0,pass,
 Mx_Dodge,ual,combat,once,1.633,probation,0.046,0.491,0.0,0.55,0,,0.0,0.0,hold,"metrics gold, no passing frame-sheet review yet"
 Mx_Fall,ual,combat,jump,4.467,gold,,,0.0,0.0,0,,0.1,0.0,pass,
-Mx_Get_Up_Knockdown,ual,combat,once,2.7,banned,0.192,2.448,2.77,0.38,0,,4.3,0.0,fail,banned: ground penetration 2.8 cm
+Mx_Get_Up_Knockdown,ual,combat,once,2.7,probation,0.192,2.448,0.0,0.38,0,,4.3,0.0,hold,"metrics gold, no passing frame-sheet review yet"
 Mx_GreatSword_Death,ual,combat,death,2.4,gold,,,0.0,0.0,0,,77.8,0.0,pass,
 Mx_GreatSword_Draw,ual,combat,once,0.8,probation,0.168,0.654,0.0,0.4,0,,11.6,0.0,hold,"metrics gold, no passing frame-sheet review yet"
 Mx_GreatSword_Strafe,ual,combat,loco,1.133,banned,0.213,2.411,0.0,0.62,0,4.66,0.0,0.0,fail,banned: slide mean 0.21 m/s; banned: slide max 2.41 m/s; probation: loop seam 4.7 deg
