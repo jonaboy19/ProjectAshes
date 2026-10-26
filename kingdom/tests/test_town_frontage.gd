@@ -47,4 +47,4 @@ func test_infill_never_overlaps() -> void:
 				if k == j or (lots[k]["pos"] as Vector2).distance_to(lots[j]["pos"]) > 20.0:
 					continue
 				var pk := CityPlanner._lot_poly(lots[k]["pos"], lots[k]["yaw"], String(lots[k]["asset"]))
-				assert_float(CityPlanner._poly_gap(pj, pk)).is_greater(0.2)
+				assert_float(CityPlanner._poly_gap(pj, pk)).is_greater(0.0)     # poor rows stand eave to eave (0.05 m)

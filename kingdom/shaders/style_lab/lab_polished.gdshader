@@ -47,6 +47,14 @@ uniform float moss = 0.0;          // 0 = none; per role, StyleG.AGE_MOSS
 uniform float sun_fade = 0.0;      // roofs: bleach + grey toward old tile/slate/thatch
 uniform vec3 moss_color : source_color = vec3(0.34, 0.39, 0.19);
 uniform vec3 lichen_color : source_color = vec3(0.62, 0.6, 0.42);
+// Towns medieval pass: flat-colour kit materials (no albedo texture: region farm kit, fences, ruins) borrow real CC0 surface detail
+// (Poly Haven wood / plaster / thatch / slate / stone), world-projected; only its luminance is used, the kit colour stays.
+uniform sampler2D detail_tex : source_color, filter_linear_mipmap, repeat_enable;
+uniform float detail_amount = 0.0;
+uniform float detail_scale = 0.5;
+// regional damp (StyleG.wet_texture: marsh 1, forest 0.8, farmland 0.5, steppe / ash 0.2) scales the moss: Westfen roofs are green, Harrowgate's dry
+uniform bool use_wet = false;
+uniform sampler2D wet_tex : filter_linear, repeat_disable;
 varying vec3 wpos;
 varying vec3 wnor;
 
@@ -102,6 +110,13 @@ void fragment() {
 		c = c * cs + cross(ax, c) * sn + ax * dot(ax, c) * (1.0 - cs);   // rotate around the grey axis
 		c *= 1.0 + k * val_var;
 	}
+	if (detail_amount > 0.0) {
+		vec3 an = abs(wnor);
+		vec2 duv = an.y > 0.7 ? wpos.xz : (an.x > an.z ? wpos.zy : wpos.xy);
+		vec3 dt = texture(detail_tex, duv * detail_scale).rgb;
+		float dl = dot(dt, vec3(0.299, 0.587, 0.114));
+		c *= mix(1.0, dl * 2.1, detail_amount);
+	}
 	float l = dot(c, vec3(0.299, 0.587, 0.114));
 	c = mix(vec3(l), c, saturation) * value_gain * warm_tint;
 	float hy = local_ao ? wpos.y - (uv2_base ? UV2.x : MODEL_MATRIX[3].y) : wpos.y;
@@ -132,7 +147,8 @@ void fragment() {
 			float north = smoothstep(0.1, 0.9, -wnor.z) * (1.0 - abs(wnor.y));
 			float foot_band = 1.0 - smoothstep(0.0, 1.1, hy2);
 			float blot = smoothstep(0.28, 0.6, wn.b + (wn.r - 0.5) * 0.6);
-			float m = moss * age * blot * (up * 0.9 + north * foot_band * 0.8 + foot_band * 0.25);
+			float wet = use_wet ? texture(wet_tex, (wpos.xz + 6144.0) / 12288.0).r : 0.5;
+			float m = moss * (0.3 + 1.4 * wet) * age * blot * (up * 0.9 + north * foot_band * 0.8 + foot_band * 0.25);
 			m = clamp(m, 0.0, 0.85);
 			vec3 mc = mix(moss_color, lichen_color, smoothstep(0.55, 0.8, wn.a)) * (0.72 + 0.6 * lum);
 			c = mix(c, mc, m);

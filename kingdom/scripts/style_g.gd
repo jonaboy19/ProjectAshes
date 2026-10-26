@@ -341,6 +341,24 @@ static var _weather_tex: Texture2D
 ## Medieval pass: age per role (lab_polished `moss`, `sun_fade`). Roofs and stone carry the most; cloth and goods none.
 const AGE_MOSS := {"house": 0.75, "roof": 0.85, "stone": 0.7, "plaster": 0.45, "timber": 0.3, "wood": 0.22, "stall": 0.1, "cobble": 0.15}
 const AGE_FADE := {"house": 0.85, "roof": 1.0, "stall": 0.3}
+## Towns medieval pass: CC0 detail for flat-colour kit materials, per role: [Poly Haven set, amount, scale (1/m)].
+const DETAIL := {"timber": ["medieval_wood", 0.75, 0.45], "wood": ["medieval_wood", 0.7, 0.45], "plaster": ["clay_plaster", 0.6, 0.3],
+	"house": ["clay_plaster", 0.5, 0.3], "stone": ["mossy_stone_wall", 0.7, 0.3], "roof": ["castle_wall_slates", 0.75, 0.4]}
+
+
+static func _detail(sm: ShaderMaterial, role: String, orig: Material) -> void:
+	var d: Array = DETAIL[role]
+	var set_name: String = d[0]
+	if role == "roof" and orig != null:
+		var n := orig.resource_name.to_lower()
+		if n.contains("thatch") or n.contains("hay") or n.contains("straw") or n.contains("reed"):
+			set_name = "thatch_roof_angled"
+	var tex := ph(set_name, "diff")
+	if tex == null:
+		return
+	sm.set_shader_parameter("detail_tex", tex)
+	sm.set_shader_parameter("detail_amount", d[1])
+	sm.set_shader_parameter("detail_scale", d[2])
 
 
 static func weather_pack() -> Texture2D:
@@ -487,8 +505,14 @@ static func _polished(role: String, orig: Material, skin_kind: int, tier: String
 	sm.set_shader_parameter("weather_tex", weather_pack())
 	sm.set_shader_parameter("weather", WEATHER.get(role, 0.6))
 	# Medieval pass (docs/plans/TOWNS_MEDIEVAL_PASS.md): moss / lichen and sun-fade per role, per-building age in the shader
-	sm.set_shader_parameter("moss", AGE_MOSS.get(role, 0.0))
-	sm.set_shader_parameter("sun_fade", AGE_FADE.get(role, 0.0))
+	var towns_off := OS.get_cmdline_user_args().has("--townsoff")    # A/B (CityPlanner.towns_off)
+	sm.set_shader_parameter("moss", 0.0 if towns_off else AGE_MOSS.get(role, 0.0))
+	sm.set_shader_parameter("sun_fade", 0.0 if towns_off else AGE_FADE.get(role, 0.0))
+	if p["tex"] == null and DETAIL.has(role) and not is_char(role) and not towns_off:
+		_detail(sm, role, orig)
+	if game_mode and AGE_MOSS.has(role) and wet_texture() != null:
+		sm.set_shader_parameter("use_wet", true)
+		sm.set_shader_parameter("wet_tex", wet_texture())
 	if game_mode:
 		sm.set_shader_parameter("local_ao", true)
 		sm.set_shader_parameter("vcol_srgb", bool(p.get("vsrgb", true)) if bool(p.get("vcol", false)) else true)
@@ -839,3 +863,29 @@ static func vertex_color_material(role := "timber", srgb := true, tier := "") ->
 		base.vertex_color_is_srgb = srgb
 		_cache[k] = material_for(role, base, 1, tier, true)
 	return _cache[k]
+
+
+## Towns medieval pass: regional damp for the moss (128 x 128 over the 12.3 km world, from the macro biome map; the dry steppe
+## edge in the far south). Built once; null before the macro map is loaded (the shader then uses a neutral 0.5).
+const WET_OF_BIOME := [0.5, 0.8, 0.6, 0.5, 1.0, 0.55, 0.22, 0.4]   # grass forest meadow farmland marsh highland rift snow
+static var _wet_tex: Texture2D
+
+
+static func wet_texture() -> Texture2D:
+	if _wet_tex != null:
+		return _wet_tex
+	var WM := preload("res://scripts/world/world_macro.gd")
+	if WM._biome.is_empty():
+		return null
+	var n := 128
+	var img := Image.create(n, n, false, Image.FORMAT_L8)
+	for v in n:
+		for u in n:
+			var x := (u + 0.5) / n * 12288.0 - 6144.0
+			var z := (v + 0.5) / n * 12288.0 - 6144.0
+			var w: float = WET_OF_BIOME[clampi(WM.biome_at(x, z), 0, 7)]
+			if z > 3000.0:
+				w *= 0.55      # Harrowgate steppe edge: dry grassland toward the Solkar Dominion
+			img.set_pixel(u, v, Color(w, w, w))
+	_wet_tex = ImageTexture.create_from_image(img)
+	return _wet_tex

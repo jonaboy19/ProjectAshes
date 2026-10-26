@@ -25,6 +25,14 @@ const SIZE := {
 	"house_town_b": Vector3(7.74, 14.43, 10.51),
 	"house_town_c": Vector3(7.74, 14.28, 10.5),
 	"house_town_d": Vector3(7.74, 14.23, 10.51),
+	# Towns medieval pass: small house kit (measured from the GLBs, roof overhang included)
+	"house_narrow_a": Vector3(3.68, 10.86, 7.18),
+	"house_narrow_b": Vector3(4.22, 8.82, 7.68),
+	"house_narrow_c": Vector3(5.48, 12.64, 8.18),
+	"house_narrow_poor_a": Vector3(3.42, 8.28, 6.68),
+	"house_narrow_poor_b": Vector3(4.02, 8.32, 6.98),
+	"house_hovel_a": Vector3(4.6, 4.82, 5.4),
+	"house_hovel_b": Vector3(5.28, 4.4, 5.0),
 }
 ## Blender village houses (house_1..16) are 5.6-7.6 m deep; this is their typical size.
 const HOUSE_SIZE := Vector3(6.7, 7.5, 6.0)

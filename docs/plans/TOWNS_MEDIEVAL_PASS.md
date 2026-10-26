@@ -110,3 +110,89 @@ Result (windowed, HIGH, 15:00): `Highcliff_street_before_after.jpg` (timber cros
 8. Wide streets with lawn verges (Millbrook, Harrowgate, Highcliff plaza): needs mud/straw ground paint at the verge and facades closer to the street (layout).
 9. Paper-card ivy and toy-scale flower boxes / fruit baskets (house_details): swap to denser ivy meshes and smaller, desaturated goods.
 10. Moss strength is one value per role across the realm; the aerial view of Highcliff is slightly dark-green on every roof: tune per region once a per-town parameter path exists (gap 5).
+
+---
+
+## 5. Medieval city anatomy (c. 1150-1450, reference cities)
+
+Reference set: Rothenburg ob der Tauber (walled Franconian trade town, intact circuit, Plönlein fork, Markus tower = older inner
+wall), Carcassonne (double curtain wall, barbicans, Cité on the hill + Ville Basse grid below), York (Shambles, Snickelways,
+Minster close, Micklegate Bar, Ouse staithes), Bruges (canals, Markt + Belfry + Cloth Hall, Burg square with the count's
+buildings, beguinage), Prague (Old Town Square + town hall, Judengasse, Charles Bridge with mills on the Vltava, castle hill),
+Kutná Hora / KCD2 Kuttenberg (mining town: Italian Court mint, St Barbara, smelters and slag heaps at the edge, miners' quarters
+on the slopes). Common anatomy, as rules the generator and the art follow:
+
+| Element | How it really worked | Where / how it looks |
+|---|---|---|
+| Walls, gates, toll | Curtain wall with towers every 40-60 m, gatehouse with portcullis and a toll house; the gate is also the customs, the watch and the market's mouth. Older inner wall lines often survive as streets. | Gate square just inside, toll booth, guard post, wagons queuing; wall walk; tower roofs conical or pyramidal |
+| Suburbs (faubourgs) | Outside each main gate: inns for those who arrive after curfew, stables, smithies, tanneries, potteries, the poor, the lepers' house, gardens and orchards. Often bigger than the walled core. | Low, poor, irregular, mud, sheds, fences, livestock along the approach road |
+| Market square | Widened street or square at the crossing of the main roads; market cross or well in it, pillory; the town hall / guildhall, the weigh house and the richest merchants' houses face it; arcades in southern Germany / Bohemia. | Paved, stalls by day, the tallest facades, stepped / crow gables in stone towns |
+| Town hall, guildhalls, weigh house | Town hall with a council chamber over an open trading hall, bell tower or belfry; guildhalls of the rich guilds on the square or their street; public scales (weigh house) by the market. | Stone, tracery, painted coats of arms, clock |
+| Churches | Cathedral or main parish church with its churchyard (burials, a cross, a charnel house) beside the market; several small parish churches across town; chapels at gates and bridges. | The tallest silhouette; graveyard walls, yews |
+| Monastery / friary | Friars (mendicant orders) inside the walls near the poor, often by the wall; older Benedictine houses outside. Cloister, gardens, hospital. | Long walls, a cloister garth, a gatehouse |
+| Castle / keep | The lord's seat on the high point or the river bend, with its own wall, often a separate jurisdiction (castle ward). | Bailey, keep, chapel, stables, barracks |
+| River: bridges, mills, quays | Stone bridge with a chapel or tower, mills on the river or a mill race (grain, fulling, saws), quays and warehouses (staithes), fish market by the water. | Waterwheels, cranes, barrels, boats |
+| Craft quarters | Trades clustered by street (the street takes their name): smiths and armourers near the gates (fire risk, horses), butchers' shambles (narrow street, overhanging upper floors, gutter down the middle), tanners and dyers downstream / downwind at the edge (stink, water), potters and tile makers at the edge (kilns), coopers, weavers, bakers spread out. | Smoke, racks of hides, dye vats, coloured water, kilns |
+| Inns, taverns, bathhouse | Inns at the gates and on the market with a stable yard behind a carriage arch; taverns everywhere (sign: a bush or a tankard); a public bathhouse (often of ill repute) by the water. | Hanging signs, yard arches, benches outside |
+| Bakehouse / communal oven | Lords' or town ovens where households baked their dough for a fee; also the brewhouse. | Domed oven, smoke, firewood stack |
+| Water | Wells in squares and yards, public fountains (stone basin, later), horse troughs at gates and inns, water carriers. | Well heads with roofs, troughs |
+| Justice | Pillory / stocks on the market, gallows outside the walls on a hill by a road (visible deterrent), town jail in a gate tower. | Gallows hill on the approach |
+| Hospital, almshouse | Hospital (often of the Holy Spirit) near a gate or the river, almshouses, lepers' house outside. | Long hall with a chapel end |
+| Foreign / minority quarter | Merchant colonies (Hanseatic Kontor, Italian merchants) and Jewish quarters with their own street, synagogue, baths and gate. In Valencious lore: an **Aurelis (Solmarch) merchants' court** in the eastern towns and a **steppe caravan court** at Harrowgate fit; no real-world religion is imported. | Walled court, foreign colours |
+| Plots | Burgage plots: narrow street frontage (3-8 m), long and deep; house at the street, workshop / yard / garden / privy / pigsty behind; back lanes along the rear. Rich plots merged into wide frontages. | Continuous facades, gable or eaves to the street, back gardens visible from above |
+| Streets | Hierarchy: main street (6-10 m) from gate to market, side streets (4-6 m), alleys and passages (1-2.5 m, the Snickelways / Durchgänge), dead-end courts, back lanes. Organic, following old paths and the ground. | Overhanging jetties make streets darker and narrower above |
+| Ground | Paved only in the market and main streets of rich towns (late); mud, straw, dung and planks elsewhere; open central gutter (kennel) in the street; the poor quarter is mud. | Mud and straw at edges, central gutter, puddles |
+| Signs, street life | Pictorial hanging signs, shop shutters folding down into counters, livestock in the streets (pigs!), laundry between windows, refuse at the back, criers, water carriers, beggars at church doors. | Laundry lines, pigs, carts, refuse |
+
+### 5.1 What Rising Ashes has vs what is missing
+
+| Element | Have | Missing -> action |
+|---|---|---|
+| Walls / gatehouse / towers | yes (stone, palisade, low, hedge by identity) | toll booth + queue at the gate (later), gallows hill (Meshy list) |
+| Suburbs outside gates | `_gate_outskirts`, `_homesteads` | **poor hovel suburb along the gate road** (this pass: hovel kit; placement next) |
+| Market square + well | yes (plaza, well, stalls, gate market) | market cross / pillory (Blender, small), weigh house (Meshy list) |
+| Town hall / guildhall | guild hall, courthouse (manor) | belfry town hall (Meshy list) |
+| Church + churchyard | temple / chapel / bell tower | churchyard wall + graves (Blender, small) |
+| Monastery | - | Meshy list |
+| Castle / keep | Kingsreach castle, Highwatch keep | - |
+| River bridges, mills, quays | bridges, region mills, pier, Saltwick | town quays + warehouses (Meshy list) |
+| Craft quarters | district system (craft, market, poor, inn, military, admin), smithies, district props | tannery racks, dye vats, kilns (Blender props, next) |
+| Inns / taverns | inn, tavern lots, stables | bathhouse (Meshy list) |
+| Bakehouse | bakery lot (town kit) | communal oven (Blender prop) |
+| Wells / troughs | well, water trough | fountain basin for rich towns (Blender) |
+| Justice | - | stocks + pillory (Blender, next), gallows (Meshy list) |
+| Hospital / almshouse | healer house | almshouse (reuse long hall) |
+| Narrow burgage plots, alleys | **this pass**: small house kit + alley network + quarter-aware frontage | back gardens / privies behind plots |
+| Poverty | **this pass**: poor houses (patched, sagging, boarded), hovels with lean-tos, dirty plaster, mud alleys | refuse heaps, pigs, laundry across alleys (props exist: washing_line, woodpile) |
+
+**Meshy list (no credits spent; owner decides):** belfry town hall, weigh house, bathhouse, monastery gatehouse + cloister
+range, gallows, quay warehouse with crane, market cross with steps.
+
+---
+
+## 6. National identity vs regional variety
+
+**Valencious national kit (everywhere, so every town is clearly one country):**
+- Roof language: steep pitch 50-55 degrees, gable to the street, jettied upper floors on burgher houses, stone chimney stacks.
+- Heraldry: House Caldrenn crown red (#9E2B25) and gold (#D8B04A) on the royal posts (gate, keep, guard post); each town adds its
+  own two colours (`town_identity.json` `banner`) on banners and awnings, never instead of the crown at the gate.
+- Church typology: Church of the Dawn Throne = west tower with a shingled / slate spire, limestone ashlar, lancet windows;
+  village chapels with a bell-cote; the old runestones and Elder Stones stand outside, revered, never inside the church.
+- Guildhall typology: stone ground floor with an open arcade, timber hall above, guild sign on a bracket.
+- Signs: pictorial iron brackets with painted boards (tankard, anvil, loaf, mortar), the realm's coin (crowned sun) for money
+  changers.
+- Street furniture: timber cross-post lanterns (this pass), roofed well heads, stone horse troughs, braziers at gates.
+
+**Per-city signatures (materials / palette / layout):**
+
+| Type | Towns | Signature |
+|---|---|---|
+| Capital | Kingsreach | Castle on the rise, double wall, cathedral, wide paved main street, royal red-gold everywhere, rich stone centre, big suburbs |
+| Hill fortress | Highwatch (Highcliff), Ravenscar | Terraced streets, grey granite and slate, keep visible from every street, small windows, smoke-black chimneys |
+| River / guild town | Silverford (Ironmarch), Millbrook, Eastmere | Bridge with a chapel, mills and quays, guildhalls on the square, timber frames over river-stone |
+| Port | Saltwick, Blackwater, Duskwater | Piers, net racks, salt-bleached boards, teal / slate, fish market, warehouses on the water |
+| Steppe caravan town | Harrowgate, Thistledown | Palisade, caravan court, low whitewashed houses, red tile, felt awnings, horse lines |
+| Mining town | Skarholm, Coldharbor, Hollowmere | Slag heaps and smelters at the edge, miners' rows (narrow poor houses), dark stone, iron palette |
+| Marsh town | Westfen, Brackenmoor, Stonehollow | Houses on stone plinths / stilts, heavy reed thatch, boardwalks, moss (the regional damp map makes roofs green) |
+| Upland village | Dunhallow, Marrowick | Drystone, turf and shingle, longhouses, sheep folds |
+| Heartvale village | Ashford, Oakvale (Greenhollow) | Thatch, limewash, green, runestone ring, mills |
