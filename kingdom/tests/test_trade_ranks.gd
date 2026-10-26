@@ -43,3 +43,19 @@ func test_career_screen_compiles() -> void:
 func test_nobility_screen_compiles() -> void:
 	var s: GDScript = load("res://scripts/ui/nobility_screen.gd")
 	assert_bool(s != null and s.can_instantiate()).is_true()
+
+
+func test_player_decrees_need_the_claim() -> void:
+	WorldGen.setup(WorldSim.SEED)
+	var hub: RefCounted = preload("res://scripts/realm/realm_hub.gd").new()
+	var gov: RefCounted = hub.mod("governance")
+	gov.call("_ensure")
+	var sid := 1
+	assert_bool(gov.set_law_by_player(sid, "curfew", 2)).is_false()
+	assert_bool(gov.claim_for_player(sid)).is_true()
+	var before := int(gov.law_level(sid, "curfew"))
+	var want := 2 if before != 2 else 0
+	assert_bool(gov.set_law_by_player(sid, "curfew", want)).is_true()
+	assert_int(int(gov.law_level(sid, "curfew"))).is_equal(want)
+	var s: GDScript = load("res://scripts/ui/lord_council.gd")
+	assert_bool(s.can_instantiate()).is_true()

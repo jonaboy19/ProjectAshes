@@ -1072,6 +1072,16 @@ func projects(sid := -1) -> Array:
 	return out
 
 
+## The player became lord here (Life.lordship): their decrees now count (set_law_by_player / tax). Idempotent.
+func claim_for_player(sid: int) -> bool:
+	_ensure()
+	var ins: Dictionary = _inst.get("s:%d" % sid, {})
+	if ins.is_empty():
+		return false
+	ins["player"] = true
+	return true
+
+
 func set_law_by_player(sid: int, key: String, level: int) -> bool:
 	var ins: Dictionary = _inst.get("s:%d" % sid, {})
 	if ins.is_empty() or not bool(ins["player"]):

@@ -154,6 +154,29 @@ func _refresh() -> void:
 			content.add_child(_project_row(p))
 	content.add_child(_heading("Start a project"))
 	content.add_child(_project_menu(lord))
+	var gov: Variant = Life.realm.mod("governance") if Life.realm != null else null
+	if gov != null and bool(gov.call("claim_for_player", _settlement)):
+		content.add_child(_heading("Laws"))
+		content.add_child(_body("Each decree pleases some and angers others (merchants, farmers, soldiers, scholars, clergy, the poor, outsiders)."))
+		var LAWS: Dictionary = (gov.get_script() as Script).get_script_constant_map()["LAWS"]
+		for key: String in LAWS:
+			var row := HBoxContainer.new()
+			var l := _body("%s: %s" % [key.replace("_", " ").capitalize(), String(gov.call("law", _settlement, key)).replace("_", " ")])
+			l.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+			row.add_child(l)
+			var cur := int(gov.call("law_level", _settlement, key))
+			for lv in (LAWS[key] as Array).size():
+				var b := Button.new()
+				b.text = String(LAWS[key][lv]).replace("_", " ").capitalize()
+				b.disabled = lv == cur
+				var k := key
+				var level := lv
+				b.pressed.connect(func() -> void:
+					if bool(gov.call("set_law_by_player", _settlement, k, level)):
+						Game.say("Decreed: %s is now %s." % [k.replace("_", " "), String(LAWS[k][level]).replace("_", " ")])
+					_refresh())
+				row.add_child(b)
+			content.add_child(row)
 	content.add_child(_heading("Ledger (yesterday)"))
 	content.add_child(_ledger_body(v))
 
