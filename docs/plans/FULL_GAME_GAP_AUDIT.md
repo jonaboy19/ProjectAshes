@@ -128,3 +128,16 @@ Already on disk and usable (no generation needed): campfire (`assets/generated/r
 ## Built this session for this audit
 - B fixes: respawn needs floor, sleep thirst/warmth, rates tuned (commit "B: survival fixes").
 - Campfire: build piece uses the real model; construction campfires light up and warm (commit e4a598b1).
+
+## Status after the first build pass (2026-10-27)
+| Gap | Now | Commit |
+|---|---|---|
+| Settlement growth not visible (C4) | **Works**: Realm > Land "Your settlements" ledger over founding.gd's existing camp→hamlet→village→town sim | 2f31ba11 |
+| Lordship from your own settlement (C5) | **Works**: petitions are answered after 12 days; a village with 2+ officials makes you "Lord of <name>" | b8274e47 |
+| Raids on your settlement (C9) | **Works**: open raid problems become a live raider band near you; victory resolves them | 6e9d84f5 |
+| Apprenticeship to a master / player pupils | **Works**: Realm > Masters | e107ecdc |
+| Adult Academy entry + path teachers | **Works**: Realm > Masters, "Academies and schools" | ba017159 |
+| Element growth by location | **Works**: sim/element_places.gd | f6aae808 |
+| Survival death loop, sleep thirst, rates | **Fixed** | B commit |
+| Writer notes in dialogue roles | **Fixed** | bf6d88c1 |
+Still open, in order: lord hall + council at the player's settlement, settler job assignment, laws UI, earning land by service, rank ladders for hunter/fisher/miner/woodcutter, cook/healer/thief trades, Found-a-camp button + site card (C3), succession, crown. Visual (windowed) checks of the new Realm tabs and a live raid are pending a RAM window.
