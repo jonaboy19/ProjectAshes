@@ -161,3 +161,4 @@ Read sheets: spear, unarmed, sword_shield (plus earlier eq6/eq7 sheets). The shi
 | Full matrix | DONE, findings above |
 | Mixamo traversal | DROPPED (logged) |
 | Fair skin | FIXED; hood edge IMPROVED; collar OPEN |
+| 2026-10-27 | G7 live raids on your settlement (C9) | done (visual pending) | G7 commit | founding.gd already raised a "raid" problem off-screen. New realm/player_raids.gd stages it live when the player is within 300 m of their settlement: 14-day grace after founding, once per raid, band 4-14 by scale and severity, raiders gather 55 m out, bell + warning; beating them calls new founding.defend_raid() (problem solved, raid pressure reset) + 40 gold. Hooked from main.gd on hour_changed. tests/test_player_raids.gd (3) green | windowed raid shot when RAM allows |
