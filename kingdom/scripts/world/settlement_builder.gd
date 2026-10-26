@@ -890,6 +890,7 @@ func _wall_ring(root: Node3D, c: Vector2, radius: float, gates: Array, segments:
 			var t0: float = GATE_JAMB if bool(piece[3]) else 0.0
 			var t1: float = GATE_JAMB if bool(piece[4]) else 0.0
 			var body := StaticBody3D.new()
+			preload("res://scripts/world/surface_query.gd").tag(body, &"stone", {climbable = true})   # town wall
 			var shape := CollisionShape3D.new()
 			var box := BoxShape3D.new()
 			box.size = Vector3(1.8, native.size.y * ps * height_scale, maxf(0.5, chord - t0 - t1))
@@ -1145,6 +1146,8 @@ func _add_instance_colliders(parent: Node3D, mesh: Mesh, transforms: Array[Trans
 		var scale := instance_transform.basis.get_scale()
 		var body := StaticBody3D.new()
 		var shape := CollisionShape3D.new()
+		preload("res://scripts/world/surface_query.gd").tag(body, preload("res://scripts/world/surface_query.gd").material_hint(mesh.resource_path + " " + mesh.resource_name, &"wood"),
+			{vaultable = box.size.y * scale.y < 1.3, climbable = box.size.y * scale.y >= 1.3})
 		var collider := BoxShape3D.new()
 		collider.size = Vector3(box.size.x * scale.x * 0.9, box.size.y * scale.y, box.size.z * scale.z * 0.9)
 		shape.shape = collider

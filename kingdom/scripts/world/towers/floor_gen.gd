@@ -568,6 +568,7 @@ static func build(L: Dictionary, boss_dead := false) -> Dictionary:
 
 	# ---- meshes
 	var body := StaticBody3D.new()
+	preload("res://scripts/world/surface_query.gd").tag(body, &"stone")
 	body.name = "FloorBody"
 	body.collision_layer = 1
 	body.collision_mask = 0

@@ -85,6 +85,7 @@ func rebuild(gid: int) -> void:
 	var body: StaticBody3D = null
 	if with_collision:
 		body = StaticBody3D.new()
+		preload("res://scripts/world/surface_query.gd").tag(body, &"wood", {climbable = true})
 		body.name = "Collision"
 		root.add_child(body)
 	var pieces: Dictionary = kit.grids[gid]["pieces"]

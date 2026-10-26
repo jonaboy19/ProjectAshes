@@ -166,6 +166,7 @@ func build(parent: Node3D) -> Dictionary:
 		out[key] = mi
 	if not ceiling_colliders.is_empty():
 		var roof := StaticBody3D.new()
+		preload("res://scripts/world/surface_query.gd").tag(roof, &"wood")
 		roof.name = "CeilingColliders"
 		roof.collision_layer = 2
 		roof.collision_mask = 0
@@ -179,6 +180,7 @@ func build(parent: Node3D) -> Dictionary:
 			roof.add_child(rs)
 	if not colliders.is_empty():
 		var body := StaticBody3D.new()
+		preload("res://scripts/world/surface_query.gd").tag(body, &"wood")
 		body.name = "Colliders"
 		parent.add_child(body)
 		for c: Array in colliders:

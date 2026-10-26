@@ -99,6 +99,7 @@ func _build_hall(layout: String) -> void:
 	room.name = "Room"
 	add_child(room)
 	_body = StaticBody3D.new()
+	preload("res://scripts/world/surface_query.gd").tag(_body, &"stone")
 	_body.name = "Colliders"
 	add_child(_body)
 	_slab(room, Vector3(w, 0.4, d), Vector3(0, -0.2, 0), def["floor"], true)

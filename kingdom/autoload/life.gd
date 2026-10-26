@@ -1094,6 +1094,7 @@ func _process(_delta: float) -> void:
 	dh = _tick_dh
 	_tick_dh = 0.0
 	_tick_wall = 0.0
+	_update_exposure()
 	needs.tick(dh)
 	magicules.regenerate(dh)
 	if player and is_instance_valid(player):
@@ -1843,3 +1844,26 @@ func _on_old_age_death() -> void:
 	var heir: Dictionary = heirs[0]
 	Game.say("%s dies in old age. %s carries on the family.\n%s" % [life_path.full_name(), String(heir.get("name", "Your heir")), story])
 	family.succeed_to(heir["id"])
+
+## Thirst / warmth inputs for RANeeds: night, weather, water, altitude, shelter (interiors) and nearby fire.
+func _update_exposure() -> void:
+	if player == null or not is_instance_valid(player):
+		needs.env = {}
+		return
+	var pos: Vector3 = player.global_position
+	var w := get_tree().get_first_node_in_group(&"weather")
+	var raining := w != null and w.has_method("is_raining") and bool(w.call("is_raining"))
+	var snowing := w != null and w.has_method("is_snowing") and bool(w.call("is_snowing"))
+	var t := WorldSim.time_of_day
+	var depth := WorldGen.water_depth(pos.x, pos.z)
+	var sheltered := InteriorDoor.active != null
+	var fire := false
+	for f: Node in get_tree().get_nodes_in_group(&"fire_hazard"):
+		if f is Node3D and (f as Node3D).global_position.distance_squared_to(pos) < 16.0:
+			fire = true
+			break
+	needs.env = RANeeds.exposure(t < 6.0 or t > 20.5, raining, snowing, depth > 0.9 or bool(player.get("swimming")), pos.y,
+		sheltered, fire, bool(player.get("_winded")) == false and Vector2(player.velocity.x, player.velocity.z).length() > 5.0)
+	if depth > 0.4 and needs.water < 95.0:
+		needs.drink(20.0)   # wading in fresh water: cup a drink (rivers and lakes are fresh in Valencious)
+

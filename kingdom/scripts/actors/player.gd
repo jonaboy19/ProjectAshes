@@ -207,6 +207,7 @@ const CombatFeedback := preload("res://scripts/combat/combat_feedback.gd")
 const CombatFeel := preload("res://scripts/combat/combat_feel.gd")
 const EnemyHighlight := preload("res://scripts/combat/enemy_highlight.gd")
 const ChaseCamera := preload("res://scripts/actors/chase_camera.gd")
+const SurfaceFX := preload("res://scripts/world/surface_feedback.gd")
 const Traversal := preload("res://scripts/actors/traversal.gd")   # F2: vault / mantle / ledge / ladder / step-up (logic lives there)
 ## The slash arc needs ~0.07 s to read, so it spawns this long before the hit.
 const SLASH_LEAD := 0.07
@@ -1400,7 +1401,7 @@ func _update_footsteps(delta: float, input_dir: Vector3, grounded: bool) -> void
 	# Fallback spacing in case the animator is inactive: never go silent over ~1.6 m.
 	if footfall or _step_distance > 1.6:
 		_step_distance = 0.0
-		Audio.sfx("step_" + WorldGen.footstep_surface(global_position.x, global_position.z), global_position, -6.0)
+		SurfaceFX.footstep(self, global_position, -6.0, speed)   # per-material sound + puff (surface_query.gd)
 
 
 func _update_camera(delta: float) -> void:
@@ -1920,6 +1921,7 @@ func _land_jump(impact_speed: float, dir: Vector3) -> void:
 	var running_land := (_jump_running or _move_speed > 4.5) and fall_height <= 3.0
 	var roll := (fall_height >= 3.0 and fall_height <= 6.0) or (fall_height > 1.2 and forward_input)
 	var hard := fall_height >= 1.2 or impact_speed > 11.0
+	SurfaceFX.land(self, global_position, impact_speed)
 	_jump_active = false
 	_jump_starting = false
 	_jump_left_floor = false

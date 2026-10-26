@@ -265,6 +265,7 @@ func _update_collision(center: Vector2i) -> bool:
 			if added_body and ring > 0:
 				continue
 			body = StaticBody3D.new()
+			body.add_to_group(&"terrain")
 			body.name = "Body"
 			var shape := CollisionShape3D.new()
 			var faces: PackedVector3Array = chunk.get_meta("faces", PackedVector3Array())

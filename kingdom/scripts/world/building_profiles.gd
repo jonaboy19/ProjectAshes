@@ -189,6 +189,7 @@ static func _porch_x1(p: Dictionary, size: Vector3) -> float:
 ## of the same asset and size.
 static func make_body(asset: String, size: Vector3) -> StaticBody3D:
 	var body := StaticBody3D.new()
+	preload("res://scripts/world/surface_query.gd").tag(body, &"stone", {climbable = true})
 	for e: Array in _profile(asset, size):
 		var cs := CollisionShape3D.new()
 		cs.shape = e[0]

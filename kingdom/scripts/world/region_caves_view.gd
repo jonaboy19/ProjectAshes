@@ -302,6 +302,7 @@ func _mouth(theme: String, plugged: bool, reveal_kind: String) -> Node3D:
 	root.add_child(mi)
 	# colliders: two jambs and a lintel, so the opening stays walkable
 	var body := StaticBody3D.new()
+	preload("res://scripts/world/surface_query.gd").tag(body, &"stone")
 	body.collision_layer = 1
 	body.collision_mask = 0
 	root.add_child(body)
@@ -363,6 +364,7 @@ func _vines(root: Node3D, s: Dictionary) -> void:
 		mi.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
 		v.add_child(mi)
 	var body := StaticBody3D.new()
+	preload("res://scripts/world/surface_query.gd").tag(body, &"stone")
 	body.collision_layer = 1
 	var cs := CollisionShape3D.new()
 	var bs := BoxShape3D.new()
@@ -386,6 +388,7 @@ func _rockfall(root: Node3D, s: Dictionary) -> void:
 	mi.mesh = Kit._to_mesh(acc, Kit.materials("cave")["shell"])
 	v.add_child(mi)
 	var body := StaticBody3D.new()
+	preload("res://scripts/world/surface_query.gd").tag(body, &"stone")
 	body.collision_layer = 1
 	var cs := CollisionShape3D.new()
 	var bs := BoxShape3D.new()
@@ -433,6 +436,7 @@ func _night_plug(root: Node3D, s: Dictionary) -> void:
 	l.position = Vector3(0, 1.8, 1.6)
 	v.add_child(l)
 	var body := StaticBody3D.new()
+	preload("res://scripts/world/surface_query.gd").tag(body, &"stone")
 	body.name = "Body"
 	body.collision_layer = 1
 	var cs := CollisionShape3D.new()

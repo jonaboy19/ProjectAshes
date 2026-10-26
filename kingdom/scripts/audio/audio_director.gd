@@ -387,11 +387,16 @@ func play_ui(sound: String, volume_db := 0.0) -> void:
 	p.play()
 
 
+const STEP_FALLBACK := {"water": "dirt", "mud": "dirt", "sand": "dirt", "snow": "grass", "metal": "stone"}
+
+
 ## One footstep on a surface ("" = look it up at `position`).
 func play_footstep(position: Vector3, surface := "", volume_db := 0.0) -> void:
 	var s := surface if surface != "" else surface_at(position)
 	_surface = s
 	var stream := _pick("step_" + s)
+	if stream == null:
+		stream = _pick("step_" + str(STEP_FALLBACK.get(s, "dirt")))   # families without recordings (water, mud, sand)
 	if stream == null:
 		return
 	var p := _steps[_step_i]
