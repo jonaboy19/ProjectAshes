@@ -51,6 +51,13 @@ const TORSO_MAX := 0.07
 const TORSO_STIFF := 70.0
 const TORSO_DAMP := 0.45       # damping ratio: a little overshoot reads as weight
 ## Prop spring: tip lag (m) per m/s² of grip acceleration, limited to a fraction of the prop length.
+## Foot lock (docs/plans/AAA_FINISH_PLAN.md A5.1): while the animated sole is on the ground the IK target is pinned to where
+## the stance began, so the planted foot cannot skate when the body speed and the clip's ground speed disagree. The pin
+## fades out over LOCK_BLEND at lift-off and is dragged along once it lags more than LOCK_MAX (metres at leg height 0.98).
+const LOCK_LIFT := 0.05          # animated sole height as a fraction of leg length below which the foot counts as planted
+const LOCK_MAX := 0.22
+const LOCK_BLEND := 0.10
+const LOCK_MIN_SPEED := 0.35     # m/s: below this the clip is a standing idle, nothing to pin
 const PROP_GAIN := 0.0045
 const PROP_MAX := 0.12
 const PROP_STIFF := 160.0
@@ -115,6 +122,12 @@ var _hit_n: Array[Vector3] = [Vector3.UP, Vector3.UP]
 var _ground: Array[float] = [0.0, 0.0]      # smoothed offset from the base plane
 var _normal: Array[Vector3] = [Vector3.UP, Vector3.UP]
 var _plant: Array[float] = [0.0, 0.0]
+var foot_lock := false                        # QA switch (tools_qa/anim_states/loco_slide.gd --no-lock)
+var _ball: Array[int] = []
+var _ball_off: Array[Vector2] = [Vector2.ZERO, Vector2.ZERO]   # animated ankle minus ball, world XZ
+var _lock_on: Array[bool] = [false, false]
+var _lock_xz: Array[Vector2] = [Vector2.ZERO, Vector2.ZERO]
+var _lock_w: Array[float] = [0.0, 0.0]
 var _pelvis_off := 0.0
 var _weight := 0.0
 
@@ -278,6 +291,8 @@ func _find_legs() -> bool:
 			return false
 		_leg.append(ids)
 	_pelvis = _skeleton.find_bone(PELVIS)
+	for ball_name: String in ["ball_l", "ball_r"]:        # foot lock pins the ball of the foot (the ankle rolls over it)
+		_ball.append(_skeleton.find_bone(ball_name))
 	return _pelvis >= 0
 
 
@@ -574,6 +589,11 @@ func _pre_modify(delta: float) -> void:
 		var foot_pose := _skeleton.get_bone_global_pose(_leg[i][2])
 		_foot_anim[i] = xf * foot_pose.origin
 		_foot_rot[i] = foot_pose.basis.get_rotation_quaternion()
+		if i < _ball.size() and _ball[i] >= 0:
+			var bp: Vector3 = xf * _skeleton.get_bone_global_pose(_ball[i]).origin
+			_ball_off[i] = Vector2(_foot_anim[i].x - bp.x, _foot_anim[i].z - bp.z)
+		else:
+			_ball_off[i] = Vector2.ZERO
 	_has_anim = true
 	if _arms_state == 1:
 		_arms_pre(xf, fwd)
@@ -606,6 +626,7 @@ func _pre_modify(delta: float) -> void:
 			_normal[i] = n.normalized()
 		var lift := _foot_anim[i].y - base.y - _ankle_rest
 		_plant[i] = 1.0 - smoothstep(0.03 * _leg_len, 0.2 * _leg_len, lift)
+		_update_lock(i, lift, delta)
 		lowest = minf(lowest, _ground[i])
 	_pelvis_off = lerpf(_pelvis_off, lowest * _weight, 1.0 - exp(-PELVIS_RATE * delta))
 	_ik.influence = _weight
@@ -619,11 +640,35 @@ func _pre_modify(delta: float) -> void:
 	_skeleton.set_bone_pose_position(_pelvis, _skeleton.get_bone_pose_position(_pelvis) + drop)
 	for i in 2:
 		var target := _foot_anim[i] + Vector3(0.0, _ground[i], 0.0)
+		if _lock_w[i] > 0.001:
+			var lk := Vector2(target.x, target.z).lerp(_lock_xz[i] + _ball_off[i], _lock_w[i])
+			target.x = lk.x
+			target.z = lk.y
 		_markers[i].global_position = target
 		var mid := (hips[i] + _foot_anim[i]) * 0.5
 		var bend := knees[i] - mid
 		bend = bend.normalized() if bend.length() > 0.02 * _leg_len else fwd
 		_markers[i + 2].global_position = knees[i] + Vector3(0.0, _pelvis_off, 0.0) + (bend + fwd * 0.3).normalized() * _leg_len * 0.6
+
+
+## Pins foot `i` while its animated sole is planted (see LOCK_*). Player-only (always_near), never while airborne,
+## attacking or standing still, so clips that move planted feet on purpose (skids, pivots out of locomotion) are left alone.
+func _update_lock(i: int, lift: float, delta: float) -> void:
+	var speed := _owner_speed if _owner_speed >= 0.0 else Vector2(_vel.x, _vel.z).length()
+	var k := maxf(_model.global_basis.get_scale().y, 0.05)
+	var planted := foot_lock and always_near and _weight > 0.2 and not attacking and speed > LOCK_MIN_SPEED 			and speed < RUN_REDUCED * k and lift < LOCK_LIFT * _leg_len     # the IK is mostly off at a sprint anyway
+	var anim_xz := Vector2(_foot_anim[i].x, _foot_anim[i].z) - _ball_off[i]      # the ball of the foot
+	if planted:
+		if not _lock_on[i]:
+			_lock_on[i] = true
+			_lock_xz[i] = anim_xz
+		else:
+			var lag := _lock_xz[i] - anim_xz
+			if lag.length() > LOCK_MAX * k:
+				_lock_xz[i] = anim_xz + lag.normalized() * LOCK_MAX * k
+	else:
+		_lock_on[i] = false
+	_lock_w[i] = move_toward(_lock_w[i], 1.0 if _lock_on[i] else 0.0, delta / LOCK_BLEND)
 
 
 func _torso_yaw_wanted() -> bool:

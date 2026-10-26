@@ -656,6 +656,8 @@ static func _ual_for(skeleton_path: NodePath) -> AnimationLibrary:
 		var ap: AnimationPlayer = inst.find_children("*", "AnimationPlayer", true, false)[0]
 		var root_motion_lib := file.begins_with(UAL_ANIM_DIR) or file.begins_with(UAL_LOCO_DIR) or file.begins_with(UAL_TRAV_DIR)
 		for anim_name in ap.get_animation_list():
+			if GoldenSet.skip_in_library(anim_name):    # golden
+				continue
 			var a: Animation = ap.get_animation(anim_name).duplicate(true)
 			for t in a.get_track_count():
 				var tp := String(a.track_get_path(t))
