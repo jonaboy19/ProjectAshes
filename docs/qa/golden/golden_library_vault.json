@@ -1,0 +1,136 @@
+{
+	"player_young": {
+		"Vault_Low": {
+			"airborne_s": 0.566666666666667,
+			"checks": {
+				"airborne": "FAIL",
+				"hover": "PASS",
+				"penetration": "PASS",
+				"pops": "PASS",
+				"scale": "PASS",
+				"slide": "FAIL",
+				"stretch": "PASS"
+			},
+			"contacts": {
+				"foot_l": [
+					[
+						6,
+						14
+					],
+					[
+						33,
+						41
+					],
+					[
+						47,
+						60
+					]
+				],
+				"foot_r": [
+					[
+						0,
+						4
+					],
+					[
+						34,
+						36
+					],
+					[
+						42,
+						60
+					]
+				]
+			},
+			"contacts_fps": 30.0,
+			"drift_cm": 3.15544977784157,
+			"ground_speed": 0.0,
+			"hover_cm": 0.0,
+			"kind": "once",
+			"length": 2.0,
+			"looping": false,
+			"notes": [
+				"all feet off the ground for 0.57 s",
+				"planted foot slips 98 cm/s (p75)"
+			],
+			"pen_cm": 0.811250269412994,
+			"pops": 0,
+			"scale_pct": 0.0000119209289550781,
+			"seam_cm": 0.0,
+			"seam_deg": 0.0,
+			"slide_max": 138.46110534668,
+			"slide_mean": 78.699512704559,
+			"slide_p75": 97.9013977050781,
+			"status": "FAIL",
+			"stretch_pct": 0.000622927182636346,
+			"subject": "player_young",
+			"tpose_frames": 0,
+			"upper": false
+		},
+		"Vault_Low_B": {
+			"airborne_s": 0.566666666666667,
+			"checks": {
+				"airborne": "FAIL",
+				"hover": "PASS",
+				"penetration": "PASS",
+				"pops": "PASS",
+				"scale": "PASS",
+				"slide": "FAIL",
+				"stretch": "PASS"
+			},
+			"contacts": {
+				"foot_l": [
+					[
+						0,
+						4
+					],
+					[
+						34,
+						36
+					],
+					[
+						42,
+						60
+					]
+				],
+				"foot_r": [
+					[
+						6,
+						14
+					],
+					[
+						33,
+						41
+					],
+					[
+						47,
+						60
+					]
+				]
+			},
+			"contacts_fps": 30.0,
+			"drift_cm": 3.15544977784157,
+			"ground_speed": 0.0,
+			"hover_cm": 0.0,
+			"kind": "once",
+			"length": 2.0,
+			"looping": false,
+			"notes": [
+				"all feet off the ground for 0.57 s",
+				"planted foot slips 98 cm/s (p75)"
+			],
+			"pen_cm": 0.878136396408081,
+			"pops": 0,
+			"scale_pct": 0.0000119209289550781,
+			"seam_cm": 0.0,
+			"seam_deg": 0.0,
+			"slide_max": 138.461441040039,
+			"slide_mean": 79.7983865155114,
+			"slide_p75": 97.9026107788086,
+			"status": "FAIL",
+			"stretch_pct": 0.000593953825300808,
+			"subject": "player_young",
+			"tpose_frames": 0,
+			"upper": false
+		}
+	}
+}

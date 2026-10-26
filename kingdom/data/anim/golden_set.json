@@ -21360,9 +21360,9 @@
    "kind": "once",
    "length_s": 2.0,
    "metrics": {
-    "slide_mean": 0.797,
-    "slide_max": 1.387,
-    "pen_cm": 2.6,
+    "slide_mean": 0.787,
+    "slide_max": 1.385,
+    "pen_cm": 0.81,
     "float_cm": 0.0,
     "pops": 0,
     "seam_deg": null,
@@ -21402,8 +21402,8 @@
    },
    "contacts_fps": 30.0,
    "upper": false,
-   "status": "banned",
-   "why": "banned: ground penetration 2.6 cm"
+   "status": "probation",
+   "why": "metrics gold, no passing frame-sheet review yet"
   },
   "Vault_Low_B": {
    "rig": "ual",
@@ -21411,9 +21411,9 @@
    "kind": "once",
    "length_s": 2.0,
    "metrics": {
-    "slide_mean": 0.797,
-    "slide_max": 1.387,
-    "pen_cm": 2.66,
+    "slide_mean": 0.798,
+    "slide_max": 1.385,
+    "pen_cm": 0.88,
     "float_cm": 0.0,
     "pops": 0,
     "seam_deg": null,
@@ -21453,8 +21453,8 @@
    },
    "contacts_fps": 30.0,
    "upper": false,
-   "status": "banned",
-   "why": "banned: ground penetration 2.7 cm"
+   "status": "probation",
+   "why": "metrics gold, no passing frame-sheet review yet"
   },
   "Vault_Run": {
    "rig": "ual",

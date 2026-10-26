@@ -104,18 +104,48 @@ void fragment() {
 	for i in 40:
 		await physics_frame
 	var rig: Node = _p.get("_rig")
-	if rig != null:
-		rig.set("foot_lock", lock)
-	Input.action_press("move_forward", 0.4 if case == "slow" else 1.0)
+	if OS.get_cmdline_user_args().has("--list_attach"):
+		for n in _p.find_children("*", "", true, false):
+			if String(n.name).to_lower().contains("sword") or String(n.name).to_lower().contains("blade"):
+				print("SWORDNODE ", n.get_path(), " ", n.get_class(), " vis=", (n as Node3D).visible if n is Node3D else "-")
+		for att in _p.find_children("*", "BoneAttachment3D", true, false):
+			var names: Array = []
+			for c in att.get_children():
+				names.append("%s rot=%s pos=%s" % [c.name, (c as Node3D).rotation_degrees, (c as Node3D).position])
+			print("ATT ", att.name, " bone=", (att as BoneAttachment3D).bone_name, " ", names)
+	if OS.get_cmdline_user_args().has("--adult"):
+		var life: Node = root.get_node("Life")
+		life.life_path.set_age(16, root.get_node("WorldSim").day, root.get_node("WorldSim").time_of_day)
+		_p.apply_age()
+	if case != "idle":
+		Input.action_press("move_forward", 0.4 if case == "slow" else 1.0)
 	if case == "sprint":
 		Input.action_press("sprint")
 	var t := 0.0
 	while t < seconds:
 		await physics_frame
+		_apply_sword_rot()
 		t += 1.0 / 60.0
 		var pp := _p.global_position
-		_cam.global_position = Vector3(pp.x + 4.0, BASE + 0.9, pp.z)
+		if OS.get_cmdline_user_args().has("--front"):
+			_cam.global_position = Vector3(pp.x, BASE + 0.9, pp.z - 4.0)      # the player walks toward -Z: this camera sees the face
+		elif OS.get_cmdline_user_args().has("--three_quarter"):
+			_cam.global_position = Vector3(pp.x + 3.0, BASE + 1.0, pp.z - 3.0)
+		else:
+			_cam.global_position = Vector3(pp.x + 4.0, BASE + 0.9, pp.z)
 		_cam.look_at(Vector3(pp.x, BASE + 0.9, pp.z))
 	Input.action_release("move_forward")
 	Input.action_release("sprint")
 	quit()
+
+
+func _apply_sword_rot() -> void:
+	for a in OS.get_cmdline_user_args():
+		if a.begins_with("--sword_rot="):      # QA: try a grip rotation (degrees x,y,z, hand_r space) on the starter sword
+			var v := a.substr(12).split(",")
+			for att in _p.find_children("*", "BoneAttachment3D", true, false):
+				if (att as BoneAttachment3D).bone_name == "hand_r":
+					for prop in att.get_children():
+						(prop as Node3D).rotation_degrees = Vector3(float(v[0]), float(v[1]), float(v[2]))
+						if Engine.get_process_frames() % 30 == 0:
+							print("SWORDROT ", prop.name, " ", (prop as Node3D).rotation_degrees, " global_z=", (prop as Node3D).global_basis.y)
