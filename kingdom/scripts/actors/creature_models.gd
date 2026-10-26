@@ -55,7 +55,7 @@ const MODELS := {
 	# Region 1 creatures (package C11, docs/regions/REGION_1_PLAN.md). Speeds and impact beats are first estimates from the
 	# clip lengths (Quaternius clips: assets/incoming/monsters/README.md; Stagborn: stagborn_README.md): Codex tunes them (X3/X4).
 	"ghoul": {"path": QUAT + "ghoul", "scale": 1.0, "walk": 0.7, "run": 2.4, "impact": 1.3},
-	"giant_wasp": {"path": QUAT + "giant_wasp", "scale": 1.0, "walk": 1.4, "run": 3.6, "impact": 0.47,
+	"giant_wasp": {"path": QUAT + "giant_wasp", "scale": 1.0, "yaw_offset_deg": -90.0, "walk": 1.4, "run": 3.6, "impact": 0.47,
 		"clips": {"walk": "idle", "run": "idle"}},
 	"bog_toad": {"path": QUAT + "bog_toad", "scale": 1.0, "walk": 0.5, "run": 1.6, "impact": 0.4,
 		"clips": {"run": "walk"}},
@@ -122,6 +122,7 @@ static func instance(kind: String) -> Node3D:
 		model.scale = Vector3.ONE * (float(m["fit_height"]) / maxf(box.size.y, 0.01))
 	else:
 		model.scale = Vector3.ONE * float(m.get("scale", 1.0))
+	model.rotation.y += deg_to_rad(float(m.get("yaw_offset_deg", 0.0)))
 	var ap := Assets.animation_player(model)
 	if ap:
 		var c := clips(kind)
