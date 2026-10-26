@@ -229,6 +229,20 @@
 			"choices": [{"text": "(Help her up.)", "goto": "@end", "do": [["flag", "r1.a3.idra_truth"]]}]
 		},
 
+		"camp_charge": {
+			"speaker": "idra_vell",
+			"lines": [
+				{"text": "The King will send us light, not hands. A stone fed by one old woman is a debt, not a ward."},
+				{"text": "Find open ground, off the road, away from any hearth. Raise a camp there. Many hands, one fire."}
+			],
+			"choices": [{"text": "(Go and find the ground.)", "goto": "@end"}]
+		},
+		"camp_raised": {
+			"speaker": "idra_vell",
+			"lines": [{"text": "There. A fire that is not mine to feed. Put up a wall or two, and keep it fed. The Scar will not wait for us."}],
+			"choices": [{"text": "(Nod.)", "goto": "@end"}]
+		},
+
 		"mother_kindling": {
 			"speaker": "mother",
 			"lines": [{"text": "We lit Kindling early this year. For Idra. Look at you, taller than the lanterns. Sit. Eat. No stones tonight."}],

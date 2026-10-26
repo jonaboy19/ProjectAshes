@@ -11,6 +11,8 @@ signal inventory_changed
 signal region1_kill(species: String, where: Vector3)
 signal employment_changed
 signal grown(age: int)
+## READY_V1 C3: the player slept or rested `hours` (bed, rough sleep, sleep_until); the Region 1 story gates (age, Kindling Night) listen.
+signal slept(hours: float)
 
 const PROTOSET := "res://data/items.json"
 const SAVE_PATH := "user://save_%d.json"
@@ -1258,6 +1260,7 @@ func sleep(quality := 1.0) -> String:
 	_last_abs = _abs_hours()
 	if player and player.get("health") != null:
 		player.heal(int(20 * hours * quality))
+	slept.emit(hours)
 	return "You sleep %d hours and wake %s." % [int(hours), needs.rest_label().to_lower()]
 
 
@@ -1273,6 +1276,7 @@ func sleep_until(hour: float, quality := 1.0) -> String:
 	_last_abs = _abs_hours()
 	if player and player.get("health") != null:
 		player.heal(int(20 * hours * quality))
+	slept.emit(hours)
 	return "You rest %d hours and wake at %02d:00, %s." % [int(roundf(hours)), int(hour), needs.rest_label().to_lower()]
 
 

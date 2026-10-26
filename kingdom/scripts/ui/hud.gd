@@ -2,6 +2,7 @@ class_name HUD
 extends CanvasLayer
 const GameMenu := preload("res://scripts/ui/gamemenu/game_menu.gd")
 const TabAffairs := preload("res://scripts/ui/gamemenu/tab_affairs.gd")
+const FoundCamp := preload("res://scripts/ui/found_camp.gd")
 const AffairsHooks := preload("res://scripts/ui/affairs/affairs_hooks.gd")
 const EnvoyDialog := preload("res://scripts/ui/affairs/envoy_dialog.gd")
 const GatePrompt := preload("res://scripts/ui/affairs/gate_prompt.gd")
@@ -1329,6 +1330,11 @@ func _unhandled_input(event: InputEvent) -> void:
 		return
 	if event.is_action_pressed("menu_skills") and not (event is InputEventKey and event.echo):
 		GameMenu.toggle(self, "skills")
+		get_viewport().set_input_as_handled()
+		return
+	if InputMap.has_action("found_camp") and event.is_action_pressed("found_camp") and not (event is InputEventKey and event.echo) \
+			and not is_menu_open() and not GameMenu.is_open(self) and not world_map.visible:   # v1 hook (READY_V1 C3): the found-a-camp card
+		FoundCamp.open_for(self)
 		get_viewport().set_input_as_handled()
 		return
 	for pair: Array in AFFAIRS_KEYS:

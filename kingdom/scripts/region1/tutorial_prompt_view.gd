@@ -36,6 +36,7 @@ const BINDS := {
 	"dodge": {"actions": ["dodge"], "tokens": ["Space", "Spatie"]},
 	"map": {"actions": ["journal"], "tokens": ["Tab"]},
 	"ashsight": {"actions": ["interact"], "tokens": ["E"]},
+	"found_camp": {"actions": ["found_camp"], "tokens": ["F4"]},
 }
 const SKIP_SIZE := 30.0          # touch target (px at 1080p height, scaled below)
 const DEFAULT_ANCHORS := {

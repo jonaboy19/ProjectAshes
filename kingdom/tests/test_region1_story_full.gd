@@ -91,6 +91,10 @@ func _perform(o: Dictionary, st: Dictionary) -> bool:
 			WorldSim.time_of_day = 8.0
 		"cutscene_done":
 			dir.notify(&"cutscene_done", {"cutscene": o["cutscene"]})
+		"flag":
+			if not (dir.story.registry.get("external_flags", {}) as Dictionary).has(String(o["flag"])) or dir.story.has_flag(String(o["flag"])):
+				return false
+			Life.life_path.flags[String(o["flag"])] = true      # a game system sets it (r1.a3.camp_founded: ui/found_camp.gd)
 		"ashsight":
 			_goto(String(st["place"]))
 			dir.notify(&"ashsight", {"site": o["site"]})

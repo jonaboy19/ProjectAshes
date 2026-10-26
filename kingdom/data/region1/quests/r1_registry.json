@@ -115,6 +115,7 @@
 		"blessing:": "life.gd awakening (blessing:fire, blessing:none, ...)",
 		"blessing_dual": "life.gd awakening",
 		"came_of_age": "life.gd at 16",
+		"r1.a3.camp_founded": "ui/found_camp.gd: the player founded a camp (READY_V1 C3), set through the life flags",
 		"spirit_seen": "hidden_triggers.gd, shrine at age 8",
 		"ember.has_ancestor": "ember_legacy.gd (L10): a previous character of this family rests in a stone"
 	},

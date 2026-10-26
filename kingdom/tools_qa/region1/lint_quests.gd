@@ -771,6 +771,9 @@ static func _play_once(q: Dictionary, reg: Dictionary, dialogues: Dictionary, pi
 					ctx["age"] = int(o["min"])
 					ctx["child"] = int(o["min"]) < 16
 					progressed = true
+			elif t == "flag" and (reg.get("external_flags", {}) as Dictionary).has(String(o["flag"])) and not (ctx["flags"] as Dictionary).has(String(o["flag"])):
+				ctx["flags"][String(o["flag"])] = true      # a game system sets it (r1.a3.camp_founded: ui/found_camp.gd)
+				progressed = true
 			elif StoryQuest.EVENT_TYPES.has(t) or t == "any":
 				var ev := _synth(o, reg, chosen)
 				if ev.is_empty():

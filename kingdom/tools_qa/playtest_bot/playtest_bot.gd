@@ -574,6 +574,7 @@ func _run_all() -> void:
 		["st_a4", _s_st_a4], ["st_a5", _s_st_a5], ["st_save", _s_st_save], ["st_probe", _s_st_probe],
 		["v1_recruit", _s_v1_recruit],
 		["v1_hunt", _s_v1_hunt],
+		["v1_found", _s_v1_found],
 	]
 	for e: Array in list:
 		if not _want(String(e[0])) and (String(e[0]) != "adult" or only.contains("st_")):
@@ -611,6 +612,7 @@ func _stage_limit(name: String) -> float:
 		"st_load", "st_probe": return 400.0
 		"v1_recruit": return 600.0
 		"v1_hunt": return 240.0
+		"v1_found": return 600.0
 		"st_save": return 200.0
 		"st_birth", "st_a1", "st_a2", "st_a3", "st_a4", "st_a5": return 1500.0
 	return 150.0
@@ -4092,6 +4094,8 @@ func _town_visit(tid: String) -> void:
 
 const StPlaces := preload("res://scripts/region1/region1_places.gd")
 const StSpine := preload("res://scripts/region1/progression_spine.gd")
+const LandClaim := preload("res://scripts/realm/land_claim.gd")
+const BuildKit := preload("res://scripts/realm/build_kit.gd")
 const ST_SLOT := 5
 const ST_WALK_MAX := 360.0        ## a leg up to this far is walked; longer legs ride the coach (or are hooked)
 var st_hooks: Array[String] = []
@@ -4615,17 +4619,23 @@ func _st_objective(sid: String, o: Dictionary) -> bool:
 			var tag := "rift" if t == "rift_wolf" else ""
 			var fell := await st_fight_group(t, int(o.get("count", 1)), 260.0, tag)
 			return fell > 0
+		"flag":
+			if String(o.get("flag", "")) == "r1.a3.camp_founded":
+				return await v1_found_camp("a3_found_camp")      # the found-a-camp flow, played through its real key and cards
+			return false
 		"festival":
-			st_hook("Kindling Night: the festival signal (the calendar date is %d days away)" % 0)
-			WorldSim.seasons.festival_started.emit({"id": "kindling_night", "name": "Kindling Night"})
+			if not await st_seasons_pass("Kindling Night"):
+				st_hook("Kindling Night: the festival signal (the seasons-pass card did not come up)")
+				WorldSim.seasons.festival_started.emit({"id": "kindling_night", "name": "Kindling Night"})
 			await wait(0.5)
 			return true
 		"age":
 			var want := int(o["min"])
-			st_hook("age %d -> %d (the years pass)" % [Life.age(), want])
 			WorldSim.time_of_day = 7.4
-			Life.life_path.set_age(want, WorldSim.day, WorldSim.time_of_day)
-			player.apply_age()
+			if not await st_seasons_pass("age %d" % want):
+				st_hook("age %d -> %d (the years pass; the seasons-pass card did not come up)" % [Life.age(), want])
+				Life.life_path.set_age(want, WorldSim.day, WorldSim.time_of_day)
+				player.apply_age()
 			await wait(1.0)
 			if is_headless():
 				# the older, taller body can end up inside the doorway collider it was standing in: step out to the plaza
@@ -5057,9 +5067,10 @@ func _s_st_birth() -> void:
 	await shot("tutorial_after_walk")
 	# the years pass (four of them to the story's age 8)
 	if Life.age() < 8:
-		st_hook("age %d -> 8 (four years pass; the story opens at eight)" % Life.age())
-		Life.life_path.set_age(8, WorldSim.day, WorldSim.time_of_day)
-		player.apply_age()
+		if not await st_seasons_pass("birth: the story opens at eight"):
+			st_hook("age %d -> 8 (four years pass; the story opens at eight; no seasons-pass card)" % Life.age())
+			Life.life_path.set_age(8, WorldSim.day, WorldSim.time_of_day)
+			player.apply_age()
 		WorldSim.advance_hours(0.1)
 		Life.realm.drain()
 	await _st_ready()
@@ -5073,9 +5084,10 @@ func _s_st_birth() -> void:
 func _s_st_a1() -> void:
 	await _st_ready()
 	if Life.age() < 8:
-		st_hook("age %d -> 8" % Life.age())
-		Life.life_path.set_age(8, WorldSim.day, WorldSim.time_of_day)
-		player.apply_age()
+		if not await st_seasons_pass("act I: the story opens at eight"):
+			st_hook("age %d -> 8" % Life.age())
+			Life.life_path.set_age(8, WorldSim.day, WorldSim.time_of_day)
+			player.apply_age()
 		st_dir()._on_tick()
 	var ok := await _st_play("a1_after_blessing", 1300.0, "act I")
 	await shot("act1_end")
@@ -5141,6 +5153,127 @@ func _s_v1_hunt() -> void:
 	var jr: Dictionary = Life.crafting.craft("game_jerky", Life, null, {"roll": 0.5})
 	check("venison and salt make jerky", bool(jr.get("ok", false)) and Life.count("jerky") >= 2, str(jr.get("text", "")))
 	CorpseLoot.reset()
+
+
+## READY_V1 C3: a story gate only time opens (an age, Kindling Night) is passed the way a player does it: sleep (the bed's own
+## Life.sleep), then pick the "seasons pass" card's choice. False when no gate is open or the card never came up (the caller hooks).
+func st_seasons_pass(label: String) -> bool:
+	var dir := st_dir()
+	var gate: Dictionary = dir.seasons_gate()
+	if gate.is_empty():
+		return false
+	L("seasons gate (%s): %s" % [label, JSON.stringify(gate)])
+	Life.sleep(1.0)
+	await wait(0.6)
+	var pop: Node = hud.get_node_or_null("LifeEventPopup")
+	var shown: bool = pop != null and bool(pop.visible)
+	check("%s: sleeping at the gate shows the seasons-pass card" % label, shown, "gate %s" % JSON.stringify(gate))
+	if not shown:
+		return false
+	await shot("seasons_pass")
+	(pop._choices.get_child(0) as Button).pressed.emit()
+	await wait(0.8)
+	var open_now: bool = not dir.seasons_gate().is_empty() and JSON.stringify(dir.seasons_gate()) == JSON.stringify(gate)
+	check("%s: the card's choice opens the gate" % label, not open_now, JSON.stringify(dir.seasons_gate()))
+	return not open_now
+
+
+## Ground the found-a-camp card accepts, nearest to the player first (rings round the player, then round Ashford); INF when none.
+func v1_find_camp_spot(kit: RefCounted) -> Vector2:
+	var FC := preload("res://scripts/ui/found_camp.gd")
+	for centre: Vector2 in [p2(), ashford()["pos"] as Vector2]:
+		for r in [40.0, 90.0, 150.0, 220.0, 300.0, 380.0, 460.0, 560.0, 700.0, 850.0, 1000.0]:
+			for k in 18:
+				var q: Vector2 = centre + Vector2(r, 0.0).rotated(TAU * float(k) / 18.0)
+				if LandClaim.block_reason(q) == "" and not WorldGen.is_water(q.x, q.y) and bool(FC.site_card(kit, q)["can"]):
+					return q
+	return Vector2.INF
+
+
+## The found-a-camp flow, played as a player does: walk to open ground, press the found_camp key, take the site card's
+## "Found a camp here", name it, "Raise the camp". Checks the one-settlement model (grid + founding + row) and the quest flag.
+func v1_found_camp(label: String) -> bool:
+	var FC := preload("res://scripts/ui/found_camp.gd")
+	var kit: RefCounted = FC.build_kit_of()
+	if kit == null:
+		bug("found", "no build kit in the realm hub")
+		return false
+	var n0: int = kit.grids.size()
+	var spot := v1_find_camp_spot(kit)
+	if spot == Vector2.INF:
+		bug("found", "%s: no open ground within reach passes the site card" % label)
+		return false
+	await st_travel(spot, "camp site", 3.0)
+	await wait(0.5)
+	var here: Dictionary = FC.site_card(kit, p2())
+	check("%s: the ground under the player passes the site card" % label, bool(here["can"]), "%s at %s" % [str(here.get("reason", "")), _pos2s()])
+	if not bool(here["can"]):
+		var back := spot
+		await teleport(back, 0.0, 1.0)
+		here = FC.site_card(kit, p2())
+	for pr in [true, false]:
+		var ev := InputEventKey.new()
+		ev.keycode = KEY_F4
+		ev.physical_keycode = KEY_F4
+		ev.pressed = pr
+		Input.parse_input_event(ev)     # the found_camp action's default key: the HUD opens the card
+		await frames(2)
+	await wait(0.5)
+	var ui: Control = hud.get_node_or_null("FoundCamp")
+	var open: bool = ui != null and ui.visible
+	check("%s: the found_camp key opens the site card" % label, open)
+	if not open:
+		return false
+	check("%s: the card names the verdict and ten lines of the site" % label, String(ui.card["verdict"]) != "" and (ui.card["lines"] as Array).size() == 10, str(ui.card.get("verdict", "")))
+	await shot("found_card")
+	(ui._row.get_child(0) as Button).pressed.emit()      # "Found a camp here"
+	await wait(0.4)
+	check("%s: the name card follows the site card" % label, ui._name_edit.visible and ui._name_edit.text != "", ui._name_edit.text)
+	ui._name_edit.text = "Emberfall"
+	(ui._row.get_child(0) as Button).pressed.emit()      # "Raise the camp"
+	await wait(1.0)
+	var grids_now: int = kit.grids.size()
+	check("%s: one camp was founded (grid + founding + settlement row)" % label, grids_now == n0 + 1 and Life.realm.player_settlements().size() == grids_now, "grids %d -> %d, rows %d" % [n0, grids_now, Life.realm.player_settlements().size()])
+	check("%s: the card closed and the game runs again" % label, not ui.visible and not get_tree().paused)
+	check("%s: the camp carries the chosen name" % label, Life.realm.player_settlements().any(func(r: Dictionary) -> bool: return String(r["name"]) == "Emberfall"))
+	check("%s: the quest flag is set" % label, Life.life_path.flags.has(FC.FOUNDED_FLAG))
+	st_dir()._on_tick()
+	await shot("camp_founded")
+	return grids_now == n0 + 1
+
+
+## Three foundations laid as plans on the new camp's grid (the free-build path the build menu uses: snap_world + place).
+func v1_place_pieces(kit: RefCounted, gid: int, want := 3) -> int:
+	var laid := 0
+	var o: Vector3 = kit.to_world(gid, Vector3.ZERO)
+	var step := float(((BuildKit.def("foundation_timber").get("fp", [2, 2]) as Array)[0])) * BuildKit.CELL
+	for k in want:
+		var s: Dictionary = kit.snap_world(gid, "foundation_timber", o + Vector3(step * float(k), 0.0, 0.0), 0, 0)
+		var r: Dictionary = kit.place(gid, s, true)
+		if bool(r["ok"]):
+			laid += 1
+		else:
+			L("v1 piece %d refused: %s" % [k, str(r.get("reason", ""))])
+	return laid
+
+
+## READY_V1 C3: found a camp through the real key and cards, then lay three kit pieces on it.
+func _s_v1_found() -> void:
+	await _st_ready()
+	var FC := preload("res://scripts/ui/found_camp.gd")
+	var kit: RefCounted = FC.build_kit_of()
+	var before: int = kit.grids.size() if kit != null else 0
+	var ok := await v1_found_camp("v1_found")
+	if not ok:
+		return
+	var rows: Array = Life.realm.player_settlements()
+	var gid := int((rows[rows.size() - 1] as Dictionary)["gid"])
+	var laid := v1_place_pieces(kit, gid, 3)
+	check("v1_found: three kit pieces were laid on the new camp", laid == 3 and kit.piece_count(gid) == 3, "laid %d, pieces %d" % [laid, kit.piece_count(gid)])
+	var row: Dictionary = Life.realm.settlement_of_grid(gid)
+	check("v1_found: the settlement row links grid, founding and camp-place", int(row.get("fid", 0)) > 0 and String(row.get("node", "")) != "", JSON.stringify(row))
+	check("v1_found: still at most %d camps" % BuildKit.MAX_GRIDS, kit.grids.size() <= BuildKit.MAX_GRIDS and kit.grids.size() == before + 1)
+	await shot("camp_pieces")
 
 
 func _s_st_a2() -> void:

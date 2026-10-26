@@ -372,6 +372,11 @@ func _site_name(id: int, pos: Vector2) -> String:
 	return "%s%s" % [a[r.randi() % a.size()], b[r.randi() % b.size()]]
 
 
+## READY_V1 C3: the name the next founding here would get (the name card of the found-a-camp flow offers it as the default).
+func suggest_name(pos: Vector2) -> String:
+	return _site_name(_next, pos)
+
+
 ## Raises the first camp (scouting must be done). Player claims also open a build-kit grid.
 func occupy(fid: int) -> Dictionary:
 	var f: Dictionary = _f.get(fid, {})

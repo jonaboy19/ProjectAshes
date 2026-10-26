@@ -1147,6 +1147,9 @@ func _build_tutorial() -> void:
 	tutorial.providers["near_ash_site"] = func(p: Vector3) -> bool:
 		return mem != null and not mem.incidents_near(Vector2(p.x, p.z), 14.0).is_empty()
 	tutorial.providers["new_marker"] = func(_p: Vector3) -> bool: return false   # no world markers: leads are text
+	tutorial.providers["can_found"] = func(p: Vector3) -> bool:   # READY_V1 C3: a3_found_camp is open and the ground here may be claimed
+		return story != null and story.story != null and story.story.is_active("a3_found_camp") \
+				and preload("res://scripts/realm/land_claim.gd").block_reason(Vector2(p.x, p.z)) == ""
 
 
 # =====================================================================================

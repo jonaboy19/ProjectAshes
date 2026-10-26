@@ -80,6 +80,9 @@ const PROMPTS := {
 	"ashsight": {"priority": 52, "action": "ashsight", "amount": 1, "when": {"near_ash_site": true},
 				 "touch": "hold", "anchor": "btn_interact", "keys": "Hold E",
 				 "text": "TUT_ASHSIGHT", "text_kb": "TUT_ASHSIGHT_KB", "en": "Hold to read the ash", "en_kb": "Hold E to read the ash"},
+	"found_camp": {"priority": 58, "action": "found_camp", "amount": 1, "when": {"can_found": true},
+				 "touch": "tap", "anchor": "btn_interact", "keys": "F4",
+				 "text": "TUT_FOUND_CAMP", "text_kb": "TUT_FOUND_CAMP_KB", "en": "Open the build menu and found a camp", "en_kb": "Press F4 to found a camp here"},
 }
 
 enum State { PENDING, DONE, SKIPPED }

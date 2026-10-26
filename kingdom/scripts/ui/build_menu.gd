@@ -265,6 +265,16 @@ func _build() -> void:
 		close()
 		load("res://scripts/build/build_mode.gd").open_for(h))
 	tabs.add_child(kit_tab)
+	# READY_V1 C3: the same card as the found_camp key (site card, name, claim).
+	var found_tab := Button.new()
+	found_tab.text = "Found a camp"
+	found_tab.focus_mode = Control.FOCUS_NONE
+	found_tab.custom_minimum_size = Vector2(130, 38)
+	found_tab.pressed.connect(func() -> void:
+		var h := hud
+		close()
+		load("res://scripts/ui/found_camp.gd").open_for(h))
+	tabs.add_child(found_tab)
 
 	var body := HBoxContainer.new()
 	body.size_flags_vertical = Control.SIZE_EXPAND_FILL

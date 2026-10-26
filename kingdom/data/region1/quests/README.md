@@ -4,7 +4,7 @@ Authored quests for Region 1: the main quest `r1_main.json` ("The Stones Are Dim
 
 | File | What |
 |---|---|
-| `r1_main.json` | Main quest: 5 acts, 38 steps (story v2; curve in `docs/regions/EMOTION_MAP_R1.md`) |
+| `r1_main.json` | Main quest: 5 acts, 39 steps (story v2; curve in `docs/regions/EMOTION_MAP_R1.md`) |
 | `r1_registry.json` | Every id a step may name: places, stones, glyphs, targets, cutscenes, festivals, factions, new items, choice groups, external and exported flags, text tokens |
 | `cast.json` | Speakers: 12 principal plus supporting ones, each with display name, role and a one-line voice note |
 | `../dialogue/r1_act1..5.json` | Conversations in the `dialogue_runner.gd` format, plus a `speaker` key on each node |

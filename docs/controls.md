@@ -25,6 +25,7 @@ No two world actions share a key, and "Reset controls" in Settings re-creates ev
 | 1-4 | hotbar skills (army orders 1-3 while you lead soldiers) | hotbar / order buttons |
 | 5-8 | hotbar items | hotbar |
 | G / B | army retreat / formation | order buttons |
+| F4 | Found a camp: site card for the ground under you, then a name card (READY_V1 C3; also the "Found a camp" button on the build menu; rebindable: `found_camp`) | build menu button |
 | N | Call your companions (everyone fit answers, waiting ones are put back on follow; far ones travel by the summon delay); hold E on a Down companion to revive them (rebindable: `call_followers`) | - |
 | U, Y, O, H | techniques 1-4 (same as hotbar 1-4) | technique ring |
 | 4-9 | hand seals (only while a seal sequence is running) | seal pad |

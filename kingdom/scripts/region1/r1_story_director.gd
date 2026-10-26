@@ -20,6 +20,7 @@ extends Node
 ## game's own age-12 ceremony popup (skippable).
 
 const Places := preload("res://scripts/region1/region1_places.gd")
+const LifeEventPopup := preload("res://scripts/ui/life_event_popup.gd")
 const NPC := preload("res://scripts/region1/r1_quest_npc.gd")
 const DialogueRunner := preload("res://scripts/sim/dialogue_runner.gd")
 const Spine := preload("res://scripts/region1/progression_spine.gd")
@@ -134,6 +135,8 @@ func setup(p_glue: Node, p_hud: Node, p_player: Node3D, p_world: Node3D) -> Regi
 	MD.extra_journal.append(Callable(self, "journal_page"))
 	if Life.has_signal("region1_kill"):
 		Life.region1_kill.connect(_on_kill)
+	if Life.has_signal("slept"):
+		Life.slept.connect(_on_slept)
 	_timer = Timer.new()
 	_timer.wait_time = TICK
 	_timer.timeout.connect(_on_tick)
@@ -143,6 +146,8 @@ func setup(p_glue: Node, p_hud: Node, p_player: Node3D, p_world: Node3D) -> Regi
 
 
 func _exit_tree() -> void:
+	if Life.has_signal("slept") and Life.slept.is_connected(_on_slept):
+		Life.slept.disconnect(_on_slept)
 	var MD := preload("res://scripts/ui/gamemenu/menu_data.gd")
 	MD.extra_quests.erase(Callable(self, "quest_entries"))
 	MD.extra_journal.erase(Callable(self, "journal_page"))
@@ -207,6 +212,73 @@ func ctx() -> Dictionary:
 			"ancestor": _ancestor_name if _ancestor_name != "" else "your ancestor", "stone_name": _stone_name},
 		"player": lp.given_name, "time": DialogueRunner.time_bucket(WorldSim.time_of_day), "weather": weather,
 		"child": age < 13, "mother": mother, "father": father}
+
+
+# --- the seasons pass (READY_V1 C3) ------------------------------------------------------
+
+## A story gate that only time can open: the active step's open objective waits for an age (a1_blessing_eve: twelve) or for
+## Kindling Night. Sleeping at such a gate shows the "seasons pass" card; its choice lets the years / the festival arrive.
+## {} when no gate is open, else {kind: "age" | "festival", step, min | festival}.
+func seasons_gate() -> Dictionary:
+	if story == null:
+		return {}
+	for sid: String in story.active_steps():
+		var o: Dictionary = story.current_objective(sid)
+		match String(o.get("type", "")):
+			"age":
+				if Life.age() < int(o.get("min", 0)):
+					return {"kind": "age", "step": sid, "min": int(o["min"])}
+			"festival":
+				return {"kind": "festival", "step": sid, "festival": String(o["festival"])}
+	# a step that has not opened yet because the character is too young (a1_dark_stone: age 8)
+	for s: Dictionary in story.steps:
+		var id := String(s["id"])
+		var req: Dictionary = s.get("requires", {})
+		var min_age := int((req.get("if", {}) as Dictionary).get("min_age", 0))
+		if min_age <= Life.age() or story.is_done(id) or story.is_active(id):
+			continue
+		var prior_done := true
+		for r: Variant in req.get("steps", []):
+			prior_done = prior_done and story.is_done(String(r))
+		if prior_done:
+			return {"kind": "age", "step": id, "min": min_age}
+	return {}
+
+
+## The card for the open gate: {title, body, choices: [[label, Callable]]}, {} when there is none.
+func seasons_card() -> Dictionary:
+	var g := seasons_gate()
+	if g.is_empty():
+		return {}
+	if String(g["kind"]) == "age":
+		var want := int(g["min"])
+		return {"title": "The seasons pass",
+			"body": "You sleep, and the seasons turn over you: harvest, frost, the thaw, the long green summers. You wake taller, the world a little smaller, and you are %d." % want,
+			"choices": [["Let the years go by.", Callable(self, "pass_seasons").bind(g)]]}
+	return {"title": "Kindling Night",
+		"body": "You sleep through the last of the dark days. When you wake the village is hung with lanterns: it is Kindling Night.",
+		"choices": [["Go out to the ring.", Callable(self, "pass_seasons").bind(g)]]}
+
+
+## What the card's choice does (also what a test or the bot calls): the years arrive / the festival starts.
+func pass_seasons(g: Dictionary) -> void:
+	if String(g.get("kind", "")) == "age":
+		Life.life_path.set_age(int(g["min"]), WorldSim.day, WorldSim.time_of_day)
+		if is_instance_valid(player) and player.has_method("apply_age"):
+			player.apply_age()
+	elif String(g.get("kind", "")) == "festival" and WorldSim.seasons != null:
+		var id := String(g["festival"])
+		WorldSim.seasons.festival_started.emit({"id": id, "name": id.capitalize().replace("_", " ")})
+	_on_tick()
+
+
+func _on_slept(_hours: float) -> void:
+	if not enabled or hud == null or not is_instance_valid(hud):
+		return
+	var card := seasons_card()
+	if card.is_empty():
+		return
+	LifeEventPopup.present(hud, card)
 
 
 # --- the 1 Hz tick ---------------------------------------------------------------------
