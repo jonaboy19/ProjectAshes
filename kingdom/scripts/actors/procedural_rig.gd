@@ -1190,3 +1190,22 @@ static func _lowest(e: Dictionary, g: Transform3D) -> Vector3:
 		if w.y < low.y:
 			low = w
 	return low
+
+
+## While the rig is paused (death: the ragdoll drives the bones) the owner calls this each frame after physics: every hand prop is
+## kept above floor_y the same way (turned about its grip), from the attachment's live transform.
+func guard_props_now(floor_y: float) -> void:
+	if _skeleton == null:
+		return
+	if _hprops.is_empty() or Engine.get_process_frames() % 20 == 0:
+		_holster_refresh()
+	var keep := ground_guard_y
+	ground_guard_y = floor_y
+	for e: Dictionary in _hprops:
+		var nv: Variant = e["node"]
+		if not is_instance_valid(nv) or not (nv as Node3D).is_visible_in_tree():
+			continue
+		e["att_g"] = (e["att"] as Node3D).global_transform
+		e["h"] = 0.0 if float(e["h"]) < 0.5 else e["h"]
+		_ground_guard(e, nv as Node3D)
+	ground_guard_y = keep

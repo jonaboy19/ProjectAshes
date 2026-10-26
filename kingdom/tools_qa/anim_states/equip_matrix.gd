@@ -152,7 +152,7 @@ func _reset_player() -> void:
 	_p.velocity = Vector3.ZERO
 	_p.rotation = Vector3.ZERO
 	if _p.dead:
-		_p.call("revive") if _p.has_method("revive") else null
+		_p.call("revive", false) if _p.has_method("revive") else null
 	_prev.clear()
 	_p.set("_shield_ready", 0.0)   # no combat linger carried over from the previous state (shield back on the back)
 	for a in ["move_forward", "move_left", "move_right", "sprint", "crouch", "block", "jump"]:
@@ -283,6 +283,8 @@ func _state(lo: String, st: String, secs: float) -> Image:
 			_p.call("attack")
 		if t > 0.3:
 			_measure(stats)
+			if OS.has_environment("EQ_DEBUG") and Engine.get_process_frames() % 10 == 0:
+				print("POSDBG ", lo, " ", st, " y=", snappedf(_p.global_position.y - BASE, 0.01), " floor=", _p.is_on_floor(), " layer=", _p.collision_layer, " dead=", _p.dead)
 			if _skin_check and Engine.get_process_frames() % 4 == 0:
 				_measure_skin(stats)
 		if st == _strip and _strip_imgs.size() < 8 and t >= 0.25 + _strip_imgs.size() * (secs - 0.3) / 8.0:
@@ -310,7 +312,7 @@ func _state(lo: String, st: String, secs: float) -> Image:
 		sh.save_png(_out.path_join("strip_%s_%s.png" % [lo, st]))
 		_strip_imgs.clear()
 	if st == "death":
-		_p.call("revive") if _p.has_method("revive") else null
+		_p.call("revive", false) if _p.has_method("revive") else null
 	if img != null:
 		var d := Image.create(640, 380, false, Image.FORMAT_RGB8)
 		d.fill(Color.WHITE)

@@ -279,6 +279,10 @@ var _invulnerable := 0.0
 var _stunned := 0.0
 var _hurt_cooldown := 0.0
 var _shield_ready := 0.0
+## Forward dodge: a grounded shoulder roll (Souls_Roll, golden gold, 0.77 s) instead of the UAL "Roll" diving somersault that the
+## dodge aliases resolved to (inverted 0.5 m in the air, back on the floor: slung props had nowhere to go).
+const DODGE_ROLL_CLIP := "Souls_Roll"
+const DODGE_ROLL_RATE := 0.75
 var _dodge_roll := false      # the dodge is a roll (Dodge_Forward / Backward), not the Dodge_back step: props go on the back
 const SHIELD_READY_S := 4.0
 var _stamina_delay := 0.0
@@ -498,6 +502,8 @@ func _notification(what: int) -> void:
 
 
 func _process(delta: float) -> void:
+	if dead and _rig and _rig.has_method("guard_props_now"):
+		_rig.call("guard_props_now", global_position.y)     # the ragdoll owns the bones: weapons stay above the floor
 	if not _pc_input:
 		return
 	var blocking := _ui_blocking()
@@ -869,7 +875,7 @@ func _physics_process(delta: float) -> void:
 		var rolling := _dodge > 0.0 and _dodge_roll
 		_rig.set("shield_slung", not blocking and (_shield_ready <= 0.0 or rolling or not is_on_floor()))
 		_rig.set("long_holster", rolling)
-		_rig.set("ground_guard_y", global_position.y if is_on_floor() and not dead else NAN)
+		_rig.set("ground_guard_y", global_position.y if is_on_floor() or dead else NAN)
 	_update_lean(delta)
 	_update_footsteps(delta, dir, grounded and not swimming and not _jump_starting and not _jump_active \
 			and _land_time <= 0.0)
@@ -2223,7 +2229,7 @@ func _start_dodge(is_ability: bool) -> void:
 	if backward and _animator.has_clip("Dodge_back"):
 		_animator.play_full("Dodge_back", DODGE_ANIM_RATE * 0.85)      # a back-step, not a forward somersault played while moving backwards
 	else:
-		_animator.play_full("Dodge_Backward" if backward else "Dodge_Forward", DODGE_ANIM_RATE)
+		_animator.play_full(DODGE_ROLL_CLIP if _animator.has_clip(DODGE_ROLL_CLIP) else ("Dodge_Backward" if backward else "Dodge_Forward"), DODGE_ANIM_RATE * (DODGE_ROLL_RATE if _animator.has_clip(DODGE_ROLL_CLIP) else 1.0))
 	if is_ability:
 		# Shadow Dash only: the afterimage trail that used to play on every dodge.
 		VFX.afterimage(get_parent(), _model, Color(0.6, 0.85, 1.0), 3)
