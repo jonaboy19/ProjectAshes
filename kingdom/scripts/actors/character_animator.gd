@@ -766,6 +766,7 @@ func set_active(on: bool) -> void:
 
 ## Resolves gameplay clip names to the clip that should actually play (see PREFERRED_CLIPS).
 func _clip(anim_name: String) -> String:
+	anim_name = String(GoldenSet.resolve(StringName(anim_name)))    # golden
 	var preferred: String = PREFERRED_CLIPS.get(anim_name, "")
 	if preferred != "" and player.has_animation(preferred):
 		return preferred

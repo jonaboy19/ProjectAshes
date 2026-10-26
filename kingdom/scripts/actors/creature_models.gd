@@ -106,6 +106,8 @@ static func clips(kind: String) -> Dictionary:
 	if info(kind).get("kneel", false):
 		out["kneel"] = LIBRARY + "/kneel"
 		out["stand_up"] = LIBRARY + "/stand_up"
+	for k: String in out:    # golden
+		out[k] = GoldenSet.resolve_for(kind, String(out[k]))
 	return out
 
 

@@ -122,6 +122,8 @@ static func _clips_for(sk: String) -> Dictionary:
 		if not found.is_empty():
 			var ap := found[0] as AnimationPlayer
 			for anim_name in ap.get_animation_list():
+				if GoldenSet.skip_in_library(anim_name):    # golden
+					continue
 				var a: Animation = ap.get_animation(anim_name).duplicate(true)
 				for t in a.get_track_count():
 					var tp := String(a.track_get_path(t))

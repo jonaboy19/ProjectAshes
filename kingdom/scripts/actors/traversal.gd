@@ -570,7 +570,7 @@ class Driver extends RefCounted:
 			p.call("_spend", cost)
 		plan = T.plan_for(res, p.global_position, entry_speed, cfg, _has_clip(String((cfg.get("vault", {}) as Dictionary).get("clip_run", ""))))
 		kind = k
-		_enter_move(String(plan["clip"]), float(plan["rate"]))
+		_enter_move(String(GoldenSet.resolve(StringName(String(plan["clip"])))), float(plan["rate"]))    # golden
 		started.emit(k)
 		return true
 
