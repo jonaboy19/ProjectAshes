@@ -511,7 +511,8 @@ func serialize() -> Dictionary:
 		last -= 1
 	var raw := _ids.slice(0, last).to_byte_array()
 	raw.append_array(_buf.slice(0, last * STRIDE))
-	return {"v": 1, "k": last, "z": raw.size(), "d": Marshalls.raw_to_base64(raw.compress(FileAccess.COMPRESSION_DEFLATE)) if not raw.is_empty() else "", "day": _day, "st": stats.duplicate()}
+	var packed := raw.compress(FileAccess.COMPRESSION_DEFLATE)
+	return {"v": 1, "k": last, "z": raw.size(), "d": Marshalls.raw_to_base64(packed) if not packed.is_empty() else "", "day": _day, "st": stats.duplicate()}
 
 
 func deserialize(d: Dictionary) -> void:

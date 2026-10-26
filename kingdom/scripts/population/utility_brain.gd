@@ -236,6 +236,10 @@ var inp := {}
 ## Short-term danger memory: positions and expiry (ms). Slots are reused oldest first, nothing allocates.
 var mem_pos := PackedVector2Array([Vector2.INF, Vector2.INF, Vector2.INF])
 var mem_until := PackedInt32Array([0, 0, 0])
+## Short local memory for discretionary visits; never used by data-tier schedule refresh.
+const REVISIT_PENALTY := 10.0 # metres of score: nearby alternatives can win, distant ones do not force travel
+const REVISIT_MEMORY_MS := 120000
+var _completed_visits: Dictionary = {} # action -> [spot, completion_ms]; at most three entries
 var patrol_i := 0
 var _ctx := {}
 var _last_hours := -1.0
@@ -580,12 +584,36 @@ func context(hour: float, sched: int, raining: bool, danger: float, spectacle: f
 	ctx["inn_available"] = 1.0 if DailyRhythm.has_inn_lot(person) else 0.0
 	ctx["brave"] = 0.3 + 0.7 * (1.0 - float(traits["lazy"])) * (0.6 + 0.4 * float(traits["sociable"]))
 	ctx["nerve"] = maxf(float(ctx["brave"]), guard)
+	ctx["courage"] = float(traits.get("courage", 0.5))
 	# the body's own observations (fire, armed, crime, hide, seat, play_spot, chore_spot, child, patrol_turn,
 	# and the town's circumstances: holiday, festive, curfew, mourning_town, scarce, queue, train, mourn)
 	for k: String in inp:
 		ctx[k] = inp[k]
 	apply_circumstances(ctx, hour)
+	# Persistent memory changes how this resident handles a hazard they've sensed;
+	# it never invents danger or makes a frightened resident flee an empty street.
+	if danger > 0.0 and person >= 0 and Life != null and Life.realm != null:
+		var registry: Variant = Life.realm.mod("registry")
+		var psyche: Variant = Life.realm.mod("psyche")
+		if registry != null and psyche != null:
+			var ch: String = registry.lookup("ws:%d" % person)
+			if ch != "":
+				var mood: PackedFloat32Array = psyche.devs(ch, day)
+				if mood.size() == 6:
+					apply_psyche_caution(ctx, mood[1], mood[5])
 	return ctx
+
+
+## Fear deviations and fresh bad-memory scar make a resident more cautious only
+## while a localized/observed danger is already present. Zero-danger parity is exact.
+static func apply_psyche_caution(ctx: Dictionary, fear_deviation: float, scar: float) -> void:
+	if float(ctx.get("danger", 0.0)) <= 0.0:
+		return
+	var caution := clampf(maxf(fear_deviation, 0.0) * 0.35 + clampf(scar, 0.0, 1.0) * 0.2, 0.0, 0.4)
+	if caution <= 0.0:
+		return
+	ctx["courage"] = clampf(float(ctx.get("courage", 0.5)) * (1.0 - caution), 0.0, 1.0)
+	ctx["nerve"] = maxf(float(ctx.get("brave", 0.5)) * (1.0 - caution), float(ctx.get("guard", 0.0)))
 
 
 ## The town's circumstances bend the baseline inputs (the acts themselves are unchanged):
@@ -1231,12 +1259,21 @@ static func _approximate_sound_point(listener: Vector2, source: Vector2, distanc
 	return listener + direction * guessed_distance
 
 
+static func _weather_for_tree(tree: SceneTree) -> Node:
+	if _weather != null and is_instance_valid(_weather) and (tree == null or tree.root.is_ancestor_of(_weather)):
+		return _weather
+	_weather = tree.get_first_node_in_group("weather") if tree else null
+	return _weather
+
+
 static func is_raining(tree: SceneTree) -> bool:
-	if _weather == null or not is_instance_valid(_weather):
-		_weather = tree.get_first_node_in_group("weather") if tree else null
-		if _weather == null:
-			return false
-	return _weather.has_method("is_raining") and bool(_weather.call("is_raining"))
+	var weather := _weather_for_tree(tree)
+	return weather != null and weather.has_method("is_raining") and bool(weather.call("is_raining"))
+
+
+static func is_snowing(tree: SceneTree) -> bool:
+	var weather := _weather_for_tree(tree)
+	return weather != null and weather.has_method("is_snowing") and bool(weather.call("is_snowing"))
 
 
 # ================================================================ bodies and chat pairs
@@ -1493,9 +1530,30 @@ func spot_filter(action: int) -> Dictionary:
 	return {}
 
 
+## Only naturally completed discretionary sessions count as visits. Interruptions and
+## assigned work/water never make a valid station less desirable.
+func note_completed_visit(action: int, spot: int, natural: bool, now := -1) -> void:
+	if not natural or spot < 0 or action not in [Act.SHOP, Act.PLAY, Act.CHORE]:
+		return
+	_completed_visits[action] = [spot, Time.get_ticks_msec() if now < 0 else now]
+
+
+func _apply_visit_preference(action: int, filter: Dictionary, now := -1) -> void:
+	var visit: Array = _completed_visits.get(action, [])
+	if visit.is_empty():
+		return
+	var age := (Time.get_ticks_msec() if now < 0 else now) - int(visit[1])
+	if age < 0 or age >= REVISIT_MEMORY_MS:
+		_completed_visits.erase(action)
+		return
+	filter["recent_spot"] = int(visit[0])
+	filter["recent_penalty"] = REVISIT_PENALTY
+
+
 ## A free slot for `action` near `here` ([spot, slot] or []), skipping places this person remembers danger at.
 func find_spot(action: int, here: Vector2, radius := 60.0) -> Array:
 	var f := spot_filter(action)
+	_apply_visit_preference(action, f)
 	if f.is_empty() or NpcWorld.smart == null:
 		return []
 	var avoid := live_memory()

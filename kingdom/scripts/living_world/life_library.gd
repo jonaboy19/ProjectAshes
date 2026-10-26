@@ -20,6 +20,7 @@ const LIBS := [
 	"res://assets/incoming/animations/life/UAL_Life_Town.glb",
 	"res://assets/incoming/animations/life/UAL_Life_Social.glb",
 	"res://assets/incoming/animations/life/UAL_Life_Mocap.glb",
+	"res://assets/incoming/animations/life/UAL_Life_AAA.glb",      # 3 reviewed AAA sit clips (docs/anim/aaa_wiring/)
 ]
 ## Bones that an "upper" layer clip owns (spine_01 and everything above it).
 const LOWER_BONES := ["root", "pelvis", "thigh_l", "calf_l", "foot_l", "ball_l", "ball_leaf_l",

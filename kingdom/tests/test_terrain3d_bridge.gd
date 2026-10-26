@@ -46,6 +46,21 @@ func test_addons_load_headless() -> void:
 	assert_str(String(cfg.get_value("plugin", "version"))).is_equal("4.2.0")
 
 
+func test_terrain3d_waits_for_the_runtime_camera_before_physics() -> void:
+	var bridge := Terrain3DBridge.new()
+	bridge.region_radius = 0
+	add_child(bridge)
+	assert_bool(bridge.terrain.is_physics_processing()).is_false()
+	var camera := Camera3D.new()
+	camera.current = true
+	add_child(camera)
+	await get_tree().process_frame
+	assert_bool(bridge.terrain.is_physics_processing()).is_true()
+	assert_bool(bridge.terrain.get_camera() == camera).is_true()
+	camera.queue_free()
+	bridge.queue_free()
+
+
 func test_addon_licences_are_mit_and_credited() -> void:
 	for path: String in ["res://addons/terrain_3d/LICENSE.txt", "res://addons/proton_scatter/LICENSE"]:
 		var text := FileAccess.get_file_as_string(path)
@@ -182,6 +197,18 @@ func test_control_words_roundtrip_through_terrain3d_encoding() -> void:
 	assert_int(Terrain3DUtil.get_base(Terrain3DBridge.control_word(Color(0, 0, 1, 0)))).is_equal(4)                  # cobble street
 
 
+func test_grass_keeps_a_stable_base_across_weight_crossing() -> void:
+	# The same Grass/Forest mix should not swap Terrain3D's base and overlay as
+	# their relative weights cross; blend direction changes while the ratio stays.
+	var grass_heavy := Terrain3DBridge.control_word(Color(0, 0, 0, 0.25))
+	var forest_heavy := Terrain3DBridge.control_word(Color(0, 0, 0, 0.75))
+	for word: int in [grass_heavy, forest_heavy]:
+		assert_int(Terrain3DUtil.get_base(word)).is_equal(0)     # Grass
+		assert_int(Terrain3DUtil.get_overlay(word)).is_equal(1)  # Forest floor
+	assert_int(Terrain3DUtil.get_blend(grass_heavy)).is_equal(64)
+	assert_int(Terrain3DUtil.get_blend(forest_heavy)).is_equal(191)
+
+
 func test_town_plaza_is_painted_cobble() -> void:
 	var b := _bridge_at(Vector3(0, 0, 0))
 	var seen_cobble := false
@@ -262,6 +289,9 @@ func test_build_kit_grids_and_founded_settlements_register_zones() -> void:
 	assert_bool(ScatterExclusion.blocked(5100.0 + BuildKit.GRID_RADIUS + 60.0, 5100.0, "tree")).is_false()
 	# a saved game restores the zones
 	var saved: Dictionary = k.serialize()
+	var saved_grids: Dictionary = saved["grids"]
+	var saved_grid: Dictionary = saved_grids[saved_grids.keys()[0]]
+	assert_str(String(saved_grid["packed"])).is_empty()
 	ScatterExclusion.clear_all()
 	k.deserialize(saved)
 	assert_int(ScatterExclusion.zone_count()).is_equal(1)

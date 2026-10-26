@@ -1,0 +1,5 @@
+source: C:/Users/Jonna/AppData/Local/Temp/rec_oblique_base
+duration_s: 6.000000
+sample_fps: 6
+frames_per_sheet: 9  (= 1.5 s per sheet)
+sheets: 4

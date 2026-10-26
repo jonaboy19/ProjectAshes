@@ -34,6 +34,15 @@ const DEFAULTS := {
 		"land_above_max": 0.4, "clear_radius": 0.3, "clear_height": 1.7, "clear_lift": 0.06, "top_inset": 0.4, "mask": 1},
 	"step": {"max_height": 0.35, "min_height": 0.04, "probe_dist": 0.45, "min_depth": 0.3, "min_floor_normal_y": 0.85,
 		"min_speed": 0.5, "camera_recover": 6.0, "cooldown": 0.05},
+	# Wall contact / ground realism (wall_contact.gd, ground_realism.gd); same numbers as data/movement/traversal.json.
+	"wall_contact": {"ray_h": 1.2, "lead": 0.35, "lead_per_speed": 0.12, "brace_push": 0.75, "glance_push": 0.2, "impact_push": 0.85,
+		"impact_speed": 6.0, "touch": 0.12, "stop_gap": 0.12, "reach_min": 0.3, "reach_max": 0.7, "shoulder_h": 1.35,
+		"blend_in": 0.15, "blend_out": 0.2, "lean": 0.04, "glance_roll": 0.05, "torso_yaw_max_deg": 25.0, "impact_cooldown": 1.0,
+		"impact_stamina": 5.0, "impact_clip": "Hit_Heavy_Front", "impact_rate": 1.2, "hold": 0.12},
+	"slope_slide": {"min_deg": 40.0, "accel_k": 0.6, "cap": 7.0, "steer": 0.3, "clip": "Slide_Loop", "fallback_clip": "Crouch_Idle"},
+	"slope_lean": {"gain": 0.25, "max": 0.08},
+	"balance": {"drop": 0.3, "side": 0.25, "speed_cap": 1.2, "arm_lateral": 0.6, "arm_h": 1.3, "sway": 0.04, "min_wall_top_width": 0.6},
+	"ledge_stop": {"drop": 1.2, "ahead": 0.4, "brake": 0.3, "hold": 0.4},
 }
 
 static var _cfg: Dictionary = {}
@@ -277,7 +286,7 @@ static func _ss(x: float) -> float:
 ## A scripted move for a probe result, started at `start` with `entry_speed` (m/s). The plan is a Dictionary the
 ## pose() function evaluates; `duration` is when the scripted part ends and `handover` the real time the clip is
 ## released (the full-body slot is faded out then).
-static func plan_for(res: Dictionary, start: Vector3, entry_speed := 0.0, cfg: Dictionary = {}) -> Dictionary:
+static func plan_for(res: Dictionary, start: Vector3, entry_speed := 0.0, cfg: Dictionary = {}, run_clip_ok := true) -> Dictionary:
 	var c: Dictionary = cfg if not cfg.is_empty() else config()
 	var kind: StringName = res.get("kind", NONE)
 	var inward: Vector3 = res["inward"]
@@ -293,12 +302,19 @@ static func plan_for(res: Dictionary, start: Vector3, entry_speed := 0.0, cfg: D
 			var ve := clampf(v0, float(vc["exit_speed_min"]), float(vc["exit_speed_cap"]))
 			var tc := maxf(2.0 * ltot / (v0 + ve), float(vc["min_cover"]))
 			var clip := String(vc["clip_b"]) if float(res.get("side", 1.0)) > 0.0 else String(vc["clip"])
+			# A fast approach plays the mocap hurdle (AAA pack) with its own touch-down / hand-over times.
+			var run_clip := String(vc.get("clip_run", ""))
+			var is_run := run_clip != "" and run_clip_ok and entry_speed >= float(vc.get("run_min_speed", 99.0))
+			var touch_down := float(vc["touch_down_run"]) if is_run else float(vc["touch_down"])
+			var hand_over := float(vc["handover_run"]) if is_run else float(vc["handover"])
+			if is_run:
+				clip = run_clip
 			plan.merge({"shape": "vault", "ltot": ltot, "v0": v0, "ve": ve, "land_y": land.y, "exit_speed": ve,
 				"apex": float(res["top_y"]) + float(vc["apex_clear"]), "clip": clip}, true)
 			_fit_vault(plan, tc)
-			var rate := clampf(float(vc["touch_down"]) / float(plan["duration"]), 1.0, 1.6)
+			var rate := clampf(touch_down / float(plan["duration"]), 1.0, 1.6)
 			plan["rate"] = rate
-			plan["handover"] = float(vc["handover"]) / rate
+			plan["handover"] = hand_over / rate
 			plan["end"] = Vector3(start.x, land.y, start.z) + inward * ltot
 		MANTLE_LOW, MANTLE_HIGH:
 			var mc: Dictionary = c[String(kind)]
@@ -552,7 +568,7 @@ class Driver extends RefCounted:
 			return false
 		if stam != null and p.has_method("_spend"):
 			p.call("_spend", cost)
-		plan = T.plan_for(res, p.global_position, entry_speed, cfg)
+		plan = T.plan_for(res, p.global_position, entry_speed, cfg, _has_clip(String((cfg.get("vault", {}) as Dictionary).get("clip_run", ""))))
 		kind = k
 		_enter_move(String(plan["clip"]), float(plan["rate"]))
 		started.emit(k)
@@ -585,6 +601,14 @@ class Driver extends RefCounted:
 		if p.has_method("_cancel_pivot"):
 			p.call("_cancel_pivot")
 		p.reset_physics_interpolation()
+
+
+	func _has_clip(clip: String) -> bool:
+		if clip == "":
+			return false
+		var a: Variant = p.get("_animator")
+		var pl: Variant = (a as Object).get("player") if a != null else null
+		return pl is AnimationPlayer and (pl as AnimationPlayer).has_animation(clip)
 
 
 	func _play(clip: String, rate := 1.0) -> void:

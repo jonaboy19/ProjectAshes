@@ -29,6 +29,7 @@ const HAIR := UBC + "Hairstyles/Rigged to Head Bone/glTF (Godot -Unreal)/"
 const UAL_ANIM_DIR := "res://assets/incoming/animations/"
 const UAL_LOCO_DIR := "res://assets/incoming/animations_free2/loco_transitions/"
 const UAL_TRAV_DIR := "res://assets/incoming/animations_free2/traversal_authored/"
+const AaaClipsScript := preload("res://scripts/actors/aaa_clips.gd")
 const UAL_FILES := [
 	# First match wins: this set's Jump_Start must precede UAL1's older clip.
 	UAL_LOCO_DIR + "UAL_Loco_Transitions.glb",
@@ -50,6 +51,8 @@ const UAL_FILES := [
 	# directional hit reactions, staggers, parry/riposte, finishers, heavy/run/2H/spear/bow, deaths.
 	# Timing markers: animations/combat/combat_markers.json (CombatMarkers). Root track disabled like the rest.
 	UAL_ANIM_DIR + "combat/UAL_Combat.glb",
+	# Reviewed unarmed technique strikes (docs/anim/free_library/review_results.md); unique MA_Punch_* names.
+	"res://assets/incoming/animations_free/martial_arts_unarmed/UAL_Free_MartialArtsUnarmed.glb",
 	# Elemental casting v2 (docs/anim/free_library/polish_casting.md): Cast_<Element>_Charge / _Release, Cast_AoE_Slam,
 	# Cast_Channel_Beam. In place, so no root handling is needed.
 	"res://assets/incoming/animations_free/casting/UAL_Free_CastingElements.glb"]
@@ -671,6 +674,8 @@ static func _ual_for(skeleton_path: NodePath) -> AnimationLibrary:
 			if not lib.has_animation(anim_name):
 				lib.add_animation(anim_name, a)
 		inst.free()
+	# Reviewed AAA mocap subset (data/anim/aaa_clips.json), after every other set so existing names win.
+	AaaClipsScript.merge_into(lib, sk)
 	for alias: String in UAL_ALIASES:
 		var target: String = UAL_ALIASES[alias]
 		if lib.has_animation(target) and not lib.has_animation(alias):

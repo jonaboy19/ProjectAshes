@@ -1,0 +1,5 @@
+source: C:/Users/Jonna/AppData/Local/Temp/rec_stairs
+duration_s: 6.600000
+sample_fps: 6
+frames_per_sheet: 9  (= 1.5 s per sheet)
+sheets: 4

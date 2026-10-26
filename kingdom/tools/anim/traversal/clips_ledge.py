@@ -6,7 +6,7 @@ from trav_lib import *
 from clips_climb import hang_pose, LEDGE_TOP, LEDGE_FACE, ledge_hands, TAU
 
 HX = 0.21                                           # hand x on the ledge
-HAND_Y = -0.27
+HAND_Y = -0.25
 TOPZ = LEDGE_TOP
 BOX = ((-3.0, 3.0), (-0.9, LEDGE_FACE), (-1.0, LEDGE_TOP))     # the ledge block (penetration check)
 
@@ -36,8 +36,10 @@ def grab_swing_pose(f):
     # arms: hang -> swing back (anticipation) -> throw up over the ledge -> slap on the top
     hands = {}
     for side, sx in (("l", 1), ("r", -1)):
+        # Stay in front of the ledge's vertical face until the wrists rise above
+        # the top, then move backward onto the gripping surface.
         hk = Trk([(0, V(sx * 0.26, 0.21, 0.83)), (4, V(sx * 0.27, 0.31, 0.82)), (7, V(sx * 0.27, 0.44, 0.80)), (9, V(sx * 0.32, 0.30, 0.95)),
-                  (10, V(sx * 0.38, 0.0, 1.10)), (11, V(sx * 0.36, -0.25, 1.38)), (12, V(sx * 0.32, -0.34, 1.72)), (13, V(sx * 0.26, -0.32, 2.02)), (14, V(sx * 0.22, -0.27, 2.20)),
+                  (10, V(sx * 0.38, 0.0, 1.10)), (11, V(sx * 0.36, -0.08, 1.38)), (12, V(sx * 0.32, -0.08, 1.72)), (13, V(sx * 0.26, -0.08, 2.02)), (14, V(sx * 0.22, -0.12, 2.20)),
                   (15, V(sx * HX, HAND_Y, TOPZ + 0.02)), (40, V(sx * HX, HAND_Y, TOPZ + 0.02))])
         g = hk(f)
         c = smooth((f - 8.0) / 5.0)                       # arms straighten / palms turn down while swinging up
@@ -100,14 +102,17 @@ def climb_pose(f):
     pushing = smooth((f - 28.0) / 5.0)
     hands = {}
     for side, sx in (("l", 1), ("r", -1)):
-        base = V(sx * HX, HAND_Y, top + 0.02)
+        # Keep the wrist near the front edge of the top while gripping; this
+        # preserves the palm contact and trims the small reach miss in the hang.
+        base = V(sx * HX, HAND_Y + 0.02, top + 0.02)
+        release_base = V(sx * HX, HAND_Y, top + 0.02)
         if f <= 28:
             g = base
             d, pn, grip = V(0, -1.0, -0.05), V(0, 0, -1.0), 0.15 + 0.35 * smooth((f - 3.0) / 8.0)
             HR = None
         else:
             stand_hand = V(sx * 0.27, -0.45, top + 0.84)
-            g = Trk([(28, base), (31, base + V(sx * 0.02, -0.04, 0.12)), (36, V(sx * 0.30, -0.36, top + 0.80)), (41, V(sx * 0.30, -0.42, top + 1.00)), (48, stand_hand), (52, stand_hand)])(f)
+            g = Trk([(28, base), (31, release_base + V(sx * 0.02, -0.04, 0.12)), (36, V(sx * 0.30, -0.36, top + 0.80)), (41, V(sx * 0.30, -0.42, top + 1.00)), (48, stand_hand), (52, stand_hand)])(f)
             d, pn = V(0, -1.0, 0), V(0, 0, -1.0)
             HR = hand_stages(side, [(V(0, -1.0, -0.05), V(0, 0, -1.0)), (V(0.06 * sx, -0.10, -1.0), V(-1.0 * sx, 0.0, -0.1))], [pushing])
             grip = lerp(0.5, 0.35, pushing)
@@ -122,8 +127,11 @@ def climb_pose(f):
     lp = Trk([(0, 40.0), (7, 20.0), (16, -20.0), (30, -30.0), (38, 20.0), (41, 0.0), (60, 0.0)])
     rp = Trk([(0, 40.0), (7, 20.0), (14, -20.0), (20, -20.0), (24, 15.0), (28, 0.0), (60, 0.0)])
     feet = {"l": (lk(f), 6.0, lp(f), 0.0), "r": (rk(f), -6.0, rp(f), 0.0)}
-    kl = Trk([(0, V(0.15, -1.0, 0.1)), (6, V(0.4, -0.7, 0.5)), (12, V(0.6, -0.5, 0.6)), (24, V(0.6, -0.5, 0.6)), (34, V(0.30, -0.8, 0.7)), (42, V(0.2, -1.0, 0.2)), (52, V(0.15, -1.0, 0.1))])(f)
-    kr = Trk([(0, V(-0.15, -1.0, 0.1)), (6, V(-0.4, -0.7, 0.5)), (12, V(-0.6, -0.5, 0.6)), (18, V(-0.6, -0.4, 0.9)), (23, V(-0.5, -0.3, 1.1)), (27, V(-0.55, -0.5, 0.9)), (34, V(-0.35, -0.9, 0.3)),
+    kl = Trk([(0, V(0.15, -1.0, 0.1)), (6, V(0.4, -0.7, 0.5)), (12, V(0.6, 1.8, 0.6)), (24, V(0.6, 1.8, 0.6)),
+              (34, V(0.30, 1.8, 0.7)), (42, V(0.2, 0.8, 0.2)), (52, V(0.15, -1.0, 0.1))])(f)
+    # Early in the pull, angle the right knee back from the lip so the calf
+    # clears the ledge face instead of cutting through its front edge.
+    kr = Trk([(0, V(-0.15, -1.0, 0.1)), (6, V(-0.4, 0.3, 0.5)), (12, V(-0.6, 0.4, 0.6)), (18, V(-0.6, -0.4, 0.9)), (23, V(-0.5, -0.3, 1.1)), (27, V(-0.55, -0.5, 0.9)), (34, V(-0.35, -0.9, 0.3)),
               (42, V(-0.2, -1.0, 0.2)), (52, V(-0.15, -1.0, 0.1))])(f)
     # ---- elbows: out at the start, fold back behind the body while pulling, straight again at the end
     ed = Trk([(0, V(1.0, 0.3, -0.1)), (7, V(0.9, 0.5, -0.3)), (14, V(0.7, 0.9, -0.5)), (24, V(0.5, 0.9, -0.5)), (32, V(0.6, 0.9, -0.4)),

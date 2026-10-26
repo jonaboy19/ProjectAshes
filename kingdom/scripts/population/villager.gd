@@ -1179,10 +1179,12 @@ func _ambience_tick(here: Vector2) -> void:
 		return
 	var idle := not _walking and _so == null and not _talk.active and _activity_name == "" and _oneshot == "" \
 		and _yield_time <= 0.0 and _act != Act.SLEEP and _act != Act.FLEE and _act != Act.FIREFIGHT
-	var raining := UtilityBrain.is_raining(get_tree())
+	var tree := get_tree()
+	var weather := LifeAmbience.weather_kind(UtilityBrain.is_raining(tree), UtilityBrain.is_snowing(tree))
 	var d := _amb.think(THINK_INTERVAL, {"idle": idle, "walking": _walking, "pos": global_position,
 		"fwd": Vector3(sin(_heading), 0.0, cos(_heading)), "hour": DailyRhythm.local_time(person),
-		"weather": "rain" if raining else "clear",
+		"weather": weather,
+		"tired": _brain.rest < 0.35,
 		"player_pos": _player.global_position if _player != null and is_instance_valid(_player) else null,
 		"partner_pos": _partner_node.global_position if _act == Act.SOCIAL and _arrived and _partner_node != null and is_instance_valid(_partner_node) else null})
 	_amb_look = d["look"]
@@ -1801,6 +1803,8 @@ func _so_apply(out: Dictionary) -> void:
 		LivingEvents.emit(String((ev as Dictionary).get("kind", "work")), global_position, float((ev as Dictionary).get("radius", 10.0)), 2.0)
 	if _so_phase == SmartObjects.Session.DONE:
 		var was_leaving := _so_leaving
+		if _brain != null and _so != null:
+			_brain.note_completed_visit(_act, _so.spot, not was_leaving and _so.completed_naturally)
 		_so_release()
 		_so_ended = not was_leaving
 
@@ -2129,6 +2133,7 @@ func take_damage(amount: int, from: Node = null, _knockback := Vector3.ZERO) -> 
 	if _hp <= 0:
 		go_down(Takedown.Kind.KILL)
 		return
+	_begin_oneshot(["Villager_Hit_Chest", "Idle_Hurt", "Hit_Light"], 0.9)      # AAA mocap stumble when the library has it
 	var now := Time.get_ticks_msec()
 	Perception.set_class_at_least(_slot, Perception.Cls.ALARMED, from_pos, now)
 	_crime_until = now + 25000

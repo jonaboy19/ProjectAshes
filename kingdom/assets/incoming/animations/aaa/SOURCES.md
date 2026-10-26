@@ -10,7 +10,10 @@ the source BVH file and time range, floor/foot fixes). The recipes are `kingdom/
 | `UAL_AAA_Combat_Weapons` (part) | A few clips come from KayKit Character Animations (Rig_Medium CombatMelee), see `cfg_aaa_combat_weapons.json`. | CC0 |
 | Retargeted clips (these GLBs) | Derived work of the two rows above, produced in-house. | Same terms: CMU data free for commercial use, rig CC0. No other third-party content. |
 
-Status: staged, **not wired** into any animation table yet (nothing in `kingdom/scripts` references `animations/aaa`).
-Retarget quality has not been checked in game. Some clip names are IP-flavoured (the review in
-`PA_plans/ANTIGRAVITY_REVIEW.md`); rename before a public build. The Master / Mythic / Umbrella / bending packs were
-deliberately not imported.
+Status: **partly wired** (2026-10-23). `kingdom/data/anim/aaa_clips.json` decides every one of the 108 clips (add / cmp / skip with a
+reason, from frame sheets in `docs/anim/aaa_wiring/review/`); only the wired ones are copied into the game's clip library by
+`kingdom/scripts/actors/aaa_clips.gd`. The three reviewed sit clips of `UAL_AAA_LivingWorld.glb` also live in
+`animations/life/UAL_Life_AAA.glb` (LivingWorld). Four clips whose names collided with existing game clips were renamed `*_Mocap`
+(Bow_Draw, Jump_Land_Soft, Ledge_Shimmy_L/R). Licence terms above stay as they are: CMU data (free for commercial use) on the CC0 UAL rig,
+a few CC0 KayKit clips in Combat_Weapons. Many pack names do not describe their content (see the manifest `why` fields); some names are
+still IP-flavoured, rename before a public build. The Master / Mythic / Umbrella / bending packs were deliberately not imported.

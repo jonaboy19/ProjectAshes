@@ -1,0 +1,5 @@
+source: C:/Users/Jonna/AppData/Local/Temp/rv_p09
+duration_s: 1.800000
+sample_fps: 5
+frames_per_sheet: 6  (= 1.2 s per sheet)
+sheets: 2

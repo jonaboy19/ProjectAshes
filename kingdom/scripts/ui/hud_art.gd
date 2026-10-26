@@ -65,9 +65,12 @@ static func bake(tex: Texture2D, px := 96) -> Texture2D:
 	var out: Texture2D = tex
 	if img:
 		img = img.duplicate() as Image
-		img.convert(Image.FORMAT_RGBA8)
-		img.resize(px, px, Image.INTERPOLATE_LANCZOS)
-		out = ImageTexture.create_from_image(img)
+		if img.is_compressed() and img.decompress() != OK:
+			push_warning("Could not decompress HUD icon texture: %s" % tex.resource_path)
+		else:
+			img.convert(Image.FORMAT_RGBA8)
+			img.resize(px, px, Image.INTERPOLATE_LANCZOS)
+			out = ImageTexture.create_from_image(img)
 	_tex[key] = out
 	return out
 
@@ -130,16 +133,19 @@ static func round_face(size: int, fill: Color, glyph: Texture2D = null, tint_gly
 		var src := glyph.get_image()
 		if src:
 			var ic := src.duplicate() as Image
-			ic.convert(Image.FORMAT_RGBA8)
-			var s := int(size * glyph_scale)
-			ic.resize(s, s, Image.INTERPOLATE_LANCZOS)
-			if tint_glyph:
-				for y in s:
-					for x in s:
-						var q := ic.get_pixel(x, y)
-						if q.a > 0.0:
-							ic.set_pixel(x, y, Color(IVORY.r, IVORY.g, IVORY.b, q.a))
-			img.blend_rect(ic, Rect2i(0, 0, s, s), Vector2i((size - s) / 2, (size - s) / 2))
+			if ic.is_compressed() and ic.decompress() != OK:
+				push_warning("Could not decompress HUD glyph texture: %s" % glyph.resource_path)
+			else:
+				ic.convert(Image.FORMAT_RGBA8)
+				var s := int(size * glyph_scale)
+				ic.resize(s, s, Image.INTERPOLATE_LANCZOS)
+				if tint_glyph:
+					for y in s:
+						for x in s:
+							var q := ic.get_pixel(x, y)
+							if q.a > 0.0:
+								ic.set_pixel(x, y, Color(IVORY.r, IVORY.g, IVORY.b, q.a))
+				img.blend_rect(ic, Rect2i(0, 0, s, s), Vector2i((size - s) / 2, (size - s) / 2))
 	var tex := ImageTexture.create_from_image(img)
 	_faces[key] = tex
 	return tex

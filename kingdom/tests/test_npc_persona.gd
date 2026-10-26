@@ -166,6 +166,15 @@ func test_an_old_save_without_the_block_recreates_the_same_person() -> void:
 	assert_dict(pe.view(ch)).is_equal(before)
 
 
+func test_empty_persona_serializes_without_empty_base64_error() -> void:
+	var pe := Persona.new()
+	var data: Dictionary = pe.serialize()
+	assert_str(String(data["ids"])).is_empty()
+	assert_str(String(data["b"])).is_empty()
+	pe.deserialize(data)
+	assert_int(pe.count()).is_equal(0)
+
+
 func test_utility_brain_personality_is_a_view_of_the_record() -> void:
 	var h := _hub()
 	var pe: RefCounted = h.mod("persona")

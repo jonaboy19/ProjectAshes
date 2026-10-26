@@ -351,14 +351,21 @@ def box_pen(p, r, box):
     return max(0.0, r - d)
 
 
-def report_box(name, diag, box, skip=("lowerarm_l>hand_l", "lowerarm_r>hand_r")):
+def report_box(name, diag, box):
     worst = []
     for fi, row in enumerate(diag):
         w = (0.0, "")
+        active_contacts = {entry[0] for entry in CONTACTS.get(name, []) if entry[1] <= fi <= entry[2]}
         for k, (a, b, r) in row["seg"].items():
-            if k in skip:
-                continue
             for i in range(5):
+                # The contact joint itself may overlap the surface it is meant
+                # to touch. A planted foot's ankle-to-ball segment is the foot
+                # volume resting on the surface, so exempt that segment for its
+                # declared plant; for hands, exempt only the wrist endpoint and
+                # keep scanning the forearm.
+                endpoint = k.split(">")[-1]
+                if endpoint in active_contacts and (i == 4 or k.split(">", 1)[0].startswith("foot_")):
+                    continue
                 p = a.lerp(b, i / 4.0)
                 pen = box_pen(p, r, box)
                 if pen > w[0]:
@@ -366,6 +373,10 @@ def report_box(name, diag, box, skip=("lowerarm_l>hand_l", "lowerarm_r>hand_r"))
         worst.append(w)
     bad = [(fi, round(w[0], 3), w[1]) for fi, w in enumerate(worst) if w[0] > 0.012]
     print("BOX", name, "max pen %.3f" % max(w[0] for w in worst), "frames with >1.2 cm:", bad[:40], flush=True)
+    for fi, pen, k in sorted(bad, key=lambda item: item[1], reverse=True)[:8]:
+        a, b, r = diag[fi]["seg"][k]
+        print("BOX_DETAIL", name, "f%d" % fi, k, "pen=%.3f" % pen,
+              "a=(%.3f, %.3f, %.3f)" % tuple(a), "b=(%.3f, %.3f, %.3f)" % tuple(b), "r=%.3f" % r, flush=True)
     return worst
 
 
@@ -377,6 +388,19 @@ def report_reach(name, diag, tol=0.02):
                 worst[k] = (e, fi)
     bad = {k: (round(v[0], 3), v[1]) for k, v in worst.items() if v[0] > tol}
     print("REACH", name, "IK misses >%.0f cm (max err, frame):" % (tol * 100), bad if bad else "none", flush=True)
+    # Also report only frames where an effector is declared to be in contact.
+    # This separates a real grip/plant miss from a larger reach error during a
+    # released swing or hand transition.
+    contact_worst = {}
+    for fi, row in enumerate(diag):
+        for effector, f0, f1 in CONTACTS.get(name, []):
+            key = effector.replace("ball_", "foot_")
+            err = row["err"].get(key)
+            if f0 <= fi <= f1 and err is not None and err > contact_worst.get(effector, (0.0, 0))[0]:
+                contact_worst[effector] = (err, fi)
+    contact_bad = {k: (round(v[0], 3), v[1]) for k, v in contact_worst.items() if v[0] > tol}
+    print("CONTACT_REACH", name, "declared contact misses >%.0f cm (max err, frame):" % (tol * 100),
+          contact_bad if contact_bad else "none", flush=True)
     return bad
 
 

@@ -42,6 +42,7 @@ var _mutex := Mutex.new()
 var _loc_idle := Vector2i(1 << 30, 0)
 var _assets_frame := -1             # process frame at which the texture assets may be set (GPU only, see _ready)
 var _regions: Dictionary = {}        # Vector2i -> Terrain3DRegion currently added
+var _awaiting_camera := true
 
 
 func _ready() -> void:
@@ -52,6 +53,9 @@ func _ready() -> void:
 	terrain.collision_mode = 0                # DISABLED: TerrainStreamer's trimesh bodies (same WorldGen.height) stay the physics ground
 	terrain.render_layers = 1 | TownDecals.GROUND_LAYER      # ground decals (ruts, puddles) project onto it, as onto the legacy chunks
 	add_child(terrain)
+	# Main adds the player after it finishes the first terrain build, so a viewport camera may not exist yet.
+	# Do not let Terrain3D's first physics tick stop itself while it tries to acquire a camera.
+	terrain.set_physics_process(false)
 	_configure_material()
 	# Terrain3D 1.0.2 on Godot 4.6.3 (Forward+, RTX 4070 Laptop) crashes with signal 11 when texture assets and the first region are set in the
 	# frame the node enters the tree ("Width must be equal or greater than 1 for all textures"; found by W1 GPU captures, tools_qa/terrain3d/gpu_probe.gd).
@@ -133,6 +137,12 @@ static func control_word(w: Color, ex: Array = []) -> int:
 		return (a << 27) | (a << 22)                     # one material, no blend
 	# Terrain3D blends base -> overlay by `blend` (0 = all base, 255 = all overlay): base = the lighter material, overlay = the heavier.
 	var blend := int(roundf(255.0 * wa / (wa + wb)))
+	# Keep grass in the base layer whenever it is one of the selected pair. Swapping
+	# Grass between base and overlay as weights cross made the same soft biome
+	# boundary render differently on either side. Reversing the blend preserves the
+	# two selected weights while giving the shader a stable base for ground layers.
+	if a == 0:
+		return (b << 22) | ((255 - blend) << 14)
 	return (b << 27) | (a << 22) | (blend << 14)
 
 
@@ -237,8 +247,13 @@ func _process(_delta: float) -> void:
 ## fog). Always follow the viewport's current camera.
 func _track_camera() -> void:
 	var cam := get_viewport().get_camera_3d() if is_inside_tree() else null
-	if cam != null and terrain != null and terrain.get_camera() != cam:
+	if cam == null or terrain == null:
+		return
+	if terrain.get_camera() != cam:
 		terrain.set_camera(cam)
+	if _awaiting_camera:
+		terrain.set_physics_process(true)
+		_awaiting_camera = false
 
 
 ## Frees far regions, queues missing ones on workers, adds at most one finished region. Returns true while work remains.

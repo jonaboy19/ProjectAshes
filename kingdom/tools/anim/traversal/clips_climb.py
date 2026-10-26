@@ -112,13 +112,13 @@ LEDGE_FACE = -0.20
 
 def ledge_hands(x, z_lift=0.0, lift_w=0.0):
     """hand on the ledge top: palm down, fingers over the edge"""
-    G = V(x, -0.27, LEDGE_TOP + 0.02 + z_lift)
+    G = V(x, -0.25, LEDGE_TOP + 0.02 + z_lift)
     return (G, V(0, -1.0, -0.05), V(0, 0.0, -1.0), 0.15)
 
 
 def hang_body(P, sway_x, sway_y, u, look_amp=10.0):
     """pelvis + feet + torso of the hanging body, arms reach the ledge"""
-    P.pelvis = V(sway_x, sway_y - 0.02, 1.125 + 0.006 * math.sin(TAU * u * 2))
+    P.pelvis = V(sway_x, sway_y, 1.125 + 0.006 * math.sin(TAU * u * 2))
     ph = TAU * u
     feet = {}
     for side, sx in (("l", 1), ("r", -1)):
@@ -149,6 +149,9 @@ def Ledge_Hang_Idle():
     return [hang_pose(i / n) for i in range(n + 1)], True
 
 
+CONTACTS["Ledge_Hang_Idle"] = [["hand_l", 0, 60], ["hand_r", 0, 60]]
+
+
 def shimmy_pose(u, sign):
     """Four hand steps per 1 s cycle (lead hand, trail hand, lead hand, trail hand), 0.25 m each, so every hand moves 0.5 m
     per cycle and the body travels 0.5 m (root X). Hands lift 3 cm and place; feet drag and swing behind the body."""
@@ -163,7 +166,7 @@ def shimmy_pose(u, sign):
     for side, sx in (("l", 1), ("r", -1)):
         role = "lead" if sx * sign > 0 else "trail"
         lift = 0.0
-        x = sx * 0.21
+        x = sx * 0.19
         for s0 in starts[role]:
             if u >= s0 + dur:
                 x += sign * step_len
@@ -179,10 +182,10 @@ def shimmy_pose(u, sign):
     mean_x = (hx["l"] + hx["r"]) * 0.5
     # body follows the mean hand position with a little lag; leans into the move
     lag = 0.03 * sign
-    P.pelvis = V(mean_x - lag * math.cos(2 * ph) * 0.5, -0.02 + 0.012 * math.sin(2 * ph), 1.125 + 0.006 * math.sin(4 * ph))
+    P.pelvis = V(mean_x - lag * math.cos(2 * ph) * 0.5 + 0.04 * sign, -0.02 + 0.012 * math.sin(2 * ph), 1.125 + 0.006 * math.sin(4 * ph))
     hands = {}
     for side, sx in (("l", 1), ("r", -1)):
-        G = V(hx[side], -0.27, LEDGE_TOP + 0.02 + 0.02 * lifts[side])
+        G = V(hx[side], -0.225, LEDGE_TOP + 0.02 + 0.02 * lifts[side])
         hands[side] = (G, V(0, -1.0, -0.05), V(0, 0.0, -1.0), grips[side])
     feet = {}
     for side, sx in (("l", 1), ("r", -1)):
@@ -203,7 +206,15 @@ def Ledge_Shimmy_L():
     return [shimmy_pose(i / n, 1) for i in range(n + 1)], True
 
 
+CONTACTS["Ledge_Shimmy_L"] = [["hand_l", 7, 14], ["hand_l", 22, 30],
+                              ["hand_r", 0, 6], ["hand_r", 15, 21], ["hand_r", 30, 30]]
+
+
 @clip
 def Ledge_Shimmy_R():
     n = 30
     return [shimmy_pose(i / n, -1) for i in range(n + 1)], True
+
+
+CONTACTS["Ledge_Shimmy_R"] = [["hand_r", 7, 14], ["hand_r", 22, 30],
+                              ["hand_l", 0, 6], ["hand_l", 15, 21], ["hand_l", 30, 30]]
