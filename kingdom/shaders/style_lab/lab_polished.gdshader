@@ -41,6 +41,12 @@ uniform float grime_amount = 0.38;
 uniform float edge_wear = 0.35;
 uniform float vao_strength = 0.0;   // baked vertex AO in COLOR.a (StyleG.bake_vertex_ao)
 uniform float bump_amount = 0.3;   // with mip bias + rough weathered surfaces (0.6 sparkled at full rough 0.72)
+// Medieval pass (TOWNS_MEDIEVAL_PASS.md): age. Moss and lichen on up-facing pitches (roofs, sills, wall caps) and the damp
+// north foot of walls, sun-faded / soot-darkened roofs, and a per-building age so two copies of one house never weather alike.
+uniform float moss = 0.0;          // 0 = none; per role, StyleG.AGE_MOSS
+uniform float sun_fade = 0.0;      // roofs: bleach + grey toward old tile/slate/thatch
+uniform vec3 moss_color : source_color = vec3(0.34, 0.39, 0.19);
+uniform vec3 lichen_color : source_color = vec3(0.62, 0.6, 0.42);
 varying vec3 wpos;
 varying vec3 wnor;
 
@@ -102,11 +108,36 @@ void fragment() {
 	float ao = 1.0 - ao_strength * (1.0 - smoothstep(0.0, ao_height, hy));
 	float wh = 0.0;
 	float wr = 0.0;
+	// the wall foot of THIS building: a MultiMesh's node origin is the batch's, not the instance's (grime used to start at the batch origin)
+	float foot = local_ao ? (uv2_base ? UV2.x : MODEL_MATRIX[3].y) : NODE_POSITION_WORLD.y;
 	if (weather > 0.0) {
 		// edge wear: atlas seams (timber/plaster borders, block joints) get a lighter chipped rim, masked by noise
 		float seam = clamp(fwidth(l) * 6.0, 0.0, 1.0);
-		c = weather_albedo(c, wpos, wnor, l, NODE_POSITION_WORLD.y, wh, wr);
+		c = weather_albedo(c, wpos, wnor, l, foot, wh, wr);
 		c = mix(c, c * 1.22 + vec3(0.025, 0.02, 0.01), seam * edge_wear * weather * step(0.45, wh + 0.5));
+	}
+	if (moss > 0.0 || sun_fade > 0.0) {
+		// age 0.35..1.35 per building (instance origin hash), or a slow world noise for static-merged batches
+		vec2 o = uv2_base ? floor(wpos.xz * 0.02) : floor(MODEL_MATRIX[3].xz * 0.5);
+		float age = 0.35 + fract(sin(dot(o, vec2(12.9898, 78.233))) * 43758.5453);
+		vec4 wn = weather_sample(wpos * 0.37, wnor, weather_scale);
+		float lum = dot(c, vec3(0.299, 0.587, 0.114));
+		if (sun_fade > 0.0) {
+			float f = clamp(sun_fade * age * smoothstep(0.1, 0.6, wnor.y), 0.0, 0.8);
+			c = mix(c, vec3(lum) * vec3(1.0, 0.95, 0.86), f * 0.55) * (1.0 - 0.18 * f);
+		}
+		if (moss > 0.0) {
+			float hy2 = wpos.y - foot;
+			float up = smoothstep(0.22, 0.7, wnor.y);
+			float north = smoothstep(0.1, 0.9, -wnor.z) * (1.0 - abs(wnor.y));
+			float foot_band = 1.0 - smoothstep(0.0, 1.1, hy2);
+			float blot = smoothstep(0.28, 0.6, wn.b + (wn.r - 0.5) * 0.6);
+			float m = moss * age * blot * (up * 0.9 + north * foot_band * 0.8 + foot_band * 0.25);
+			m = clamp(m, 0.0, 0.85);
+			vec3 mc = mix(moss_color, lichen_color, smoothstep(0.55, 0.8, wn.a)) * (0.72 + 0.6 * lum);
+			c = mix(c, mc, m);
+			wr += m * 0.15;
+		}
 	}
 	c *= ao * mix(1.0, COLOR.a, vao_strength);
 	ALBEDO = c;

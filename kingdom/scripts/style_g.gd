@@ -338,6 +338,9 @@ static func ph(set_name: String, kind: String, res := "2k") -> Texture2D:
 ## Pack: assets/generated/style_g/weather_pack.png (tools_qa/style_lab/make_weather_pack.py).
 const WEATHER := {"house": 1.0, "timber": 0.5, "plaster": 1.0, "stone": 0.9, "roof": 0.6, "cloth": 0.3, "awning": 0.3, "cobble": 0.4, "foliage": 0.0, "stall": 0.8, "wood": 0.5, "lamp": 0.5, "goods": 0.25, "tree": 0.0, "ivy": 0.0, "flowers": 0.0, "banner": 0.0, "flag": 0.0}
 static var _weather_tex: Texture2D
+## Medieval pass: age per role (lab_polished `moss`, `sun_fade`). Roofs and stone carry the most; cloth and goods none.
+const AGE_MOSS := {"house": 0.75, "roof": 0.85, "stone": 0.7, "plaster": 0.45, "timber": 0.3, "wood": 0.22, "stall": 0.1, "cobble": 0.15}
+const AGE_FADE := {"house": 0.85, "roof": 1.0, "stall": 0.3}
 
 
 static func weather_pack() -> Texture2D:
@@ -483,6 +486,9 @@ static func _polished(role: String, orig: Material, skin_kind: int, tier: String
 	sm.set_shader_parameter("bounce", 0.36)
 	sm.set_shader_parameter("weather_tex", weather_pack())
 	sm.set_shader_parameter("weather", WEATHER.get(role, 0.6))
+	# Medieval pass (docs/plans/TOWNS_MEDIEVAL_PASS.md): moss / lichen and sun-fade per role, per-building age in the shader
+	sm.set_shader_parameter("moss", AGE_MOSS.get(role, 0.0))
+	sm.set_shader_parameter("sun_fade", AGE_FADE.get(role, 0.0))
 	if game_mode:
 		sm.set_shader_parameter("local_ao", true)
 		sm.set_shader_parameter("vcol_srgb", bool(p.get("vsrgb", true)) if bool(p.get("vcol", false)) else true)

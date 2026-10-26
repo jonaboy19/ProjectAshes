@@ -1527,9 +1527,9 @@ func _gate_outskirts(root: Node3D, s: Dictionary, plan: Dictionary, gates: Array
 			var lhalf := float(WorldGen.road_info(lq.x, lq.y)["width"]) * 0.5
 			for sg2: float in [1.0, -1.0]:
 				var lp := lq + side * sg2 * (lhalf + 1.6)
-				if not lists.has("lamp_post"):
-					lists["lamp_post"] = []
-				(lists["lamp_post"] as Array).append(Transform3D(Basis(Vector3.UP, atan2(-side.x * sg2, -side.y * sg2)), Vector3(lp.x, WorldGen.height(lp.x, lp.y) - 0.03, lp.y)))
+				if not lists.has("mf_lamp_post_timber_cross"):
+					lists["mf_lamp_post_timber_cross"] = []
+				(lists["mf_lamp_post_timber_cross"] as Array).append(Transform3D(Basis(Vector3.UP, atan2(-side.x * sg2, -side.y * sg2)), Vector3(lp.x, WorldGen.height(lp.x, lp.y) - 0.03, lp.y)))
 			lu += 26.0
 	for kind: String in lists:
 		var list: Array[Transform3D] = []
@@ -1672,9 +1672,11 @@ func _square_lamps(root: Node3D, s: Dictionary, plan: Dictionary) -> void:
 		var yaw := atan2(c.x - p.x, c.y - p.y)
 		var gy := WorldGen.height(p.x, p.y) - 0.03
 		posts.append(Transform3D(Basis(Vector3.UP, yaw), Vector3(p.x, gy, p.y)))
-		lamp_specs.append({"pos": Vector3(p.x, gy + 2.35, p.y) + Vector3(sin(yaw), 0, cos(yaw)) * 0.62,
-			"color": Color(1.0, 0.72, 0.4), "range": 9.0})
-	_multimesh_cells(root, Assets.building_mesh("lamp_post"), posts, LOD_CELL)
+		# Medieval pass: a timber cross-post with a lantern hung from each arm (the cast-iron post on a stone plinth read Victorian)
+		var side := Vector3(cos(yaw), 0.0, -sin(yaw))
+		for k: float in [-1.0, 1.0]:
+			lamp_specs.append({"pos": Vector3(p.x, gy + 2.45, p.y) + side * 0.78 * k, "color": Color(1.0, 0.68, 0.36), "range": 7.0})
+	_multimesh_cells(root, Assets.building_mesh("mf_lamp_post_timber_cross"), posts, LOD_CELL)
 	var gates: Array = plan["gates"]
 	if not gates.is_empty():
 		# A brazier either side of the first gate: emissive mesh + billboard glow, no omni light (LampGlow).
@@ -1877,8 +1879,8 @@ func _gate_market(root: Node3D, s: Dictionary, plan: Dictionary, rng: RandomNumb
 				var edge := p + nrm * side * (half + 0.6)
 				var face := atan2(-nrm.x * side, -nrm.y * side)   # toward the street centre
 				if k % 3 == 0:
-					add.call("street_lamp", edge, face)
-					lights.append(Vector3(edge.x, WorldGen.height(edge.x, edge.y) + 3.4, edge.y))
+					add.call("mf_lamp_post_timber_cross", edge, face)     # medieval pass: timber cross-post, not a cast lamp on a stone plinth
+					lights.append(Vector3(edge.x, WorldGen.height(edge.x, edge.y) + 2.5, edge.y))
 				elif k % 3 == 1 and side > 0.0 or k % 3 == 2 and side < 0.0:
 					add.call("banner_pole", edge, face)
 				if near_gate and (k % 3 != 0 or rng.randf() < 0.5):
