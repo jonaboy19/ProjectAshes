@@ -2206,7 +2206,10 @@ func _start_dodge(is_ability: bool) -> void:
 	_swing = 0.0
 	_attack_buffer = 0.0
 	_impulse = Vector3.ZERO
-	_animator.play_full("Dodge_Backward" if backward else "Dodge_Forward", DODGE_ANIM_RATE)
+	if backward and _animator.has_clip("Dodge_back"):
+		_animator.play_full("Dodge_back", DODGE_ANIM_RATE * 0.85)      # a back-step, not a forward somersault played while moving backwards
+	else:
+		_animator.play_full("Dodge_Backward" if backward else "Dodge_Forward", DODGE_ANIM_RATE)
 	if is_ability:
 		# Shadow Dash only: the afterimage trail that used to play on every dodge.
 		VFX.afterimage(get_parent(), _model, Color(0.6, 0.85, 1.0), 3)
