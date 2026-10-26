@@ -3,7 +3,7 @@
 Measured against `GAME_VISION_OWNER_2026-10-26.md` and `READY_V1.md`.
 Ratings: **Missing** = no code. **Stub** = sim or data only, no player entry point. **Works** = the player can do it end to end. **AAA** = shipping quality.
 Method: code reading and grep (two read-only sweeps for C and D), headless gdUnit, and the windowed QA runs from this session (`docs/qa/mechanics/`). Paths are relative to `kingdom/scripts/` unless noted.
-RAM note: free memory stayed at 0.2–0.9 GB (three other Godot instances), so the **windowed New-Game 10-minute playthrough is still pending**; see A.0.
+Windowed first-hour run (playtest bot, stages boot, intro, menus, st_birth, st_a1; contact sheet `docs/qa/first_hour/first_hour_sheet.jpg`, all 44 shots viewed as a sheet): every boot, intro, menus and birth CHECK passed.
 
 ## Summary table
 | Area | Works | Stub | Missing | Verdict |
@@ -17,7 +17,7 @@ RAM note: free memory stayed at 0.2–0.9 GB (three other Godot instances), so t
 ## A. New game, demo, first hour
 | Beat | Rating | Evidence | Gap |
 |---|---|---|---|
-| A.0 Windowed 10-min playthrough from New Game | **pending** | bot stages exist: `tools_qa/playtest_bot/playtest_bot.gd` (`boot,intro,menus,st_birth,st_a1`) | run when ≥ 4 GB RAM is free; screenshot each beat into `docs/qa/first_hour/` |
+| A.0 Windowed first-hour playthrough | Done, with findings | `docs/qa/first_hour/first_hour_sheet.jpg`; bot `boot,intro,menus,st_birth,st_a1` | **Findings:** (1) dialogue portraits of Brenna (mother) and Warden Idra Vell have huge floating "googly" eyes, which breaks AAA → afc (face cards); (2) the speaker role line showed writer notes ("Your mother (procedural, parents.json)", "(RETINUE 2.8)", "(tease: ...)") → **fixed** in `data/region1/quests/cast.json`; (3) Realm > War Room: the map legend overlaps the map title text; (4) st_a1: the bot got stuck walking at (15, 4) and its wolf/"defence" fights never swung (enemy 7.4 m away, 0 swings), a bot pathing issue to re-check with a93's combat; (5) the boot frame shows the adult hero with a "Title earned: First Steps" toast before the birth cutscene starts (pre-intro state visible for a moment). |
 | Boot → splash → studio intro | Works | `ui/frontend/boot.gd`, `splash.gd`, `boot/studio_intro.gd`, `scenes/boot.tscn` (main scene) | — |
 | Main menu, slots, continue | Works | `ui/frontend/main_menu.gd`, `slot_screen.gd`, `load_watcher.gd` | — |
 | Settings (graphics, audio, PC rebinding) | Works | `ui/frontend/settings_screen.gd`, `settings_store.gd`; C11 landed (`tests/test_v1_pc_controls.gd`) | — |
