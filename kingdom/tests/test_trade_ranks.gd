@@ -38,3 +38,8 @@ func test_save() -> void:
 func test_career_screen_compiles() -> void:
 	var s: GDScript = load("res://scripts/ui/career_screen.gd")
 	assert_bool(s != null and s.can_instantiate()).is_true()
+
+
+func test_nobility_screen_compiles() -> void:
+	var s: GDScript = load("res://scripts/ui/nobility_screen.gd")
+	assert_bool(s != null and s.can_instantiate()).is_true()
