@@ -1,0 +1,1821 @@
+{
+ "player_young": {
+  "Life_Mx_Carry_Box_Walk": {
+   "airborne_s": 0.0,
+   "checks": {
+    "airborne": "PASS",
+    "drift": "PASS",
+    "hover": "PASS",
+    "penetration": "PASS",
+    "pops": "PASS",
+    "scale": "PASS",
+    "seam": "PASS",
+    "stretch": "PASS"
+   },
+   "contacts": {
+    "foot_l": [
+     [
+      0,
+      19
+     ],
+     [
+      26,
+      188
+     ]
+    ],
+    "foot_r": [
+     [
+      0,
+      24
+     ],
+     [
+      30,
+      188
+     ]
+    ]
+   },
+   "contacts_fps": 30.0,
+   "drift_cm": 4.09781932830811e-06,
+   "ground_speed": 0.00547574972733855,
+   "hover_cm": 0.515422523021698,
+   "kind": "loco",
+   "length": 6.26666688919067,
+   "looping": true,
+   "notes": [
+    "planted-foot slip unscored: clip ground-speed estimate below 0.20 m/s"
+   ],
+   "pen_cm": 0.0,
+   "pops": 0,
+   "scale_pct": 1.19209289550781e-05,
+   "seam_cm": 0.00693798065185547,
+   "seam_deg": 0.0933291455620823,
+   "slide_max": -1.0,
+   "slide_mean": -1.0,
+   "slide_p75": -1.0,
+   "status": "PASS",
+   "stretch_pct": 0.000506915012010722,
+   "subject": "player_young",
+   "tpose_frames": 0,
+   "upper": false
+  },
+  "Life_Mx_Chop_Wood": {
+   "airborne_s": 0.0,
+   "checks": {
+    "airborne": "PASS",
+    "drift": "PASS",
+    "hover": "PASS",
+    "penetration": "PASS",
+    "pops": "PASS",
+    "scale": "PASS",
+    "seam": "FAIL",
+    "slide": "FAIL",
+    "stretch": "PASS"
+   },
+   "contacts": {
+    "foot_l": [
+     [
+      19,
+      37
+     ]
+    ],
+    "foot_r": [
+     [
+      0,
+      5
+     ],
+     [
+      12,
+      14
+     ],
+     [
+      21,
+      35
+     ]
+    ]
+   },
+   "contacts_fps": 30.0,
+   "drift_cm": 0.0,
+   "ground_speed": 0.0,
+   "hover_cm": 1.82250142097473,
+   "kind": "loop",
+   "length": 2.03333330154419,
+   "looping": true,
+   "notes": [
+    "planted foot slips 33 cm/s (p75)",
+    "loop seam jumps 9.4 deg ('calf_r')"
+   ],
+   "pen_cm": 0.0,
+   "pops": 0,
+   "scale_pct": 1.19209289550781e-05,
+   "seam_cm": 0.0,
+   "seam_deg": 9.40254598691898,
+   "slide_max": 54.0785675048828,
+   "slide_mean": 17.4563377538453,
+   "slide_p75": 32.9208297729492,
+   "status": "FAIL",
+   "stretch_pct": 0.000583444696389268,
+   "subject": "player_young",
+   "tpose_frames": 0,
+   "upper": false
+  },
+  "Life_Mx_Drink": {
+   "airborne_s": 0.0,
+   "checks": {
+    "airborne": "PASS",
+    "drift": "PASS",
+    "hover": "PASS",
+    "penetration": "PASS",
+    "pops": "PASS",
+    "scale": "PASS",
+    "seam": "PASS",
+    "slide": "PASS",
+    "stretch": "PASS"
+   },
+   "contacts": {
+    "foot_l": [
+     [
+      0,
+      120
+     ],
+     [
+      146,
+      265
+     ]
+    ],
+    "foot_r": [
+     [
+      0,
+      265
+     ]
+    ]
+   },
+   "contacts_fps": 30.0,
+   "drift_cm": 0.0625471875537187,
+   "ground_speed": 0.0,
+   "hover_cm": 0.841716170310974,
+   "kind": "loop",
+   "length": 8.83333301544189,
+   "looping": true,
+   "notes": [],
+   "pen_cm": 0.0,
+   "pops": 0,
+   "scale_pct": 1.19209289550781e-05,
+   "seam_cm": 0.0,
+   "seam_deg": 0.476080620292579,
+   "slide_max": 4.21168804168701,
+   "slide_mean": 0.637466637876855,
+   "slide_p75": 0.80276745557785,
+   "status": "PASS",
+   "stretch_pct": 0.000478952479343597,
+   "subject": "player_young",
+   "tpose_frames": 0,
+   "upper": false
+  },
+  "Life_Mx_Fiddle": {
+   "airborne_s": 0.0,
+   "checks": {
+    "airborne": "PASS",
+    "drift": "PASS",
+    "hover": "PASS",
+    "penetration": "PASS",
+    "pops": "PASS",
+    "scale": "PASS",
+    "seam": "PASS",
+    "slide": "PASS",
+    "stretch": "PASS"
+   },
+   "contacts": {
+    "foot_l": [
+     [
+      0,
+      146
+     ],
+     [
+      323,
+      446
+     ],
+     [
+      448,
+      558
+     ],
+     [
+      632,
+      699
+     ],
+     [
+      749,
+      751
+     ],
+     [
+      755,
+      769
+     ],
+     [
+      774,
+      857
+     ],
+     [
+      959,
+      964
+     ],
+     [
+      969,
+      987
+     ],
+     [
+      989,
+      1214
+     ]
+    ],
+    "foot_r": [
+     [
+      0,
+      273
+     ],
+     [
+      314,
+      965
+     ],
+     [
+      970,
+      1214
+     ]
+    ]
+   },
+   "contacts_fps": 30.0,
+   "drift_cm": 0.00416927068727091,
+   "ground_speed": 0.0,
+   "hover_cm": 0.410537272691727,
+   "kind": "loop",
+   "length": 40.466667175293,
+   "looping": true,
+   "notes": [],
+   "pen_cm": 0.0,
+   "pops": 0,
+   "scale_pct": 1.19209289550781e-05,
+   "seam_cm": 0.0,
+   "seam_deg": 0.0741244878953245,
+   "slide_max": 4.33558177947998,
+   "slide_mean": 0.553254994865519,
+   "slide_p75": 0.739257395267487,
+   "status": "PASS",
+   "stretch_pct": 0.000856588088060661,
+   "subject": "player_young",
+   "tpose_frames": 0,
+   "upper": false
+  },
+  "Life_Mx_Fish_Cast_Reel": {
+   "airborne_s": 0.0,
+   "checks": {
+    "airborne": "PASS",
+    "hover": "PASS",
+    "penetration": "PASS",
+    "pops": "PASS",
+    "scale": "PASS",
+    "slide": "PASS",
+    "stretch": "PASS"
+   },
+   "contacts": {
+    "foot_l": [
+     [
+      0,
+      23
+     ]
+    ],
+    "foot_r": [
+     [
+      0,
+      41
+     ],
+     [
+      53,
+      161
+     ]
+    ]
+   },
+   "contacts_fps": 30.0,
+   "drift_cm": 0.000155761688347411,
+   "ground_speed": 0.0,
+   "hover_cm": 0.832340717315674,
+   "kind": "once",
+   "length": 8.76666641235352,
+   "looping": false,
+   "notes": [],
+   "pen_cm": 0.0,
+   "pops": 0,
+   "scale_pct": 1.19209289550781e-05,
+   "seam_cm": 0.0,
+   "seam_deg": 0.0,
+   "slide_max": 34.9785995483398,
+   "slide_mean": 4.84271383147708,
+   "slide_p75": 6.44732427597046,
+   "status": "PASS",
+   "stretch_pct": 0.000727639343622855,
+   "subject": "player_young",
+   "tpose_frames": 0,
+   "upper": false
+  },
+  "Life_Mx_Fish_Idle": {
+   "airborne_s": 0.0,
+   "checks": {
+    "airborne": "PASS",
+    "drift": "PASS",
+    "hover": "PASS",
+    "penetration": "PASS",
+    "pops": "PASS",
+    "scale": "PASS",
+    "seam": "PASS",
+    "slide": "PASS",
+    "stretch": "PASS"
+   },
+   "contacts": {
+    "foot_l": [
+     [
+      0,
+      105
+     ]
+    ],
+    "foot_r": [
+     [
+      0,
+      105
+     ]
+    ]
+   },
+   "contacts_fps": 30.0,
+   "drift_cm": 0.0108466389065143,
+   "ground_speed": 0.0,
+   "hover_cm": 0.0736256763339043,
+   "kind": "loop",
+   "length": 3.5,
+   "looping": true,
+   "notes": [],
+   "pen_cm": 0.0,
+   "pops": 0,
+   "scale_pct": 1.19209289550781e-05,
+   "seam_cm": 0.0,
+   "seam_deg": 0.0670535679076019,
+   "slide_max": 4.66732788085938,
+   "slide_mean": 0.383962303041839,
+   "slide_p75": 0.405659288167953,
+   "status": "PASS",
+   "stretch_pct": 0.000405531972225148,
+   "subject": "player_young",
+   "tpose_frames": 0,
+   "upper": false
+  },
+  "Life_Mx_Get_Up_Back": {
+   "airborne_s": 4.6,
+   "checks": {
+    "airborne": "FAIL",
+    "drift": "WARN",
+    "hover": "PASS",
+    "penetration": "PASS",
+    "pops": "PASS",
+    "scale": "PASS",
+    "slide": "WARN",
+    "stretch": "PASS"
+   },
+   "contacts": {
+    "foot_l": [
+     [
+      158,
+      248
+     ]
+    ],
+    "foot_r": [
+     [
+      156,
+      248
+     ]
+    ]
+   },
+   "contacts_fps": 30.0,
+   "drift_cm": 77.1017611026764,
+   "ground_speed": 0.0,
+   "hover_cm": 1.18093621730804,
+   "kind": "once",
+   "length": 8.26666641235352,
+   "looping": false,
+   "notes": [
+    "all feet off the ground for 4.60 s",
+    "planted foot slips 11 cm/s (p75)",
+    "one-shot moves the body 77 cm (baked root motion; snaps back after)"
+   ],
+   "pen_cm": 0.0,
+   "pops": 0,
+   "scale_pct": 1.19209289550781e-05,
+   "seam_cm": 0.0,
+   "seam_deg": 0.0,
+   "slide_max": 30.0870838165283,
+   "slide_mean": 10.2850920289427,
+   "slide_p75": 10.7804775238037,
+   "status": "FAIL",
+   "stretch_pct": 0.000488163103951056,
+   "subject": "player_young",
+   "tpose_frames": 0,
+   "upper": false
+  },
+  "Life_Mx_Lift_Heavy": {
+   "airborne_s": 2.6,
+   "checks": {
+    "airborne": "FAIL",
+    "hover": "PASS",
+    "penetration": "PASS",
+    "pops": "PASS",
+    "scale": "PASS",
+    "slide": "PASS",
+    "stretch": "PASS"
+   },
+   "contacts": {
+    "foot_l": [
+     [
+      0,
+      24
+     ],
+     [
+      137,
+      180
+     ],
+     [
+      244,
+      264
+     ],
+     [
+      277,
+      306
+     ],
+     [
+      310,
+      312
+     ],
+     [
+      315,
+      323
+     ]
+    ],
+    "foot_r": [
+     [
+      0,
+      16
+     ],
+     [
+      268,
+      345
+     ]
+    ]
+   },
+   "contacts_fps": 30.0,
+   "drift_cm": 2.38534969554394e-06,
+   "ground_speed": 0.0,
+   "hover_cm": 0.736136376857758,
+   "kind": "once",
+   "length": 11.5,
+   "looping": false,
+   "notes": [
+    "all feet off the ground for 2.60 s"
+   ],
+   "pen_cm": 0.0,
+   "pops": 0,
+   "scale_pct": 1.19209289550781e-05,
+   "seam_cm": 0.0,
+   "seam_deg": 0.0,
+   "slide_max": 261.795959472656,
+   "slide_mean": 8.07726984928809,
+   "slide_p75": 3.53651237487793,
+   "status": "FAIL",
+   "stretch_pct": 0.000432899356328509,
+   "subject": "player_young",
+   "tpose_frames": 0,
+   "upper": false
+  },
+  "Life_Mx_Lute": {
+   "airborne_s": 0.0,
+   "checks": {
+    "airborne": "PASS",
+    "drift": "PASS",
+    "hover": "PASS",
+    "penetration": "PASS",
+    "pops": "PASS",
+    "scale": "PASS",
+    "seam": "PASS",
+    "slide": "PASS",
+    "stretch": "PASS"
+   },
+   "contacts": {
+    "foot_l": [
+     [
+      9,
+      15
+     ],
+     [
+      28,
+      38
+     ],
+     [
+      45,
+      54
+     ],
+     [
+      63,
+      73
+     ],
+     [
+      82,
+      84
+     ],
+     [
+      98,
+      103
+     ],
+     [
+      117,
+      125
+     ]
+    ],
+    "foot_r": [
+     [
+      0,
+      2
+     ],
+     [
+      9,
+      15
+     ],
+     [
+      28,
+      31
+     ],
+     [
+      33,
+      37
+     ],
+     [
+      45,
+      54
+     ],
+     [
+      63,
+      73
+     ],
+     [
+      81,
+      86
+     ],
+     [
+      98,
+      103
+     ],
+     [
+      116,
+      125
+     ]
+    ]
+   },
+   "contacts_fps": 30.0,
+   "drift_cm": 0.0,
+   "ground_speed": 0.0,
+   "hover_cm": 1.00946164131165,
+   "kind": "loop",
+   "length": 4.16666650772095,
+   "looping": true,
+   "notes": [],
+   "pen_cm": 0.0,
+   "pops": 0,
+   "scale_pct": 1.19209289550781e-05,
+   "seam_cm": 0.0,
+   "seam_deg": 0.0,
+   "slide_max": 19.5131912231445,
+   "slide_mean": 2.6073406940947,
+   "slide_p75": 2.70708823204041,
+   "status": "PASS",
+   "stretch_pct": 0.000432899356328509,
+   "subject": "player_young",
+   "tpose_frames": 0,
+   "upper": false
+  },
+  "Life_Mx_Milk_Cow": {
+   "airborne_s": 0.0,
+   "checks": {
+    "airborne": "PASS",
+    "drift": "PASS",
+    "hover": "PASS",
+    "penetration": "FAIL",
+    "pops": "PASS",
+    "scale": "PASS",
+    "seam": "PASS",
+    "slide": "PASS",
+    "stretch": "PASS"
+   },
+   "contacts": {
+    "foot_l": [
+     [
+      0,
+      135
+     ]
+    ],
+    "foot_r": [
+     [
+      0,
+      135
+     ]
+    ]
+   },
+   "contacts_fps": 30.0,
+   "drift_cm": 0.00388087901228573,
+   "ground_speed": 0.0,
+   "hover_cm": 0.0,
+   "kind": "loop",
+   "length": 4.5,
+   "looping": true,
+   "notes": [
+    "20.9 cm below floor (foot joint)"
+   ],
+   "pen_cm": 20.8679485321045,
+   "pops": 0,
+   "scale_pct": 1.19209289550781e-05,
+   "seam_cm": 0.0,
+   "seam_deg": 0.260458271662741,
+   "slide_max": 2.0355851650238,
+   "slide_mean": 0.714030273869867,
+   "slide_p75": 1.01608788967133,
+   "status": "FAIL",
+   "stretch_pct": 0.000506584353154871,
+   "subject": "player_young",
+   "tpose_frames": 0,
+   "upper": false
+  },
+  "Life_Mx_Pick_Ground": {
+   "airborne_s": 0.2,
+   "checks": {
+    "airborne": "WARN",
+    "hover": "PASS",
+    "penetration": "PASS",
+    "pops": "PASS",
+    "scale": "PASS",
+    "slide": "PASS",
+    "stretch": "PASS"
+   },
+   "contacts": {
+    "foot_l": [
+     [
+      21,
+      41
+     ],
+     [
+      174,
+      198
+     ]
+    ],
+    "foot_r": [
+     [
+      24,
+      32
+     ],
+     [
+      37,
+      43
+     ],
+     [
+      173,
+      176
+     ],
+     [
+      187,
+      207
+     ]
+    ]
+   },
+   "contacts_fps": 30.0,
+   "drift_cm": 0.000680923176332726,
+   "ground_speed": 0.0,
+   "hover_cm": 1.52567672729492,
+   "kind": "once",
+   "length": 7.09999990463257,
+   "looping": false,
+   "notes": [
+    "all feet off the ground for 0.20 s"
+   ],
+   "pen_cm": 1.76148748397827,
+   "pops": 0,
+   "scale_pct": 1.19209289550781e-05,
+   "seam_cm": 0.0,
+   "seam_deg": 0.0,
+   "slide_max": 355.990997314453,
+   "slide_mean": 22.5318100459354,
+   "slide_p75": 7.42707395553589,
+   "status": "WARN",
+   "stretch_pct": 0.000406535464114732,
+   "subject": "player_young",
+   "tpose_frames": 0,
+   "upper": false
+  },
+  "Life_Mx_Pick_Up": {
+   "airborne_s": 0.0,
+   "checks": {
+    "airborne": "PASS",
+    "hover": "WARN",
+    "penetration": "PASS",
+    "pops": "PASS",
+    "scale": "PASS",
+    "slide": "PASS",
+    "stretch": "PASS"
+   },
+   "contacts": {
+    "foot_l": [
+     [
+      28,
+      50
+     ],
+     [
+      108,
+      124
+     ]
+    ],
+    "foot_r": [
+     [
+      29,
+      130
+     ]
+    ]
+   },
+   "contacts_fps": 30.0,
+   "drift_cm": 3.74066308140755,
+   "ground_speed": 0.0,
+   "hover_cm": 4.26860427856445,
+   "kind": "once",
+   "length": 9.56666660308838,
+   "looping": false,
+   "notes": [
+    "feet never touch the floor (lowest 4.3 cm above)"
+   ],
+   "pen_cm": 0.0,
+   "pops": 0,
+   "scale_pct": 1.19209289550781e-05,
+   "seam_cm": 0.0,
+   "seam_deg": 0.0,
+   "slide_max": 20.5698471069336,
+   "slide_mean": 2.68251010227121,
+   "slide_p75": 2.95577788352966,
+   "status": "WARN",
+   "stretch_pct": 0.000488163103951056,
+   "subject": "player_young",
+   "tpose_frames": 0,
+   "upper": false
+  },
+  "Life_Mx_Plant_Kneel": {
+   "airborne_s": 0.0,
+   "checks": {
+    "airborne": "PASS",
+    "drift": "PASS",
+    "hover": "PASS",
+    "penetration": "FAIL",
+    "pops": "PASS",
+    "scale": "PASS",
+    "seam": "PASS",
+    "slide": "PASS",
+    "stretch": "PASS"
+   },
+   "contacts": {
+    "foot_l": [
+     [
+      20,
+      206
+     ]
+    ],
+    "foot_r": [
+     [
+      30,
+      51
+     ],
+     [
+      62,
+      201
+     ]
+    ]
+   },
+   "contacts_fps": 30.0,
+   "drift_cm": 0.0300913699902594,
+   "ground_speed": 0.0,
+   "hover_cm": 0.0,
+   "kind": "loop",
+   "length": 7.53333330154419,
+   "looping": true,
+   "notes": [
+    "35.8 cm below floor (mesh)"
+   ],
+   "pen_cm": 35.824649810791,
+   "pops": 0,
+   "scale_pct": 1.19209289550781e-05,
+   "seam_cm": 0.0,
+   "seam_deg": 0.0884693258953794,
+   "slide_max": 14.6047029495239,
+   "slide_mean": 3.37032636432217,
+   "slide_p75": 5.43916988372803,
+   "status": "FAIL",
+   "stretch_pct": 0.000423688731732152,
+   "subject": "player_young",
+   "tpose_frames": 0,
+   "upper": false
+  },
+  "Life_Mx_Plant_Tree": {
+   "airborne_s": 0.566666666666667,
+   "checks": {
+    "airborne": "FAIL",
+    "hover": "PASS",
+    "penetration": "PASS",
+    "pops": "PASS",
+    "scale": "PASS",
+    "slide": "PASS",
+    "stretch": "PASS"
+   },
+   "contacts": {
+    "foot_l": [
+     [
+      94,
+      141
+     ]
+    ],
+    "foot_r": [
+     [
+      18,
+      157
+     ]
+    ]
+   },
+   "contacts_fps": 30.0,
+   "drift_cm": 0.000572478347748984,
+   "ground_speed": 0.0,
+   "hover_cm": 1.31454980373383,
+   "kind": "once",
+   "length": 9.26666641235352,
+   "looping": false,
+   "notes": [
+    "all feet off the ground for 0.57 s"
+   ],
+   "pen_cm": 0.0,
+   "pops": 0,
+   "scale_pct": 1.19209289550781e-05,
+   "seam_cm": 0.0,
+   "seam_deg": 0.0,
+   "slide_max": 93.2153015136719,
+   "slide_mean": 8.66872424045776,
+   "slide_p75": 7.47803020477295,
+   "status": "FAIL",
+   "stretch_pct": 0.000478952479343597,
+   "subject": "player_young",
+   "tpose_frames": 0,
+   "upper": false
+  },
+  "Life_Mx_Pray_Kneel": {
+   "airborne_s": 0.833333333333333,
+   "checks": {
+    "airborne": "FAIL",
+    "drift": "PASS",
+    "hover": "PASS",
+    "penetration": "PASS",
+    "pops": "PASS",
+    "scale": "PASS",
+    "seam": "PASS",
+    "stretch": "PASS"
+   },
+   "contacts": {
+    "foot_l": [],
+    "foot_r": []
+   },
+   "contacts_fps": 30.0,
+   "drift_cm": 0.0265251437667757,
+   "ground_speed": 0.0,
+   "hover_cm": 0.223415568470955,
+   "kind": "loop",
+   "length": 1.89999997615814,
+   "looping": true,
+   "notes": [
+    "all feet off the ground for 0.83 s",
+    "no ground-contact frames found"
+   ],
+   "pen_cm": 0.0,
+   "pops": 0,
+   "scale_pct": 1.19209289550781e-05,
+   "seam_cm": 0.0,
+   "seam_deg": 0.144486715496736,
+   "slide_max": -1.0,
+   "slide_mean": -1.0,
+   "slide_p75": -1.0,
+   "status": "FAIL",
+   "stretch_pct": 0.000663164971403951,
+   "subject": "player_young",
+   "tpose_frames": 0,
+   "upper": false
+  },
+  "Life_Mx_Pull_Plant": {
+   "airborne_s": 0.0,
+   "checks": {
+    "airborne": "PASS",
+    "drift": "PASS",
+    "hover": "PASS",
+    "penetration": "FAIL",
+    "pops": "PASS",
+    "scale": "PASS",
+    "seam": "PASS",
+    "slide": "PASS",
+    "stretch": "PASS"
+   },
+   "contacts": {
+    "foot_l": [
+     [
+      0,
+      141
+     ]
+    ],
+    "foot_r": [
+     [
+      0,
+      141
+     ]
+    ]
+   },
+   "contacts_fps": 30.0,
+   "drift_cm": 0.162894278764725,
+   "ground_speed": 0.0,
+   "hover_cm": 0.0,
+   "kind": "loop",
+   "length": 4.69999980926514,
+   "looping": true,
+   "notes": [
+    "21.4 cm below floor (mesh)"
+   ],
+   "pen_cm": 21.4007396697998,
+   "pops": 0,
+   "scale_pct": 1.19209289550781e-05,
+   "seam_cm": 0.0,
+   "seam_deg": 0.355438402013262,
+   "slide_max": 22.3744430541992,
+   "slide_mean": 3.27334180394454,
+   "slide_p75": 4.15624237060547,
+   "status": "FAIL",
+   "stretch_pct": 0.000334750763708591,
+   "subject": "player_young",
+   "tpose_frames": 0,
+   "upper": false
+  },
+  "Life_Mx_Scythe": {
+   "airborne_s": 0.0,
+   "checks": {
+    "airborne": "PASS",
+    "drift": "PASS",
+    "hover": "PASS",
+    "penetration": "PASS",
+    "pops": "PASS",
+    "scale": "PASS",
+    "seam": "WARN",
+    "slide": "FAIL",
+    "stretch": "PASS"
+   },
+   "contacts": {
+    "foot_l": [
+     [
+      0,
+      10
+     ],
+     [
+      12,
+      51
+     ],
+     [
+      62,
+      71
+     ]
+    ],
+    "foot_r": [
+     [
+      0,
+      13
+     ],
+     [
+      23,
+      26
+     ],
+     [
+      28,
+      60
+     ],
+     [
+      67,
+      71
+     ]
+    ]
+   },
+   "contacts_fps": 30.0,
+   "drift_cm": 2.34067183413345e-06,
+   "ground_speed": 0.0,
+   "hover_cm": 0.467639118432999,
+   "kind": "loop",
+   "length": 2.36666655540466,
+   "looping": true,
+   "notes": [
+    "planted foot slips 51 cm/s (p75)",
+    "loop seam jumps 5.0 deg ('calf_l')"
+   ],
+   "pen_cm": 0.0,
+   "pops": 0,
+   "scale_pct": 1.19209289550781e-05,
+   "seam_cm": 0.0,
+   "seam_deg": 4.95792845058012,
+   "slide_max": 117.295989990234,
+   "slide_mean": 49.5961421387536,
+   "slide_p75": 50.970329284668,
+   "status": "FAIL",
+   "stretch_pct": 0.000690796845215225,
+   "subject": "player_young",
+   "tpose_frames": 0,
+   "upper": false
+  },
+  "Life_Mx_Sit_Chair": {
+   "airborne_s": 0.0,
+   "checks": {
+    "penetration": "PASS",
+    "pops": "PASS",
+    "scale": "PASS",
+    "slide": "PASS",
+    "stretch": "PASS"
+   },
+   "contacts": {
+    "foot_l": [
+     [
+      0,
+      88
+     ]
+    ],
+    "foot_r": [
+     [
+      0,
+      88
+     ]
+    ]
+   },
+   "contacts_fps": 30.0,
+   "drift_cm": 0.0,
+   "ground_speed": 0.0,
+   "hover_cm": 0.0,
+   "kind": "sit",
+   "length": 2.93333339691162,
+   "looping": true,
+   "notes": [],
+   "pen_cm": 0.0,
+   "pops": 0,
+   "scale_pct": 1.19209289550781e-05,
+   "seam_cm": 0.0,
+   "seam_deg": 0.0,
+   "slide_max": 0.0,
+   "slide_mean": 0.0,
+   "slide_p75": 0.0,
+   "status": "PASS",
+   "stretch_pct": 0.000406535464114732,
+   "subject": "player_young",
+   "tpose_frames": 0,
+   "upper": false
+  },
+  "Life_Mx_Sit_Chair_Talk": {
+   "airborne_s": 0.0,
+   "checks": {
+    "penetration": "PASS",
+    "pops": "WARN",
+    "scale": "PASS",
+    "slide": "PASS",
+    "stretch": "PASS"
+   },
+   "contacts": {
+    "foot_l": [
+     [
+      0,
+      767
+     ],
+     [
+      788,
+      835
+     ],
+     [
+      842,
+      878
+     ],
+     [
+      896,
+      951
+     ],
+     [
+      955,
+      1067
+     ],
+     [
+      1072,
+      1173
+     ],
+     [
+      1178,
+      1348
+     ]
+    ],
+    "foot_r": []
+   },
+   "contacts_fps": 30.0,
+   "drift_cm": 0.00768212048569694,
+   "ground_speed": 0.0,
+   "hover_cm": 0.0,
+   "kind": "sit",
+   "length": 44.9333343505859,
+   "looping": true,
+   "notes": [
+    "1 pop(s), worst on 'hand_r' at 24.43 s (26 deg/frame^2)"
+   ],
+   "pen_cm": 0.0,
+   "pops": 1,
+   "scale_pct": 1.19209289550781e-05,
+   "seam_cm": 0.0,
+   "seam_deg": 0.0,
+   "slide_max": 2.6064293384552,
+   "slide_mean": 0.403906419432208,
+   "slide_p75": 0.525101900100708,
+   "status": "WARN",
+   "stretch_pct": 0.000478952479343597,
+   "subject": "player_young",
+   "tpose_frames": 0,
+   "upper": false
+  },
+  "Life_Mx_Sit_Floor": {
+   "airborne_s": 0.0,
+   "checks": {
+    "penetration": "PASS",
+    "pops": "PASS",
+    "scale": "PASS",
+    "stretch": "PASS"
+   },
+   "contacts": {
+    "foot_l": [],
+    "foot_r": []
+   },
+   "contacts_fps": 30.0,
+   "drift_cm": 0.00247116095124511,
+   "ground_speed": 0.0,
+   "hover_cm": 0.0,
+   "kind": "sit",
+   "length": 10.8333330154419,
+   "looping": true,
+   "notes": [],
+   "pen_cm": 0.0,
+   "pops": 0,
+   "scale_pct": 1.19209289550781e-05,
+   "seam_cm": 0.0,
+   "seam_deg": 0.0,
+   "slide_max": -1.0,
+   "slide_mean": -1.0,
+   "slide_p75": -1.0,
+   "status": "PASS",
+   "stretch_pct": 0.00137238306582299,
+   "subject": "player_young",
+   "tpose_frames": 0,
+   "upper": false
+  },
+  "Life_Mx_Sit_To_Stand": {
+   "airborne_s": 0.0,
+   "checks": {
+    "penetration": "PASS",
+    "pops": "PASS",
+    "scale": "PASS",
+    "slide": "WARN",
+    "stretch": "PASS"
+   },
+   "contacts": {
+    "foot_l": [
+     [
+      50,
+      145
+     ]
+    ],
+    "foot_r": [
+     [
+      52,
+      145
+     ]
+    ]
+   },
+   "contacts_fps": 30.0,
+   "drift_cm": 38.52798640728,
+   "ground_speed": 0.0,
+   "hover_cm": 0.0,
+   "kind": "sit",
+   "length": 4.83333349227905,
+   "looping": false,
+   "notes": [
+    "planted foot slips 9 cm/s (p75)"
+   ],
+   "pen_cm": 0.0,
+   "pops": 0,
+   "scale_pct": 1.19209289550781e-05,
+   "seam_cm": 0.0,
+   "seam_deg": 0.0,
+   "slide_max": 12.3833503723145,
+   "slide_mean": 8.27304185958619,
+   "slide_p75": 8.6828727722168,
+   "status": "WARN",
+   "stretch_pct": 0.000414478107124694,
+   "subject": "player_young",
+   "tpose_frames": 0,
+   "upper": false
+  },
+  "Life_Mx_Sleep_Bed": {
+   "airborne_s": 0.0,
+   "checks": {
+    "airborne": "PASS",
+    "drift": "PASS",
+    "hover": "PASS",
+    "penetration": "FAIL",
+    "pops": "PASS",
+    "scale": "PASS",
+    "seam": "PASS",
+    "stretch": "PASS"
+   },
+   "contacts": {
+    "foot_l": [
+     [
+      0,
+      50
+     ]
+    ],
+    "foot_r": [
+     [
+      0,
+      50
+     ]
+    ]
+   },
+   "contacts_fps": 30.0,
+   "drift_cm": 0.00413747075072024,
+   "ground_speed": 0.0,
+   "hover_cm": 0.0,
+   "kind": "loop",
+   "length": 1.66666662693024,
+   "looping": true,
+   "notes": [
+    "497.5 cm below floor (mesh)",
+    "no ground-contact frames found"
+   ],
+   "pen_cm": 497.546478271484,
+   "pops": 0,
+   "scale_pct": 1.19209289550781e-05,
+   "seam_cm": 0.0,
+   "seam_deg": 0.259443188158201,
+   "slide_max": -1.0,
+   "slide_mean": -1.0,
+   "slide_p75": -1.0,
+   "status": "FAIL",
+   "stretch_pct": 0.000908833012969179,
+   "subject": "player_young",
+   "tpose_frames": 0,
+   "upper": false
+  },
+  "Life_Mx_Stand_To_Sit": {
+   "airborne_s": 0.0,
+   "checks": {
+    "drift": "WARN",
+    "penetration": "PASS",
+    "pops": "PASS",
+    "scale": "PASS",
+    "slide": "FAIL",
+    "stretch": "PASS"
+   },
+   "contacts": {
+    "foot_l": [
+     [
+      0,
+      37
+     ]
+    ],
+    "foot_r": [
+     [
+      0,
+      37
+     ]
+    ]
+   },
+   "contacts_fps": 30.0,
+   "drift_cm": 43.4172511100769,
+   "ground_speed": 0.0,
+   "hover_cm": 0.0,
+   "kind": "sit",
+   "length": 2.23333334922791,
+   "looping": false,
+   "notes": [
+    "planted foot slips 27 cm/s (p75)",
+    "one-shot moves the body 43 cm (baked root motion; snaps back after)"
+   ],
+   "pen_cm": 0.0,
+   "pops": 0,
+   "scale_pct": 1.19209289550781e-05,
+   "seam_cm": 0.0,
+   "seam_deg": 0.0,
+   "slide_max": 68.6701889038086,
+   "slide_mean": 25.5611794188216,
+   "slide_p75": 26.6631393432617,
+   "status": "FAIL",
+   "stretch_pct": 0.000396056857920879,
+   "subject": "player_young",
+   "tpose_frames": 0,
+   "upper": false
+  },
+  "Life_Mx_Talk_Chat": {
+   "airborne_s": 0.0,
+   "checks": {
+    "airborne": "PASS",
+    "drift": "PASS",
+    "hover": "PASS",
+    "penetration": "PASS",
+    "pops": "PASS",
+    "scale": "PASS",
+    "seam": "PASS",
+    "slide": "PASS",
+    "stretch": "PASS"
+   },
+   "contacts": {
+    "foot_l": [
+     [
+      48,
+      71
+     ],
+     [
+      73,
+      78
+     ],
+     [
+      84,
+      196
+     ]
+    ],
+    "foot_r": [
+     [
+      90,
+      190
+     ]
+    ]
+   },
+   "contacts_fps": 30.0,
+   "drift_cm": 0.0828077609185129,
+   "ground_speed": 0.0,
+   "hover_cm": 0.464678972959518,
+   "kind": "loop",
+   "length": 44.533332824707,
+   "looping": true,
+   "notes": [],
+   "pen_cm": 0.0,
+   "pops": 0,
+   "scale_pct": 1.19209289550781e-05,
+   "seam_cm": 0.00348091125488281,
+   "seam_deg": 1.07284833534176,
+   "slide_max": 81.6912536621094,
+   "slide_mean": 3.09270985084815,
+   "slide_p75": 3.40920400619507,
+   "status": "PASS",
+   "stretch_pct": 0.000856588088060661,
+   "subject": "player_young",
+   "tpose_frames": 0,
+   "upper": false
+  },
+  "Life_Mx_Wave": {
+   "airborne_s": 0.0,
+   "checks": {
+    "airborne": "PASS",
+    "drift": "PASS",
+    "hover": "PASS",
+    "penetration": "PASS",
+    "pops": "PASS",
+    "scale": "PASS",
+    "seam": "PASS",
+    "slide": "PASS",
+    "stretch": "PASS"
+   },
+   "contacts": {
+    "foot_l": [
+     [
+      0,
+      15
+     ]
+    ],
+    "foot_r": [
+     [
+      0,
+      15
+     ]
+    ]
+   },
+   "contacts_fps": 30.0,
+   "drift_cm": 0.255359336733818,
+   "ground_speed": 0.0,
+   "hover_cm": 0.258727848529816,
+   "kind": "loop",
+   "length": 0.5,
+   "looping": true,
+   "notes": [],
+   "pen_cm": 0.0,
+   "pops": 0,
+   "scale_pct": 1.19209289550781e-05,
+   "seam_cm": 0.00202059745788574,
+   "seam_deg": 1.76124880107877,
+   "slide_max": 3.59391832351685,
+   "slide_mean": 1.33349680049079,
+   "slide_p75": 1.62267518043518,
+   "status": "PASS",
+   "stretch_pct": 0.000626322472996321,
+   "subject": "player_young",
+   "tpose_frames": 0,
+   "upper": false
+  },
+  "Life_Mx_Wheelbarrow_Walk": {
+   "airborne_s": 0.0,
+   "checks": {
+    "airborne": "PASS",
+    "drift": "PASS",
+    "hover": "PASS",
+    "penetration": "PASS",
+    "pops": "PASS",
+    "scale": "PASS",
+    "seam": "PASS",
+    "slide": "FAIL",
+    "stretch": "PASS"
+   },
+   "contacts": {
+    "foot_l": [
+     [
+      0,
+      2
+     ],
+     [
+      8,
+      23
+     ]
+    ],
+    "foot_r": [
+     [
+      0,
+      8
+     ],
+     [
+      14,
+      16
+     ]
+    ]
+   },
+   "contacts_fps": 30.0,
+   "drift_cm": 1.86497199905489e-06,
+   "ground_speed": 1.69389355182648,
+   "hover_cm": 0.444448977708817,
+   "kind": "loco",
+   "length": 0.933333337306976,
+   "looping": true,
+   "notes": [
+    "planted foot slips 31 cm/s (p75)"
+   ],
+   "pen_cm": 0.0,
+   "pops": 0,
+   "scale_pct": 1.19209289550781e-05,
+   "seam_cm": 0.0,
+   "seam_deg": 1.61472886366412,
+   "slide_max": 594.638366699219,
+   "slide_mean": 78.0486829195704,
+   "slide_p75": 31.0346393585205,
+   "status": "FAIL",
+   "stretch_pct": 0.000423688731732152,
+   "subject": "player_young",
+   "tpose_frames": 0,
+   "upper": false
+  },
+  "Mx_Get_Up_Knockdown": {
+   "airborne_s": 1.2,
+   "checks": {
+    "airborne": "FAIL",
+    "hover": "PASS",
+    "penetration": "WARN",
+    "pops": "PASS",
+    "scale": "PASS",
+    "slide": "PASS",
+    "stretch": "PASS"
+   },
+   "contacts": {
+    "foot_l": [
+     [
+      43,
+      81
+     ]
+    ],
+    "foot_r": [
+     [
+      43,
+      81
+     ]
+    ]
+   },
+   "contacts_fps": 30.0,
+   "drift_cm": 4.28353138267994,
+   "ground_speed": 0.0,
+   "hover_cm": 0.37904292345047,
+   "kind": "once",
+   "length": 2.70000004768372,
+   "looping": false,
+   "notes": [
+    "2.8 cm below floor (mesh)",
+    "all feet off the ground for 1.20 s"
+   ],
+   "pen_cm": 2.77484345436096,
+   "pops": 0,
+   "scale_pct": 1.19209289550781e-05,
+   "seam_cm": 0.0,
+   "seam_deg": 0.0,
+   "slide_max": 244.752166748047,
+   "slide_mean": 19.1617284279905,
+   "slide_p75": 7.25446176528931,
+   "status": "FAIL",
+   "stretch_pct": 0.000423688731732152,
+   "subject": "player_young",
+   "tpose_frames": 0,
+   "upper": false
+  },
+  "Mx_Sword_Combat_To_Sheath": {
+   "airborne_s": 0.0,
+   "checks": {
+    "airborne": "PASS",
+    "hover": "PASS",
+    "penetration": "PASS",
+    "pops": "PASS",
+    "scale": "PASS",
+    "slide": "WARN",
+    "stretch": "PASS"
+   },
+   "contacts": {
+    "foot_l": [
+     [
+      0,
+      2
+     ],
+     [
+      7,
+      9
+     ],
+     [
+      14,
+      38
+     ]
+    ],
+    "foot_r": [
+     [
+      0,
+      16
+     ]
+    ]
+   },
+   "contacts_fps": 30.0,
+   "drift_cm": 7.2773851454258,
+   "ground_speed": 0.0,
+   "hover_cm": 0.843704998493195,
+   "kind": "once",
+   "length": 1.26666665077209,
+   "looping": false,
+   "notes": [
+    "planted foot slips 8 cm/s (p75)"
+   ],
+   "pen_cm": 0.0,
+   "pops": 0,
+   "scale_pct": 1.19209289550781e-05,
+   "seam_cm": 0.0,
+   "seam_deg": 0.0,
+   "slide_max": 78.1456909179688,
+   "slide_mean": 10.7499888896942,
+   "slide_p75": 8.09086036682129,
+   "status": "WARN",
+   "stretch_pct": 0.000482850783212196,
+   "subject": "player_young",
+   "tpose_frames": 0,
+   "upper": false
+  },
+  "Mx_Sword_Sheath": {
+   "airborne_s": 0.0,
+   "checks": {
+    "airborne": "PASS",
+    "hover": "PASS",
+    "penetration": "PASS",
+    "pops": "PASS",
+    "scale": "PASS",
+    "slide": "PASS",
+    "stretch": "PASS"
+   },
+   "contacts": {
+    "foot_l": [
+     [
+      4,
+      10
+     ],
+     [
+      26,
+      47
+     ]
+    ],
+    "foot_r": [
+     [
+      0,
+      50
+     ]
+    ]
+   },
+   "contacts_fps": 30.0,
+   "drift_cm": 3.83040197193623,
+   "ground_speed": 0.0,
+   "hover_cm": 0.577064752578735,
+   "kind": "once",
+   "length": 1.66666662693024,
+   "looping": false,
+   "notes": [],
+   "pen_cm": 0.0,
+   "pops": 0,
+   "scale_pct": 1.19209289550781e-05,
+   "seam_cm": 0.0,
+   "seam_deg": 0.0,
+   "slide_max": 19.6531314849854,
+   "slide_mean": 3.6452572807131,
+   "slide_p75": 3.86559295654297,
+   "status": "PASS",
+   "stretch_pct": 0.000603563479018021,
+   "subject": "player_young",
+   "tpose_frames": 0,
+   "upper": false
+  },
+  "Mx_Trav_Climb_Low": {
+   "airborne_s": 0.0,
+   "checks": {
+    "airborne": "PASS",
+    "drift": "WARN",
+    "hover": "PASS",
+    "penetration": "FAIL",
+    "pops": "PASS",
+    "scale": "PASS",
+    "slide": "FAIL",
+    "stretch": "PASS"
+   },
+   "contacts": {
+    "foot_l": [
+     [
+      0,
+      30
+     ]
+    ],
+    "foot_r": [
+     [
+      0,
+      68
+     ]
+    ]
+   },
+   "contacts_fps": 30.0,
+   "drift_cm": 86.2487018108368,
+   "ground_speed": 0.0,
+   "hover_cm": 0.0,
+   "kind": "once",
+   "length": 2.26666665077209,
+   "looping": false,
+   "notes": [
+    "14.7 cm below floor (foot joint)",
+    "planted foot slips 52 cm/s (p75)",
+    "one-shot moves the body 86 cm (baked root motion; snaps back after)"
+   ],
+   "pen_cm": 14.6822214126587,
+   "pops": 0,
+   "scale_pct": 1.19209289550781e-05,
+   "seam_cm": 0.0,
+   "seam_deg": 0.0,
+   "slide_max": 357.721405029297,
+   "slide_mean": 65.4783661810906,
+   "slide_p75": 52.1758804321289,
+   "status": "FAIL",
+   "stretch_pct": 0.000663919826915382,
+   "subject": "player_young",
+   "tpose_frames": 0,
+   "upper": false
+  },
+  "Mx_Trav_Climb_Wall_Up": {
+   "airborne_s": 0.966666666666667,
+   "checks": {
+    "airborne": "FAIL",
+    "hover": "WARN",
+    "penetration": "PASS",
+    "pops": "PASS",
+    "scale": "PASS",
+    "stretch": "PASS"
+   },
+   "contacts": {
+    "foot_l": [],
+    "foot_r": []
+   },
+   "contacts_fps": 30.0,
+   "drift_cm": 7.65842926853111e-06,
+   "ground_speed": 0.0,
+   "hover_cm": 3.9256374835968,
+   "kind": "once",
+   "length": 2.0,
+   "looping": false,
+   "notes": [
+    "feet never touch the floor (lowest 3.9 cm above)",
+    "all feet off the ground for 0.97 s"
+   ],
+   "pen_cm": 0.0,
+   "pops": 0,
+   "scale_pct": 1.19209289550781e-05,
+   "seam_cm": 0.0,
+   "seam_deg": 0.0,
+   "slide_max": -1.0,
+   "slide_mean": -1.0,
+   "slide_p75": -1.0,
+   "status": "FAIL",
+   "stretch_pct": 0.0013263299428079,
+   "subject": "player_young",
+   "tpose_frames": 0,
+   "upper": false
+  },
+  "Mx_Trav_Ladder_Top_Exit": {
+   "airborne_s": 3.46666666666667,
+   "checks": {
+    "airborne": "FAIL",
+    "drift": "WARN",
+    "hover": "FAIL",
+    "penetration": "PASS",
+    "pops": "PASS",
+    "scale": "PASS",
+    "stretch": "PASS"
+   },
+   "contacts": {
+    "foot_l": [],
+    "foot_r": []
+   },
+   "contacts_fps": 30.0,
+   "drift_cm": 122.35027551651,
+   "ground_speed": 0.0,
+   "hover_cm": 9.94473552703857,
+   "kind": "once",
+   "length": 4.0,
+   "looping": false,
+   "notes": [
+    "feet never touch the floor (lowest 9.9 cm above)",
+    "all feet off the ground for 3.47 s",
+    "one-shot moves the body 122 cm (baked root motion; snaps back after)"
+   ],
+   "pen_cm": 0.0,
+   "pops": 0,
+   "scale_pct": 1.19209289550781e-05,
+   "seam_cm": 0.0,
+   "seam_deg": 0.0,
+   "slide_max": -1.0,
+   "slide_mean": -1.0,
+   "slide_p75": -1.0,
+   "status": "FAIL",
+   "stretch_pct": 0.00158422743169462,
+   "subject": "player_young",
+   "tpose_frames": 0,
+   "upper": false
+  },
+  "Mx_Trav_Ledge_Pull_Up": {
+   "airborne_s": 3.56666666666667,
+   "checks": {
+    "airborne": "FAIL",
+    "hover": "FAIL",
+    "penetration": "PASS",
+    "pops": "PASS",
+    "scale": "PASS",
+    "stretch": "PASS"
+   },
+   "contacts": {
+    "foot_l": [],
+    "foot_r": []
+   },
+   "contacts_fps": 30.0,
+   "drift_cm": 34.1721922159195,
+   "ground_speed": 0.0,
+   "hover_cm": 6.53918123245239,
+   "kind": "once",
+   "length": 3.83333325386047,
+   "looping": false,
+   "notes": [
+    "feet never touch the floor (lowest 6.5 cm above)",
+    "all feet off the ground for 3.57 s"
+   ],
+   "pen_cm": 0.0,
+   "pops": 0,
+   "scale_pct": 1.19209289550781e-05,
+   "seam_cm": 0.0,
+   "seam_deg": 0.0,
+   "slide_max": -1.0,
+   "slide_mean": -1.0,
+   "slide_p75": -1.0,
+   "status": "FAIL",
+   "stretch_pct": 0.00140001493963426,
+   "subject": "player_young",
+   "tpose_frames": 0,
+   "upper": false
+  }
+ }
+}

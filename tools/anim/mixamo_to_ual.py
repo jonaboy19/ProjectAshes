@@ -25,6 +25,7 @@ METHOD (the retarget core is kingdom/tools/anim/retarget_bvh.py, shared with the
   * keys: Douglas-Peucker reduction (0.3 deg / 2 mm), linear interpolation, 30 fps.
 POST PASSES (this file, on the baked actions):
   * inplace_z (per clip, e.g. ladder climb): linear vertical travel removed from the pelvis.
+  * lift_m (per clip): constant pelvis height offset after measuring mesh contact (kneel/sit/lie poses).
   * FOOT LOCK: per foot, frames where the ball AND ankle are within 4 cm of the clip floor and move < 0.25 m/s for
     >= 4 frames are a plant; the ankle is pinned (x/y; z never below the plant-start height) with an analytic two-bone IK on thigh/calf (knee stays in its plane), the foot keeps its world rotation,
     5-frame smoothstep blend in/out; the pin is the median ankle position of the plant, plants whose source foot
@@ -188,6 +189,16 @@ def post(g, cfg, foot_lock):
                 pb["pelvis"].matrix = m
                 pb["pelvis"].keyframe_insert("location", frame=f)
             rec["inplace_z_removed_m"] = round(rise, 3)
+        # --- constant vertical offset (lift_m > 0 raises, < 0 lowers): knees / buttocks resting on the floor, lying poses
+        if c.get("lift_m"):
+            dz = (mw.inverted().to_3x3() @ Vector((0, 0, 1))) / mw.to_scale().z
+            for f in range(n):
+                scene.frame_set(f)
+                m = pb["pelvis"].matrix.copy()
+                m.translation = m.translation + dz * float(c["lift_m"])
+                pb["pelvis"].matrix = m
+                pb["pelvis"].keyframe_insert("location", frame=f)
+            rec["lift_m"] = c["lift_m"]
         A, B, P = sample(n)
         floor = min(min(b.z for b in B["l"]), min(b.z for b in B["r"]))
         rec["before"] = [round(x, 3) for x in stance_stats(A, B, floor)[:2]]

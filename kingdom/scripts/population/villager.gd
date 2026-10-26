@@ -145,7 +145,7 @@ const ALONE_CLIPS := ["Life_Ambient_Shift_Weight", "Idle_Subtle"]
 const JOB_CLIPS := [["Life_Farm_Hoe", "Farm_Harvest"], ["Life_Smith_Hammer", "Fixing_Kneeling"], ["Life_Market_Call_Out", "Idle_Talking"],
 	["Life_Guard_Lean_Spear", "Idle_Shield"], ["Life_Carp_Saw", "Interact"], ["Life_Wood_Chop", "TreeChopping"]]
 ## One-shot greeting clips by how the town regards the player.
-const GREET_CLIPS := {"warm": ["Life_Social_Wave_Greet", "Life_Social_Nod"], "neutral": ["Life_Social_Nod", "Head_Nod"],
+const GREET_CLIPS := {"warm": ["Life_Mx_Wave", "Life_Social_Wave_Greet", "Life_Social_Nod"], "neutral": ["Life_Social_Nod", "Head_Nod"],
 	"cold": ["Life_Social_Shake_Head", "Idle_Subtle"]}
 ## Stuck check window and the progress expected in it.
 const STUCK_WINDOW := 1.2
@@ -2430,7 +2430,7 @@ func presence_react(kind: int, target: int, _info: Dictionary) -> void:
 			_react_look_until = now + 1500
 			_react_away_until = 0
 			if kind == K.WAVE:
-				_begin_oneshot(["Life_Social_Wave_Greet", "Life_Social_Nod"], 1.5)
+				_begin_oneshot(["Life_Mx_Wave", "Life_Social_Wave_Greet", "Life_Social_Nod"], 1.5)
 			elif kind == K.BOW:
 				_begin_oneshot(["Life_Mx_Thankful", "Life_Social_Bow", "Life_Social_Nod"] if person % 3 == 0 else ["Life_Social_Bow", "Life_Social_Nod"], 1.4)
 		K.LOOK_AWAY:

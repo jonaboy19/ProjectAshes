@@ -218,6 +218,13 @@ func _physics_process(delta: float) -> void:
 
 
 func _pick_target() -> void:
+	var had := combat_target != null and is_instance_valid(combat_target)
+	_pick_target_inner()
+	if had and combat_target == null and not dead:
+		SoldierAaaScript.sheath_after_fight(self)    # fight over: put the sword away (owner Mixamo Mx_Sword_Sheath)
+
+
+func _pick_target_inner() -> void:
 	if squad and not squad.soldiers.is_empty():
 		combat_target = null if squad.is_routed() else squad.target_for(self)
 		return

@@ -1,0 +1,52 @@
+{
+ "clips": [
+  {
+   "name": "Mx_Get_Up_Knockdown",
+   "file": "get_up_knockdown.fbx",
+   "inplace": "none",
+   "floor": "min"
+  },
+  {
+   "name": "Mx_Sword_Sheath",
+   "file": "sword_sheath.fbx",
+   "inplace": "none"
+  },
+  {
+   "name": "Mx_Sword_Combat_To_Sheath",
+   "file": "sword_combat_to_sheath.fbx",
+   "inplace": "none"
+  },
+  {
+   "name": "Mx_Trav_Climb_Wall_Up",
+   "file": "climb_wall_up_root.fbx",
+   "inplace": "none",
+   "floor": "none",
+   "contact": false,
+   "foot_lock": false
+  },
+  {
+   "name": "Mx_Trav_Ladder_Top_Exit",
+   "file": "ladder_top_exit_root.fbx",
+   "inplace": "none",
+   "floor": "none",
+   "contact": false,
+   "foot_lock": false
+  },
+  {
+   "name": "Mx_Trav_Ledge_Pull_Up",
+   "file": "ledge_pull_up_root.fbx",
+   "inplace": "none",
+   "floor": "none",
+   "contact": false,
+   "foot_lock": false
+  },
+  {
+   "name": "Mx_Trav_Climb_Low",
+   "file": "climb_onto_low_obstacle_root.fbx",
+   "inplace": "none",
+   "floor": "none",
+   "contact": false,
+   "foot_lock": false
+  }
+ ]
+}

@@ -62,7 +62,9 @@ const UAL_FILES := [
 	"res://assets/incoming/animations_free/casting/UAL_Free_CastingElements.glb",
 	# Owner Mixamo set (tools/anim/mixamo_to_ual.py, grades in golden_set.json): Mx_* deaths, draws, bow aim/shoot, dodge,
 	# block idle, crawl, fall, ladder. Root track disabled (UAL_ANIM_DIR).
-	UAL_ANIM_DIR + "mixamo_owner/UAL_Mixamo_Owner.glb"]
+	UAL_ANIM_DIR + "mixamo_owner/UAL_Mixamo_Owner.glb",
+	# Round 2: Mx_Get_Up_Knockdown, Mx_Sword_Sheath, Mx_Sword_Combat_To_Sheath, Mx_Trav_* (travel in the pelvis).
+	UAL_ANIM_DIR + "mixamo_owner/UAL_Mixamo_Owner2.glb"]
 const WEAPONS := Q + "fantasy-props-megakit/Exports/glTF/"
 const HELMET := Q + "lowpoly-animated-knight/FBX/Helmet1.fbx"
 ## Old KayKit clip names -> UAL clips, so gameplay code keeps using one vocabulary.

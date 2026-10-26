@@ -582,13 +582,17 @@
   "player.combat.bow_hold": {
    "category": "combat",
    "primary": "Bow_Hold",
-   "variants": [],
+   "variants": [
+    "Mx_Bow_Aim_Idle"
+   ],
    "fallback": "Idle"
   },
   "player.combat.bow_loose": {
    "category": "combat",
    "primary": "Bow_Loose",
-   "variants": [],
+   "variants": [
+    "Mx_Bow_Shoot"
+   ],
    "fallback": "Idle"
   },
   "player.combat.punch_cross": {
@@ -649,7 +653,9 @@
    "category": "death",
    "primary": "Death01",
    "variants": [
-    "Death_A"
+    "Death_A",
+    "Mx_Death_Left",
+    "Mx_GreatSword_Death"
    ],
    "fallback": "Death01"
   },
@@ -709,7 +715,8 @@
    "category": "interaction",
    "primary": "Idle_Talking",
    "variants": [
-    "Idle_TalkingPhone"
+    "Idle_TalkingPhone",
+    "Life_Mx_Tell_Secret"
    ],
    "fallback": "Idle"
   },
@@ -722,7 +729,9 @@
   "villager.farm_harvest": {
    "category": "interaction",
    "primary": "Farm_Harvest",
-   "variants": [],
+   "variants": [
+    "Life_Mx_Pick_Fruit"
+   ],
    "fallback": "Idle"
   },
   "villager.farm_plant": {
@@ -786,7 +795,9 @@
   "villager.salute": {
    "category": "interaction",
    "primary": "Salute",
-   "variants": [],
+   "variants": [
+    "Life_Mx_Salute"
+   ],
    "fallback": "Idle"
   },
   "villager.lie_down": {

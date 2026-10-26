@@ -1,0 +1,135 @@
+[
+ {
+  "name": "Mx_Get_Up_Knockdown",
+  "loop": false,
+  "seconds": 2.7,
+  "frames": 82,
+  "keys": 2017,
+  "source": "get_up_knockdown.fbx",
+  "range_s": [
+   null,
+   null
+  ],
+  "autotrim": null,
+  "loop_pts": null,
+  "floor_fix_m": 0.05,
+  "contact_lift_m": 0.026,
+  "min_foot_m": -0.002,
+  "travel_m": 0.0,
+  "hip_scale": 0.8509
+ },
+ {
+  "name": "Mx_Sword_Sheath",
+  "loop": false,
+  "seconds": 1.67,
+  "frames": 51,
+  "keys": 1191,
+  "source": "sword_sheath.fbx",
+  "range_s": [
+   null,
+   null
+  ],
+  "autotrim": null,
+  "loop_pts": null,
+  "floor_fix_m": 0.039,
+  "contact_lift_m": 0.0,
+  "min_foot_m": -0.001,
+  "travel_m": 0.0,
+  "hip_scale": 0.8509
+ },
+ {
+  "name": "Mx_Sword_Combat_To_Sheath",
+  "loop": false,
+  "seconds": 1.27,
+  "frames": 39,
+  "keys": 590,
+  "source": "sword_combat_to_sheath.fbx",
+  "range_s": [
+   null,
+   null
+  ],
+  "autotrim": null,
+  "loop_pts": null,
+  "floor_fix_m": 0.052,
+  "contact_lift_m": 0.0,
+  "min_foot_m": -0.002,
+  "travel_m": 0.0,
+  "hip_scale": 0.8509
+ },
+ {
+  "name": "Mx_Trav_Climb_Wall_Up",
+  "loop": false,
+  "seconds": 2.0,
+  "frames": 61,
+  "keys": 1746,
+  "source": "climb_wall_up_root.fbx",
+  "range_s": [
+   null,
+   null
+  ],
+  "autotrim": null,
+  "loop_pts": null,
+  "floor_fix_m": 0.0,
+  "contact_lift_m": 0.0,
+  "min_foot_m": 0.037,
+  "travel_m": 0.0,
+  "hip_scale": 0.8509
+ },
+ {
+  "name": "Mx_Trav_Ladder_Top_Exit",
+  "loop": false,
+  "seconds": 4.0,
+  "frames": 121,
+  "keys": 2941,
+  "source": "ladder_top_exit_root.fbx",
+  "range_s": [
+   null,
+   null
+  ],
+  "autotrim": null,
+  "loop_pts": null,
+  "floor_fix_m": 0.0,
+  "contact_lift_m": 0.0,
+  "min_foot_m": 0.088,
+  "travel_m": 0.0,
+  "hip_scale": 0.8509
+ },
+ {
+  "name": "Mx_Trav_Ledge_Pull_Up",
+  "loop": false,
+  "seconds": 3.83,
+  "frames": 116,
+  "keys": 2046,
+  "source": "ledge_pull_up_root.fbx",
+  "range_s": [
+   null,
+   null
+  ],
+  "autotrim": null,
+  "loop_pts": null,
+  "floor_fix_m": 0.0,
+  "contact_lift_m": 0.0,
+  "min_foot_m": 0.104,
+  "travel_m": 0.0,
+  "hip_scale": 0.8509
+ },
+ {
+  "name": "Mx_Trav_Climb_Low",
+  "loop": false,
+  "seconds": 2.27,
+  "frames": 69,
+  "keys": 1612,
+  "source": "climb_onto_low_obstacle_root.fbx",
+  "range_s": [
+   null,
+   null
+  ],
+  "autotrim": null,
+  "loop_pts": null,
+  "floor_fix_m": 0.0,
+  "contact_lift_m": 0.0,
+  "min_foot_m": -0.141,
+  "travel_m": 0.0,
+  "hip_scale": 0.8509
+ }
+]

@@ -58,3 +58,20 @@ Mixamo, character: any (X Bot), **In Place** ticked where offered, FBX Binary, 3
 - Bartering / market: "Bargaining" , "Counting" (search "Counting Money")
 - Combat with root motion (uncheck In Place) to replace probation clips: "Stable Sword Inward Slash" (re-download without In Place), "Receiving An Uppercut" (root), "Sword And Shield Crouch Block" (block reaction), "Sheath Sword 1" , "Sheath Sword 2"
 - Traversal: "Climbing Up Wall" , "Climbing To Top" (ladder top exit) , "Crawl" (In Place) to replace banned Crawling
+
+| 2026-10-26 | S3.mx round 2 | done | S3.mx2 commit | owner_set2 (33 FBX) -> animations/life/UAL_Life_Mixamo2.glb (26) + animations/mixamo_owner/UAL_Mixamo_Owner2.glb (7). mixamo_to_ual.py gained `lift_m` (constant pelvis offset for kneel/sit/lie). Graded (anim_qa library + sheets docs/qa/golden/mixamo_owner/sheet2_*.jpg, read): GOLD 9 = Life_Mx_Drink, Fiddle, Fish_Idle, Fish_Cast_Reel, Pick_Up, Sit_Chair, Sit_Floor (+9 cm lift, 0 pen), Wave, Mx_Sword_Sheath; PROBATION 13 = Pray_Kneel + Carry_Box_Walk (metrics unscored, visual pass), Pick_Ground (1.8 cm pen), Sit_Chair_Talk (1 pop), Get_Up_Back (10 cm/s), Lift_Heavy (2.6 m/s spike), Plant_Tree, Stand_To_Sit (25 cm/s), Sit_To_Stand (start pose mismatch), Mx_Sword_Combat_To_Sheath, Mx_Trav_Climb_Wall_Up/Ladder_Top_Exit/Ledge_Pull_Up (need wall/ladder geometry review, a93 S3.2 wires them); BANNED 11 = Chop_Wood (11.4 deg seam, 0.12 m/s slide), Lute (no instrument hold, slide), Milk_Cow (float/pen), Plant_Kneel (hands 36 cm in floor), Pull_Plant (21 cm), Scythe (0.5 m/s slide in place), Sleep_Bed (bed height baked, 0.9 m float), Talk_Chat (0.82 m/s spike), Wheelbarrow_Walk (0.78 m/s), Mx_Get_Up_Knockdown (2.8 cm pen, 2.4 m/s spike) so the player getup is NOT repointed, Mx_Trav_Climb_Low (15 cm pen). WIRED (gold/visual-pass only): fishing_spot loop Fish_Idle + between Fish_Cast_Reel, bar_counter between Drink, tavern_table + bench loop Sit_Chair, sit_ground Sit_Floor, musician_spot Fiddle, chapel_kneel Pray_Kneel, field_harvest between Pick_Up, warm greetings + WAVE reaction Life_Mx_Wave first, soldiers sheath (Mx_Sword_Sheath upper) when their last target is gone; golden_slots variants (salute, farm_harvest, talk, death_generic, bow_hold/loose). NOT wired (banned/probation): farm plant/pull/scythe/milk, woodcutter chop, bed sleep + dawn get-up, porters (box carry is probation), knockdown get-up. Windowed Godot clip_gallery: docs/qa/golden/mixamo_owner/godot_clip_gallery_life2_{a,b}.jpg (feet on ground, mug prop in hand). Tests 81 green | Meshy candidates below |
+
+### Meshy text-to-motion candidates (not on Mixamo / round-2 rejects; do NOT spend credits without owner OK)
+
+- Hammering at an anvil (smithing loop, ~1.5 s, two strikes, feet planted)
+- Mining with a pickaxe (overhead swing into a rock face, seamless loop)
+- Chopping wood seamless loop (replacement for banned Life_Mx_Chop_Wood: seam + slide)
+- Stirring a cauldron / cooking pot (loop)
+- Sweeping with a broom (in-place loop)
+- Eating standing and seated (bread/bowl)
+- Kneeling planting / weeding with hands at soil level (replacement for Plant_Kneel / Pull_Plant / Dig And Plant Seeds)
+- Mowing with a scythe in place (stationary swing loop)
+- Milking a cow sitting on a stool
+- Lying asleep on a bed (pelvis ~0.55 m) + getting out of bed
+- Pushing a wheelbarrow (walk cycle with arms on handles)
+- Playing a lute (instrument held at the chest)

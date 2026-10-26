@@ -617,5 +617,236 @@
   "note": "in-place run slides 0.13/0.27 m/s, 8.4 deg seam; locomotion owner already has Mx_SnS_Run",
   "by": "claude (Mixamo owner_set front-view 8-frame check sheet, 25 cm checker floor)",
   "date": "2026-10-26"
+ },
+ "Life_Mx_Drink": {
+  "sheet": "docs/qa/golden/mixamo_owner/sheet2_life_0.jpg",
+  "verdict": "pass",
+  "note": "mug to mouth and back, feet planted, seam 0.5 deg",
+  "by": "claude (Mixamo owner_set2 front-view 8-frame check sheet, 25 cm checker floor)",
+  "date": "2026-10-26"
+ },
+ "Life_Mx_Fiddle": {
+  "sheet": "docs/qa/golden/mixamo_owner/sheet2_life_0.jpg",
+  "verdict": "pass",
+  "note": "fiddle under the chin, bowing arm reads, 40 s loop, feet planted",
+  "by": "claude (Mixamo owner_set2 front-view 8-frame check sheet, 25 cm checker floor)",
+  "date": "2026-10-26"
+ },
+ "Life_Mx_Fish_Idle": {
+  "sheet": "docs/qa/golden/mixamo_owner/sheet2_life_0.jpg",
+  "verdict": "pass",
+  "note": "rod held at the waist, feet planted",
+  "by": "claude (Mixamo owner_set2 front-view 8-frame check sheet, 25 cm checker floor)",
+  "date": "2026-10-26"
+ },
+ "Life_Mx_Fish_Cast_Reel": {
+  "sheet": "docs/qa/golden/mixamo_owner/sheet2_life_0.jpg",
+  "verdict": "pass",
+  "note": "overhead cast with a short step then reel; slide 4.8 cm/s is the cast step",
+  "by": "claude (Mixamo owner_set2 front-view 8-frame check sheet, 25 cm checker floor)",
+  "date": "2026-10-26"
+ },
+ "Life_Mx_Pick_Up": {
+  "sheet": "docs/qa/golden/mixamo_owner/sheet2_life_1.jpg",
+  "verdict": "pass",
+  "note": "bend and pick up, back up; feet planted",
+  "by": "claude (Mixamo owner_set2 front-view 8-frame check sheet, 25 cm checker floor)",
+  "date": "2026-10-26"
+ },
+ "Life_Mx_Sit_Chair": {
+  "sheet": "docs/qa/golden/mixamo_owner/sheet2_life_2.jpg",
+  "verdict": "pass",
+  "note": "seated hands on knees, no motion issues (needs a 0.45 m seat)",
+  "by": "claude (Mixamo owner_set2 front-view 8-frame check sheet, 25 cm checker floor)",
+  "date": "2026-10-26"
+ },
+ "Life_Mx_Sit_Floor": {
+  "sheet": "docs/qa/golden/mixamo_owner/sheet2_life_3.jpg",
+  "verdict": "pass",
+  "note": "cross-legged on the ground after +9 cm lift; 0 cm penetration",
+  "by": "claude (Mixamo owner_set2 front-view 8-frame check sheet, 25 cm checker floor)",
+  "date": "2026-10-26"
+ },
+ "Life_Mx_Wave": {
+  "sheet": "docs/qa/golden/mixamo_owner/sheet2_life_4.jpg",
+  "verdict": "pass",
+  "note": "friendly raised-hand wave, feet planted, seam 1.8 deg",
+  "by": "claude (Mixamo owner_set2 front-view 8-frame check sheet, 25 cm checker floor)",
+  "date": "2026-10-26"
+ },
+ "Mx_Sword_Sheath": {
+  "sheet": "docs/qa/golden/mixamo_owner/sheet2_combat_0.jpg",
+  "verdict": "pass",
+  "note": "sword back to the left hip, feet planted (3.6 cm/s)",
+  "by": "claude (Mixamo owner_set2 front-view 8-frame check sheet, 25 cm checker floor)",
+  "date": "2026-10-26"
+ },
+ "Life_Mx_Pray_Kneel": {
+  "sheet": "docs/qa/golden/mixamo_owner/sheet2_life_2.jpg",
+  "verdict": "pass",
+  "note": "kneel, hands together; knees on the floor after +4.5 cm lift (probation only because the metric has no ground-speed reference)",
+  "by": "claude (Mixamo owner_set2 front-view 8-frame check sheet, 25 cm checker floor)",
+  "date": "2026-10-26"
+ },
+ "Life_Mx_Carry_Box_Walk": {
+  "sheet": "docs/qa/golden/mixamo_owner/sheet2_life_0.jpg",
+  "verdict": "pass",
+  "note": "source has no travel: standing box-carry pose (arms at the chest), usable as an upper-body carry layer; metrics unscored",
+  "by": "claude (Mixamo owner_set2 front-view 8-frame check sheet, 25 cm checker floor)",
+  "date": "2026-10-26"
+ },
+ "Life_Mx_Pick_Ground": {
+  "sheet": "docs/qa/golden/mixamo_owner/sheet2_life_1.jpg",
+  "verdict": "hold",
+  "note": "1.8 cm penetration and 3.6 m/s slide spike while kneeling",
+  "by": "claude (Mixamo owner_set2 front-view 8-frame check sheet, 25 cm checker floor)",
+  "date": "2026-10-26"
+ },
+ "Life_Mx_Sit_Chair_Talk": {
+  "sheet": "docs/qa/golden/mixamo_owner/sheet2_life_3.jpg",
+  "verdict": "hold",
+  "note": "1 pop in 45 s",
+  "by": "claude (Mixamo owner_set2 front-view 8-frame check sheet, 25 cm checker floor)",
+  "date": "2026-10-26"
+ },
+ "Life_Mx_Get_Up_Back": {
+  "sheet": "docs/qa/golden/mixamo_owner/sheet2_life_1.jpg",
+  "verdict": "hold",
+  "note": "10 cm/s foot slide while rising",
+  "by": "claude (Mixamo owner_set2 front-view 8-frame check sheet, 25 cm checker floor)",
+  "date": "2026-10-26"
+ },
+ "Life_Mx_Lift_Heavy": {
+  "sheet": "docs/qa/golden/mixamo_owner/sheet2_life_1.jpg",
+  "verdict": "hold",
+  "note": "2.6 m/s slide spike on the squat step",
+  "by": "claude (Mixamo owner_set2 front-view 8-frame check sheet, 25 cm checker floor)",
+  "date": "2026-10-26"
+ },
+ "Life_Mx_Plant_Tree": {
+  "sheet": "docs/qa/golden/mixamo_owner/sheet2_life_2.jpg",
+  "verdict": "hold",
+  "note": "8.7 cm/s mean / 0.93 m/s max slide on the stepping",
+  "by": "claude (Mixamo owner_set2 front-view 8-frame check sheet, 25 cm checker floor)",
+  "date": "2026-10-26"
+ },
+ "Life_Mx_Stand_To_Sit": {
+  "sheet": "docs/qa/golden/mixamo_owner/sheet2_life_3.jpg",
+  "verdict": "hold",
+  "note": "25 cm/s slide (steps back to the chair)",
+  "by": "claude (Mixamo owner_set2 front-view 8-frame check sheet, 25 cm checker floor)",
+  "date": "2026-10-26"
+ },
+ "Life_Mx_Sit_To_Stand": {
+  "sheet": "docs/qa/golden/mixamo_owner/sheet2_life_3.jpg",
+  "verdict": "hold",
+  "note": "first frame is already half-standing; does not match Life_Mx_Sit_Chair",
+  "by": "claude (Mixamo owner_set2 front-view 8-frame check sheet, 25 cm checker floor)",
+  "date": "2026-10-26"
+ },
+ "Mx_Sword_Combat_To_Sheath": {
+  "sheet": "docs/qa/golden/mixamo_owner/sheet2_combat_0.jpg",
+  "verdict": "hold",
+  "note": "10.7 cm/s / 0.78 m/s slide on the step out of guard",
+  "by": "claude (Mixamo owner_set2 front-view 8-frame check sheet, 25 cm checker floor)",
+  "date": "2026-10-26"
+ },
+ "Mx_Trav_Climb_Wall_Up": {
+  "sheet": "docs/qa/golden/mixamo_owner/sheet2_combat_0.jpg",
+  "verdict": "hold",
+  "note": "pose sequence clean; needs the wall rig (traversal owner S3.2) to verify hand/foot contacts",
+  "by": "claude (Mixamo owner_set2 front-view 8-frame check sheet, 25 cm checker floor)",
+  "date": "2026-10-26"
+ },
+ "Mx_Trav_Ladder_Top_Exit": {
+  "sheet": "docs/qa/golden/mixamo_owner/sheet2_combat_0.jpg",
+  "verdict": "hold",
+  "note": "pose sequence clean; needs ladder geometry review (S3.2)",
+  "by": "claude (Mixamo owner_set2 front-view 8-frame check sheet, 25 cm checker floor)",
+  "date": "2026-10-26"
+ },
+ "Mx_Trav_Ledge_Pull_Up": {
+  "sheet": "docs/qa/golden/mixamo_owner/sheet2_combat_1.jpg",
+  "verdict": "hold",
+  "note": "pose sequence clean; needs ledge geometry review (S3.2)",
+  "by": "claude (Mixamo owner_set2 front-view 8-frame check sheet, 25 cm checker floor)",
+  "date": "2026-10-26"
+ },
+ "Life_Mx_Chop_Wood": {
+  "sheet": "docs/qa/golden/mixamo_owner/sheet2_life_0.jpg",
+  "verdict": "fail",
+  "note": "11.4 deg loop seam and 0.12/0.55 m/s slide (native and crossfaded loop both fail); the swing itself reads well - reauthor a seamless cycle",
+  "by": "claude (Mixamo owner_set2 front-view 8-frame check sheet, 25 cm checker floor)",
+  "date": "2026-10-26"
+ },
+ "Life_Mx_Lute": {
+  "sheet": "docs/qa/golden/mixamo_owner/sheet2_life_1.jpg",
+  "verdict": "fail",
+  "note": "0.16-0.20 m/s slide spike, 5 deg seam, and the pose does not hold an instrument (arms hang)",
+  "by": "claude (Mixamo owner_set2 front-view 8-frame check sheet, 25 cm checker floor)",
+  "date": "2026-10-26"
+ },
+ "Life_Mx_Milk_Cow": {
+  "sheet": "docs/qa/golden/mixamo_owner/sheet2_life_1.jpg",
+  "verdict": "fail",
+  "note": "4.1 cm float as retargeted, 21 cm penetration when lowered (deep squat: feet vs pelvis)",
+  "by": "claude (Mixamo owner_set2 front-view 8-frame check sheet, 25 cm checker floor)",
+  "date": "2026-10-26"
+ },
+ "Life_Mx_Plant_Kneel": {
+  "sheet": "docs/qa/golden/mixamo_owner/sheet2_life_2.jpg",
+  "verdict": "fail",
+  "note": "hands 36 cm through the floor",
+  "by": "claude (Mixamo owner_set2 front-view 8-frame check sheet, 25 cm checker floor)",
+  "date": "2026-10-26"
+ },
+ "Life_Mx_Pull_Plant": {
+  "sheet": "docs/qa/golden/mixamo_owner/sheet2_life_2.jpg",
+  "verdict": "fail",
+  "note": "hands 21 cm through the floor",
+  "by": "claude (Mixamo owner_set2 front-view 8-frame check sheet, 25 cm checker floor)",
+  "date": "2026-10-26"
+ },
+ "Life_Mx_Scythe": {
+  "sheet": "docs/qa/golden/mixamo_owner/sheet2_life_2.jpg",
+  "verdict": "fail",
+  "note": "in-place scythe slides 0.5/1.2 m/s (source walks forward)",
+  "by": "claude (Mixamo owner_set2 front-view 8-frame check sheet, 25 cm checker floor)",
+  "date": "2026-10-26"
+ },
+ "Life_Mx_Sleep_Bed": {
+  "sheet": "docs/qa/golden/mixamo_owner/sheet2_life_3.jpg",
+  "verdict": "fail",
+  "note": "lying 0.9 m above the floor (bed height baked in); lowering breaks contact - needs a bed-anchored version",
+  "by": "claude (Mixamo owner_set2 front-view 8-frame check sheet, 25 cm checker floor)",
+  "date": "2026-10-26"
+ },
+ "Life_Mx_Talk_Chat": {
+  "sheet": "docs/qa/golden/mixamo_owner/sheet2_life_3.jpg",
+  "verdict": "fail",
+  "note": "0.82 m/s slide spike (shuffle step) in the 44 s take",
+  "by": "claude (Mixamo owner_set2 front-view 8-frame check sheet, 25 cm checker floor)",
+  "date": "2026-10-26"
+ },
+ "Life_Mx_Wheelbarrow_Walk": {
+  "sheet": "docs/qa/golden/mixamo_owner/sheet2_life_4.jpg",
+  "verdict": "fail",
+  "note": "in-place walk slides 0.78/5.95 m/s; no handle pose",
+  "by": "claude (Mixamo owner_set2 front-view 8-frame check sheet, 25 cm checker floor)",
+  "date": "2026-10-26"
+ },
+ "Mx_Get_Up_Knockdown": {
+  "sheet": "docs/qa/golden/mixamo_owner/sheet2_combat_0.jpg",
+  "verdict": "fail",
+  "note": "2.8 cm penetration + 2.4 m/s slide spike",
+  "by": "claude (Mixamo owner_set2 front-view 8-frame check sheet, 25 cm checker floor)",
+  "date": "2026-10-26"
+ },
+ "Mx_Trav_Climb_Low": {
+  "sheet": "docs/qa/golden/mixamo_owner/sheet2_combat_0.jpg",
+  "verdict": "fail",
+  "note": "14.7 cm through the floor at the vault (no obstacle in the source floor plane), 0.65 m/s slide",
+  "by": "claude (Mixamo owner_set2 front-view 8-frame check sheet, 25 cm checker floor)",
+  "date": "2026-10-26"
  }
 }

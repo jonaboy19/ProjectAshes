@@ -1,0 +1,212 @@
+{
+ "map": {
+  "pelvis": "Hips",
+  "spine_01": "Spine",
+  "spine_02": "Spine1",
+  "spine_03": "Spine2",
+  "neck_01": "Neck",
+  "Head": "Head",
+  "clavicle_l": "LeftShoulder",
+  "upperarm_l": "LeftArm",
+  "lowerarm_l": "LeftForeArm",
+  "hand_l": "LeftHand",
+  "thigh_l": "LeftUpLeg",
+  "calf_l": "LeftLeg",
+  "foot_l": "LeftFoot",
+  "ball_l": "LeftToeBase",
+  "thumb_01_l": "LeftHandThumb1",
+  "thumb_02_l": "LeftHandThumb2",
+  "thumb_03_l": "LeftHandThumb3",
+  "index_01_l": "LeftHandIndex1",
+  "index_02_l": "LeftHandIndex2",
+  "index_03_l": "LeftHandIndex3",
+  "middle_01_l": "LeftHandMiddle1",
+  "middle_02_l": "LeftHandMiddle2",
+  "middle_03_l": "LeftHandMiddle3",
+  "ring_01_l": "LeftHandRing1",
+  "ring_02_l": "LeftHandRing2",
+  "ring_03_l": "LeftHandRing3",
+  "pinky_01_l": "LeftHandPinky1",
+  "pinky_02_l": "LeftHandPinky2",
+  "pinky_03_l": "LeftHandPinky3",
+  "clavicle_r": "RightShoulder",
+  "upperarm_r": "RightArm",
+  "lowerarm_r": "RightForeArm",
+  "hand_r": "RightHand",
+  "thigh_r": "RightUpLeg",
+  "calf_r": "RightLeg",
+  "foot_r": "RightFoot",
+  "ball_r": "RightToeBase",
+  "thumb_01_r": "RightHandThumb1",
+  "thumb_02_r": "RightHandThumb2",
+  "thumb_03_r": "RightHandThumb3",
+  "index_01_r": "RightHandIndex1",
+  "index_02_r": "RightHandIndex2",
+  "index_03_r": "RightHandIndex3",
+  "middle_01_r": "RightHandMiddle1",
+  "middle_02_r": "RightHandMiddle2",
+  "middle_03_r": "RightHandMiddle3",
+  "ring_01_r": "RightHandRing1",
+  "ring_02_r": "RightHandRing2",
+  "ring_03_r": "RightHandRing3",
+  "pinky_01_r": "RightHandPinky1",
+  "pinky_02_r": "RightHandPinky2",
+  "pinky_03_r": "RightHandPinky3"
+ },
+ "clips": {
+  "Mx_Get_Up_Knockdown": {
+   "before": [
+    0.186,
+    1.75
+   ],
+   "after": [
+    0.206,
+    2.614
+   ],
+   "stance_frames": 82,
+   "locked_frames": 99,
+   "hand_seam_cm": 65.5,
+   "frames": 82,
+   "source": "get_up_knockdown.fbx",
+   "seconds": 2.7,
+   "floor_fix_m": 0.05,
+   "contact_lift_m": 0.026,
+   "min_foot_m": -0.002,
+   "travel_m": 0.0,
+   "hip_scale": 0.8509,
+   "loop": false
+  },
+  "Mx_Sword_Sheath": {
+   "before": [
+    0.069,
+    0.269
+   ],
+   "after": [
+    0.019,
+    0.174
+   ],
+   "stance_frames": 100,
+   "locked_frames": 111,
+   "hand_seam_cm": 28.8,
+   "frames": 51,
+   "source": "sword_sheath.fbx",
+   "seconds": 1.67,
+   "floor_fix_m": 0.039,
+   "contact_lift_m": 0.0,
+   "min_foot_m": -0.001,
+   "travel_m": 0.0,
+   "hip_scale": 0.8509,
+   "loop": false
+  },
+  "Mx_Sword_Combat_To_Sheath": {
+   "before": [
+    0.322,
+    2.4
+   ],
+   "after": [
+    0.304,
+    3.44
+   ],
+   "stance_frames": 73,
+   "locked_frames": 79,
+   "hand_seam_cm": 69.0,
+   "frames": 39,
+   "source": "sword_combat_to_sheath.fbx",
+   "seconds": 1.27,
+   "floor_fix_m": 0.052,
+   "contact_lift_m": 0.0,
+   "min_foot_m": -0.002,
+   "travel_m": 0.0,
+   "hip_scale": 0.8509,
+   "loop": false
+  },
+  "Mx_Trav_Climb_Wall_Up": {
+   "before": [
+    0.583,
+    0.7
+   ],
+   "after": [
+    0.583,
+    0.7
+   ],
+   "stance_frames": 3,
+   "locked_frames": 0,
+   "hand_seam_cm": 0.0,
+   "frames": 61,
+   "source": "climb_wall_up_root.fbx",
+   "seconds": 2.0,
+   "floor_fix_m": 0.0,
+   "contact_lift_m": 0.0,
+   "min_foot_m": 0.037,
+   "travel_m": 0.0,
+   "hip_scale": 0.8509,
+   "loop": false
+  },
+  "Mx_Trav_Ladder_Top_Exit": {
+   "before": [
+    0.079,
+    0.175
+   ],
+   "after": [
+    0.079,
+    0.175
+   ],
+   "stance_frames": 15,
+   "locked_frames": 0,
+   "hand_seam_cm": 78.2,
+   "frames": 121,
+   "source": "ladder_top_exit_root.fbx",
+   "seconds": 4.0,
+   "floor_fix_m": 0.0,
+   "contact_lift_m": 0.0,
+   "min_foot_m": 0.088,
+   "travel_m": 0.0,
+   "hip_scale": 0.8509,
+   "loop": false
+  },
+  "Mx_Trav_Ledge_Pull_Up": {
+   "before": [
+    0.242,
+    0.798
+   ],
+   "after": [
+    0.242,
+    0.798
+   ],
+   "stance_frames": 13,
+   "locked_frames": 0,
+   "hand_seam_cm": 163.4,
+   "frames": 116,
+   "source": "ledge_pull_up_root.fbx",
+   "seconds": 3.83,
+   "floor_fix_m": 0.0,
+   "contact_lift_m": 0.0,
+   "min_foot_m": 0.104,
+   "travel_m": 0.0,
+   "hip_scale": 0.8509,
+   "loop": false
+  },
+  "Mx_Trav_Climb_Low": {
+   "before": [
+    0.069,
+    0.183
+   ],
+   "after": [
+    0.069,
+    0.183
+   ],
+   "stance_frames": 24,
+   "locked_frames": 0,
+   "hand_seam_cm": 65.4,
+   "frames": 69,
+   "source": "climb_onto_low_obstacle_root.fbx",
+   "seconds": 2.27,
+   "floor_fix_m": 0.0,
+   "contact_lift_m": 0.0,
+   "min_foot_m": -0.141,
+   "travel_m": 0.0,
+   "hip_scale": 0.8509,
+   "loop": false
+  }
+ }
+}

@@ -61,3 +61,12 @@ static func death_clip(soldier: Node, keep: Array, side: String) -> String:
 	elif side == "Right":
 		clip = "Mx_Death_Left"
 	return clip if _has(soldier, clip) else "Death01"
+
+
+## The fight is over (no target left): upper-body sword sheath, once per disengage. No-op without the clip.
+static func sheath_after_fight(soldier: Node) -> void:
+	if not _has(soldier, "Mx_Sword_Sheath"):
+		return
+	var animator: Variant = soldier.get("_animator")
+	if animator != null:
+		animator.call("play_upper", "Mx_Sword_Sheath", 1.0)

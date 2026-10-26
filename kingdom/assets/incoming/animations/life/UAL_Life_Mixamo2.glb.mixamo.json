@@ -1,0 +1,634 @@
+{
+ "map": {
+  "pelvis": "Hips",
+  "spine_01": "Spine",
+  "spine_02": "Spine1",
+  "spine_03": "Spine2",
+  "neck_01": "Neck",
+  "Head": "Head",
+  "clavicle_l": "LeftShoulder",
+  "upperarm_l": "LeftArm",
+  "lowerarm_l": "LeftForeArm",
+  "hand_l": "LeftHand",
+  "thigh_l": "LeftUpLeg",
+  "calf_l": "LeftLeg",
+  "foot_l": "LeftFoot",
+  "ball_l": "LeftToeBase",
+  "thumb_01_l": "LeftHandThumb1",
+  "thumb_02_l": "LeftHandThumb2",
+  "thumb_03_l": "LeftHandThumb3",
+  "index_01_l": "LeftHandIndex1",
+  "index_02_l": "LeftHandIndex2",
+  "index_03_l": "LeftHandIndex3",
+  "middle_01_l": "LeftHandMiddle1",
+  "middle_02_l": "LeftHandMiddle2",
+  "middle_03_l": "LeftHandMiddle3",
+  "ring_01_l": "LeftHandRing1",
+  "ring_02_l": "LeftHandRing2",
+  "ring_03_l": "LeftHandRing3",
+  "pinky_01_l": "LeftHandPinky1",
+  "pinky_02_l": "LeftHandPinky2",
+  "pinky_03_l": "LeftHandPinky3",
+  "clavicle_r": "RightShoulder",
+  "upperarm_r": "RightArm",
+  "lowerarm_r": "RightForeArm",
+  "hand_r": "RightHand",
+  "thigh_r": "RightUpLeg",
+  "calf_r": "RightLeg",
+  "foot_r": "RightFoot",
+  "ball_r": "RightToeBase",
+  "thumb_01_r": "RightHandThumb1",
+  "thumb_02_r": "RightHandThumb2",
+  "thumb_03_r": "RightHandThumb3",
+  "index_01_r": "RightHandIndex1",
+  "index_02_r": "RightHandIndex2",
+  "index_03_r": "RightHandIndex3",
+  "middle_01_r": "RightHandMiddle1",
+  "middle_02_r": "RightHandMiddle2",
+  "middle_03_r": "RightHandMiddle3",
+  "ring_01_r": "RightHandRing1",
+  "ring_02_r": "RightHandRing2",
+  "ring_03_r": "RightHandRing3",
+  "pinky_01_r": "RightHandPinky1",
+  "pinky_02_r": "RightHandPinky2",
+  "pinky_03_r": "RightHandPinky3"
+ },
+ "clips": {
+  "Life_Mx_Chop_Wood_Loop": {
+   "before": [
+    0.149,
+    0.371
+   ],
+   "after": [
+    0.091,
+    0.504
+   ],
+   "stance_frames": 45,
+   "locked_frames": 106,
+   "hand_seam_cm": 0.0,
+   "frames": 62,
+   "source": "chop_wood_axe_downward.fbx",
+   "seconds": 2.03,
+   "floor_fix_m": 0.068,
+   "contact_lift_m": 0.0,
+   "min_foot_m": -0.003,
+   "travel_m": 0.0,
+   "hip_scale": 0.8509,
+   "loop": true
+  },
+  "Life_Mx_Plant_Kneel_Loop": {
+   "before": [
+    0.036,
+    0.086
+   ],
+   "after": [
+    0.0,
+    0.0
+   ],
+   "stance_frames": 0,
+   "locked_frames": 169,
+   "hand_seam_cm": 0.4,
+   "frames": 227,
+   "source": "plant_kneeling.fbx",
+   "seconds": 7.53,
+   "floor_fix_m": 0.004,
+   "contact_lift_m": 0.0,
+   "min_foot_m": -0.012,
+   "travel_m": 0.0,
+   "hip_scale": 0.8509,
+   "loop": true
+  },
+  "Life_Mx_Plant_Tree": {
+   "before": [
+    0.066,
+    0.265
+   ],
+   "after": [
+    0.073,
+    0.265
+   ],
+   "stance_frames": 56,
+   "locked_frames": 182,
+   "hand_seam_cm": 0.0,
+   "frames": 279,
+   "source": "plant_tree_standing.fbx",
+   "seconds": 9.27,
+   "floor_fix_m": 0.101,
+   "contact_lift_m": 0.0,
+   "min_foot_m": -0.002,
+   "travel_m": 0.0,
+   "hip_scale": 0.8509,
+   "loop": false
+  },
+  "Life_Mx_Pull_Plant_Loop": {
+   "before": [
+    0.025,
+    0.09
+   ],
+   "after": [
+    0.0,
+    0.0
+   ],
+   "stance_frames": 0,
+   "locked_frames": 139,
+   "hand_seam_cm": 0.3,
+   "frames": 142,
+   "source": "pull_plant_kneeling.fbx",
+   "seconds": 4.7,
+   "floor_fix_m": -0.035,
+   "contact_lift_m": 0.0,
+   "min_foot_m": -0.0,
+   "travel_m": 0.0,
+   "hip_scale": 0.8509,
+   "loop": true
+  },
+  "Life_Mx_Scythe_Loop": {
+   "before": [
+    0.19,
+    1.681
+   ],
+   "after": [
+    0.143,
+    1.099
+   ],
+   "stance_frames": 120,
+   "locked_frames": 144,
+   "hand_seam_cm": 2.9,
+   "frames": 72,
+   "source": "harvest_scythe.fbx",
+   "seconds": 2.37,
+   "floor_fix_m": 0.061,
+   "contact_lift_m": 0.0,
+   "min_foot_m": -0.0,
+   "travel_m": 0.85,
+   "hip_scale": 0.8509,
+   "loop": true
+  },
+  "Life_Mx_Milk_Cow_Loop": {
+   "lift_m": -0.04,
+   "before": [
+    0.005,
+    0.008
+   ],
+   "after": [
+    0.005,
+    0.014
+   ],
+   "stance_frames": 10,
+   "locked_frames": 64,
+   "hand_seam_cm": 0.8,
+   "frames": 136,
+   "source": "milking_cow.fbx",
+   "seconds": 4.5,
+   "floor_fix_m": 0.047,
+   "contact_lift_m": 0.0,
+   "min_foot_m": -0.0,
+   "travel_m": 0.0,
+   "hip_scale": 0.8509,
+   "loop": true
+  },
+  "Life_Mx_Pick_Ground": {
+   "before": [
+    0.098,
+    1.62
+   ],
+   "after": [
+    0.042,
+    1.054
+   ],
+   "stance_frames": 111,
+   "locked_frames": 284,
+   "hand_seam_cm": 0.0,
+   "frames": 214,
+   "source": "pick_from_ground.fbx",
+   "seconds": 7.1,
+   "floor_fix_m": 0.074,
+   "contact_lift_m": 0.0,
+   "min_foot_m": -0.001,
+   "travel_m": 0.0,
+   "hip_scale": 0.8509,
+   "loop": false
+  },
+  "Life_Mx_Pick_Up": {
+   "before": [
+    0.042,
+    0.187
+   ],
+   "after": [
+    0.0,
+    0.0
+   ],
+   "stance_frames": 0,
+   "locked_frames": 204,
+   "hand_seam_cm": 18.6,
+   "frames": 288,
+   "source": "pick_up_object.fbx",
+   "seconds": 9.57,
+   "floor_fix_m": 0.103,
+   "contact_lift_m": 0.0,
+   "min_foot_m": -0.003,
+   "travel_m": 0.0,
+   "hip_scale": 0.8509,
+   "loop": false
+  },
+  "Life_Mx_Lift_Heavy": {
+   "before": [
+    0.071,
+    1.615
+   ],
+   "after": [
+    0.056,
+    2.15
+   ],
+   "stance_frames": 282,
+   "locked_frames": 325,
+   "hand_seam_cm": 0.0,
+   "frames": 346,
+   "source": "lift_heavy_object.fbx",
+   "seconds": 11.5,
+   "floor_fix_m": 0.067,
+   "contact_lift_m": 0.0,
+   "min_foot_m": -0.003,
+   "travel_m": 0.0,
+   "hip_scale": 0.8509,
+   "loop": false
+  },
+  "Life_Mx_Carry_Box_Walk_Loop": {
+   "before": [
+    0.038,
+    0.309
+   ],
+   "after": [
+    0.012,
+    0.24
+   ],
+   "stance_frames": 376,
+   "locked_frames": 378,
+   "hand_seam_cm": 0.0,
+   "frames": 189,
+   "source": "carry_box_walk_root.fbx",
+   "seconds": 6.27,
+   "floor_fix_m": 0.029,
+   "contact_lift_m": 0.0,
+   "min_foot_m": -0.0,
+   "travel_m": 0.0,
+   "hip_scale": 0.8509,
+   "loop": true
+  },
+  "Life_Mx_Wheelbarrow_Walk_Loop": {
+   "before": [
+    0.531,
+    5.363
+   ],
+   "after": [
+    0.573,
+    5.969
+   ],
+   "stance_frames": 32,
+   "locked_frames": 46,
+   "hand_seam_cm": 0.7,
+   "frames": 29,
+   "source": "wheelbarrow_walk_full.fbx",
+   "seconds": 0.93,
+   "floor_fix_m": 0.08,
+   "contact_lift_m": 0.0,
+   "min_foot_m": 0.0,
+   "travel_m": 1.34,
+   "hip_scale": 0.8509,
+   "loop": true
+  },
+  "Life_Mx_Fish_Idle_Loop": {
+   "before": [
+    0.008,
+    0.254
+   ],
+   "after": [
+    0.003,
+    0.153
+   ],
+   "stance_frames": 210,
+   "locked_frames": 212,
+   "hand_seam_cm": 0.0,
+   "frames": 106,
+   "source": "fishing_idle.fbx",
+   "seconds": 3.5,
+   "floor_fix_m": 0.04,
+   "contact_lift_m": 0.0,
+   "min_foot_m": -0.0,
+   "travel_m": 0.0,
+   "hip_scale": 0.8509,
+   "loop": true
+  },
+  "Life_Mx_Fish_Cast_Reel": {
+   "before": [
+    0.05,
+    0.228
+   ],
+   "after": [
+    0.052,
+    0.323
+   ],
+   "stance_frames": 182,
+   "locked_frames": 450,
+   "hand_seam_cm": 0.0,
+   "frames": 264,
+   "source": "fishing_cast_reel.fbx",
+   "seconds": 8.77,
+   "floor_fix_m": 0.055,
+   "contact_lift_m": 0.0,
+   "min_foot_m": -0.001,
+   "travel_m": 0.0,
+   "hip_scale": 0.8509,
+   "loop": false
+  },
+  "Life_Mx_Sit_Chair_Loop": {
+   "before": [
+    0.0,
+    0.0
+   ],
+   "after": [
+    0.0,
+    0.0
+   ],
+   "stance_frames": 176,
+   "locked_frames": 178,
+   "hand_seam_cm": 0.0,
+   "frames": 89,
+   "source": "sit_chair_idle.fbx",
+   "seconds": 2.93,
+   "floor_fix_m": 0.029,
+   "contact_lift_m": 0.0,
+   "min_foot_m": -0.0,
+   "travel_m": 0.0,
+   "hip_scale": 0.8509,
+   "loop": true
+  },
+  "Life_Mx_Sit_Chair_Talk_Loop": {
+   "before": [
+    0.007,
+    0.067
+   ],
+   "after": [
+    0.002,
+    0.014
+   ],
+   "stance_frames": 1348,
+   "locked_frames": 1349,
+   "hand_seam_cm": 0.0,
+   "frames": 1349,
+   "source": "sit_chair_talking.fbx",
+   "seconds": 44.93,
+   "floor_fix_m": 0.013,
+   "contact_lift_m": 0.0,
+   "min_foot_m": -0.001,
+   "travel_m": 0.0,
+   "hip_scale": 0.8509,
+   "loop": true
+  },
+  "Life_Mx_Sit_Floor_Loop": {
+   "lift_m": 0.09,
+   "before": [
+    0.0,
+    0.0
+   ],
+   "after": [
+    0.0,
+    0.0
+   ],
+   "stance_frames": 0,
+   "locked_frames": 0,
+   "hand_seam_cm": 0.0,
+   "frames": 326,
+   "source": "sit_floor.fbx",
+   "seconds": 10.83,
+   "floor_fix_m": -0.036,
+   "contact_lift_m": 0.0,
+   "min_foot_m": -0.0,
+   "travel_m": 0.0,
+   "hip_scale": 0.8509,
+   "loop": true
+  },
+  "Life_Mx_Stand_To_Sit": {
+   "before": [
+    0.139,
+    0.422
+   ],
+   "after": [
+    0.095,
+    0.581
+   ],
+   "stance_frames": 78,
+   "locked_frames": 102,
+   "hand_seam_cm": 42.0,
+   "frames": 68,
+   "source": "stand_to_sit_chair.fbx",
+   "seconds": 2.23,
+   "floor_fix_m": 0.062,
+   "contact_lift_m": 0.0,
+   "min_foot_m": -0.001,
+   "travel_m": 0.0,
+   "hip_scale": 0.8509,
+   "loop": false
+  },
+  "Life_Mx_Sit_To_Stand": {
+   "before": [
+    0.034,
+    0.213
+   ],
+   "after": [
+    0.0,
+    0.0
+   ],
+   "stance_frames": 0,
+   "locked_frames": 278,
+   "hand_seam_cm": 3.8,
+   "frames": 146,
+   "source": "sit_to_stand_chair.fbx",
+   "seconds": 4.83,
+   "floor_fix_m": 0.054,
+   "contact_lift_m": 0.0,
+   "min_foot_m": -0.002,
+   "travel_m": 0.0,
+   "hip_scale": 0.8509,
+   "loop": false
+  },
+  "Life_Mx_Sleep_Bed_Loop": {
+   "lift_m": -0.9,
+   "before": [
+    0.0,
+    0.0
+   ],
+   "after": [
+    0.0,
+    0.0
+   ],
+   "stance_frames": 0,
+   "locked_frames": 0,
+   "hand_seam_cm": 0.0,
+   "frames": 51,
+   "source": "sleep_on_bed.fbx",
+   "seconds": 1.67,
+   "floor_fix_m": 0.0,
+   "contact_lift_m": 0.0,
+   "min_foot_m": 0.815,
+   "travel_m": 0.0,
+   "hip_scale": 0.8509,
+   "loop": true
+  },
+  "Life_Mx_Get_Up_Back": {
+   "before": [
+    0.043,
+    0.201
+   ],
+   "after": [
+    0.01,
+    0.05
+   ],
+   "stance_frames": 88,
+   "locked_frames": 207,
+   "hand_seam_cm": 67.9,
+   "frames": 249,
+   "source": "get_up_from_back.fbx",
+   "seconds": 8.27,
+   "floor_fix_m": 0.057,
+   "contact_lift_m": 0.0,
+   "min_foot_m": -0.008,
+   "travel_m": 0.0,
+   "hip_scale": 0.8509,
+   "loop": false
+  },
+  "Life_Mx_Drink_Loop": {
+   "before": [
+    0.018,
+    0.149
+   ],
+   "after": [
+    0.004,
+    0.022
+   ],
+   "stance_frames": 530,
+   "locked_frames": 532,
+   "hand_seam_cm": 0.2,
+   "frames": 266,
+   "source": "drinking_standing.fbx",
+   "seconds": 8.83,
+   "floor_fix_m": 0.041,
+   "contact_lift_m": 0.0,
+   "min_foot_m": -0.001,
+   "travel_m": 0.0,
+   "hip_scale": 0.8509,
+   "loop": true
+  },
+  "Life_Mx_Wave_Loop": {
+   "before": [
+    0.075,
+    0.149
+   ],
+   "after": [
+    0.014,
+    0.025
+   ],
+   "stance_frames": 30,
+   "locked_frames": 32,
+   "hand_seam_cm": 5.1,
+   "frames": 16,
+   "source": "waving.fbx",
+   "seconds": 0.5,
+   "floor_fix_m": 0.05,
+   "contact_lift_m": 0.0,
+   "min_foot_m": -0.0,
+   "travel_m": 0.0,
+   "hip_scale": 0.8509,
+   "loop": true
+  },
+  "Life_Mx_Talk_Chat_Loop": {
+   "before": [
+    0.035,
+    0.148
+   ],
+   "after": [
+    0.037,
+    0.133
+   ],
+   "stance_frames": 113,
+   "locked_frames": 123,
+   "hand_seam_cm": 0.5,
+   "frames": 1337,
+   "source": "talking_standing_chat.fbx",
+   "seconds": 44.53,
+   "floor_fix_m": 0.091,
+   "contact_lift_m": 0.0,
+   "min_foot_m": -0.003,
+   "travel_m": 0.0,
+   "hip_scale": 0.8509,
+   "loop": true
+  },
+  "Life_Mx_Pray_Kneel_Loop": {
+   "lift_m": 0.045,
+   "before": [
+    0.0,
+    0.0
+   ],
+   "after": [
+    0.0,
+    0.0
+   ],
+   "stance_frames": 0,
+   "locked_frames": 0,
+   "hand_seam_cm": 0.2,
+   "frames": 58,
+   "source": "pray_kneeling.fbx",
+   "seconds": 1.9,
+   "floor_fix_m": -0.09,
+   "contact_lift_m": 0.021,
+   "min_foot_m": 0.02,
+   "travel_m": 0.0,
+   "hip_scale": 0.8509,
+   "loop": true
+  },
+  "Life_Mx_Lute_Loop": {
+   "before": [
+    0.085,
+    0.296
+   ],
+   "after": [
+    0.027,
+    0.249
+   ],
+   "stance_frames": 245,
+   "locked_frames": 261,
+   "hand_seam_cm": 0.0,
+   "frames": 126,
+   "source": "bard_lute_guitar.fbx",
+   "seconds": 4.17,
+   "floor_fix_m": 0.054,
+   "contact_lift_m": 0.0,
+   "min_foot_m": -0.001,
+   "travel_m": 0.0,
+   "hip_scale": 0.8509,
+   "loop": true
+  },
+  "Life_Mx_Fiddle_Loop": {
+   "before": [
+    0.018,
+    0.153
+   ],
+   "after": [
+    0.004,
+    0.031
+   ],
+   "stance_frames": 2428,
+   "locked_frames": 2430,
+   "hand_seam_cm": 0.0,
+   "frames": 1215,
+   "source": "bard_fiddle_violin.fbx",
+   "seconds": 40.47,
+   "floor_fix_m": 0.048,
+   "contact_lift_m": 0.0,
+   "min_foot_m": -0.002,
+   "travel_m": 0.0,
+   "hip_scale": 0.8509,
+   "loop": true
+  }
+ }
+}

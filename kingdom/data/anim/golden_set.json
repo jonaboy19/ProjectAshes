@@ -606,13 +606,17 @@
   "player.combat.bow_hold": {
    "category": "combat",
    "primary": "Bow_Hold",
-   "variants": [],
+   "variants": [
+    "Mx_Bow_Aim_Idle"
+   ],
    "fallback": "Idle"
   },
   "player.combat.bow_loose": {
    "category": "combat",
    "primary": "Bow_Loose",
-   "variants": [],
+   "variants": [
+    "Mx_Bow_Shoot"
+   ],
    "fallback": "Idle"
   },
   "player.combat.punch_cross": {
@@ -673,7 +677,9 @@
    "category": "death",
    "primary": "Death01",
    "variants": [
-    "Death_A"
+    "Death_A",
+    "Mx_Death_Left",
+    "Mx_GreatSword_Death"
    ],
    "fallback": "Death01"
   },
@@ -733,7 +739,8 @@
    "category": "interaction",
    "primary": "Idle_Talking",
    "variants": [
-    "Idle_TalkingPhone"
+    "Idle_TalkingPhone",
+    "Life_Mx_Tell_Secret"
    ],
    "fallback": "Idle"
   },
@@ -746,7 +753,9 @@
   "villager.farm_harvest": {
    "category": "interaction",
    "primary": "Farm_Harvest",
-   "variants": [],
+   "variants": [
+    "Life_Mx_Pick_Fruit"
+   ],
    "fallback": "Idle"
   },
   "villager.farm_plant": {
@@ -810,7 +819,9 @@
   "villager.salute": {
    "category": "interaction",
    "primary": "Salute",
-   "variants": [],
+   "variants": [
+    "Life_Mx_Salute"
+   ],
    "fallback": "Idle"
   },
   "villager.lie_down": {
@@ -10677,6 +10688,106 @@
    "status": "banned",
    "why": "banned: ground penetration 5.8 cm; banned: slide max 0.36 m/s"
   },
+  "Life_Mx_Carry_Box_Walk": {
+   "rig": "ual",
+   "category": "interaction",
+   "kind": "loco",
+   "length_s": 6.267,
+   "metrics": {
+    "slide_mean": null,
+    "slide_max": null,
+    "pen_cm": 0.0,
+    "float_cm": 0.52,
+    "pops": 0,
+    "seam_deg": 0.09,
+    "drift_cm": 0.0,
+    "speed": 0.01,
+    "stretch_pct": 0.0
+   },
+   "foot_contacts": {
+    "foot_l": [
+     [
+      0,
+      19
+     ],
+     [
+      26,
+      188
+     ]
+    ],
+    "foot_r": [
+     [
+      0,
+      24
+     ],
+     [
+      30,
+      188
+     ]
+    ]
+   },
+   "contacts_fps": 30.0,
+   "upper": false,
+   "review": {
+    "sheet": "docs/qa/golden/mixamo_owner/sheet2_life_0.jpg",
+    "verdict": "pass",
+    "note": "source has no travel: standing box-carry pose (arms at the chest), usable as an upper-body carry layer; metrics unscored",
+    "by": "claude (Mixamo owner_set2 front-view 8-frame check sheet, 25 cm checker floor)",
+    "date": "2026-10-26"
+   },
+   "status": "probation",
+   "why": "note: slide unscored (no usable ground-speed reference)"
+  },
+  "Life_Mx_Chop_Wood": {
+   "rig": "ual",
+   "category": "interaction",
+   "kind": "loop",
+   "length_s": 2.033,
+   "metrics": {
+    "slide_mean": 0.175,
+    "slide_max": 0.541,
+    "pen_cm": 0.0,
+    "float_cm": 1.82,
+    "pops": 0,
+    "seam_deg": 9.4,
+    "drift_cm": 0.0,
+    "speed": null,
+    "stretch_pct": 0.0
+   },
+   "foot_contacts": {
+    "foot_l": [
+     [
+      19,
+      37
+     ]
+    ],
+    "foot_r": [
+     [
+      0,
+      5
+     ],
+     [
+      12,
+      14
+     ],
+     [
+      21,
+      35
+     ]
+    ]
+   },
+   "contacts_fps": 30.0,
+   "upper": false,
+   "review": {
+    "sheet": "docs/qa/golden/mixamo_owner/sheet2_life_0.jpg",
+    "verdict": "fail",
+    "note": "11.4 deg loop seam and 0.12/0.55 m/s slide (native and crossfaded loop both fail); the swing itself reads well - reauthor a seamless cycle",
+    "by": "claude (Mixamo owner_set2 front-view 8-frame check sheet, 25 cm checker floor)",
+    "date": "2026-10-26"
+   },
+   "status": "banned",
+   "why": "banned: slide mean 0.17 m/s; banned: slide max 0.54 m/s; banned: loop seam 9.4 deg"
+  },
   "Life_Mx_Dig_Plant": {
    "rig": "ual",
    "category": "interaction",
@@ -10719,6 +10830,474 @@
    "status": "banned",
    "why": "banned: ground penetration 21.9 cm; banned: slide max 0.18 m/s"
   },
+  "Life_Mx_Drink": {
+   "rig": "ual",
+   "category": "interaction",
+   "kind": "loop",
+   "length_s": 8.833,
+   "metrics": {
+    "slide_mean": 0.006,
+    "slide_max": 0.042,
+    "pen_cm": 0.0,
+    "float_cm": 0.84,
+    "pops": 0,
+    "seam_deg": 0.48,
+    "drift_cm": 0.1,
+    "speed": null,
+    "stretch_pct": 0.0
+   },
+   "foot_contacts": {
+    "foot_l": [
+     [
+      0,
+      120
+     ],
+     [
+      146,
+      265
+     ]
+    ],
+    "foot_r": [
+     [
+      0,
+      265
+     ]
+    ]
+   },
+   "contacts_fps": 30.0,
+   "upper": false,
+   "review": {
+    "sheet": "docs/qa/golden/mixamo_owner/sheet2_life_0.jpg",
+    "verdict": "pass",
+    "note": "mug to mouth and back, feet planted, seam 0.5 deg",
+    "by": "claude (Mixamo owner_set2 front-view 8-frame check sheet, 25 cm checker floor)",
+    "date": "2026-10-26"
+   },
+   "status": "gold",
+   "why": ""
+  },
+  "Life_Mx_Fiddle": {
+   "rig": "ual",
+   "category": "interaction",
+   "kind": "loop",
+   "length_s": 40.467,
+   "metrics": {
+    "slide_mean": 0.006,
+    "slide_max": 0.043,
+    "pen_cm": 0.0,
+    "float_cm": 0.41,
+    "pops": 0,
+    "seam_deg": 0.07,
+    "drift_cm": 0.0,
+    "speed": null,
+    "stretch_pct": 0.0
+   },
+   "foot_contacts": {
+    "foot_l": [
+     [
+      0,
+      146
+     ],
+     [
+      323,
+      446
+     ],
+     [
+      448,
+      558
+     ],
+     [
+      632,
+      699
+     ],
+     [
+      749,
+      751
+     ],
+     [
+      755,
+      769
+     ],
+     [
+      774,
+      857
+     ],
+     [
+      959,
+      964
+     ],
+     [
+      969,
+      987
+     ],
+     [
+      989,
+      1214
+     ]
+    ],
+    "foot_r": [
+     [
+      0,
+      273
+     ],
+     [
+      314,
+      965
+     ],
+     [
+      970,
+      1214
+     ]
+    ]
+   },
+   "contacts_fps": 30.0,
+   "upper": false,
+   "review": {
+    "sheet": "docs/qa/golden/mixamo_owner/sheet2_life_0.jpg",
+    "verdict": "pass",
+    "note": "fiddle under the chin, bowing arm reads, 40 s loop, feet planted",
+    "by": "claude (Mixamo owner_set2 front-view 8-frame check sheet, 25 cm checker floor)",
+    "date": "2026-10-26"
+   },
+   "status": "gold",
+   "why": ""
+  },
+  "Life_Mx_Fish_Cast_Reel": {
+   "rig": "ual",
+   "category": "interaction",
+   "kind": "once",
+   "length_s": 8.767,
+   "metrics": {
+    "slide_mean": 0.048,
+    "slide_max": 0.35,
+    "pen_cm": 0.0,
+    "float_cm": 0.83,
+    "pops": 0,
+    "seam_deg": null,
+    "drift_cm": 0.0,
+    "speed": null,
+    "stretch_pct": 0.0
+   },
+   "foot_contacts": {
+    "foot_l": [
+     [
+      0,
+      23
+     ]
+    ],
+    "foot_r": [
+     [
+      0,
+      41
+     ],
+     [
+      53,
+      161
+     ]
+    ]
+   },
+   "contacts_fps": 30.0,
+   "upper": false,
+   "review": {
+    "sheet": "docs/qa/golden/mixamo_owner/sheet2_life_0.jpg",
+    "verdict": "pass",
+    "note": "overhead cast with a short step then reel; slide 4.8 cm/s is the cast step",
+    "by": "claude (Mixamo owner_set2 front-view 8-frame check sheet, 25 cm checker floor)",
+    "date": "2026-10-26"
+   },
+   "status": "gold",
+   "why": ""
+  },
+  "Life_Mx_Fish_Idle": {
+   "rig": "ual",
+   "category": "interaction",
+   "kind": "loop",
+   "length_s": 3.5,
+   "metrics": {
+    "slide_mean": 0.004,
+    "slide_max": 0.047,
+    "pen_cm": 0.0,
+    "float_cm": 0.07,
+    "pops": 0,
+    "seam_deg": 0.07,
+    "drift_cm": 0.0,
+    "speed": null,
+    "stretch_pct": 0.0
+   },
+   "foot_contacts": {
+    "foot_l": [
+     [
+      0,
+      105
+     ]
+    ],
+    "foot_r": [
+     [
+      0,
+      105
+     ]
+    ]
+   },
+   "contacts_fps": 30.0,
+   "upper": false,
+   "review": {
+    "sheet": "docs/qa/golden/mixamo_owner/sheet2_life_0.jpg",
+    "verdict": "pass",
+    "note": "rod held at the waist, feet planted",
+    "by": "claude (Mixamo owner_set2 front-view 8-frame check sheet, 25 cm checker floor)",
+    "date": "2026-10-26"
+   },
+   "status": "gold",
+   "why": ""
+  },
+  "Life_Mx_Get_Up_Back": {
+   "rig": "ual",
+   "category": "interaction",
+   "kind": "once",
+   "length_s": 8.267,
+   "metrics": {
+    "slide_mean": 0.103,
+    "slide_max": 0.301,
+    "pen_cm": 0.0,
+    "float_cm": 1.18,
+    "pops": 0,
+    "seam_deg": null,
+    "drift_cm": 77.1,
+    "speed": null,
+    "stretch_pct": 0.0
+   },
+   "foot_contacts": {
+    "foot_l": [
+     [
+      158,
+      248
+     ]
+    ],
+    "foot_r": [
+     [
+      156,
+      248
+     ]
+    ]
+   },
+   "contacts_fps": 30.0,
+   "upper": false,
+   "review": {
+    "sheet": "docs/qa/golden/mixamo_owner/sheet2_life_1.jpg",
+    "verdict": "hold",
+    "note": "10 cm/s foot slide while rising",
+    "by": "claude (Mixamo owner_set2 front-view 8-frame check sheet, 25 cm checker floor)",
+    "date": "2026-10-26"
+   },
+   "status": "probation",
+   "why": "metrics gold, no passing frame-sheet review yet"
+  },
+  "Life_Mx_Lift_Heavy": {
+   "rig": "ual",
+   "category": "interaction",
+   "kind": "once",
+   "length_s": 11.5,
+   "metrics": {
+    "slide_mean": 0.081,
+    "slide_max": 2.618,
+    "pen_cm": 0.0,
+    "float_cm": 0.74,
+    "pops": 0,
+    "seam_deg": null,
+    "drift_cm": 0.0,
+    "speed": null,
+    "stretch_pct": 0.0
+   },
+   "foot_contacts": {
+    "foot_l": [
+     [
+      0,
+      24
+     ],
+     [
+      137,
+      180
+     ],
+     [
+      244,
+      264
+     ],
+     [
+      277,
+      306
+     ],
+     [
+      310,
+      312
+     ],
+     [
+      315,
+      323
+     ]
+    ],
+    "foot_r": [
+     [
+      0,
+      16
+     ],
+     [
+      268,
+      345
+     ]
+    ]
+   },
+   "contacts_fps": 30.0,
+   "upper": false,
+   "review": {
+    "sheet": "docs/qa/golden/mixamo_owner/sheet2_life_1.jpg",
+    "verdict": "hold",
+    "note": "2.6 m/s slide spike on the squat step",
+    "by": "claude (Mixamo owner_set2 front-view 8-frame check sheet, 25 cm checker floor)",
+    "date": "2026-10-26"
+   },
+   "status": "probation",
+   "why": "metrics gold, no passing frame-sheet review yet"
+  },
+  "Life_Mx_Lute": {
+   "rig": "ual",
+   "category": "interaction",
+   "kind": "loop",
+   "length_s": 4.167,
+   "metrics": {
+    "slide_mean": 0.026,
+    "slide_max": 0.195,
+    "pen_cm": 0.0,
+    "float_cm": 1.01,
+    "pops": 0,
+    "seam_deg": 0.0,
+    "drift_cm": 0.0,
+    "speed": null,
+    "stretch_pct": 0.0
+   },
+   "foot_contacts": {
+    "foot_l": [
+     [
+      9,
+      15
+     ],
+     [
+      28,
+      38
+     ],
+     [
+      45,
+      54
+     ],
+     [
+      63,
+      73
+     ],
+     [
+      82,
+      84
+     ],
+     [
+      98,
+      103
+     ],
+     [
+      117,
+      125
+     ]
+    ],
+    "foot_r": [
+     [
+      0,
+      2
+     ],
+     [
+      9,
+      15
+     ],
+     [
+      28,
+      31
+     ],
+     [
+      33,
+      37
+     ],
+     [
+      45,
+      54
+     ],
+     [
+      63,
+      73
+     ],
+     [
+      81,
+      86
+     ],
+     [
+      98,
+      103
+     ],
+     [
+      116,
+      125
+     ]
+    ]
+   },
+   "contacts_fps": 30.0,
+   "upper": false,
+   "review": {
+    "sheet": "docs/qa/golden/mixamo_owner/sheet2_life_1.jpg",
+    "verdict": "fail",
+    "note": "0.16-0.20 m/s slide spike, 5 deg seam, and the pose does not hold an instrument (arms hang)",
+    "by": "claude (Mixamo owner_set2 front-view 8-frame check sheet, 25 cm checker floor)",
+    "date": "2026-10-26"
+   },
+   "status": "banned",
+   "why": "banned: slide max 0.20 m/s"
+  },
+  "Life_Mx_Milk_Cow": {
+   "rig": "ual",
+   "category": "interaction",
+   "kind": "loop",
+   "length_s": 4.5,
+   "metrics": {
+    "slide_mean": 0.007,
+    "slide_max": 0.02,
+    "pen_cm": 20.87,
+    "float_cm": 0.0,
+    "pops": 0,
+    "seam_deg": 0.26,
+    "drift_cm": 0.0,
+    "speed": null,
+    "stretch_pct": 0.0
+   },
+   "foot_contacts": {
+    "foot_l": [
+     [
+      0,
+      135
+     ]
+    ],
+    "foot_r": [
+     [
+      0,
+      135
+     ]
+    ]
+   },
+   "contacts_fps": 30.0,
+   "upper": false,
+   "review": {
+    "sheet": "docs/qa/golden/mixamo_owner/sheet2_life_1.jpg",
+    "verdict": "fail",
+    "note": "4.1 cm float as retargeted, 21 cm penetration when lowered (deep squat: feet vs pelvis)",
+    "by": "claude (Mixamo owner_set2 front-view 8-frame check sheet, 25 cm checker floor)",
+    "date": "2026-10-26"
+   },
+   "status": "banned",
+   "why": "banned: ground penetration 20.9 cm"
+  },
   "Life_Mx_Pick_Fruit": {
    "rig": "ual",
    "category": "interaction",
@@ -10756,6 +11335,110 @@
     "verdict": "pass",
     "note": "feet planted (foot lock), reach + pick reads clearly, loop seam 0.3 deg",
     "by": "claude (Mixamo owner_set front-view 8-frame check sheet, 25 cm checker floor)",
+    "date": "2026-10-26"
+   },
+   "status": "gold",
+   "why": ""
+  },
+  "Life_Mx_Pick_Ground": {
+   "rig": "ual",
+   "category": "interaction",
+   "kind": "once",
+   "length_s": 7.1,
+   "metrics": {
+    "slide_mean": 0.225,
+    "slide_max": 3.56,
+    "pen_cm": 1.76,
+    "float_cm": 1.53,
+    "pops": 0,
+    "seam_deg": null,
+    "drift_cm": 0.0,
+    "speed": null,
+    "stretch_pct": 0.0
+   },
+   "foot_contacts": {
+    "foot_l": [
+     [
+      21,
+      41
+     ],
+     [
+      174,
+      198
+     ]
+    ],
+    "foot_r": [
+     [
+      24,
+      32
+     ],
+     [
+      37,
+      43
+     ],
+     [
+      173,
+      176
+     ],
+     [
+      187,
+      207
+     ]
+    ]
+   },
+   "contacts_fps": 30.0,
+   "upper": false,
+   "review": {
+    "sheet": "docs/qa/golden/mixamo_owner/sheet2_life_1.jpg",
+    "verdict": "hold",
+    "note": "1.8 cm penetration and 3.6 m/s slide spike while kneeling",
+    "by": "claude (Mixamo owner_set2 front-view 8-frame check sheet, 25 cm checker floor)",
+    "date": "2026-10-26"
+   },
+   "status": "probation",
+   "why": "probation: ground penetration 1.8 cm"
+  },
+  "Life_Mx_Pick_Up": {
+   "rig": "ual",
+   "category": "interaction",
+   "kind": "once",
+   "length_s": 9.567,
+   "metrics": {
+    "slide_mean": 0.027,
+    "slide_max": 0.206,
+    "pen_cm": 0.0,
+    "float_cm": 4.27,
+    "pops": 0,
+    "seam_deg": null,
+    "drift_cm": 3.7,
+    "speed": null,
+    "stretch_pct": 0.0
+   },
+   "foot_contacts": {
+    "foot_l": [
+     [
+      28,
+      50
+     ],
+     [
+      108,
+      124
+     ]
+    ],
+    "foot_r": [
+     [
+      29,
+      130
+     ]
+    ]
+   },
+   "contacts_fps": 30.0,
+   "upper": false,
+   "review": {
+    "sheet": "docs/qa/golden/mixamo_owner/sheet2_life_1.jpg",
+    "verdict": "pass",
+    "note": "bend and pick up, back up; feet planted",
+    "by": "claude (Mixamo owner_set2 front-view 8-frame check sheet, 25 cm checker floor)",
     "date": "2026-10-26"
    },
    "status": "gold",
@@ -10811,6 +11494,168 @@
    "status": "banned",
    "why": "banned: ground penetration 8.6 cm"
   },
+  "Life_Mx_Plant_Kneel": {
+   "rig": "ual",
+   "category": "interaction",
+   "kind": "loop",
+   "length_s": 7.533,
+   "metrics": {
+    "slide_mean": 0.034,
+    "slide_max": 0.146,
+    "pen_cm": 35.82,
+    "float_cm": 0.0,
+    "pops": 0,
+    "seam_deg": 0.09,
+    "drift_cm": 0.0,
+    "speed": null,
+    "stretch_pct": 0.0
+   },
+   "foot_contacts": {
+    "foot_l": [
+     [
+      20,
+      206
+     ]
+    ],
+    "foot_r": [
+     [
+      30,
+      51
+     ],
+     [
+      62,
+      201
+     ]
+    ]
+   },
+   "contacts_fps": 30.0,
+   "upper": false,
+   "review": {
+    "sheet": "docs/qa/golden/mixamo_owner/sheet2_life_2.jpg",
+    "verdict": "fail",
+    "note": "hands 36 cm through the floor",
+    "by": "claude (Mixamo owner_set2 front-view 8-frame check sheet, 25 cm checker floor)",
+    "date": "2026-10-26"
+   },
+   "status": "banned",
+   "why": "banned: ground penetration 35.8 cm; probation: slide mean 0.03 m/s; probation: slide max 0.15 m/s"
+  },
+  "Life_Mx_Plant_Tree": {
+   "rig": "ual",
+   "category": "interaction",
+   "kind": "once",
+   "length_s": 9.267,
+   "metrics": {
+    "slide_mean": 0.087,
+    "slide_max": 0.932,
+    "pen_cm": 0.0,
+    "float_cm": 1.31,
+    "pops": 0,
+    "seam_deg": null,
+    "drift_cm": 0.0,
+    "speed": null,
+    "stretch_pct": 0.0
+   },
+   "foot_contacts": {
+    "foot_l": [
+     [
+      94,
+      141
+     ]
+    ],
+    "foot_r": [
+     [
+      18,
+      157
+     ]
+    ]
+   },
+   "contacts_fps": 30.0,
+   "upper": false,
+   "review": {
+    "sheet": "docs/qa/golden/mixamo_owner/sheet2_life_2.jpg",
+    "verdict": "hold",
+    "note": "8.7 cm/s mean / 0.93 m/s max slide on the stepping",
+    "by": "claude (Mixamo owner_set2 front-view 8-frame check sheet, 25 cm checker floor)",
+    "date": "2026-10-26"
+   },
+   "status": "probation",
+   "why": "metrics gold, no passing frame-sheet review yet"
+  },
+  "Life_Mx_Pray_Kneel": {
+   "rig": "ual",
+   "category": "interaction",
+   "kind": "loop",
+   "length_s": 1.9,
+   "metrics": {
+    "slide_mean": null,
+    "slide_max": null,
+    "pen_cm": 0.0,
+    "float_cm": 0.22,
+    "pops": 0,
+    "seam_deg": 0.14,
+    "drift_cm": 0.0,
+    "speed": null,
+    "stretch_pct": 0.0
+   },
+   "foot_contacts": {
+    "foot_l": [],
+    "foot_r": []
+   },
+   "contacts_fps": 30.0,
+   "upper": false,
+   "review": {
+    "sheet": "docs/qa/golden/mixamo_owner/sheet2_life_2.jpg",
+    "verdict": "pass",
+    "note": "kneel, hands together; knees on the floor after +4.5 cm lift (probation only because the metric has no ground-speed reference)",
+    "by": "claude (Mixamo owner_set2 front-view 8-frame check sheet, 25 cm checker floor)",
+    "date": "2026-10-26"
+   },
+   "status": "probation",
+   "why": "note: slide unscored (no usable ground-speed reference)"
+  },
+  "Life_Mx_Pull_Plant": {
+   "rig": "ual",
+   "category": "interaction",
+   "kind": "loop",
+   "length_s": 4.7,
+   "metrics": {
+    "slide_mean": 0.033,
+    "slide_max": 0.224,
+    "pen_cm": 21.4,
+    "float_cm": 0.0,
+    "pops": 0,
+    "seam_deg": 0.36,
+    "drift_cm": 0.2,
+    "speed": null,
+    "stretch_pct": 0.0
+   },
+   "foot_contacts": {
+    "foot_l": [
+     [
+      0,
+      141
+     ]
+    ],
+    "foot_r": [
+     [
+      0,
+      141
+     ]
+    ]
+   },
+   "contacts_fps": 30.0,
+   "upper": false,
+   "review": {
+    "sheet": "docs/qa/golden/mixamo_owner/sheet2_life_2.jpg",
+    "verdict": "fail",
+    "note": "hands 21 cm through the floor",
+    "by": "claude (Mixamo owner_set2 front-view 8-frame check sheet, 25 cm checker floor)",
+    "date": "2026-10-26"
+   },
+   "status": "banned",
+   "why": "banned: ground penetration 21.4 cm; probation: slide mean 0.03 m/s; banned: slide max 0.22 m/s"
+  },
   "Life_Mx_Salute": {
    "rig": "ual",
    "category": "interaction",
@@ -10852,6 +11697,379 @@
    },
    "status": "gold",
    "why": ""
+  },
+  "Life_Mx_Scythe": {
+   "rig": "ual",
+   "category": "interaction",
+   "kind": "loop",
+   "length_s": 2.367,
+   "metrics": {
+    "slide_mean": 0.496,
+    "slide_max": 1.173,
+    "pen_cm": 0.0,
+    "float_cm": 0.47,
+    "pops": 0,
+    "seam_deg": 4.96,
+    "drift_cm": 0.0,
+    "speed": null,
+    "stretch_pct": 0.0
+   },
+   "foot_contacts": {
+    "foot_l": [
+     [
+      0,
+      10
+     ],
+     [
+      12,
+      51
+     ],
+     [
+      62,
+      71
+     ]
+    ],
+    "foot_r": [
+     [
+      0,
+      13
+     ],
+     [
+      23,
+      26
+     ],
+     [
+      28,
+      60
+     ],
+     [
+      67,
+      71
+     ]
+    ]
+   },
+   "contacts_fps": 30.0,
+   "upper": false,
+   "review": {
+    "sheet": "docs/qa/golden/mixamo_owner/sheet2_life_2.jpg",
+    "verdict": "fail",
+    "note": "in-place scythe slides 0.5/1.2 m/s (source walks forward)",
+    "by": "claude (Mixamo owner_set2 front-view 8-frame check sheet, 25 cm checker floor)",
+    "date": "2026-10-26"
+   },
+   "status": "banned",
+   "why": "banned: slide mean 0.50 m/s; banned: slide max 1.17 m/s; probation: loop seam 5.0 deg"
+  },
+  "Life_Mx_Sit_Chair": {
+   "rig": "ual",
+   "category": "interaction",
+   "kind": "sit",
+   "length_s": 2.933,
+   "metrics": {
+    "slide_mean": 0.0,
+    "slide_max": 0.0,
+    "pen_cm": 0.0,
+    "float_cm": 0.0,
+    "pops": 0,
+    "seam_deg": null,
+    "drift_cm": 0.0,
+    "speed": null,
+    "stretch_pct": 0.0
+   },
+   "foot_contacts": {
+    "foot_l": [
+     [
+      0,
+      88
+     ]
+    ],
+    "foot_r": [
+     [
+      0,
+      88
+     ]
+    ]
+   },
+   "contacts_fps": 30.0,
+   "upper": false,
+   "review": {
+    "sheet": "docs/qa/golden/mixamo_owner/sheet2_life_2.jpg",
+    "verdict": "pass",
+    "note": "seated hands on knees, no motion issues (needs a 0.45 m seat)",
+    "by": "claude (Mixamo owner_set2 front-view 8-frame check sheet, 25 cm checker floor)",
+    "date": "2026-10-26"
+   },
+   "status": "gold",
+   "why": ""
+  },
+  "Life_Mx_Sit_Chair_Talk": {
+   "rig": "ual",
+   "category": "interaction",
+   "kind": "sit",
+   "length_s": 44.933,
+   "metrics": {
+    "slide_mean": 0.004,
+    "slide_max": 0.026,
+    "pen_cm": 0.0,
+    "float_cm": 0.0,
+    "pops": 1,
+    "seam_deg": null,
+    "drift_cm": 0.0,
+    "speed": null,
+    "stretch_pct": 0.0
+   },
+   "foot_contacts": {
+    "foot_l": [
+     [
+      0,
+      767
+     ],
+     [
+      788,
+      835
+     ],
+     [
+      842,
+      878
+     ],
+     [
+      896,
+      951
+     ],
+     [
+      955,
+      1067
+     ],
+     [
+      1072,
+      1173
+     ],
+     [
+      1178,
+      1348
+     ]
+    ],
+    "foot_r": []
+   },
+   "contacts_fps": 30.0,
+   "upper": false,
+   "review": {
+    "sheet": "docs/qa/golden/mixamo_owner/sheet2_life_3.jpg",
+    "verdict": "hold",
+    "note": "1 pop in 45 s",
+    "by": "claude (Mixamo owner_set2 front-view 8-frame check sheet, 25 cm checker floor)",
+    "date": "2026-10-26"
+   },
+   "status": "probation",
+   "why": "probation: 1 pop(s)"
+  },
+  "Life_Mx_Sit_Floor": {
+   "rig": "ual",
+   "category": "interaction",
+   "kind": "sit",
+   "length_s": 10.833,
+   "metrics": {
+    "slide_mean": null,
+    "slide_max": null,
+    "pen_cm": 0.0,
+    "float_cm": 0.0,
+    "pops": 0,
+    "seam_deg": null,
+    "drift_cm": 0.0,
+    "speed": null,
+    "stretch_pct": 0.0
+   },
+   "foot_contacts": {
+    "foot_l": [],
+    "foot_r": []
+   },
+   "contacts_fps": 30.0,
+   "upper": false,
+   "review": {
+    "sheet": "docs/qa/golden/mixamo_owner/sheet2_life_3.jpg",
+    "verdict": "pass",
+    "note": "cross-legged on the ground after +9 cm lift; 0 cm penetration",
+    "by": "claude (Mixamo owner_set2 front-view 8-frame check sheet, 25 cm checker floor)",
+    "date": "2026-10-26"
+   },
+   "status": "gold",
+   "why": ""
+  },
+  "Life_Mx_Sit_To_Stand": {
+   "rig": "ual",
+   "category": "interaction",
+   "kind": "sit",
+   "length_s": 4.833,
+   "metrics": {
+    "slide_mean": 0.083,
+    "slide_max": 0.124,
+    "pen_cm": 0.0,
+    "float_cm": 0.0,
+    "pops": 0,
+    "seam_deg": null,
+    "drift_cm": 38.5,
+    "speed": null,
+    "stretch_pct": 0.0
+   },
+   "foot_contacts": {
+    "foot_l": [
+     [
+      50,
+      145
+     ]
+    ],
+    "foot_r": [
+     [
+      52,
+      145
+     ]
+    ]
+   },
+   "contacts_fps": 30.0,
+   "upper": false,
+   "review": {
+    "sheet": "docs/qa/golden/mixamo_owner/sheet2_life_3.jpg",
+    "verdict": "hold",
+    "note": "first frame is already half-standing; does not match Life_Mx_Sit_Chair",
+    "by": "claude (Mixamo owner_set2 front-view 8-frame check sheet, 25 cm checker floor)",
+    "date": "2026-10-26"
+   },
+   "status": "probation",
+   "why": "metrics gold, no passing frame-sheet review yet"
+  },
+  "Life_Mx_Sleep_Bed": {
+   "rig": "ual",
+   "category": "interaction",
+   "kind": "loop",
+   "length_s": 1.667,
+   "metrics": {
+    "slide_mean": null,
+    "slide_max": null,
+    "pen_cm": 497.55,
+    "float_cm": 0.0,
+    "pops": 0,
+    "seam_deg": 0.26,
+    "drift_cm": 0.0,
+    "speed": null,
+    "stretch_pct": 0.0
+   },
+   "foot_contacts": {
+    "foot_l": [
+     [
+      0,
+      50
+     ]
+    ],
+    "foot_r": [
+     [
+      0,
+      50
+     ]
+    ]
+   },
+   "contacts_fps": 30.0,
+   "upper": false,
+   "review": {
+    "sheet": "docs/qa/golden/mixamo_owner/sheet2_life_3.jpg",
+    "verdict": "fail",
+    "note": "lying 0.9 m above the floor (bed height baked in); lowering breaks contact - needs a bed-anchored version",
+    "by": "claude (Mixamo owner_set2 front-view 8-frame check sheet, 25 cm checker floor)",
+    "date": "2026-10-26"
+   },
+   "status": "banned",
+   "why": "banned: ground penetration 497.5 cm; note: slide unscored (no usable ground-speed reference)"
+  },
+  "Life_Mx_Stand_To_Sit": {
+   "rig": "ual",
+   "category": "interaction",
+   "kind": "sit",
+   "length_s": 2.233,
+   "metrics": {
+    "slide_mean": 0.256,
+    "slide_max": 0.687,
+    "pen_cm": 0.0,
+    "float_cm": 0.0,
+    "pops": 0,
+    "seam_deg": null,
+    "drift_cm": 43.4,
+    "speed": null,
+    "stretch_pct": 0.0
+   },
+   "foot_contacts": {
+    "foot_l": [
+     [
+      0,
+      37
+     ]
+    ],
+    "foot_r": [
+     [
+      0,
+      37
+     ]
+    ]
+   },
+   "contacts_fps": 30.0,
+   "upper": false,
+   "review": {
+    "sheet": "docs/qa/golden/mixamo_owner/sheet2_life_3.jpg",
+    "verdict": "hold",
+    "note": "25 cm/s slide (steps back to the chair)",
+    "by": "claude (Mixamo owner_set2 front-view 8-frame check sheet, 25 cm checker floor)",
+    "date": "2026-10-26"
+   },
+   "status": "probation",
+   "why": "metrics gold, no passing frame-sheet review yet"
+  },
+  "Life_Mx_Talk_Chat": {
+   "rig": "ual",
+   "category": "interaction",
+   "kind": "loop",
+   "length_s": 44.533,
+   "metrics": {
+    "slide_mean": 0.031,
+    "slide_max": 0.817,
+    "pen_cm": 0.0,
+    "float_cm": 0.46,
+    "pops": 0,
+    "seam_deg": 1.07,
+    "drift_cm": 0.1,
+    "speed": null,
+    "stretch_pct": 0.0
+   },
+   "foot_contacts": {
+    "foot_l": [
+     [
+      48,
+      71
+     ],
+     [
+      73,
+      78
+     ],
+     [
+      84,
+      196
+     ]
+    ],
+    "foot_r": [
+     [
+      90,
+      190
+     ]
+    ]
+   },
+   "contacts_fps": 30.0,
+   "upper": false,
+   "review": {
+    "sheet": "docs/qa/golden/mixamo_owner/sheet2_life_3.jpg",
+    "verdict": "fail",
+    "note": "0.82 m/s slide spike (shuffle step) in the 44 s take",
+    "by": "claude (Mixamo owner_set2 front-view 8-frame check sheet, 25 cm checker floor)",
+    "date": "2026-10-26"
+   },
+   "status": "banned",
+   "why": "probation: slide mean 0.03 m/s; banned: slide max 0.82 m/s"
   },
   "Life_Mx_Tell_Secret": {
    "rig": "ual",
@@ -10948,6 +12166,98 @@
    },
    "status": "gold",
    "why": ""
+  },
+  "Life_Mx_Wave": {
+   "rig": "ual",
+   "category": "interaction",
+   "kind": "loop",
+   "length_s": 0.5,
+   "metrics": {
+    "slide_mean": 0.013,
+    "slide_max": 0.036,
+    "pen_cm": 0.0,
+    "float_cm": 0.26,
+    "pops": 0,
+    "seam_deg": 1.76,
+    "drift_cm": 0.3,
+    "speed": null,
+    "stretch_pct": 0.0
+   },
+   "foot_contacts": {
+    "foot_l": [
+     [
+      0,
+      15
+     ]
+    ],
+    "foot_r": [
+     [
+      0,
+      15
+     ]
+    ]
+   },
+   "contacts_fps": 30.0,
+   "upper": false,
+   "review": {
+    "sheet": "docs/qa/golden/mixamo_owner/sheet2_life_4.jpg",
+    "verdict": "pass",
+    "note": "friendly raised-hand wave, feet planted, seam 1.8 deg",
+    "by": "claude (Mixamo owner_set2 front-view 8-frame check sheet, 25 cm checker floor)",
+    "date": "2026-10-26"
+   },
+   "status": "gold",
+   "why": ""
+  },
+  "Life_Mx_Wheelbarrow_Walk": {
+   "rig": "ual",
+   "category": "interaction",
+   "kind": "loco",
+   "length_s": 0.933,
+   "metrics": {
+    "slide_mean": 0.78,
+    "slide_max": 5.946,
+    "pen_cm": 0.0,
+    "float_cm": 0.44,
+    "pops": 0,
+    "seam_deg": 1.61,
+    "drift_cm": 0.0,
+    "speed": 1.69,
+    "stretch_pct": 0.0
+   },
+   "foot_contacts": {
+    "foot_l": [
+     [
+      0,
+      2
+     ],
+     [
+      8,
+      23
+     ]
+    ],
+    "foot_r": [
+     [
+      0,
+      8
+     ],
+     [
+      14,
+      16
+     ]
+    ]
+   },
+   "contacts_fps": 30.0,
+   "upper": false,
+   "review": {
+    "sheet": "docs/qa/golden/mixamo_owner/sheet2_life_4.jpg",
+    "verdict": "fail",
+    "note": "in-place walk slides 0.78/5.95 m/s; no handle pose",
+    "by": "claude (Mixamo owner_set2 front-view 8-frame check sheet, 25 cm checker floor)",
+    "date": "2026-10-26"
+   },
+   "status": "banned",
+   "why": "banned: slide mean 0.78 m/s; banned: slide max 5.95 m/s"
   },
   "Loco_Pivot180_Run_L": {
    "rig": "ual",
@@ -13050,6 +14360,48 @@
    "status": "gold",
    "why": ""
   },
+  "Mx_Get_Up_Knockdown": {
+   "rig": "ual",
+   "category": "combat",
+   "kind": "once",
+   "length_s": 2.7,
+   "metrics": {
+    "slide_mean": 0.192,
+    "slide_max": 2.448,
+    "pen_cm": 2.77,
+    "float_cm": 0.38,
+    "pops": 0,
+    "seam_deg": null,
+    "drift_cm": 4.3,
+    "speed": null,
+    "stretch_pct": 0.0
+   },
+   "foot_contacts": {
+    "foot_l": [
+     [
+      43,
+      81
+     ]
+    ],
+    "foot_r": [
+     [
+      43,
+      81
+     ]
+    ]
+   },
+   "contacts_fps": 30.0,
+   "upper": false,
+   "review": {
+    "sheet": "docs/qa/golden/mixamo_owner/sheet2_combat_0.jpg",
+    "verdict": "fail",
+    "note": "2.8 cm penetration + 2.4 m/s slide spike",
+    "by": "claude (Mixamo owner_set2 front-view 8-frame check sheet, 25 cm checker floor)",
+    "date": "2026-10-26"
+   },
+   "status": "banned",
+   "why": "banned: ground penetration 2.8 cm"
+  },
   "Mx_GreatSword_Death": {
    "rig": "ual",
    "category": "combat",
@@ -14021,6 +15373,56 @@
    "status": "banned",
    "why": "banned: slide mean 0.27 m/s; banned: slide max 3.27 m/s"
   },
+  "Mx_Sword_Combat_To_Sheath": {
+   "rig": "ual",
+   "category": "combat",
+   "kind": "once",
+   "length_s": 1.267,
+   "metrics": {
+    "slide_mean": 0.107,
+    "slide_max": 0.781,
+    "pen_cm": 0.0,
+    "float_cm": 0.84,
+    "pops": 0,
+    "seam_deg": null,
+    "drift_cm": 7.3,
+    "speed": null,
+    "stretch_pct": 0.0
+   },
+   "foot_contacts": {
+    "foot_l": [
+     [
+      0,
+      2
+     ],
+     [
+      7,
+      9
+     ],
+     [
+      14,
+      38
+     ]
+    ],
+    "foot_r": [
+     [
+      0,
+      16
+     ]
+    ]
+   },
+   "contacts_fps": 30.0,
+   "upper": false,
+   "review": {
+    "sheet": "docs/qa/golden/mixamo_owner/sheet2_combat_0.jpg",
+    "verdict": "hold",
+    "note": "10.7 cm/s / 0.78 m/s slide on the step out of guard",
+    "by": "claude (Mixamo owner_set2 front-view 8-frame check sheet, 25 cm checker floor)",
+    "date": "2026-10-26"
+   },
+   "status": "probation",
+   "why": "metrics gold, no passing frame-sheet review yet"
+  },
   "Mx_Sword_Draw": {
    "rig": "ual",
    "category": "combat",
@@ -14067,6 +15469,52 @@
    "status": "probation",
    "why": "metrics gold, no passing frame-sheet review yet"
   },
+  "Mx_Sword_Sheath": {
+   "rig": "ual",
+   "category": "combat",
+   "kind": "once",
+   "length_s": 1.667,
+   "metrics": {
+    "slide_mean": 0.036,
+    "slide_max": 0.197,
+    "pen_cm": 0.0,
+    "float_cm": 0.58,
+    "pops": 0,
+    "seam_deg": null,
+    "drift_cm": 3.8,
+    "speed": null,
+    "stretch_pct": 0.0
+   },
+   "foot_contacts": {
+    "foot_l": [
+     [
+      4,
+      10
+     ],
+     [
+      26,
+      47
+     ]
+    ],
+    "foot_r": [
+     [
+      0,
+      50
+     ]
+    ]
+   },
+   "contacts_fps": 30.0,
+   "upper": false,
+   "review": {
+    "sheet": "docs/qa/golden/mixamo_owner/sheet2_combat_0.jpg",
+    "verdict": "pass",
+    "note": "sword back to the left hip, feet planted (3.6 cm/s)",
+    "by": "claude (Mixamo owner_set2 front-view 8-frame check sheet, 25 cm checker floor)",
+    "date": "2026-10-26"
+   },
+   "status": "gold",
+   "why": ""
+  },
   "Mx_Sword_Slash_Inward": {
    "rig": "ual",
    "category": "combat",
@@ -14104,6 +15552,144 @@
     "verdict": "hold",
     "note": "10 cm/s planted-foot slide on the lunge step",
     "by": "claude (Mixamo owner_set front-view 8-frame check sheet, 25 cm checker floor)",
+    "date": "2026-10-26"
+   },
+   "status": "probation",
+   "why": "metrics gold, no passing frame-sheet review yet"
+  },
+  "Mx_Trav_Climb_Low": {
+   "rig": "ual",
+   "category": "combat",
+   "kind": "once",
+   "length_s": 2.267,
+   "metrics": {
+    "slide_mean": 0.655,
+    "slide_max": 3.577,
+    "pen_cm": 14.68,
+    "float_cm": 0.0,
+    "pops": 0,
+    "seam_deg": null,
+    "drift_cm": 86.2,
+    "speed": null,
+    "stretch_pct": 0.0
+   },
+   "foot_contacts": {
+    "foot_l": [
+     [
+      0,
+      30
+     ]
+    ],
+    "foot_r": [
+     [
+      0,
+      68
+     ]
+    ]
+   },
+   "contacts_fps": 30.0,
+   "upper": false,
+   "review": {
+    "sheet": "docs/qa/golden/mixamo_owner/sheet2_combat_0.jpg",
+    "verdict": "fail",
+    "note": "14.7 cm through the floor at the vault (no obstacle in the source floor plane), 0.65 m/s slide",
+    "by": "claude (Mixamo owner_set2 front-view 8-frame check sheet, 25 cm checker floor)",
+    "date": "2026-10-26"
+   },
+   "status": "banned",
+   "why": "banned: ground penetration 14.7 cm"
+  },
+  "Mx_Trav_Climb_Wall_Up": {
+   "rig": "ual",
+   "category": "combat",
+   "kind": "once",
+   "length_s": 2.0,
+   "metrics": {
+    "slide_mean": null,
+    "slide_max": null,
+    "pen_cm": 0.0,
+    "float_cm": 3.93,
+    "pops": 0,
+    "seam_deg": null,
+    "drift_cm": 0.0,
+    "speed": null,
+    "stretch_pct": 0.0
+   },
+   "foot_contacts": {
+    "foot_l": [],
+    "foot_r": []
+   },
+   "contacts_fps": 30.0,
+   "upper": false,
+   "review": {
+    "sheet": "docs/qa/golden/mixamo_owner/sheet2_combat_0.jpg",
+    "verdict": "hold",
+    "note": "pose sequence clean; needs the wall rig (traversal owner S3.2) to verify hand/foot contacts",
+    "by": "claude (Mixamo owner_set2 front-view 8-frame check sheet, 25 cm checker floor)",
+    "date": "2026-10-26"
+   },
+   "status": "probation",
+   "why": "metrics gold, no passing frame-sheet review yet"
+  },
+  "Mx_Trav_Ladder_Top_Exit": {
+   "rig": "ual",
+   "category": "combat",
+   "kind": "once",
+   "length_s": 4.0,
+   "metrics": {
+    "slide_mean": null,
+    "slide_max": null,
+    "pen_cm": 0.0,
+    "float_cm": 9.94,
+    "pops": 0,
+    "seam_deg": null,
+    "drift_cm": 122.4,
+    "speed": null,
+    "stretch_pct": 0.0
+   },
+   "foot_contacts": {
+    "foot_l": [],
+    "foot_r": []
+   },
+   "contacts_fps": 30.0,
+   "upper": false,
+   "review": {
+    "sheet": "docs/qa/golden/mixamo_owner/sheet2_combat_0.jpg",
+    "verdict": "hold",
+    "note": "pose sequence clean; needs ladder geometry review (S3.2)",
+    "by": "claude (Mixamo owner_set2 front-view 8-frame check sheet, 25 cm checker floor)",
+    "date": "2026-10-26"
+   },
+   "status": "probation",
+   "why": "metrics gold, no passing frame-sheet review yet"
+  },
+  "Mx_Trav_Ledge_Pull_Up": {
+   "rig": "ual",
+   "category": "combat",
+   "kind": "once",
+   "length_s": 3.833,
+   "metrics": {
+    "slide_mean": null,
+    "slide_max": null,
+    "pen_cm": 0.0,
+    "float_cm": 6.54,
+    "pops": 0,
+    "seam_deg": null,
+    "drift_cm": 34.2,
+    "speed": null,
+    "stretch_pct": 0.0
+   },
+   "foot_contacts": {
+    "foot_l": [],
+    "foot_r": []
+   },
+   "contacts_fps": 30.0,
+   "upper": false,
+   "review": {
+    "sheet": "docs/qa/golden/mixamo_owner/sheet2_combat_1.jpg",
+    "verdict": "hold",
+    "note": "pose sequence clean; needs ledge geometry review (S3.2)",
+    "by": "claude (Mixamo owner_set2 front-view 8-frame check sheet, 25 cm checker floor)",
     "date": "2026-10-26"
    },
    "status": "probation",

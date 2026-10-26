@@ -1,0 +1,174 @@
+{
+ "clips": [
+  {
+   "name": "Life_Mx_Chop_Wood",
+   "file": "chop_wood_axe_downward.fbx",
+   "inplace": "none",
+   "loop": true,
+   "loop_native": false
+  },
+  {
+   "name": "Life_Mx_Plant_Kneel",
+   "file": "plant_kneeling.fbx",
+   "inplace": "none",
+   "loop": true,
+   "contact": false,
+   "floor": "min"
+  },
+  {
+   "name": "Life_Mx_Plant_Tree",
+   "file": "plant_tree_standing.fbx",
+   "inplace": "none"
+  },
+  {
+   "name": "Life_Mx_Pull_Plant",
+   "file": "pull_plant_kneeling.fbx",
+   "inplace": "none",
+   "loop": true,
+   "contact": false,
+   "floor": "min"
+  },
+  {
+   "name": "Life_Mx_Scythe",
+   "file": "harvest_scythe.fbx",
+   "inplace": "linear",
+   "loop": true
+  },
+  {
+   "name": "Life_Mx_Milk_Cow",
+   "file": "milking_cow.fbx",
+   "inplace": "none",
+   "loop": true,
+   "floor": "min",
+   "lift_m": -0.04
+  },
+  {
+   "name": "Life_Mx_Pick_Ground",
+   "file": "pick_from_ground.fbx",
+   "inplace": "none"
+  },
+  {
+   "name": "Life_Mx_Pick_Up",
+   "file": "pick_up_object.fbx",
+   "inplace": "none"
+  },
+  {
+   "name": "Life_Mx_Lift_Heavy",
+   "file": "lift_heavy_object.fbx",
+   "inplace": "none"
+  },
+  {
+   "name": "Life_Mx_Carry_Box_Walk",
+   "file": "carry_box_walk_root.fbx",
+   "inplace": "linear",
+   "loop": true
+  },
+  {
+   "name": "Life_Mx_Wheelbarrow_Walk",
+   "file": "wheelbarrow_walk_full.fbx",
+   "inplace": "linear",
+   "loop": true
+  },
+  {
+   "name": "Life_Mx_Fish_Idle",
+   "file": "fishing_idle.fbx",
+   "inplace": "none",
+   "loop": true
+  },
+  {
+   "name": "Life_Mx_Fish_Cast_Reel",
+   "file": "fishing_cast_reel.fbx",
+   "inplace": "none"
+  },
+  {
+   "name": "Life_Mx_Sit_Chair",
+   "file": "sit_chair_idle.fbx",
+   "inplace": "none",
+   "loop": true,
+   "floor": "min"
+  },
+  {
+   "name": "Life_Mx_Sit_Chair_Talk",
+   "file": "sit_chair_talking.fbx",
+   "inplace": "none",
+   "loop": true,
+   "floor": "min"
+  },
+  {
+   "name": "Life_Mx_Sit_Floor",
+   "file": "sit_floor.fbx",
+   "inplace": "none",
+   "loop": true,
+   "floor": "min",
+   "lift_m": 0.09
+  },
+  {
+   "name": "Life_Mx_Stand_To_Sit",
+   "file": "stand_to_sit_chair.fbx",
+   "inplace": "none",
+   "floor": "min"
+  },
+  {
+   "name": "Life_Mx_Sit_To_Stand",
+   "file": "sit_to_stand_chair.fbx",
+   "inplace": "none",
+   "floor": "min"
+  },
+  {
+   "name": "Life_Mx_Sleep_Bed",
+   "file": "sleep_on_bed.fbx",
+   "inplace": "none",
+   "loop": true,
+   "floor": "none",
+   "contact": false,
+   "foot_lock": false,
+   "lift_m": -0.9
+  },
+  {
+   "name": "Life_Mx_Get_Up_Back",
+   "file": "get_up_from_back.fbx",
+   "inplace": "none",
+   "floor": "min"
+  },
+  {
+   "name": "Life_Mx_Drink",
+   "file": "drinking_standing.fbx",
+   "inplace": "none",
+   "loop": true
+  },
+  {
+   "name": "Life_Mx_Wave",
+   "file": "waving.fbx",
+   "inplace": "none",
+   "loop": true
+  },
+  {
+   "name": "Life_Mx_Talk_Chat",
+   "file": "talking_standing_chat.fbx",
+   "inplace": "none",
+   "loop": true
+  },
+  {
+   "name": "Life_Mx_Pray_Kneel",
+   "file": "pray_kneeling.fbx",
+   "inplace": "none",
+   "loop": true,
+   "floor": "min",
+   "lift_m": 0.045
+  },
+  {
+   "name": "Life_Mx_Lute",
+   "file": "bard_lute_guitar.fbx",
+   "inplace": "none",
+   "loop": true,
+   "floor": "min",
+   "loop_native": false
+  },
+  {
+   "name": "Life_Mx_Fiddle",
+   "file": "bard_fiddle_violin.fbx",
+   "inplace": "none",
+   "loop": true
+  }
+ ]
+}
