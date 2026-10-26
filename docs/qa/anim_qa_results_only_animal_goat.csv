@@ -1,0 +1,5 @@
+group,subject,clip,kind,game_uses,status,length_s,looping,slide_cm_s,ground_speed_m_s,penetration_cm,hover_cm,airborne_s,stretch_pct,scale_pct,pops,max_ang_acc_deg_f2,seam_deg,seam_cm,drift_cm,tpose_frames,notes
+animals,animal_goat,Idle,loop,true,FAIL,3.33,true,0.3,0.00,0.3,0.0,0.00,0.71,0.00,5,56.5,0.0,0.0,0.0,401,"5 pop(s), worst on 'FrontLowerLeg.L' at 2.67 s (57 deg/frame^2)"
+animals,animal_goat,Walk,loco,true,FAIL,1.17,true,50.6,0.77,2.9,0.0,0.00,2.08,0.00,2,79.1,0.0,0.0,0.0,0,"2.9 cm below floor (mesh); planted foot slips 51 cm/s (p75); bone 'FrontShoulder.R' stretches 2.1 %; 2 pop(s), worst on 'FrontLowerLeg.L' at 0.50 s (79 deg/frame^2)"
+animals,animal_goat,Run,loco,true,FAIL,0.50,true,27.3,4.01,1.0,0.0,0.09,6.09,0.00,1,103.6,24.5,0.0,1.0,0,"planted foot slips 27 cm/s (p75); bone 'BackShoulder.R' stretches 6.1 %; 1 pop(s), worst on 'FrontLowerLeg.R' at 0.33 s (76 deg/frame^2); loop seam jumps 24.5 deg ('BackLowerLeg.R')"
+animals,animal_goat,Eat,loop,true,WARN,6.00,true,0.4,0.00,0.2,0.0,0.00,0.66,0.00,3,41.6,0.0,0.0,0.0,220,"3 pop(s), worst on 'FrontLowerLeg.L' at 1.87 s (42 deg/frame^2)"
