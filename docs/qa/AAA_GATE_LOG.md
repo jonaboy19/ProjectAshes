@@ -380,3 +380,12 @@ Sheet: `docs/qa/golden/slice/lockon_guard_turn_180.jpg` (`tools_qa/anim_states/g
 | A locked foe behind the player is faced with a stepped guard turn, not a spin | PASS | Mx_SnS_180_Turn: feet step around over 0.8 s and end in the wide guard stance facing the foe |
 | No double turn | PASS | RootExtract moves the clips' pelvis yaw to meta "root_yaw" about the rig's real up axis (the first try used +Y on a Z-up track and flipped the body upside down: caught by eye); the model turns along the curve scaled to the real angle. Measured: Turn -94 deg, Turn_2 +99 deg, 180_Turn -181 deg, 180_Turn_2 -180 deg |
 | 100-150 deg (Turn / Turn_2) | NOT FILMED | same path; to film next |
+
+## 2026-10-27 MPFB pilot stage 1: Ashford villager man (player-animation worker) - WIP (not in game yet)
+Preview: `docs/qa/golden/slice/mpfb_pilot_villager_stage1.png` (Blender EEVEE, A-pose). Script: `tools/blender/mpfb/build_body.py --preset villager_man`.
+| Check | Result | Note |
+|---|---|---|
+| Realistic body and face (vs the faceted crowd) | PASS (preview) | MPFB macro targets (male, about 27 y, lean-muscular, European); CC0 middle-aged skin, eyebrows, short hair |
+| Medieval clothing | PARTIAL | CC0 suits02 viking tunic, hose, turn-up boots and belt read medieval. The tunic's mail chest panel is wrong for a villager: swap it for a plain wool tunic (retexture) in stage 2 |
+| Rig | PASS (names) | MPFB game_engine rig, 53 bones with the Unreal names the game uses (Root, pelvis, spine_01-03, clavicle/upperarm/lowerarm/hand, thigh/calf/foot/ball, fingers). The UAL rig has 65 (extra twist and IK bones); mapping and rest-pose check in stage 2 |
+| Budget | FAIL (expected at stage 1) | 45.7k tris unbaked. Stage 2: hidden-face delete under the clothes, decimate to 8k / 3k / 1k, bake to a 1K atlas, VAT tier |
