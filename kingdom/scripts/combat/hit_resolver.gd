@@ -11,9 +11,14 @@ extends RefCounted
 ##   swing: {} or {active_age: s since the defender's own active window opened (-99 when not active),
 ##            parryable, poise_damage, stat}  -> simultaneous strikes clash
 ## }
+## Locational damage (optional, WP-03): attack may carry "bone" / "hit_height" (+ "hit_lateral", "zone"), the defender
+##   "armour" = {equipment slot: armour} (HitZones.armour_by_slot). Landed hits then also report zone, zone_mult,
+##   armour_reduction and injury ("bleeding", "fracture_arm", "fracture_leg" or "") and damage is already scaled.
 ## Result keys: result (Outcome), grade (parry grade), damage (to defender), poise_damage (to defender),
 ##   guard_cost (pool), refund (to defender), attacker_stun / defender_stun (s), push (m on the attacker),
 ##   riposte (defender's next hit multiplier), winner ("attacker" / "defender" / "none" for clashes).
+
+const HitZones := preload("res://scripts/combat/hit_zones.gd")
 
 enum Outcome { HIT, BLOCKED, PARRIED, GUARD_BROKEN, CLASHED, DODGED }
 const NAMES := ["HIT", "BLOCKED", "PARRIED", "GUARD_BROKEN", "CLASHED", "DODGED"]
@@ -77,6 +82,7 @@ static func resolve(attack: Dictionary, defender: Dictionary, rng: RandomNumberG
 			if pdmg > poise * BROKEN_PARRY_RATIO:
 				p["grade"] = "broken"       # too heavy to turn aside: a third of it still hurts
 				p["damage"] = int(dmg * 0.35)
+				_zone(p, attack, defender, rng)
 				p["attacker_stun"] = 0.2
 				p["poise_damage"] = pdmg * 0.5
 				p["push"] = 1.0
@@ -111,6 +117,19 @@ static func resolve(attack: Dictionary, defender: Dictionary, rng: RandomNumberG
 	var h := _result(Outcome.HIT)
 	h["damage"] = dmg
 	h["poise_damage"] = pdmg
+	_zone(h, attack, defender, rng)
 	if pdmg >= poise:
 		h["defender_stun"] = 0.35           # poise break: a stagger on top of the damage
 	return h
+
+
+## Folds HitZones into a result that deals damage. Untouched when the attack has no zone data.
+static func _zone(res: Dictionary, attack: Dictionary, defender: Dictionary, rng: RandomNumberGenerator) -> void:
+	if HitZones.zone_of_attack(attack) == "" or int(res["damage"]) <= 0:
+		return
+	var z := HitZones.apply(attack, int(res["damage"]), defender.get("armour", {}), rng)
+	res["zone"] = z["zone"]
+	res["zone_mult"] = z["zone_mult"]
+	res["armour_reduction"] = z["armour_reduction"]
+	res["damage"] = z["damage"]
+	res["injury"] = z["injury"]

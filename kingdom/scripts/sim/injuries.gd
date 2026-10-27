@@ -40,6 +40,13 @@ const TYPES := {
 		"recovery_days": 3, "treat_cost": 18, "treat_hours": 8},
 	"broken_arm": {"name": "Broken Arm", "severity": 2, "effects": {"attack": -0.35},
 		"recovery_days": 24, "treat_cost": 28, "treat_hours": 12},
+	# Combat injuries from combat/hit_zones.gd. Bleeding drains `bleed_per_hour` health an hour until bandaged.
+	"bleeding": {"name": "Bleeding Wound", "severity": 1, "effects": {"stamina": -0.05},
+		"recovery_days": HEALER_ONLY, "treat_cost": 2, "treat_hours": 1, "bleed_per_hour": 2.0},
+	"fracture_arm": {"name": "Fractured Arm", "severity": 2, "effects": {"attack": -0.3},
+		"recovery_days": 20, "treat_cost": 24, "treat_hours": 10},
+	"fracture_leg": {"name": "Fractured Leg", "severity": 2, "effects": {"speed": -0.35, "stamina": -0.1},
+		"recovery_days": 24, "treat_cost": 28, "treat_hours": 12},
 	"torn_meridian": {"name": "Torn Meridian", "severity": 3, "effects": {"magicule_max": -0.2, "stamina": -0.1},
 		"recovery_days": HEALER_ONLY, "treat_cost": 60, "treat_hours": 24},
 	"fractured_core": {"name": "Fractured Core", "severity": 4,
@@ -117,6 +124,31 @@ func effects() -> Dictionary:
 		for k: String in eff:
 			out[k] = float(out.get(k, 0.0)) + float(eff[k])
 	return out
+
+
+## Health lost to bleeding over `hours` (every active bleeding wound, `bleed_per_hour` each).
+func bleed_damage(hours: float) -> float:
+	var total := 0.0
+	for inj in active:
+		total += float(info(String(inj["type"])).get("bleed_per_hour", 0.0)) * hours
+	return total
+
+
+func is_bleeding() -> bool:
+	return has("bleeding")
+
+
+## Bandage every bleeding wound (free first aid; a healer or time is still needed for fractures). Returns the count stopped.
+func bandage() -> int:
+	var keep: Array[Dictionary] = []
+	var stopped := 0
+	for inj in active:
+		if float(info(String(inj["type"])).get("bleed_per_hour", 0.0)) > 0.0:
+			stopped += 1
+		else:
+			keep.append(inj)
+	active = keep
+	return stopped
 
 
 ## Natural recovery. Returns the injuries that healed today.
