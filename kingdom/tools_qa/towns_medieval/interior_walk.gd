@@ -77,6 +77,7 @@ func run(m: Node) -> void:
 		_hide_ui()      # dialogs and prompts that open during the walk
 		await get_tree().process_frame
 	print("FLY_END ", Engine.get_frames_drawn())
+	print("INTERIOR_CLUTTER ", room.get_meta("clutter_count", -1))
 	var beds := 0
 	for body in room.find_children("Person_*", "", true, false):
 		var bn := body as Node3D
