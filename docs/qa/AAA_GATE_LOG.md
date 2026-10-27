@@ -343,3 +343,14 @@ Videos (PA_plans/videos): slice_2026-10-27_1331_3a0768bba_leans4.mp4 (leans, sid
 | Firewood bundle (props_refined/firewood_bundle) + carry kind | PASS | 704 tris, firewood_stack CC0 textures; rides over the shoulder with the sack carry upper |
 | Flee drop | PASS | the load leaves the hand and comes to rest on the cobbles (0.45 s), lies 30 s; no pop out of the hand |
 | Life_Cmu_Stir / Saw / Hammer_Nail | PASS, wired cook_pot / sawhorse / nail_plank (re-enabled) | CMU clips re-run through mixamo_to_ual.py --rig ual (identity map: foot pin + seam), saw / hammer looped on their stationary windows; Saw and Hammer gold on all rigs, Stir gold on the villager rigs |
+
+## 2026-10-28 Refine round 3 (Blender refine worker): coordinator's CC0 scans swapped in
+Files: `docs/plans/props_refined/sheet.jpg`, `buildings_sheet.jpg`. The new scans (fbf4e24a9) are rusty_metal_02, rough_linen, brown_leather, plastered_wall_02, beam_wall_01 and roof_slates_03, in iron, sacks, canvas, limewash, framing and slate.
+| Asset | Result |
+|---|---|
+| tavern_sign bracket, barrel hoops, well, hearth, crates, cart | PASS: dark wrought iron with rust (scan) |
+| cart sacks, market_stall canopy | PASS: linen scan, faded ochre canopy |
+| B43/B52/B53 roofs | PASS: calm grey slate replaces the noisy shingle |
+| Tudor set and B14 walls | B44/B60 PASS; B43/B52/B53/B14 PASS (borderline; B14's limewash is patchy) |
+| trough_granite | granite_wall rejected (masonry courses on a monolith); stays procedural granite, PASS (borderline) |
+| scabbard_arming (new, player worker's geometry) | PASS (borderline): the leather is mid-brown and the frog is only a tab |

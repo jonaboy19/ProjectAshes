@@ -144,6 +144,8 @@ LIB = {
                        edge=(0.80, 0.78, 0.74), wear=0.3, grime=0.7, mud=0.6, moss=0.35, detail=0.75),
     "stone_soot": dict(kind="scan", tex="rock_face", tile=1.2, sat=0.2, val=0.35, tint=(0.9, 0.88, 0.86), bump=1.0, rough=0.0,
                        edge=(0.35, 0.33, 0.31), wear=0.1, grime=0.8, mud=0.0),
+    # hewn granite: procedural grey granite over rock_face grain + chisel tooling. granite_wall (Poly Haven, 2026-10-28) was
+    # tried and rejected: its masonry course joints make a monolithic trough read as a block wall.
     "granite":    dict(kind="scan", tex="rock_face", tile=0.6, sat=0.0, val=1.0, tint=(1, 1, 1), bump=0.8, rough=0.02, granite=True, tooled=True,
                        edge=(0.42, 0.42, 0.40), wear=0.4, grime=0.95, mud=0.7, moss=0.85, drip=(0.6, 0.15, 0.7)),
     "plaster":    dict(kind="scan", tex="rough_plaster_03", tile=1.5, sat=0.6, val=0.75, tint=(0.95, 0.90, 0.82), bump=0.6, rough=0.0,
@@ -153,20 +155,24 @@ LIB = {
     "straw":      dict(kind="scan", tex="thatch_roof_angled", tile=0.9, sat=1.25, val=1.3, tint=(1.0, 0.86, 0.52), bump=1.0, rough=0.05,
                        edge=(0.85, 0.78, 0.55), wear=0.15, grime=0.5, mud=0.3),
     # no real-scan iron / fabric / leather is on disk: procedural base, same weathering stack (see README "what still fails")
-    "iron":       dict(kind="proc", color=(0.055, 0.05, 0.047), rust=(0.17, 0.085, 0.04), metal=0.85, rough0=0.6, bumpscale=180.0,
-                       bump=0.35, edge=(0.24, 0.23, 0.22), wear=0.35, grime=0.4, mud=0.3, edge_dist=0.004),
-    "leather":    dict(kind="proc", color=(0.16, 0.09, 0.05), metal=0.0, rough0=0.62, bumpscale=260.0, bump=0.25,
-                       edge=(0.30, 0.20, 0.12), wear=0.5, grime=0.4, mud=0.2),
-    "burlap":     dict(kind="proc", color=(0.50, 0.40, 0.27), metal=0.0, rough0=0.95, weave=420.0, bump=0.45,
+    # wrought iron: Poly Haven rusty_metal_02 (metallic from the scan's ARM blue), darkened toward black iron
+    "iron":       dict(kind="scan", tex="rusty_metal_02", tile=0.6, sat=0.75, val=0.16, tint=(0.85, 0.84, 0.84), bump=0.4, rough=0.0,
+                       arm_metal=True, edge=(0.30, 0.30, 0.30), wear=0.35, grime=0.4, mud=0.3, edge_dist=0.004),
+    "leather":    dict(kind="scan", tex="brown_leather", tile=0.5, sat=0.9, val=0.55, tint=(1, 1, 1), bump=0.5, rough=0.0,
+                       edge=(0.30, 0.20, 0.12), wear=0.4, grime=0.4, mud=0.2, edge_dist=0.004),
+    # burlap / canvas: Poly Haven rough_linen (blue-dyed scan -> fully desaturated, then tinted)
+    "burlap":     dict(kind="scan", tex="rough_linen", tile=0.35, sat=0.0, val=1.0, tint=(0.62, 0.50, 0.34), bump=0.6, rough=0.0,
                        edge=(0.58, 0.48, 0.34), wear=0.1, grime=0.5, mud=0.4),
     "rope":       dict(kind="proc", color=(0.28, 0.22, 0.13), metal=0.0, rough0=0.95, weave=300.0, bump=0.4,
                        edge=(0.55, 0.47, 0.33), wear=0.1, grime=0.4, mud=0.2, edge_dist=0.004),
     # keep Meshy's painted albedo but de-AI it: desaturate, add weave/noise breakup and the weathering stack
-    "canvas":     dict(kind="meshy", sat=0.60, val=0.95, hue=0.525, tint=(1.0, 0.96, 0.84), rough0=0.9, weave=700.0, bump=0.3, edge=(0.7, 0.62, 0.45), wear=0.1, grime=0.6, mud=0.0),
+    "canvas":     dict(kind="scan", tex="rough_linen", tile=0.5, sat=0.0, val=0.82, tint=(0.88, 0.72, 0.46), bump=0.4, rough=0.0,
+                       edge=(0.7, 0.62, 0.45), wear=0.1, grime=0.6, mud=0.0, detail=0.35, detail_val=1.0),
     "meshy_leather": dict(kind="meshy", sat=0.9, val=0.9, rough0=0.55, bumpscale=900.0, bump=0.15, edge=(0.32, 0.22, 0.14), wear=0.25,
                           grime=0.3, mud=0.0, edge_dist=0.004),
     "meshy":      dict(kind="meshy", sat=0.85, val=0.95, rough0=0.65, bumpscale=120.0, bump=0.2, edge=(0.8, 0.75, 0.65), wear=0.05, grime=0.4, mud=0.0),
-    "meshy_burlap": dict(kind="meshy", sat=0.75, val=0.78, rough0=0.95, weave=420.0, bump=0.45, edge=(0.6, 0.5, 0.36), wear=0.1, grime=0.5, mud=0.4),
+    "meshy_burlap": dict(kind="scan", tex="rough_linen", tile=0.35, sat=0.0, val=0.85, tint=(0.66, 0.53, 0.35), bump=0.6, rough=0.0,
+                         edge=(0.6, 0.5, 0.36), wear=0.1, grime=0.5, mud=0.4, detail=0.45, detail_val=1.0),
     # trough water: not baked, its own small material
     "water":      dict(kind="water"),
     # painted sign board: dark oak with the emblem image (aux UV) mixed in
@@ -267,6 +273,8 @@ def make_material(cls, meshy_img=None, paint_img=None):
         sep = nb.new("ShaderNodeSeparateColor")
         nb.link(at.outputs["Color"], sep.inputs["Color"])
         rough = nb.math("ADD", sep.outputs["Green"], spec.get("rough", 0.0), clamp=True)
+        if spec.get("arm_metal"):
+            metal = sep.outputs["Blue"]
         bw = nb.new("ShaderNodeRGBToBW")
         nb.link(dt.outputs["Color"], bw.inputs["Color"])
         height = nb.math("ADD", nb.math("MULTIPLY", sep.outputs["Red"], 0.6), nb.math("MULTIPLY", bw.outputs[0], 0.4))

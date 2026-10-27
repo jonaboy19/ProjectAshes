@@ -8,7 +8,7 @@ from PIL import Image, ImageDraw, ImageFont
 gate, stats, out = sys.argv[1:4]
 A = ["cart", "well", "crate_stack", "trestle_table", "hearth", "market_stall", "belt_pouch"]
 B = ["bench_hewn", "trough_granite", "tavern_sign", "barrel_rack", "fence_wattle", "fence_post_rail", "haystack", "hay_bundle",
-     "firewood_stack"]
+     "firewood_stack", "scabbard_arming"]
 info = {}
 for line in open(stats):
     p = line.rstrip("\n").split("\t")
