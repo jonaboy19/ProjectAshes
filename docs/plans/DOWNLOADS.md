@@ -153,3 +153,19 @@ Total downloaded **307 MB** (budget 3 GB); in repo after rejects **240 MB**. Res
 | `belfast_open_field` | https://polyhaven.com/a/belfast_open_field | CC0 1.0 | 2K HDRI .hdr | 6.5 MB | IMPORTED | lookdev only (overcast) |
 | `barnaslingan_02` | https://polyhaven.com/a/barnaslingan_02 | CC0 1.0 | 2K HDRI .hdr | 6.8 MB | IMPORTED | lookdev only (partly cloudy) |
 | `ThatchedRoof001A` | https://ambientcg.com/view?id=ThatchedRoof001A | CC0 1.0 | 2K texture zip (Color/NormalGL/Roughness/AO) | 32.5 MB | REJECTED | reads as brushed fabric, no straw relief |
+| `makehuman_system_assets_cc0.zip` | https://files2.makehumancommunity.org/asset_packs/makehuman_system_assets/makehuman_system_assets_cc0.zip | CC0 (makehuman_system) | MPFB asset pack: skins (young/middle/old), eyes, eyebrows, eyelashes, teeth, tongue, hair, proxies, basic clothes, shoes | 268 MB | STAGED (art_staging/downloads/makehuman, not git) | character pilot (CHARACTER_PLAN.md) |
+| `suits02_cc0.zip` | https://files2.makehumancommunity.org/asset_packs/suits02/suits02_cc0.zip | CC0 | MPFB clothes; used: rehmanpolanski_viking_tunic / _pants / _boots, donitz_monk_robe (+ hood variants) as medieval tunic, hose, boots and hooded robe bases | 184 MB | STAGED | villager pilot clothing |
+| `dress01_cc0.zip` | https://files2.makehumancommunity.org/asset_packs/dress01/dress01_cc0.zip | CC0 | MPFB clothes; used: toigo_shift_dress (chemise/kirtle base), wdg_mycenaean_tunic | 44 MB | STAGED | female crowd base |
+
+## CC0 texture sets for the Blender refine pipeline (2026-10-28, coordinator; owner-approved free assets)
+Poly Haven, CC0 1.0, 2K jpg (diff / nor_gl / arm), in `kingdom/assets/cc0/textures/<id>/` with LICENSE.txt. Total 55 MB.
+| id | use |
+|---|---|
+| clay_plaster, plastered_wall_02 | limewash infill on half-timbered houses |
+| beam_wall_01 | dark timber frames and beams |
+| rusty_metal_02 | wrought iron (hoops, brackets, hinges) |
+| rough_linen | burlap sacks, canvas canopies |
+| brown_leather | belts, pouches, scabbards |
+| granite_wall | granite trough, hewn stone |
+| roof_slates_03 | slate roofs |
+No thatch set exists on Poly Haven (thatch stays procedural).
