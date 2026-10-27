@@ -576,6 +576,22 @@
    "grip2_m": null,
    "hand": "r",
    "note": "(scene) handle of the forge bellows"
+  },
+  "firewood_bundle": {
+   "file": "res://assets/props_refined/firewood_bundle/firewood_bundle.glb",
+   "grip_axis": [
+    1,
+    0,
+    0
+   ],
+   "front_axis": [
+    0,
+    0,
+    1
+   ],
+   "grip2_m": null,
+   "hand": "r",
+   "note": "origin at the gripped end of a 7-log bundle (0.55-0.66 m, two rope bands), logs run along -Z like the sack body: rides over the shoulder with the sack carry upper (tools/blender/props/build_firewood_bundle.py)"
   }
  },
  "scene": {

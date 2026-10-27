@@ -1,0 +1,3 @@
+Asset: firewood_bundle (Rising Ashes, 2026-10-28)
+Geometry: built procedurally in Blender by tools/blender/props/build_firewood_bundle.py (project-owned).
+Materials: firewood_stack textures (CC0 1.0 Poly Haven scans baked in Blender); no attribution required.

@@ -53,5 +53,6 @@ func _run() -> void:
 		var mid: Vector3 = (g.call("foot_l") + g.call("foot_r")) * 0.5
 		var side: Vector3 = g.call("thigh_l") - g.call("thigh_r")
 		var fwd := Vector3.UP.cross(side)
-		print("ENDPOSE %s feet_mid=(%.3f, %.3f, %.3f) yaw_deg=%.1f" % [c, mid.x, mid.y, mid.z, rad_to_deg(atan2(fwd.x, fwd.z))])
+		var pel: Vector3 = g.call("pelvis")
+		print("ENDPOSE %s feet_mid=(%.3f, %.3f, %.3f) pelvis=(%.3f, %.3f, %.3f) yaw_deg=%.1f" % [c, mid.x, mid.y, mid.z, pel.x, pel.y, pel.z, rad_to_deg(atan2(fwd.x, fwd.z))])
 	get_tree().quit(0)

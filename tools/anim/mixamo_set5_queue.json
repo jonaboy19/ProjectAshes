@@ -134,7 +134,8 @@
     "key": "loop",
     "enable": false
    },
-   "props": []
+   "props": [],
+   "seat_back": 0.05
   },
   {
    "id": "Life_Mx5_Sit_Cheer_Talk",
@@ -147,7 +148,8 @@
     "key": "loop",
     "enable": false
    },
-   "props": []
+   "props": [],
+   "seat_back": 0.05
   },
   {
    "id": "Life_Mx5_Sit_Down_Drink",

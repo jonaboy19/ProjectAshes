@@ -18,8 +18,10 @@ const KINDS := {
 	"sack": {"prop": {"id": "sack", "hand": "r"}, "upper": "Life_Mz_Carry_Sack_Walk"},
 	"crate": {"prop": {"id": "crate_small", "hand": "r"}, "upper": "Life_Mx_Carry_Box_Walk"},
 	"basket": {"prop": {"id": "basket", "hand": "l"}, "upper": ""},
+	"firewood": {"prop": {"id": "firewood_bundle", "hand": "r"}, "upper": "Life_Mz_Carry_Sack_Walk"},
 }
-const ORDER := ["sack", "crate", "basket", "sack", "basket"]
+const ORDER := ["sack", "crate", "basket", "firewood", "sack", "basket", "firewood"]
+const DROP_KEEP_S := 30.0         # a load dropped when running for it lies in the street this long
 
 var state := S.NONE
 var kind := ""
@@ -73,13 +75,40 @@ func finish(anim: AnimationPlayer) -> Array:
 	return [clip, _len]
 
 
-## Drop at once (urgent act, despawn): no clip.
-func drop(props: LifeProps.Holder) -> void:
+## Drop at once (urgent act: running for it). The load leaves the hand and falls to the street, lies there DROP_KEEP_S and
+## goes (no pop out of the hand). `world` is where the dropped prop lives (the villager's parent).
+func drop(props: LifeProps.Holder, world: Node = null) -> void:
 	if _shown and props != null:
+		var prop: Dictionary = KINDS.get(kind, {}).get("prop", {})
+		var key := String(prop.get("id", "")) + "|" + String(prop.get("hand", "r"))
+		var att: Variant = props._att.get(key)
+		if world != null and att is Node3D and is_instance_valid(att):
+			props._att.erase(key)
+			drop_to_ground(att as Node3D, world)
 		props.clear()
 	_shown = false
 	state = S.NONE
 	kind = ""
+
+
+## Detach a hand prop into the world and let it fall onto the ground below (simple ease, no physics body), then free it.
+static func drop_to_ground(att: Node3D, world: Node) -> void:
+	var gx := att.global_transform
+	att.get_parent().remove_child(att)
+	var holder := Node3D.new()
+	holder.name = "DroppedLoad"
+	world.add_child(holder)
+	holder.global_transform = Transform3D.IDENTITY
+	holder.add_child(att)
+	att.global_transform = gx
+	var ground := WorldGen.height(gx.origin.x, gx.origin.z)
+	var lie := Basis(Vector3.UP, gx.basis.get_euler().y) * Basis(Vector3.RIGHT, PI * 0.5)     # comes to rest on its side
+	var tw := holder.create_tween()
+	tw.set_parallel(true)
+	tw.tween_property(att, "global_position", Vector3(gx.origin.x, ground + 0.12, gx.origin.z), 0.45).set_ease(Tween.EASE_IN).set_trans(Tween.TRANS_QUAD)
+	tw.tween_property(att, "global_basis", lie.scaled(gx.basis.get_scale()), 0.45)
+	tw.chain().tween_interval(DROP_KEEP_S)
+	tw.chain().tween_callback(holder.queue_free)
 
 
 ## Advance the timers; shows / hides the prop at the bottom of the bend. Returns true when the errand just ended.

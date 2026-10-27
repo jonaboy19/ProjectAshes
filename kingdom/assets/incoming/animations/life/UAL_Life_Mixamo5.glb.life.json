@@ -231,7 +231,8 @@
    "note": "Mixamo work_set5: sit_chair_laughing.fbx",
    "source": "Mixamo work_set5 (tools/anim/mixamo_set5.json, mixamo_to_ual.py)",
    "frames": 236,
-   "seconds": 7.833
+   "seconds": 7.833,
+   "seat_back": 0.05
   },
   "Life_Mx5_Sit_Cheer_Talk": {
    "category": "social/tavern",
@@ -252,7 +253,8 @@
    "note": "Mixamo work_set5: sit_cheer_talk_neighbor.fbx",
    "source": "Mixamo work_set5 (tools/anim/mixamo_set5.json, mixamo_to_ual.py)",
    "frames": 108,
-   "seconds": 3.567
+   "seconds": 3.567,
+   "seat_back": 0.05
   },
   "Life_Mx5_Sit_Down_Drink": {
    "category": "social/tavern",

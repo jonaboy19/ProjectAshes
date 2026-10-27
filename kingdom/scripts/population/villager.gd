@@ -2427,7 +2427,7 @@ func _carry_plan(here: Vector2, goal: Vector2, _to_spot: bool) -> void:
 		return
 	if _carry.state != CarryErrand.S.NONE:
 		if _pace > 1.5:
-			_carry.drop(_props)                 # running for it: let go
+			_carry.drop(_props, get_parent())   # running for it: the load falls to the street
 		elif _carry.state == CarryErrand.S.CARRY and _plan_indoors:
 			_carry_bend(_carry.finish(_anim))   # going in: set it down first
 		return

@@ -11,6 +11,7 @@ extends RefCounted
 ## terrain backend, hero rig, the clips the player animator resolves per state) and SLICESEG lines at segment starts.
 const Slice := preload("res://scripts/world/town_kit/slice_dressing.gd")
 const NpcWorld := preload("res://scripts/population/npc_world.gd")
+const CarryErrandScript := preload("res://scripts/living_world/carry_errand.gd")
 
 var b
 var player: Node3D
@@ -187,6 +188,8 @@ func _clip_street(spec: String) -> void:
 			# item syntax: <clip>[+<upper>][@<prop>:<hand>][>]  (+: runtime upper-body layer like the villager's carry,
 			# @: a LifeProps item in that hand, >: walk 7 m across the shot at 1.2 m/s instead of standing)
 			var item := String(names[i]).strip_edges()
+			var drop := item.ends_with("!")     # !: drop the prop after 4 s (carry errand flee drop)
+			item = item.trim_suffix("!")
 			var walk := item.ends_with(">")
 			item = item.trim_suffix(">")
 			var prop_id := ""
@@ -211,7 +214,12 @@ func _clip_street(spec: String) -> void:
 			if clip.contains("+"):
 				clip = LifeLibrary.composite(ap, clip.get_slice("+", 0), clip.get_slice("+", 1))
 			if prop_id != "":
-				LifeProps.attach(sk, prop_id, prop_hand)
+				var att := LifeProps.attach(sk, prop_id, prop_hand)
+				if drop and att != null:
+					var world := player.get_parent()
+					b.get_tree().create_timer(4.0).timeout.connect(func() -> void:
+						if is_instance_valid(att):
+							CarryErrandScript.drop_to_ground(att, world))
 			for pp: Dictionary in (LifeLibrary.info(clip).get("props", []) as Array):
 				LifeProps.attach(sk, String(pp.get("id", "")), String(pp.get("hand", "")))
 			if ap.has_animation(clip):
