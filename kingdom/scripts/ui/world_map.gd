@@ -1405,6 +1405,9 @@ func _draw_legend() -> void:
 	var h := 40.0 + rows.size() * row_h * 0.5 + 12.0 + ceilf(rows.size() / 2.0) * 0.0
 	h = 48.0 + ceilf(rows.size() / 2.0) * row_h + 10.0 + ceilf(lines.size() / 2.0) * 26.0
 	var bottom := size.y - 190.0
+	if bottom - h < 120.0 or size.x < w + 260.0:
+		_legend_rect = Rect2()   # too small a map (the War Room inset): it would cover the title cartouche
+		return
 	_legend_rect = Rect2(16, bottom - h, w, h)
 	draw_style_box(_panel, _legend_rect)
 	var p := _legend_rect.position

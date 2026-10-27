@@ -9,10 +9,18 @@ signal sat(player: Node)
 signal stood(player: Node)
 
 const MOVE_DEADZONE := 0.25
+const SIT_BACK := 0.35         ## m the sit clips put the pelvis behind the root (SmartObjects.SEAT_REF)
+## Mixamo sit set (NPC agent, golden gold): enter / loop / exit, pelvis MX_BACK behind the root seated, EXIT_BACK at the exit start.
+const ENTER := "Life_Mx_Stand_To_Sit"
+const EXIT := "Life_Mx_Sit_To_Stand"
+const MX_BACK := 0.05
+const EXIT_BACK := 0.463
 
 var kind := "chair"            ## "chair" or "bench"
 var seat_height := 0.0         ## metres above this node's origin the hips rest at
 var occupant: Node3D = null
+var _was_sheathed := false
+var _mx := false
 ## False when the room draws the furniture itself (modular interiors batch it into one mesh).
 var build_visual := true
 
@@ -61,7 +69,14 @@ func sit(player: Node3D) -> bool:
 	if player == null or occupant != null or bool(player.get("dead")):
 		return false
 	occupant = player
-	player.global_position = global_position + Vector3(0.0, seat_height, 0.0)
+	# The sit clips put the pelvis SIT_BACK behind the character's root (Life_Rest_Sit_Bench / _Chair, the SmartObjects
+	# SEAT_REF): the root stands that far in front of the seat, or the body hovers behind the bench with its hands on the top.
+	var an0: Variant = player.get("_animator")
+	_mx = an0 is Object and (an0 as Object).has_method("has_clip") and (an0 as Object).call("has_clip", ENTER) 			and (an0 as Object).call("has_clip", EXIT) and (an0 as Object).call("has_clip", "Life_Mx_Sit_Chair")
+	player.global_position = global_position + global_basis.z.normalized() * (MX_BACK if _mx else SIT_BACK) + Vector3(0.0, seat_height, 0.0)
+	if player.has_method("set_sheathed"):
+		_was_sheathed = bool(player.get("sheathed"))
+		player.call("set_sheathed", true, true)        # weapons to the hip / back: nobody sits on a drawn greatsword
 	if player.has_method("reset_physics_interpolation"):
 		player.call("reset_physics_interpolation")
 	if player is CharacterBody3D:
@@ -71,7 +86,9 @@ func sit(player: Node3D) -> bool:
 		(model as Node3D).global_rotation.y = global_rotation.y
 	var an: Variant = player.get("_animator")
 	if an is Object and (an as Object).has_method("set_stance"):
-		(an as Object).call("set_stance", stance_name())
+		(an as Object).call("set_stance", "sit_mx" if _mx else stance_name())
+		if _mx:
+			(an as Object).call("play_full", ENTER, 1.0)     # sits down: ends with the pelvis MX_BACK behind the root
 	player.set_meta("seated_on", self)
 	set_physics_process(true)
 	sat.emit(player)
@@ -86,6 +103,16 @@ func stand(player: Node3D = null) -> void:
 	occupant = null
 	set_physics_process(false)
 	if is_instance_valid(who):
+		if _mx:
+			# Sit_To_Stand starts seated with the pelvis EXIT_BACK behind the root: move the root forward in the same frame
+			who.global_position += global_basis.z.normalized() * (EXIT_BACK - MX_BACK)
+			if who.has_method("reset_physics_interpolation"):
+				who.call("reset_physics_interpolation")
+			var an1: Variant = who.get("_animator")
+			if an1 is Object:
+				(an1 as Object).call("play_full", EXIT, 1.2)
+		if who.has_method("set_sheathed") and not _was_sheathed:
+			who.call("set_sheathed", false, true)
 		var an: Variant = who.get("_animator")
 		if an is Object and (an as Object).has_method("set_stance"):
 			(an as Object).call("set_stance", "")

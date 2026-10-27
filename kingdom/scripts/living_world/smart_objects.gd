@@ -20,6 +20,8 @@ extends RefCounted
 
 const DATA := "res://data/living_world/smart_objects.json"
 const CELL := 16.0
+## Pelvis distance behind the root that seated slots are laid out for (Life_Rest_Sit_Bench).
+const SEAT_REF := 0.35
 const JOBS := ["Farmer", "Blacksmith", "Merchant", "Guard", "Laborer", "Woodcutter"]
 
 var types: Dictionary = {}
@@ -435,6 +437,12 @@ class Session:
 		time_left = _rng.randf_range(float(dur[0]), float(dur[1]))
 		_new_cycles()
 
+	static func _offset(clip: String, key: String) -> Vector3:
+		if clip == "":
+			return Vector3.ZERO
+		var a: Variant = LifeLibrary.info(clip).get(key)
+		return Vector3(float(a[0]), float(a[1]), float(a[2])) if a is Array and (a as Array).size() == 3 else Vector3.ZERO
+
 	func _new_cycles() -> void:
 		var c: Array = act.get("cycles", [2, 4])
 		cycles_left = _rng.randi_range(int(c[0]), int(c[1]))
@@ -455,6 +463,19 @@ class Session:
 
 	func stand() -> Transform3D:
 		return so.stand_xform(spot, slot)
+
+	## Seated slots ("seat" in the slot) are laid out for a pelvis SEAT_REF behind the root (Life_Rest_Sit_Bench).
+	## Sit clips carry their own `seat_back` (sidecar); the root moves along the character's forward so every clip's
+	## pelvis lands on the same seat point instead of floating in front of / behind the bench.
+	func seated(sx: Transform3D, c: String) -> Transform3D:
+		var sl: Dictionary = so.types[so.spots[spot]["type"]]["slots"][slot]
+		if not sl.has("seat") or c == "":
+			return sx
+		var info := LifeLibrary.info(c)
+		if not info.has("seat_back"):
+			return sx
+		var fwd := sx.basis.z.normalized()
+		return Transform3D(sx.basis, sx.origin + fwd * (float(info["seat_back"]) - SEAT_REF))
 
 	func _go(p: int) -> void:
 		phase = p
@@ -532,8 +553,13 @@ class Session:
 			return {"phase": DONE, "move_to": null, "face": NAN, "clip": "",
 				"restart": false, "props": [], "event": null}
 		_t += delta
+		var phase_in := phase
 		var out := {"phase": phase, "move_to": null, "face": NAN, "clip": clip, "restart": false, "props": [], "event": null}
 		var sx := stand()
+		# seated clips: align the pelvis on the seat (ENTER aligns on the clip it ends in: the first loop clip)
+		if phase in [ENTER, LOOP, BETWEEN, EXIT] or phase == ALIGN:
+			var ref_clip: String = clip if phase in [LOOP, BETWEEN] else String(act.get("enter" if phase in [ALIGN, ENTER] else "exit", clip))
+			sx = seated(sx, ref_clip)
 		match phase:
 			APPROACH:
 				var ap := so.approach_point(spot, slot)
@@ -543,10 +569,13 @@ class Session:
 					out["move_to"] = ap
 					out["clip"] = ""
 			ALIGN:
-				out["move_to"] = sx.origin
+				# Root-motion enters (sidecar "entry_offset", character frame: +Z forward): the clip starts with the body
+				# that far from its root, so stand there; the root jumps onto the slot when the enter starts (no visible move).
+				var entry := sx.origin + sx.basis * _offset(String(act.get("enter", "")), "entry_offset")
+				out["move_to"] = entry
 				out["face"] = atan2(sx.basis.z.x, sx.basis.z.z)
 				out["clip"] = ""
-				var alignment_error := Vector2(body.x - sx.origin.x, body.z - sx.origin.z).length()
+				var alignment_error := Vector2(body.x - entry.x, body.z - entry.z).length()
 				if alignment_error < 0.06:
 					_go(ENTER)
 				elif _t > 1.5:
@@ -580,8 +609,18 @@ class Session:
 					_new_cycles()
 					_go(LOOP)
 			EXIT:
+				out["snap"] = sx
 				if clip_done and _t > 0.1:
 					_go(DONE)
+					# root-motion exits (sidecar "exit_offset"): the clip ends with the body away from the root, move it there
+					var xo := _offset(String(act.get("exit", "")), "exit_offset")
+					if xo != Vector3.ZERO:
+						out["exit_to"] = sx.origin + sx.basis * xo
+		if phase != phase_in and phase in [ENTER, EXIT] and clip != "" and (LifeLibrary.info(clip).has("entry_offset") or LifeLibrary.info(clip).has("seat_back")):
+			# Cut into an enter / exit: the clip may start with the body away from its root (entry_offset, seat_back);
+			# place the root for THIS clip in the same frame the clip starts (blend_in 0 on those clips): no pop.
+			out["snap"] = seated(stand(), clip)
+			out["snap_hard"] = true
 		out["phase"] = phase
 		out["clip"] = clip if phase in [ENTER, LOOP, BETWEEN, EXIT] else ""
 		out["restart"] = _restart

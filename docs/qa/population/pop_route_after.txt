@@ -1,0 +1,46 @@
+POPLOG_SUM changes=1467 on_screen=38 on_screen_faded=101 kinds={ "none>full@on(faded)": 1, "none>vat@on": 23, "none>vat@off": 142, "none>vat@on(faded)": 15, "vat>full@off": 43, "none>full@off": 3, "none>sprite@off": 438, "vat>none@off": 193, "full>vat@off": 27, "sprite>none@off": 318, "sprite>vat@off": 129, "none>sprite@on": 5, "full>vat@on": 5, "vat>full@on(faded)": 27, "full>sprite@off": 21, "vat>none@on(faded)": 2, "none>sprite@on(faded)": 56, "full>none@off": 14, "sprite>full@on": 3, "sprite>vat@on": 2 }
+POPLOG_DRAWN sprite=107 vat=80 full=15
+POPLOG_DRAWN sprite=110 vat=78 full=10
+POPLOG_DRAWN sprite=68 vat=78 full=10
+POPLOG on-screen none>vat@on id=195 dist=19.4
+POPLOG on-screen none>vat@on id=114 dist=19.5
+POPLOG on-screen none>vat@on id=132 dist=19.5
+POPLOG on-screen none>vat@on id=190 dist=20.6
+POPLOG on-screen none>vat@on id=93 dist=19.6
+POPLOG on-screen none>vat@on id=85 dist=20.6
+POPLOG on-screen none>vat@on id=15 dist=19.7
+POPLOG on-screen none>vat@on id=12 dist=19.7
+POPLOG on-screen none>vat@on id=13 dist=20.7
+POPLOG on-screen none>vat@on id=48 dist=19.7
+POPLOG on-screen none>vat@on id=70 dist=20.9
+POPLOG on-screen none>vat@on id=174 dist=21.0
+POPLOG on-screen none>vat@on id=186 dist=21.0
+POPLOG on-screen none>vat@on id=30 dist=36.2
+POPLOG on-screen none>vat@on id=121 dist=30.1
+POPLOG on-screen none>vat@on id=118 dist=30.2
+POPLOG on-screen none>vat@on id=35 dist=30.0
+POPLOG on-screen none>vat@on id=192 dist=30.8
+POPLOG on-screen none>vat@on id=171 dist=30.1
+POPLOG on-screen none>sprite@on id=167 dist=48.1
+POPLOG on-screen full>vat@on id=24 dist=40.0
+POPLOG on-screen none>vat@on id=153 dist=45.0
+POPLOG on-screen full>vat@on id=17 dist=25.2
+POPLOG on-screen sprite>full@on id=207 dist=8.6
+POPLOG on-screen none>vat@on id=115 dist=10.2
+POPLOG on-screen none>vat@on id=113 dist=11.3
+POPLOG on-screen sprite>vat@on id=66 dist=14.3
+POPLOG on-screen sprite>vat@on id=205 dist=14.4
+POPLOG on-screen none>vat@on id=122 dist=14.9
+POPLOG on-screen none>sprite@on id=170 dist=17.0
+POPLOG on-screen none>sprite@on id=149 dist=22.8
+POPLOG on-screen none>sprite@on id=38 dist=26.0
+POPLOG on-screen none>sprite@on id=16 dist=29.1
+POPLOG on-screen full>vat@on id=20 dist=10.3
+POPLOG on-screen sprite>full@on id=56 dist=6.0
+POPLOG on-screen full>vat@on id=203 dist=14.8
+POPLOG on-screen full>vat@on id=164 dist=14.7
+POPLOG on-screen sprite>full@on id=153 dist=3.7
+POPLOG on-screen none>vat@on id=1226 dist=20.3
+POPLOG on-screen none>vat@on id=1383 dist=29.7
+POPLOG on-screen sprite>vat@on id=1177 dist=39.8
+POPLOG on-screen none>vat@on id=1657 dist=28.3

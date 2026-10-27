@@ -1,0 +1,11 @@
+{
+  "_doc": "Vertical slice dressing (docs/plans/MASTER_BACKLOG.md scenario A + the road bandit camp). Every position is RELATIVE to its town: x = metres along the town's first-gate axis (outward), z = metres to the left of it; the ground height is sampled at build time. Relocatable with the town (new real-terrain world).",
+  "scenario_a": {
+    "town": "Ashford",
+    "hayloft": {"at": [34.0, -26.0], "yaw_deg": 0.0, "floor_h": 3.2, "size": [6.0, 4.0]},
+    "fence": {"at": [26.0, -22.0], "length": 8.0, "height": 1.05},
+    "house_bid": "ashford_house_1",
+    "notes": "house_bid = the town-kit home the bot enters (interior has chairs); the chair sit itself is WP-01 (player SmartObject sit)."
+  },
+  "road_bandit_camp": {"from": "Ashford", "to": "Kingsreach", "frac": 0.55, "offset": 55.0, "name": "Kingsreach Road Camp"}
+}

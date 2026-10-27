@@ -1293,6 +1293,20 @@ func _problems_step(f: Dictionary, day: int, n: float, msgs: Array) -> void:
 		(_civ()).call("add_pressure", String(f["node"]), "famine", 0.01 * n)
 
 
+## The player beat a raid on this settlement in person: the open "raid" problem is solved and raid pressure drops. True if one was open.
+func defend_raid(fid: int) -> bool:
+	var f: Dictionary = _f.get(fid, {})
+	if f.is_empty():
+		return false
+	for pr: Array in f["probs"]:
+		if String(pr[0]) == "raid" and int(pr[2]) < 0:
+			pr[2] = _day
+			(f["stress"] as Dictionary)["raid"] = 0.0
+			_hist(f, "a raid beaten off by its lord")
+			return true
+	return false
+
+
 func _bump(s: Dictionary, k: String, d: float) -> void:
 	s[k] = clampf(float(s.get(k, 0.0)) + d, 0.0, 1.5)
 

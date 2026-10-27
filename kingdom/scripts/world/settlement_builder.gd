@@ -66,7 +66,14 @@ var _prop_jobs: Array = []       # unfinished DistrictProps jobs (time-sliced, d
 var _merge_jobs: Array = []      # [{root, job}] StaticMerge jobs of finished towns (time-sliced)
 
 
+var _night_t := 0.0
+
+
 func _process(delta: float) -> void:
+	_night_t -= delta
+	if _night_t <= 0.0:
+		_night_t = 1.0
+		StyleG.night_glow(WorldSim.time_of_day)     # towns medieval pass: lit windows after dusk
 	var _pb := Probe.t()
 	Breakable.tick(delta)   # breakable clutter: melee sweep + regrowth (once per frame)
 	Probe.add("settle.breakable_tick", _pb)
@@ -324,6 +331,7 @@ func _build_co(s: Dictionary, sync: bool, spread: bool) -> Node3D:
 			return root
 	_bp = Probe.t()
 	_interior_doors(root, plan["lots"])
+	preload("res://scripts/world/town_kit/slice_dressing.gd").build_scenario_a(root, s)   # vertical slice: Ashford hayloft ladder + vaultable fence
 	Probe.add("settle.doors", _bp)
 	if spread:
 		await get_tree().process_frame      # spread over frames (update_now(true)); the town finishes a few frames later
@@ -342,12 +350,29 @@ func _build_co(s: Dictionary, sync: bool, spread: bool) -> Node3D:
 		var yaw: float = lot["yaw"]
 		var fwd := Vector2(sin(yaw), cos(yaw))
 		var side := Vector2(fwd.y, -fwd.x)
-		for k in rng.randi_range(1, 3):
-			var kind: String = kinds[rng.randi() % kinds.size()]
-			var q := p + fwd * rng.randf_range(3.6, 4.4) + side * rng.randf_range(-3.2, 3.2) * (1.0 if k % 2 == 0 else -1.0)
+		var poor_lot := int(lot.get("tier", 1)) == 2      # towns medieval pass: the poor quarter's stoops: firewood, hay, sacks
+		var kk: Array = ["woodpile", "hay", "sack_pile", "barrel"] if poor_lot else kinds
+		var depth := BuildingProfiles.size_of(String(lot["asset"])).z * 0.5 + 0.9 if bool(lot.get("infill", false)) else 4.0
+		for k in rng.randi_range(1, 3) if not bool(lot.get("infill", false)) else (0 if _low() else rng.randi_range(0, 1)):   # LOW / iGPU: infill lots bare
+			var kind: String = kk[rng.randi() % kk.size()]
+			var q := p + fwd * (depth + rng.randf_range(-0.4, 0.4)) + side * rng.randf_range(-3.2, 3.2) * (0.35 if bool(lot.get("infill", false)) else 1.0) * (1.0 if k % 2 == 0 else -1.0)
 			if not door_clutter.has(kind):
 				door_clutter[kind] = []
 			door_clutter[kind].append(Transform3D(Basis(Vector3.UP, rng.randf() * TAU), Vector3(q.x, WorldGen.height(q.x, q.y) - 0.03, q.y)))
+	for st: Dictionary in plan["streets"]:
+		if not bool(st.get("alley", false)) or _low():
+			continue      # LOW / iGPU: no alley laundry
+		var al: Vector2 = st["a"]
+		var ab: Vector2 = st["b"]
+		var ad := (ab - al).normalized()
+		var tt := 5.0
+		while tt < al.distance_to(ab) - 2.0:
+			if rng.randf() < 0.55:
+				var q2 := al + ad * tt
+				if not door_clutter.has("washing_line"):
+					door_clutter["washing_line"] = []
+				door_clutter["washing_line"].append(Transform3D(Basis(Vector3.UP, atan2(-ad.y, ad.x)), Vector3(q2.x, WorldGen.height(q2.x, q2.y) - 0.03, q2.y)))   # strung along the alley
+			tt += rng.randf_range(7.0, 11.0)
 	for kind: String in door_clutter:
 		var list2: Array[Transform3D] = []
 		list2.assign(door_clutter[kind])
@@ -1676,7 +1701,7 @@ func _square_lamps(root: Node3D, s: Dictionary, plan: Dictionary) -> void:
 		var side := Vector3(cos(yaw), 0.0, -sin(yaw))
 		for k: float in [-1.0, 1.0]:
 			lamp_specs.append({"pos": Vector3(p.x, gy + 2.45, p.y) + side * 0.78 * k, "color": Color(1.0, 0.68, 0.36), "range": 7.0})
-	_multimesh_cells(root, Assets.building_mesh("mf_lamp_post_timber_cross"), posts, LOD_CELL)
+	_multimesh_cells(root, Assets.building_mesh("lamp_post" if CityPlanner.towns_off() else "mf_lamp_post_timber_cross"), posts, LOD_CELL)
 	var gates: Array = plan["gates"]
 	if not gates.is_empty():
 		# A brazier either side of the first gate: emissive mesh + billboard glow, no omni light (LampGlow).
@@ -1879,7 +1904,7 @@ func _gate_market(root: Node3D, s: Dictionary, plan: Dictionary, rng: RandomNumb
 				var edge := p + nrm * side * (half + 0.6)
 				var face := atan2(-nrm.x * side, -nrm.y * side)   # toward the street centre
 				if k % 3 == 0:
-					add.call("mf_lamp_post_timber_cross", edge, face)     # medieval pass: timber cross-post, not a cast lamp on a stone plinth
+					add.call("street_lamp" if CityPlanner.towns_off() else "mf_lamp_post_timber_cross", edge, face)     # medieval pass: timber cross-post, not a cast lamp on a stone plinth
 					lights.append(Vector3(edge.x, WorldGen.height(edge.x, edge.y) + 2.5, edge.y))
 				elif k % 3 == 1 and side > 0.0 or k % 3 == 2 and side < 0.0:
 					add.call("banner_pole", edge, face)

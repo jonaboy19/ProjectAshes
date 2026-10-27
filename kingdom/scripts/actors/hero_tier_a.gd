@@ -415,7 +415,8 @@ static func _creator_tints(look: Dictionary) -> Array[Color]:
 	var sb: Color = skins[1]
 	var h: Color = hairs[clampi(int(look.get("hair_color", 1)), 0, hairs.size() - 1)]
 	var hb: Color = hairs[1]
-	return [Color(s.r / sb.r, s.g / sb.g, s.b / sb.b), Color(minf(h.r / hb.r, 3.0), minf(h.g / hb.g, 3.0), minf(h.b / hb.b, 3.0))]
+	var ex: float = float(cc.get("SKIN_EXPOSURE"))   # Fair / Light clipped to white under the sun: ratio capped at 1, scaled down
+	return [Color(minf(s.r / sb.r, 1.0) * ex, minf(s.g / sb.g, 1.0) * ex, minf(s.b / sb.b, 1.0) * ex), Color(minf(h.r / hb.r, 3.0), minf(h.g / hb.g, 3.0), minf(h.b / hb.b, 3.0))]
 
 
 const V2_PATH := "res://assets/generated/characters/hero_tier_a/hero_meshy3"
@@ -436,8 +437,8 @@ static func add_hood_up(sk: Skeleton3D, noise: Texture2D) -> MeshInstance3D:
 	att.name = "HoodUpAttach"
 	att.bone_name = "Head"
 	sk.add_child(att)
-	var rings := 24
-	var segs := 36
+	var rings := 48
+	var segs := 72
 	var verts := PackedVector3Array()
 	var idx := PackedInt32Array()
 	var ctr := Vector3(0, 0.108, 0.0)
@@ -453,6 +454,14 @@ static func add_hood_up(sk: Skeleton3D, noise: Texture2D) -> MeshInstance3D:
 				v.x *= 1.0 + low * 2.6
 				v.z = (v.z + 0.01) * (1.0 + low * 1.6)
 				v.y -= low * 0.85
+			if v.z > 0.0:                                  # snap vertices inside the face opening onto its rim: a smooth edge, not a stair of culled triangles
+				var ox := v.x / 0.1
+				var oy := (v.y - 0.04) / 0.12
+				var e := sqrt(ox * ox + oy * oy)
+				if e < 1.0:
+					var k := 1.0 / maxf(e, 0.0001)
+					v.x = ox * k * 0.1
+					v.y = 0.04 + oy * k * 0.12
 			verts.append(v)
 	for r in rings:
 		for sgi in segs:
@@ -462,7 +471,7 @@ static func add_hood_up(sk: Skeleton3D, noise: Texture2D) -> MeshInstance3D:
 			var d := (r + 1) * segs + (sgi + 1) % segs
 			for tri in [[a, c, b], [b, c, d]]:
 				var cen := (verts[tri[0]] + verts[tri[1]] + verts[tri[2]]) / 3.0
-				var hole := pow(cen.x / 0.092, 2.0) + pow((cen.y - 0.05) / 0.1, 2.0) < 1.0 and cen.z > 0.0   # the face opening
+				var hole := pow(cen.x / 0.1, 2.0) + pow((cen.y - 0.04) / 0.12, 2.0) < 0.97 and cen.z > 0.0   # the face opening (rim vertices are snapped onto it)
 				if not hole:
 					idx.append_array(PackedInt32Array(tri))
 	var arr := []

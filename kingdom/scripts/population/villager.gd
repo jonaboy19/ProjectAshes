@@ -253,6 +253,8 @@ var _scared_at := Vector2.INF
 var _protest_cd := 0
 var _greet_cd := 0
 var _cik: ContactIK = null      # runtime ground contact while a contact clip plays (scripts/living_world/contact_ik.gd)
+## Set by PopulationLOD before _ready when this body replaces a VAT instance: {clip, time, pos, yaw}.
+var handoff: Dictionary = {}
 var _talk := TalkPose.new()       # in-world conversation: stops the act, faces the player (talk_pose.gd)
 var _bark_ms := -1000000
 var _crime_until := 0
@@ -354,7 +356,14 @@ func _ready() -> void:
 	add_child(_shape)
 	_child = NpcWorld.is_child(person)
 	var _pm := Probe.t()
-	var model := Assets.character(_file, 1.7 * (0.78 if _child else 1.0), _keep)
+	# The look is fixed per person and equal to their VAT instance's look (VatResidents.person_look), so a promotion
+	# from the crowd never swaps who someone is (it used to pick a random look on every spawn).
+	var look := VatResidents.person_look(person, WorldSim.job[person])
+	var model: Node3D
+	if Assets.USE_MAKEHUMAN and Assets.MH_LOOKS.has(_file) and ResourceLoader.exists(Assets.MH_DIR + look + ".glb"):
+		model = Assets.mh_character(look, 1.7 * (0.78 if _child else 1.0), _keep, false, true)
+	else:
+		model = Assets.character(_file, 1.7 * (0.78 if _child else 1.0), _keep)
 	Probe.add("villager.ready_model", _pm)
 	_pm = Probe.t()
 	# Colour language: this town's guard uniform / clothing palette (culture + archetype) as a tint of the shared materials.
@@ -421,6 +430,23 @@ func _ready() -> void:
 	_decide = 0.0
 	_think_tick()
 	_decide = float((h / 7) % 1000) / 1000.0 * DECIDE_INTERVAL
+	# Spawn QA: never show the bind pose (T/A-pose) for a frame. Pose the skeleton now, from a per-person phase of
+	# whatever the first decision started (Idle if nothing yet), before the body is ever rendered.
+	if not handoff.is_empty():
+		var hp: Vector3 = handoff["pos"]
+		if Vector2(hp.x - position.x, hp.z - position.z).length() < 2.0:
+			position = Vector3(hp.x, position.y, hp.z)
+		rotation.y = float(handoff["yaw"])
+		_heading = rotation.y
+		var hc := String(handoff["clip"])
+		if _anim != null and _anim.has_animation(hc):
+			_anim.play(hc, 0.0)
+			_anim.seek(float(handoff["time"]), true)
+	elif _anim != null:
+		if _anim.current_animation == "" and _anim.has_animation("Idle"):
+			_anim.play("Idle", 0.0)
+		if _anim.current_animation != "":
+			_anim.seek(fmod(float(h % 997) / 997.0 * 5.0, maxf(_anim.current_animation_length, 0.01)), true)
 	Probe.add("villager.ready_tail", _pm)
 
 
@@ -1801,6 +1827,11 @@ func _so_apply(out: Dictionary) -> void:
 	if _so_snap:
 		_so_snap_to = (snap as Transform3D).origin
 		_so_snap_to.y = global_position.y
+		if bool(out.get("snap_hard", false)):
+			global_position = _so_snap_to     # root-motion enter: the clip carries the body, the root jumps under it
+	var exit_to: Variant = out.get("exit_to")
+	if exit_to != null:
+		global_position = Vector3((exit_to as Vector3).x, global_position.y, (exit_to as Vector3).z)
 	var ev: Variant = out["event"]
 	if ev != null:
 		LivingEvents.emit(String((ev as Dictionary).get("kind", "work")), global_position, float((ev as Dictionary).get("radius", 10.0)), 2.0)

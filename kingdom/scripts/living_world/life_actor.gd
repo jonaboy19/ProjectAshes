@@ -24,6 +24,7 @@ var base_height := 1.72
 var model: Node3D
 var anim: AnimationPlayer
 var skeleton: Skeleton3D
+var _cik: ContactIK = null
 var look_mod: LookAtModifier3D
 var props: LifeProps.Holder
 var amb: LifeAmbience
@@ -242,6 +243,11 @@ func _body(delta: float) -> void:
 			anim.speed_scale = amb.anim_rate if LifeLibrary.info(out["clip"]).get("loop", false) else 1.0
 		if out.get("snap") != null:
 			_snap = out["snap"]
+			if bool(out.get("snap_hard", false)):
+				global_position = Vector3((_snap as Transform3D).origin.x, global_position.y, (_snap as Transform3D).origin.z)
+		if out.get("exit_to") != null:
+			var et: Vector3 = out["exit_to"]
+			global_position = Vector3(et.x, global_position.y, et.z)
 		if out["event"] != null:
 			var ev: Dictionary = out["event"]
 			LivingEvents.emit(String(ev.get("kind", "work")), global_position, float(ev.get("radius", 10.0)), 2.0)
@@ -389,5 +395,8 @@ func _play(clip: String, blend := 0.25, restart := false) -> void:
 	if restart and clip == _clip:
 		anim.seek(0.0, true)
 	_clip = clip
+	# runtime ground contact for kneel / plant clips (ContactIK: near camera only, budgeted, releases itself)
+	if bool(LifeLibrary.info(clip).get("contact_ik", false)) and (_cik == null or not is_instance_valid(_cik)):
+		_cik = ContactIK.request(skeleton, self, anim)
 	_last_pos = 0.0
 	_clip_done = false

@@ -84,6 +84,10 @@ static func steal(tree: SceneTree, owner: String, item: String, qty: int, source
 		var res := report(tree, String(a["kind"]), at, sid)
 		out["seen_by"] = int(res.get("seen_by", 0))
 		out["report"] = res
+	if bool(out["stolen"]) and int(out["seen_by"]) == 0:
+		var life: Node = tree.root.get_node_or_null(^"Life") if tree != null else null
+		if life != null:
+			life.call("record", "stole_unseen", 1.0)   # the thief trade rank (trade_ranks.gd)
 	last = out
 	return out
 

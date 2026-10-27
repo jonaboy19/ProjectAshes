@@ -1,16 +1,16 @@
 # Golden set report
 
-Generated 2026-10-26 by `tools/qa/anim_qa/golden_gate.py`.
+Generated 2026-10-27 by `tools/qa/anim_qa/golden_gate.py`.
 
 | category | gold | probation | banned |
 |---|---:|---:|---:|
 | combat | 44 | 191 | 109 |
 | creature | 0 | 114 | 215 |
 | death | 0 | 2 | 7 |
-| interaction | 32 | 16 | 10 |
+| interaction | 34 | 14 | 10 |
 | locomotion | 17 | 9 | 30 |
 | traversal | 2 | 12 | 24 |
-| **total** | 95 | 344 | 395 |
+| **total** | 97 | 342 | 395 |
 
 ## Slots
 

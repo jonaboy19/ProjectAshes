@@ -127,6 +127,14 @@ const BUILDINGS := {
 	"mhouse_manor": [MESHY + "house_manor_lod0.glb", 10.0, MESHY + "house_manor_lod1.glb", 45.0, MESHY + "house_manor_lod2.glb", 110.0, MESHY + "house_manor_lod3.glb", 160.0],
 	"inn": [MESHY + "inn_lod0.glb", 13.5, MESHY + "inn_lod1.glb", 70.0, MESHY + "inn_lod2.glb", 150.0, MESHY + "inn_lod3.glb", 220.0],
 	"blacksmith": [MESHY + "blacksmith_lod0.glb", 11.0, MESHY + "blacksmith_lod1.glb", 70.0, MESHY + "blacksmith_lod2.glb", 150.0, MESHY + "blacksmith_lod3.glb", 220.0],
+	# Towns medieval pass: the small / poor house kit (tools/blender_towns/small_house_kit.py): narrow burgage houses and hovels.
+	"house_narrow_a": [GEN + "town_small/house_narrow_a.glb", 0.0, GEN + "town_small/house_narrow_a_lod1.glb", 40.0],
+	"house_narrow_b": [GEN + "town_small/house_narrow_b.glb", 0.0, GEN + "town_small/house_narrow_b_lod1.glb", 40.0],
+	"house_narrow_c": [GEN + "town_small/house_narrow_c.glb", 0.0, GEN + "town_small/house_narrow_c_lod1.glb", 40.0],
+	"house_narrow_poor_a": [GEN + "town_small/house_narrow_poor_a.glb", 0.0, GEN + "town_small/house_narrow_poor_a_lod1.glb", 40.0],
+	"house_narrow_poor_b": [GEN + "town_small/house_narrow_poor_b.glb", 0.0, GEN + "town_small/house_narrow_poor_b_lod1.glb", 40.0],
+	"house_hovel_a": [GEN + "town_small/house_hovel_a.glb", 0.0, GEN + "town_small/house_hovel_a_lod1.glb", 40.0],
+	"house_hovel_b": [GEN + "town_small/house_hovel_b.glb", 0.0, GEN + "town_small/house_hovel_b_lod1.glb", 40.0],
 	"stable": [GEN + "village_barn.glb", 0.0, GEN + "village_barn_lod1.glb", 45.0, GEN + "village_barn_lod2.glb", 100.0],
 	"sawmill": [VILLAGE + "Buildings/FBX/Sawmill.fbx", 12.0],
 	"mill": [VILLAGE + "Buildings/FBX/Mill.fbx", 11.0],
@@ -791,6 +799,8 @@ static func building_mesh(key: String) -> ArrayMesh:
 	StyleG.restyle_mesh(mesh, key)       # Style G: every building/prop surface gets its role material (atlas + tints kept)
 	if mesh.has_meta("baked_vao"):
 		BakedVao.fix_materials(mesh)
+	if key.get_slice(":lod", 0) == "temple" and not CityPlanner.towns_off():
+		_ashlar(mesh)     # towns medieval pass: the red-brick church read Victorian; Caldric churches are limestone ashlar
 	TownAtlas.fold(mesh, key)           # far stages: shared texture page (see town_atlas.gd)
 	if key.begins_with("lamp_post") or key.begins_with("street_lamp"):
 		_tame_lamp_glow(mesh)
@@ -1124,3 +1134,18 @@ static func nature_mesh(key: String) -> ArrayMesh:
 		StyleG.restyle_mesh(mesh, "nature/" + key, "", role)
 	_building_cache[cache_key] = mesh
 	return mesh
+
+
+## Towns medieval pass: the temple atlas is red brick; its Style G material is re-toned to pale weathered limestone (the brick
+## courses read as ashlar blocks), the slate roof stays slate. One duplicated material per surface, cached with the mesh.
+static func _ashlar(mesh: ArrayMesh) -> void:
+	for i in mesh.get_surface_count():
+		var m := mesh.surface_get_material(i) as ShaderMaterial
+		if m == null or m.has_meta("ashlar"):
+			continue
+		var a := m.duplicate() as ShaderMaterial
+		a.set_meta("ashlar", true)
+		a.set_shader_parameter("saturation", 0.16)
+		a.set_shader_parameter("value_gain", 1.3)
+		a.set_shader_parameter("warm_tint", Color(1.04, 0.98, 0.86))
+		mesh.surface_set_material(i, a)

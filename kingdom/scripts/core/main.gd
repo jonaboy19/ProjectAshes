@@ -58,6 +58,8 @@ var fill: DirectionalLight3D
 var env: Environment
 var _status_timer := 0.0
 var _raids_cleared := 0
+var _settle_raid: Squad = null
+var _settle_raids_seen := {}
 
 
 func _ready() -> void:
@@ -245,6 +247,7 @@ func _ready() -> void:
 	world.add_child(army)
 	_spawn_raiders(FIRST_CAMP, 12)
 	WorldSim.hour_changed.connect(func(_h: int) -> void: _maybe_spawn_war_battle())
+	WorldSim.hour_changed.connect(func(_h: int) -> void: _maybe_settlement_raid())   # C9: raids on your own settlement
 
 	# Region1 hook (docs/regions/REGION_1_PLAN.md) C3-C8, C12: wards, Scar, embers, Ashsight, story, tutorial, audio
 	region1 = preload("res://scripts/region1/region1_glue.gd").new()
@@ -1294,3 +1297,31 @@ func _screenshot(shot: String, path: String) -> void:
 	img.save_png(path)
 	print("Saved screenshot: ", path)
 	get_tree().quit()
+
+## C9: an open "raid" problem on one of your settlements turns into a live raider band when you are near it.
+func _maybe_settlement_raid() -> void:
+	if _settle_raid != null and is_instance_valid(_settle_raid):
+		return
+	var fd: Variant = Life.realm.mod("founding") if Life.realm != null else null
+	if fd == null or player == null:
+		return
+	const PR := preload("res://scripts/realm/player_raids.gd")
+	var r: Dictionary = PR.due(fd, Vector2(player.global_position.x, player.global_position.z), WorldSim.day, _settle_raids_seen)
+	if r.is_empty():
+		return
+	_settle_raids_seen[String(r["key"])] = true
+	var at: Vector2 = r["at"]
+	var base := Vector3(at.x, WorldGen.height(at.x, at.y), at.y)
+	_settle_raid = Squad.new().setup(1, "raider", "Barbarian", ["1H_Axe", "Barbarian_Round_Shield", "Barbarian_Hat"])
+	_settle_raid.anchor = base
+	_settle_raid.aggro_radius = 70.0
+	world.add_child(_settle_raid)
+	_settle_raid.add_soldiers(int(r["count"]), base)
+	var fid := int(r["fid"])
+	var town := String(r["name"])
+	_settle_raid.wiped_out.connect(func(_s: Squad) -> void:
+		fd.call("defend_raid", fid)
+		Game.add_gold(40)
+		Game.say("The raid on %s is broken. +40 gold." % town))
+	Game.say("Raiders are coming for %s!" % town)
+	Audio.sfx("bell", base)

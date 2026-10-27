@@ -143,6 +143,19 @@ func _refresh() -> void:
 		content.add_child(_body("No career yet. Take up work in the village to begin one."))
 	_trades_section(content)
 	SoldierUI.add_career_section(content, _heading, _body)
+	var tr: Object = Life.get("trade_ranks")
+	if tr != null:
+		var rws: Array = tr.call("rows", mastery, (Life.get("life_path") as Object).get("actions"))
+		if not rws.is_empty():
+			content.add_child(_heading("Your trades"))
+			for r: Dictionary in rws:
+				var line := "%s" % String(r["title"])
+				if String(r["next"]) != "":
+					line += "  → %s: %s mastery %d (have %d), done %d times (have %d)" % [String(r["next"]), String(r["disc"]).capitalize(),
+						int(r["need_level"]), int(r["level"]), int(r["need_done"]), int(r["done"])]
+				else:
+					line += "  (top of the trade)"
+				content.add_child(_body(line))
 	content.add_child(_heading("Next rank"))
 	if career != "":
 		var ctx := _promotion_ctx(career, rank, mastery, biography)

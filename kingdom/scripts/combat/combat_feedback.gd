@@ -152,7 +152,9 @@ func _on_blocked(_attacker: Node, guard_broken: bool) -> void:
 		ImpactPool.at(p.get_parent()).play(p.global_position + p.facing() * 0.8 + Vector3.UP * 1.2, "physical", Feel.Tier.FINISHER, p.facing())
 		_cues(Feel.Tier.FINISHER, -1.0, [])
 	else:
-		p._animator.play_upper("Block_Hit", 1.5)
+		# the shield takes the blow (Souls_Guard_Hit, golden gold); "Block_Hit" resolved to the banned Sword_Block sword parry,
+		# which swung the sword out and dropped the shield for half a second
+		p._animator.play_upper("Souls_Guard_Hit" if p._animator.has_clip("Souls_Guard_Hit") else "Block_Hit", 1.3)
 		Audio.sfx("clash")
 
 

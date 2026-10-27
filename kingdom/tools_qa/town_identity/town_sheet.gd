@@ -123,7 +123,70 @@ func _visit(town: Dictionary, out_dir: String) -> void:
 		await get_tree().process_frame
 	await _wait_ring(Vector3(eye.x, 0, eye.y), String(town["name"]) + " street")
 	_save(town, out_dir, "street")
+	if OS.get_cmdline_user_args().has("--owner"):
+		await _owner_shots(town, out_dir, park)     # towns medieval pass: side lane + alley at eye level (same cameras with --townsoff)
+		return
 	await _feature_shot(town, out_dir)
+
+
+## Towns medieval pass owner sheets: an eye-level shot along a side street (a ring street) and one into an alley. The cameras come
+## from the plan WITH the pass (re-planned here when the game runs with --townsoff), so before and after look at the same spot.
+func _owner_shots(town: Dictionary, out_dir: String, park: Vector2) -> void:
+	var plan: Dictionary = town["plan"]
+	if not plan.has("alleys_from"):
+		plan = plan.duplicate(true)
+		plan["roof_thatch"] = 0.3
+		CityPlanner._frontage(plan, String(town["kind"]), int(WorldGen._forest.seed) - 37)
+	var streets: Array = plan["streets"]
+	var c: Vector2 = town["pos"]
+	# side street: the longest ring / lane segment chain nearest 0.5 r
+	var best := -1
+	var bs := INF
+	for i in int(plan["alleys_from"]):
+		var st: Dictionary = streets[i]
+		if float(st["w"]) >= 8.0:
+			continue
+		var m: Vector2 = ((st["a"] as Vector2) + (st["b"] as Vector2)) * 0.5
+		var sc := absf(m.distance_to(c) - float(town["radius"]) * 0.5)
+		if sc < bs and _clear_of_lots(plan, m) and _clear_of_lots(plan, st["a"]):
+			bs = sc
+			best = i
+	var shots := []
+	if best >= 0:
+		shots.append(["lane", streets[best]])
+	# alley: the one with the most new houses along it (then the longest): a lined alley, not a path across a yard
+	var al := -1
+	var al_score := -1.0
+	for i in range(int(plan["alleys_from"]), streets.size()):
+		var sa: Vector2 = streets[i]["a"]
+		var sb: Vector2 = streets[i]["b"]
+		var n := 0
+		for lot: Dictionary in plan["lots"]:
+			if bool(lot.get("infill", false)) and (lot["pos"] as Vector2).distance_to(Geometry2D.get_closest_point_to_segment(lot["pos"], sa, sb)) < 6.5:
+				n += 1
+		var sc := float(n) * 100.0 + sa.distance_to(sb)
+		if sc > al_score:
+			al_score = sc
+			al = i
+	if al >= 0:
+		shots.append(["alley", streets[al]])
+	for sh: Array in shots:
+		var st2: Dictionary = sh[1]
+		var a2: Vector2 = st2["a"]
+		var b2: Vector2 = st2["b"]
+		var d2 := (b2 - a2).normalized()
+		var eye := a2 - d2 * 2.0 if sh[0] == "alley" else a2.lerp(b2, 0.1)
+		var look := b2 + d2 * (0.0 if sh[0] == "alley" else 25.0)
+		cam.global_position = Vector3(eye.x, WorldGen.height(eye.x, eye.y) + 1.75, eye.y)
+		cam.look_at(Vector3(look.x, WorldGen.height(look.x, look.y) + 2.0, look.y))
+		cam.fov = 70.0
+		main.player.global_position = Vector3(park.x, WorldGen.height(park.x, park.y) + 0.3, park.y)
+		main.terrain.focus = Vector3(eye.x, 0, eye.y)
+		main.terrain.build_all_now()
+		for i in 30:
+			await get_tree().process_frame
+		await _wait_ring(Vector3(eye.x, 0, eye.y), String(town["name"]) + " " + String(sh[0]))
+		_save(town, out_dir, String(sh[0]))
 
 
 ## A close look at the town's signature piece (mine head-frame, palisade, standing stones, boat, caravan wagon, tower ...).
@@ -202,3 +265,16 @@ func _save(town: Dictionary, out_dir: String, tag: String) -> void:
 	var vp: Viewport = main.viewport
 	print("DRAWS %s %s calls=%d objects=%d prims=%d" % [String(town["name"]), tag, vp.get_render_info(Viewport.RENDER_INFO_TYPE_VISIBLE, Viewport.RENDER_INFO_DRAW_CALLS_IN_FRAME),
 		vp.get_render_info(Viewport.RENDER_INFO_TYPE_VISIBLE, Viewport.RENDER_INFO_OBJECTS_IN_FRAME), vp.get_render_info(Viewport.RENDER_INFO_TYPE_VISIBLE, Viewport.RENDER_INFO_PRIMITIVES_IN_FRAME)])
+
+
+func _clear_of_lots(plan: Dictionary, p: Vector2) -> bool:
+	for lot: Dictionary in plan["lots"]:
+		if (lot["pos"] as Vector2).distance_to(p) > 16.0:
+			continue
+		var poly := CityPlanner._lot_poly(lot["pos"], lot["yaw"], String(lot["asset"]))
+		if Geometry2D.is_point_in_polygon(p, Geometry2D.offset_polygon(poly, 1.0)[0]):
+			return false
+	for lm: Dictionary in plan["landmarks"]:
+		if CityPlanner.landmark_distance(lm, p) < 2.0:
+			return false
+	return true

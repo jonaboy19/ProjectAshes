@@ -28,6 +28,7 @@ POST PASSES (this file, on the baked actions):
   * CONTACT IK (default on, contact_ik=false to skip): hands / finger tips clamped above the floor with two-bone arm IK,
     lift max-filtered and smoothed (no pops). Per-clip lock_vel / lock_wander tune the foot lock.
   * knee_lift (per clip): per-frame smoothed pelvis raise keeping the knees KNEE_MARGIN above the floor (kneeling).
+  * shift_m (per clip): constant horizontal pelvis shift [x, y] (Blender world, -y = character forward).
   * reverse (per clip): the baked take played backwards.
   * lift_m (per clip): constant pelvis height offset after measuring mesh contact (kneel/sit/lie poses).
   * FOOT LOCK: per foot, frames where the ball AND ankle are within 4 cm of the clip floor and move < 0.25 m/s for
@@ -301,6 +302,21 @@ def post(g, cfg, foot_lock):
                 pb["pelvis"].keyframe_insert("location", frame=f)
             rec["inplace_z_removed_m"] = round(rise, 3)
         # --- constant vertical offset (lift_m > 0 raises, < 0 lowers): knees / buttocks resting on the floor, lying poses
+        if c.get("shift_m"):
+            # constant horizontal pelvis shift (Blender world x, y): end-align transitions onto the loop they lead into
+            sx_, sy_ = c["shift_m"]
+            dv = (mw.inverted().to_3x3() @ Vector((sx_, sy_, 0.0)))
+            mats = []
+            for f in range(n):
+                scene.frame_set(f)
+                mats.append(pb["pelvis"].matrix.copy())
+            for f in range(n):
+                scene.frame_set(f)
+                m = mats[f].copy()
+                m.translation = m.translation + dv
+                pb["pelvis"].matrix = m
+                pb["pelvis"].keyframe_insert("location", frame=f)
+            rec["shift_m"] = c["shift_m"]
         if c.get("lift_m"):
             dz = (mw.inverted().to_3x3() @ Vector((0, 0, 1))) / mw.to_scale().z
             mats = []
