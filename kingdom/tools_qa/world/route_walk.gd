@@ -21,7 +21,7 @@ var _yaw := 0.0
 var _last_p := Vector2.INF
 var _stuck_t := 0.0
 const MAX_S := 200.0
-var _ft: PackedFloat32Array = []
+var _ft := PackedFloat32Array()
 var _last_us := 0
 
 
@@ -53,6 +53,7 @@ func _hide_overlays() -> void:
 ## Real frame times of the walk (meaningful without --write-movie): avg / p95 / worst ms and fps.
 func _perf() -> void:
 	if _ft.is_empty():
+		print("[route] PERF none")
 		return
 	var a := Array(_ft)
 	a.sort()
@@ -94,7 +95,8 @@ func _process(dt: float) -> bool:
 		_hide_overlays()
 	var p := Vector2(player.global_position.x, player.global_position.z)
 	if (frame - BOOT) / 30.0 > MAX_S:
-		print("[route] time cap")
+		print("[route] time cap frames=", _ft.size())
+		_perf()
 		Input.action_release("move_forward")
 		quit()
 		return true

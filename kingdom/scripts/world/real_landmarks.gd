@@ -195,6 +195,8 @@ const GRADE := [[0.86, 1.04, 1.0, Color(0.7, 0.8, 0.92)], [0.88, 1.06, 0.98, Col
 	[0.85, 1.04, 1.0, Color(0.74, 0.8, 0.88)], [0.8, 1.02, 0.97, Color(0.66, 0.76, 0.72)], [0.84, 1.06, 1.0, Color(0.72, 0.78, 0.88)],
 	[0.9, 1.1, 0.95, Color(0.72, 0.55, 0.9)], [0.8, 1.06, 1.02, Color(0.78, 0.86, 1.0)]]
 var _tonemap_done := false
+var _sky_done := false
+const HDRI := "res://assets/incoming/polyhaven/hdris/kloofendal_48d_partly_cloudy_puresky_4k.hdr"
 var _g_t := 0.0
 var _g_target: Array = GRADE[0]
 var _g_cur := Vector3(0.86, 1.04, 1.0)
@@ -238,15 +240,15 @@ func _process(delta: float) -> void:
 	env.fog_depth_begin = 300.0
 	env.fog_depth_end = 9000.0
 	env.fog_depth_curve = 1.6
-	var sm: Variant = env.sky.sky_material if env.sky else null
-	if sm is ShaderMaterial:
-		var top: Color = (sm as ShaderMaterial).get_shader_parameter("top_color")
-		(sm as ShaderMaterial).set_shader_parameter("top_color", top.lerp(Color(0.12, 0.3, 0.72), 0.85))
-		var hz: Color = (sm as ShaderMaterial).get_shader_parameter("horizon_color")
-		(sm as ShaderMaterial).set_shader_parameter("horizon_color", hz.lerp(Color(0.58, 0.72, 0.9), 0.6))
-		(sm as ShaderMaterial).set_shader_parameter("cloud_soft", 0.07)
-		(sm as ShaderMaterial).set_shader_parameter("cloud_cover", 0.47)
-		(sm as ShaderMaterial).set_shader_parameter("cloud_shade", Color(0.6, 0.66, 0.8))
+	# Shared outdoor sky (towns + countryside, owner 2026-10-28): the CC0 Poly Haven partly-cloudy HDRI, sun-aligned in the shader
+	# (shaders/world/hdri_sky.gdshader). Swapped in once; style_g / weather keep writing their (now unused) sky uniforms.
+	if env.sky and not _sky_done:
+		_sky_done = true
+		var m := ShaderMaterial.new()
+		m.shader = load("res://shaders/world/hdri_sky.gdshader")
+		m.set_shader_parameter("panorama", load(HDRI))
+		env.sky.sky_material = m
+		env.sky.radiance_size = Sky.RADIANCE_SIZE_64
 
 
 const WEATHER := preload("res://scripts/world/weather.gd")

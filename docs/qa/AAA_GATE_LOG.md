@@ -272,3 +272,19 @@ File: `PA_plans/videos/WIP_combat_full_motion_slice_road_sword7_v11.mp4`; sheets
 - Back dodge: built at runtime from the longbow "standing dodge backward" (the only low back-dodge Mixamo has): legs, hips, spine and root travel trimmed to the 10-95 % travel window (0.93 s, played in 0.55 s), with the clavicles, arms, hands and fingers held in the sword-and-shield guard (data-level upper-body mask, `PlayerCombatMotion.build_masked`). The capsule follows its speed curve, scaled to 1.8 m.
 - BUG FOUND AND FIXED by eye: the first take showed the player floating about 1 m up. GuardLegs lowered the pelvis on the bone's y axis, but the UAL pelvis height is its z axis, so the bent guard legs lifted the feet instead of lowering the hips. It now finds the up axis from the rest pose. This also affected v10's standing guard.
 - Verdict: the player now holds a wide, low guard on the ground between exchanges, and the back-step stays low with the shield up. Remaining: lock-on pivots (player worker's yaw extraction), tall roadside grass occasionally crossing the review lens (camera avoid only covers fighters), stylised orange pines still on the road edge.
+
+## 2026-10-28 world worker: countryside route v14 (gameplay camera, same route)
+Files: PA_plans/videos/slice_route_v14.mp4, side by side slice_route_v14_vs_ref01.png. Tools: Blender 5.2 Sapling Tree Gen (oak/beech/ash/pine/spruce from presets) + Poly Haven bark, Poly Haven scan grass + dandelion, Poly Haven kloofendal_48d partly-cloudy HDRI sky (sun-aligned shader), Poly Haven dirt + muddy_tracks ruts, Terrain3D instancer, AgX, Movie Maker + ffmpeg.
+| Check | Result | Note |
+|---|---|---|
+| Camera like ref 01 | PASS | |
+| Near field crisp, haze only far | PASS | depth fog from 300 m, volumetric off outdoors |
+| Sky: deep blue + crisp cumulus | PASS-ish | real HDRI clouds, sun-aligned; brighter/whiter than ref 01 near the horizon |
+| Worn winding road, ruts, edges | PASS-ish | beige winding track with ruts and trampled verge; puddle reads as a hard dark disc (FAIL detail) |
+| Meadow (fresh yellow-green, darker clumps) | PASS-ish | per-instance hue + backlight; flowers still sparse |
+| Tree masses (realistic) | PASS-ish | Sapling broadleaves and conifers everywhere, no stylised trees in the real world; groups could be denser |
+| Walls | FAIL | still read red-brown/dark, too uniform |
+| Distant hills | FAIL | smooth green far mesh, no forest cover/macro breakup |
+| Stylised props at the route start | FAIL (towns lane) | Ashford-edge bushes/props |
+| Perf on this route (RTX 4070 laptop, 1280x720, no capture) | FAIL HIGH / PASS LOW | HIGH 26.6 fps avg, p95 66 ms; LOW 60.7 fps avg, p95 39 ms. Sapling LOD0 trees (25-55k tris) + scan meadow are the cost; iGPU not measured |
+Verdict: WIP but now the right family next to ref 01. Not sendable as final: walls, puddle, distant hills, HIGH perf.
