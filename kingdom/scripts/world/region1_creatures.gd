@@ -98,7 +98,7 @@ static func seed_ecology(eco: RAMonsterEcology) -> int:
 
 static func _center(near: Variant) -> Vector2:
 	if near is Array:
-		return Vector2(float(near[0]), float(near[1]))
+		return RealWorld.remap(Vector2(float(near[0]), float(near[1])))
 	var t := String(near)
 	if t == "lake":
 		return WorldGen.lake_center

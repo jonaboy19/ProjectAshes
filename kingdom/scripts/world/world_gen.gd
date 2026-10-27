@@ -72,6 +72,8 @@ static var lake_level := 0.0
 static var rivers: Array[Dictionary] = []
 ## Valencious macro only (W2): the Westfen marsh pools [{pos, radius, level, depth, reach_sq}], placed by _place_pools() after the macro re-base.
 static var pools: Array[Dictionary] = []
+## W6: true once _relocate_real has run (planning before it sees the old world only).
+static var _real_ready := false
 static var _shore := FastNoiseLite.new()
 static var _lake_reach_sq := 0.0
 static var _seg := PackedFloat32Array()          # stride 10 per segment: ax, az, bx, bz, la, lb, wa, wb, da, db
@@ -80,6 +82,7 @@ static var _river_grid: Dictionary = {}           # Vector2i -> PackedInt32Array
 
 static func setup(seed_value: int) -> void:
 	pools.clear()
+	_real_ready = false
 	var macro_on := WorldMacro.prepare()   # Valencious macro hook (scripts/world/world_macro.gd): load once, main thread
 	if macro_on:
 		WorldMacro.suspend()   # settlements, camps and sites are planned on the legacy noise so no id/position can move; re-based below
@@ -115,21 +118,77 @@ static func setup(seed_value: int) -> void:
 			clearings.append({"pos": c, "radius": float(site["clear"]), "flatten": bool(site["flatten"]),
 				"base_h": _raw_height(c.x, c.y)})
 	_build_indexes()
+	if RealWorld.active():   # W6 real-world hook (scripts/world/real_world.gd): positions planned above move to the real terrain (ids unchanged)
+		_relocate_real(seed_value)
 	if macro_on:
 		WorldMacro.resume()
 		_rebase_to_macro(seed_value)
 
 
+## W6: settlements, sites, clearings and the hidden vale move to their data-driven real-world positions (data/world/real/layout.json).
+## Road topology and every id stay; city plans are re-made for the new gate directions.
+static func _relocate_real(seed_value: int) -> void:
+	_real_ready = true
+	Region1Terrain.relocate_real()
+	for st in settlements:
+		var np: Variant = RealWorld.place("settlement:" + String(st["name"]).to_lower())
+		st["pos"] = np if np != null else RealWorld.remap(st["pos"])
+	var keep := RealWorld.box().grow(-300.0)
+	for site in sites:
+		var sp := RealWorld.remap(site["pos"])
+		if String(site.get("kind", "")) != "map_edge_text":   # outer-ring sites the warp pushed out come back inside the realm
+			sp = Vector2(clampf(sp.x, keep.position.x, keep.end.x), clampf(sp.y, keep.position.y, keep.end.y))
+		site["pos"] = sp
+	clearings.clear()
+	for site in sites:
+		if float(site["clear"]) > 0.0:
+			clearings.append({"pos": site["pos"], "radius": float(site["clear"]), "flatten": bool(site["flatten"]), "base_h": 0.0})
+	var hv := preload("res://scripts/world/hidden_valley.gd")
+	hv.CENTER = RealWorld.remap(hv.CENTER)
+	_build_indexes()
+	for st in settlements:
+		st["plan"] = CityPlanner.plan(st, gate_angles(st), seed_value)
+
+
 ## Valencious macro hook: positions are final, so re-seat everything that follows the ground on the macro terrain.
 static func _rebase_to_macro(seed_value: int) -> void:
+	if RealWorld.active():
+		preload("res://scripts/world/hidden_valley.gd").rebase()
 	for st in settlements:
 		st["base_h"] = _raw_height(st["pos"].x, st["pos"].y)
-	_place_water(seed_value, false)    # lake level, rivers and their levels follow the macro ground (the hidden vale's stream is kept)
+	if RealWorld.active():
+		_place_real_water()
+	else:
+		_place_water(seed_value, false)    # lake level, rivers and their levels follow the macro ground (the hidden vale's stream is kept)
 	_place_camp_grounds()
 	for c in clearings:
 		c["base_h"] = _raw_height(c["pos"].x, c["pos"].y)
 	_build_indexes()
-	_place_pools()
+	if not RealWorld.active():
+		_place_pools()
+
+
+## W6: the real lakes and the sea come from RealWorld.water_level (no carving: the heightmap holds the basins); rivers are the traced
+## D8 courses of data/world/real/layout.json, fed through _add_river so levels, widths, fords and the water index work as before.
+## WorldGen.lake_* keeps the lore lake (Emberglass Mere = the real lake nearest Ashford) for Lakeside and the lore, without the bowl carve.
+static func _place_real_water() -> void:
+	rivers.clear()
+	_seg = PackedFloat32Array()
+	_river_grid.clear()
+	var m := RealWorld.mere()
+	lake_center = m.get("centre", Vector2(1.0e6, 1.0e6))
+	lake_radius = sqrt(float(m.get("area_km2", 0.04)) * 1.0e6 / PI)
+	lake_level = float(m.get("level", 0.0))
+	_lake_reach_sq = 0.0
+	for r: Dictionary in RealWorld.rivers:
+		var pts := PackedVector2Array()
+		var wd := PackedFloat32Array()
+		for i in (r["points"] as Array).size():
+			var p: Array = r["points"][i]
+			pts.append(Vector2(float(p[0]), float(p[1])))
+			wd.append(float(r["width"][i]))
+		if pts.size() >= 2:
+			_add_river(pts, false, true, wd)
 
 
 ## Westfen marsh pools (W2, macro on only; bible: the fen is wet, 0-6 m). Fixed spots (x, z, radius) so they never depend on RNG;
@@ -272,7 +331,8 @@ static func _lore_camp_positions() -> Array:
 	for pl: Dictionary in data.get("places", []):
 		if String(pl.get("kind", "")) in ["goblin_warren", "orc_village"]:
 			var arr: Array = pl["pos"]
-			out.append([Vector2(float(arr[0]), float(arr[1])), float(pl.get("radius", 30.0))])
+			var cp := Vector2(float(arr[0]), float(arr[1]))
+			out.append([RealWorld.remap(cp) if _real_ready else cp, float(pl.get("radius", 30.0))])
 	return out
 
 
@@ -354,6 +414,10 @@ static func height(x: float, z: float) -> float:
 ## tuck under the shore); use is_water() / water_depth() to know if it is wet.
 static func water_level_at(x: float, z: float) -> float:
 	var p := Vector2(x, z)
+	if _real_ready and RealWorld.active():   # W6: real lakes and the sea (only once positions are final: planning runs on the old world)
+		var rl := RealWorld.water_level(x, z)
+		if not is_nan(rl):
+			return rl
 	if p.distance_squared_to(lake_center) < _lake_reach_sq and _lake_s(p) < 1.25:
 		return lake_level
 	for pl in pools:
@@ -646,7 +710,7 @@ static func _course_score(pts: PackedVector2Array) -> float:
 
 ## Adds a river arm (points ordered downstream): levels that only ever fall
 ## downstream, width/depth growing with the flow, shallow fords at road crossings.
-static func _add_river(pts: PackedVector2Array, feeds_lake: bool, independent := false) -> void:
+static func _add_river(pts: PackedVector2Array, feeds_lake: bool, independent := false, widths := PackedFloat32Array()) -> void:
 	var n := pts.size()
 	var lv := PackedFloat32Array()
 	var wd := PackedFloat32Array()
@@ -674,13 +738,15 @@ static func _add_river(pts: PackedVector2Array, feeds_lake: bool, independent :=
 	for i in n:
 		var p := pts[i]
 		var t := float(i) / (n - 1)
-		in_lake.append(_lake_s(p) < 1.3)
+		in_lake.append(_lake_reach_sq > 0.0 and _lake_s(p) < 1.3)
 		if in_lake[i]:
 			lv[i] = lake_level
 		else:
 			run = minf(run, smooth[i] - 1.0)
 			lv[i] = maxf(run, lake_level) if feeds_lake else run
 		wd[i] = lerpf(3.5, 8.0, t) if feeds_lake else (lerpf(4.5, 10.5, t) if independent else lerpf(9.0, 12.5, t))
+		if widths.size() == n:
+			wd[i] = widths[i]
 		var depth := lerpf(0.9, 1.9, t) if feeds_lake else (lerpf(1.0, 2.0, t) if independent else 2.1)
 		dp[i] = lerpf(0.4, depth, smoothstep(6.0, 26.0, road_distance(p.x, p.y)))
 	if feeds_lake:

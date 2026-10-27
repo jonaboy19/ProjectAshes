@@ -94,7 +94,7 @@ func _ready() -> void:
 	if _t3d:
 		_bridge = Terrain3DBridge.new()
 		_bridge.name = "Terrain3DBridge"
-		_bridge.region_radius = 1 if Quality.tier <= Quality.MEDIUM else 2
+		_bridge.region_radius = 1 if (Quality.tier <= Quality.MEDIUM or WorldMacro.is_real()) else 2   # W6: real-world regions are 768 m
 		add_child(_bridge)
 	_ground_material = ShaderMaterial.new()
 	_ground_material.shader = preload("res://shaders/terrain.gdshader")

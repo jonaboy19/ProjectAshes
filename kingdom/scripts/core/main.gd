@@ -121,6 +121,9 @@ func _ready() -> void:
 		terrain.set_process(false)
 	water = WaterStreamer.new()
 	world.add_child(water)
+	if RealWorld.active():   # W6 region lock (scripts/world/region_lock.gd)
+		world.add_child(preload("res://scripts/world/region_lock.gd").new())
+		world.add_child(preload("res://scripts/world/real_landmarks.gd").new())   # W6 fantasy landmarks
 	settlements = SettlementBuilder.new()
 	world.add_child(settlements)
 	if qa_terrain_capture:

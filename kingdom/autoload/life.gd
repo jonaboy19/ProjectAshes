@@ -1,4 +1,4 @@
-﻿extends Node
+extends Node
 ## The player's life in the world: employment (RACareers), hunger and sleep
 ## (RANeeds), possessions (a GLoot Inventory), the village market (RAMarket),
 ## merit, and save/load of the whole simulation.
@@ -651,7 +651,7 @@ func _present_childhood_event(ev: Dictionary) -> void:
 		return
 	var opts: Array = []
 	for c: Dictionary in ev.get("choices", []):
-		opts.append([String(c.get("text", "â€¦")), _childhood_choice.bind(c)])
+		opts.append([String(c.get("text", "…")), _childhood_choice.bind(c)])
 	LifeEventPopup.present(hud, {"title": "Growing Up", "body": String(ev.get("text", "")), "choices": opts})
 
 
@@ -698,7 +698,7 @@ func _awakening_text(r: Dictionary) -> String:
 	var text := "The temple bell tolls, and %s leaning toward %s answers your call." % [
 		tier_words.get(String(r["tier"]), "a"), el]
 	if String(r.get("dual", "")) != "":
-		text += " A second element, %s, answers too â€” rare enough that the whole village will talk about it." % String(r["dual"])
+		text += " A second element, %s, answers too — rare enough that the whole village will talk about it." % String(r["dual"])
 	return text
 
 
@@ -816,7 +816,7 @@ func _offer(e: Dictionary) -> void:
 	pending_offers.append(e)
 	var sc: Dictionary = e.get("scout", {})
 	var org: Dictionary = e.get("org", {})
-	Game.say("%s of %s has been watching you. Open Pack â†’ Journal â†’ Scouting Offers to answer." % [
+	Game.say("%s of %s has been watching you. Open Pack → Journal → Scouting Offers to answer." % [
 		sc.get("name", "A stranger"), org.get("name", "somewhere")])
 
 

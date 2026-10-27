@@ -174,7 +174,7 @@ static func _lookup(id: String) -> Dictionary:
 	for pl: Dictionary in _first_region_places():
 		if String(pl.get("id", "")) == id:
 			var p: Array = pl["pos"]
-			return {"pos": Vector2(float(p[0]), float(p[1])), "radius": rad, "source": "first_region"}
+			return {"pos": RealWorld.remap(Vector2(float(p[0]), float(p[1]))), "radius": rad, "source": "first_region"}
 	# 4. the registry proposal, metres from Ashford
 	var reg_place: Dictionary = (registry().get("places", {}) as Dictionary).get(id, {})
 	if reg_place.has("pos"):

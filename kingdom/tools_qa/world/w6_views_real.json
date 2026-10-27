@@ -1,0 +1,244 @@
+{
+ "views": [
+  {
+   "name": "r00_ashford_ground",
+   "at": [
+    -70,
+    -150
+   ],
+   "look": [
+    40,
+    60
+   ],
+   "up": 3,
+   "look_up": 0,
+   "hour": 10.0,
+   "fov": 65
+  },
+  {
+   "name": "r01_heartvale_aerial",
+   "at": [
+    600,
+    2300
+   ],
+   "look": [
+    600,
+    1300
+   ],
+   "up": 480,
+   "look_up": 0,
+   "hour": 11.0,
+   "fov": 60
+  },
+  {
+   "name": "r02_northern_ridge_aerial",
+   "at": [
+    -300,
+    -3300
+   ],
+   "look": [
+    -300,
+    -4300
+   ],
+   "up": 480,
+   "look_up": 0,
+   "hour": 11.0,
+   "fov": 60
+  },
+  {
+   "name": "r03_ironmarch_highlands_aerial",
+   "at": [
+    2700,
+    -4300
+   ],
+   "look": [
+    2700,
+    -5300
+   ],
+   "up": 480,
+   "look_up": 0,
+   "hour": 11.0,
+   "fov": 60
+  },
+  {
+   "name": "r04_silverrun_aerial",
+   "at": [
+    3000,
+    1000
+   ],
+   "look": [
+    3000,
+    0
+   ],
+   "up": 480,
+   "look_up": 0,
+   "hour": 11.0,
+   "fov": 60
+  },
+  {
+   "name": "r05_duskbriar_aerial",
+   "at": [
+    900,
+    4000
+   ],
+   "look": [
+    900,
+    3000
+   ],
+   "up": 480,
+   "look_up": 0,
+   "hour": 11.0,
+   "fov": 60
+  },
+  {
+   "name": "r06_rift_marches_aerial",
+   "at": [
+    2300,
+    5800
+   ],
+   "look": [
+    2300,
+    4800
+   ],
+   "up": 480,
+   "look_up": 0,
+   "hour": 11.0,
+   "fov": 60
+  },
+  {
+   "name": "r07_ashen_scar_aerial",
+   "at": [
+    2600,
+    8800
+   ],
+   "look": [
+    2600,
+    7800
+   ],
+   "up": 480,
+   "look_up": 0,
+   "hour": 11.0,
+   "fov": 60
+  },
+  {
+   "name": "r08_greywood_emberfall_aerial",
+   "at": [
+    -5300,
+    7200
+   ],
+   "look": [
+    -5300,
+    6200
+   ],
+   "up": 480,
+   "look_up": 0,
+   "hour": 11.0,
+   "fov": 60
+  },
+  {
+   "name": "r09_westfen_marsh_aerial",
+   "at": [
+    -2800,
+    5100
+   ],
+   "look": [
+    -2800,
+    4100
+   ],
+   "up": 480,
+   "look_up": 0,
+   "hour": 11.0,
+   "fov": 60
+  },
+  {
+   "name": "r10_mistwood_aerial",
+   "at": [
+    -7600,
+    -200
+   ],
+   "look": [
+    -7600,
+    -1200
+   ],
+   "up": 480,
+   "look_up": 0,
+   "hour": 11.0,
+   "fov": 60
+  },
+  {
+   "name": "r11_dunhallow_uplands_aerial",
+   "at": [
+    -5400,
+    -4200
+   ],
+   "look": [
+    -5400,
+    -5200
+   ],
+   "up": 480,
+   "look_up": 0,
+   "hour": 11.0,
+   "fov": 60
+  },
+  {
+   "name": "r12_harrowgate_steppe_aerial",
+   "at": [
+    -3000,
+    9300
+   ],
+   "look": [
+    -3000,
+    8300
+   ],
+   "up": 480,
+   "look_up": 0,
+   "hour": 11.0,
+   "fov": 60
+  },
+  {
+   "name": "r20_north_snow_aerial",
+   "at": [
+    600,
+    -3200
+   ],
+   "look": [
+    600,
+    -6800
+   ],
+   "up": 400,
+   "look_up": 0,
+   "hour": 11.0,
+   "fov": 60
+  },
+  {
+   "name": "r21_border_north",
+   "at": [
+    -2000,
+    -6600
+   ],
+   "look": [
+    -2000,
+    -8000
+   ],
+   "up": 30,
+   "look_up": 0,
+   "hour": 11.0,
+   "fov": 60
+  },
+  {
+   "name": "r22_coast_port",
+   "at": [
+    -8800,
+    7600
+   ],
+   "look": [
+    -10500,
+    8400
+   ],
+   "up": 120,
+   "look_up": 0,
+   "hour": 17.5,
+   "fov": 60
+  }
+ ]
+}

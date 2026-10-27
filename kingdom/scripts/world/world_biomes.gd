@@ -112,7 +112,9 @@ static func name_of(biome: int) -> String:
 ## 0..1 closeness to a rift/scar site (the "scar slot": more dead wood and rock right around the breaches).
 static func scar_boost(x: float, z: float) -> float:
 	var best := 0.0
-	for p: Vector2 in SCAR_SITES:
+	if _scar.is_empty():
+		_scar = [RealWorld.remap(SCAR_SITES[0]), RealWorld.remap(SCAR_SITES[1])]   # W6: re-anchored (identity off the real world)
+	for p: Vector2 in _scar:
 		best = maxf(best, 1.0 - smoothstep(SCAR_RADIUS * 0.3, SCAR_RADIUS, Vector2(x, z).distance_to(p)))
 	return best
 
@@ -212,6 +214,9 @@ const TINT := [Color(0.86, 1.0, 0.73), Color(0.84, 1.0, 0.68), Color(0.88, 1.0, 
 
 static var _soft := PackedByteArray()        # SOFT_N^2 * 8
 static var _soft_ok := false
+static var _half := HALF
+static var _scar: Array = []
+static var _soft_real := false
 static var _soft_mutex := Mutex.new()
 static var _warp: FastNoiseLite
 
@@ -219,8 +224,12 @@ static var _warp: FastNoiseLite
 static func _soft_load() -> void:
 	_soft_mutex.lock()
 	if not _soft_ok:
-		var a := Image.load_from_file(ProjectSettings.globalize_path(SOFT_A))
-		var b := Image.load_from_file(ProjectSettings.globalize_path(SOFT_B))
+		var real := WorldMacro.is_real()   # W6: the real world has its own 32 km soft field (tools/world/real_layout.py)
+		_half = 16384.0 if real else HALF
+		_soft_real = real
+		_scar = []
+		var a := Image.load_from_file(ProjectSettings.globalize_path("res://data/world/real/biome_soft_a.png" if real else SOFT_A))
+		var b := Image.load_from_file(ProjectSettings.globalize_path("res://data/world/real/biome_soft_b.png" if real else SOFT_B))
 		if a != null and b != null and a.get_size() == Vector2i(SOFT_N, SOFT_N):
 			a.convert(Image.FORMAT_RGBA8)
 			b.convert(Image.FORMAT_RGBA8)
@@ -244,7 +253,8 @@ static func soft_weights(x: float, z: float) -> PackedFloat32Array:
 	out.resize(8)
 	if not active():
 		return out
-	if not _soft_ok:
+	if not _soft_ok or _soft_real != WorldMacro.is_real():
+		_soft_ok = false
 		_soft_load()
 	if _soft.is_empty():
 		var b := at(x, z)
@@ -252,9 +262,9 @@ static func soft_weights(x: float, z: float) -> PackedFloat32Array:
 		return out
 	var wx := x + _warp.get_noise_2d(x, z) * WARP_M
 	var wz := z + _warp.get_noise_2d(x + 311.0, z - 177.0) * WARP_M
-	var cell := HALF * 2.0 / SOFT_N
-	var u := clampf((wx + HALF) / cell - 0.5, 0.0, SOFT_N - 1.001)
-	var v := clampf((wz + HALF) / cell - 0.5, 0.0, SOFT_N - 1.001)
+	var cell := _half * 2.0 / SOFT_N
+	var u := clampf((wx + _half) / cell - 0.5, 0.0, SOFT_N - 1.001)
+	var v := clampf((wz + _half) / cell - 0.5, 0.0, SOFT_N - 1.001)
 	var iu := int(u)
 	var iv := int(v)
 	var fu := u - iu

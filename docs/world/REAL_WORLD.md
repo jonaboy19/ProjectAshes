@@ -1,4 +1,4 @@
-﻿# Real-world terrain (W6, owner decision 2026-10-26)
+# Real-world terrain (W6, owner decision 2026-10-26)
 
 Mock-up: `C:\Users\Jonna\Documents\PA_plans\terrain_candidates\mockup_biomes.png` (re-render: `py -E -B kingdom/tools/world/real_layout.py`).
 
@@ -27,6 +27,25 @@ WorldGen (`_detail` noise) and the Terrain3D bake keeps its 1.5 m vertex spacing
 ## Tools
 `real_terrain_fetch.py` (download, cached) -> `gen_real_world.py` (~6 min; reprojection, sea, lakes, uplift, detail, rivers) -> `real_layout.py` (~1 min; re-anchoring, biomes, mock-up).
 
-## Not done yet (engine integration, step 4/5)
-WorldMacro mode `real` (HALF 16384, MPP 8), WorldGen settlement positions from layout.json behind the flag + world version bump, Terrain3D region size
-for 32 km, water planes for lakes/rivers, region-lock border, fly-over captures. See AAA_PROGRESS.md.
+## Engine integration (W6.2, flag `--world_macro=real`, env ASHES_WORLD_MACRO=real, settings [world] macro=real)
+| piece | where |
+|---|---|
+| macro data, 8 m / +-16384 m | `WorldMacro` REAL mode (`is_real()`; `wants()` is true for both macro modes) |
+| re-anchoring | `RealWorld` (scripts/world/real_world.gd): `remap(old)` = exact table hit by old position, else thin-plate warp; `place(id)`; `box()`; `in_realm()` |
+| settlements / sites / clearings / hidden vale / city plans | `WorldGen._relocate_real` after planning (ids, names, road topology unchanged), then the usual macro re-base |
+| lore, discovery, quest anchors, camps, ecology, creature dens | positions read from JSON go through `RealWorld.remap` (world_lore, discovery, region1_places, region1_creatures, ecology_factions, WorldGen camps) |
+| water | `WorldGen.water_level_at` -> real lakes + sea (`lake_ids.png`); rivers = traced D8 courses fed to `_add_river` (widths 4-22 m by catchment); WaterStreamer draws them as before; Emberglass Mere = lake nearest Ashford |
+| stamps (Rift trench, Scar craters, Hollin cliffs, mines, Wyrm's Ribs) and trails | valencious deltas translated to the remapped centre (`Region1Terrain.setup`) |
+| biomes | `biome_ids.png` + `biome_soft_{a,b}.png` (32 km); scar boost sites remapped |
+| Terrain3D | 512 px x 1.5 m = 768 m regions (32 x 32 locations cover +-12.3 km = the box); LOW / iGPU preset: 256 px x 3 m (same 768 m, 1/4 cost); ring radius 1 (2.3 km); horizon mesh 160 m grid over all 32 km |
+| snow | `Terrain3DBridge.snow_line(z)`: 620 m in the south, 440 m at the north border, 200 m at the far north edge |
+| region lock | `region_lock.gd`: warden posts (pole, red bar, lantern) every 400 m on the border; crossing turns the player back with a warden line; `--unlock_outer` / [world] unlock_outer |
+| fantasy set pieces | `real_landmarks.gd`: Wyrm's Ribs bone arcs, Rift violet glow + floating shards, Ashen Scar ember glow, Sleeping Flame, Mistwood giant trees + glowing undergrowth, frost crystals, waterfalls on steep river steps |
+| saves | key `world_version` (3 in the real world); an older save in the real world remaps the player position and shows a toast |
+| dungeon anchors (DUNGEON_VISION.md) | Dunhallow/Deepdark, Ironmarch + Coldseam/Redtusk mines, Rift ruins are all in layout.json (ids unchanged) |
+Outer-ring places that fell outside the box were pulled 300 m inside it; the Eastern Gate stands on the east border; the four map-edge labels stay in the locked realms.
+Tests: `tests/test_world_real.gd`. Probe: `tools_qa/world/real_probe.gd`. Fly-over views: `tools_qa/world/w6_views_real.json` (`tools/world/gen_w6_views.py`).
+
+## Gaps
+WORLD_HALF (6144) is still the planning bound for the generators that run later (POIs, caves, towers, realm presence) and the 2D maps (world map,
+minimap, strategic) still draw +-6144; per-region colour grading beyond the biome tint is mock-up only.

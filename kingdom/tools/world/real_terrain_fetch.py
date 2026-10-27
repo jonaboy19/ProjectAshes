@@ -10,8 +10,8 @@ from PIL import Image
 
 Z = 13
 # Window bounds (padded a little beyond the 32 km square so reprojection never runs off the mosaic).
-LAT_S, LAT_N = 54.40, 54.76
-LON_W, LON_E = -3.68, -3.02
+LAT_S, LAT_N = 54.36, 54.78
+LON_W, LON_E = -3.70, -2.99
 
 
 def tile_xy(lat, lon, z):

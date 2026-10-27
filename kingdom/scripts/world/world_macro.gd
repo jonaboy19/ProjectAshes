@@ -12,16 +12,21 @@ extends RefCounted
 
 const NOISE := "noise"
 const VALENCIOUS := "valencious"
+## W6 (docs/world/REAL_WORLD.md): 32 km real-elevation world (Lake District base), data/world/real/*. Same decoder, other constants.
+const REAL := "real"
+const REAL_PATH := "res://data/world/real/height_16.png"
+const REAL_BIOME_PATH := "res://data/world/real/biome_ids.png"
 const SETTINGS_PATH := "user://settings.cfg"
 const PATH := "res://data/world/macro/height_16.png"
 const BIOME_PATH := "res://data/world/macro/biome_ids.png"
 const SPLAT_PATH := "res://data/world/macro/splat_weights.png"
 const SIZE := 4097
-const MPP := 3.0
-const HALF := 6144.0
-const H_MIN := -20.0
-const H_RANGE := 320.0
-const BIOME_MPP := 12.0
+## Grid constants of the loaded mode (valencious: 3 m over +-6144; real: 8 m over +-16384). Set by _load().
+static var MPP := 3.0
+static var HALF := 6144.0
+static var H_MIN := -20.0
+static var H_RANGE := 320.0
+static var BIOME_MPP := 12.0
 const BIOME_SIZE := 1024
 
 ## Tests set this ("" = off). Not saved.
@@ -30,6 +35,7 @@ static var _cached := ""
 ## True while WorldGen._raw_height should read the macro (loaded and not suspended).
 static var active := false
 static var _loaded := false
+static var _loaded_mode := ""
 static var _data := PackedByteArray()      # SIZE * SIZE big-endian uint16
 static var _biome := PackedByteArray()     # BIOME_SIZE^2 ids
 static var _splat := PackedByteArray()     # BIOME_SIZE^2 * 4 RGBA
@@ -41,15 +47,20 @@ static func mode() -> String:
 		if _cached == "":
 			_cached = _resolve()
 		want = _cached
-	return want if want == VALENCIOUS else NOISE
+	return want if want == VALENCIOUS or want == REAL else NOISE
 
 
+## True for both macro modes (valencious and real).
 static func wants() -> bool:
-	return mode() == VALENCIOUS
+	return mode() != NOISE
+
+
+static func is_real() -> bool:
+	return mode() == REAL
 
 
 static func set_mode(m: String) -> void:
-	_cached = VALENCIOUS if m == VALENCIOUS else NOISE
+	_cached = m if m == VALENCIOUS or m == REAL else NOISE
 	var cf := ConfigFile.new()
 	cf.load(SETTINGS_PATH)
 	cf.set_value("world", "macro", _cached)
@@ -74,8 +85,9 @@ static func prepare() -> bool:
 	if not wants():
 		active = false
 		return false
-	if not _loaded:
+	if not _loaded or _loaded_mode != mode():   # W6: valencious and real have different data
 		_loaded = _load()
+		_loaded_mode = mode()
 	active = _loaded
 	return _loaded
 
@@ -98,17 +110,25 @@ static func memory_bytes() -> int:
 
 
 static func _load() -> bool:
-	var raw := _decode16(PATH)
+	var real := is_real()
+	MPP = 8.0 if real else 3.0
+	HALF = 16384.0 if real else 6144.0
+	H_MIN = -40.0 if real else -20.0
+	H_RANGE = 1540.0 if real else 320.0
+	BIOME_MPP = 32.0 if real else 12.0
+	var hpath := REAL_PATH if real else PATH
+	var bpath := REAL_BIOME_PATH if real else BIOME_PATH
+	var raw := _decode16(hpath)
 	if raw.size() != SIZE * SIZE * 2:
-		push_warning("WorldMacro: %s missing or wrong size (%d)" % [PATH, raw.size()])
+		push_warning("WorldMacro: %s missing or wrong size (%d)" % [hpath, raw.size()])
 		return false
 	_data = raw
 	var bi := Image.new()
-	if bi.load_png_from_buffer(FileAccess.get_file_as_bytes(BIOME_PATH)) == OK and bi.get_size() == Vector2i(BIOME_SIZE, BIOME_SIZE):
+	if bi.load_png_from_buffer(FileAccess.get_file_as_bytes(bpath)) == OK and bi.get_size() == Vector2i(BIOME_SIZE, BIOME_SIZE):
 		bi.convert(Image.FORMAT_L8)
 		_biome = bi.get_data()
 	var si := Image.new()
-	if si.load_png_from_buffer(FileAccess.get_file_as_bytes(SPLAT_PATH)) == OK and si.get_size() == Vector2i(BIOME_SIZE, BIOME_SIZE):
+	if not real and si.load_png_from_buffer(FileAccess.get_file_as_bytes(SPLAT_PATH)) == OK and si.get_size() == Vector2i(BIOME_SIZE, BIOME_SIZE):
 		si.convert(Image.FORMAT_RGBA8)
 		_splat = si.get_data()
 	return true

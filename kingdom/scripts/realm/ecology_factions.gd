@@ -28,6 +28,9 @@ func seed_factions(owner: RefCounted) -> void:
 			continue
 		var species := "goblin" if kind == "goblin_warren" else "orc"
 		var arr: Array = pl["pos"]
+		if WorldMacro.is_real():   # W6: re-anchored camp
+			var rp := RealWorld.remap(Vector2(float(arr[0]), float(arr[1])))
+			arr = [rp.x, rp.y]
 		var id := list.size()
 		var base: Dictionary = D.FACTION_SPECIES[species]
 		var r := RandomNumberGenerator.new()

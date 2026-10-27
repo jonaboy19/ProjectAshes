@@ -305,7 +305,7 @@ static func _vec(v: Variant) -> Vector2:
 	if v is Vector2:
 		return v
 	if v is Array and (v as Array).size() >= 2:
-		return Vector2(float(v[0]), float(v[1]))
+		return RealWorld.remap(Vector2(float(v[0]), float(v[1])))   # W6
 	return Vector2.ZERO
 
 

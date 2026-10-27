@@ -15,6 +15,36 @@ extends Node3D
 const SPACING := 1.5
 const REGION_SIZE := 256
 const REGION_M := SPACING * REGION_SIZE
+## W6 real world: 768 m regions so the 32 x 32 Terrain3D locations cover +-12.3 km (the whole Valencious box).
+## 3 m spacing x 256 px on every tier (the source is 8 m data; 1.5 m x 512 px baked in ~20 s a region, 3 m in ~5 s, and suits the
+## iGPU target, docs/plans/ART_DIRECTION.md). `--t3d_fine` keeps 1.5 m x 512 px for close-up captures on a strong GPU.
+static var spacing_rt := SPACING
+
+
+static func configure_spacing() -> void:
+	spacing_rt = SPACING
+	if WorldMacro.is_real() and not OS.get_cmdline_user_args().has("--t3d_fine"):
+		spacing_rt = 3.0
+
+
+static func region_size() -> int:
+	if not WorldMacro.is_real():
+		return REGION_SIZE
+	return 256 if spacing_rt > SPACING else 512
+
+
+static func region_m() -> float:
+	return spacing_rt * region_size()
+
+
+## Snow line: 180 m in the old worlds; real world by altitude and latitude (north = -z snowier), as in the mock-up.
+static func snow_line(z: float) -> float:
+	if not WorldMacro.is_real():
+		return SNOW_LINE
+	# 520 m at Ashford's latitude, 300 m on the northern border (z = -7000, the Northern Ridge tops are 450-650 m), 150 m in Frostcrown.
+	return 520.0 - 220.0 * clampf(-z / 7000.0, 0.0, 1.0) - 150.0 * clampf((-z - 7000.0) / 9000.0, 0.0, 1.0) + 100.0 * clampf(z / 9000.0, 0.0, 1.0)
+
+
 const FIRST_LOC := -16
 const LAST_LOC := 15
 
@@ -46,10 +76,11 @@ var _awaiting_camera := true
 
 
 func _ready() -> void:
+	configure_spacing()
 	terrain = Terrain3D.new()
 	terrain.name = "Terrain3D"
-	terrain.vertex_spacing = SPACING
-	terrain.region_size = REGION_SIZE
+	terrain.vertex_spacing = spacing_rt
+	terrain.region_size = region_size()
 	terrain.collision_mode = 0                # DISABLED: TerrainStreamer's trimesh bodies (same WorldGen.height) stay the physics ground
 	terrain.render_layers = 1 | TownDecals.GROUND_LAYER      # ground decals (ruts, puddles) project onto it, as onto the legacy chunks
 	add_child(terrain)
@@ -107,11 +138,13 @@ static func _make_assets() -> Terrain3DAssets:
 # --- region maths (thread-safe: reads WorldGen's static data only) -----------------------------------
 
 static func region_of(x: float, z: float) -> Vector2i:
-	return Vector2i(floori(x / REGION_M), floori(z / REGION_M))
+	var rm := region_m()
+	return Vector2i(floori(x / rm), floori(z / rm))
 
 
 static func region_origin(loc: Vector2i) -> Vector2:
-	return Vector2(loc.x * REGION_M, loc.y * REGION_M)
+	var rm := region_m()
+	return Vector2(loc.x * rm, loc.y * rm)
 
 
 static func in_world(loc: Vector2i) -> bool:
@@ -161,7 +194,8 @@ static func macro_extras(x: float, z: float, h: float, slope: float, w: Color) -
 	var patch := 0.5 + 0.5 * _patch_noise().get_noise_2d(x, z)
 	var m := WorldBiomes.ground_mix(sw, patch)
 	var free := clampf(1.0 - w.r - w.b - w.g, 0.0, 1.0)      # roads, cobble and rock faces keep priority
-	var snow := smoothstep(SNOW_LINE - 6.0, SNOW_LINE + 10.0, h) * (1.0 - smoothstep(0.55, 0.85, slope))
+	var sl := snow_line(z)
+	var snow := smoothstep(sl - 6.0, sl + 10.0, h) * (1.0 - smoothstep(0.55, 0.85, slope))
 	return [m[1] * free, m[2] * free, m[3] * free, m[4] * free, maxf(m[5], snow) * free, m[6] * free, m[0] * free]   # last = forest litter (-> w.a)
 
 
@@ -179,25 +213,29 @@ static func _patch_noise() -> FastNoiseLite:
 ## [height, control, colour] images of region `loc`. Pixel (i, j) sits at world origin + (i, j) * SPACING exactly.
 static func build_maps(loc: Vector2i) -> Array[Image]:
 	var o := region_origin(loc)
-	var n := REGION_SIZE
+	var n := region_size()
 	var stride := n + 2
 	var hb := PackedFloat32Array()
 	hb.resize(stride * stride)          # one pixel of halo each side for the slope (colour/material weights)
 	for j in stride:
 		for i in stride:
-			hb[j * stride + i] = WorldGen.height(o.x + (i - 1) * SPACING, o.y + (j - 1) * SPACING)
+			hb[j * stride + i] = WorldGen.height(o.x + (i - 1) * spacing_rt, o.y + (j - 1) * spacing_rt)
 	var hbytes := PackedByteArray()
 	hbytes.resize(n * n * 4)
 	var cbytes := PackedByteArray()
 	cbytes.resize(n * n * 4)
+	var half_ctl := WorldMacro.is_real()   # W6: control words on every second pixel (soft biome field, 150 m blur): ~3x faster bake
 	for j in n:
 		for i in n:
 			var c := (j + 1) * stride + i + 1
 			var h := hb[c]
 			hbytes.encode_float((j * n + i) * 4, h)
-			var normal_y := 2.0 * SPACING / Vector3(hb[c - 1] - hb[c + 1], 2.0 * SPACING, hb[c - stride] - hb[c + stride]).length()
-			var wx := o.x + i * SPACING
-			var wz := o.y + j * SPACING
+			if half_ctl and ((i | j) & 1) != 0:
+				cbytes.encode_u32((j * n + i) * 4, cbytes.decode_u32(((j & ~1) * n + (i & ~1)) * 4))
+				continue
+			var normal_y := 2.0 * spacing_rt / Vector3(hb[c - 1] - hb[c + 1], 2.0 * spacing_rt, hb[c - stride] - hb[c + stride]).length()
+			var wx := o.x + i * spacing_rt
+			var wz := o.y + j * spacing_rt
 			var w := WorldGen.color_at(wx, wz, h, 1.0 - normal_y)
 			var ex: Array = []
 			if WorldMacro.active:
@@ -212,7 +250,7 @@ static func build_maps(loc: Vector2i) -> Array[Image]:
 		# W3: lush Style G tint from the soft biome field, one sample per 4 px (bilinear in the shader's colour map)
 		for j in range(0, n, 4):
 			for i in range(0, n, 4):
-				var t := WorldBiomes.tint(WorldBiomes.soft_weights(o.x + i * SPACING, o.y + j * SPACING))
+				var t := WorldBiomes.tint(WorldBiomes.soft_weights(o.x + i * spacing_rt, o.y + j * spacing_rt))
 				for dj in 4:
 					for di in 4:
 						if i + di < n and j + dj < n:
@@ -318,8 +356,8 @@ static var add_stats := [0, 0, 0]
 func _add_region(loc: Vector2i, maps: Array) -> void:
 	var t0 := Time.get_ticks_usec()
 	var r := Terrain3DRegion.new()
-	r.region_size = REGION_SIZE
-	r.vertex_spacing = SPACING
+	r.region_size = region_size()
+	r.vertex_spacing = spacing_rt
 	r.location = loc
 	r.height_map = maps[0]
 	r.control_map = maps[1]
@@ -339,6 +377,9 @@ func build_all_now(at: Vector3) -> void:
 	for m: Array in _wanted(center):
 		var loc: Vector2i = m[1]
 		if not _regions.has(loc):
+			# W6: the real world only blocks on the regions within 300 m of the spawn; the rest of the ring streams in behind (fast start).
+			if WorldMacro.is_real() and Rect2(region_origin(loc), Vector2.ONE * region_m()).grow(300.0).has_point(Vector2(at.x, at.z)) == false:
+				continue
 			todo.append(loc)
 	var ids: Array[int] = []
 	for loc: Vector2i in todo:
