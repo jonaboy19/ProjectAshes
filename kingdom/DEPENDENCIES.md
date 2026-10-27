@@ -1,7 +1,7 @@
 # Dependencies (locked)
 
 **Audit date:** 2026-09-26.
-**Engine:** Godot **4.6.2-stable** (matches the dev PC; GodotGAS requires 4.6+).
+**Engine:** Godot **4.6.3-stable** (matches the dev PC).
 **Method:** each addon was installed alone in a clean 4.6.2 project, the editor
 was launched headless twice (first run registers classes), and script errors
 were counted. Native (GDExtension) addons were checked by confirming their
@@ -21,9 +21,7 @@ rumours, persistence). Important addons are wrapped behind project interfaces
 | **Sky3D** | 2.1 | MIT | ✅ 0 errors | ✅ (GDScript; Forward/Mobile/Compat) | Sun, moon, stars, clouds, fog and time of day. `RAWeather` drives gameplay effects on top |
 | **G.U.I.D.E** | 0.14.0 | MIT | ✅ 0 errors (autoload `GUIDE` must be registered) | ✅ | One input layer for keyboard, controller and touch; gameplay sees actions only |
 | **GdUnit4** | 6.2.1 | MIT | ✅ 0 errors | n/a (tests) | **Mandatory** tests for simulation systems |
-| **GodotGAS** | 0.9.x (main) | MIT | ✅ 0 errors | ✅ | Tags, attributes, effects and abilities for powers, elements, Echoes, buffs, injuries, beast skills (prototype first) |
 | **GLoot** | 3.0.2 | MIT | ✅ 0 errors | ✅ | Containers (backpack, chest, cart, warehouse, shop, loot). The economy owns quantities; GLoot handles item manipulation. **In use:** player pack (`autoload/life.gd`, protoset `data/items.json`) |
-| **Dialogue Manager** | 4.1.0 | MIT | ✅ 0 errors | ✅ | Authored dialogue; our NPC state supplies the conditions |
 | **QuestWeaver** | 1.5.0 | MIT | ✅ 0 errors | ✅ | *Authored* quest chains only. Emergent tasks come from `RAOpportunitySystem` |
 | **Road Generator** | 0.9.3 (v0.6.0.gd4 tag) | MIT | ✅ 0 script errors | ✅ | Road geometry and intersections (plus Terrain3D shaping). Road safety, traffic and control are simulation data |
 | **ProtonScatter** | 4.2.0 | MIT | ✅ 0 script errors (icons import on first open) | ✅ | Editor-time scattering for hand-authored areas (runtime scatter remains ours) |
@@ -51,6 +49,6 @@ rumours, persistence). Important addons are wrapped behind project interfaces
 
 ## Integration notes
 
-- Plugins that register autoloads in `_enable_plugin` (GUIDE, Dialogue Manager, QuestWeaver) must have the autoload listed in `project.godot`, because headless and CI runs don't call `_enable_plugin`.
+- Plugins that register autoloads in `_enable_plugin` (GUIDE, QuestWeaver) must have the autoload listed in `project.godot`, because headless and CI runs don't call `_enable_plugin`.
 - Native binaries included: Windows, Linux, macOS, Android. iOS and Web can be trimmed from exports.
 - Keep each addon at its locked version; upgrades go through the same audit.

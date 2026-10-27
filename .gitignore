@@ -9,3 +9,5 @@ kingdom/addons/sentry/
 # game-ready files stay local (built by tools/audio/build_licensed.py from ProjectAshes_art_staging). Only the README.
 kingdom/assets/audio/licensed_local/*
 !kingdom/assets/audio/licensed_local/README.md
+# Windows editor temp copies of locked DLLs (e.g. ~libeffekseer.x86_64.dll)
+kingdom/addons/**/~*.dll
