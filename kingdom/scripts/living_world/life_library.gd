@@ -23,6 +23,7 @@ const LIBS := [
 	"res://assets/incoming/animations/life/UAL_Life_AAA.glb",      # 3 reviewed AAA sit clips (docs/anim/aaa_wiring/)
 	"res://assets/incoming/animations/life/UAL_Life_Mixamo.glb",   # owner Mixamo set: dig/plant, pick fruit, salute, thankful, whisper, plank (tools/anim/mixamo_to_ual.py)
 	"res://assets/incoming/animations/life/UAL_Life_Mixamo2.glb",  # owner Mixamo set 2: farm, wood, fish, carry, sit, sleep, tavern, bard, pray, wave
+	"res://assets/incoming/animations/life/UAL_Life_Meshy.glb",     # Meshy text-to-motion run (tools/anim/meshy_pipeline.py); skipped while absent
 ]
 ## Bones that an "upper" layer clip owns (spine_01 and everything above it).
 const LOWER_BONES := ["root", "pelvis", "thigh_l", "calf_l", "foot_l", "ball_l", "ball_leaf_l",
