@@ -124,9 +124,9 @@ func _config_dump() -> void:
 	L.call("vp.scaling_3d_mode", vp.scaling_3d_mode)
 	L.call("vp.scaling_3d_scale", vp.scaling_3d_scale)
 	L.call("vp.use_taa", vp.use_taa)
-	var env := vp.world_3d.environment if vp.world_3d and vp.world_3d.environment else null
+	var env: Environment = vp.world_3d.environment if vp.world_3d and vp.world_3d.environment else null
 	if env == null:
-		var we := b.get_tree().root.find_children("*", "WorldEnvironment", true, false)
+		var we: Array = b.get_tree().root.find_children("*", "WorldEnvironment", true, false)
 		env = (we[0] as WorldEnvironment).environment if not we.is_empty() else null
 	if env:
 		L.call("env.sdfgi", env.sdfgi_enabled)
@@ -143,7 +143,7 @@ func _config_dump() -> void:
 		var an: Object = player.get("_animator")
 		if an != null:
 			var tr: AnimationTree = an.get("tree")
-			var gait: AnimationNodeBlendSpace1D = (tr.tree_root as AnimationNodeBlendTree).get_node("gait") if tr else null
+			var gait: AnimationNodeBlendSpace1D = ((tr.tree_root as AnimationNodeBlendTree).get_node("gait") as AnimationNodeBlendSpace1D) if tr else null
 			if gait:
 				var names := []
 				for i in gait.get_blend_point_count():
