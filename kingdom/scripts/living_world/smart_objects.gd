@@ -326,9 +326,21 @@ func occupancy(spot: int) -> int:
 
 
 ## World transform the character's root takes while using the slot (position + facing).
+const _GM := preload("res://scripts/living_world/group_motion.gd")   # by path: no dependency on the global class cache
+static var _CIRCLE_OFF := OS.has_environment("ASHES_MOTION_OFF")   # A/B gate recordings: the old fixed slots
+
+
 func stand_xform(spot: int, slot: int) -> Transform3D:
 	var sp: Dictionary = spots[spot]
 	var t: Dictionary = types[sp["type"]]
+	if bool(t.get("group", false)) and not _CIRCLE_OFF:
+		# conversation circle (GroupMotion G1): members on a ring sized for the slot count, facing the centre, one arc left open
+		# toward the spot's forward (the street side); fixed n = slot count so nobody slides when someone joins
+		var ox: Transform3D = sp["xform"]
+		var c2 := Vector2(ox.origin.x, ox.origin.z)
+		var open := Vector2(ox.basis.z.x, ox.basis.z.z)
+		var p2 := _GM.circle_slot(c2, (t["slots"] as Array).size(), slot, open if open.length_squared() > 0.0001 else Vector2(0, 1))
+		return Transform3D(Basis(Vector3.UP, _GM.circle_yaw(c2, p2)), Vector3(p2.x, ox.origin.y, p2.y))
 	var sl: Dictionary = t["slots"][slot]
 	var face := deg_to_rad(float(sl.get("face", 180.0)))
 	var fb := Basis(Vector3.UP, face)

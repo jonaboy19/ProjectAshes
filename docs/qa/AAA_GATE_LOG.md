@@ -467,3 +467,13 @@ Sheets: `docs/qa/golden/slice/mpfb_pilot_vs_crowd_3m.png`, `mpfb_pilot_vs_crowd_
 | In game at 3 m vs the current crowd | PASS (realism), FAIL (polish) | real proportions and face next to the stylised villager. FAIL: one sleeve shows a dotted dark speckle in game. It is identical across three asset rebuilds and not present in the clip-check renders, so it is shadow acne between the outer short sleeve and the under-sleeve (thin double layer), not texture. Next: cull the under-sleeve faces covered by the outer sleeve (self-cull pass). The wool reads flat and clean at 3 m in the game's light: grime and fibre contrast need to go up, plus a fabric normal map |
 | At 10 m | PASS | both read as villagers; the pilot's silhouette and proportions are more natural |
 | Spring chains (hood, belt ends) | NOT DONE | CHARACTER_PLAN has no spring-chain section yet; to add with the hood layer |
+
+## 2026-10-28 · NPC anim lane · M5 G1 conversation circles in Ashford (wired)
+Videos: PA_plans/videos/slice_2026-10-27_1752_d63fd2775_conv_before.mp4 (ASHES_MOTION_OFF=1) vs slice_2026-10-27_1755_758fe225c_conv_after.mp4: slice_route SLICE_CONV gate, 4 villagers sent to the square's conversation spot, fixed camera on the clearest side.
+| Check | Result | Note |
+|---|---|---|
+| Circle layout | PASS | SmartObjects.stand_xform for "group" types uses GroupMotion.circle_slot / circle_yaw (ring sized for the slot count, open arc toward the spot's forward, everyone facing the centre); before: a tight 0.6 m cluster |
+| Speaker turns | PASS | conversation_group.gd: one GroupMotion.Token per spot; turns rotate fairly (log: speaker 3 -> 1 -> 0 -> 2 -> 3, 3-7 s each); the speaker plays a ClipPicker talk clip, listeners listen / nod |
+| Gaze | PASS (by log) | listeners look at the speaker's head, the speaker at GroupMotion.gaze_listener |
+| Errors | 0 | GroupMotion is preloaded by path in smart_objects / villager / conversation_group (a stale class cache had broken every script that depends on smart_objects.gd) |
+Still open: a semi-transparent (dither-fading) passer-by near the circle in both runs, to be checked in the pop lane.

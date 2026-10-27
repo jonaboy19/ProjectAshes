@@ -162,6 +162,8 @@ const PROTEST_COOLDOWN_MS := 25000
 const GREET_RANGE := 3.4
 const BUBBLE_SECONDS := 3.2
 const STEP_RANGE := 11.0
+const _GM := preload("res://scripts/living_world/group_motion.gd")   # by path: no dependency on the global class cache
+const ConversationGroup := preload("res://scripts/living_world/conversation_group.gd")
 const MotionApply := preload("res://scripts/living_world/motion_apply.gd")
 const NpcFootEvents := preload("res://scripts/living_world/npc_foot_events.gd")
 const SurfaceFeedback := preload("res://scripts/world/surface_feedback.gd")
@@ -247,6 +249,9 @@ var _mr_oneshot := ""
 static var _MOTION_OFF := OS.has_environment("ASHES_MOTION_OFF")   # A/B gate recordings: old behaviour
 var _pick_hist := PackedStringArray()   # ClipPicker history (last 3 clips)
 var _pick_verb := ""
+var _conv_key := ""                 # conversation circle: turn|role the clip below was picked for
+var _conv_clip := ""
+var _conv_look := Vector3.INF        # conversation circle gaze target (speaker / listener head)
 var _pick_cycle := -1
 var _pick_clip_now := ""
 var _carry := CarryErrand.new()     # street life: sack / crate / basket carried from a trip's start to its end
@@ -1255,6 +1260,8 @@ func _ambience_tick(here: Vector2) -> void:
 		"player_pos": _player.global_position if _player != null and is_instance_valid(_player) else null,
 		"partner_pos": _partner_node.global_position if _act == Act.SOCIAL and _arrived and _partner_node != null and is_instance_valid(_partner_node) else null})
 	_amb_look = d["look"]
+	if _conv_look != Vector3.INF and _so != null:
+		_amb_look = _conv_look       # in a conversation circle: eyes on the speaker
 	_amb_upper = String(d["upper"])
 	if _carry.upper() != "":
 		_amb_upper = _carry.upper()
@@ -1788,6 +1795,47 @@ func _activity_for_person() -> String:
 	return _first_clip(ACT_CLIPS.get(_act, []))
 
 
+## Conversation circle (GroupMotion G1): at a group spot the speaker token decides who talks; listeners nod / listen and look
+## at the speaker, the speaker looks at one listener. Keeps the session's clip when alone or not a group spot.
+func _conversation_clip(session_clip: String) -> String:
+	var so := NpcWorld.spots()
+	if so == null or _so == null:
+		return session_clip
+	var sid := int(_so.spot)
+	if sid < 0 or sid >= so.spots.size() or not bool(so.types[so.spots[sid]["type"]].get("group", false)):
+		return session_clip
+	var g := ConversationGroup.turn(so, sid, Time.get_ticks_msec() * 0.001)
+	if g.is_empty():
+		return session_clip
+	var members: Array = g["members"]
+	var me := members.find(person)
+	if me < 0:
+		return session_clip
+	var speaking: bool = me == int(g["speaker"])
+	var look_idx: int = int(g["listener"]) if speaking else int(g["speaker"])
+	_conv_look = so.stand_xform(sid, int((g["slots"] as Array)[look_idx])).origin + Vector3(0, 1.55, 0)
+	_amb_look = _conv_look
+	var key := "%d|%s" % [int(g["turn"]), speaking]
+	if key == _conv_key and _conv_clip != "":
+		return _conv_clip
+	var q := {}
+	var mood := "happy" if _amb != null and _amb.mood > 0.7 else ("sad" if _amb != null and _amb.mood < 0.25 else "calm")
+	_GM.fill_clip_query(q, speaking, mood, WorldSim.day, int(g["turn"]))
+	var persona: Dictionary = _mr_persona if not _mr_persona.is_empty() else {"id": person}
+	var c := ClipPicker.pick(q, persona, _pick_hist)
+	if c == "" and not speaking:
+		q["verb"] = "nod"
+		c = ClipPicker.pick(q, persona, _pick_hist)
+	if c == "" or _anim == null or not _anim.has_animation(c):
+		c = session_clip
+	_conv_key = key
+	_conv_clip = c
+	_pick_hist.append(c)
+	if _pick_hist.size() > 3:
+		_pick_hist.remove_at(0)
+	return c
+
+
 ## Crowd variety (ClipPicker, NPC_MOTION_RULES C2/C3): no repeat of this person's last 3 clips, never the partner's current
 ## clip, personality-weighted; stable within one decision `cycle`. Falls back to the old fixed list.
 func _crowd_pick(verb: String, cycle: int, fallback: Array) -> String:
@@ -1971,6 +2019,10 @@ func _so_step(delta: float) -> Vector3:
 func _so_apply(out: Dictionary) -> void:
 	_so_phase = int(out["phase"])
 	var clip: String = out["clip"]
+	if _so_phase == SmartObjects.Session.LOOP and clip != "" and not _MOTION_OFF:
+		clip = _conversation_clip(clip)
+	else:
+		_conv_look = Vector3.INF
 	if clip != "" and _anim != null and _anim.has_animation(clip):
 		if out["restart"] or _so_clip != clip:
 			_so_play(clip, float(LifeLibrary.info(clip).get("blend_in", 0.25)), bool(out["restart"]))

@@ -34,6 +34,9 @@ func run(bot: Node) -> void:
 			n[0] += 1
 			if n[0] % 10 == 1:
 				b.L("FOOT #%d %s %s %s %.2f m/s at %s" % [n[0], body.name, foot, surf, sp, pos]))
+	if OS.get_environment("SLICE_CONV") != "":
+		await _conv_gate(float(OS.get_environment("SLICE_CONV")))
+		return
 	if OS.get_environment("SLICE_LEANS") != "":
 		await _lean_check(int(OS.get_environment("SLICE_LEANS")))
 		return
@@ -378,3 +381,78 @@ func _tpose_watch() -> void:
 				("active" if (trees[0] as AnimationTree).active else "INACTIVE") if not trees.is_empty() else "none",
 				sk.get_parent().name])
 		await b.wait(1.0)
+
+
+## Conversation circle gate (GroupMotion G1): the Ashford conversation spot with the most holders, a fixed camera 6 m out at head
+## height, `secs` seconds; logs CONV lines (members, speaker, turn) every 2 s.
+func _conv_gate(secs: float) -> void:
+	var town: Dictionary = Slice.settlement("Ashford")
+	var c: Vector2 = town["pos"]
+	await b.teleport(c, 0.0, 3.0)
+	await b.wait(3.0)
+	var so: SmartObjects = NpcWorld.smart
+	# QA: the nearest conversation spot and the 4 nearest villager bodies, sent there through their own smart-object sessions
+	var best := -1
+	var bd := INF
+	for i in so.spots.size():
+		var sp: Dictionary = so.spots[i]
+		if String(sp["type"]) != "conversation":
+			continue
+		var o: Vector3 = (sp["xform"] as Transform3D).origin
+		var d := Vector2(o.x, o.z).distance_to(c)
+		if d < bd:
+			bd = d
+			best = i
+	if best < 0:
+		b.L("CONV no conversation spot")
+		return
+	var spot_o: Vector3 = (so.spots[best]["xform"] as Transform3D).origin
+	var vs: Array = []
+	for v: Node in player.get_parent().find_children("*", "CharacterBody3D", true, false):
+		if v is Villager and not (v as Villager)._child:
+			vs.append([(v as Node3D).global_position.distance_to(spot_o), v])
+	vs.sort_custom(func(a: Array, bb: Array) -> bool: return a[0] < bb[0])
+	var sent := 0
+	for e: Array in vs:
+		if sent >= 4:
+			break
+		var v: Villager = e[1]
+		v.set("_decide", 9999.0)                     # hold the brain for the gate
+		if v.call("_so_begin", [best, sent]):
+			v.set("_goal", Vector2(so.approach_point(best, sent).x, so.approach_point(best, sent).z))
+			v.set("_needs_route", true)
+			v.set("_arrived", false)
+			sent += 1
+	b.L("CONV sent %d villagers to spot %d (%.0f m from the square centre)" % [sent, best, bd])
+	await b.wait(16.0)
+	var best_n := sent
+	var x: Transform3D = so.spots[best]["xform"]
+	# clearest view: the direction (of 12) whose ray from the circle at chest height runs farthest, capped at 6 m
+	var space := (player as Node3D).get_world_3d().direct_space_state
+	var fwd := Vector3(x.basis.z.x, 0, x.basis.z.z).normalized()
+	var far := 0.0
+	for k in 12:
+		var d := Vector3(sin(TAU * k / 12.0), 0, cos(TAU * k / 12.0))
+		var q := PhysicsRayQueryParameters3D.create(x.origin + Vector3(0, 1.4, 0) + d * 1.6, x.origin + Vector3(0, 1.6, 0) + d * 6.5)
+		var hit := space.intersect_ray(q)
+		var reach := 6.5 if hit.is_empty() else (x.origin + Vector3(0, 1.4, 0)).distance_to(hit["position"])
+		if reach > far + 0.3:
+			far = reach
+			fwd = d
+	var cam := Camera3D.new()
+	player.get_parent().add_child(cam)
+	cam.global_position = x.origin + fwd * minf(6.0, far - 0.4) + Vector3(0, 1.7, 0)
+	cam.look_at(x.origin + Vector3(0, 1.1, 0))
+	cam.fov = 45.0
+	cam.make_current()
+	b.L("SLICEFRAME %d" % Engine.get_frames_drawn())
+	_seg("conv spot %d holders %d at %s" % [best, best_n, x.origin])
+	var t := 0.0
+	while t < secs:
+		var g: Dictionary = preload("res://scripts/living_world/conversation_group.gd").turn(so, best, Time.get_ticks_msec() * 0.001)
+		b.L("CONV t=%.0f %s" % [t, str(g)])
+		await b.wait(2.0)
+		t += 2.0
+	cam.queue_free()
+	_seg("end")
+	b.check("conv gate finished", true)
