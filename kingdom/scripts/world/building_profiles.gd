@@ -31,8 +31,14 @@ const SIZE := {
 	"house_narrow_c": Vector3(5.48, 12.64, 8.18),
 	"house_narrow_poor_a": Vector3(3.42, 8.28, 6.68),
 	"house_narrow_poor_b": Vector3(4.02, 8.32, 6.98),
-	"house_hovel_a": Vector3(4.6, 4.82, 5.4),
-	"house_hovel_b": Vector3(5.28, 4.4, 5.0),
+	"house_hovel_a": Vector3(5.24, 6.5, 5.27),
+	"house_hovel_b": Vector3(5.24, 6.5, 5.27),     # both hovels render the refined B60 cottage (was the kit: 4.6 x 5.4 / 5.28 x 5.0)
+	# refined street houses (tools_qa/towns_medieval/refined_sizes.gd)
+	"house_ref_tall": Vector3(4.76, 12.0, 6.29),
+	"house_ref_dormer": Vector3(7.46, 10.0, 9.62),
+	"house_ref_stone": Vector3(10.95, 9.0, 9.7),
+	"house_ref_corner": Vector3(10.95, 9.0, 11.62),
+	"house_ref_row": Vector3(19.99, 11.98, 9.02),
 }
 ## Blender village houses (house_1..16) are 5.6-7.6 m deep; this is their typical size.
 const HOUSE_SIZE := Vector3(6.7, 7.5, 6.0)

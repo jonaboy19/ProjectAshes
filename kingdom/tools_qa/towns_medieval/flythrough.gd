@@ -201,9 +201,15 @@ func _hide_close_npcs(p: Vector3) -> void:
 		if is_instance_valid(n):
 			n.visible = true
 	_hidden_npcs.clear()
-	for n in get_tree().get_nodes_in_group("villager"):
+	var near: Array = get_tree().get_nodes_in_group("villager")
+	var pv: Variant = main.population.get("_villagers") if main.population != null else null
+	if pv is Array:
+		near = near + (pv as Array)       # the population tier's full-rig villagers (not all of them join the group)
+	if main.population != null and main.population.get("micro") != null:
+		near = near + (main.population.get("micro") as Node).find_children("*", "Node3D", false, false)     # scripted scene actors
+	for n in near:
 		var n3 := n as Node3D
-		if n3 != null and n3.visible and Vector2(n3.global_position.x - p.x, n3.global_position.z - p.z).length() < 1.6:
+		if n3 != null and n3.visible and Vector2(n3.global_position.x - p.x, n3.global_position.z - p.z).length() < 2.2:     # 1.5 m clearance round the body (coordinator)
 			n3.visible = false
 			_hidden_npcs.append(n3)
 

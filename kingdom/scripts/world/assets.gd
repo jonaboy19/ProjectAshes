@@ -149,6 +149,12 @@ const BUILDINGS := {
 	# poor-quarter hovels: the refined B60 thatched cottage (props_refined/buildings; same footprint class, lot sizes and
 	# door sides unchanged for save compat). The kit hovels stay in town_small/ for --townsoff and as a fallback.
 	"house_hovel_a": ["res://assets/props_refined/buildings/cottage_thatch/cottage_thatch.glb", 0.0],
+	# refined street houses (props_refined/buildings, gated round 3): Tudor / timber fronts for the main street and plaza
+	"house_ref_tall": ["res://assets/props_refined/buildings/house_tall_timber/house_tall_timber.glb", 0.0],
+	"house_ref_dormer": ["res://assets/props_refined/buildings/house_two_storey_dormer/house_two_storey_dormer.glb", 0.0],
+	"house_ref_stone": ["res://assets/props_refined/buildings/house_tudor_stone_base/house_tudor_stone_base.glb", 0.0],
+	"house_ref_corner": ["res://assets/props_refined/buildings/house_tudor_corner/house_tudor_corner.glb", 0.0],
+	"house_ref_row": ["res://assets/props_refined/buildings/row_half_timbered/row_half_timbered.glb", 0.0],
 	"house_hovel_b": ["res://assets/props_refined/buildings/cottage_thatch/cottage_thatch.glb", 0.0],
 	# Benchmark slice props (docs/plans/CC0_SLICE_KIT.md PASS list; Meshy batch 2026-10-28 gated by the coordinator): real PBR, natural size
 	"ph_crate": ["res://assets/incoming/polyhaven/models/wooden_crate_01/wooden_crate_01_1k.gltf", 0.0],
