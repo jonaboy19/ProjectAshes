@@ -79,3 +79,34 @@ The hero follows once the pilot passes.
 - **Licensing:** CC0 items only (some community items are CC-BY); keep a LICENSE.txt next to every GLB.
 - **Disk and RAM** (about 6 GB free, 16 GB shared): one headless Blender job at a time; source .blend files in art_staging (not git); commit only GLBs within budget.
 - **Variety vs batching:** too many atlases break batching, so use the settlement cap above.
+
+## 8. Secondary motion: spring chains (NPC anim lane, 2026-10-28)
+Built in from the start: the current villagers are a plain 65-bone UAL skeleton with one merged atlas mesh, so cloth can't be rigged afterwards.
+
+**Chains.** Extra bones, appended after the 65 UAL bones so every clip and VAT bake still addresses the same indices. They are never keyed by clips.
+
+| Chain | Parent | Bones | Rest position |
+|---|---|---|---|
+| skirt (tunic hem, kirtle, gambeson, apron) | pelvis | `skirt_f_1`, `skirt_f_2`, `skirt_b_1`, `skirt_b_2`, `skirt_l_1`, `skirt_l_2`, `skirt_r_1`, `skirt_r_2` | from the waist / hip ring down to the hem, one chain per quadrant |
+| apron (workers) | pelvis | `skirt_a_1`, `skirt_a_2` | front only, slightly in front of `skirt_f` |
+| hood (liripipe tail / shoulder cape) | `neck_01` | `hood_1`, `hood_2` | along the tail; cape uses `hood_l` / `hood_r` |
+| hair (long hair, braids) | `Head` | `hair_1`, `hair_2` | only on looks with hair past the neck |
+| cloak | `spine_03` | `cloak_l_1`, `cloak_l_2`, `cloak_r_1`, `cloak_r_2` | |
+
+The names match `ProceduralRig.SPRING_KEYS` (skirt / hair / cape / cloak keywords), so the player's spring setup reads them unchanged.
+
+**Weighting.** Extend `skirt_weights()` (make_humans.py):
+- Keep its pelvis floor (>= 0.35) and its thigh / calf split. Move part of the leg share onto the quadrant chain whose direction is closest to the vertex angle around the pelvis, using a smoothstep blend between neighbouring quadrants.
+- Ramp t (0 at the waist, 1 at the hem): `_1` gets about 0.5·t, and `_2` gets about 0.5·t² below mid-hem. The hem swings, and the waist stays glued to the pelvis.
+- Hood and hair: weight by distance along the tail from the attachment point, with the same two-bone ramp.
+- Never weight body (skin) vertices to chain bones.
+
+**Godot.** A SpringBoneSimulator3D on near-tier NPCs only: the **nearest 6 within 12 m** of the camera, re-picked at 2 Hz. Everyone else gets `active = false`, and the chain bones stay at rest (exactly the VAT / far-tier pose).
+- Parameters: start from `ProceduralRig.SPRING_KEYS`. Skirt: stiffness 2.5, drag 0.5, gravity 0.4, radius 0.04. Hair: 2.0 / 0.4 / 0.4 / 0.02. Cape and cloak: 1.2 / 0.5 / 0.6 / 0.04.
+- Collision: one sphere on each thigh and calf, so the hem can't pass through the legs on run, ladder and sit clips.
+- Budget: <= 0.15 ms per frame for 6 NPCs on the min-spec profile (measure with Probe).
+
+**Gate.**
+- Pilot: walk, run, sit, ladder and turn-in-place with springs on and off, at 3 m and 12 m.
+- No hem through the legs, no jitter at rest, no pop at the 12 m budget edge (blend `active` over 0.3 s).
+- Log in AAA_GATE_LOG.
