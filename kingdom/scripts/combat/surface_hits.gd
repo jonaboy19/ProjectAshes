@@ -2,7 +2,8 @@ extends RefCounted
 ## Surface-matched melee contact VFX (combat-motion worker; AAA gap audit: "combat VFX read generic/toon").
 ## GPUParticles3D through vfx_kit, alpha-blended (not additive) for anything that is not hot metal, believable scale:
 ##   flesh / cloth / leather : a few dark-red droplets falling fast + a small ground stain decal (pooled, fades)
-##   metal                   : short hot steel streaks (parry_contact.steel_sparks)
+##   metal (mail/plate/parry): short hot steel streaks (parry_contact.steel_sparks)
+##   leather                 : dull hide flecks, a little blood on heavy blows
 ##   wood                    : brown splinter chips + a puff of dust
 ## Effekseer was evaluated and not used: it needs authored .efk effects (none medieval/CC0 in the project), adds a GDExtension
 ## and per-effect cost; the pooled GPUParticles3D path is cheaper on iGPU and already in the combat pipeline.
@@ -23,6 +24,10 @@ static func play(parent: Node, pos: Vector3, dir: Vector3, surface: String, tier
 			ParryContact.steel_sparks(parent, pos, 6 + tier * 4)
 		"wood":
 			_chips(parent, pos, dir, Color(0.42, 0.29, 0.16), 6 + tier * 3)
+		"leather":
+			_chips(parent, pos, dir, Color(0.3, 0.2, 0.13), 3 + tier * 2)      # scuffed hide: dull flecks, a drop of blood on heavy
+			if tier >= 1:
+				_blood(parent, pos, dir, 0, "leather")
 		_:
 			_blood(parent, pos, dir, tier, surface)
 

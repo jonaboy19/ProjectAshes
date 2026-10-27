@@ -366,7 +366,7 @@ func _attack() -> void:
 	_animator.play_attack(swing_clip, swing_rate, fm != null or _velocity.length() < 0.3)
 	CombatEvents.emit("swing", {"attacker": self, "pos": global_position + Vector3.UP * 1.2,
 		"weight": "heavy" if (_cur_move != null and float(_cur_move.poise_damage) >= 20.0) else "light", "speed": 6.0 * swing_rate,
-		"clip": swing_clip, "kind": "slash"})
+		"clip": swing_clip, "kind": CombatEvents.swing_kind(swing_clip)})
 	_cmotion.stop()
 	var rm_anim: Animation = CombatMotion.anim_of(_animator, swing_clip) if fm != null else null
 	if rm_anim != null:
@@ -392,7 +392,7 @@ func _attack() -> void:
 			victim.take_damage(dmg, self)
 			var heavy_blow: bool = move != null and (float(move.poise_damage) >= 20.0 or bool(move.unblockable))
 			CombatEvents.emit("hit", {"attacker": self, "victim": victim, "pos": victim.global_position + Vector3.UP * 1.2,
-				"weight": "heavy" if heavy_blow else "light", "surface": CombatEvents.body_surface([]), "damage": dmg,
+				"weight": "heavy" if heavy_blow else "light", "surface": CombatEvents.surface_of(victim), "damage": dmg,
 				"killed": bool(victim.get("dead"))})
 			Audio.sfx("clash" if randf() < 0.5 else "hit", global_position, -6.0)
 		if _cur_move == move:

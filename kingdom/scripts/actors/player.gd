@@ -209,6 +209,7 @@ const CombatFeel := preload("res://scripts/combat/combat_feel.gd")
 const CombatMotion := preload("res://scripts/combat/combat_motion.gd")
 const CombatChains := preload("res://scripts/combat/combat_chains.gd")
 const PlayerCombatMotion := preload("res://scripts/combat/player_combat_motion.gd")
+const CombatEvents := preload("res://scripts/combat/combat_events.gd")
 var _cmotion := CombatMotion.new()
 const EnemyHighlight := preload("res://scripts/combat/enemy_highlight.gd")
 const ChaseCamera := preload("res://scripts/actors/chase_camera.gd")
@@ -2351,6 +2352,7 @@ func _start_swing() -> void:
 
 var _cmotion_target: Node3D
 var _dodge_clip := ""
+var _last_hit_victims: Array = []
 var _guard_check := 0.0
 var _guard_foe: Node3D
 var _guard_legs: SkeletonModifier3D
@@ -2467,6 +2469,7 @@ func _resolve_hit(damage: int, knockback: float, finisher: bool, id := -1) -> vo
 	var points: Array = []
 	var impacted_mixers: Array = []
 	var blade_tip := _trail.tip_position() if _trail else Vector3.ZERO
+	_last_hit_victims.clear()          # parallel to `points`: combat_feedback / CombatEvents read who was struck
 	var reach: float = _action.reach if _action != null else 2.6        # spear long, staff wide (CombatAction)
 	var arc_dot: float = _action.arc_dot if _action != null else 0.2
 	for enemy in get_tree().get_nodes_in_group("team1"):
@@ -2481,6 +2484,7 @@ func _resolve_hit(damage: int, knockback: float, finisher: bool, id := -1) -> vo
 			if blade_tip != Vector3.ZERO and blade_tip.distance_to(point) <= 0.6:
 				point = blade_tip
 			points.append(point)
+			_last_hit_victims.append(enemy)
 	# People in front of a drawn blade: a silent takedown from behind knocks them out, any other blow hurts and can kill
 	# (villager.gd take_damage; Takedown leaves the body as Evidence and silences a witness).
 	for v in get_tree().get_nodes_in_group("villager"):
@@ -2491,6 +2495,7 @@ func _resolve_hit(damage: int, knockback: float, finisher: bool, id := -1) -> vo
 		if tv.length() < 2.2 and fwd.dot(tv.normalized()) > 0.2:
 			(v as Node).call("take_damage", damage, self, tv.normalized() * knockback)
 			points.append((v as Node3D).global_position + Vector3(0, 0.9, 0))
+			_last_hit_victims.append(v)
 	hit_confirmed.emit(points, finisher, impacted_mixers)
 
 
@@ -2523,6 +2528,7 @@ func _start_dodge(is_ability: bool) -> void:
 	_impulse = Vector3.ZERO
 	_dodge_roll = not (backward and _animator.has_clip("Dodge_back"))
 	_dodge_clip = PlayerCombatMotion.dodge_clip(self, backward) if not is_ability else ""      # root-motion dodge (set 4, trimmed)
+	CombatEvents.emit("dodge", {"actor": self, "pos": global_position, "kind": "back" if backward else ("dash" if is_ability else "roll")})
 	if _dodge_clip != "":
 		_dodge_roll = not backward
 		_animator.play_full(_dodge_clip, PlayerCombatMotion.dodge_rate(self, _dodge_clip))

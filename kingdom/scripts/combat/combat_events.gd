@@ -44,5 +44,20 @@ static func body_surface(keep: Array) -> String:
 	return "cloth" if not keep.is_empty() else "flesh"
 
 
+## Swing family from the clip's measured cut (data/combat/mx_combat_markers.json): thrust / overhead / slash.
+static func swing_kind(clip: String) -> String:
+	var m: Dictionary = (load("res://scripts/combat/combat_chains.gd") as GDScript).call("markers").get(clip, {})
+	var d := String(m.get("dir", "left"))
+	return "thrust" if d == "thrust" else ("overhead" if d == "overhead" else "slash")
+
+
+## Surface of an actor: soldiers expose their outfit tokens (`_keep`), everything else is flesh.
+static func surface_of(actor: Object) -> String:
+	if actor == null or not is_instance_valid(actor):
+		return "flesh"
+	var keep: Variant = actor.get("_keep")
+	return body_surface(keep as Array) if keep is Array else "flesh"
+
+
 static func emit(kind: String, e: Dictionary) -> void:
 	bus().emit_signal(kind, e)

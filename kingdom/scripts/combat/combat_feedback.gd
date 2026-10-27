@@ -36,7 +36,7 @@ func _on_swing_started(action: Resource, info: Dictionary) -> void:
 	Audio.sfx("swing", null, -4.0)
 	CombatEvents.emit("swing", {"attacker": p, "pos": p.global_position + Vector3.UP * 1.2,
 		"weight": "finisher" if action.finisher else ("heavy" if action.guard_break else "light"),
-		"speed": 6.0 * float(info.get("anim_speed", 1.0)), "clip": String(action.anim), "kind": _swing_kind(action)})
+		"speed": 6.0 * float(info.get("anim_speed", 1.0)), "clip": String(action.anim), "kind": CombatEvents.swing_kind(String(action.anim))})
 	var vm: Node3D = p._viewmodel
 	if vm.visible:
 		var t := p.create_tween()
@@ -78,14 +78,19 @@ func _on_hit_confirmed(points: Array, finisher: bool, mixers: Array) -> void:
 		dir.y = 0.0
 		var t: int = tier if i < 2 else Feel.Tier.LIGHT
 		var d := dir.normalized() if dir.length() > 0.01 else fwd
+		var victims: Array = p.get("_last_hit_victims") if p.get("_last_hit_victims") is Array else []
+		var victim: Object = victims[i] if i < victims.size() and is_instance_valid(victims[i]) else null
+		var surface := CombatEvents.surface_of(victim)
 		if element == "physical":
-			# a blade into a body: droplets + a ground stain, dust only from the pool (no hot sparks on cloth or flesh)
-			SurfaceHits.play(world, pt, d, "flesh", t)
+			# a blade into a body: the struck surface decides (blood on flesh/cloth, sparks on mail, scuff on leather); dust only
+			# from the pool, no hot sparks unless it is metal
+			SurfaceHits.play(world, pt, d, surface, t)
 			pool.play(pt, element, t, d, true)
 		else:
 			pool.play(pt, element, t, d)
-		CombatEvents.emit("hit", {"attacker": p, "victim": null, "pos": pt, "weight": CombatEvents.weight_name(t),
-			"surface": "flesh" if element == "physical" else element, "damage": dmg, "killed": false})
+		CombatEvents.emit("hit", {"attacker": p, "victim": victim, "pos": pt, "weight": CombatEvents.weight_name(t),
+			"surface": surface if element == "physical" else element, "damage": dmg,
+			"killed": victim != null and bool(victim.get("dead"))})
 	if not points.is_empty():
 		Audio.sfx("hit")
 		var side := 1.0 if int(_swing.get("combo", 0)) % 2 == 0 else -1.0
@@ -193,9 +198,3 @@ func _on_clashed(_attacker: Node, won: bool) -> void:
 	p._add_camera_shake(0.3 if won else 0.4)
 	p._hit_stop(0.08)
 
-
-## Swing family for foley: thrusts and overheads sound different from horizontal cuts (measured cut direction).
-func _swing_kind(action: Resource) -> String:
-	var m: Dictionary = (load("res://scripts/combat/combat_chains.gd") as GDScript).call("markers").get(String(action.anim), {})
-	var d := String(m.get("dir", "left"))
-	return "thrust" if d == "thrust" else ("overhead" if d == "overhead" else "slash")
