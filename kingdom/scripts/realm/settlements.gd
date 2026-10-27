@@ -51,6 +51,11 @@ const EMERGENCY := {
 	"raid_aftermath": {"window": 48, "cost": 60, "text": "%s is reeling from a raid."},
 }
 const EMERGENCY_MAX := 12
+## WP-13: the hidden underground trading post below dungeon floor 1 (data/region1/underground_post.json). It is
+## deliberately NOT in `_s`: it has no WorldGen settlement, so ids, city plans, migration and the map ignore it
+## until the player discovers it (exploration.discover_post).
+const POST_DATA := "res://data/region1/underground_post.json"
+const POST_CHAR_PREFIX := "sn:ug_"
 
 ## sid -> {identity:{..}, residents:{occ:n}, structures:{kind:n}, chains:{id:n_units},
 ##         stock:{item:float}, shortage:{item:days}, trade:float, pop:int}
@@ -59,6 +64,7 @@ var _emerg: Array = []
 var _next_emerg := 1
 var _digest: Array = []
 var _inited := false
+var _post: Dictionary = {}                # underground post state ({} until first used)
 
 
 func _rng(tag: String, day: int, id: int) -> RandomNumberGenerator:
@@ -454,6 +460,162 @@ func _loss(d: Dictionary, frac: float) -> void:
 		d["residents"][o] = int(int(d["residents"][o]) * (1.0 - frac))
 
 
+# --------------------------------------------------------------- underground post (WP-13)
+
+static func post_def() -> Dictionary:
+	var f := FileAccess.open(POST_DATA, FileAccess.READ)
+	if f == null:
+		return {}
+	var j: Variant = JSON.parse_string(f.get_as_text())
+	return j if j is Dictionary else {}
+
+
+## Real-world position of the entrance (dungeon floor 1): the slice anchor, else the data fallback.
+static func post_entrance() -> Vector2:
+	var def := post_def()
+	var a := RealWorld.slice_anchor(String(def.get("anchor_slice", "cave_entrance")))
+	if a != Vector2.INF:
+		return a
+	var fb: Array = def.get("anchor_fallback", [790.0, -1155.0])
+	return Vector2(float(fb[0]), float(fb[1]))
+
+
+## Lazily seeds the post: six registry characters ("ch:n" via sn:ug_<key>), market stock, purse. Idempotent.
+func post() -> Dictionary:
+	if not _post.is_empty():
+		return _post
+	var def := post_def()
+	if def.is_empty():
+		return _post
+	var mk: Dictionary = def["market"]
+	var reg: Variant = hub.mod("registry") if hub != null else null
+	var chars: Array = []
+	var residents := {}
+	for c: Dictionary in def["characters"]:
+		var pid := ""
+		if reg != null:
+			pid = String(reg.ref(POST_CHAR_PREFIX + String(c["key"])))
+			reg.upgrade(pid)
+		chars.append({"key": String(c["key"]), "name": String(c["name"]), "role": String(c["role"]), "pid": pid})
+		residents[String(c["occupation"])] = int(residents.get(String(c["occupation"]), 0)) + 1
+	_post = {"id": String(def["id"]), "name": String(def["name"]), "kind": "underground", "floor": int(def["floor"]),
+		"pos": [post_entrance().x, post_entrance().y], "pop": chars.size(), "residents": residents, "characters": chars,
+		"stock": (mk["stock"] as Dictionary).duplicate(), "gold": int(mk["gold"]), "discovered": -1}
+	return _post
+
+
+func has_post() -> bool:
+	return not post().is_empty()
+
+
+func post_kind() -> String:
+	return String(post().get("kind", ""))
+
+
+func post_characters() -> Array:
+	return post().get("characters", [])
+
+
+func post_discovered() -> bool:
+	return int(post().get("discovered", -1)) >= 0
+
+
+## Called when the player finds the way in (walks to the entrance, a lead pays off). Reveals it on the map;
+## returns true only the first time.
+func discover_post(day: int) -> bool:
+	var p := post()
+	if p.is_empty() or int(p["discovered"]) >= 0:
+		return false
+	p["discovered"] = day
+	var ex: Variant = hub.mod("exploration") if hub != null else null
+	if ex != null:
+		ex.reveal_post(String(p["id"]), day)
+	return true
+
+
+## Map entries for the post: nothing at all until discovered (hidden from the map, the minimap and rumours).
+func post_marker() -> Dictionary:
+	var p := post()
+	if p.is_empty() or int(p["discovered"]) < 0:
+		return {}
+	return {"id": p["id"], "name": p["name"], "kind": "underground", "pos": Vector2(float(p["pos"][0]), float(p["pos"][1])), "floor": p["floor"]}
+
+
+## Whether `pos` (real-world x,z) is close enough to the entrance to discover the post on foot.
+func near_entrance(pos: Vector2) -> bool:
+	return pos.distance_to(post_entrance()) <= float(post_def().get("discover_radius", 18.0))
+
+
+## What the post charges the player for one `item` (0 = not for sale).
+func post_ask(item: String) -> int:
+	var m: Dictionary = post_def().get("market", {})
+	return int(round(float((m.get("sells", {}) as Dictionary).get(item, 0)) * float(m.get("sell_margin", 1.0))))
+
+
+## What the post pays the player for one `item` (0 = not wanted). Food is paid at `food_bonus`, scarcer food more.
+func post_bid(item: String) -> int:
+	var m: Dictionary = post_def().get("market", {})
+	var base := float((m.get("buys", {}) as Dictionary).get(item, 0))
+	if base <= 0.0:
+		return 0
+	var p := post()
+	var pop := maxf(1.0, float(p.get("pop", 1)))
+	var have := float(p["stock"].get("bread", 0.0)) + float(p["stock"].get("grain", 0.0)) + float(p["stock"].get("smoked_fish", 0.0))
+	var scarcity := clampf(1.0 + (30.0 - have / pop * 10.0) * 0.01, 1.0, 1.6)
+	return maxi(1, int(round(base * float(m.get("buy_margin", 1.0)) * float(m.get("food_bonus", 1.0)) * scarcity)))
+
+
+## The player buys up to `qty` of `item` with `gold`. Only after discovery. -> {ok, qty, cost, why}
+func post_buy(item: String, qty: int, gold: int) -> Dictionary:
+	var p := post()
+	if p.is_empty() or int(p["discovered"]) < 0:
+		return {"ok": false, "qty": 0, "cost": 0, "why": "unknown"}
+	var ask := post_ask(item)
+	if ask <= 0:
+		return {"ok": false, "qty": 0, "cost": 0, "why": "not_for_sale"}
+	var n := mini(qty, int(floorf(float(p["stock"].get(item, 0.0)))))
+	n = mini(n, gold / ask)
+	if n <= 0:
+		return {"ok": false, "qty": 0, "cost": 0, "why": "no_stock_or_gold"}
+	p["stock"][item] = float(p["stock"][item]) - n
+	p["gold"] = int(p["gold"]) + n * ask
+	return {"ok": true, "qty": n, "cost": n * ask, "why": ""}
+
+
+## The player sells `qty` of `item` to the post (food mostly). Capped by the post's purse. -> {ok, qty, paid, why}
+func post_sell(item: String, qty: int) -> Dictionary:
+	var p := post()
+	if p.is_empty() or int(p["discovered"]) < 0:
+		return {"ok": false, "qty": 0, "paid": 0, "why": "unknown"}
+	var bid := post_bid(item)
+	if bid <= 0:
+		return {"ok": false, "qty": 0, "paid": 0, "why": "not_wanted"}
+	var n := mini(qty, int(p["gold"]) / bid)
+	if n <= 0:
+		return {"ok": false, "qty": 0, "paid": 0, "why": "post_broke"}
+	p["stock"][item] = float(p["stock"].get(item, 0.0)) + n
+	p["gold"] = int(p["gold"]) - n * bid
+	return {"ok": true, "qty": n, "paid": n * bid, "why": ""}
+
+
+## One day (or `days`) below ground: smelters make iron, residents eat, the purse slowly refills from the quiet trade.
+func _post_step(days: float) -> void:
+	var p := post()
+	if p.is_empty():
+		return
+	var def := post_def()
+	var stock: Dictionary = p["stock"]
+	for it: String in def.get("production_per_day", {}):
+		stock[it] = minf(400.0, float(stock.get(it, 0.0)) + float(def["production_per_day"][it]) * days)
+	var need := float(p["pop"]) * float(def.get("food_per_resident_day", 0.04)) * days * 25.0
+	for it in ["bread", "grain", "smoked_fish", "flour"]:
+		var take := minf(float(stock.get(it, 0.0)), need)
+		stock[it] = float(stock.get(it, 0.0)) - take
+		need -= take
+	p["hungry"] = need > 0.01
+	p["gold"] = mini(1500, int(p["gold"]) + int(round(4.0 * days)))
+
+
 # --------------------------------------------------------------- ticks
 
 func tick_hour(_hour: int, _ctx: Dictionary) -> Array:
@@ -484,6 +646,9 @@ func tick_day_chunks(day: int, ctx: Dictionary) -> Array:
 	var chunks: Array = []
 	for sid in ids:
 		chunks.append(func() -> Array: return _tick_day_one(sid, day, ctx))
+	chunks.append(func() -> Array:
+		_post_step(1.0)
+		return [])
 	return chunks
 
 
@@ -581,6 +746,7 @@ func catch_up(days: int, ctx: Dictionary) -> Array:
 	var ids := _s.keys()
 	ids.sort()
 	var day0 := int(ctx.get("abs_hours", 0)) / 24
+	_post_step(float(mini(days, 30)))
 	for sid in ids:
 		var d: Dictionary = _s[sid]
 		var before_food: float = d["stock"].get("bread", 0.0) + d["stock"].get("grain", 0.0)
@@ -641,7 +807,7 @@ func serialize() -> Dictionary:
 	for k in _s:
 		sd[str(k)] = _s[k].duplicate(true)
 	return {"s": sd, "emerg": _emerg.duplicate(true), "next_emerg": _next_emerg,
-		"digest": _digest.duplicate(), "inited": _inited}
+		"digest": _digest.duplicate(), "inited": _inited, "post": _post.duplicate(true)}
 
 
 func deserialize(d: Dictionary) -> void:
@@ -652,3 +818,7 @@ func deserialize(d: Dictionary) -> void:
 	_next_emerg = int(d.get("next_emerg", 1))
 	_digest = (d.get("digest", []) as Array).duplicate()
 	_inited = bool(d.get("inited", false))
+	_post = {}
+	var pd: Variant = d.get("post", {})
+	if pd is Dictionary and not (pd as Dictionary).is_empty():
+		_post = (pd as Dictionary).duplicate(true)

@@ -1,0 +1,30 @@
+{
+	"id": "underground:kestrels_folly",
+	"name": "Deepward Post",
+	"kind": "underground",
+	"floor": 1,
+	"anchor_slice": "cave_entrance",
+	"anchor_fallback": [790.0, -1155.0],
+	"entrance_site": "Kestrel's Folly",
+	"entrance_dungeon_id": "kestrels_folly",
+	"discover_radius": 18.0,
+	"characters": [
+		{"key": "marra_vesk", "name": "Marra Vesk", "role": "post-warden", "occupation": "soldier", "line": "Nobody finds the Post by accident. Mind the lamps."},
+		{"key": "tolliver_grane", "name": "Tolliver Grane", "role": "ore-factor", "occupation": "merchant", "line": "Iron by the ingot. I pay in coin, but I would rather be paid in bread."},
+		{"key": "hesk_dunmoor", "name": "Hesk Dunmoor", "role": "smelter", "occupation": "miner", "line": "Seven winters under the fells and I still dream of sky."},
+		{"key": "ilsa_morrow", "name": "Ilsa Morrow", "role": "cook", "occupation": "farmer", "line": "The mushrooms feed us, but a loaf from above is a feast."},
+		{"key": "brother_ansel", "name": "Brother Ansel", "role": "lamp-keeper", "occupation": "priest", "line": "Keep a light and the dark keeps its distance."},
+		{"key": "wren_pike", "name": "Wren Pike", "role": "scout", "occupation": "thief", "line": "I know three ways out and only one is on your map."}
+	],
+	"market": {
+		"sells": {"iron_ingot": 12, "iron_ore": 5, "coal": 4},
+		"buys": {"bread": 4, "grain": 4, "smoked_fish": 7, "flour": 3},
+		"stock": {"iron_ingot": 80.0, "iron_ore": 120.0, "coal": 60.0, "bread": 20.0, "grain": 30.0, "smoked_fish": 5.0, "flour": 10.0},
+		"gold": 600,
+		"sell_margin": 1.0,
+		"buy_margin": 1.0,
+		"food_bonus": 1.35
+	},
+	"production_per_day": {"iron_ingot": 3.0, "iron_ore": 4.0, "coal": 2.0},
+	"food_per_resident_day": 0.04
+}

@@ -23,6 +23,7 @@ var revealed: Dictionary = {}        # hidden dungeon id -> day found
 var leads: Dictionary = {}           # dungeon id -> day the lead was learned
 var entered: Dictionary = {}         # dungeon id -> day first entered
 var _last_kill_day: Dictionary = {}
+var posts: Dictionary = {}           # underground post id -> day the player found it (settlements.discover_post)
 var relics: Dictionary = {}          # dungeon id -> {text, day}: gear of a lost expedition (notables.gd)
 
 
@@ -44,6 +45,18 @@ func reveal(id: String, day: int) -> bool:
 		return false
 	revealed[id] = day
 	return true
+
+
+## The underground trading post below floor 1 stays off every map until the player finds it.
+func reveal_post(id: String, day: int) -> bool:
+	if posts.has(id):
+		return false
+	posts[id] = day
+	return true
+
+
+func post_known(id: String) -> bool:
+	return posts.has(id)
 
 
 func is_revealed(id: String) -> bool:
@@ -131,7 +144,7 @@ func stats() -> Dictionary:
 			cleared += 1
 		if bool(st.get("boss_dead", false)):
 			bosses += 1
-	return {"entered": entered.size(), "cleared": cleared, "bosses": bosses, "looted": looted, "hidden_found": revealed.size(), "leads": leads.size()}
+	return {"entered": entered.size(), "cleared": cleared, "bosses": bosses, "looted": looted, "hidden_found": revealed.size(), "posts": posts.size(), "leads": leads.size()}
 
 
 ## Weekly: a dungeon nobody has cleared recently slowly refills (creatures only; loot and bosses stay gone).
@@ -158,7 +171,7 @@ func catch_up(days: int, ctx: Dictionary) -> Array:
 
 func serialize() -> Dictionary:
 	return {"v": SAVE_VERSION, "states": _states.duplicate(true), "revealed": revealed.duplicate(), "leads": leads.duplicate(),
-		"entered": entered.duplicate(), "last_kill": _last_kill_day.duplicate(), "relics": relics.duplicate(true)}
+		"entered": entered.duplicate(), "last_kill": _last_kill_day.duplicate(), "relics": relics.duplicate(true), "posts": posts.duplicate()}
 
 
 func deserialize(d: Dictionary) -> void:
@@ -168,6 +181,11 @@ func deserialize(d: Dictionary) -> void:
 	entered.clear()
 	_last_kill_day.clear()
 	relics = (d.get("relics", {}) as Dictionary).duplicate(true)
+	posts.clear()
+	var pd: Variant = d.get("posts", {})
+	if pd is Dictionary:
+		for pid: Variant in pd:
+			posts[String(pid)] = int(pd[pid])
 	var s: Variant = d.get("states", {})
 	if s is Dictionary:
 		for id: Variant in s:
