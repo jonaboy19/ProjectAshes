@@ -243,6 +243,10 @@ func _work() -> void:
 					col = col.lerp(Color(0.5, 0.47, 0.36), clampf(float(ly[5]), 0.0, 1.0) * 0.7)
 					col = col.lerp(Color(0.45, 0.44, 0.42), clampf(float(ly[7]), 0.0, 1.0))
 					col = col.lerp(Color(0.86, 0.9, 0.96), clampf(float(ly[4]), 0.0, 1.0))
+					# woodland shading + macro breakup so far hills are not smooth green blobs (forest density x biome, low-frequency noise)
+					var fd := WorldBiomes.tree_density(WorldBiomes.at(x, z), WorldGen.forest_density(x, z))
+					col = col.lerp(Color(0.2, 0.3, 0.14), clampf(fd, 0.0, 1.0) * 0.65 * (1.0 - clampf(float(ly[4]), 0.0, 1.0)))
+					col *= 0.9 + 0.2 * (0.5 + 0.5 * sin(x * 0.0021 + cos(z * 0.0017) * 2.0))
 			var lv := lvs[j * n + i]
 			if not is_nan(lv) and lv > h + 0.1:
 				# Water only where the whole neighbourhood is water or higher ground (see _water_interior): a river is far
@@ -273,7 +277,7 @@ func _work() -> void:
 	rng.seed = 90210
 	var blobs: Dictionary = {}          # Vector2i cell -> PackedFloat32Array [x, y, z, sx, sy, tint] * n
 	var real := WorldMacro.is_real()
-	var area := RealWorld.box() if real else Rect2(-BLOB_HALF, -BLOB_HALF, BLOB_HALF * 2.0, BLOB_HALF * 2.0)
+	var area := RealWorld.box().grow(4000.0) if real else Rect2(-BLOB_HALF, -BLOB_HALF, BLOB_HALF * 2.0, BLOB_HALF * 2.0)   # W6: the hills seen from the slice route carry woods too
 	var bz := area.position.y + BLOB_STEP * 0.5
 	while bz < area.end.y:
 		var bx := area.position.x + BLOB_STEP * 0.5

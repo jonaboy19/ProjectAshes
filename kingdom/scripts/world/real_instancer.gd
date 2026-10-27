@@ -52,7 +52,7 @@ static func mesh_assets(low_tier: bool) -> Array:
 		var n: int = lods[1]
 		var k_low := 0.6 if low_tier else 1.0
 		# LOD ranges (m): trees full mesh close, the generated _lod1/_lod2 simplifications out to the far forest; small plants short.
-		var ranges: Array = [40.0, 160.0, 2400.0] if tree else [60.0, 160.0, 260.0]   # Sapling trees: LOD0 is 25-55k tris
+		var ranges: Array = [40.0, 120.0, 2400.0] if tree else [60.0, 160.0, 260.0]   # LOD0 <40 m, LOD1 <120 m, baked impostor beyond (perf gate)   # Sapling trees: LOD0 is 25-55k tris
 		for li in n:
 			var ri := 2 if li == n - 1 else li       # the last LOD always reaches the far range
 			a.set("lod%d_range" % li, float(ranges[ri]) * k_low)
@@ -156,6 +156,9 @@ static func plan(o: Vector2, size: float, density_mul: float) -> Dictionary:
 					continue
 				if WorldGen.is_water(x, z) or WorldGen.road_distance(x, z) < 6.0:
 					continue
+				var ns := WorldGen.nearest_settlement(Vector2(x, z))
+				if not ns.is_empty() and Vector2(x, z).distance_to(ns["pos"]) < float(ns["radius"]) * 1.2 + 10.0:
+					continue          # towns own their ground: no wild trees / undergrowth on streets, plazas or yards (towns worker report)
 				var kind := WorldBiomes.pick(role, biome, h, WorldBiomes.pick_u(x, z, 17))
 				if not _ids.has(kind):
 					continue

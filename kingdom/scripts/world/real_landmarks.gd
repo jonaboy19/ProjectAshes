@@ -35,7 +35,7 @@ func _ready() -> void:
 
 var _field_queue: Array = []
 var _wall_mesh: Mesh
-const STONE_DIR := "res://assets/cc0/textures/stacked_stone_wall/stacked_stone_wall_"   # CC0 slice kit (Poly Haven)
+const STONE_DIR := "res://assets/cc0/textures/stone_wall_04/stone_wall_04_"   # CC0 slice kit: grey field stone (stacked_stone_wall read red-brown)   # CC0 slice kit (Poly Haven)
 
 
 ## A 4 m Lake District dry-stone wall segment: battered (wider at the foot), ~3 courses of irregular flat stones plus a row of
@@ -72,7 +72,7 @@ static func _drystone_mesh() -> Mesh:
 	mat.cull_mode = BaseMaterial3D.CULL_DISABLED
 	mat.uv1_triplanar = true
 	mat.uv1_scale = Vector3(0.9, 0.9, 0.9)
-	mat.albedo_color = Color(0.78, 0.86, 0.95)   # the CC0 stacked-stone set is red-brown: pull it to Lake District slate grey
+	mat.albedo_color = Color(0.92, 0.94, 0.96)
 	mesh.surface_set_material(0, mat)
 	return mesh
 
@@ -232,10 +232,10 @@ func _process(delta: float) -> void:
 	# Kilometre-scale views: the 12 km world's depth fog (0.0021) hid everything past 1 km. Base 0.2x, then per biome.
 	var b2 := clampi(WorldBiomes.at(cam.global_position.x, cam.global_position.z), 0, 7)
 	_fog_mul = lerpf(_fog_mul, 0.2 * float(FOG_BIOME[b2]), k)
-	WEATHER.region_fog_mul = _fog_mul
+	_weather().region_fog_mul = _fog_mul
 	# Slice gate (owner look, ref 01): crisp near field, haze only in the distance. Depth fog starts at 300 m; the volumetric fog
 	# (which hazes the first 64 m) is off outdoors; the sky gets a deep blue top and crisper, contrastier cumulus.
-	WEATHER.region_vfog_mul = 0.0
+	_weather().region_vfog_mul = 0.0
 	env.fog_mode = Environment.FOG_MODE_DEPTH
 	env.fog_depth_begin = 300.0
 	env.fog_depth_end = 9000.0
@@ -251,15 +251,17 @@ func _process(delta: float) -> void:
 		env.sky.radiance_size = Sky.RADIANCE_SIZE_64
 
 
-const WEATHER := preload("res://scripts/world/weather.gd")
+## Loaded at run time, not preloaded: weather.gd -> interior_door.gd needs the Life autoload, which -s tools (probes, tests) do not have.
+static func _weather() -> Variant:
+	return load("res://scripts/world/weather.gd")
 ## Fog per biome (x the real-world base): grass forest meadow farmland marsh highland rift snow.
 const FOG_BIOME := [1.0, 1.25, 1.0, 1.0, 2.2, 0.8, 1.8, 1.1]
 var _fog_mul := 0.2
 
 
 func _exit_tree() -> void:
-	WEATHER.region_fog_mul = 1.0
-	WEATHER.region_vfog_mul = 1.0
+	_weather().region_fog_mul = 1.0
+	_weather().region_vfog_mul = 1.0
 	if _task >= 0:
 		WorkerThreadPool.wait_for_task_completion(_task)
 		_task = -1

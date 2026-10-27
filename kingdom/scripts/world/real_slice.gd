@@ -88,7 +88,7 @@ func _ready() -> void:
 	if _d.is_empty() or not RealWorld.active():
 		return
 	_rng.seed = 2610
-	var wall_mesh: Mesh = preload("res://scripts/world/real_landmarks.gd")._drystone_mesh()
+	var wall_mesh: Mesh = load("res://scripts/world/real_landmarks.gd")._drystone_mesh()   # load, not preload: keeps world_gen free of the weather -> Life chain for -s tools
 	var wall_ts: Array[Transform3D] = []
 	for w: Dictionary in _d["walls"]:
 		_wall(_pts(w["points"]), Vector2(float(w["gap_at"][0]), float(w["gap_at"][1])), float(w.get("gap", 0.0)), wall_ts)
@@ -207,19 +207,18 @@ func _road() -> void:
 	# puddle in the low spot of the road near the stile
 	var pd: Array = _d.get("puddle", [214.0, 64.0, 1.6])
 	var pp := Vector2(float(pd[0]), float(pd[1]))
-	var pm := CylinderMesh.new()
-	pm.top_radius = float(pd[2])
-	pm.bottom_radius = float(pd[2])
-	pm.height = 0.02
-	pm.radial_segments = 14
+	var pm := _puddle_mesh(float(pd[2]))
 	var wm := StandardMaterial3D.new()
-	wm.albedo_color = Color(0.22, 0.2, 0.17)
-	wm.metallic = 0.6
-	wm.roughness = 0.04
-	pm.material = wm
+	wm.albedo_color = Color(0.18, 0.16, 0.13)
+	wm.metallic = 0.35
+	wm.roughness = 0.03
+	wm.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
+	wm.vertex_color_use_as_albedo = true
+	wm.cull_mode = BaseMaterial3D.CULL_DISABLED
+	pm.surface_set_material(0, wm)
 	var pmi := MeshInstance3D.new()
 	pmi.mesh = pm
-	pmi.transform = Transform3D(Basis.from_scale(Vector3(1.0, 1.0, 0.6)) * Basis(Vector3.UP, 0.4), Vector3(pp.x, WorldGen.height(pp.x, pp.y) + 0.17, pp.y))
+	pmi.transform = Transform3D(Basis(Vector3.UP, 0.4), Vector3(pp.x, WorldGen.height(pp.x, pp.y) + 0.16, pp.y))
 	add_child(pmi)
 
 
@@ -231,7 +230,9 @@ const PH := "res://assets/incoming/polyhaven/models/"
 const MEADOW := [["grass_medium_02/grass_medium_02_1k.gltf", 0.55, 3.2, 4.6, 9.0],
 	["grass_medium_01/grass_medium_01_1k.gltf", 0.41, 3.0, 4.4, 8.0], ["dandelion_01/dandelion_01_1k.gltf", 0.02, 1.0, 1.4, 5.0], ["fern_02/fern_02_1k.gltf", 0.025, 0.7, 1.1, 9.0],
 	["nettle_plant/nettle_plant_1k.gltf", 0.015, 0.8, 1.1, 4.0], ["dandelion_01/dandelion_01_1k.gltf", 0.01, 1.0, 1.3, 3.0]]
-const CHUNK_M := 24.0
+const CHUNK_M := 8.0          # perf gate: small chunks so Godot's automatic mesh LODs drop the far grass chunks
+const MAX_TRIS := 2500        # perf gate: some scan clumps are 23k tris (dandelion); thousands of instances of those cost millions of tris
+const MAX_VARIANTS := 3       # per scan file: fewer distinct meshes = fewer MultiMeshes / draw calls
 
 
 ## Dense continuous meadow from Poly Haven CC0 scans right up to the road edge (ref 01): every variant mesh of each gltf, MultiMesh
@@ -243,7 +244,12 @@ func _meadow() -> void:
 			continue
 		var inst := (load(PH + String(m[0])) as PackedScene).instantiate()
 		var mis := inst.find_children("*", "MeshInstance3D", true, false)
+		mis = mis.filter(func(x: MeshInstance3D) -> bool: return _tris(x.mesh) <= MAX_TRIS)
+		mis.sort_custom(func(a: MeshInstance3D, b: MeshInstance3D) -> bool: return _tris(a.mesh) < _tris(b.mesh))   # perf gate: lightest clumps first
+		var used := 0
 		for mi: MeshInstance3D in mis:
+			if used >= MAX_VARIANTS:
+				break
 			if String(mi.name).contains("dead") or String(mi.get_parent().name).contains("dead"):
 				continue
 			# Poly Haven scans carry their real size in the node transforms (the meshes are a few cm): keep the node basis
@@ -264,7 +270,8 @@ func _meadow() -> void:
 					nm.backlight_enabled = true
 					nm.backlight = Color(0.32, 0.4, 0.12)   # sun through the blades
 					mesh.surface_set_material(si, nm)
-			variants.append([mesh, float(m[1]) / mis.size(), m[2], m[3], m[4], tb.basis])
+			variants.append([mesh, float(m[1]) / mini(mis.size(), MAX_VARIANTS), m[2], m[3], m[4], tb.basis])
+			used += 1
 		inst.free()
 	if variants.is_empty():
 		return
@@ -275,7 +282,7 @@ func _meadow() -> void:
 		cum.append(tot)
 	var q: Node = Engine.get_main_loop().root.get_node_or_null("Quality") if Engine.get_main_loop() is SceneTree else null
 	var dens := clampf(float(q.call("value", "scatter")) if q and q.has_method("value") else 1.0, 0.4, 1.0)
-	var step := 0.5 / sqrt(dens)
+	var step := 0.6 / sqrt(dens)      # perf gate: 0.5 m spacing cost ~40 % more for little visible gain
 	var w := float(_d["path"].get("road_width", 3.0)) * 0.5
 	var buckets: Dictionary = {}       # Vector2i(variant, chunk) -> Array[Transform3D]
 	var walked := 0.0
@@ -299,7 +306,7 @@ func _meadow() -> void:
 					if off - w > float(v[4]):
 						continue
 					var p: Vector2 = a + dir * (along + _rng.randf_range(-step, step)) + side * float(sd) * off
-					if WorldGen.road_distance(p.x, p.y) < 2.0:
+					if WorldGen.road_distance(p.x, p.y) < 2.0 or WorldGen.street_distance(p.x, p.y) < 1.5:
 						continue
 					var s := _rng.randf_range(float(v[2]), float(v[3]))
 					var key := Vector2i(mini(vi, variants.size() - 1), int((walked + along) / CHUNK_M))
@@ -311,7 +318,37 @@ func _meadow() -> void:
 	for key: Vector2i in buckets:
 		var ts: Array[Transform3D] = []
 		ts.assign(buckets[key])
-		_mmi((variants[key.x] as Array)[0], ts, 70.0, true)
+		_mmi((variants[key.x] as Array)[0], ts, 45.0, true, false)
+
+
+static func _tris(m: Mesh) -> int:
+	var t := 0
+	for si in m.get_surface_count():
+		var a := m.surface_get_arrays(si)
+		var idx: PackedInt32Array = a[Mesh.ARRAY_INDEX] if a[Mesh.ARRAY_INDEX] != null else PackedInt32Array()
+		t += idx.size() / 3 if idx.size() > 0 else (a[Mesh.ARRAY_VERTEX] as PackedVector3Array).size() / 3
+	return t
+
+
+## An irregular puddle: a noisy-edged fan, opaque water in the middle fading to a wet, transparent rim (no hard disc).
+func _puddle_mesh(r: float) -> ArrayMesh:
+	var st := SurfaceTool.new()
+	st.begin(Mesh.PRIMITIVE_TRIANGLES)
+	var n := 28
+	var ring: Array[Vector3] = []
+	var outer: Array[Vector3] = []
+	for i in n:
+		var a := TAU * i / n
+		var rr := r * (0.75 + 0.35 * sin(a * 3.0 + 1.1) * 0.5 + 0.25 * sin(a * 7.0) * 0.5) * (1.0 if cos(a) > 0.0 else 0.7)
+		ring.append(Vector3(cos(a) * rr, 0.0, sin(a) * rr * 0.62))
+		outer.append(Vector3(cos(a) * rr * 1.35, -0.005, sin(a) * rr * 0.62 * 1.35))
+	for i in n:
+		var j := (i + 1) % n
+		for v: Array in [[Vector3.ZERO, 0.85], [ring[i], 0.85], [ring[j], 0.85], [ring[i], 0.85], [outer[i], 0.0], [outer[j], 0.0], [ring[i], 0.85], [outer[j], 0.0], [ring[j], 0.85]]:
+			st.set_color(Color(1, 1, 1, float(v[1])))
+			st.set_normal(Vector3.UP)
+			st.add_vertex(v[0])
+	return st.commit()
 
 
 ## Soft tall-grass verges with flowers on both sides of the road (ref 01): a dense band, densest at the road edge, broken by gaps.
@@ -395,12 +432,14 @@ func _scene(kind: String, p: Vector2, s: float, yaw: float) -> void:
 	var n := (load(path) as PackedScene).instantiate() as Node3D
 	n.transform = Transform3D(Basis(Vector3.UP, yaw).scaled(Vector3.ONE * s), Vector3(p.x, _ground(p) - 0.1, p.y))
 	if real_tree:
-		var ranges := {"LOD0": [0.0, 45.0], "LOD1": [45.0, 160.0], "LOD2": [160.0, 2500.0]}
+		var ranges := {"LOD0": [0.0, 40.0], "LOD1": [40.0, 120.0], "LOD2": [120.0, 2500.0]}   # LOD2 = baked cross-card impostor
 		for gi in n.find_children("*", "GeometryInstance3D", true, false):
 			for k: String in ranges:
 				if String(gi.name).begins_with(k) or String(gi.get_parent().name).begins_with(k):
 					(gi as GeometryInstance3D).visibility_range_begin = float(ranges[k][0])
 					(gi as GeometryInstance3D).visibility_range_end = float(ranges[k][1])
+					if k != "LOD0":
+						(gi as GeometryInstance3D).cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF   # perf: only near trees cast
 	add_child(n)
 
 
@@ -436,7 +475,7 @@ func _stone() -> void:
 static var _clumps: FastNoiseLite
 
 
-func _mmi(mesh: Mesh, ts: Array[Transform3D], range_end: float, tint := false) -> void:
+func _mmi(mesh: Mesh, ts: Array[Transform3D], range_end: float, tint := false, shadows := true) -> void:
 	if ts.is_empty():
 		return
 	var mm := MultiMesh.new()
@@ -459,6 +498,8 @@ func _mmi(mesh: Mesh, ts: Array[Transform3D], range_end: float, tint := false) -
 	mi.visibility_range_end = range_end
 	mi.visibility_range_end_margin = range_end * 0.15
 	mi.visibility_range_fade_mode = GeometryInstance3D.VISIBILITY_RANGE_FADE_SELF
+	if not shadows:
+		mi.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF   # grass: no shadow pass (perf)
 	add_child(mi)
 
 
