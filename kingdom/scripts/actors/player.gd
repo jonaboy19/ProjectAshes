@@ -71,12 +71,12 @@ const RUN := 6.5
 ## braking and turning are separate rules instead of one smoothing constant.
 ## Acceleration is strongest from a standstill (the first step answers the
 ## stick at once) and eases off toward top speed, so a run still builds.
-const ACCEL_START := 17.0        # m/s² at rest (FEEL_AUDIT F2: 34 reached walk speed in 2 frames, before the first step)
-const ACCEL_TOP := 11.0          # m/s² near RUN
+const ACCEL_START := 8.0         # m/s² at rest: walk speed in ~0.3 s, the first step carries the weight shift (slice pass 2; was 17 = 0.14 s, a pop)
+const ACCEL_TOP := 9.0           # m/s² near RUN (a run builds over ~0.8 s)
 const MOVE_BRAKE := 30.0         # m/s² when the target speed drops while still moving (sprint -> walk)
 ## Releasing the stick: braking eases with speed so a run takes 2-3 decelerating
 ## steps instead of stopping dead in 0.2 s (FEEL_AUDIT F1). Walk stops stay short.
-const STOP_BRAKE_WALK := 16.0     # m/s² from walking pace (2.4 m/s -> 0.15 s)
+const STOP_BRAKE_WALK := 9.0      # m/s² from walking pace (2.4 m/s -> 0.27 s, one settling step; was 16 = a dead stop)
 const STOP_BRAKE_RUN := 15.0      # m/s² from a run (6.5 m/s -> 0.43 s, ~1.4 m)
 const PIVOT_BRAKE := 42.0        # m/s² when reversing out of a run: plant, then go
 const PIVOT_ANGLE := 2.3         # rad (~130°) between travel and stick that triggers a pivot
@@ -93,7 +93,7 @@ const WALK_STOP_BRAKE := 5.5
 ## faster than travel, so the body leads a turn instead of sliding sideways.
 const TRAVEL_TURN_WALK := 16.0   # rad/s
 const TRAVEL_TURN_RUN := 9.0
-const FACE_TURN_IDLE := 14.0     # rad/s: 180° on the spot in ~0.25 s (was 20: a 0.13 s 90° spin, FEEL_AUDIT F7)
+const FACE_TURN_IDLE := 9.0      # rad/s: 180° on the spot in ~0.35 s, time for the turn-in-place steps (was 14: a spin)
 const FACE_TURN_RUN := 11.0
 const FACE_SHARPNESS := 16.0
 ## Air control after the coyote window, as a fraction of ground response.
@@ -619,6 +619,8 @@ func _build_body() -> void:
 	# After the look-at: the rig orders the skeleton's modifiers as
 	# animation -> look-at -> foot IK -> secondary motion.
 	_rig = ProceduralRig.attach(body, self, true)
+	if _rig and sheathed:
+		_rig.set("sheathed", true)   # a rebuilt body (age, outfit) keeps the blade where it was
 	_animator.rig = _rig
 	_wall.bind_rig(_rig)
 	_ground.bind_rig(_rig)
@@ -1742,13 +1744,15 @@ func set_sheathed(on: bool, quick := false) -> void:
 ## Out of combat the blade goes home by itself (KCD2): the game starts sheathed, and a drawn weapon is sheathed after
 ## AUTO_SHEATHE_S with no swing, no block and no foe within AUTO_SHEATHE_RANGE. Attacking or blocking draws again (attack / above).
 const AUTO_SHEATHE_S := 5.0
-const AUTO_SHEATHE_RANGE := 14.0
+const AUTO_SHEATHE_RANGE := 15.0    # coordinator rule: never with a hostile inside 15 m (any team1 body counts, aware or not)
 var _calm_t := -1.0              # s since the last combat cue; -1 until the first tick (starts sheathed, no clip)
 var _calm_check := 0.0
 
 
 func _update_auto_sheathe(delta: float) -> void:
 	if _calm_t < 0.0:
+		if _rig == null or not is_on_floor():
+			return                     # the rig (holster sockets) must exist, or the flag never reaches the props
 		_calm_t = 0.0
 		if _carry == null and not sheathed:
 			set_sheathed(true, true)
@@ -1756,7 +1760,7 @@ func _update_auto_sheathe(delta: float) -> void:
 	if sheathed or dead or _carry != null or _sheathe_pending > 0.0:
 		_calm_t = 0.0
 		return
-	if blocking or _swing > 0.0 or _attack_buffer > 0.0:
+	if blocking or _swing > 0.0 or _attack_buffer > 0.0 or _guard_foe != null or _lock != null:   # guard stance / lock-on keep the blade out
 		_calm_t = 0.0
 		return
 	_calm_check -= delta

@@ -119,7 +119,8 @@ static func _label(root: Node3D, lab: Dictionary) -> void:
 		if sub != "":
 			var s := Label3D.new()
 			var sfit := _fit_title(sub, 40, 0.0100, 4.2)
-			s.text = sub
+			s.text = "
+".join(sfit["lines"])   # wrapped like the title: one line at the two-line size ran 2x past the board ends
 			s.font_size = 40
 			s.pixel_size = float(sfit["px"])
 			s.outline_size = 0

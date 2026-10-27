@@ -11,10 +11,11 @@ mkdir -p "$OUT"
 cd "$REPO/kingdom"
 PLAYTEST_MOVIE=1 PLAYTEST_MOVIE_FPS=30 PLAYTEST_STAGES=slice_move PLAYTEST_OUT="$(cygpath -m "$OUT")" PLAYTEST_SHOTS="$(cygpath -m "$OUT")/shots" \
   timeout 1800 "$G" --path . scenes/main.tscn --resolution 1280x720 --fixed-fps 30 --write-movie "$(cygpath -m "$OUT/$TAG.avi")" \
-  -- --quality=low --adult --qa=res://tools_qa/playtest_bot/playtest_bot.gd > "$OUT/$TAG.out.txt" 2>&1
+  -- --quality=low --adult ${WORLD_ARGS---terrain_backend=terrain3d --world_macro=real} --qa=res://tools_qa/playtest_bot/playtest_bot.gd > "$OUT/$TAG.out.txt" 2>&1
 cp "$OUT/run.log" "$OUT/$TAG.run.log"
-# skip the loading screen: start at the first SLICECLIP line's game time
-SS=$(grep -m1 SLICECLIP "$OUT/run.log" | sed -E 's/.*t=([0-9.]+).*/\1/')
+# skip the loading screen: start at the movie frame the route logged (SLICEFRAME)
+FR=$(grep -m1 SLICEFRAME "$OUT/run.log" | sed -E 's/.*SLICEFRAME ([0-9]+).*/\1/')
+SS=$(python -c "print(${FR:-0}/30.0)")
 "$FF" -y -v error -ss "${SS:-0}" -i "$(cygpath -w "$OUT/$TAG.avi")" -c:v libx264 -preset slow -b:v 3500k -pix_fmt yuv420p -movflags +faststart "$(cygpath -w "$OUT/$TAG.mp4")"
 "$FF" -y -v error -i "$(cygpath -w "$OUT/$TAG.mp4")" -vf "fps=2/3,scale=480:-1,tile=6x5" -frames:v 1 "$(cygpath -w "$OUT/${TAG}_sheet.jpg")"
 # frame-diff spikes (pops / snaps): mean abs luma difference between consecutive frames, report those > 3x the median

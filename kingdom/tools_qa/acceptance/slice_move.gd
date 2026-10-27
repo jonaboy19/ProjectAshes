@@ -20,9 +20,11 @@ func run(bot: Node) -> void:
 	if hud is CanvasLayer:
 		(hud as CanvasLayer).visible = false
 	var town: Dictionary = Slice.settlement("Ashford")
-	var start := Vector2(town["pos"]) + Vector2(4, 4)
+	await b.teleport(Vector2(town["pos"]) + Vector2(4, 4), 0.0, 2.0)   # streams the town's colliders in before the clear-ground search
+	var start := _clear_start(Vector2(town["pos"]))
 	await b.teleport(start, 0.0, 1.5)
 	var fwd := Vector2(0, 1)
+	b.L("SLICEFRAME %d" % Engine.get_frames_drawn())   # movie frame of the route start: the recorder cuts the loading screen here
 	_log_loop()
 	await b.wait(2.0)                                     # idle
 	await _go(start + fwd * 8.0, false, 0.0)              # walk start + walk
@@ -77,4 +79,54 @@ func _log_loop() -> void:
 					Vector2((player as CharacterBody3D).velocity.x, (player as CharacterBody3D).velocity.z).length(), pos,
 					float(tr.get("parameters/gait_rate/scale")), float(tr.get("parameters/loco/blend_amount")), str(an.call("stance")),
 					str(pts), str(names)])
+		if int(b.now() * 2.0) % 4 == 0:
+			_near_meshes()
 		await b.wait(0.5)
+
+
+## NEARMESH lines: every visible mesh whose bounds come within 1.5 m of the player's hips (occluder hunt: a prop riding along).
+func _near_meshes() -> void:
+	var pp := player.global_position + Vector3(0, 0.9, 0)
+	for n in b.get_tree().root.find_children("*", "MeshInstance3D", true, false):
+		var mi := n as MeshInstance3D
+		if not mi.is_visible_in_tree() or mi.mesh == null:
+			continue
+		var bb := mi.global_transform * mi.get_aabb()
+		if bb.size.length() > 40.0 or bb.size.length() < 0.4:
+			continue
+		var d := Vector3(clampf(pp.x, bb.position.x, bb.end.x), clampf(pp.y, bb.position.y, bb.end.y), clampf(pp.z, bb.position.z, bb.end.z)).distance_to(pp)
+		if d < 1.5:
+			b.L("NEARMESH t=%.1f d=%.2f size=%s centre_off=%s player_child=%s path=%s" % [b.now(), d, bb.size.snapped(Vector3.ONE * 0.01),
+					(bb.get_center() - player.global_position).snapped(Vector3.ONE * 0.01), player.is_ancestor_of(mi), str(mi.get_path()).right(110)])
+
+
+## Route start on open ground near the town: the whole route footprint (x -6..+10, z 0..20 m from the start, plus a 2 m margin) must be
+## free of static props, walls and NPC bodies at knee-to-head height, so the bot never runs into a hay bale or a rune stone.
+func _clear_start(centre: Vector2) -> Vector2:
+	var space := (player as Node3D).get_world_3d().direct_space_state
+	var box := BoxShape3D.new()
+	box.size = Vector3(20.0, 1.4, 24.0)
+	var q := PhysicsShapeQueryParameters3D.new()
+	q.shape = box
+	q.exclude = [(player as CollisionObject3D).get_rid()]
+	for r: float in [18.0, 26.0, 34.0, 44.0, 56.0, 70.0]:
+		for k in 12:
+			var a := TAU * float(k) / 12.0
+			var st := centre + Vector2(cos(a), sin(a)) * r
+			var c := st + Vector2(2.0, 10.0)
+			var hs: Array = [WorldGen.height(st.x, st.y), WorldGen.height(c.x, c.y), WorldGen.height(st.x + 10.0, st.y + 20.0), WorldGen.height(st.x - 6.0, st.y + 20.0)]
+			if hs.max() - hs.min() > 1.2:
+				continue                                  # too steep: the box would hit the terrain itself
+			q.transform = Transform3D(Basis.IDENTITY, Vector3(c.x, float(hs.max()) + 1.0, c.y))
+			var hits := space.intersect_shape(q, 8)
+			var blocked := false
+			for h: Dictionary in hits:
+				var col: Object = h.get("collider")
+				if col != null and not String(col.get_class()).contains("Terrain") and not String((col as Node).name).contains("Terrain"):
+					blocked = true
+					break
+			if not blocked:
+				b.L("SLICEROUTE start (%.1f, %.1f) r=%.0f a=%.0f deg" % [st.x, st.y, r, rad_to_deg(a)])
+				return st
+	b.L("SLICEROUTE no clear ground found; falling back to the town square")
+	return centre + Vector2(4, 4)

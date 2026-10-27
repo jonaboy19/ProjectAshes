@@ -259,8 +259,8 @@ func _cancelled(g: int) -> bool:
 func wait(sec: float) -> void:
 	var g := gen
 	_bounded_until = maxf(_bounded_until, now() + sec + 1.0)
-	var end := Time.get_ticks_msec() + int(sec * 1000.0)
-	while Time.get_ticks_msec() < end:
+	var end := now() + sec          # game time under Movie Maker (now()), so a 1.5 s idle is 1.5 s in the video
+	while now() < end:
 		await get_tree().process_frame
 		if _cancelled(g):
 			await _never

@@ -140,3 +140,19 @@ File: `docs/plans/props_refined/sheet.jpg`; details in `docs/plans/props_refined
 | trough_granite | FAIL (borderline) | Concrete-like streaky stone and soft edges; needs a granite scan and crisp arrises. |
 | fence_wattle | FAIL (borderline) | The weave is too sparse and regular compared with ref 12/14. |
 Not yet in-game: the towns worker must re-gate each prop in context at gameplay distance after placing it.
+
+## 2026-10-27 Slice movement pass 2: real-terrain route, occluder, sheathing, starts/stops/turns (player-animation worker) - FAIL (improved, WIP)
+Route now records in the real-terrain world (`--terrain_backend=terrain3d --world_macro=real`, recorder default). The start is chosen on clear ground: a 20x24 m box query around the route footprint, free of props and NPCs, 56 m SW of Ashford. The loading screen is cut at the logged movie frame. Bot `wait()` now runs on game time: under Movie Maker it used wall time, so every idle and stop in the old route lasted about 0.2 s.
+Video: `PA_plans/videos/slice_move_real_terrain_wip.mp4`. Sheets: `docs/qa/golden/slice/slice_transitions_before_after.jpg`, `slice_sword_sheathed_hip.jpg`.
+| Check | Result | Note |
+|---|---|---|
+| "Orange-brown rounded object beside the player" | PASS (found) | NEARMESH dump of every mesh within 1.5 m of the player: nothing non-player rides along. The object is the golden round haystacks (static dressing next to the hayloft and Ashford Ring), and the bot ran into or stopped against them. The new route stays clear of them |
+| Route on clear ground, no prop collisions | PASS | no stuck legs on the open-ground route |
+| Sword sheathed out of combat (KCD2) | PASS | starts sheathed and auto-sheathes after 5 s with no swing, no block, no guard foe, no lock-on and no hostile within 15 m. Fixed a rebuilt body (age change) dropping the holster flag. Sword hangs at the left hip |
+| Lock-on marker restrained | PASS (by code, not filmed) | small pale tick, depth-tested, no spin or bob (was a large orange x-ray cone) |
+| Floating sign text | PASS (by code) | the board subtitle was set on one line at the two-line size and ran about 2x past the board ends ("The ring of st..." in the air); it now wraps like the title |
+| Starts | PASS (partial) | ACCEL_START 17 -> 8 m/s^2: walk speed in about 0.3 s instead of 0.14 s, so the first step carries the weight shift; ACCEL_TOP 11 -> 9 |
+| Stops | PASS (partial) | walk brake 16 -> 9 m/s^2 (0.27 s, one settling step); run stop unchanged (0.43 s with the stop clips) |
+| 180 turns in place | FAIL | FACE_TURN_IDLE 14 -> 9 rad/s, but the back camera does not show the turn-in-place steps well. Needs a side-on review shot |
+| Ladder segment | not graded | this run crashed in the ladder leg on a Vulkan pipeline-creation error (-13) under machine load; the movement legs before it are complete |
+Verdict: blockers cleared (occluder, route, sword, sign, marker). Movement is still FAIL until the 180 and start steps are reviewed side-on and the ladder leg is re-recorded on a quiet machine.
