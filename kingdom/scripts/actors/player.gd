@@ -536,6 +536,8 @@ func _unhandled_input(event: InputEvent) -> void:
 		toggle_lock()
 	elif event.is_action_pressed("crouch"):
 		toggle_crouch()
+	elif event is InputEventKey and event.pressed and not event.echo and (event as InputEventKey).physical_keycode == SHEATHE_KEY 			and not _ui_blocking():
+		toggle_sheathe()
 	# "interact" is handled in ONE place: the InteractionController child (scripts/interaction/).
 
 
@@ -872,8 +874,9 @@ func _physics_process(delta: float) -> void:
 			_shield_ready = SHIELD_READY_S
 		else:
 			_shield_ready = maxf(_shield_ready - delta, 0.0)
+		_update_sheathe(delta)
 		var rolling := _dodge > 0.0 and _dodge_roll
-		_rig.set("shield_slung", not blocking and (_shield_ready <= 0.0 or rolling or not is_on_floor()))
+		_rig.set("shield_slung", (not blocking and (_shield_ready <= 0.0 or rolling or not is_on_floor())) or bool(_rig.get("sheathed")))
 		_rig.set("long_holster", rolling)
 		_rig.set("ground_guard_y", global_position.y if is_on_floor() or dead else NAN)
 	_update_lean(delta)
@@ -1660,12 +1663,53 @@ func _update_look_target() -> void:
 func attack() -> void:
 	if dead or swimming or _mount != null or _jump_starting or _jump_active or _land_time > 0.0:
 		return
+	if sheathed:
+		set_sheathed(false, true)      # attacking from the unarmed stance: a quick draw straight into the swing
 	if _arms.bow_tap():
 		return
 	if _can_attack():
 		_start_swing()
 	else:
 		_attack_buffer = ATTACK_BUFFER   # early press: fire at the next opening
+
+
+## Sheathe-to-unarmed (owner: no fists item): H puts the weapon away (one-handers on the left hip, shield and long weapons on the
+## back, ProceduralRig sockets) with the sheathe clip; H again, attacking or blocking draws. `quick` skips the clip timing.
+const SHEATHE_KEY := KEY_H
+const SHEATHE_AT := 0.35          # s into the sheathe clip when the blade reaches the scabbard
+const DRAW_AT := 0.2
+var sheathed := false
+var _sheathe_pending := 0.0
+var _sheathe_target := false
+
+
+func toggle_sheathe() -> void:
+	set_sheathed(not sheathed)
+
+
+func set_sheathed(on: bool, quick := false) -> void:
+	if dead or on == sheathed and _sheathe_pending <= 0.0:
+		return
+	sheathed = on
+	_sheathe_target = on
+	if quick or _animator == null:
+		_sheathe_pending = 0.0
+		if _rig:
+			_rig.set("sheathed", on)
+		return
+	var clip := "Mx_Sword_Sheath" if on else "Mx_Sword_Draw"
+	if _animator.has_clip(clip):
+		_animator.play_upper(clip, 1.4)
+	_sheathe_pending = SHEATHE_AT if on else DRAW_AT
+
+
+func _update_sheathe(delta: float) -> void:
+	if _sheathe_pending > 0.0:
+		_sheathe_pending -= delta
+		if _sheathe_pending <= 0.0 and _rig:
+			_rig.set("sheathed", _sheathe_target)
+	if sheathed and blocking:
+		set_sheathed(false, true)
 
 
 ## Input entry points (main.gd): a tap fires attack() on release, a hold past the data hold time charges a heavy

@@ -140,6 +140,9 @@ var _carry_w := 0.0
 ## prop is also kept above ground_guard_y (the floor under the body, set by the owner while grounded): no blade through the floor.
 var shield_slung := false
 var long_holster := false
+## Sheathed (unarmed stance): one-handed weapons ride the left hip, blade down and back, grip forward; shields and long weapons go on
+## the back (owner also sets shield_slung / long_holster).
+var sheathed := false
 var ground_guard_y := NAN
 var foot_lock := true                         # QA switch (tools_qa/anim_states/loco_slide.gd --no-lock)
 var _ball: Array[int] = []
@@ -1085,7 +1088,8 @@ func _back_basis() -> Dictionary:
 	var up := (b * (_back_frame["up"] as Vector3)).normalized()
 	var fwd := (b * (_back_frame["fwd"] as Vector3)).normalized()
 	fwd = (fwd - up * fwd.dot(up)).normalized()
-	return {"ok": true, "o": spx.origin, "up": up, "back": -fwd, "right": up.cross(fwd).normalized(), "line": spx * (_back_frame["line"] as Vector3)}
+	var pel_w := xf * _skeleton.get_bone_global_pose(_skeleton.find_bone("pelvis")).origin
+	return {"ok": true, "o": spx.origin, "up": up, "back": -fwd, "right": up.cross(fwd).normalized(), "line": spx * (_back_frame["line"] as Vector3), "pel": pel_w}
 
 
 func _holster_pass(delta: float) -> void:
@@ -1110,7 +1114,9 @@ func _holster_pass(delta: float) -> void:
 		var want := 0.0
 		if kind == "shield" and shield_slung:
 			want = 1.0
-		elif kind == "long" and long_holster:
+		elif kind == "long" and (long_holster or sheathed):
+			want = 1.0
+		elif kind == "hand" and sheathed and String((e["att"] as BoneAttachment3D).bone_name).to_lower() == "hand_r":
 			want = 1.0
 		var h: float = move_toward(float(e["h"]), want, HOLSTER_RATE * delta)
 		_roll_gap = move_toward(_roll_gap, ROLL_GAP if long_holster else 0.0, 0.4 * delta)
@@ -1135,8 +1141,10 @@ func _holster_pass(delta: float) -> void:
 			var c_hand := hand_g * box.get_center()
 			var c_sock := sock * box.get_center()
 			var side: Vector3 = -(bb["right"] as Vector3) if kind == "shield" else (bb["right"] as Vector3)
-			# the path swings out past the shoulder and behind, never through the chest
+			# the path swings out past the shoulder and behind, never through the chest (to the hip: in front of the body)
 			var arc := (side * 0.28 + (bb["back"] as Vector3) * 0.12 + (bb["up"] as Vector3) * 0.08) * sin(PI * k)
+			if kind == "hand":
+				arc = (-(bb["back"] as Vector3) * 0.22 + (bb["up"] as Vector3) * 0.05) * sin(PI * k)
 			var basis := Basis(q).scaled(hand_g.basis.get_scale())
 			node.transform = att_g.affine_inverse() * Transform3D(basis, c_hand.lerp(c_sock, k) + arc - basis * box.get_center())
 		_ground_guard(e, node)
@@ -1162,6 +1170,8 @@ func _socket(e: Dictionary, bb: Dictionary, hand_g: Transform3D) -> Transform3D:
 	var ti := int(e["thin"])
 	var li := int(e["long"])
 	var oi := 3 - ti - li
+	if String(e["kind"]) == "hand":
+		return _hip_socket(e, bb, hand_g)
 	var is_long := String(e["kind"]) == "long"
 	var long_dir := up
 	var lsign := 1.0
@@ -1178,6 +1188,30 @@ func _socket(e: Dictionary, bb: Dictionary, hand_g: Transform3D) -> Transform3D:
 	var centre := (bb["line"] as Vector3) + back * (BACK_GAP + half_thin + _roll_gap) + up * (0.04 if not is_long else 0.0)
 	var b_scaled := basis.scaled(scl)
 	return Transform3D(b_scaled, centre - b_scaled * box.get_center())
+
+
+const HIP_OUT := 0.2       # m from the pelvis to the scabbard, sideways
+const HIP_TILT_DEG := 25.0
+
+
+func _hip_socket(e: Dictionary, bb: Dictionary, hand_g: Transform3D) -> Transform3D:
+	var up: Vector3 = bb["up"]
+	var back: Vector3 = bb["back"]
+	var side: Vector3 = bb["right"]      # the left hip ("right" = up x forward points to the character's left; verified in sheet_unarmed)
+	var box: AABB = e["box"]
+	var scl := hand_g.basis.get_scale()
+	var ti := int(e["thin"])
+	var li := int(e["long"])
+	var oi := 3 - ti - li
+	var grip_dir := (up * cos(deg_to_rad(HIP_TILT_DEG)) - back * sin(deg_to_rad(HIP_TILT_DEG))).normalized()   # grip up and forward
+	var lsign := 1.0 if box.get_center()[li] < 0.0 else -1.0     # grip end along grip_dir: the blade points down and back
+	var cols: Array[Vector3] = [Vector3.ZERO, Vector3.ZERO, Vector3.ZERO]
+	cols[li] = grip_dir * lsign
+	cols[ti] = side
+	cols[oi] = cols[(oi + 1) % 3].cross(cols[(oi + 2) % 3])
+	var basis := Basis(cols[0], cols[1], cols[2]).orthonormalized().scaled(scl)
+	var grip := (bb["pel"] as Vector3) + side * HIP_OUT + up * 0.04 - back * 0.04
+	return Transform3D(basis, grip)      # the prop origin is the grip
 
 
 ## A hand prop whose lowest corner goes below the floor is turned about its grip (the bone) just enough to clear it.

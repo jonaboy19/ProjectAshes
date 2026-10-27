@@ -121,6 +121,7 @@ func _run() -> void:
 		if not only.is_empty() and not only.has(lo):
 			continue
 		await _dress(life, LOADOUTS[lo])
+		_p.call("set_sheathed", lo == "unarmed", true)   # unarmed = the sheathed stance (owner: no fists item)
 		var tiles: Array[Image] = []
 		for st: Array in STATES:
 			if not states.is_empty() and not states.has(String(st[0])):
