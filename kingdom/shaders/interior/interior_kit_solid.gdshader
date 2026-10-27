@@ -49,7 +49,7 @@ void fragment() {
 	float plaster = clamp(1.0 - wood_all - stone, 0.0, 1.0);
 	float d = 0.0;
 	// limewash: soft relief only (a full-contrast scan read as rubble stone); wood and stone keep their grain
-	if (plaster > 0.01) { d += plaster * mix(1.0, tri_lum(plaster_tex, wpos, wnor, plaster_scale) / plaster_mean, 1.0) * mix(1.0, tri_lum(mottle_tex, wpos, wnor, 0.16) / 0.222, 0.32); }
+	if (plaster > 0.01) { d += plaster * mix(1.0, tri_lum(plaster_tex, wpos, wnor, plaster_scale) / plaster_mean, 1.0) * mix(1.0, tri_lum(mottle_tex, wpos, wnor, 0.3) / 0.222, 0.45) * mix(1.0, tri_lum(mottle_tex, wpos.zyx + 7.0, wnor.zyx, 0.09) / 0.222, 0.2); }
 	if (wood > 0.01) { d += wood * tri_lum(wood_tex, wpos, wnor, wood_scale) / wood_mean; }
 	if (stone > 0.01) { d += stone * tri_lum(stone_tex, wpos, wnor, stone_scale) / stone_mean; }
 	if (beam > 0.01) { d += beam * tri_lum(beam_tex, wpos, wnor, 0.9) / beam_mean; }
@@ -59,9 +59,12 @@ void fragment() {
 	float soot = (1.0 - smoothstep(0.6, 3.6, length(hv.xz))) * smoothstep(-0.4, 1.6, hv.y);
 	soot = max(soot, smoothstep(1.2, 0.0, length(hv.xz)) * 0.6);
 	// grime: the plaster's foot (splashes, knocks) and a general darkening under the ceiling from years of smoke
-	float foot = (1.0 - smoothstep(0.0, 0.7, wpos.y - floor_y)) * plaster;
+	// rising damp: the lower 0.6 m darkens with a ragged, noisy tide line
+	float tide = 0.6 + (tri_lum(mottle_tex, wpos, wnor, 0.7) / 0.222 - 1.0) * 0.12;
+	float foot = (1.0 - smoothstep(tide - 0.12, tide + 0.04, wpos.y - floor_y)) * plaster;
 	float ceil_smoke = smoothstep(1.8, 3.2, wpos.y - floor_y) * 0.25 * (plaster + beam);
-	col *= 1.0 - clamp(soot * 0.85 + foot * 0.3 + ceil_smoke, 0.0, 0.88);
+	col *= 1.0 - clamp(soot * 0.85 + ceil_smoke, 0.0, 0.88);
+	col = mix(col, col * vec3(0.62, 0.6, 0.5), foot * 0.75);   // damp: darker and a little green-brown
 	ALBEDO = col;
 	ROUGHNESS = mix(0.95, 0.8, wood);
 	SPECULAR = 0.25;

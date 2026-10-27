@@ -52,7 +52,10 @@ var _hearth_light: OmniLight3D = null
 var _hearth_base := 1.0
 var _night_k := 0.0                    # 0 day .. 1 night: how far the room light has left the ceiling to ride beside the player (dark clothes read black under the ambient alone)
 var _hearth_phase := 0.0
-var _ikit_group: Array = []     # [group, MeshInstance3D]: kit pieces that fade with their wall (joined after kit.build)
+var _ikit_group: Array = []     # [group, GeometryInstance3D]: kit pieces that fade with their wall (joined after kit.build)
+## Draw budget (test_draw_budget_per_interior <= 60): every kit piece / clutter prop is batched per (mesh, fade group) into one
+## MultiMeshInstance3D, so 40 posts, beams and pots cost a handful of draws.
+var _batches := {}              # "meshid|group" -> {mesh, group, xforms: Array[Transform3D]}
 var _shaft: SpotLight3D = null     # HIGH: daylight shaft through the first window (energy by hour)
 var _kit_nodes := {}
 var _clock := 0.0
@@ -241,6 +244,8 @@ func _build_shell() -> void:
 	# props
 	for p: Dictionary in layout["props"]:
 		_build_prop(p)
+	if not CityPlanner.towns_off():
+		_build_clutter(w, d, h, opens)
 	_kit_nodes = kit.build(self)
 	for key: String in _kit_nodes:
 		if key.contains("|"):
@@ -249,6 +254,7 @@ func _build_shell() -> void:
 				_group_nodes[g] = []
 				_group_fade[g] = 0.0
 			(_group_nodes[g] as Array).append(_kit_nodes[key])
+	_flush_batches()
 	for e: Array in _ikit_group:
 		var g2 := String(e[0])
 		if not _group_nodes.has(g2):
@@ -257,24 +263,49 @@ func _build_shell() -> void:
 		(_group_nodes[g2] as Array).append(e[1])
 
 
+static var _mesh_cache := {}     # path -> Mesh: one Mesh per piece, so the batches share it (merged_mesh builds a new one per call)
+
+
+static func _cached_mesh(path: String) -> Mesh:
+	if not _mesh_cache.has(path):
+		_mesh_cache[path] = Assets.merged_mesh(path, false) if ResourceLoader.exists(path) else null
+	return _mesh_cache[path]
+
+
 static func _ikit_mesh(name: String) -> Mesh:
-	var path := IKIT % [name, name]
-	if CityPlanner.towns_off() or not ResourceLoader.exists(path):
+	if CityPlanner.towns_off():
 		return null
-	return Assets.merged_mesh(path, false)
+	return _cached_mesh(IKIT % [name, name])
 
 
 ## One kit piece (posts, beams, windows) in room space; `scale` stretches it to the slot; `group` = the wall it fades with.
-func _ikit_piece(mesh: Mesh, pos: Vector3, yaw: float, scale: Vector3, group: String) -> MeshInstance3D:
-	var mi := MeshInstance3D.new()
-	mi.mesh = mesh
-	mi.position = pos
-	mi.rotation.y = yaw
-	mi.scale = scale
-	add_child(mi)
-	if group != "":
-		_ikit_group.append([group, mi])
-	return mi
+func _ikit_piece(mesh: Mesh, pos: Vector3, yaw: float, scale: Vector3, group: String) -> void:
+	_batch(mesh, Transform3D(Basis(Vector3.UP, yaw) * Basis.from_scale(scale), pos), group)
+
+
+func _batch(mesh: Mesh, xf: Transform3D, group: String) -> void:
+	var key := "%d|%s" % [mesh.get_instance_id(), group]
+	if not _batches.has(key):
+		_batches[key] = {"mesh": mesh, "group": group, "xforms": []}
+	(_batches[key]["xforms"] as Array).append(xf)
+
+
+func _flush_batches() -> void:
+	for key: String in _batches:
+		var b: Dictionary = _batches[key]
+		var xs: Array = b["xforms"]
+		var mm := MultiMesh.new()
+		mm.transform_format = MultiMesh.TRANSFORM_3D
+		mm.mesh = b["mesh"]
+		mm.instance_count = xs.size()
+		for i in xs.size():
+			mm.set_instance_transform(i, xs[i])
+		var mmi := MultiMeshInstance3D.new()
+		mmi.multimesh = mm
+		add_child(mmi)
+		if String(b["group"]) != "":
+			_ikit_group.append([b["group"], mmi])
+	_batches.clear()
 
 
 ## Exposed timber frame on the inner face of the four outer walls: sill beam, top plate, posts every ~2 m (none across a
@@ -286,8 +317,11 @@ func _build_frame(w: float, d: float, h: float, opens: Dictionary) -> void:
 		var g := "w" + wall
 		var yaw := 0.0 if wall in ["N", "S"] else PI * 0.5
 		var mid := _frame_point(wall, length * 0.5, 0.0, inset, w, d)
-		var beam_mesh := _ikit_mesh("beam_4m")
-		var post_mesh := _ikit_mesh("post_3m")
+		# sill, plate, studs and rail are kit boxes (merged into the wall's own mesh: no extra draws, beam_wall_01 grain from
+		# the solid shader); only the diagonal braces use the kit post (a box cannot roll) - draw budget
+		var beam_mesh: Mesh = null
+		var post_mesh: Mesh = null
+		var brace_mesh := _ikit_mesh("post_3m")
 		if beam_mesh != null:
 			# kit beams run along +X from their origin end: start at tt = 0, turned so +X follows the wall's tt direction
 			var dir_yaw := {"N": 0.0, "S": PI, "E": -PI * 0.5, "W": PI * 0.5}[wall] as float
@@ -299,7 +333,9 @@ func _build_frame(w: float, d: float, h: float, opens: Dictionary) -> void:
 		else:
 			kit.box(Vector3(mid.x, 0.11, mid.z), Vector3(length, 0.22, 0.14), BEAM, "solid", yaw, g)          # sill
 			kit.box(Vector3(mid.x, h - 0.32, mid.z), Vector3(length, 0.2, 0.14), BEAM, "solid", yaw, g)       # top plate
-		var n := maxi(2, int(round(length / 2.0)))
+		if brace_mesh != null:
+			_frame_rails_and_braces(wall, length, h, inset, w, d, yaw, g, opens[wall], null, brace_mesh)
+		var n := maxi(2, int(round(length / 1.05)))      # studs about a metre apart (half-timber close studding)
 		for i in n + 1:
 			var tt := clampf(length * float(i) / float(n), 0.1, length - 0.1)
 			var blocked := false
@@ -313,6 +349,196 @@ func _build_frame(w: float, d: float, h: float, opens: Dictionary) -> void:
 				_ikit_piece(post_mesh, _frame_point(wall, tt, 0.0, inset, w, d), yaw, Vector3(1.0, (h - 0.2) / maxf(pb.size.y, 0.1), 1.0), g)
 			else:
 				kit.box(_frame_point(wall, tt, (h - 0.2) * 0.5, inset, w, d), Vector3(0.16, h - 0.2, 0.14), BEAM, "solid", yaw, g)
+
+
+## Mid rail at 0.85 m (broken at the door) and a diagonal brace in every other bay between the studs.
+func _frame_rails_and_braces(wall: String, length: float, h: float, inset: float, w: float, d: float, yaw: float, g: String,
+		opens: Array, beam_mesh: Mesh, post_mesh: Mesh) -> void:
+	var dir_yaw := {"N": 0.0, "S": PI, "E": -PI * 0.5, "W": PI * 0.5}[wall] as float
+	# spans of the wall free of openings that reach below the rail
+	var cuts: Array = [[0.0, 0.0]]
+	for o: Dictionary in opens:
+		if float(o["y0"]) < 0.95:
+			cuts.append([float(o["at"]) - float(o["w"]) * 0.5 - 0.05, float(o["at"]) + float(o["w"]) * 0.5 + 0.05])
+	cuts.append([length, length])
+	cuts.sort_custom(func(a: Array, b: Array) -> bool: return float(a[0]) < float(b[0]))
+	for k in cuts.size() - 1:
+		var a0 := float(cuts[k][1])
+		var a1 := float(cuts[k + 1][0])
+		if a1 - a0 > 0.3:
+			var rm := _frame_point(wall, (a0 + a1) * 0.5, 0.85, inset + 0.01, w, d)
+			kit.box(rm, Vector3(a1 - a0, 0.16, 0.12), BEAM, "solid", yaw, g)
+	# braces: from the sill at one stud to the plate at the next, every other bay, clear of openings
+	var pb := post_mesh.get_aabb()
+	var n := maxi(2, int(round(length / 1.05)))
+	var bay := length / float(n)
+	var rise := h - 0.6
+	for i in n:
+		if i % 2 == 1:
+			continue
+		var t0 := bay * float(i)
+		var t1 := t0 + bay
+		var clear := true
+		for o: Dictionary in opens:
+			if float(o["at"]) + float(o["w"]) * 0.5 + 0.1 > t0 and float(o["at"]) - float(o["w"]) * 0.5 - 0.1 < t1:
+				clear = false
+		if not clear:
+			continue
+		var diag := sqrt(bay * bay + rise * rise)
+		var ang := atan2(bay, rise) * (1.0 if (i / 2) % 2 == 0 else -1.0)
+		var foot := _frame_point(wall, t0 + bay * 0.5, 0.22 + rise * 0.5, inset + 0.02, w, d)
+		var bas := Basis(Vector3.UP, yaw) * Basis(Vector3(0, 0, 1), ang) * Basis.from_scale(Vector3(0.8, diag / maxf(pb.size.y, 0.1), 0.8))
+		_batch(post_mesh, Transform3D(bas, foot - bas * Vector3(0, pb.position.y + pb.size.y * 0.5, 0)), g)
+
+
+## Lived-in clutter: 25-40 pieces in clusters along the walls (not in front of doors, windows at floor level, or furniture),
+## the hearth corner (firewood, hay, pots, bucket), a peg rail of cloaks, the herb rack over the hearth, a spinning wheel by
+## a window, a skin by each bed. Deterministic per building id.
+func _build_clutter(w: float, d: float, h: float, opens: Dictionary) -> void:
+	var rng := RandomNumberGenerator.new()
+	rng.seed = hash(layout_id) ^ 0x7c1
+	var taken: Array = []     # [Vector2 centre, radius]
+	for p: Dictionary in layout["props"]:
+		var f: Vector2 = Layouts.FOOT.get(String(p["t"]), Vector2(0.5, 0.5))
+		if int(p.get("level", 0)) == 0 and String(p["t"]) != "rug":
+			taken.append([p["p"], maxf(f.x, f.y) * 0.55 + 0.15])
+	taken.append([Vector2(float(layout["door_x"]), d * 0.5 - 0.6), 1.1])        # the way in
+	var hearth := Vector3.INF
+	var hearth_yaw := 0.0
+	for p: Dictionary in layout["props"]:
+		if String(p["t"]) in ["hearth", "oven"]:
+			hearth = Vector3((p["p"] as Vector2).x, 0.0, (p["p"] as Vector2).y)
+			hearth_yaw = deg_to_rad(float(p.get("y", 0.0)))
+	var placed := 0
+	# hearth corner: firewood stack + hay, pots on the hearth front, a bucket and a cauldron-like pot
+	if hearth != Vector3.INF:
+		var hb := Basis(Vector3.UP, hearth_yaw)
+		for e: Array in [["@woodpile", Vector3(1.35, 0, 0.1)], ["@hay", Vector3(-1.4, 0, 0.25)], ["ceramic_pot", Vector3(0.45, 0, 0.75)],
+				["jug_01", Vector3(-0.5, 0, 0.8)], ["wooden_bucket_01", Vector3(1.0, 0, 0.9)], ["wooden_bowl_01", Vector3(-0.15, 0, 0.95)]]:
+			var at := hearth + hb * (e[1] as Vector3)
+			if _clutter_put(String(e[0]), Vector2(at.x, at.z), rng.randf() * TAU, taken, w, d, rng):
+				placed += 1
+		# herb rack on the wall above the hearth's side
+		var rack := _ikit_mesh("herbs_rack")
+		if rack != null:
+			var rp := hearth + hb * Vector3(1.1, 1.75, -0.2)
+			_ikit_piece(rack, rp, hearth_yaw, Vector3.ONE, "")
+			placed += 1
+	# clusters along the walls
+	var walls := ["N", "E", "S", "W"]
+	var target := 45
+	var tries := 0
+	while placed < target and tries < 900:
+		tries += 1
+		var wall: String = walls[rng.randi() % 4]
+		var length := w if wall in ["N", "S"] else d
+		var tt := rng.randf_range(0.4, length - 0.4)
+		var blocked := false
+		for o: Dictionary in opens[wall]:
+			if float(o["y0"]) < 1.2 and absf(tt - float(o["at"])) < float(o["w"]) * 0.5 + 0.35:
+				blocked = true
+		if blocked:
+			continue
+		var c3 := _frame_point(wall, tt, 0.0, 0.42, w, d)
+		var n_cluster := rng.randi_range(3, 5)
+		for k in n_cluster:
+			var pick := _clutter_pick(rng)
+			var jitter := Vector2(rng.randf_range(-0.7, 0.7), rng.randf_range(-0.15, 0.45))
+			var along := Vector2(1, 0) if wall in ["N", "S"] else Vector2(0, 1)
+			var inn := Vector2(0, 1) if wall == "N" else (Vector2(0, -1) if wall == "S" else (Vector2(-1, 0) if wall == "E" else Vector2(1, 0)))
+			var q := Vector2(c3.x, c3.z) + along * jitter.x + inn * jitter.y
+			var yaw := rng.randf() * TAU
+			if String(pick[2]) == "lean":
+				yaw = {"N": 0.0, "S": PI, "E": -PI * 0.5, "W": PI * 0.5}[wall]
+			if _clutter_put(String(pick[0]), q, yaw, taken, w, d, rng, String(pick[2]) == "lean"):
+				placed += 1
+	# a peg rail with cloaks and a hat on the first free wall stretch
+	for wall: String in ["W", "E", "N"]:
+		var length2 := w if wall in ["N", "S"] else d
+		var tt2 := length2 * 0.5
+		var ok := true
+		for o: Dictionary in opens[wall]:
+			if absf(tt2 - float(o["at"])) < float(o["w"]) * 0.5 + 0.9:
+				ok = false
+		if not ok:
+			continue
+		var yaw2 := 0.0 if wall in ["N", "S"] else PI * 0.5
+		var rp2 := _frame_point(wall, tt2, 1.72, 0.2, w, d)
+		kit.box(rp2, Vector3(1.4, 0.06, 0.05), BEAM, "solid", yaw2, "w" + wall)
+		for k in 3:
+			var off := (float(k) - 1.0) * 0.45
+			var cp := _frame_point(wall, tt2 + off, 1.25, 0.24, w, d)
+			kit.box(cp, Vector3(0.38, 0.9, 0.06), CLOAKS[(k + absi(hash(layout_id))) % CLOAKS.size()], "solid", yaw2, "w" + wall)
+			kit.box(cp + Vector3(0, 0.42, 0), Vector3(0.2, 0.08, 0.1), CLOAKS[(k + 1) % CLOAKS.size()].darkened(0.2), "solid", yaw2, "w" + wall)
+		placed += 4
+		break
+	# skins / rag rugs beside the beds, a spinning wheel near the first window
+	for p: Dictionary in layout["props"]:
+		if String(p["t"]) in ["bed", "cot"] and int(p.get("level", 0)) == 0:
+			var by := deg_to_rad(float(p.get("y", 0.0)))
+			var side := (p["p"] as Vector2) + Vector2(cos(by), -sin(by)) * 0.95
+			kit.box(Vector3(side.x, 0.012, side.y), Vector3(0.75, 0.02, 1.2), Color(0.42, 0.33, 0.24), "solid", by + 0.12)
+			placed += 1
+	var wheel := PH % ["spinning_wheel_01", "spinning_wheel_01"]
+	if ResourceLoader.exists(wheel) and not (layout["windows"] as Array).is_empty():
+		var win: Dictionary = layout["windows"][0]
+		var wall3 := String(win["wall"])
+		var tt3 := _wall_t(wall3, float(win["at"]), w, d) + 0.9
+		var wp := _frame_point(wall3, tt3, 0.0, 0.75, w, d)
+		if _clutter_put("spinning_wheel_01", Vector2(wp.x, wp.z), rng.randf() * TAU, taken, w, d, rng):
+			placed += 1
+	set_meta("clutter_count", placed)
+
+
+var _clutter_set: Array = []      # this room's 7 clutter kinds (each kind is one batched draw: draw budget)
+
+
+func _clutter_pick(rng: RandomNumberGenerator) -> Array:
+	if _clutter_set.is_empty():
+		var all := CLUTTER.duplicate()
+		for i in range(all.size() - 1, 0, -1):     # seeded shuffle
+			var j := rng.randi() % (i + 1)
+			var tmp: Variant = all[i]
+			all[i] = all[j]
+			all[j] = tmp
+		_clutter_set = all.slice(0, 5 if String(layout.get("category", "")) == "tavern" else 7)     # taverns already carry many furniture kinds
+	var total := 0
+	for e: Array in _clutter_set:
+		total += int(e[1])
+	var r := rng.randi() % total
+	for e: Array in _clutter_set:
+		r -= int(e[1])
+		if r < 0:
+			return e
+	return _clutter_set[0]
+
+
+## Places one clutter piece standing on the floor at q (room-local), unless it would overlap furniture or other clutter.
+func _clutter_put(name: String, q: Vector2, yaw: float, taken: Array, w: float, d: float, rng: RandomNumberGenerator, lean := false) -> bool:
+	var mesh: Mesh = null
+	if name.begins_with("@"):
+		var key := name.substr(1)
+		if Assets.BUILDINGS.has(key):
+			mesh = Assets.building_mesh(key)
+	else:
+		mesh = _cached_mesh(PH % [name, name])
+	if mesh == null:
+		return false
+	var bb := mesh.get_aabb()
+	var r := maxf(bb.size.x, bb.size.z) * 0.5
+	if bb.size.y > 2.2 or r > 1.4:
+		return false          # a full haystack or stack is too big for a room
+	if absf(q.x) > w * 0.5 - r - 0.05 or absf(q.y) > d * 0.5 - r - 0.05:
+		return false
+	for t: Array in taken:
+		if (t[0] as Vector2).distance_to(q) < float(t[1]) * 0.8 + r * 0.6:
+			return false
+	taken.append([q, r])
+	var b := Basis(Vector3.UP, yaw)
+	if lean:
+		b = b * Basis(Vector3(1, 0, 0), -0.22)     # tilted back against the wall
+	_batch(mesh, Transform3D(b, Vector3(q.x, 0.0, q.y) - b * Vector3(bb.position.x + bb.size.x * 0.5, bb.position.y, bb.position.z + bb.size.z * 0.5)), "")
+	return true
 
 
 ## A point on the inner face of an outer wall: `tt` metres along it (same direction as _wall_t), `inn` metres into the room.
@@ -381,7 +607,7 @@ func _build_window(win: Dictionary, w: float, d: float) -> void:
 		var inward := Basis(Vector3.UP, face_yaw) * Vector3(0, 0, 1)
 		var wb := wmesh.get_aabb()
 		kit.box(pos + Vector3(0, mid, 0), Vector3(ww - 0.06, gh - 0.06, 0.04), Color.WHITE, "glass", yaw, "w" + wall)
-		_ikit_piece(wmesh, pos + inward * (Kit.WALL_T * 0.5) + Vector3(0, y0 - wb.position.y * (gh / maxf(wb.size.y, 0.1)), 0), face_yaw,
+		_ikit_piece(wmesh, pos + inward * (Kit.WALL_T * 0.25) + Vector3(0, y0 - wb.position.y * (gh / maxf(wb.size.y, 0.1)), 0), face_yaw,
 			Vector3(ww / maxf(wb.size.x, 0.1), gh / maxf(wb.size.y, 0.1), 1.0), "w" + wall)
 		return
 	# The pane (emissive "glass", tinted by the hour in apply_hour) sits inside a full frame: sill, head, both jambs, a centre
@@ -457,7 +683,18 @@ const STOOL_PATH := "res://assets/cc0/props/painted_wooden_stool/painted_wooden_
 ## one end, windows bottom-centre on the wall face). Layout prop type -> kit piece; a missing file keeps the box build.
 const IKIT := "res://assets/props_refined/interior/%s/%s.glb"
 const IKIT_PROPS := {"bed": "bed_rope", "cot": "bed_rope", "stool": "stool_three_leg", "chair": "chair_woven",
-	"chest": "chest_iron", "cupboard": "shelf_pottery"}
+	"chest": "chest_iron", "cupboard": "shelf_pottery", "shelf": "shelf_pottery", "rack": "herbs_rack"}
+## Lived-in clutter (coordinator gate 2026-10-28, KCD rooms are packed): real-scan / refined pieces clustered along the walls
+## and round the hearth. [path or Assets key, weight, kind]; kind: floor (stands on the floor), lean (against a wall).
+const PH := "res://assets/incoming/polyhaven/models/%s/%s_1k.gltf"
+const CLUTTER := [
+	["wicker_basket_01", 3, "floor"], ["wicker_basket_02", 2, "floor"], ["wooden_bucket_01", 2, "floor"], ["wooden_bucket_02", 1, "floor"],
+	["wooden_crate_01", 2, "floor"], ["wooden_crate_02", 1, "floor"], ["ceramic_pot", 2, "floor"],
+	["jug_01", 2, "floor"], ["wooden_bowl_01", 1, "floor"], ["wicker_basket_01", 2, "floor"], ["@hay", 1, "floor"],
+	["@crate_stack", 1, "floor"], ["@pr_barrel_rack", 1, "floor"], ["@woodpile", 1, "floor"], ["wooden_barrels_01", 1, "floor"],
+	["wooden_broom", 1, "lean"], ["rusted_spade_01", 1, "lean"], ["hatchet", 1, "floor"], ["wooden_axe", 1, "lean"],
+]
+const CLOAKS := [Color(0.36, 0.29, 0.21), Color(0.3, 0.32, 0.27), Color(0.45, 0.38, 0.28), Color(0.26, 0.22, 0.2)]
 
 
 func _real_prop(p: Dictionary, t: String) -> bool:
@@ -475,18 +712,14 @@ func _real_prop(p: Dictionary, t: String) -> bool:
 	elif REAL_PROPS.has(t):
 		mesh = Assets.building_mesh(REAL_PROPS[t])
 	elif t == "stool" and ResourceLoader.exists(STOOL_PATH):
-		mesh = Assets.merged_mesh(STOOL_PATH, false)
+		mesh = _cached_mesh(STOOL_PATH)
 	if mesh == null:
 		return false
 	var bb := mesh.get_aabb()
 	var yaw := deg_to_rad(float(p.get("y", 0.0)))
-	var mi := MeshInstance3D.new()
-	mi.mesh = mesh
-	add_child(mi)
 	var off := Basis(Vector3.UP, turn) * Vector3(-(bb.position.x + bb.size.x * 0.5), -bb.position.y, -(bb.position.z + bb.size.z * 0.5))
 	var at := _world_centre(p, off)
-	mi.position = at
-	mi.rotation.y = yaw + turn
+	_batch(mesh, Transform3D(Basis(Vector3.UP, yaw + turn), at), "")      # same pieces share one draw
 	if turn != 0.0:
 		bb = AABB(Vector3.ZERO, Vector3(bb.size.z, bb.size.y, bb.size.x))
 	if t != "stool":
@@ -798,7 +1031,7 @@ func _fade_walls(delta: float, cam_local: Vector3) -> void:
 		if is_equal_approx(cur, float(_group_fade[g])):
 			continue
 		_group_fade[g] = cur
-		for mi: MeshInstance3D in _group_nodes[g]:
+		for mi: GeometryInstance3D in _group_nodes[g]:
 			mi.transparency = cur
 			mi.visible = cur < 0.98
 
@@ -1079,4 +1312,12 @@ func draw_estimate() -> Dictionary:
 			people += surfaces
 		else:
 			shell += surfaces
+		if OS.has_environment("DRAWS_DEBUG") and not on_body:
+			print("DRAW mi ", m.name, " ", m.get_parent().name, " ", m.mesh.resource_name, " ", surfaces)
+	for mmi in find_children("*", "MultiMeshInstance3D", true, false):      # batched kit pieces and clutter: one draw per surface
+		var mm := (mmi as MultiMeshInstance3D).multimesh
+		if (mmi as Node3D).is_visible_in_tree() and mm != null and mm.mesh != null:
+			shell += mm.mesh.get_surface_count()
+			if OS.has_environment("DRAWS_DEBUG"):
+				print("DRAW mm ", mm.mesh.resource_name, " ", mm.mesh.get_surface_count(), " x", mm.instance_count)
 	return {"shell": shell, "people": people, "lights": int(_room_light.visible) + int(_hearth_light.visible)}
