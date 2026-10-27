@@ -21,6 +21,8 @@ const GameMenu := preload("res://scripts/ui/gamemenu/game_menu.gd")
 const NpcWorld := preload("res://scripts/population/npc_world.gd")
 const TravelRules := preload("res://scripts/world/travel_rules.gd")
 const FoundFlow := preload("res://scripts/realm/found_flow.gd")
+const SettlementSim := preload("res://tools_qa/v1/settlement_sim.gd")
+const FLAT_TOL := 1.2      # metres of fall within 14 m the bot accepts for a camp site (the live terrain is rougher than the sim's)
 const STUCK_SECS := 25.0
 var SHOT_DIR := "/tmp/claude-0/shots/playtest"
 
@@ -592,6 +594,7 @@ func _run_all() -> void:
 		["v1_recruit", _s_v1_recruit],
 		["v1_hunt", _s_v1_hunt],
 		["v1_found", _s_v1_found],
+		["v1_settle", _s_v1_settle],
 		["scen_a", _s_scen_a],
 	]
 	for e: Array in list:
@@ -631,6 +634,7 @@ func _stage_limit(name: String) -> float:
 		"v1_recruit": return 600.0
 		"v1_hunt": return 240.0
 		"v1_found": return 400.0
+		"v1_settle": return 700.0
 		"scen_a": return 600.0
 		"st_save": return 200.0
 		"st_birth", "st_a1", "st_a2", "st_a3", "st_a4", "st_a5": return 1500.0
@@ -5365,11 +5369,11 @@ func st_seasons_pass(kind: String) -> bool:
 
 ## A free spot the Found-a-camp card accepts, searched in rings around `from` (a player walks until the card says yes).
 func st_camp_spot(from: Vector2) -> Vector2:
-	for r in [160.0, 260.0, 380.0, 520.0, 700.0]:
-		for k in 16:
-			var a := TAU * float(k) / 16.0
+	for r in [160.0, 260.0, 380.0, 520.0, 700.0, 900.0, 1200.0, 1600.0, 2200.0]:
+		for k in 32:
+			var a := TAU * float(k) / 32.0
 			var p: Vector2 = from + Vector2(cos(a), sin(a)) * float(r)
-			if FoundFlow.site_card(Life.realm, p)["ok"]:
+			if FoundFlow.site_card(Life.realm, p)["ok"] and SettlementSim._flat(p, FLAT_TOL):
 				return p
 	return Vector2.INF
 
@@ -5381,7 +5385,7 @@ func st_found_camp() -> bool:
 	if spot == Vector2.INF:
 		spot = st_camp_spot(ashford()["pos"])
 	if spot == Vector2.INF:
-		st_blocker("no ground within 700 m accepts a camp")
+		st_blocker("no flat ground within 2.2 km accepts a camp")
 		return false
 	await st_travel(spot, "a camp site", 3.0)
 	if not FoundFlow.site_card(Life.realm, p2())["ok"]:
@@ -5425,6 +5429,49 @@ func _s_v1_found() -> void:
 	check("the camp holds 3 pieces", (bk.grids[gid]["pieces"] as Dictionary).size() == 3)
 	check("claiming the same ground again founds nothing new", not bool(FoundFlow.found(Life.realm, p2(), "Again")["ok"]))
 	await shot("v1_found")
+
+
+## READY_V1 C4: the camp grows. Found a camp, hire three followers, stock the pack, lay the player's plans day by day while the
+## clock runs (the game's own hourly hub ticks), and read the Settlement page of the Affairs desk. Reaches a Hamlet; the full run to a
+## Village is the 120-day sim (tools_qa/v1/settlement_sim.gd, tests/test_v1_settlement_growth.gd).
+func _s_v1_settle() -> void:
+	await _st_ready()
+	if Life.age() < 15:
+		set_age(16)
+	if not await st_found_camp():
+		return
+	var rows: Array = Life.realm.player_settlements()
+	var gid := int(rows[rows.size() - 1]["gid"])
+	var kit: RefCounted = Life.realm.mod("build_kit")
+	var growth: RefCounted = Life.realm.mod("growth")
+	var fm: RefCounted = Life.realm.mod("followers")
+	for i in 3:
+		fm.hire("guard", "s0", true, "bot%d" % i)
+	for item: String in SettlementSim.BAG:
+		Life.give(item, int(SettlementSim.BAG[item]))
+	L("[HOOK] pack stocked with building materials; three followers hired directly; WorldSim.advance_hours(24) per day (game time crawls at 1-2 fps)")
+	var tiers_seen: Array = []
+	growth.tier_reached.connect(func(_g: int, t: int, _n: String) -> void: tiers_seen.append(t))
+	for day in range(1, 41):
+		SettlementSim._player_turn(kit, gid, day)
+		WorldSim.advance_hours(24.0)
+		var guard := 0
+		while not Life.realm._queue.is_empty() and guard < 40000:      # the hub works its queue off a little each frame: drain the day
+			Life.realm.pump()
+			guard += 1
+		await frames(1)
+	var l: Dictionary = growth.ledger(gid)
+	note("after 40 days: %s, %d people, %.1f days of food, contentment %.2f" % [l["tier_name"], l["pop"], l["food_days"], l["content"]])
+	check("the camp's people grew past the first two", int(l["pop"]) > 2, str(l["pop"]))
+	check("the camp became a hamlet", int(l["tier"]) >= 1 and tiers_seen.has(1), "tier %s, seen %s" % [l["tier_name"], str(tiers_seen)])
+	check("houses stand", int(l["houses"]) >= 2, "%d houses" % int(l["houses"]))
+	GameMenu.open(hud, "affairs")
+	var page: Variant = hud.get_node("GameMenu").call("_page", "affairs")
+	page.call("set_view", "settlement")
+	await frames(2)
+	var texts: Array = (page.panels["settlement"] as Control).call("texts")
+	check("the Settlement page shows the ledger", "\n".join(texts).contains("%d people, room for %d" % [int(l["pop"]), int(l["capacity"])]), str(texts.slice(0, 4)))
+	close_everything()
 
 
 func _s_st_load() -> void:

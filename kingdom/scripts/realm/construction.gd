@@ -785,6 +785,18 @@ func assign_follower(site_id: int, fid: String, role := "build") -> Dictionary:
 	return w
 
 
+## READY_V1 C4: `n` settlers of a player settlement lend a hand on a site (no wage; skill 0.3). Returns their worker ids.
+func assign_settlers(site_id: int, n: int) -> Array:
+	var out: Array = []
+	if not sites.has(site_id) or String(sites[site_id]["state"]) == "done":
+		return out
+	for _i in n:
+		var w := _new_worker("settler", "Settler", 0.3, 0, "build")
+		_attach(w, site_id)
+		out.append(String(w["id"]))
+	return out
+
+
 ## Nearest settlement that can supply labour within a day's walk, or -1.
 func labour_source(pos: Vector2) -> int:
 	var best := -1
