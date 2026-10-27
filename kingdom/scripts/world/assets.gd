@@ -696,6 +696,7 @@ static func _ual_for(skeleton_path: NodePath) -> AnimationLibrary:
 	# Reviewed AAA mocap subset (data/anim/aaa_clips.json), after every other set so existing names win.
 	AaaClipsScript.merge_into(lib, sk)
 	AirArms.soften(lib)     # arms stay down in the air (shield no longer flies overhead)
+	(load("res://scripts/actors/clip_lift.gd") as GDScript).call("apply", lib)    # ground-penetration repair (data/anim/clip_lift.json, WP-02)
 	for alias: String in UAL_ALIASES:
 		var target: String = UAL_ALIASES[alias]
 		if lib.has_animation(target) and not lib.has_animation(alias):

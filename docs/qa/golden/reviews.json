@@ -848,5 +848,83 @@
   "note": "14.7 cm through the floor at the vault (no obstacle in the source floor plane), 0.65 m/s slide",
   "by": "claude (Mixamo owner_set2 front-view 8-frame check sheet, 25 cm checker floor)",
   "date": "2026-10-26"
+ },
+ "Hit_Knockback": {
+  "sheet": "docs/qa/golden/anim_strips/player_young__Hit_Knockback.jpg",
+  "verdict": "pass",
+  "by": "claude (side-view 8-frame strip after the ClipLift pelvis repair; feet on the grid, no sinking or hovering)",
+  "date": "2026-10-27"
+ },
+ "Jump_Fall": {
+  "sheet": "docs/qa/golden/anim_strips/player_young__Jump_Fall.jpg",
+  "verdict": "pass",
+  "by": "claude (side-view 8-frame strip after the ClipLift pelvis repair; feet on the grid, no sinking or hovering)",
+  "date": "2026-10-27"
+ },
+ "Jump_Land_Hard": {
+  "sheet": "docs/qa/golden/anim_strips/player_young__Jump_Land_Hard.jpg",
+  "verdict": "pass",
+  "by": "claude (side-view 8-frame strip after the ClipLift pelvis repair; feet on the grid, no sinking or hovering)",
+  "date": "2026-10-27"
+ },
+ "Jump_Land_Running": {
+  "sheet": "docs/qa/golden/anim_strips/player_young__Jump_Land_Running.jpg",
+  "verdict": "pass",
+  "by": "claude (side-view 8-frame strip after the ClipLift pelvis repair; feet on the grid, no sinking or hovering)",
+  "date": "2026-10-27"
+ },
+ "Jump_Land_Soft": {
+  "sheet": "docs/qa/golden/anim_strips/player_young__Jump_Land_Soft.jpg",
+  "verdict": "pass",
+  "by": "claude (side-view 8-frame strip after the ClipLift pelvis repair; feet on the grid, no sinking or hovering)",
+  "date": "2026-10-27"
+ },
+ "Jump_Rise": {
+  "sheet": "docs/qa/golden/anim_strips/player_young__Jump_Rise.jpg",
+  "verdict": "pass",
+  "by": "claude (side-view 8-frame strip after the ClipLift pelvis repair; feet on the grid, no sinking or hovering)",
+  "date": "2026-10-27"
+ },
+ "Loco_Pivot180_Run_L": {
+  "sheet": "docs/qa/golden/anim_strips/player_young__Loco_Pivot180_Run_L.jpg",
+  "verdict": "pass",
+  "by": "claude (side-view 8-frame strip after the ClipLift pelvis repair; feet on the grid, no sinking or hovering)",
+  "date": "2026-10-27"
+ },
+ "Loco_Pivot180_Run_R": {
+  "sheet": "docs/qa/golden/anim_strips/player_young__Loco_Pivot180_Run_R.jpg",
+  "verdict": "pass",
+  "by": "claude (side-view 8-frame strip after the ClipLift pelvis repair; feet on the grid, no sinking or hovering)",
+  "date": "2026-10-27"
+ },
+ "Loco_RunStart_F": {
+  "sheet": "docs/qa/golden/anim_strips/player_young__Loco_RunStart_F.jpg",
+  "verdict": "pass",
+  "by": "claude (side-view 8-frame strip after the ClipLift pelvis repair; feet on the grid, no sinking or hovering)",
+  "date": "2026-10-27"
+ },
+ "Loco_TurnInPlace_180": {
+  "sheet": "docs/qa/golden/anim_strips/player_young__Loco_TurnInPlace_180.jpg",
+  "verdict": "pass",
+  "by": "claude (side-view 8-frame strip after the ClipLift pelvis repair; feet on the grid, no sinking or hovering)",
+  "date": "2026-10-27"
+ },
+ "Loco_TurnInPlace_180_R": {
+  "sheet": "docs/qa/golden/anim_strips/player_young__Loco_TurnInPlace_180_R.jpg",
+  "verdict": "pass",
+  "by": "claude (side-view 8-frame strip after the ClipLift pelvis repair; feet on the grid, no sinking or hovering)",
+  "date": "2026-10-27"
+ },
+ "Loco_TurnInPlace_90_L": {
+  "sheet": "docs/qa/golden/anim_strips/player_young__Loco_TurnInPlace_90_L.jpg",
+  "verdict": "pass",
+  "by": "claude (side-view 8-frame strip after the ClipLift pelvis repair; feet on the grid, no sinking or hovering)",
+  "date": "2026-10-27"
+ },
+ "Souls_Roll": {
+  "sheet": "docs/qa/golden/anim_strips/player_young__Souls_Roll.jpg",
+  "verdict": "pass",
+  "by": "claude (side-view 8-frame strip after the ClipLift pelvis repair; feet on the grid, no sinking or hovering)",
+  "date": "2026-10-27"
  }
 }
