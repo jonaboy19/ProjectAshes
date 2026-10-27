@@ -56,11 +56,15 @@ signal exit_requested
 @export var force_third_person := true
 
 const Probe := preload("res://scripts/core/perf_probe.gd")
+const Loader := preload("res://scripts/core/threaded_loader.gd")
+const InteractLabel := preload("res://scripts/ui/interact_label.gd")
+const DoorPass := preload("res://scripts/world/door_pass.gd")
+const PresenceLive := preload("res://scripts/population/presence_live.gd")
 const DoorModel := preload("res://scripts/world/door_model.gd")
 const Locks := preload("res://scripts/world/locks.gd")
 const Perception := preload("res://scripts/population/perception.gd")
 const Evidence := preload("res://scripts/population/evidence.gd")
-const NPC_WORLD := "res://scripts/population/npc_world.gd"
+const NpcWorld := preload("res://scripts/population/npc_world.gd")
 
 ## Physics layer 20: the player carries it (main.gd) so door triggers can mask
 ## only the player instead of every body on layer 1.
@@ -96,7 +100,7 @@ func _ready() -> void:
 	set_physics_process(active == self)
 	Interactable.attach(self, {"id_fn": func() -> String: return String(model.get("id")) if model != null else String(name),
 		"verb": "Enter", "priority": PICK_PRIORITY, "enabled": false, "do": func(_pl: Node) -> void: use(),
-		"label": func() -> Dictionary: return load("res://scripts/ui/interact_label.gd").legacy(self)})
+		"label": func() -> Dictionary: return InteractLabel.legacy(self)})
 	if not is_exit:
 		add_to_group("entrance_door")
 		_setup_model()
@@ -190,7 +194,7 @@ func use_verb(verb: String, holder := {}) -> Dictionary:
 		Evidence.add(int(res["evidence"]), at, int(WorldGen.nearest_settlement(at).get("id", -1)) if not WorldGen.settlements.is_empty() else -1)
 	if String(res.get("crime", "")) != "" and is_inside_tree():
 		var sid := int(WorldGen.nearest_settlement(at).get("id", -1)) if not WorldGen.settlements.is_empty() else -1
-		(load(NPC_WORLD) as GDScript).call("report_crime", get_tree(), String(res["crime"]), at, sid, true)
+		(NpcWorld as GDScript).call("report_crime", get_tree(), String(res["crime"]), at, sid, true)
 	_animate()
 	return res
 
@@ -268,7 +272,7 @@ static func reach_box(size: Vector3, centre: Vector3, point: Vector3, margin := 
 func npc_pass() -> void:
 	if is_exit or not is_inside_tree():
 		return
-	(load("res://scripts/world/door_pass.gd") as GDScript).call("swing", self)
+	DoorPass.swing(self)
 
 
 func _on_body_entered(body: Node3D) -> void:
@@ -323,6 +327,15 @@ func enter(player: Node3D, spread := false) -> void:
 	if model != null and bool(model.call("is_locked")):
 		return
 	_player = player
+	if spread and is_inside_tree():
+		var need := _missing_scenes()
+		if not need.is_empty():
+			# not in memory yet: the queue loads it inside its frame budget, then the room is made and put into the world
+			_entering = true
+			Loader.request_many(need, func(_r: Dictionary) -> void:
+				_entering = false
+				enter(player, true))
+			return
 	var _pi := Probe.t()
 	interior = _make_interior()
 	Probe.add("interior.make", _pi)
@@ -361,7 +374,7 @@ func _enter_finish(player: Node3D, env: Environment) -> void:
 	interior.global_transform = Transform3D(Basis.IDENTITY, global_position + interior_offset)
 	active = self
 	if has_meta("private_home"):
-		(load("res://scripts/population/presence_live.gd") as GDScript).call("report_player", 7, 1.0, 12.0)   # Stim.TRESPASS
+		PresenceLive.report_player(7, 1.0, 12.0)   # Stim.TRESPASS
 	set_physics_process(camera_collision)
 	if hide_exterior:
 		for c in host.get_children():
@@ -416,9 +429,24 @@ func _can_enter() -> bool:
 	return interior_scene != ""
 
 
+## Hook: scene files `_make_interior` needs; the ones not cached yet are loaded by the threaded loader before the room is made.
+func _scene_paths() -> PackedStringArray:
+	return PackedStringArray([interior_scene]) if interior_scene != "" else PackedStringArray()
+
+
+func _missing_scenes() -> Array:
+	var out: Array = []
+	for p: String in _scene_paths():
+		if not Loader.is_ready(p):
+			out.append(p)
+	return out
+
+
 ## Hook: the interior root to place. Default: instance `interior_scene`.
 func _make_interior() -> Node3D:
-	var packed := Assets.scene(interior_scene)
+	var packed := Loader.cached(interior_scene) as PackedScene
+	if packed == null:
+		packed = Loader.load_now(interior_scene) as PackedScene     # tests / tools entering at once (enter() without `spread`)
 	if packed == null:
 		push_warning("InteriorDoor: cannot load %s" % interior_scene)
 		return null
