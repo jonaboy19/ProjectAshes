@@ -310,3 +310,14 @@ Videos: PA_plans/videos/slice_2026-10-27_1200_6c8da63f1_carrygate.mp4 (carry), s
 | Life_Mx5 chair sits (laugh / cheer / drink) | HOLD | tavern-table sit_check: pelvis 30-33 cm off the seat, exit pop 9 m/s: needs seat alignment |
 | CMU Life_Mocap_Sweep / Dig / Slice / Eat_Soup / Eat_Table | PASS (metrics gold today; sweep with the broom seen in the street) | Sweep, Dig, Slice already wired |
 | CMU Life_Mocap_Stir / Saw / Hammer_Nail | FAIL | feet slide 0.05-0.09 m/s mean: need a foot-pin pass (our pipeline doesn't take CMU BVH yet) |
+
+## 2026-10-27 Slice movement pass 3: side-on review, ladder descent, shield on the back (player-animation worker) - PASS (movement legs), WATCH (sword at hip)
+Video: `PA_plans/videos/slice_move_real_terrain_wip.mp4` (gameplay camera). Sheets: `docs/qa/golden/slice/slice_side_turn_start.jpg` (SLICE_CAM=side), `slice_shield_back_after.jpg`, `slice_ladder_descent_after.jpg`.
+| Check | Result | Note |
+|---|---|---|
+| Starts read as a weight shift (side-on) | PASS | first step with a forward lean, about 0.3 s to walk speed |
+| 180 turn steps around, no spin on the spot (side-on) | PASS | feet cross and re-plant through the turn; the body never pivots on planted soles |
+| Stops | PASS | 2-3 decelerating steps from the run; one settling step from the walk |
+| Ladder descent | PASS (fixed) | the route called "climb down" during the 2.9 s top-out, so the ladder fell back to a teleport and the landing code (fall apex still at the deck) played a hard-landing roll at the foot of the ladder. Now: the route waits for the top-out to end; a teleported or carried body resets the fall apex; descent hangs on the approach side facing the rungs and steps off at the stand-off |
+| Shield on the back: no pale blob (ref 01 clean from behind) | PASS | root cause: hero_tier_a.upgrade_meshy put the body shader on EVERY textured mesh under the model, props included, so the kite shield lost its PBR and read pale and flat. Props on bone attachments now keep their own materials; scan albedo x0.55, roughness >= 0.75; 88 cm; sits 7 cm lower between the shoulder blades and the belt |
+| Sheathed sword at the hip | WATCH | a naked 95 cm blade hangs from the belt with no scabbard. Next: a Blender scabbard (leather and chape) shown when sheathed |

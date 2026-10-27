@@ -230,8 +230,8 @@ static func upgrade_meshy(model: Node3D, saturation := 0.92) -> ShaderMaterial:
 	var out: ShaderMaterial = null
 	for n in model.find_children("*", "MeshInstance3D", true, false):
 		var m := n as MeshInstance3D
-		if m.mesh == null or m.mesh.get_surface_count() == 0:
-			continue
+		if m.mesh == null or m.mesh.get_surface_count() == 0 or _on_attachment(m):
+			continue      # props (sword, kite shield, pouch) keep their own PBR: the body shader flattened the shield to a pale slab
 		var src := m.get_active_material(0)
 		var tex: Texture2D = (src as BaseMaterial3D).albedo_texture if src is BaseMaterial3D else null
 		if tex == null:
@@ -247,6 +247,17 @@ static func upgrade_meshy(model: Node3D, saturation := 0.92) -> ShaderMaterial:
 		out = _char_mats[key]
 		m.material_override = out
 	return out
+
+
+static func _on_attachment(n: Node) -> bool:
+	var q := n.get_parent()
+	while q != null:
+		if q is BoneAttachment3D:
+			return true
+		if q is Skeleton3D:
+			return false
+		q = q.get_parent()
+	return false
 
 
 ## LOD switch distances (metres from the camera) for the hero's skinned body: the shoulder cam sits at 3.9 m, dialogue and the

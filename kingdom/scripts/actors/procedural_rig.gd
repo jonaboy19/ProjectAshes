@@ -66,6 +66,7 @@ const WEAPON_CARRY_RATE := 14.0  # 1/s into a swing
 const WEAPON_CARRY_IN := 4.5     # 1/s back to the carry: blends over the swing recovery with the arm, no snap
 const HOLSTER_RATE := 7.0        # 1/s: arm <-> back in ~0.15 s
 const BACK_GAP := 0.165          # m from the spine line (pelvis..neck) to the inner face of a prop on the back
+const SHIELD_BACK_DROP := -0.07    # m: a slung shield sits between the shoulder blades and the belt, its top below the head line
 const BACK_DIAG_DEG := 35.0      # long weapons on the back: tilt from vertical, grip over the right shoulder
 const GUARD_MARGIN := 0.01       # m a hand prop is kept above the floor
 const PROP_GAIN := 0.0045
@@ -1251,7 +1252,7 @@ func _socket(e: Dictionary, bb: Dictionary, hand_g: Transform3D) -> Transform3D:
 	cols[oi] = cols[(oi + 1) % 3].cross(cols[(oi + 2) % 3])
 	var basis := Basis(cols[0], cols[1], cols[2]).orthonormalized()
 	var half_thin := box.size[ti] * 0.5 * scl[ti]
-	var centre := (bb["line"] as Vector3) + back * (BACK_GAP + half_thin + _roll_gap) + up * (0.04 if not is_long else 0.0)
+	var centre := (bb["line"] as Vector3) + back * (BACK_GAP + half_thin + _roll_gap) + up * (SHIELD_BACK_DROP if not is_long else 0.0)
 	var b_scaled := basis.scaled(scl)
 	return Transform3D(b_scaled, centre - b_scaled * box.get_center())
 

@@ -52,6 +52,9 @@ func run(bot: Node) -> void:
 		lad.call("climb", player, true)
 		await b.wait_until(func() -> bool: return player.global_position.y > top.y - 0.4, 12.0)
 		await b.wait(1.5)
+		var trav: Object = player.get("_trav")
+		await b.wait_until(func() -> bool: return trav == null or bool(trav.call("can_start")), 8.0)   # the top-out (2.9 s) must finish first
+		await b.wait(0.5)
 		lad.call("climb", player, false)
 		await b.wait_until(func() -> bool: return player.global_position.y < bottom.y + 0.4, 12.0)
 		await b.wait(1.5)

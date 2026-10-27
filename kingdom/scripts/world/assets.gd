@@ -516,7 +516,7 @@ static func mh_character(file: String, height: float, keep: Array[String] = [], 
 			# Poly Haven kite_shield (CC0 scan): 95 cm, point down, face out from the forearm
 		elif part.contains("Kite_Shield") and ResourceLoader.exists(KITE_SHIELD):
 			# Poly Haven kite_shield (CC0 scan, 10k tris, 1K PBR, double-sided): 95 cm, point down, face out from the forearm
-			_attach(skeleton, "lowerarm_l", KITE_SHIELD, 0.95, Vector3(0.13, 0, 0.06), Vector3(0, 90, 0))
+			_weather(_attach(skeleton, "lowerarm_l", KITE_SHIELD, 0.88, Vector3(0.13, 0, 0.06), Vector3(0, 90, 0)), 0.55, 0.75)
 		elif part.contains("Shield"):
 			_attach(skeleton, "lowerarm_l", GUARD_SHIELD, 0.65, Vector3(0.12, 0, 0.08), Vector3(0, 90, 0))
 	var anim := AnimationPlayer.new()
@@ -616,9 +616,9 @@ static func _bind_meshes(path: String, skeleton: Skeleton3D, hide: Array, tint :
 	scene.free()
 
 
-static func _attach(skeleton: Skeleton3D, bone: String, path: String, length: float, offset: Vector3, rot_deg: Vector3) -> void:
+static func _attach(skeleton: Skeleton3D, bone: String, path: String, length: float, offset: Vector3, rot_deg: Vector3) -> Node3D:
 	if skeleton.find_bone(bone) < 0 or not ResourceLoader.exists(path):
-		return
+		return null
 	var att := BoneAttachment3D.new()
 	att.bone_name = bone
 	skeleton.add_child(att)
@@ -632,6 +632,24 @@ static func _attach(skeleton: Skeleton3D, bone: String, path: String, length: fl
 	prop.position = offset / rig_scale
 	prop.rotation_degrees = rot_deg
 	att.add_child(prop)
+	return prop
+
+
+## Weathers a scanned prop for the slice look: albedo multiplied by `k` (the kite scan's fresh white paint read as a pale blob on
+## the back from the follow camera), roughness floor `rough`. Materials are duplicated, the cached scene is untouched.
+static func _weather(root: Node3D, k: float, rough: float) -> void:
+	if root == null:
+		return
+	for n in root.find_children("*", "MeshInstance3D", true, false):
+		var mi := n as MeshInstance3D
+		for si in mi.mesh.get_surface_count():
+			var m := mi.get_active_material(si) as BaseMaterial3D
+			if m == null:
+				continue
+			var w := m.duplicate() as BaseMaterial3D
+			w.albedo_color = Color(m.albedo_color.r * k, m.albedo_color.g * k, m.albedo_color.b * k, m.albedo_color.a)
+			w.roughness = maxf(m.roughness, rough)
+			mi.set_surface_override_material(si, w)
 
 
 ## The base body cut down to head, neck and hands: triangles whose vertices are

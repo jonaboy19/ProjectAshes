@@ -58,6 +58,8 @@ func climb(player: Node3D, to_top: bool) -> Vector3:
 			and bool((trav as Object).call("begin_ladder", global_position, dest, to_top, func() -> void: climbed.emit(to_top), global_basis.z)):
 		return dest
 	player.global_position = dest
+	if player.get("_fall_apex_y") != null:
+		player.set("_fall_apex_y", dest.y)     # moved, not fallen: no hard-landing roll at the far end
 	if player is CharacterBody3D:
 		(player as CharacterBody3D).velocity = Vector3.ZERO
 	if player.has_method("reset_physics_interpolation"):

@@ -928,6 +928,10 @@ class Driver extends RefCounted:
 			(rig as Object).call("set_hand_brace", 1, Vector3.ZERO, Vector3.UP, 0.0)
 		p.collision_mask = _saved_mask
 		p.reset_physics_interpolation()
+		# the move carried the body (a 3 m ladder descent, a drop-down): no fall. Without this the landing code measured the
+		# height from the last airborne apex (the loft deck) and played a hard-landing roll at the foot of the ladder.
+		if p.get("_fall_apex_y") != null:
+			p.set("_fall_apex_y", p.global_position.y)
 
 
 	func _abort() -> void:
@@ -1053,7 +1057,10 @@ class Driver extends RefCounted:
 		var lf := Vector3(ladder_facing.x, 0.0, ladder_facing.z)
 		if lf.length() > 0.1:
 			# square to the ladder, centred on it (head between the rails), whatever angle the player walked up from
-			inward = lf.normalized() if lf.dot(inward) >= 0.0 else -lf.normalized()
+			# The ladder's +z points from the bottom marker toward the top one, into the wall. The climber always hangs on the
+			# approach side facing it, going up AND down. Down used to pick the side the player stood on (the deck), so he hung
+			# inside the loft facing out and was then pulled into the ladder base at the bottom and fell over.
+			inward = lf.normalized()
 		var clip := String(lc["up_clip"]) if to_top else String(lc["down_clip"])
 		var k := _body_k()
 		# the body hangs off the rungs (hands reach the ladder plane), not inside the ladder
@@ -1062,6 +1069,9 @@ class Driver extends RefCounted:
 			"a": float(lc["align_time"]), "d": d, "e": float(lc["exit_time"]), "inward": inward, "rate": 1.0,
 			"duration": float(lc["align_time"]) + d + float(lc["exit_time"]), "handover": 0.0, "exit_speed": 0.0,
 			"end": dest, "top_y": dest.y, "rung": float(lc.get("rung", 0.32)), "rung_base": float(lc.get("rung_base", 0.3))}
+		if not to_top:
+			plan["dest"] = Vector3(at.x, dest.y, at.z)    # step off at the stand-off, not into the ladder base
+			plan["end"] = plan["dest"]
 		var xc := String(lc.get("top_exit_clip", ""))
 		var rise := float(lc.get("top_exit_rise", 1.53)) * k
 		if to_top and _has_clip(xc) and dest.y - s.y > rise + 0.3:
