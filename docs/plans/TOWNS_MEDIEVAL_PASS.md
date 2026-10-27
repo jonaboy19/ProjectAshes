@@ -215,3 +215,22 @@ range, gallows, quay warehouse with crane, market cross with steps.
 | Northern towns (Frostmere, Coldharbor, Highwatch winter) | 12, 32 | snow on roofs and streets, A-frame timber, open market stalls |
 | Landscape around towns | 37, 42, 46, 47, 48 | rolling meadows with wildflowers, castle on a hill as a skyline landmark (battle content is for the war system) |
 | Lakeside village under cliffs | 23, 24 | church on the shore, cliffs behind (Hollowmere / Eastmere) |
+
+---
+
+## 8. Status (2026-10-27, passes 3-6)
+
+Done: small / poor house kit + LOD1 (tools/blender_towns/small_house_kit.py), alley network + quarter-aware frontage (rich / burgher / poor),
+lane links (dangling lane ends joined to the street graph), poverty dressing, night windows (kit), cloth sway, boats bob, drawn wagons
+(tools/blender_towns/draught_wagon.py: 4 spinning wheels, harnessed horse walk, seated driver, unload halt, right-hand lane, ground pitch),
+scenario A dressing + Kingsreach road bandit camp (data/world/slice_dressing.json, relative to the town), ivy leaves smaller, LOW/iGPU trims.
+Tests: test_town_frontage (save prefix), test_town_identity, test_town_kit, test_town_slice, test_town_alley_routes, test_market_dressing.
+
+Known gaps:
+- Ashford's south radial lane is boxed in by planned houses at the plaza (pre-existing street-graph island: 11 of 20 planned houses could not
+  route before this pass). Fix needs a planned-lot move (save migration) or a StreetGraph-side link through the plaza: owner / NPC owner decision.
+- Carts follow the road network as it is: straight settlement-to-settlement segments. Curves come with the real-terrain roads (world worker).
+- Watermill wheels: the mill models are single meshes (no separable wheel); windmill sails already turn (region_dressing).
+- Night windows only on the small house kit (RA_window) and its LOD0; the Blender / Meshy houses have no window material of their own.
+- Owner sheets: Ashford, Kingsreach, Millbrook, Stonehollow done; vertical-slice towns (Greenhollow = Oakvale, Redwater, Thornfield) in
+  progress; the remaining 24 towns in later batches.

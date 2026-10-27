@@ -10,9 +10,9 @@ from mathutils import Vector, Matrix
 out = sys.argv[sys.argv.index("--") + 1]
 SIMPLE = False   # LOD1 pass: walls, roofs, chimneys and sills only (no frame, windows, shutters, patches)
 MATS = {
-    "RA_plaster": (0.78, 0.72, 0.6), "RA_plaster_dirty": (0.6, 0.55, 0.46), "RA_timber": (0.28, 0.19, 0.12),
-    "RA_thatch": (0.55, 0.45, 0.27), "RA_shingle": (0.33, 0.28, 0.24), "RA_boards": (0.42, 0.33, 0.24),
-    "RA_stone": (0.5, 0.48, 0.44), "RA_dark": (0.06, 0.05, 0.045), "RA_window": (0.07, 0.06, 0.05),
+    "RA_plaster": (0.93, 0.89, 0.79), "RA_plaster_dirty": (0.8, 0.75, 0.64), "RA_timber": (0.22, 0.15, 0.1),
+    "RA_thatch": (0.62, 0.52, 0.32), "RA_shingle": (0.3, 0.27, 0.25), "RA_boards": (0.42, 0.33, 0.24),
+    "RA_stone": (0.5, 0.48, 0.44), "RA_dark": (0.06, 0.05, 0.045), "RA_window": (0.07, 0.06, 0.05), "RA_kit": (1.0, 1.0, 1.0),
 }
 
 
@@ -78,11 +78,26 @@ class B:
             self.poly(pts if y > 0 else list(reversed(pts)), wall)
 
     def finish(self):
+        # iGPU draw-call budget: every part colour goes into vertex colours on ONE material (RA_kit); only the windows keep
+        # their own material (RA_window, the night glow). 2 surfaces per house instead of 8.
         me = bpy.data.meshes.new(self.name)
         bmesh.ops.recalc_face_normals(self.bm, faces=self.bm.faces)
+        col = self.bm.loops.layers.color.new("Col")
+        for f in self.bm.faces:
+            n = self.mats[f.material_index]
+            c = MATS[n]
+            for lp in f.loops:
+                lp[col] = (c[0], c[1], c[2], 1.0)
+            f.material_index = 1 if n == "RA_window" else 0
         self.bm.to_mesh(me)
-        for n in self.mats:
-            me.materials.append(mat(n))
+        # make "Col" the only, active and render colour attribute, so glTF COLOR_0 carries the part colours
+        for ca in list(me.color_attributes):
+            if ca.name != "Col":
+                me.color_attributes.remove(ca)
+        me.color_attributes.active_color_name = "Col"
+        me.color_attributes.render_color_index = me.color_attributes.find("Col")
+        me.materials.append(mat("RA_kit"))
+        me.materials.append(mat("RA_window"))
         ob = bpy.data.objects.new(self.name, me)
         bpy.context.scene.collection.objects.link(ob)
         return ob
@@ -202,7 +217,7 @@ def export(ob):
     ob.select_set(True)
     bpy.context.view_layer.objects.active = ob
     bpy.ops.export_scene.gltf(filepath=f"{out}/{ob.name}.glb", use_selection=True, export_format="GLB",
-                              export_yup=True, export_apply=True)
+                              export_yup=True, export_apply=True, export_vertex_color="ACTIVE")
 
 
 bpy.ops.wm.read_factory_settings(use_empty=True)

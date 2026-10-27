@@ -67,6 +67,7 @@ var _merge_jobs: Array = []      # [{root, job}] StaticMerge jobs of finished to
 
 
 var _night_t := 0.0
+var _alley_lamps: Array = []
 
 
 func _process(delta: float) -> void:
@@ -359,12 +360,25 @@ func _build_co(s: Dictionary, sync: bool, spread: bool) -> Node3D:
 			if not door_clutter.has(kind):
 				door_clutter[kind] = []
 			door_clutter[kind].append(Transform3D(Basis(Vector3.UP, rng.randf() * TAU), Vector3(q.x, WorldGen.height(q.x, q.y) - 0.03, q.y)))
+	_alley_lamps.clear()
 	for st: Dictionary in plan["streets"]:
 		if not bool(st.get("alley", false)) or _low():
 			continue      # LOW / iGPU: no alley laundry
 		var al: Vector2 = st["a"]
 		var ab: Vector2 = st["b"]
 		var ad := (ab - al).normalized()
+		# a wall lantern every 10-14 m, alternating sides (billboard glow only: no omni light, cheap on iGPU)
+		var lt := 4.0
+		var side_k := 1.0
+		while lt < al.distance_to(ab) - 1.0:
+			var lq := al + ad * lt + Vector2(-ad.y, ad.x) * side_k * (float(st["w"]) * 0.5 + 0.15)
+			var ly := WorldGen.height(lq.x, lq.y) + 2.5
+			if not door_clutter.has("mf_lantern_wall_scroll"):
+				door_clutter["mf_lantern_wall_scroll"] = []
+			door_clutter["mf_lantern_wall_scroll"].append(Transform3D(Basis(Vector3.UP, atan2(ad.y * side_k, -ad.x * side_k) + PI * 0.5), Vector3(lq.x, ly, lq.y)))
+			_alley_lamps.append({"pos": Vector3(lq.x, ly - 0.2, lq.y), "color": Color(1.0, 0.62, 0.3), "range": 6.0, "size": 1.0})
+			side_k = -side_k
+			lt += rng.randf_range(10.0, 14.0)
 		var tt := 5.0
 		while tt < al.distance_to(ab) - 2.0:
 			if rng.randf() < 0.55:
@@ -373,6 +387,8 @@ func _build_co(s: Dictionary, sync: bool, spread: bool) -> Node3D:
 					door_clutter["washing_line"] = []
 				door_clutter["washing_line"].append(Transform3D(Basis(Vector3.UP, atan2(-ad.y, ad.x)), Vector3(q2.x, WorldGen.height(q2.x, q2.y) - 0.03, q2.y)))   # strung along the alley
 			tt += rng.randf_range(7.0, 11.0)
+	if not _alley_lamps.is_empty():
+		LampGlow.build(root, _alley_lamps.duplicate(), 1.0)     # towns medieval pass: alley lanterns
 	for kind: String in door_clutter:
 		var list2: Array[Transform3D] = []
 		list2.assign(door_clutter[kind])

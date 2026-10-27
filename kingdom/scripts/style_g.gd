@@ -808,9 +808,9 @@ static func restyle_mesh(mesh: ArrayMesh, key: String, tier := "", role := "") -
 		var b := orig as BaseMaterial3D
 		var src: Material = orig
 		var fmt_col := (mesh.surface_get_format(i) & Mesh.ARRAY_FORMAT_COLOR) != 0
-		if not b.vertex_color_use_as_albedo and not fmt_col:
+		if (not b.vertex_color_use_as_albedo and not fmt_col) or (fmt_col and b.resource_name.to_lower().contains("ra_kit")):   # small house kit: part colours live in the vertex colours
 			var _pv := Probe.t()
-			src = _vcol_copy(b)                     # no baked colours: let instance colours tint it (town identity)
+			src = _vcol_copy(b, not b.resource_name.to_lower().contains("ra_kit"))   # glTF vertex colours are linear                     # no baked colours: let instance colours tint it (town identity)
 			Probe.add("styleg.vcol_copy", _pv)
 		var r := role
 		var by_name := role_for_material(b.resource_name)
@@ -844,12 +844,12 @@ static func restyle_mesh(mesh: ArrayMesh, key: String, tier := "", role := "") -
 	return mesh
 
 
-static func _vcol_copy(b: BaseMaterial3D) -> BaseMaterial3D:
-	var k := "vcc%d" % b.get_instance_id()
+static func _vcol_copy(b: BaseMaterial3D, srgb := true) -> BaseMaterial3D:
+	var k := "vcc%d%s" % [b.get_instance_id(), "" if srgb else "L"]
 	if not _cache.has(k):
 		var c := b.duplicate() as BaseMaterial3D
 		c.vertex_color_use_as_albedo = true
-		c.vertex_color_is_srgb = true
+		c.vertex_color_is_srgb = srgb
 		_cache[k] = c
 	return _cache[k]
 

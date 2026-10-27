@@ -147,7 +147,12 @@ func _owner_shots(town: Dictionary, out_dir: String, park: Vector2) -> void:
 		if float(st["w"]) >= 8.0:
 			continue
 		var m: Vector2 = ((st["a"] as Vector2) + (st["b"] as Vector2)) * 0.5
-		var sc := absf(m.distance_to(c) - float(town["radius"]) * 0.5)
+		var lined := 0
+		for lot: Dictionary in plan["lots"]:
+			var lp: Vector2 = lot["pos"]
+			if lp.distance_to(Geometry2D.get_closest_point_to_segment(lp, st["a"], st["b"])) < 9.0:
+				lined += 1
+		var sc := -float(lined) * 10.0 + absf(m.distance_to(c) - float(town["radius"]) * 0.5) * 0.1     # the most built-up side street
 		if sc < bs and _clear_of_lots(plan, m) and _clear_of_lots(plan, st["a"]):
 			bs = sc
 			best = i

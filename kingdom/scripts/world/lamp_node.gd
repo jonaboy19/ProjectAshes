@@ -45,6 +45,9 @@ func _on_quality() -> void:
 			_omni.light_color = light_color
 			_omni.omni_range = omni_range
 			_omni.shadow_enabled = false
+			_omni.distance_fade_enabled = true      # towns medieval pass: dense towns / alley lanterns: only near lamps light the scene
+			_omni.distance_fade_begin = 35.0
+			_omni.distance_fade_length = 10.0
 			_omni.light_energy = light_energy
 			add_child(_omni)
 	elif has_omni():
