@@ -26,6 +26,7 @@ var _mon := [0.0, 0.0, 0.0, 0.0]   # sums: draw calls, primitives, objects, gpu 
 var _last_us := 0
 var _bd: Array = []          # --breakdown: [node, phase, base_prims, base_draws]
 var _bd_on := false
+var _prev_p := Vector2.INF
 
 
 ## --mmi_dump: every MultiMeshInstance3D within 150 m of the player with its mesh, instances, triangles and ranges, heaviest first.
@@ -138,6 +139,8 @@ func _process(dt: float) -> bool:
 	var now := Time.get_ticks_usec()
 	if frame > BOOT + 90 and _last_us > 0:
 		_ft.append((now - _last_us) / 1000.0)
+		if (now - _last_us) > 500000:
+			print("[route] HITCH %.0f ms at f=%d pos=%s" % [(now - _last_us) / 1000.0, frame - BOOT, (main.get("player") as Node3D).global_position])
 		_mon[0] += Performance.get_monitor(Performance.RENDER_TOTAL_DRAW_CALLS_IN_FRAME)
 		_mon[1] += Performance.get_monitor(Performance.RENDER_TOTAL_PRIMITIVES_IN_FRAME)
 		_mon[2] += Performance.get_monitor(Performance.RENDER_TOTAL_OBJECTS_IN_FRAME)
@@ -169,13 +172,22 @@ func _process(dt: float) -> bool:
 		print("[route] BREAKDOWN nodes=", _bd.size())
 	if _bd_on:
 		return _breakdown_step()
-	if frame < BOOT + 60:          # settle after the teleport
+	if frame < BOOT + 90:          # settle after the teleport
 		player.call("set_camera", _yaw, PITCH)
+		if frame % 15 == 0 and Vector2(player.global_position.x, player.global_position.z).distance_to(pts[0]) > 8.0:
+			print("[route] re-teleport: player at ", player.global_position, " (fall rescue / spawn moved it)")
+			main.call("_teleport", pts[0], 0.0)
 		return false
 	root.get_node("WorldSim").set("time_of_day", hour)
 	if frame % 15 == 0:
 		_hide_overlays()
+	player.set("_invulnerable", 1.0e9)       # QA walk: nothing on the route may kill the walker (a death respawns it in Ashford)
+	if bool(player.get("dead")):
+		print("[route] player died at ", player.global_position)
 	var p := Vector2(player.global_position.x, player.global_position.z)
+	if _prev_p != Vector2.INF and p.distance_to(_prev_p) > 8.0:
+		print("[route] JUMP f=%d %s -> %s interior=%s" % [frame - BOOT, _prev_p, p, InteriorDoor.active != null])
+	_prev_p = p
 	if (frame - BOOT) / 30.0 > MAX_S:
 		print("[route] time cap frames=", _ft.size())
 		_perf()

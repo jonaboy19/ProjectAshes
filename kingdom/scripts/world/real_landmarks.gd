@@ -172,7 +172,7 @@ func _dress_step() -> void:
 
 ## Perf gate: one settlement's fields were a single 1.5 km MultiMesh (3.5k walls, 1.8M tris) drawn whole in every shadow cascade.
 ## 128 m cells let frustum / cascade culling and the visibility range drop most of it.
-const FIELD_CELL := 128.0
+const FIELD_CELL := 256.0
 func _mmi_cells(mesh: Mesh, ts: Array[Transform3D], range_end: float) -> void:
 	var cells: Dictionary = {}
 	for t in ts:
