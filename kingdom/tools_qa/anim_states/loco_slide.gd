@@ -57,6 +57,10 @@ func _run() -> void:
 		print("LOCO gait points ", an.get("_pt_speed"), " strides ", an.get("_pt_stride"))
 	# case, stick strength, sprint, extra input ("" | move_back | move_left | move_right with block | crouch), golden clip it scores
 	var cases := [["slow", 0.4, false, "", "Walk"], ["walk", 1.0, false, "", "Jog_Fwd"], ["sprint", 1.0, true, "", "Sprint"]]
+	if OS.get_cmdline_user_args().has("--points"):
+		# each gait blend point on its own (body at the point's speed): which clip of the blend slides
+		cases = [["p101", 1.01 / 2.4, false, "", "Walk"], ["p157", 1.57 / 2.4, false, "", "Mx_Walk_Standard"], ["p240", 1.0, false, "", "blend_2.4"],
+				["p333", 3.33 / 6.5, true, "", "Mx_Run_Slow"], ["p443", 4.43 / 6.5, true, "", "Mx_Run_Standard"], ["p615", 6.15 / 6.5, true, "", "Jog_Fwd"]]
 	if OS.get_cmdline_user_args().has("--all"):
 		cases += [["back", 1.0, false, "move_back", "Walk_Backwards"], ["strafe_l", 1.0, false, "move_left", "Strafe_left"],
 				["strafe_r", 1.0, false, "move_right", "Strafe_right"], ["crouch", 1.0, false, "crouch", "Crouch_Fwd"]]
@@ -130,7 +134,7 @@ func _case(name: String, strength: float, sprint: bool, extra := "") -> Dictiona
 		print("LOCO dbg %s pos=%.2f rate=%.2f loco=%.2f speed=%.2f" % [name, tr["parameters/gait/blend_position"], tr["parameters/gait_rate/scale"], tr["parameters/loco/blend_amount"], float(an2.get("_speed"))])
 	_rec.clear()
 	_recording = true
-	for i in 240:
+	for i in 600:            # 10 s: enough stances at sprint cadence for a stable mean
 		await physics_frame
 		_p.get_viewport().get_camera_3d().global_position = _p.global_position + Vector3(3.0, 1.3, 0.0)
 	_recording = false

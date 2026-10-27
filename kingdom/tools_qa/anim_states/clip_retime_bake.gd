@@ -185,9 +185,29 @@ func _bake(clip: String, anim: Animation) -> Dictionary:
 		map.append(snappedf((float(s_i) + fr) / HZ, 0.0001))
 	map[map.size() - 1] = snappedf(anim.length, 0.0001)
 	var after := _slip_stats(v, rs, S)
+	# left foot down: the source sample where ball_l becomes planted after the longest unplanted run, as a phase of the output
+	var best_len := -1
+	var plant_s := 0
+	var run := 0
+	for s2 in range(0, 2 * (n + 1)):
+		var idx := s2 % (n + 1)
+		if not planted[0][idx]:
+			run += 1
+		else:
+			if run > best_len and s2 > 0:
+				best_len = run
+				plant_s = idx
+			run = 0
+	var t_plant := float(plant_s) / HZ
+	var lphase := 0.0
+	for k4 in map.size():
+		if float(map[k4]) >= t_plant:
+			lphase = float(k4) / float(map.size() - 1)
+			break
 	print("RETIME %s len %.3f -> %.3f s, stance speed %.2f m/s, slip mean %.3f -> %.3f, p90 %.3f -> %.3f m/s" % [clip, anim.length,
 			float(frames) / OUT_FPS, S, before[0], after[0], before[1], after[1]])
-	return {"fps": OUT_FPS, "stance_speed": snappedf(S, 0.001), "slip_before": snappedf(before[0], 0.001), "slip_after": snappedf(after[0], 0.001), "map": map}
+	print("RETIME %s left-foot-down phase %.3f" % [clip, lphase])
+	return {"fps": OUT_FPS, "lplant_phase": snappedf(lphase, 0.001), "stance_speed": snappedf(S, 0.001), "slip_before": snappedf(before[0], 0.001), "slip_after": snappedf(after[0], 0.001), "map": map}
 
 
 ## Slip of planted feet for a body moving at S: |v / rate - S| (rate empty = 1). Returns [mean, p90].

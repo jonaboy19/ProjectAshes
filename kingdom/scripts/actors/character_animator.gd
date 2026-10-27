@@ -29,14 +29,18 @@ const LOWER_KEYS := ["root", "hips", "pelvis", "upperleg", "lowerleg", "thigh", 
 ## covered by the clip, not a gameplay stat. These are the values for a rig whose
 ## thigh joint rests REF_LEG_HEIGHT above the soles; other rigs scale them by leg
 ## length (the armored guard measures 0.85 m/s walk, 0.87× the player).
-const WALK_CLIP_SPEED := 1.0
-const RUN_CLIP_SPEED := 6.0
+const WALK_CLIP_SPEED := 1.01
+const RUN_CLIP_SPEED := 6.15
 const BACK_CLIP_SPEED := 1.0
 ## Extra gait loops between Walk and the run (UAL_Loco_Mixamo.glb, make_cfg_mixamo.py; planted-foot paths cleaned to a constant-speed line by
 ## tools/anim/loco/treadmill_ual.py): [clip, ground speed
 ## in m/s on the 1.8 m rig (gait_phase.gd stance-core speed of the ball of the foot), loop fraction at which the LEFT foot is furthest forward (tools/anim/loco/
 ## gait_phase.gd: used as start_offset so every cycle plants the left foot at t = 0, like Walk and Jog_Fwd)].
-const GAIT_EXTRA := [["Mx_Walk_Standard", 1.46, 0.176], ["Mx_Run_Slow", 2.99, 0.238], ["Mx_Run_Standard", 4.04, 0.238]]
+## [clip, stance speed m/s, phase offset]: speed = the planted foot's backwards speed in the (retimed) clip and phase = its left-foot-down
+## phase minus Walk's, both measured by tools_qa/anim_states/clip_retime_bake.gd (data/anim/clip_retime.json lplant_phase): with
+## gait.sync every point puts its left foot down together, so the blend never mixes a planted foot with a swinging one.
+const GAIT_EXTRA := [["Mx_Walk_Standard", 1.57, 0.720], ["Jog_Mid", 2.44, 0.003], ["Mx_Run_Slow", 3.33, 0.720], ["Mx_Run_Standard", 4.43, 0.482]]
+const RUN_PHASE := 0.982
 ## Above the run clip: [clip, speed, phase] for the sprint end of the blend space (the player's sprint drives the rig at ~11 m/s).
 const GAIT_TOP := []
 ## Measured body travel of the UAL strafe clips in rig space: Strafe_left moves
@@ -171,7 +175,7 @@ func _init(model: Node3D, run_speed: float, _walk_speed := -1.0, walk_anim := "W
 		for e: Array in GAIT_EXTRA:
 			if player.has_animation(String(e[0])):
 				pts.append([String(e[0]), float(e[1]) * leg, float(e[2])])
-	pts.append([run_anim, _run_pt, 0.0])
+	pts.append([run_anim, _run_pt, RUN_PHASE if run_anim == "Jog_Fwd" or run_anim == "Running_A" else 0.0])
 	if (walk_anim == "Walking_A" or walk_anim == "Walk") and (run_anim == "Running_A" or run_anim == "Jog_Fwd"):
 		for e: Array in GAIT_TOP:
 			if player.has_animation(String(e[0])):
