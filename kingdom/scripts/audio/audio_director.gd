@@ -803,6 +803,7 @@ func _update_music(delta: float) -> void:
 	var fighting := battle or _combat_hold > 0.0
 	if fighting != _in_combat:
 		_in_combat = fighting
+		AudioBuses.combat_duck(self, fighting)
 		if fighting:
 			_music.stinger(&"combat", -3.0)
 		elif _now() - _last_kill < COMBAT_HOLD + 4.0 and _hostiles_near == 0 and not _player_dead():
@@ -1121,6 +1122,7 @@ func _build_pool3d(vp: Viewport) -> void:
 	for i in MAX_SFX_VOICES + 3 + 2 + npc_steps:
 		var p := AudioStreamPlayer3D.new()
 		p.area_mask = 1 | Soundscape.ZONE_LAYER      # zone reverb sends (soundscape.gd)
+		p.max_db = 8.0      # default 3 dB clamped a blow 2 m from the camera below a far one's level
 		p.unit_size = 7.0
 		p.max_distance = MAX_DISTANCE + 15.0
 		# distance low-pass per voice (air absorption); SFXFar adds more past FAR_DISTANCE

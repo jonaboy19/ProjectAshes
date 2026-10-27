@@ -86,6 +86,19 @@ static func ensure_layout() -> void:
 		z.dry = 0.0          # Area3D sends only the reflections here; the dry signal stays on its own bus
 		z.wet = 0.5
 		AudioServer.add_bus_effect(AudioServer.get_bus_index(ZONE), z)
+	# SFX trim (+4 dB): one-shots are matched on max momentary loudness (build_audio.py), which left blows and feet
+	# only 1-5 dB over music + bed in the fm01 duel; the master limiter (-1 dB) catches the rare stack.
+	if _effect_slot(SFX, "MixTrim") < 0:
+		var trim := AudioEffectAmplify.new()
+		trim.resource_name = "MixTrim"
+		trim.volume_db = 4.0
+		AudioServer.add_bus_effect(AudioServer.get_bus_index(SFX), trim)
+	# Combat duck: an Amplify per bus that the director tweens while fighting (bus volumes stay the player's settings).
+	for b in [MUSIC, AMBIENCE]:
+		if _effect_slot(b, "CombatDuck") < 0:
+			var amp := AudioEffectAmplify.new()
+			amp.resource_name = "CombatDuck"
+			AudioServer.add_bus_effect(AudioServer.get_bus_index(b), amp)
 	# Dialogue ducking (built-in sidechain): Voice pushes Music down ~6 dB and the ambience ~3 dB while a line plays.
 	_duck(MUSIC, 0.06, 4.0)
 	_duck(AMBIENCE, 0.1, 2.5)
@@ -103,6 +116,23 @@ static func _duck(bus: String, threshold: float, ratio: float) -> void:
 	c.gain = 0.0
 	c.sidechain = VOICE
 	AudioServer.add_bus_effect(AudioServer.get_bus_index(bus), c)
+
+
+## Fighting: music and ambience -3 dB so blades and blows read (0.4 s in, 2.5 s back out).
+static func combat_duck(host: Node, on: bool) -> void:
+	for pair in [[MUSIC, -3.0], [AMBIENCE, -3.0]]:
+		var idx := AudioServer.get_bus_index(pair[0])
+		var slot := _effect_slot(pair[0], "CombatDuck")
+		if idx < 0 or slot < 0:
+			continue
+		var amp := AudioServer.get_bus_effect(idx, slot) as AudioEffectAmplify
+		var key: String = pair[0] + ":duck"
+		var old: Tween = _tweens.get(key)
+		if old and old.is_valid():
+			old.kill()
+		var t := host.create_tween()
+		_tweens[key] = t
+		t.tween_property(amp, "volume_db", float(pair[1]) if on else 0.0, 0.4 if on else 2.5)
 
 
 ## Zone reverb character (ZONES key); returns the Area3D send amount (0 for "open" / unknown).

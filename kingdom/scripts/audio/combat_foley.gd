@@ -37,9 +37,12 @@ const LAYERS := {
 	"scuff": ["step_scuff", ""],
 }
 ## weight -> [volume dB, pitch jitter]
-const WEIGHT := {"light": [-3.0, 0.07], "heavy": [0.0, 0.05], "finisher": [2.0, 0.04]}
+## (measured on the fm01 duel: blows sat 1-5 dB over music + bed; +6 dB brings them 8-14 dB clear, master limiter -1 dB)
+const WEIGHT := {"light": [3.0, 0.07], "heavy": [6.0, 0.05], "finisher": [8.0, 0.04]}
 
 var director: Node
+## AUDIO_STEP_LOG=1 (QA): print every foley layer with its movie frame (tools/qa/audio/audio_gate.py sync checks).
+var _log := OS.has_environment("AUDIO_STEP_LOG")
 var _last := {}        # family -> time of the last event (the director drops duplicate legacy Audio.sfx calls)
 
 
@@ -126,6 +129,10 @@ func _play(layer: String, pos: Variant, db: float, pitch: float, jitter: float) 
 	for name: String in LAYERS.get(layer, []):
 		if name != "" and director.has_sound(name):
 			director.call("play_sfx_pitched", name, pos if pos is Vector3 else null, db, pitch, jitter)
+			if _log:
+				var lis: Variant = director.get("listener")
+				var dist := (lis as Node3D).global_position.distance_to(pos) if lis is Node3D and pos is Vector3 else -1.0
+				print("FOLEY %d %s %s %.1f d=%.1f" % [Engine.get_frames_drawn(), layer, name, db, dist])
 			return
 
 
