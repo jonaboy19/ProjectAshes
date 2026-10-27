@@ -19,6 +19,8 @@ func run(m: Node) -> void:
 	var bid := String(args.get("bid", sd.get("house_bid", "ashford_house_1")))
 	var hour := float(args.get("hour", "19.0"))
 	var secs := float(args.get("secs", "16"))
+	var door_name := String(args.get("door", ""))       # e.g. Door_inn: the first door whose node name starts with it
+	var shots := String(args.get("shots", ""))          # dir: after the sweep, a still beside every body lying in a bed
 	main.hud.visible = false
 	var town: Dictionary = preload("res://scripts/world/town_kit/slice_dressing.gd").settlement(String(sd.get("town", "Ashford")))
 	var c: Vector2 = town["pos"]
@@ -30,7 +32,7 @@ func run(m: Node) -> void:
 		await get_tree().process_frame
 	var door: InteriorDoor = null
 	for n in main.world.find_children("*", "InteriorDoor", true, false):
-		if String((n as Node).get_meta("bid", "")) == bid:
+		if (door_name == "" and String((n as Node).get_meta("bid", "")) == bid) or (door_name != "" and String((n as Node).name).begins_with(door_name)):
 			door = n
 			break
 	if door == null:
@@ -70,6 +72,24 @@ func run(m: Node) -> void:
 		_hide_ui()      # dialogs and prompts that open during the walk
 		await get_tree().process_frame
 	print("FLY_END ", Engine.get_frames_drawn())
+	var beds := 0
+	for body in room.find_children("Person_*", "", true, false):
+		var bn := body as Node3D
+		var ap := Assets.animation_player(bn)
+		print("INTERIOR_NPC %s act=%s in_bed=%s clip=%s at=%s" % [bn.name, bn.get_meta("act", ""), bn.get_meta("in_bed", false),
+			ap.current_animation if ap else "", bn.position])
+		if shots != "" and bool(bn.get_meta("in_bed", false)):
+			DirAccess.make_dir_recursive_absolute(shots)
+			var side := bn.global_basis * Vector3(1.6, 0, 0.6)
+			cam.global_position = bn.global_position + side + Vector3(0, 1.3, 0)
+			cam.look_at(bn.global_position + bn.global_basis * Vector3(0, 0, -0.8) + Vector3(0, 0.45, 0))
+			for i in 8:
+				WorldSim.time_of_day = hour
+				_hide_ui()
+				await get_tree().process_frame
+			get_viewport().get_texture().get_image().save_png("%s/bed_%s_%d.png" % [shots, bid if door_name == "" else door_name, beds])
+			beds += 1
+	print("INTERIOR_BEDS ", beds)
 	get_tree().quit(0)
 
 

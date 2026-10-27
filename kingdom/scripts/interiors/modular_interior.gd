@@ -268,7 +268,7 @@ func _build_prop(p: Dictionary) -> void:
 			_pb(p, Vector3(0, 0.37, 0.05), Vector3(w - 0.1, 0.14, dd - 0.1), Color(0.78, 0.72, 0.58))
 			_pb(p, Vector3(0, 0.49, -dd * 0.5 + 0.35), Vector3(w * 0.6, 0.1, 0.35), Color(0.9, 0.88, 0.8))
 			_pb(p, Vector3(0, 0.46, dd * 0.12), Vector3(w - 0.1, 0.07, dd * 0.55), _cloth(p))
-			_pb(p, Vector3(0, 0.45, -dd * 0.5 + 0.03), Vector3(w, 0.9, 0.06), DARK)
+			_pb(p, Vector3(0, 0.275, -dd * 0.5 + 0.03), Vector3(w, 0.55, 0.06), DARK)     # low headboard: the bed clips lie across it
 		"table":
 			_pb(p, Vector3(0, 0.75, 0), Vector3(w, 0.06, dd), WOOD, "solid", false)
 			for sx in [-1.0, 1.0]:
@@ -761,6 +761,17 @@ func sync_roster(hour: float, instant := false, info := {}) -> void:
 
 
 func _walk_to(body: Node3D, act: String, wp: Dictionary, entering: bool) -> void:
+	# A sleeper in a kit bed gets up first (Life_Mz_Wake_Bed), then walks.
+	if bool(body.get_meta("in_bed", false)):
+		body.set_meta("in_bed", false)
+		var ap := Assets.animation_player(body)
+		if ap != null and ap.has_animation(IndoorActor.BED_WAKE):
+			ap.play(IndoorActor.BED_WAKE, 0.2)
+			body.set_meta("act", act)
+			get_tree().create_timer(ap.get_animation(IndoorActor.BED_WAKE).length).timeout.connect(func() -> void:
+				if is_instance_valid(body) and String(body.get_meta("act", "")) == act:
+					_walk_to(body, act, wp, entering))
+			return
 	body.set_meta("act", act)
 	var dest: Vector3 = wp["p"]
 	var dist := body.position.distance_to(dest)

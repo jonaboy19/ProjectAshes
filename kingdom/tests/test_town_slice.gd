@@ -46,3 +46,18 @@ func test_draught_wagon_has_wheels_and_horse() -> void:
 	rt.add_child(w)
 	assert_int((w.get_meta("wheels") as Array).size()).is_equal(4)
 	assert_bool(w.has_meta("horse")).is_true()
+
+
+## Interior beds use the "bed" smart-object frame (data/living_world/smart_objects.json): root on the floor at the slot,
+## bed centre 0.82 m behind it, head end toward (0.80, 0.60) in slot space. Kit beds have their headboard at local -Z.
+func test_interior_bed_stand_matches_the_bed_clip_frame() -> void:
+	var IA := preload("res://scripts/interiors/indoor_actor.gd")
+	for yaw: float in [0.0, 90.0, 215.0]:
+		var c := Vector3(1.5, 2.8 + 0.42, -2.0)
+		var sx: Transform3D = IA.bed_stand({"p": c, "y": yaw})
+		assert_float(sx.origin.y).is_equal_approx(2.8, 0.001)
+		var back := sx.origin + sx.basis * Vector3(0, 0, -0.82)
+		assert_float(Vector2(back.x, back.z).distance_to(Vector2(c.x, c.z))).is_less(0.01)
+		var head_slot := sx.basis * Vector3(0.8, 0, 0.6)
+		var head_bed := Basis(Vector3.UP, deg_to_rad(yaw)) * Vector3(0, 0, -1)
+		assert_float(head_slot.dot(head_bed)).is_greater(0.999)

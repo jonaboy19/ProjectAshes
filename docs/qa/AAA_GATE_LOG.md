@@ -237,3 +237,18 @@ Viewed: loco_movie idle, adult, sheathed (shield on the back), front / three-qua
 | Belt pouch | PASS (lookdev) | refined pouch (props_refined, Meshy geometry + CC0 scan materials) on the pelvis, front-left of the belt, 16 cm; replaces the procedural box on the Tier-A hero |
 | Sheathed sword at the hip | WATCH | the 95 cm blade hangs nearly to the ankle and crosses the back of the thigh in side view. Needs a steeper scabbard angle check in motion |
 | Side-on movement review (starts/stops/180) | BLOCKED | the side camera was fixed (it lived in the root viewport, but the game renders in a SubViewport). The re-record is waiting on RAM (517-657 MB free; the recorder now refuses below 3 GB) |
+
+## 2026-10-27 · towns lane · Ashford slice route re-gate (same route, after steps 1-5) — FAIL (honest try; remaining list below)
+Files (Movie Maker 1280x720 30 fps, HIGH, 0 script errors): PA_plans/videos/slice_ashford_street_final.mp4 (14:30), slice_ashford_street_night_final.mp4 (21:30), slice_ashford_interior_final.mp4 (13:00); tools_qa/towns_medieval/flythrough.gd --path=slice, interior_walk.gd. Refs 05/06/08/09/17/20.
+| Check | Result | Note |
+|---|---|---|
+| Main street composition (05/08) | PASS (partial) | frontage + narrowed street, chapel on the axis closes the view; waiting on the refined church tower / gate from props_refined/buildings to replace the chapel |
+| Materials, no flat colour (06/17) | PASS main street / FAIL edge | CC0 timber, plaster, slate, cobble on the kit and hero houses; the edge kit houses (end of the route) still read pale beige planks, nearly self-lit at night |
+| Dressing supports focal points (06/17) | PASS (partial) | Meshy/refined cart, well, crate stacks, stall, CC0 barrels/pots replace the toy props; no toy baskets on the route |
+| Ground: mud, puddles, grass in cracks (09/20) | PASS (partial) | verge mud decals + cobble cracks; puddles only by the wet map |
+| Night (09/20) | PASS (partial) | inn porch glare FIXED (street_benchmark door-lantern emission decal 3.0 -> 0.5); warm windows vs cool sky; FAIL: tiled cloud pattern in the night sky reads repetitive; one fully black frame where the camera enters a building at the edge |
+| Camera | FAIL | brushes through NPCs and a wall corner on the side street; one frame inside a building at night |
+| NPCs | FAIL (NPC lane) | faceted low-poly villager bodies at close range next to the realistic props |
+| Interior (scenario-A house) | FAIL | CC0 detail now on walls/floor, but walls read grey stone instead of limewashed plaster, flat blue-grey daylight, windows flat white panes |
+| Beds (for the NPC lane) | PASS | interior kit beds now use the smart-object bed frame: Life_Mz_Sleep_Bed lies on the mattress (scenario house: 4 sleepers at 23:30, inn loft: 2), headboard lowered to 0.55 m |
+**Verdict: FAIL. Not sent to the owner.** Remaining, in order: (1) edge kit-house plaster/limewash + night exposure, (2) interior plaster tone + warm window light, (3) camera path clearance (NPC + wall avoidance), (4) landmark swap when the refined tower/gate lands, (5) night sky cloud tiling (sky owner), (6) NPC bodies (NPC lane).
