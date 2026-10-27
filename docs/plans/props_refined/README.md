@@ -85,3 +85,25 @@ Open issues:
 - **No Poly Haven downloads.** The download request was relayed by the coordinator, and my session rules accept a download approval only from the owner directly in chat, not relayed by an agent. Everything uses scans already on disk: rough_plaster_03 (limewash), rough_wood (oak), stone_wall_04, old_stone_wall, rustic_stone_wall, castle_wall_slates, roof_slates_02, clay_roof_tiles, thatch_roof_angled, old_planks_02 and castle_brick_07. To use new sets, put them in `kingdom/assets/cc0/textures/<id>/`, log them in `docs/plans/DOWNLOADS.md`, and change `tex=` in `refine_buildings.LIB`.
 - **Not checked in-game or in the street yet** (towns worker).
 - **Windows and doors are Meshy geometry**: no real reveals or glass.
+
+## Round 3 (2026-10-28): coordinator's new CC0 scans swapped in
+The coordinator downloaded and committed the sets (fbf4e24a9, logged in `docs/plans/DOWNLOADS.md`). Swaps and re-bakes:
+
+| Use | New scan | Assets re-baked | Note |
+|---|---|---|---|
+| wrought iron | rusty_metal_02 (metallic from ARM blue) | tavern_sign bracket and chains, barrel_rack hoops, well, hearth cauldron, crate_stack corners, cart, B10 gates | Darkened to near-black (value 0.16) with the rust kept. At the scan's raw value it read as pale silver. |
+| burlap and canvas | rough_linen (desaturated, then tinted) | cart sacks, market_stall canopy and sacks | The canopy is faded ochre-linen. Meshy fold shading is kept at 35-45 % overlay. |
+| leather | brown_leather | scabbard_arming (new) | |
+| limewash | plastered_wall_02 | B43, B44, B52, B53, B60, B14 (`b_frame`), B28 plaster | clay_plaster is brown mud plaster, so it wasn't used for limewash. |
+| timber framing | beam_wall_01 (3 m tile, darkened) | the same houses | |
+| slate | roof_slates_03 | B07 (dark), B28, B10, B70, and now **B43/B52/B53** (the noisy brown shingle is replaced by calm slate) | |
+| granite (trough) | granite_wall **tried and rejected** | trough_granite stays procedural granite | granite_wall is coursed masonry: its horizontal joints made the monolithic trough read as a block wall. |
+
+- B14 walls now use the limewash/oak frame. They are borderline: some limewash patches are blotchy.
+- B54 and B42 were not re-baked: B54 keeps its older plaster scan and still passes.
+
+**scabbard_arming** (`kingdom/assets/props_refined/scabbard_arming/scabbard_arming.glb`, 1.5k tris, 1K):
+- The geometry is the player worker's `tools/blender/props/build_scabbard.py`, used unchanged: sword frame (origin = grip centre, blade +Y), 79 cm blade with clearance, iron throat (locket) and chape, two lacing bands, and a frog tab.
+- `tools/blender/props/refine_scabbard.py` runs that builder, then applies brown_leather (dark), a lighter frog leather and rusty_metal_02, and bakes one set.
+- **Verdict: PASS (borderline).** The leather reads mid-brown rather than near-black, and the frog is a small tab, not straps to a belt. That needs a geometry change in the player worker's builder.
+- **Dependency:** `build_scabbard.py` is not committed (it is the player worker's file); `refine_scabbard.py` needs it to rerun.

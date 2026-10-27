@@ -1,4 +1,4 @@
 Asset: house_tall_timber (Rising Ashes, refined 2026-10-28)
 Geometry: derived from Meshy AI output generated on the project owner's Meshy account (meshy_keep B44, Meshy_AI_Two_story_medieval_bu_0929065608_texture.glb); rescaled to real size, decimated (93097 -> 39185 tris, detail baked back as a normal map), re-UV'd and re-materialed.
-Materials: CC0 1.0 Poly Haven texture scans (polyhaven.com; rough_wood, bark_brown_02, rock_face, rough_plaster_03, thatch_roof_angled) baked with procedural wear/grime in Blender; no attribution required.
+Materials: CC0 1.0 Poly Haven texture scans (polyhaven.com; e.g. rough_wood, bark_brown_02, rock_face, rough_plaster_03, thatch_roof_angled, rusty_metal_02, rough_linen, brown_leather, plastered_wall_02, beam_wall_01, roof_slates_03, stone_wall_04, old_stone_wall; see docs/plans/DOWNLOADS.md) baked with procedural wear/grime in Blender; no attribution required.
 Pipeline: tools/blender/props/refine_lib.py

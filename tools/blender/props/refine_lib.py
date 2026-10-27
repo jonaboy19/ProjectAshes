@@ -766,8 +766,10 @@ def write_license(folder, name, source):
     with open(os.path.join(folder, "LICENSE.txt"), "w", encoding="utf-8") as f:
         f.write(f"Asset: {name} (Rising Ashes, refined 2026-10-28)\n")
         f.write(source + "\n")
-        f.write("Materials: CC0 1.0 Poly Haven texture scans (polyhaven.com; rough_wood, bark_brown_02, rock_face, rough_plaster_03, "
-                "thatch_roof_angled) baked with procedural wear/grime in Blender; no attribution required.\n")
+        f.write("Materials: CC0 1.0 Poly Haven texture scans (polyhaven.com; e.g. rough_wood, bark_brown_02, rock_face, rough_plaster_03, "
+                "thatch_roof_angled, rusty_metal_02, rough_linen, brown_leather, plastered_wall_02, beam_wall_01, roof_slates_03, "
+                "stone_wall_04, old_stone_wall; see docs/plans/DOWNLOADS.md) baked with procedural wear/grime in Blender; "
+                "no attribution required.\n")
         f.write("Pipeline: tools/blender/props/refine_lib.py\n")
 
 

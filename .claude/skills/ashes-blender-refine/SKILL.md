@@ -113,5 +113,21 @@ The extensions are installed in `%APPDATA%\Blender Foundation\Blender\5.2\extens
 | `looptools`, `bool_tool` | modelling helpers | Plain `BOOLEAN` modifiers (EXACT) do the job headless, as in the trough basin. |
 | DeepBump (`C:\Users\Jonna\Tools\deepbump`) | normal maps from Meshy's painted albedo (stitching, folds) for `meshy*` classes | **Used.** Shrink the Meshy `base_color.png` to 1K, then run `PYTHONIOENCODING=utf-8 C:\Users\Jonna\Tools\deepbump\venv\Scripts\python.exe cli.py in.png <work>\deepbump\<name>_nrm.png color_to_normals` from `DeepBump-8` (about 7 s each). `refine_meshy.py` picks up `<work>/deepbump/<name>_nrm.png` automatically (`RL.MESHY_NRM`), and a Normal Map node on `meshy_uv` feeds it under the micro bump. |
 
+## Scan library (2026-10-28)
+CC0 sets on disk include these (2K, `kingdom/assets/cc0/textures/` and `incoming/polyhaven/textures/`; log every new one in `docs/plans/DOWNLOADS.md`):
+
+| Use | Scan | Settings and notes |
+|---|---|---|
+| iron | rusty_metal_02 | `arm_metal=True` takes metallic from ARM blue. Darken to value about 0.16, or it reads as silver. |
+| burlap / canvas | rough_linen | The scan is blue-dyed: set saturation 0, then tint it. |
+| leather | brown_leather | |
+| limewash | plastered_wall_02 | clay_plaster is brown mud plaster. |
+| framing timber | beam_wall_01 | 3 m tile, darkened. |
+| slate | roof_slates_03 | Calmer than roof_slates_02. |
+| granite | none on disk | granite_wall is coursed masonry: wrong for monolithic stone. |
+| thatch | thatch_roof_angled | Poly Haven has no thatch set. |
+
+To texture another worker's geometry without touching their builder, follow `refine_scabbard.py`: exec their script into a scratch GLB, re-import it, map their material names to LIB classes, then smart-UV, bake and export. Keep their origin and frame.
+
 ## Known gaps
 No real-scan iron, fabric, leather or hay-twine is on disk. Downloading Poly Haven `rusty_metal_02`, `fabric_pattern_07`/burlap-like and `leather_*` sets (CC0, needs owner OK to download) would replace the procedural bases in `LIB`.
