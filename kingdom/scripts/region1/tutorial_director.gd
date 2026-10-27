@@ -24,7 +24,7 @@ extends RefCounted
 ## ctx keys (all optional, missing = false/0): can_control, blocked (menu/cutscene/dialogue
 ## open), near_npc, near_interactable, food (0..100), rest (0..100), has_food, near_bed,
 ## is_night, enemy_near, enemy_winding_up, near_dim_stone, knows_glyph, new_marker,
-## near_ash_site, touch (bool: phone layout; picks gesture text over key text).
+## near_ash_site, can_found (the story asks for a camp and the player stands on open ground), touch (bool: phone layout; picks gesture text over key text).
 
 signal prompt_shown(id: StringName, prompt: Dictionary)
 signal prompt_hidden(id: StringName, reason: StringName)   # done | skipped | lost | preempted | disabled
@@ -77,6 +77,9 @@ const PROMPTS := {
 	"map":      {"priority": 30, "action": "map", "amount": 1, "when": {"new_marker": true},
 				 "touch": "tap", "anchor": "btn_map", "keys": "Tab",
 				 "text": "TUT_MAP", "text_kb": "TUT_MAP_KB", "en": "Tap to open the map", "en_kb": "Press Tab for the map"},
+	"found_camp": {"priority": 45, "action": "found", "amount": 1, "when": {"can_found": true},
+				 "touch": "tap", "anchor": "btn_interact", "keys": "X",
+				 "text": "TUT_FOUND_CAMP", "text_kb": "TUT_FOUND_CAMP_KB", "en": "Tap to found a camp", "en_kb": "Press X to found a camp"},
 	"ashsight": {"priority": 52, "action": "ashsight", "amount": 1, "when": {"near_ash_site": true},
 				 "touch": "hold", "anchor": "btn_interact", "keys": "Hold E",
 				 "text": "TUT_ASHSIGHT", "text_kb": "TUT_ASHSIGHT_KB", "en": "Hold to read the ash", "en_kb": "Hold E to read the ash"},

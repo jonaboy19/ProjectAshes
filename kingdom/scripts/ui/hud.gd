@@ -1305,6 +1305,10 @@ func _wheel_allowed() -> bool:
 func _unhandled_input(event: InputEvent) -> void:
 	if _veil() or not visible:
 		return
+	if InputMap.has_action("found_camp") and event.is_action_pressed("found_camp") and not is_menu_open():   # v1 hook (READY_V1): Found a camp card
+		load("res://scripts/ui/found_camp_card.gd").open_for(self)
+		get_viewport().set_input_as_handled()
+		return
 	if event.is_action_pressed("ui_cancel") and fan_open:
 		close_fan()
 		get_viewport().set_input_as_handled()

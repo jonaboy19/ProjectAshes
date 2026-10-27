@@ -16,6 +16,7 @@ const BuildKit := preload("res://scripts/realm/build_kit.gd")
 const KitMeshes := preload("res://scripts/build/kit_meshes.gd")
 const RoadTool := preload("res://scripts/build/road_tool.gd")
 const Renderer := preload("res://scripts/build/build_renderer.gd")
+const FoundCard := preload("res://scripts/ui/found_camp_card.gd")
 const BTN := 64
 const REACH := 7.0
 const UNDO_MAX := 20
@@ -323,6 +324,12 @@ func undo() -> void:
 			return
 
 
+func _on_found_closed(res: Dictionary) -> void:
+	if bool(res.get("ok", false)) and kit != null:
+		gid = int(res["gid"])
+		_say("Founded %s. Lay foundations first." % String(res["name"]), Color(0.6, 1.0, 0.6))
+
+
 func hand_to_crew() -> void:
 	if gid == 0:
 		_say("No settlement here.", Color(1, 0.5, 0.4))
@@ -342,12 +349,10 @@ func confirm() -> void:
 	if gid == 0 or not kit.grids.has(gid):
 		gid = kit.grid_at(aim)
 	if gid == 0:
-		var f: Dictionary = kit.claim(aim)      # the claim flow: LandClaim rules, then ensure_grid (max 3 settlements)
-		if not bool(f["ok"]):
-			_say(String(f["reason"]), Color(1, 0.4, 0.35))
-			return
-		gid = int(f["gid"])
-		_say("Founded %s. Lay foundations first." % kit.grids[gid]["name"], Color(0.6, 1.0, 0.6))
+		# READY_V1 C3: the founding goes through the site card (what the ground offers, a name, confirm), not a silent claim
+		var card: Control = FoundCard.open_for(hud if hud != null else self, Vector2(aim.x, aim.z))
+		if not card.closed.is_connected(_on_found_closed):
+			card.closed.connect(_on_found_closed)
 		return
 	match mode:
 		"remove":

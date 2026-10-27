@@ -20,6 +20,7 @@ const Flow := preload("res://scripts/ui/frontend/flow.gd")
 const GameMenu := preload("res://scripts/ui/gamemenu/game_menu.gd")
 const NpcWorld := preload("res://scripts/population/npc_world.gd")
 const TravelRules := preload("res://scripts/world/travel_rules.gd")
+const FoundFlow := preload("res://scripts/realm/found_flow.gd")
 const STUCK_SECS := 25.0
 var SHOT_DIR := "/tmp/claude-0/shots/playtest"
 
@@ -574,6 +575,7 @@ func _run_all() -> void:
 		["st_a4", _s_st_a4], ["st_a5", _s_st_a5], ["st_save", _s_st_save], ["st_probe", _s_st_probe],
 		["v1_recruit", _s_v1_recruit],
 		["v1_hunt", _s_v1_hunt],
+		["v1_found", _s_v1_found],
 	]
 	for e: Array in list:
 		if not _want(String(e[0])) and (String(e[0]) != "adult" or only.contains("st_")):
@@ -611,6 +613,7 @@ func _stage_limit(name: String) -> float:
 		"st_load", "st_probe": return 400.0
 		"v1_recruit": return 600.0
 		"v1_hunt": return 240.0
+		"v1_found": return 400.0
 		"st_save": return 200.0
 		"st_birth", "st_a1", "st_a2", "st_a3", "st_a4", "st_a5": return 1500.0
 	return 150.0
@@ -4616,16 +4619,19 @@ func _st_objective(sid: String, o: Dictionary) -> bool:
 			var fell := await st_fight_group(t, int(o.get("count", 1)), 260.0, tag)
 			return fell > 0
 		"festival":
-			st_hook("Kindling Night: the festival signal (the calendar date is %d days away)" % 0)
-			WorldSim.seasons.festival_started.emit({"id": "kindling_night", "name": "Kindling Night"})
+			# READY_V1 C3: the player sleeps and takes the "seasons pass" card (no [HOOK]); the festival then starts through the calendar
+			if not await st_seasons_pass("festival"):
+				st_hook("Kindling Night: the festival signal (the seasons-pass card did not offer it)")
+				WorldSim.seasons.festival_started.emit({"id": "kindling_night", "name": "Kindling Night"})
 			await wait(0.5)
 			return true
 		"age":
 			var want := int(o["min"])
-			st_hook("age %d -> %d (the years pass)" % [Life.age(), want])
-			WorldSim.time_of_day = 7.4
-			Life.life_path.set_age(want, WorldSim.day, WorldSim.time_of_day)
-			player.apply_age()
+			if not await st_seasons_pass("age"):
+				st_hook("age %d -> %d (the years pass: the seasons-pass card did not offer it)" % [Life.age(), want])
+				WorldSim.time_of_day = 7.4
+				Life.life_path.set_age(want, WorldSim.day, WorldSim.time_of_day)
+				player.apply_age()
 			await wait(1.0)
 			if is_headless():
 				# the older, taller body can end up inside the doorway collider it was standing in: step out to the plaza
@@ -4656,6 +4662,10 @@ func _st_objective(sid: String, o: Dictionary) -> bool:
 			return await st_do_scar(o, st)
 		"defeat":
 			return await st_do_defeat(o, st)
+		"flag":
+			if String(o.get("flag", "")) == "r1.a3.camp_founded":
+				return await st_found_camp()
+			return false     # the other flags are set by the talk sheet
 		"ember_choice":
 			return false     # offered through the talk sheet (Rowan's extra options)
 		"any":
@@ -5299,6 +5309,85 @@ func _s_st_save() -> void:
 	L("hooks used so far this run: %d; blockers %d" % [st_hooks.size(), st_blockers.size()])
 	for h in st_hooks:
 		L("  hook: " + h)
+
+
+## Sleeps (what the bed's "Sleep" option calls) and, when the story waits on the years or a festival, takes the seasons-pass
+## card's first choice like a player. false when no card came.
+func st_seasons_pass(kind: String) -> bool:
+	Life.sleep(1.0)
+	await wait(0.6)
+	var pop: Control = hud.get_node_or_null("LifeEventPopup")
+	if pop == null or not pop.visible:
+		note("sleeping did not offer the seasons-pass card (%s)" % kind)
+		return false
+	check("sleeping at a %s gate offers the seasons-pass card" % kind, String(pop._title_label.text).to_lower().contains("seasons"), pop._body_label.text.left(70))
+	(pop._choices.get_child(0) as Button).pressed.emit()
+	await wait(0.6)
+	return true
+
+
+## A free spot the Found-a-camp card accepts, searched in rings around `from` (a player walks until the card says yes).
+func st_camp_spot(from: Vector2) -> Vector2:
+	for r in [160.0, 260.0, 380.0, 520.0, 700.0]:
+		for k in 16:
+			var a := TAU * float(k) / 16.0
+			var p: Vector2 = from + Vector2(cos(a), sin(a)) * float(r)
+			if FoundFlow.site_card(Life.realm, p)["ok"]:
+				return p
+	return Vector2.INF
+
+
+## READY_V1 C3: walk to open ground, press X, read the card, name the camp, confirm; the story flag follows.
+func st_found_camp() -> bool:
+	var before: int = Life.realm.player_settlements().size()
+	var spot := st_camp_spot(p2())
+	if spot == Vector2.INF:
+		spot = st_camp_spot(ashford()["pos"])
+	if spot == Vector2.INF:
+		st_blocker("no ground within 700 m accepts a camp")
+		return false
+	await st_travel(spot, "a camp site", 3.0)
+	if not FoundFlow.site_card(Life.realm, p2())["ok"]:
+		await teleport(spot, 0.0, 1.0)      # walked to a near spot the card refuses (a road): the exact one is checked
+	close_everything()
+	await key(KEY_X)
+	await wait(0.4)
+	var card: Control = hud.get_node_or_null("FoundCampCard")
+	if not check("X opens the Found a camp card", card != null and card.visible):
+		return false
+	check("the card lists the water, slope, danger and land law", (card.card["rows"] as Array).size() >= 4, str((card.card["rows"] as Array).map(func(r: Array) -> String: return String(r[0]))))
+	check("the card accepts this ground", bool(card.card["ok"]), String(card.card["reason"]))
+	card.name_edit.text = "Embergate"
+	card.confirm_button.pressed.emit()
+	await wait(0.6)
+	var rows: Array = Life.realm.player_settlements()
+	check("a camp is founded: one settlement row more", rows.size() == before + 1, "%d -> %d" % [before, rows.size()])
+	if rows.size() > before:
+		check("the camp has the chosen name and a founding record", String(rows[rows.size() - 1]["name"]) == "Embergate" and int(rows[rows.size() - 1]["fid"]) > 0, str(rows[rows.size() - 1]))
+	check("the story learned of the camp", st_q().has_flag("r1.a3.camp_founded"))
+	return rows.size() > before
+
+
+## READY_V1 C3: the Found-a-camp flow on its own (needs no story progress): found a camp, then place three kit pieces on it.
+func _s_v1_found() -> void:
+	await _st_ready()
+	if Life.age() < 15:
+		set_age(16)
+	var ok := await st_found_camp()
+	if not ok:
+		return
+	var rows: Array = Life.realm.player_settlements()
+	var row: Dictionary = rows[rows.size() - 1]
+	var bk: RefCounted = Life.realm.mod("build_kit")
+	var gid := int(row["gid"])
+	var o: Array = bk.grids[gid]["origin"]
+	for k in 3:
+		var snap: Dictionary = bk.snap_world(gid, "foundation_timber", Vector3(float(o[0]) + 2.0 * float(k), float(o[1]), float(o[2])), 0, 0)
+		var pr: Dictionary = bk.place(gid, snap, true)
+		check("kit piece %d placed on the new camp" % (k + 1), bool(pr["ok"]), str(pr.get("reason", "")))
+	check("the camp holds 3 pieces", (bk.grids[gid]["pieces"] as Dictionary).size() == 3)
+	check("claiming the same ground again founds nothing new", not bool(FoundFlow.found(Life.realm, p2(), "Again")["ok"]))
+	await shot("v1_found")
 
 
 func _s_st_load() -> void:

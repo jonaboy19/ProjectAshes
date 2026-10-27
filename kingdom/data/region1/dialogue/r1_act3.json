@@ -351,6 +351,16 @@
 			"lines": [{"text": "Fair. Don't tell your father it was me. He'd want to hit me, and he'd be right."}],
 			"choices": [{"text": "(Call the Guard.)", "goto": "@end"}]
 		},
+		"wren_camp": {
+			"speaker": "wren_coldbrook",
+			"lines": [{"text": "We need a camp of our own: water, flat ground, off the road. Press X to read the ground; walk on if it says no."}],
+			"choices": [{"text": "I'll find the ground.", "goto": "@end"}]
+		},
+		"wren_camp_after": {
+			"speaker": "wren_coldbrook",
+			"lines": [{"text": "A name, a fire and a roof to come. That's a camp. Lay some foundations and I'll send people your way."}],
+			"choices": [{"text": "Then let's build.", "goto": "@end", "do": [["flag", "r1.a3.camp_told"]]}]
+		},
 		"bram_spared": {
 			"speaker": "bram_hollis",
 			"lines": [{"text": "That's crueller than chains. You know that. ...Thank you."}],

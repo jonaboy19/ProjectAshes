@@ -38,6 +38,8 @@ const HARVEST_RADIUS := 44.0
 
 signal ember_offered(ember_id: int)
 
+const LandClaim := preload("res://scripts/realm/land_claim.gd")
+
 var main: Node
 var hud: Node
 var player: Node3D
@@ -1146,6 +1148,11 @@ func _build_tutorial() -> void:
 		return story != null and story.story != null and story.story.has_flag("r1.a1.taught")
 	tutorial.providers["near_ash_site"] = func(p: Vector3) -> bool:
 		return mem != null and not mem.incidents_near(Vector2(p.x, p.z), 14.0).is_empty()
+	tutorial.providers["can_found"] = func(p: Vector3) -> bool:   # READY_V1 C3: the story asks for a camp, the player is on free ground
+		if story == null or story.story == null or not story.story.active_steps().has("a3_found_camp") or story.story.has_flag("r1.a3.camp_founded"):
+			return false
+		var bk: RefCounted = Life.realm.mod("build_kit")
+		return bk.grid_at(p) == 0 and LandClaim.block_reason(Vector2(p.x, p.z)) == ""
 	tutorial.providers["new_marker"] = func(_p: Vector3) -> bool: return false   # no world markers: leads are text
 
 
