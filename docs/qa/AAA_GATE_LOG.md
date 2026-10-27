@@ -372,3 +372,11 @@ File: `PA_plans/videos/WIP_combat_full_motion_slice_road_sword8_v12.mp4`; hit cl
 - Foley hooks: `scripts/combat/combat_events.gd`, `CombatEvents.bus()` with signals swing {weight, speed, clip, kind slash/thrust/overhead}, hit {weight, surface, damage, killed}, block {weight, surface wood, broken}, parry {grade, surface metal}, dodge. Emitted for the player (combat_feedback) and soldiers (attack, landed hit, block).
 - Camera: the PhantomCamera3D combat framing is the player worker's (CombatPCam, queued). The heavy-hit dutch/kick already goes through the existing API (`_camera_roll` / `_add_camera_shake`, tiered in combat_feel), so no second roll path.
 - Pass 12b (event gaps for the foley worker): `dodge` is emitted on every player dodge (kind back / roll / dash; soldiers have no dodge yet), player `hit` events carry the real `victim` and `killed` (player.gd keeps `_last_hit_victims` parallel to the hit points), bandit `swing.kind` comes from the clip's measured cut (CombatEvents.swing_kind), and the struck surface comes from the victim's outfit (mail/plate/helmet -> metal sparks, leather -> hide flecks, outfit -> cloth, else flesh). Blood, dust, sparks and foley now match it.
+
+## 2026-10-27 Lock-on guard turn (player-animation worker) - PASS (180 by eye), 90-150 deg pending a film
+Sheet: `docs/qa/golden/slice/lockon_guard_turn_180.jpg` (`tools_qa/anim_states/guard_turn_movie.gd`, the bandit locked 3 m behind).
+| Check | Result | Note |
+|---|---|---|
+| A locked foe behind the player is faced with a stepped guard turn, not a spin | PASS | Mx_SnS_180_Turn: feet step around over 0.8 s and end in the wide guard stance facing the foe |
+| No double turn | PASS | RootExtract moves the clips' pelvis yaw to meta "root_yaw" about the rig's real up axis (the first try used +Y on a Z-up track and flipped the body upside down: caught by eye); the model turns along the curve scaled to the real angle. Measured: Turn -94 deg, Turn_2 +99 deg, 180_Turn -181 deg, 180_Turn_2 -180 deg |
+| 100-150 deg (Turn / Turn_2) | NOT FILMED | same path; to film next |

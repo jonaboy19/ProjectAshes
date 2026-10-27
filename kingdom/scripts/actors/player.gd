@@ -1401,10 +1401,17 @@ func _update_facing(dir: Vector3, delta: float) -> void:
 		return
 	var want := before
 	var rate := 0.0
+	if _gturn_clip != "":
+		if _advance_guard_turn(delta):
+			_yaw_rate = angle_difference(before, _model.rotation.y) / maxf(delta, 0.0001)
+			return
 	if _strafing and is_instance_valid(_lock) and _dodge <= 0.0 and _stunned <= 0.0:
 		var to := _lock.global_position - global_position
 		want = atan2(to.x, to.z)
 		rate = FACE_TURN_IDLE
+		if _try_guard_turn(angle_difference(before, want)):
+			_yaw_rate = 0.0
+			return
 	elif view == View.FIRST or blocking:
 		want = _yaw + PI
 		if blocking and view != View.FIRST:
@@ -1428,6 +1435,53 @@ func _update_facing(dir: Vector3, delta: float) -> void:
 	if not blocking:
 		_block_threat = null
 		_block_threat_refresh = 0.0
+
+
+## Lock-on pivots (sword and shield): when the locked foe swings more than GUARD_TURN_MIN behind the facing while the player stands
+## nearly still, a Mixamo guard turn plays (Mx_SnS_Turn right / _Turn_2 left, Mx_SnS_180_Turn above GUARD_TURN_BIG) instead of the
+## plain FACE_TURN_IDLE spin. The clips' turn lives in the pelvis; RootExtract moves it to meta "root_yaw" at library build, and the
+## model is turned along that curve scaled to the real angle, so the feet step the turn and the body ends facing the foe.
+const GUARD_TURN_MIN := 1.75       # rad (100 deg)
+const GUARD_TURN_BIG := 2.6        # rad (150 deg)
+var _gturn_clip := ""
+var _gturn_t := 0.0
+var _gturn_len := 0.0
+var _gturn_start := 0.0
+var _gturn_scale := 1.0
+var _gturn_curve: Array = []
+
+
+func _try_guard_turn(diff: float) -> bool:
+	if absf(diff) < GUARD_TURN_MIN or _move_speed > 1.0 or combat_style != "sword" or _swing > 0.0 or _turn_clip != "" or _animator == null or not is_on_floor():
+		return false
+	var clip := "Mx_SnS_180_Turn" if absf(diff) > GUARD_TURN_BIG else ("Mx_SnS_Turn" if diff < 0.0 else "Mx_SnS_Turn_2")
+	var ap: AnimationPlayer = _animator.player
+	if ap == null or not ap.has_animation(clip):
+		return false
+	var a := ap.get_animation(clip)
+	var curve: Array = a.get_meta(&"root_yaw", [])
+	if curve.is_empty() or absf(float(curve[-1][1])) < 0.3:
+		return false
+	_gturn_clip = clip
+	_gturn_t = 0.0
+	_gturn_len = a.length
+	_gturn_start = _model.rotation.y
+	_gturn_curve = curve
+	_gturn_scale = diff / float(curve[-1][1])
+	_animator.play_full(clip, 1.0)
+	return true
+
+
+## Returns false (and ends the turn) when it is over or interrupted; the caller then faces normally.
+func _advance_guard_turn(delta: float) -> bool:
+	_gturn_t += delta
+	if _gturn_t >= _gturn_len or _dodge > 0.0 or _stunned > 0.0 or _swing > 0.0 or not is_instance_valid(_lock) or _move_speed > 1.5:
+		if _gturn_t < _gturn_len:
+			_animator.stop_full()
+		_gturn_clip = ""
+		return false
+	_model.rotation.y = _gturn_start + RootExtract.yaw_at(_gturn_curve, _gturn_t) * _gturn_scale
+	return true
 
 
 ## A small lean into turns and against speed changes. Pivots at the feet (the
