@@ -4,3 +4,6 @@ __pycache__/
 
 # Sentry SDK binaries: installed by tools/install_sentry.sh (43 MB), not committed
 kingdom/addons/sentry/
+
+# Windows editor temp copies of locked DLLs (e.g. ~libeffekseer.x86_64.dll)
+kingdom/addons/**/~*.dll

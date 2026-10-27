@@ -79,14 +79,22 @@ func _process(delta: float) -> void:
 
 
 func _gui_input(e: InputEvent) -> void:
-	# A tap (not a drag) on the strip opens the map. Touch only: the project
-	# emulates touch from the mouse, so desktop clicks arrive here too.
-	if not e is InputEventScreenTouch:
-		return
-	if e.pressed:
-		_press = e.position
+	# A click or tap (not a drag) on the strip opens the map. The project no longer
+	# emulates touch from the mouse, so desktop clicks are handled directly.
+	var pressed := false
+	var pos := Vector2.ZERO
+	if e is InputEventScreenTouch:
+		pressed = (e as InputEventScreenTouch).pressed
+		pos = (e as InputEventScreenTouch).position
+	elif e is InputEventMouseButton and (e as InputEventMouseButton).button_index == MOUSE_BUTTON_LEFT:
+		pressed = (e as InputEventMouseButton).pressed
+		pos = (e as InputEventMouseButton).position
 	else:
-		if _press != Vector2.INF and e.position.distance_to(_press) < 16.0:
+		return
+	if pressed:
+		_press = pos
+	else:
+		if _press != Vector2.INF and pos.distance_to(_press) < 16.0:
 			tapped.emit()
 			accept_event()
 		_press = Vector2.INF

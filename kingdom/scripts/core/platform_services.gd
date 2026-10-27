@@ -1,11 +1,11 @@
 extends Node
-## PlatformServices (autoload): thin, safe facade over Google Play Games / Apple Game Center.
+## PlatformServices (autoload): thin, safe facade over the PC storefront layer (Steam).
 ##
 ## Game code only talks to this node. Every call is silent and harmless when no
-## backend is available or the player is signed out (desktop, editor, tests).
-## To add a real backend: subclass Backend, override the methods you support,
-## and return it from _pick_backend(). Plugin classes must only be reached via
-## Engine.has_singleton() / ClassDB (dynamic calls) so this file always parses on desktop.
+## backend is available or the player is signed out (editor, tests, DRM-free builds).
+## To add Steam: subclass Backend, override the methods you support, and return it
+## from _pick_backend() (GodotSteam: https://godotsteam.com, reached via
+## Engine.has_singleton("Steam") so this file always parses without the extension).
 ##
 ## See docs/platform/ACCOUNTS_AND_SERVICES.md.
 
@@ -13,19 +13,19 @@ signal signed_in_changed(signed_in: bool)
 signal achievement_unlocked(id: String)
 signal cloud_save_synced(ok: bool)
 
-## Logical achievement name -> per-platform id. Fill in from Play Console / App Store Connect.
+## Logical achievement name -> storefront id. Fill in from the Steamworks partner site.
 ## Empty string = not configured yet (the unlock is skipped silently).
 const ACHIEVEMENTS: Dictionary = {
-	"first_steps": {"android": "", "ios": ""},
-	"first_kill": {"android": "", "ios": ""},
-	"reach_militia": {"android": "", "ios": ""},
-	"discover_10_places": {"android": "", "ios": ""},
-	"survive_first_winter": {"android": "", "ios": ""},
+	"first_steps": {"steam": ""},
+	"first_kill": {"steam": ""},
+	"reach_militia": {"steam": ""},
+	"discover_10_places": {"steam": ""},
+	"survive_first_winter": {"steam": ""},
 }
 
-## Logical leaderboard name -> per-platform id (same idea as ACHIEVEMENTS).
+## Logical leaderboard name -> storefront id (same idea as ACHIEVEMENTS).
 const LEADERBOARDS: Dictionary = {
-	"score": {"android": "", "ios": ""},
+	"score": {"steam": ""},
 }
 
 
@@ -85,32 +85,31 @@ class NullBackend extends Backend:
 		return "null"
 
 
-## Skeleton for Google Play Games Services v2 (plugin "GodotPlayGameServices",
-## https://github.com/godot-sdk-integrations/godot-play-game-services).
-## The plugin's exact Android singleton name and method names must be checked
-## against the installed release before filling in the TODOs.
-class GooglePlayBackend extends Backend:
-	const SINGLETON: String = "GodotPlayGameServices"
-	var _singleton: Object = null
+## Skeleton for Steamworks via GodotSteam (GDExtension, singleton "Steam").
+## Method names must be checked against the installed GodotSteam release before
+## filling in the TODOs. Nothing here runs unless the extension is present.
+class SteamBackend extends Backend:
+	const SINGLETON: String = "Steam"
+	var _steam: Object = null
 	var _signed_in: bool = false
 	var _name: String = ""
 
 	static func plugin_present() -> bool:
-		return OS.get_name() == "Android" and Engine.has_singleton(SINGLETON)
+		return OS.get_name() in ["Windows", "Linux", "macOS"] and Engine.has_singleton(SINGLETON)
 
 	func _init() -> void:
 		if plugin_present():
-			_singleton = Engine.get_singleton(SINGLETON)
+			_steam = Engine.get_singleton(SINGLETON)
 
 	func name() -> String:
-		return "google_play"
+		return "steam"
 
 	func is_available() -> bool:
-		return _singleton != null
+		return _steam != null
 
 	func sign_in(cb: Callable) -> void:
-		# TODO: call the plugin's sign-in (e.g. _singleton.call("signIn")), connect its
-		# result signal, set _signed_in / _name, then cb.call(_signed_in).
+		# TODO: steamInitEx() / isSteamRunning(), set _signed_in and _name from
+		# getPersonaName(), then cb.call(_signed_in).
 		if cb.is_valid():
 			cb.call(false)
 
@@ -120,43 +119,10 @@ class GooglePlayBackend extends Backend:
 	func player_name() -> String:
 		return _name
 
-	# TODO: unlock_achievement / increment_achievement / submit_score / show_* /
-	# cloud_save_* via _singleton.call(...) guarded with `if not _signed_in: return`.
-	# Cloud save maps to Play Games "Saved Games" (snapshots).
-
-
-## Skeleton for Apple Game Center via GodotApplePlugins
-## (https://github.com/migueldeicaza/GodotApplePlugins, class GameCenterManager).
-## It is a GDExtension, so ClassDB can see it; on desktop the addon ships stubs.
-class GameCenterBackend extends Backend:
-	const MANAGER_CLASS: String = "GameCenterManager"
-	var _manager: Object = null
-	var _signed_in: bool = false
-
-	static func plugin_present() -> bool:
-		return OS.get_name() == "iOS" and ClassDB.class_exists(MANAGER_CLASS)
-
-	func _init() -> void:
-		if plugin_present():
-			_manager = ClassDB.instantiate(MANAGER_CLASS)
-
-	func name() -> String:
-		return "game_center"
-
-	func is_available() -> bool:
-		return _manager != null
-
-	func sign_in(cb: Callable) -> void:
-		# TODO: connect _manager "authentication_result" / "authentication_error",
-		# call _manager.call("authenticate"), set _signed_in, then cb.call(_signed_in).
-		if cb.is_valid():
-			cb.call(false)
-
-	func is_signed_in() -> bool:
-		return _signed_in
-
-	# TODO: achievements / leaderboards via the GK* classes; cloud save via
-	# iCloud key-value or Saved Games (GKSavedGame) once the addon exposes it.
+	# TODO: unlock_achievement / increment_achievement (setAchievement, storeStats),
+	# submit_score / show_leaderboard (Steam leaderboards), show_achievements (overlay),
+	# cloud_save_* via Steam Remote Storage (fileWrite / fileRead), each guarded with
+	# `if not _signed_in: return`.
 
 
 # ---------------------------------------------------------------------------
@@ -173,10 +139,8 @@ func _ready() -> void:
 
 
 func _pick_backend() -> Backend:
-	if GooglePlayBackend.plugin_present():
-		return GooglePlayBackend.new()
-	if GameCenterBackend.plugin_present():
-		return GameCenterBackend.new()
+	if SteamBackend.plugin_present():
+		return SteamBackend.new()
 	return NullBackend.new()
 
 
@@ -264,8 +228,7 @@ func _platform_id(table: Dictionary, logical: String) -> String:
 	var entry: Variant = table.get(logical)
 	if not (entry is Dictionary):
 		return ""
-	var key: String = "android" if OS.get_name() == "Android" else "ios"
-	return str((entry as Dictionary).get(key, ""))
+	return str((entry as Dictionary).get("steam", ""))
 
 
 func _on_sign_in_done(_ok: bool) -> void:

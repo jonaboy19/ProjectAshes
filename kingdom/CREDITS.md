@@ -21,8 +21,8 @@ Fonts: Cinzel by Natanael Gama, SIL OFL 1.1.
 
 - **Godot Engine**, (c) 2014-present Godot Engine contributors, (c) 2007-2014 Juan Linietsky, Ariel Manzur. MIT. Also include Godot's third-party notices (`Engine.get_copyright_info()` / `Engine.get_license_info()`).
 - Camera shake (`scripts/actors/camera_shake.gd`) ported from **godotengine/tps-demo**, (c) 2018-present Juan Linietsky and Godot Engine contributors. MIT.
-- **GLoot** (c) Peter Kish, MIT. **Dialogue Manager** (c) 2022-present Nathan Hoad and contributors, MIT. **G.U.I.D.E** (c) 2024-present Jan Thomä, MIT.
-- **Quest Weaver** (Nexus Quest Weaver, github.com/undomick/godot_nexus_quest_weaver), MIT. **GodotGAS** (c) 2026 Matthew Janes (YulRun.dev), MIT.
+- **GLoot** (c) Peter Kish, MIT. **G.U.I.D.E** (c) 2024-present Jan Thomä, MIT.
+- **Quest Weaver** (Nexus Quest Weaver, github.com/undomick/godot_nexus_quest_weaver), MIT.
 - **LimboAI** (c) 2023-2025 Serhii Snitsaruk and contributors, MIT. **Terrain3D 1.0.2** (c) 2023-2026 Cory Petkovsek, Roope Palmroos and contributors, MIT (github.com/TokisanGames/Terrain3D; ground renderer of `terrain_backend=terrain3d`).
 - **Sky3D** (c) 2023-2025 Cory Petkovsek and contributors, (c) 2021 J. Cuéllar, MIT; moon map (c) 2019 GPoSM, MIT.
 - **Road Generator** (c) 2024 Moo-Ack! Productions, MIT. **ProtonScatter 4.2.0** (c) 2019 HungryProton, MIT (github.com/HungryProton/scatter; forest/undergrowth/rock placement of `terrain_backend=terrain3d`). Ground textures for Terrain3D are repacked Poly Haven CC0 sets (leafy_grass, forest_ground_04, grass_path_2, rocky_terrain_02) plus the project's own cobblestone paint (`assets/terrain3d/ground/`).

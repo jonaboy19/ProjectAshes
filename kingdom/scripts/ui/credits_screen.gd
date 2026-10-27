@@ -9,7 +9,7 @@ extends Control
 const AF := preload("res://scripts/ui/ashes_frame.gd")
 const FE := preload("res://scripts/ui/frontend/fe.gd")
 const CREDITS_PATH := "res://CREDITS.md"
-## Addons shipped in the build (LimboAI, Terrain3D, GodotGAS, GUIDE, Dialogue Manager and
+## Addons shipped in the build (LimboAI, Terrain3D, GUIDE and
 ## Road Generator are disabled; sky_3d, gloot and proton_scatter are editor-only. All excluded from export.
 const ADDON_LICENCES := ["quest_weaver", "phantom_camera",
 	"debug_menu"]

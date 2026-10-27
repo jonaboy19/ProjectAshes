@@ -14,7 +14,7 @@ OUT="${2:?usage: ab_overlay.sh <git-ref> <output-dir>}"
 ROOT="$(cd "$(dirname "$0")/../.." && pwd)"          # kingdom/
 REPO="$(cd "$ROOT/.." && pwd)"
 mkdir -p "$OUT/.godot"
-for d in assets addons godot_gas; do ln -sfn "$ROOT/$d" "$OUT/$d"; done
+for d in assets addons; do ln -sfn "$ROOT/$d" "$OUT/$d"; done
 for d in data dialogue locale resources scenes shaders tools_qa tests; do rm -rf "$OUT/$d"; cp -r "$ROOT/$d" "$OUT/$d"; done
 cp "$ROOT/project.godot" "$ROOT/default_bus_layout.tres" "$ROOT/export_presets.cfg" "$ROOT"/icon.svg* "$OUT/"
 for f in global_script_class_cache.cfg uid_cache.bin extension_list.cfg scene_groups_cache.cfg; do cp "$ROOT/.godot/$f" "$OUT/.godot/"; done

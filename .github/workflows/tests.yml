@@ -6,8 +6,9 @@ name: tests
 
 on:
   push:
-    branches: [main, "claude/**"]
+    branches: [main, aaa/finish, "claude/**"]
   pull_request:
+    branches: [main, aaa/finish]
   workflow_dispatch:
 
 concurrency:
@@ -15,7 +16,7 @@ concurrency:
   cancel-in-progress: true
 
 env:
-  GODOT_VERSION: "4.6.2"
+  GODOT_VERSION: "4.6.3"
 
 jobs:
   guard:

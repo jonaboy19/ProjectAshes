@@ -10,11 +10,10 @@ config_version=5
 
 [application]
 
-config/name="Kingdom"
-config/description="Pixel-rendered 3D medieval sandbox: from peasant to king."
+config/name="Rising Ashes"
+config/description="Rising Ashes: a PC medieval RPG sandbox, from peasant to king."
 config/version="1.0.0"
 run/main_scene="res://scenes/boot.tscn"
-config/quit_on_go_back=false
 config/features=PackedStringArray("4.6", "Forward Plus")
 boot_splash/bg_color=Color(0.02, 0.027, 0.043, 1)
 boot_splash/image="res://assets/art/ui/boot_splash.png"
@@ -46,20 +45,15 @@ window/size/viewport_width=1280
 window/size/viewport_height=720
 window/stretch/mode="canvas_items"
 window/stretch/aspect="expand"
-window/handheld/orientation=4
 
 [editor_plugins]
 
-enabled=PackedStringArray("res://addons/quest_weaver/plugin.cfg", "res://addons/sky_3d/plugin.cfg", "res://addons/gloot/plugin.cfg", "res://addons/proton_scatter/plugin.cfg", "res://addons/gdUnit4/plugin.cfg", "res://addons/mobile_texture_limit/plugin.cfg", "res://addons/phantom_camera/plugin.cfg", "res://addons/debug_menu/plugin.cfg")
+enabled=PackedStringArray("res://addons/quest_weaver/plugin.cfg", "res://addons/sky_3d/plugin.cfg", "res://addons/gloot/plugin.cfg", "res://addons/proton_scatter/plugin.cfg", "res://addons/gdUnit4/plugin.cfg", "res://addons/phantom_camera/plugin.cfg", "res://addons/debug_menu/plugin.cfg")
 
 [filesystem]
 
 import/fbx2gltf/enabled=false
 import/blender/enabled=false
-
-[input_devices]
-
-pointing/emulate_touch_from_mouse=true
 
 [physics]
 
@@ -68,16 +62,10 @@ common/physics_interpolation=true
 
 [rendering]
 
-renderer/rendering_method="forward_plus"
-renderer/rendering_method.mobile="mobile"
 textures/vram_compression/import_s3tc_bptc=true
-textures/vram_compression/import_etc2_astc=true
-textures/default_filters/anisotropic_filtering_level=4
 lights_and_shadows/directional_shadow/soft_shadow_filter_quality=3
-lights_and_shadows/directional_shadow/size=4096
-anti_aliasing/quality/msaa_3d=0
-anti_aliasing/quality/screen_space_aa=0
 global_illumination/gi/use_half_resolution=true
+textures/default_filters/anisotropic_filtering_level=4
 environment/volumetric_fog/volume_size=128
 environment/volumetric_fog/volume_depth=96
 

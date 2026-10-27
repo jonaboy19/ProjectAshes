@@ -1,4 +1,5 @@
 # Accounts and platform services (Play Games / Game Center)
+> **2026-10-27: the game is PC-only.** `platform_services.gd` now has `Backend`, `NullBackend` and a `SteamBackend` skeleton (GodotSteam, singleton `Steam`); the Google Play Games / Game Center sections below are historical and no longer in code.
 
 Research retrieved 2026-09-29. Verify version numbers again before installing.
 
