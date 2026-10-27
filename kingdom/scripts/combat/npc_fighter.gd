@@ -11,9 +11,30 @@ extends RefCounted
 
 const Moves := preload("res://scripts/combat/combat_moves.gd")
 const CombatStats := preload("res://scripts/combat/combat_stats.gd")
+const Morale := preload("res://scripts/army/morale.gd")
 
-enum Intent { HOLD, APPROACH, CIRCLE, POKE, COMBO, GUARD, RETREAT, FEINT }
-const INTENT_NAMES := ["hold", "approach", "circle", "poke", "combo", "guard", "retreat", "feint"]
+## FLEE (run for good, morale broken) and SURRENDER (drop the weapon, hands up) are only returned once a
+## behaviour profile is on (set_profile); RETREAT stays the old "step back when hurt" beat.
+enum Intent { HOLD, APPROACH, CIRCLE, POKE, COMBO, GUARD, RETREAT, FEINT, FLEE, SURRENDER }
+const INTENT_NAMES := ["hold", "approach", "circle", "poke", "combo", "guard", "retreat", "feint", "flee", "surrender"]
+
+## Behaviour archetypes (WP-04), layered on the stat archetypes above. Opt-in: a body calls `set_profile()`.
+##   morale_base  steadiness fed to army/morale.gd (it breaks at BREAK_AT 15, so a lone bandit breaks near 1/3 hp)
+##   flees        a broken fighter runs (FLEE)
+##   surrender    chance that a broken HUMAN gives up instead of running (1.0 when cornered)
+##   formation    holds its place while the target is outside `leash` metres (needs ctx.in_formation)
+##   memory       keeps a ring buffer of the target's last PATTERN_MEMORY attack ids and counters repeats
+const PROFILES := {
+	"bandit": {"morale_base": 55.0, "flees": true, "surrender": 0.55, "formation": false, "memory": false, "leash": 0.0},
+	"soldier": {"morale_base": 85.0, "flees": false, "surrender": 0.0, "formation": true, "memory": false, "leash": 6.0},
+	"veteran": {"morale_base": 92.0, "flees": false, "surrender": 0.0, "formation": true, "memory": true, "leash": 8.0},
+	"beast": {"morale_base": 60.0, "flees": true, "surrender": 0.0, "formation": false, "memory": false, "leash": 0.0},
+}
+## Stat archetype -> behaviour profile (anything unlisted is a beast).
+const PROFILE_OF := {"bandit": "bandit", "bandit_chief": "veteran", "guard": "soldier", "captain": "veteran",
+	"goblin": "beast", "orc": "beast", "troll": "beast", "wolf": "beast"}
+const PATTERN_MEMORY := 5
+const COUNTER_BONUS := 0.35      # added to react_chance when the incoming attack id is a repeat
 
 const THINK_HZ := 4.0
 const REACT_GAP := 1.2           # never react twice inside this
@@ -53,6 +74,15 @@ var cd_mult := 1.0              # scales the cooldown row: lower = more pressure
 var _last_hit := -99.0
 var _immune_until := -99.0
 
+## Behaviour state (inactive until set_profile).
+var profile := ""
+var profile_on := false
+var morale: RefCounted = null
+var surrendered := false
+var fled := false
+var last_attacks: Array = []    # ring buffer of the target's last PATTERN_MEMORY attack ids
+var _break_choice := ""         # "", "flee" or "surrender": decided once per break, cleared on rally
+
 
 static func has_archetype(name: String) -> bool:
 	return ARCHETYPES.has(name)
@@ -80,6 +110,33 @@ func setup(arch: String, seed_value := 1, rank_override := -1) -> void:
 	_aggro_timer = rng.randf_range(AGGRO_TIMER.x, AGGRO_TIMER.y)
 
 
+## Turns the behaviour archetype on. `name` "" = the one mapped from the stat archetype.
+func set_profile(name := "") -> void:
+	profile = name if PROFILES.has(name) else String(PROFILE_OF.get(archetype, "beast"))
+	profile_on = true
+	surrendered = false
+	fled = false
+	last_attacks.clear()
+	_break_choice = ""
+	morale = Morale.new(float(PROFILES[profile]["morale_base"]))
+
+
+func profile_data() -> Dictionary:
+	return PROFILES.get(profile, {})
+
+
+## Records the id of an attack the target just started. Returns true when it is a repeat (id already among
+## the last PATTERN_MEMORY, so the veteran has seen it before). Only veterans remember.
+func observe_attack(id: String) -> bool:
+	if not (profile_on and bool(profile_data().get("memory", false))) or id == "":
+		return false
+	var repeat := last_attacks.has(id)
+	last_attacks.append(id)
+	if last_attacks.size() > PATTERN_MEMORY:
+		last_attacks.pop_front()
+	return repeat
+
+
 ## Seconds between attack starts (the SPECIES cooldown rows; soldiers use their 1.1-1.5 s).
 func cooldown() -> float:
 	var d: Dictionary = ARCHETYPES.get(archetype, ARCHETYPES["goblin"])
@@ -101,12 +158,20 @@ func react_delay() -> float:
 
 ## Called when the target enters WINDUP within reach. Returns {} or {kind: "guard"|"dodge", delay}.
 ## `now` is the caller's clock in seconds.
-func consider_reaction(now: float, chance := -1.0) -> Dictionary:
+## `attack_id` (optional) is the target's move id: a veteran that has seen it before reacts far more often and
+## answers with a "counter" (parry then riposte) instead of a plain guard or dodge.
+func consider_reaction(now: float, chance := -1.0, attack_id := "") -> Dictionary:
 	if now - _last_react < REACT_GAP:
 		return {}
 	_last_react = now
-	if rng.randf() >= (react_chance() if chance < 0.0 else chance):
+	var repeat := observe_attack(attack_id)
+	var c := react_chance() if chance < 0.0 else chance
+	if repeat:
+		c = minf(c + COUNTER_BONUS, 0.95)
+	if rng.randf() >= c:
 		return {}
+	if repeat:
+		return {"kind": "counter", "delay": react_delay()}
 	var kind := "guard" if (can_guard and rng.randf() < 0.7) else "dodge"
 	return {"kind": kind, "delay": react_delay()}
 
@@ -167,6 +232,11 @@ func choose_move(dist: float, target_state := "idle") -> Resource:
 func think(dt: float, ctx: Dictionary) -> Dictionary:
 	_tick_aggression(dt, ctx)
 	var out := {"intent": Intent.HOLD, "move": null, "feint_at": 0.0}
+	if profile_on:
+		var b := _behave(dt, ctx)
+		if b >= 0:
+			out["intent"] = b
+			return out
 	if not bool(ctx.get("sees_target", true)):
 		return out
 	var dist := float(ctx.get("dist", 99.0))
@@ -176,6 +246,9 @@ func think(dt: float, ctx: Dictionary) -> Dictionary:
 	if hp < 0.2 and rank >= 3 and rng.randf() < 0.5:
 		out["intent"] = Intent.RETREAT
 		return out
+	if profile_on and bool(profile_data().get("formation", false)) and bool(ctx.get("in_formation", false)) \
+			and dist > maxf(strike, float(profile_data().get("leash", 0.0))):
+		return out      # holds the line: the target comes to the shield wall
 	if dist > strike:
 		out["intent"] = Intent.APPROACH if bool(ctx.get("has_token", true)) else Intent.CIRCLE
 		return out
@@ -202,6 +275,47 @@ func think(dt: float, ctx: Dictionary) -> Dictionary:
 	var heavy: bool = moves.size() > 1 and move != moves[0] and move.poise_damage > moves[0].poise_damage
 	out["intent"] = Intent.COMBO if (heavy or (open and rng.randf() < aggression)) else Intent.POKE
 	return out
+
+
+## Morale step for a profiled fighter. ctx: own_hp_frac, allies_lost (0..1 share of the group down),
+## recent_damage (0..1 hp share lost in the last seconds), outnumber (enemies / own side), cornered, dist.
+## Returns an Intent (FLEE / SURRENDER) or -1 to fight on. A surrendered fighter stays surrendered.
+func _behave(dt: float, ctx: Dictionary) -> int:
+	if surrendered:
+		return Intent.SURRENDER
+	var pd := profile_data()
+	var hp := float(ctx.get("own_hp_frac", 1.0))
+	var inp := {"base": float(pd["morale_base"]),
+		"casualties": clampf(float(ctx.get("allies_lost", 0.0)) + (1.0 - hp) * 0.6, 0.0, 1.0),
+		"shock": float(ctx.get("recent_damage", 0.0)),
+		"outnumber": float(ctx.get("outnumber", 1.0))}
+	var pursued := float(ctx.get("dist", 99.0)) <= Morale.SAFE_DISTANCE
+	morale.update(dt, inp, pursued)
+	if not morale.is_broken():
+		_break_choice = ""
+		fled = false
+		return -1
+	if not bool(pd["flees"]):
+		return -1
+	var cornered := bool(ctx.get("cornered", false))
+	if _break_choice == "":
+		var chance := 0.0 if float(pd["surrender"]) <= 0.0 else (1.0 if cornered else float(pd["surrender"]))
+		_break_choice = "surrender" if (chance > 0.0 and rng.randf() < chance) else "flee"
+	elif _break_choice == "flee" and cornered and float(pd["surrender"]) > 0.0:
+		_break_choice = "surrender"     # nowhere left to run
+	if _break_choice == "surrender":
+		surrendered = true
+		return Intent.SURRENDER
+	fled = true
+	return Intent.FLEE
+
+
+## What a captor gets when a surrendered fighter is taken (consumed by sim/arrest.gd). {} unless surrendered.
+func captive_record() -> Dictionary:
+	if not surrendered:
+		return {}
+	return {"archetype": archetype, "profile": profile, "rank": rank, "surrendered": true, "bound": false,
+		"chief": archetype.ends_with("chief") or archetype == "captain"}
 
 
 ## A blow of `pdmg` poise damage lands at clock `now`. True when it staggers the fighter.

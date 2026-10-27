@@ -134,3 +134,65 @@ static func _run(id: String, ctx: Dictionary) -> String:
 	if done is Callable and (done as Callable).is_valid():
 		(done as Callable).call(id)
 	return String(res.get("text", ""))
+
+
+# ---- Capturing a surrendered human (WP-04) ----------------------------------------------------------------
+# A bandit that gave up (npc_fighter Intent.SURRENDER, captive_record()) can be bound, then either taken to a
+# guard for the bounty or ransomed back to his band. Pure over a captive Dictionary:
+# {archetype, rank, chief, surrendered, bound, state: "free"|"bound"|"delivered"|"ransomed"|"escaped"}.
+
+const BOUNTY_BASE := 20
+const BOUNTY_PER_RANK := 6
+const RANSOM_BASE := 30
+const RANSOM_PER_RANK := 12
+const CHIEF_MULT := 3
+## Chance the band actually pays; an unpaid ransom means the captive is cut loose.
+const RANSOM_PAY_CHANCE := 0.65
+
+
+static func captive_bounty(c: Dictionary) -> int:
+	var v := BOUNTY_BASE + int(c.get("rank", 0)) * BOUNTY_PER_RANK
+	return v * (CHIEF_MULT if bool(c.get("chief", false)) else 1)
+
+
+static func ransom_value(c: Dictionary) -> int:
+	var v := RANSOM_BASE + int(c.get("rank", 0)) * RANSOM_PER_RANK
+	return v * (CHIEF_MULT if bool(c.get("chief", false)) else 1)
+
+
+## Binds a surrendered captive. {ok, text}.
+static func bind(c: Dictionary) -> Dictionary:
+	if not bool(c.get("surrendered", false)):
+		return {"ok": false, "text": "He is still fighting."}
+	if String(c.get("state", "free")) != "free":
+		return {"ok": false, "text": "Already dealt with."}
+	c["bound"] = true
+	c["state"] = "bound"
+	return {"ok": true, "text": "You bind his hands."}
+
+
+## Hands a bound captive to a guard for the bounty. `reward` Callable(gold: int) pays the player. {ok, gold, text}.
+static func take_to_guard(c: Dictionary, reward := Callable()) -> Dictionary:
+	if String(c.get("state", "free")) != "bound":
+		return {"ok": false, "gold": 0, "text": "Bind him first."}
+	var g := captive_bounty(c)
+	if reward.is_valid():
+		reward.call(g)
+	c["state"] = "delivered"
+	return {"ok": true, "gold": g, "text": "The guard takes him in and counts out %d gold." % g}
+
+
+## Offers a bound captive back to his band. `rng` decides whether they pay; `reward` Callable(gold: int). An
+## unpaid ransom frees him (state "escaped"). {ok, gold, text}.
+static func ransom(c: Dictionary, rng: RandomNumberGenerator, reward := Callable()) -> Dictionary:
+	if String(c.get("state", "free")) != "bound":
+		return {"ok": false, "gold": 0, "text": "Bind him first."}
+	if rng.randf() >= RANSOM_PAY_CHANCE:
+		c["state"] = "escaped"
+		c["bound"] = false
+		return {"ok": false, "gold": 0, "text": "Nobody answers the ransom note; you cut him loose."}
+	var g := ransom_value(c)
+	if reward.is_valid():
+		reward.call(g)
+	c["state"] = "ransomed"
+	return {"ok": true, "gold": g, "text": "His band sends %d gold for him." % g}

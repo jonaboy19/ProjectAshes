@@ -135,3 +135,32 @@ func test_press_after_win_chance_scales_with_rank() -> void:
 		h += 1 if high.press_after_win() else 0
 	assert_int(l).is_equal(0)
 	assert_int(h).is_between(150, 250)           # rank/30 = 0.33
+
+
+func test_new_intents_exist_and_are_named() -> void:
+	assert_int(Fighter.INTENT_NAMES.size()).is_equal(Fighter.Intent.size())
+	assert_str(Fighter.INTENT_NAMES[Fighter.Intent.FLEE]).is_equal("flee")
+	assert_str(Fighter.INTENT_NAMES[Fighter.Intent.SURRENDER]).is_equal("surrender")
+
+
+func test_unprofiled_fighters_never_flee_or_surrender() -> void:
+	for name: String in Fighter.ARCHETYPES:
+		var f: RefCounted = Fighter.make(name, 1)
+		for i in 30:
+			var it: int = f.think(0.25, _ctx({"own_hp_frac": 0.02}))["intent"]
+			assert_bool(it != Fighter.Intent.FLEE and it != Fighter.Intent.SURRENDER).is_true()
+
+
+func test_every_archetype_has_a_profile() -> void:
+	for name: String in Fighter.ARCHETYPES:
+		var f: RefCounted = Fighter.make(name, 1)
+		f.set_profile()
+		assert_bool(Fighter.PROFILES.has(f.profile)).is_true()
+
+
+func test_profile_does_not_change_reaction_without_attack_id() -> void:
+	var a: RefCounted = Fighter.make("guard", 5, 6)
+	var b: RefCounted = Fighter.make("guard", 5, 6)
+	b.set_profile()
+	for i in 50:
+		assert_dict(a.consider_reaction(float(i) * 2.0)).is_equal(b.consider_reaction(float(i) * 2.0))
