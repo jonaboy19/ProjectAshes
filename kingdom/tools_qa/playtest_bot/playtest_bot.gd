@@ -4503,8 +4503,13 @@ func st_do_kneel(site: String) -> bool:
 		st_blocker("no 'Kneel at the ashes' prompt at %s (best %s)" % [site, str(Interaction.node_of(Interaction.best(player)))])
 		return false
 	if not await click_option("Kneel"):
-		st_blocker("the ashes menu at %s has no Kneel option (%s)" % [site, str(menu_texts()).left(120)])
-		return false
+		# a runestone beside the ashes opened its own menu: a player steps onto the ashes (warm ashes outrank a stone more than 1.6 m away)
+		L("the ashes menu at %s opened the stone menu (%s): stepping onto the ashes" % [site, str(menu_texts()).left(80)])
+		close_everything()
+		await st_walk(p, 0.6, 20.0)
+		if not await st_press_e_menu("the ashes at " + site) or not await click_option("Kneel"):
+			st_blocker("the ashes menu at %s has no Kneel option (%s)" % [site, str(menu_texts()).left(120)])
+			return false
 	await wait(1.0)
 	var ash: AshsightController = main.region1.ash
 	await wait_until(func() -> bool: return ash.active, 6.0)
