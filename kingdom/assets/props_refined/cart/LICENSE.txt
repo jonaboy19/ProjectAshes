@@ -1,0 +1,4 @@
+Asset: cart (Rising Ashes, refined 2026-10-28)
+Geometry: derived from Meshy AI output generated on the project owner's Meshy account (meshy-7.1, 2026-10-28 batch, see ProjectAshes_art_staging/downloads/meshy/props_2026-10-28/README.md); cleaned, rescaled, re-UV'd and re-materialed in Blender.
+Materials: CC0 1.0 Poly Haven texture scans (polyhaven.com; rough_wood, bark_brown_02, rock_face, rough_plaster_03, thatch_roof_angled) baked with procedural wear/grime in Blender; no attribution required.
+Pipeline: tools/blender/props/refine_lib.py

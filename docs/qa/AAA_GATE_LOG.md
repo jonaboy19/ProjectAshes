@@ -128,3 +128,15 @@ File: `PA_plans/videos/WIP_combat_full_motion_slice_clearing_sword_v4.mp4` (cops
 | 4 Parry blade contact | PASS (partial) | `parry_contact.gd`: TwoBoneIK3D on the right arm pulls the sword hand to the attacker's blade (0.55 m along its sword arm toward the defender) for 0.32 s. Sparks fly from that point, plus the existing parry hit-stop. Blocks on the shield get 8 sparks and a 0.05 s hit-stop. On the sheet the blades cross on several parries. Contact is approximate (it uses the hand, not the measured blade tip), and the bandit's arm has no IK. |
 | VFX | fixed | the parry glow star (heavy impact core) is now a light-tier dust and spark puff |
 Still FAIL overall vs ref 03: lock-on strafing and pivots, foot IK during lunges (step 5) are not done; the spark sprites still read slightly star-shaped up close.
+
+## 2026-10-28 Refined props (Blender refine worker): asset-level gate, 12 PASS / 1 FAIL / 2 FAIL (borderline)
+File: `docs/plans/props_refined/sheet.jpg`; details in `docs/plans/props_refined/README.md`. Tools: Blender 5.2 headless (Cycles CPU bake, Eevee gate renders), Poly Haven CC0 scans already on disk, ffmpeg/PIL for the sheet. The new bake extensions were checked: the custom `refine_lib.bake_asset` already covers multi-slot to one-set baking with the weathering stack. Godot auto-LOD is used. DeepBump could not run because its venv is incomplete.
+| Asset | Result | Note |
+|---|---|---|
+| cart, well, crate_stack, trestle_table, belt_pouch | PASS | Real-scan wood and stone replace the AI painting. Wear, grime and mud are baked into one 1K/2K set. Real scale, origin at the feet. |
+| market_stall, bench_hewn, haystack | PASS (borderline) | Stall: the produce is still Meshy's AI painting. Bench: the top is plain. Haystack: the silhouette is smooth (no straw cards). |
+| tavern_sign, barrel_rack, fence_post_rail, hay_bundle, firewood_stack | PASS | Procedural at exact real dimensions. |
+| hearth | FAIL | The Meshy hood geometry is a boulder-shaped lump; it needs a remodel. |
+| trough_granite | FAIL (borderline) | Concrete-like streaky stone and soft edges; needs a granite scan and crisp arrises. |
+| fence_wattle | FAIL (borderline) | The weave is too sparse and regular compared with ref 12/14. |
+Not yet in-game: the towns worker must re-gate each prop in context at gameplay distance after placing it.

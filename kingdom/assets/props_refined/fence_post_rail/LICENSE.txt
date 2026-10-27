@@ -1,0 +1,4 @@
+Asset: fence_post_rail (Rising Ashes, refined 2026-10-28)
+Geometry: built procedurally in Blender by tools/blender/props/build_village_props.py (project-owned).
+Materials: CC0 1.0 Poly Haven texture scans (polyhaven.com; rough_wood, bark_brown_02, rock_face, rough_plaster_03, thatch_roof_angled) baked with procedural wear/grime in Blender; no attribution required.
+Pipeline: tools/blender/props/refine_lib.py
