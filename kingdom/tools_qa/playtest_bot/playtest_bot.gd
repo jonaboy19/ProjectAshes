@@ -4410,6 +4410,21 @@ func st_glue_node() -> Node:
 	return main.region1
 
 
+## E at a runestone: when something else wins the prompt (warm ashes beside the stone), step onto the stone and press again.
+func st_press_e_stone(label: String, sp: Vector3) -> bool:
+	if await st_press_e_menu(label):
+		return true
+	if st_died_on_way:
+		return false
+	L("E at %s opened no stone menu (best %s): stepping onto the stone" % [label, str(Interaction.node_of(Interaction.best(player)))])
+	for off: Vector2 in [Vector2(0.5, 0.0), Vector2(-0.5, 0.0), Vector2(0.0, 0.7)]:
+		await st_walk(Vector2(sp.x, sp.z) + off, 0.35, 15.0)
+		var final_ok := await st_press_e_menu(label)
+		if final_ok:
+			return true
+	return false
+
+
 ## Stone menu -> "Carve a glyph" -> the canvas -> the glyph drawn -> the stone takes it. True when the glyph took.
 func st_carve_at_stone(net_id: int, glyph: String, label: String, via_in := "Carve a glyph") -> bool:
 	var via := "Bless the heart-stone" if glyph == "bless" else via_in      # an Elder Stone's menu offers the blessing, not a plain carve
@@ -4418,7 +4433,7 @@ func st_carve_at_stone(net_id: int, glyph: String, label: String, via_in := "Car
 	await st_stand_at(Vector2(sp.x, sp.z) + Vector2(0.9, 0.5), label, _st_stone_tol(net_id))
 	face(Vector2(sp.x, sp.z), -0.1)
 	await st_find_stone_prompt(Vector2(sp.x, sp.z))
-	if not await st_press_e_menu(label):
+	if not await st_press_e_stone(label, sp):
 		if not st_died_on_way:
 			st_blocker("E at %s opened no stone menu (best %s, %.1f m from the stone)" % [label, str(Interaction.node_of(Interaction.best(player))), p2().distance_to(Vector2(sp.x, sp.z))])
 		return false
@@ -4505,7 +4520,7 @@ func st_stone_menu_option(net_id: int, needle: String, label: String) -> bool:
 	await st_stand_at(Vector2(sp.x, sp.z) + Vector2(0.9, 0.5), label, _st_stone_tol(net_id))
 	face(Vector2(sp.x, sp.z), -0.1)
 	await st_find_stone_prompt(Vector2(sp.x, sp.z))
-	if not await st_press_e_menu(label):
+	if not await st_press_e_stone(label, sp):
 		if not st_died_on_way:
 			st_blocker("E at %s opened no stone menu" % label)
 		return false
