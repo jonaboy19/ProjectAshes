@@ -10,8 +10,10 @@ from mathutils import Vector, Matrix
 out = sys.argv[sys.argv.index("--") + 1]
 SIMPLE = False   # LOD1 pass: walls, roofs, chimneys and sills only (no frame, windows, shutters, patches)
 MATS = {
-    "RA_plaster": (0.93, 0.89, 0.79), "RA_plaster_dirty": (0.8, 0.75, 0.64), "RA_timber": (0.22, 0.15, 0.1),
-    "RA_thatch": (0.62, 0.52, 0.32), "RA_shingle": (0.3, 0.27, 0.25), "RA_boards": (0.42, 0.33, 0.24),
+    # Gate 2026-10-28: Godot reads these vertex colours as LINEAR, so the old values (0.93 / 0.8) rendered near white:
+    # aged limewash, smoke-and-rain dirty daub, dark weathered boards and old thatch now (linear values).
+    "RA_plaster": (0.55, 0.5, 0.4), "RA_plaster_dirty": (0.36, 0.31, 0.23), "RA_timber": (0.09, 0.06, 0.04),
+    "RA_thatch": (0.34, 0.27, 0.15), "RA_shingle": (0.14, 0.12, 0.11), "RA_boards": (0.17, 0.12, 0.08),
     "RA_stone": (0.5, 0.48, 0.44), "RA_dark": (0.06, 0.05, 0.045), "RA_window": (0.07, 0.06, 0.05), "RA_kit": (1.0, 1.0, 1.0),
 }
 
@@ -222,6 +224,16 @@ def hovel(name, w, d, roof, seed, lean=False):
         side_frame(b, d, 0.3, h, sx, 0.0, rng, True, win=rng.random() < 0.5)
     b.box((w * 0.18, d * 0.5 + 0.05, 1.2), (0.85, 0.08, 1.8), "RA_boards")
     window(b, -w * 0.25, d * 0.5, 1.5, 0.5, 0.5, rng.random() < 0.5)
+    if not SIMPLE:
+        # daub fallen off: patches of bare wattle (dark woven hazel) on the front and both sides
+        for _ in range(4):
+            side = rng.choice(("f", "l", "r"))
+            pz = rng.uniform(0.6, 1.9)
+            if side == "f":
+                b.box((rng.uniform(-w * 0.4, w * 0.4), d * 0.5 + 0.03, pz), (rng.uniform(0.35, 0.7), 0.04, rng.uniform(0.3, 0.6)), "RA_boards")
+            else:
+                sx = (w * 0.5 + 0.03) * (1 if side == "r" else -1)
+                b.box((sx, rng.uniform(-d * 0.4, d * 0.4), pz), (0.04, rng.uniform(0.35, 0.7), rng.uniform(0.3, 0.6)), "RA_boards")
     if lean:
         b.box((w * 0.5 + 0.8, 0, 0.9), (1.6, d * 0.8, 1.6), "RA_boards", roll=0.04)
         b.box((w * 0.5 + 0.85, 0, 1.78), (1.9, d * 0.95, 0.08), "RA_shingle", roll=-0.25)
