@@ -1,0 +1,49 @@
+{
+ "_doc": "CMU foot-pinned clips (tools/anim/cmu_fix.json) targets",
+ "motions": [
+  {
+   "id": "Life_Cmu_Stir",
+   "clip": "Life_Cmu_Stir",
+   "prompt": "CMU Life_Mocap_Stir",
+   "loop": true,
+   "category": "work/chore",
+   "target": {
+    "type": "cook_pot",
+    "key": "loop",
+    "enable": false
+   },
+   "props": [
+    {
+     "id": "ladle",
+     "hand": "r"
+    }
+   ]
+  },
+  {
+   "id": "Life_Cmu_Saw",
+   "clip": "Life_Cmu_Saw",
+   "prompt": "CMU Life_Mocap_Saw",
+   "loop": true,
+   "category": "work/craft",
+   "target": {
+    "type": "sawhorse",
+    "key": "loop",
+    "enable": false
+   },
+   "props": []
+  },
+  {
+   "id": "Life_Cmu_Hammer_Nail",
+   "clip": "Life_Cmu_Hammer_Nail",
+   "prompt": "CMU Life_Mocap_Hammer_Nail",
+   "loop": true,
+   "category": "work/craft",
+   "target": {
+    "type": "nail_plank",
+    "key": "loop",
+    "enable": true
+   },
+   "props": []
+  }
+ ]
+}

@@ -90,6 +90,7 @@ for _s, _S in (("l", "L"), ("r", "R")):
         for _f, _F in (("thumb", "Thumb"), ("index", "Index"), ("middle", "Middle"), ("ring", "Ring"), ("pinky", "Pinky")):
             SMPLH["%s_0%d_%s" % (_f, _i, _s)] = "%s_%s%d" % (_S, _F, _i)
 RIGS = {"mixamo": ("fbx", MAP), "meshy": ("gltf", MESHY_GLB), "meshy_bvh": ("bvh", MESHY_BVH), "meshy_fbx": ("fbx", SMPLH)}
+RIGS["ual"] = ("gltf", {k: k for k in MAP})      # clips already on UAL (e.g. CMU life clips): identity map, only the post passes (foot pin, seam) apply
 
 REPO = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", ".."))
 HAND_MARGIN = 0.035      # hand joint centre above the floor (palm thickness)

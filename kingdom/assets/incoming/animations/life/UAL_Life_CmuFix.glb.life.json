@@ -1,0 +1,104 @@
+{
+ "library": "res://assets/incoming/animations/life/UAL_Life_CmuFix.glb",
+ "fps": 30,
+ "clips": {
+  "Life_Cmu_Stir": {
+   "category": "work/chore",
+   "loop": true,
+   "layer": "full",
+   "props": [
+    {
+     "id": "ladle",
+     "hand": "r"
+    }
+   ],
+   "enter": null,
+   "exit": null,
+   "blend_in": 0.25,
+   "blend_out": 0.3,
+   "events": {
+    "loop_seam": [
+     115
+    ]
+   },
+   "anchor": null,
+   "note": "mixing batter in a bowl (one hand steadies the bowl)",
+   "speed_mps": 0.0,
+   "pair": null,
+   "ik_l_on_prop": null,
+   "mask_from": null,
+   "tags": [
+    "cmu",
+    "mocap",
+    "stir",
+    "cook",
+    "pantomime"
+   ],
+   "source": "CMU 79_13 'mixing batter' 0.5-5.2 s (loop cut 0.27-4.10 s into the window, seam error 1.7 deg-sum) + foot pin (mixamo_to_ual.py --rig ual)",
+   "frames": 75,
+   "seconds": 2.467
+  },
+  "Life_Cmu_Saw": {
+   "category": "work/craft",
+   "loop": true,
+   "layer": "full",
+   "props": [],
+   "enter": null,
+   "exit": null,
+   "blend_in": 0.25,
+   "blend_out": 0.3,
+   "events": {
+    "loop_seam": [
+     126
+    ]
+   },
+   "anchor": null,
+   "note": "hand saw stroke cycle, bent over the work",
+   "speed_mps": 0.0,
+   "pair": null,
+   "ik_l_on_prop": null,
+   "mask_from": null,
+   "tags": [
+    "cmu",
+    "mocap",
+    "saw",
+    "carpenter"
+   ],
+   "source": "CMU 62_03 'sawing, hand saw' 4-9.6 s (loop cut 0.53-4.73 s into the window, seam error 1.4 deg-sum) + foot pin (mixamo_to_ual.py --rig ual)",
+   "frames": 65,
+   "seconds": 2.133
+  },
+  "Life_Cmu_Hammer_Nail": {
+   "category": "work/craft",
+   "loop": true,
+   "layer": "full",
+   "props": [],
+   "enter": null,
+   "exit": null,
+   "blend_in": 0.25,
+   "blend_out": 0.3,
+   "events": {
+    "loop_seam": [
+     157
+    ]
+   },
+   "anchor": null,
+   "note": "hammering a nail, bent over the work",
+   "speed_mps": 0.0,
+   "pair": null,
+   "ik_l_on_prop": null,
+   "mask_from": null,
+   "tags": [
+    "cmu",
+    "mocap",
+    "hammer",
+    "nail",
+    "carpenter"
+   ],
+   "source": "CMU 62_07 'hammering a nail' 3-8.8 s (loop cut 0.53-5.77 s into the window, seam error 5.7 deg-sum) + foot pin (mixamo_to_ual.py --rig ual)",
+   "frames": 60,
+   "seconds": 1.967,
+   "root_travel_m": 0.18
+  }
+ }
+}

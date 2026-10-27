@@ -1,0 +1,178 @@
+{
+ "map": {
+  "pelvis": "Hips",
+  "spine_01": "Spine",
+  "spine_02": "Spine1",
+  "spine_03": "Spine2",
+  "neck_01": "Neck",
+  "Head": "Head",
+  "clavicle_l": "LeftShoulder",
+  "upperarm_l": "LeftArm",
+  "lowerarm_l": "LeftForeArm",
+  "hand_l": "LeftHand",
+  "thigh_l": "LeftUpLeg",
+  "calf_l": "LeftLeg",
+  "foot_l": "LeftFoot",
+  "ball_l": "LeftToeBase",
+  "thumb_01_l": "LeftHandThumb1",
+  "thumb_02_l": "LeftHandThumb2",
+  "thumb_03_l": "LeftHandThumb3",
+  "index_01_l": "LeftHandIndex1",
+  "index_02_l": "LeftHandIndex2",
+  "index_03_l": "LeftHandIndex3",
+  "middle_01_l": "LeftHandMiddle1",
+  "middle_02_l": "LeftHandMiddle2",
+  "middle_03_l": "LeftHandMiddle3",
+  "ring_01_l": "LeftHandRing1",
+  "ring_02_l": "LeftHandRing2",
+  "ring_03_l": "LeftHandRing3",
+  "pinky_01_l": "LeftHandPinky1",
+  "pinky_02_l": "LeftHandPinky2",
+  "pinky_03_l": "LeftHandPinky3",
+  "clavicle_r": "RightShoulder",
+  "upperarm_r": "RightArm",
+  "lowerarm_r": "RightForeArm",
+  "hand_r": "RightHand",
+  "thigh_r": "RightUpLeg",
+  "calf_r": "RightLeg",
+  "foot_r": "RightFoot",
+  "ball_r": "RightToeBase",
+  "thumb_01_r": "RightHandThumb1",
+  "thumb_02_r": "RightHandThumb2",
+  "thumb_03_r": "RightHandThumb3",
+  "index_01_r": "RightHandIndex1",
+  "index_02_r": "RightHandIndex2",
+  "index_03_r": "RightHandIndex3",
+  "middle_01_r": "RightHandMiddle1",
+  "middle_02_r": "RightHandMiddle2",
+  "middle_03_r": "RightHandMiddle3",
+  "ring_01_r": "RightHandRing1",
+  "ring_02_r": "RightHandRing2",
+  "ring_03_r": "RightHandRing3",
+  "pinky_01_r": "RightHandPinky1",
+  "pinky_02_r": "RightHandPinky2",
+  "pinky_03_r": "RightHandPinky3"
+ },
+ "clips": {
+  "Life_Cmu_Stir_Loop": {
+   "before": [
+    0.025,
+    0.075
+   ],
+   "lowest_joints": [
+    [
+     "foot_l",
+     0.059
+    ],
+    [
+     "ball_l",
+     0.059
+    ],
+    [
+     "ball_r",
+     0.092
+    ],
+    [
+     "foot_r",
+     0.097
+    ]
+   ],
+   "after": [
+    0.008,
+    0.027
+   ],
+   "stance_frames": 74,
+   "locked_frames": 146,
+   "hand_seam_cm": 0.0,
+   "frames": 75,
+   "source": "UAL_Life_Mocap.glb",
+   "seconds": 2.47,
+   "floor_fix_m": 0.0,
+   "contact_lift_m": 0.0,
+   "min_foot_m": -0.0,
+   "travel_m": 0.0,
+   "hip_scale": 1.0,
+   "loop": true
+  },
+  "Life_Cmu_Saw_Loop": {
+   "before": [
+    0.047,
+    0.164
+   ],
+   "lowest_joints": [
+    [
+     "foot_r",
+     0.055
+    ],
+    [
+     "ball_r",
+     0.055
+    ],
+    [
+     "foot_l",
+     0.072
+    ],
+    [
+     "ball_l",
+     0.072
+    ]
+   ],
+   "after": [
+    0.012,
+    0.044
+   ],
+   "stance_frames": 128,
+   "locked_frames": 130,
+   "hand_seam_cm": 0.0,
+   "frames": 65,
+   "source": "UAL_Life_Mocap.glb",
+   "seconds": 2.13,
+   "floor_fix_m": 0.0,
+   "contact_lift_m": 0.0,
+   "min_foot_m": 0.001,
+   "travel_m": 0.0,
+   "hip_scale": 1.0,
+   "loop": true
+  },
+  "Life_Cmu_Hammer_Nail_Loop": {
+   "before": [
+    0.035,
+    0.134
+   ],
+   "lowest_joints": [
+    [
+     "foot_r",
+     0.047
+    ],
+    [
+     "ball_r",
+     0.047
+    ],
+    [
+     "foot_l",
+     0.068
+    ],
+    [
+     "ball_l",
+     0.068
+    ]
+   ],
+   "after": [
+    0.007,
+    0.028
+   ],
+   "stance_frames": 118,
+   "locked_frames": 120,
+   "hand_seam_cm": 0.0,
+   "frames": 60,
+   "source": "UAL_Life_Mocap.glb",
+   "seconds": 1.97,
+   "floor_fix_m": -0.0,
+   "contact_lift_m": 0.0,
+   "min_foot_m": -0.0,
+   "travel_m": 0.0,
+   "hip_scale": 1.0,
+   "loop": true
+  }
+ }
+}

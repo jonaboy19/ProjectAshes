@@ -1,0 +1,36 @@
+{
+ "_doc": "CMU household clips already on UAL (UAL_Life_Mocap.glb) re-run through mixamo_to_ual.py --rig ual for the foot pin / seam passes -> UAL_Life_CmuFix.glb",
+ "clips": [
+  {
+   "name": "Life_Cmu_Stir",
+   "file": "UAL_Life_Mocap.glb",
+   "action": "Life_Mocap_Stir_Loop",
+   "loop": true,
+   "inplace": "none",
+   "lock_vel": 0.5,
+   "lock_wander": 0.12
+  },
+  {
+   "name": "Life_Cmu_Saw",
+   "file": "UAL_Life_Mocap.glb",
+   "action": "Life_Mocap_Saw_Loop",
+   "loop": true,
+   "inplace": "none",
+   "lock_vel": 0.5,
+   "lock_wander": 0.12,
+   "start": 0.85,
+   "end": 3.9
+  },
+  {
+   "name": "Life_Cmu_Hammer_Nail",
+   "file": "UAL_Life_Mocap.glb",
+   "action": "Life_Mocap_Hammer_Nail_Loop",
+   "loop": true,
+   "inplace": "none",
+   "lock_vel": 0.5,
+   "lock_wander": 0.12,
+   "start": 0.03,
+   "end": 3.35
+  }
+ ]
+}

@@ -1,0 +1,71 @@
+[
+ {
+  "name": "Life_Cmu_Stir",
+  "loop": true,
+  "seconds": 2.47,
+  "frames": 75,
+  "keys": 474,
+  "source": "UAL_Life_Mocap.glb",
+  "range_s": [
+   null,
+   null
+  ],
+  "autotrim": null,
+  "loop_pts": [
+   0.8,
+   3.27,
+   0.91
+  ],
+  "floor_fix_m": 0.0,
+  "contact_lift_m": 0.0,
+  "min_foot_m": -0.0,
+  "travel_m": 0.0,
+  "hip_scale": 1.0
+ },
+ {
+  "name": "Life_Cmu_Saw",
+  "loop": true,
+  "seconds": 2.13,
+  "frames": 65,
+  "keys": 669,
+  "source": "UAL_Life_Mocap.glb",
+  "range_s": [
+   0.85,
+   3.9
+  ],
+  "autotrim": null,
+  "loop_pts": [
+   0.8,
+   2.93,
+   2.11
+  ],
+  "floor_fix_m": 0.0,
+  "contact_lift_m": 0.0,
+  "min_foot_m": 0.001,
+  "travel_m": 0.0,
+  "hip_scale": 1.0
+ },
+ {
+  "name": "Life_Cmu_Hammer_Nail",
+  "loop": true,
+  "seconds": 1.97,
+  "frames": 60,
+  "keys": 371,
+  "source": "UAL_Life_Mocap.glb",
+  "range_s": [
+   0.03,
+   3.35
+  ],
+  "autotrim": null,
+  "loop_pts": [
+   0.8,
+   2.77,
+   0.69
+  ],
+  "floor_fix_m": -0.0,
+  "contact_lift_m": 0.0,
+  "min_foot_m": -0.0,
+  "travel_m": 0.0,
+  "hip_scale": 1.0
+ }
+]

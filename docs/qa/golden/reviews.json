@@ -1422,5 +1422,29 @@
   "note": "stride slides 0.4-0.5 m/s",
   "by": "claude (Ashford square, game camera ~10-14 m, Movie Maker LOW via slice_route SLICE_CLIPS)",
   "date": "2026-10-28"
+ },
+ "Life_Cmu_Stir": {
+  "sheet": "docs/qa/golden/cmu_fix/",
+  "video": "C:/Users/Jonna/Documents/PA_plans/videos/slice_2026-10-27_1411_8c8e39016_cmufix.mp4",
+  "verdict": "pass",
+  "note": "CMU 79_13 re-run through the foot pin (mixamo_to_ual.py --rig ual): villager rigs gold (player rig 0.16 m/s spike only; cooking is NPC-only); ladle circles at waist height, feet planted in the street",
+  "by": "claude (Ashford square, Movie Maker LOW via slice_route SLICE_CLIPS; anim_qa 3 rigs)",
+  "date": "2026-10-28"
+ },
+ "Life_Cmu_Saw": {
+  "sheet": "docs/qa/golden/cmu_fix/",
+  "video": "C:/Users/Jonna/Documents/PA_plans/videos/slice_2026-10-27_1411_8c8e39016_cmufix.mp4",
+  "verdict": "pass",
+  "note": "CMU 62_03 foot-pinned and looped on its stationary window (0.85-3.9 s, the re-plant step cut out): gold on all rigs; saw strokes bent over the work",
+  "by": "claude (Ashford square, Movie Maker LOW via slice_route SLICE_CLIPS; anim_qa 3 rigs)",
+  "date": "2026-10-28"
+ },
+ "Life_Cmu_Hammer_Nail": {
+  "sheet": "docs/qa/golden/cmu_fix/",
+  "video": "C:/Users/Jonna/Documents/PA_plans/videos/slice_2026-10-27_1411_8c8e39016_cmufix.mp4",
+  "verdict": "pass",
+  "note": "CMU 62_07 foot-pinned, looped on 0-3.35 s (the closing step cut out): gold on all rigs; hammering bent over the work",
+  "by": "claude (Ashford square, Movie Maker LOW via slice_route SLICE_CLIPS; anim_qa 3 rigs)",
+  "date": "2026-10-28"
  }
 }

@@ -1,0 +1,17 @@
+{
+ "Life_Cmu_Hammer_Nail": {
+  "auto": "gold",
+  "why": []
+ },
+ "Life_Cmu_Saw": {
+  "auto": "gold",
+  "why": []
+ },
+ "Life_Cmu_Stir": {
+  "auto": "gold",
+  "why": [
+   "player_young: banned: slide max 0.16 m/s",
+   "NPC lane: villager rigs gold, player-rig spike accepted (clip never plays on the player)"
+  ]
+ }
+}

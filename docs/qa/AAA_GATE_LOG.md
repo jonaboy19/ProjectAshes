@@ -331,3 +331,15 @@ File: `docs/plans/props_refined/buildings_sheet.jpg`.
 | B07 church plain | PASS (borderline): buttresses, bell-cote and bell, darker slate |
 | B16 Victorian | DROPPED |
 Downloads: none. The approval was relayed by an agent; it needs the owner's own OK (see README).
+
+## 2026-10-28 · NPC anim lane · recorder hygiene, wall leans, chair seats, firewood + dropped loads, CMU foot pin
+Videos (PA_plans/videos): slice_2026-10-27_1331_3a0768bba_leans4.mp4 (leans, side camera at the real spots), slice_2026-10-27_1356_f106911f0_firewood.mp4 (firewood carry + drops), slice_2026-10-27_1411_8c8e39016_cmufix.mp4 (CMU fix). All recordings now start at the route (SLICEFRAME cut, no loading screen) with every UI layer hidden.
+| Item | Gate | Note |
+|---|---|---|
+| Recorder (record_slice.sh / slice_route.gd) | PASS | loading screen cut at SLICEFRAME; HUD, tips, quest popups and subtitles hidden every frame |
+| Wall leans (wall_lean_back / wall_lean_side) | PASS | spots on real facades, fitted to the collider on first claim: LEANGAP 0.17 / 0.33 m exact on 6 spots (was 0.35-0.65 m off from mesh bounds); back lean reads on the wall with the foot up; shoulder lean in profile at 0.33 m |
+| Life_Mx5_Sit_Laughing / Sit_Cheer_Talk | PASS, wired tavern_table | missing sidecar seat_back (root never moved onto the seat); now pelvis-to-seat 4.3 / 2.1 cm, exit 0.6-0.7 m/s |
+| Life_Mx5_Sit_Down_Drink | HOLD | turns ~180 deg to sit, pelvis ends 0.24 m forward: needs end alignment as a tavern enter |
+| Firewood bundle (props_refined/firewood_bundle) + carry kind | PASS | 704 tris, firewood_stack CC0 textures; rides over the shoulder with the sack carry upper |
+| Flee drop | PASS | the load leaves the hand and comes to rest on the cobbles (0.45 s), lies 30 s; no pop out of the hand |
+| Life_Cmu_Stir / Saw / Hammer_Nail | PASS, wired cook_pot / sawhorse / nail_plank (re-enabled) | CMU clips re-run through mixamo_to_ual.py --rig ual (identity map: foot pin + seam), saw / hammer looped on their stationary windows; Saw and Hammer gold on all rigs, Stir gold on the villager rigs |

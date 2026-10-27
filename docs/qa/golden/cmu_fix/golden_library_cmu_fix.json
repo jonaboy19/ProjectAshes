@@ -1,0 +1,453 @@
+{
+	"player_young": {
+		"Life_Cmu_Hammer_Nail": {
+			"airborne_s": 0.0,
+			"checks": {
+				"airborne": "PASS",
+				"drift": "PASS",
+				"hover": "PASS",
+				"penetration": "PASS",
+				"pops": "PASS",
+				"scale": "PASS",
+				"seam": "PASS",
+				"slide": "PASS",
+				"stretch": "PASS"
+			},
+			"contacts": {
+				"foot_l": [
+					[
+						0,
+						59
+					]
+				],
+				"foot_r": [
+					[
+						0,
+						59
+					]
+				]
+			},
+			"contacts_fps": 30.0,
+			"drift_cm": 0.0,
+			"ground_speed": 0.0,
+			"hover_cm": 0.0,
+			"kind": "loop",
+			"length": 1.96666669845581,
+			"looping": true,
+			"notes": [],
+			"pen_cm": 0.361800163984299,
+			"pops": 0,
+			"scale_pct": 0.0000119209289550781,
+			"seam_cm": 0.0,
+			"seam_deg": 0.0,
+			"slide_max": 2.81229138374329,
+			"slide_mean": 0.667479671794793,
+			"slide_p75": 0.842518448829651,
+			"status": "PASS",
+			"stretch_pct": 0.000488163103951056,
+			"subject": "player_young",
+			"tpose_frames": 0,
+			"upper": false
+		},
+		"Life_Cmu_Saw": {
+			"airborne_s": 0.0,
+			"checks": {
+				"airborne": "PASS",
+				"drift": "PASS",
+				"hover": "PASS",
+				"penetration": "PASS",
+				"pops": "PASS",
+				"scale": "PASS",
+				"seam": "PASS",
+				"slide": "PASS",
+				"stretch": "PASS"
+			},
+			"contacts": {
+				"foot_l": [
+					[
+						0,
+						64
+					]
+				],
+				"foot_r": [
+					[
+						0,
+						64
+					]
+				]
+			},
+			"contacts_fps": 30.0,
+			"drift_cm": 0.0,
+			"ground_speed": 0.0,
+			"hover_cm": 0.0,
+			"kind": "loop",
+			"length": 2.13333344459534,
+			"looping": true,
+			"notes": [],
+			"pen_cm": 0.277950376272202,
+			"pops": 0,
+			"scale_pct": 0.0000119209289550781,
+			"seam_cm": 0.0,
+			"seam_deg": 0.0,
+			"slide_max": 6.2071533203125,
+			"slide_mean": 1.03252800542211,
+			"slide_p75": 1.32071888446808,
+			"status": "PASS",
+			"stretch_pct": 0.000414478107124694,
+			"subject": "player_young",
+			"tpose_frames": 0,
+			"upper": false
+		},
+		"Life_Cmu_Stir": {
+			"airborne_s": 0.0,
+			"checks": {
+				"airborne": "PASS",
+				"drift": "PASS",
+				"hover": "PASS",
+				"penetration": "PASS",
+				"pops": "PASS",
+				"scale": "PASS",
+				"seam": "PASS",
+				"slide": "PASS",
+				"stretch": "PASS"
+			},
+			"contacts": {
+				"foot_l": [
+					[
+						0,
+						74
+					]
+				],
+				"foot_r": [
+					[
+						0,
+						50
+					],
+					[
+						60,
+						74
+					]
+				]
+			},
+			"contacts_fps": 30.0,
+			"drift_cm": 0.0,
+			"ground_speed": 0.0,
+			"hover_cm": 0.0,
+			"kind": "loop",
+			"length": 2.46666669845581,
+			"looping": true,
+			"notes": [],
+			"pen_cm": 0.686899721622467,
+			"pops": 0,
+			"scale_pct": 0.0000119209289550781,
+			"seam_cm": 0.0,
+			"seam_deg": 0.0,
+			"slide_max": 15.8914031982422,
+			"slide_mean": 1.59066175419266,
+			"slide_p75": 1.70662343502045,
+			"status": "PASS",
+			"stretch_pct": 0.000644743722200136,
+			"subject": "player_young",
+			"tpose_frames": 0,
+			"upper": false
+		}
+	},
+	"villager_man_a": {
+		"Life_Cmu_Hammer_Nail": {
+			"airborne_s": 0.0,
+			"checks": {
+				"airborne": "PASS",
+				"drift": "PASS",
+				"hover": "PASS",
+				"penetration": "PASS",
+				"pops": "PASS",
+				"scale": "PASS",
+				"seam": "PASS",
+				"slide": "PASS",
+				"stretch": "PASS"
+			},
+			"contacts": {
+				"foot_l": [
+					[
+						0,
+						59
+					]
+				],
+				"foot_r": [
+					[
+						0,
+						59
+					]
+				]
+			},
+			"contacts_fps": 30.0,
+			"drift_cm": 0.0,
+			"ground_speed": 0.0,
+			"hover_cm": 0.0,
+			"kind": "loop",
+			"length": 1.96666669845581,
+			"looping": true,
+			"notes": [],
+			"pen_cm": 0.266962498426437,
+			"pops": 0,
+			"scale_pct": 0.0000119209289550781,
+			"seam_cm": 0.0,
+			"seam_deg": 0.0,
+			"slide_max": 2.94679379463196,
+			"slide_mean": 0.629686193990296,
+			"slide_p75": 0.772703647613525,
+			"status": "PASS",
+			"stretch_pct": 0.000546987459082438,
+			"subject": "villager_man_a",
+			"tpose_frames": 0,
+			"upper": false
+		},
+		"Life_Cmu_Saw": {
+			"airborne_s": 0.0,
+			"checks": {
+				"airborne": "PASS",
+				"drift": "PASS",
+				"hover": "PASS",
+				"penetration": "PASS",
+				"pops": "PASS",
+				"scale": "PASS",
+				"seam": "PASS",
+				"slide": "PASS",
+				"stretch": "PASS"
+			},
+			"contacts": {
+				"foot_l": [
+					[
+						0,
+						64
+					]
+				],
+				"foot_r": [
+					[
+						0,
+						64
+					]
+				]
+			},
+			"contacts_fps": 30.0,
+			"drift_cm": 0.0,
+			"ground_speed": 0.0,
+			"hover_cm": 0.0,
+			"kind": "loop",
+			"length": 2.13333344459534,
+			"looping": true,
+			"notes": [],
+			"pen_cm": 0.179671868681908,
+			"pops": 0,
+			"scale_pct": 0.0000119209289550781,
+			"seam_cm": 0.0,
+			"seam_deg": 0.0,
+			"slide_max": 6.08205032348633,
+			"slide_mean": 0.924654921842,
+			"slide_p75": 1.23628890514374,
+			"status": "PASS",
+			"stretch_pct": 0.000508844099567085,
+			"subject": "villager_man_a",
+			"tpose_frames": 0,
+			"upper": false
+		},
+		"Life_Cmu_Stir": {
+			"airborne_s": 0.0,
+			"checks": {
+				"airborne": "PASS",
+				"drift": "PASS",
+				"hover": "PASS",
+				"penetration": "PASS",
+				"pops": "PASS",
+				"scale": "PASS",
+				"seam": "PASS",
+				"slide": "PASS",
+				"stretch": "PASS"
+			},
+			"contacts": {
+				"foot_l": [
+					[
+						0,
+						74
+					]
+				],
+				"foot_r": [
+					[
+						0,
+						74
+					]
+				]
+			},
+			"contacts_fps": 30.0,
+			"drift_cm": 0.0,
+			"ground_speed": 0.0,
+			"hover_cm": 0.0,
+			"kind": "loop",
+			"length": 2.46666669845581,
+			"looping": true,
+			"notes": [],
+			"pen_cm": 0.547315537929535,
+			"pops": 0,
+			"scale_pct": 0.0000119209289550781,
+			"seam_cm": 0.0,
+			"seam_deg": 0.0,
+			"slide_max": 14.8598356246948,
+			"slide_mean": 1.44264162145555,
+			"slide_p75": 1.27427971363068,
+			"status": "PASS",
+			"stretch_pct": 0.000712959880511121,
+			"subject": "villager_man_a",
+			"tpose_frames": 0,
+			"upper": false
+		}
+	},
+	"villager_woman_a": {
+		"Life_Cmu_Hammer_Nail": {
+			"airborne_s": 0.0,
+			"checks": {
+				"airborne": "PASS",
+				"drift": "PASS",
+				"hover": "PASS",
+				"penetration": "PASS",
+				"pops": "PASS",
+				"scale": "PASS",
+				"seam": "PASS",
+				"slide": "PASS",
+				"stretch": "PASS"
+			},
+			"contacts": {
+				"foot_l": [
+					[
+						0,
+						59
+					]
+				],
+				"foot_r": [
+					[
+						0,
+						59
+					]
+				]
+			},
+			"contacts_fps": 30.0,
+			"drift_cm": 0.0,
+			"ground_speed": 0.0,
+			"hover_cm": 0.0,
+			"kind": "loop",
+			"length": 1.96666669845581,
+			"looping": true,
+			"notes": [],
+			"pen_cm": 0.76988673210144,
+			"pops": 0,
+			"scale_pct": 0.0000119209289550781,
+			"seam_cm": 0.0,
+			"seam_deg": 0.0,
+			"slide_max": 3.1318359375,
+			"slide_mean": 0.635550267464513,
+			"slide_p75": 0.807838439941406,
+			"status": "PASS",
+			"stretch_pct": 0.000523991596890205,
+			"subject": "villager_woman_a",
+			"tpose_frames": 0,
+			"upper": false
+		},
+		"Life_Cmu_Saw": {
+			"airborne_s": 0.0,
+			"checks": {
+				"airborne": "PASS",
+				"drift": "PASS",
+				"hover": "PASS",
+				"penetration": "PASS",
+				"pops": "PASS",
+				"scale": "PASS",
+				"seam": "PASS",
+				"slide": "PASS",
+				"stretch": "PASS"
+			},
+			"contacts": {
+				"foot_l": [
+					[
+						0,
+						64
+					]
+				],
+				"foot_r": [
+					[
+						0,
+						64
+					]
+				]
+			},
+			"contacts_fps": 30.0,
+			"drift_cm": 0.0,
+			"ground_speed": 0.0,
+			"hover_cm": 0.0,
+			"kind": "loop",
+			"length": 2.13333344459534,
+			"looping": true,
+			"notes": [],
+			"pen_cm": 0.811316430568695,
+			"pops": 0,
+			"scale_pct": 0.0000119209289550781,
+			"seam_cm": 0.0,
+			"seam_deg": 0.0,
+			"slide_max": 6.17595815658569,
+			"slide_mean": 0.873436370775813,
+			"slide_p75": 1.08450484275818,
+			"status": "PASS",
+			"stretch_pct": 0.00052063656693635,
+			"subject": "villager_woman_a",
+			"tpose_frames": 0,
+			"upper": false
+		},
+		"Life_Cmu_Stir": {
+			"airborne_s": 0.0,
+			"checks": {
+				"airborne": "PASS",
+				"drift": "PASS",
+				"hover": "PASS",
+				"penetration": "PASS",
+				"pops": "PASS",
+				"scale": "PASS",
+				"seam": "PASS",
+				"slide": "PASS",
+				"stretch": "PASS"
+			},
+			"contacts": {
+				"foot_l": [
+					[
+						0,
+						74
+					]
+				],
+				"foot_r": [
+					[
+						0,
+						74
+					]
+				]
+			},
+			"contacts_fps": 30.0,
+			"drift_cm": 0.0,
+			"ground_speed": 0.0,
+			"hover_cm": 0.0,
+			"kind": "loop",
+			"length": 2.46666669845581,
+			"looping": true,
+			"notes": [],
+			"pen_cm": 1.02042818069458,
+			"pops": 0,
+			"scale_pct": 0.0000119209289550781,
+			"seam_cm": 0.0,
+			"seam_deg": 0.0,
+			"slide_max": 14.5036487579346,
+			"slide_mean": 1.32941960591874,
+			"slide_p75": 1.16312694549561,
+			"status": "PASS",
+			"stretch_pct": 0.000973127251358008,
+			"subject": "villager_woman_a",
+			"tpose_frames": 0,
+			"upper": false
+		}
+	}
+}
