@@ -86,5 +86,5 @@ Built in, no add-on needed: Geometry Nodes (fences, walls, cobbles, scatter), Cl
 
 ## AI tools (local, RTX 4070 8 GB)
 - Real-ESRGAN (texture upscale), RTMPose (2D video mocap), Instant Meshes, Piper — see above.
-- DeepBump (GPL-3, `C:\Users\Jonna\Tools\deepbump`): photo/albedo → normal and height maps (ONNX, CPU OK). `C:\Users\Jonna\Tools\deepbump\venv\Scripts\python.exe C:\Users\Jonna\Tools\deepbump\DeepBump-8\cli.py in.png out_normal.png color_to_normals`.
+- DeepBump (GPL-3, `C:\Users\Jonna\Tools\deepbump`): photo/albedo → normal and height maps (ONNX, CPU OK, ~1 min per 2K map; tested 2026-10-28). Set `PYTHONIOENCODING=utf-8` first. `C:\Users\Jonna\Tools\deepbump\venv\Scripts\python.exe C:\Users\Jonna\Tools\deepbump\DeepBump-8\cli.py in.png out_normal.png color_to_normals`.
 - Rejected: TRELLIS image→3D (needs ~16 GB VRAM), Hunyuan3D (licence), SMPL-based video mocap (non-commercial body model), local LLMs (owner rule), AudioCraft/XTTS (non-commercial weights).
