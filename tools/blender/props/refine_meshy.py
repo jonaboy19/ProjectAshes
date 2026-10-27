@@ -290,6 +290,66 @@ def assign(ob, labels, classes, base_img, debug=False):
         print("autosmooth skipped", e)
 
 
+def replace_hood(ob):
+    """hearth: delete Meshy's boulder-shaped 'hood' (the plaster class) and model a lime-plastered smoke hood + flue that sits on
+    the mantel shelf against the back wall, up to a 3.0 m ceiling."""
+    me = ob.data
+    hood_i = [i for i, m in enumerate(me.materials) if m and m.name.startswith("M_plaster")]
+    soot_i = [i for i, m in enumerate(me.materials) if m and m.name.startswith("M_stone_soot")]
+    bm = bmesh.new()
+    bm.from_mesh(me)
+    soot_c = [f.calc_center_median() for f in bm.faces if f.material_index in soot_i]
+    bmesh.ops.delete(bm, geom=[f for f in bm.faces if f.material_index in hood_i], context="FACES")
+    bmesh.ops.delete(bm, geom=[v for v in bm.verts if not v.link_faces], context="VERTS")
+    bm.to_mesh(me)
+    bm.free()
+    vs = [v.co for v in me.vertices]
+    top = max(v.z for v in vs)
+    shelf = [v for v in vs if v.z > top - 0.06]
+    x0, x1 = min(v.x for v in shelf), max(v.x for v in shelf)
+    y0, y1 = min(v.y for v in shelf), max(v.y for v in shelf)
+    yc_all = (min(v.y for v in vs) + max(v.y for v in vs)) / 2
+    back_sign = 1.0 if (sum(c.y for c in soot_c) / max(1, len(soot_c))) > yc_all else -1.0
+    back = y1 if back_sign > 0 else y0
+    W, D = x1 - x0, y1 - y0
+    xc = (x0 + x1) / 2
+    print("HOOD shelf top", round(top, 3), "W", round(W, 2), "D", round(D, 2), "back_sign", back_sign, flush=True)
+    z0 = top - 0.004
+    zt = 3.0
+    rings_def = [(z0, W * 0.90, D * 0.78), (z0 + 0.04, W * 0.94, D * 0.80), (z0 + 0.08, W * 0.94, D * 0.80), (z0 + 0.10, W * 0.90, D * 0.78),
+                 (z0 + 0.80, 0.62, 0.48), (z0 + 0.84, 0.66, 0.50), (z0 + 0.88, 0.62, 0.48), (zt, 0.60, 0.46)]
+    hb = bmesh.new()
+    rows = []
+    ch = 0.015
+    for z, w, d in rings_def:
+        yc = back - back_sign * d / 2
+        hw, hd = w / 2, d / 2
+        pts = [(-hw + ch, -hd), (hw - ch, -hd), (hw, -hd + ch), (hw, hd - ch), (hw - ch, hd), (-hw + ch, hd), (-hw, hd - ch), (-hw, -hd + ch)]
+        rows.append([hb.verts.new((xc + x, yc + y, z)) for x, y in pts])
+    for i in range(len(rows) - 1):
+        for j in range(8):
+            hb.faces.new((rows[i][j], rows[i][(j + 1) % 8], rows[i + 1][(j + 1) % 8], rows[i + 1][j]))
+    hb.faces.new(list(reversed(rows[0])))
+    hb.faces.new(rows[-1])
+    bmesh.ops.recalc_face_normals(hb, faces=hb.faces)
+    # subdivide so the bake/AO has some resolution and the plaster can bulge a little (hand-applied lime)
+    bmesh.ops.subdivide_edges(hb, edges=hb.edges, cuts=2, use_grid_fill=True)
+    from mathutils import noise as mnoise
+    for v in hb.verts:
+        v.co += v.normal * 0.006 * mnoise.noise(v.co * 4.0)
+    hm = bpy.data.meshes.new("hood")
+    hb.to_mesh(hm)
+    hb.free()
+    hm.uv_layers.new(name="meshy_uv")
+    RL.LIB["plaster_hood"]["soot"] = (z0 + 0.02, z0 + 0.38)
+    hm.materials.append(RL.make_material("plaster_hood"))
+    for p in hm.polygons:
+        p.use_smooth = False
+    ho = bpy.data.objects.new("hood", hm)
+    bpy.context.scene.collection.objects.link(ho)
+    return RL.join([ob, ho], ob.name)
+
+
 def process(name):
     rule = RULES[name]
     ob, base = import_meshy(name)
@@ -308,7 +368,14 @@ def process(name):
         assign(ob, labels, classes, base, debug=True)
         RL.render_view([ob], os.path.join(gate, f"{name}_classes.jpg"), res=(480, 360))
         return
+    nrm = os.path.join(WORK, "deepbump", name + "_nrm.png")
+    RL.MESHY_NRM = None
+    if os.path.exists(nrm):
+        RL.MESHY_NRM = bpy.data.images.load(nrm)
+        RL.MESHY_NRM.colorspace_settings.name = "Non-Color"
     assign(ob, labels, classes, base)
+    if name == "hearth":
+        ob = replace_hood(ob)
     RL.smart_uv(ob)
     tmp = os.path.join(WORK, "bake_" + name)
     fm = RL.bake_asset(ob, rule["tex"], tmp, name)

@@ -186,3 +186,13 @@ File: `PA_plans/videos/WIP_combat_full_motion_slice_clearing_sword_v6.mp4`; shee
 - Combat set 4: 43 clips retargeted to UAL (`UAL_Mx_combat_set4.glb`, root kept) and measured. The root axes check out: ReactLargeFront travels -0.74 m (backwards), ReactLargeBack +0.73 m.
 - Layer 2: `combat_reactions.gd` picks the clip by direction (F/B/L/R) x strength (small < 2.5 m/s knockback <= large < 4.5 <= stagger) x guarding (block react). Bandits play it whole-body, and the clip's root travel moves the capsule (they give ground away from the blow). Partial ragdoll and lean kick stay on top. Death fall clips by killing-blow direction are mapped but not wired yet (the ragdoll death already falls with the hit).
 - Verdict: bandit hits now read as hits (doubling over, stepping back, recoiling behind the shield). FAILs left: finisher impact sparks still a little spiky (spark share reduced again), the player's own reactions/footwork/dodges use the old clips (player lane), the player's shield shows as a pale flat square from some angles (equipment lane), 1v3 not re-recorded.
+
+## 2026-10-28 Refined props round 2 (Blender refine worker): the 3 FAILs fixed
+File: `docs/plans/props_refined/sheet.jpg`.
+| Asset | Result | Note |
+|---|---|---|
+| hearth | PASS (borderline) | Meshy's boulder hood is deleted. A modelled lime-plaster smoke hood and flue (to a 3.0 m ceiling) sits on the mantel shelf, sooted at the mouth. The plaster is a bit blotchy. |
+| trough_granite | PASS (borderline) | Exact-boolean basin, crisp 7 mm arrises, chipped edges, chisel tooling in the normal map, grey granite with speckle, rain streaks, moss. Slightly regular vertical streaking remains. 2.0k tris. |
+| fence_wattle | PASS | 42 dense courses of thin irregular rods; nothing shows through at 3 m. 4.6k tris (within 5k). |
+| market_stall | PASS (borderline) | The canopy is faded ochre-linen (-35 % saturation). |
+Tools: DeepBump normals from Meshy albedo (cart, stall, table; not the pouch, where they made it worse); blender.sh now loads the user_default extensions through a junction. The Poly Haven downloads were not done: they need the owner's OK.

@@ -122,6 +122,8 @@ class NB:
 
 # ----------------------------------------------------------------------------------------------- material library
 # kind: "scan" (CC0 texture set), "meshy" (Meshy albedo via the 'meshy_uv' layer), "proc" (procedural base colour)
+MESHY_NRM = None          # set by refine_meshy.py: DeepBump normal image of the current Meshy albedo (or None)
+
 LIB = {
     # weathered grey oak (cart, shingles, stall frame)
     "wood_grey":  dict(kind="scan", tex="rough_wood", tile=1.0, sat=0.75, val=0.95, tint=(0.98, 0.95, 0.90), bump=0.5, rough=0.0,
@@ -142,10 +144,12 @@ LIB = {
                        edge=(0.80, 0.78, 0.74), wear=0.3, grime=0.7, mud=0.6, moss=0.35, detail=0.75),
     "stone_soot": dict(kind="scan", tex="rock_face", tile=1.2, sat=0.2, val=0.35, tint=(0.9, 0.88, 0.86), bump=1.0, rough=0.0,
                        edge=(0.35, 0.33, 0.31), wear=0.1, grime=0.8, mud=0.0),
-    "granite":    dict(kind="scan", tex="rock_face", tile=0.9, sat=0.12, val=0.95, tint=(0.92, 0.92, 0.92), bump=1.0, rough=0.02,
-                       edge=(0.80, 0.80, 0.78), wear=0.35, grime=0.75, mud=0.6, moss=0.6, speckle=1.0),
+    "granite":    dict(kind="scan", tex="rock_face", tile=0.6, sat=0.0, val=1.0, tint=(1, 1, 1), bump=0.8, rough=0.02, granite=True, tooled=True,
+                       edge=(0.42, 0.42, 0.40), wear=0.4, grime=0.95, mud=0.7, moss=0.85, drip=(0.6, 0.15, 0.7)),
     "plaster":    dict(kind="scan", tex="rough_plaster_03", tile=1.5, sat=0.6, val=0.75, tint=(0.95, 0.90, 0.82), bump=0.6, rough=0.0,
                        edge=(0.85, 0.82, 0.76), wear=0.2, grime=0.8, mud=0.3),
+    "plaster_hood": dict(kind="scan", tex="rough_plaster_03", tile=1.2, sat=0.45, val=1.15, tint=(0.97, 0.94, 0.87), bump=0.5, rough=0.0,
+                         edge=(0.92, 0.90, 0.85), wear=0.15, grime=0.3, mud=0.0, soot=(1.6, 2.0)),
     "straw":      dict(kind="scan", tex="thatch_roof_angled", tile=0.9, sat=1.25, val=1.3, tint=(1.0, 0.86, 0.52), bump=1.0, rough=0.05,
                        edge=(0.85, 0.78, 0.55), wear=0.15, grime=0.5, mud=0.3),
     # no real-scan iron / fabric / leather is on disk: procedural base, same weathering stack (see README "what still fails")
@@ -158,7 +162,7 @@ LIB = {
     "rope":       dict(kind="proc", color=(0.28, 0.22, 0.13), metal=0.0, rough0=0.95, weave=300.0, bump=0.4,
                        edge=(0.55, 0.47, 0.33), wear=0.1, grime=0.4, mud=0.2, edge_dist=0.004),
     # keep Meshy's painted albedo but de-AI it: desaturate, add weave/noise breakup and the weathering stack
-    "canvas":     dict(kind="meshy", sat=0.92, val=0.92, rough0=0.9, weave=700.0, bump=0.3, edge=(0.7, 0.62, 0.45), wear=0.1, grime=0.6, mud=0.0),
+    "canvas":     dict(kind="meshy", sat=0.60, val=0.95, hue=0.525, tint=(1.0, 0.96, 0.84), rough0=0.9, weave=700.0, bump=0.3, edge=(0.7, 0.62, 0.45), wear=0.1, grime=0.6, mud=0.0),
     "meshy_leather": dict(kind="meshy", sat=0.9, val=0.9, rough0=0.55, bumpscale=900.0, bump=0.15, edge=(0.32, 0.22, 0.14), wear=0.25,
                           grime=0.3, mud=0.0, edge_dist=0.004),
     "meshy":      dict(kind="meshy", sat=0.85, val=0.95, rough0=0.65, bumpscale=120.0, bump=0.2, edge=(0.8, 0.75, 0.65), wear=0.05, grime=0.4, mud=0.0),
@@ -174,7 +178,7 @@ LIB = {
 }
 
 COLOR_DEBUG = {"wood_grey": (0.6, 0.6, 0.6), "wood_oak": (0.6, 0.35, 0.1), "wood_dark": (0.25, 0.12, 0.05), "bark": (0.3, 0.2, 0.1),
-               "stone": (0.8, 0.8, 0.7), "stone_soot": (0.1, 0.1, 0.1), "granite": (0.5, 0.5, 0.55), "plaster": (0.9, 0.85, 0.7),
+               "stone": (0.8, 0.8, 0.7), "stone_soot": (0.1, 0.1, 0.1), "granite": (0.5, 0.5, 0.55), "plaster": (0.9, 0.85, 0.7), "plaster_hood": (0.95, 0.9, 0.8),
                "straw": (0.9, 0.8, 0.3), "iron": (0.05, 0.05, 0.3), "leather": (0.4, 0.15, 0.05), "burlap": (0.8, 0.7, 0.4),
                "rope": (0.7, 0.6, 0.3), "canvas": (1.0, 0.6, 0.0), "meshy_leather": (0.3, 0.15, 0.1), "meshy": (1.0, 0.0, 1.0), "meshy_burlap": (0.9, 0.9, 0.2),
                "water": (0.0, 0.4, 0.6), "sign_board": (0.4, 0.2, 0.1), "endgrain": (0.9, 0.7, 0.4), "wood_split": (0.8, 0.6, 0.4)}
@@ -257,6 +261,65 @@ def make_material(cls, meshy_img=None, paint_img=None):
             n2 = nb.noise(obj, 220.0, 2.0)
             light = nb.maprange(n2.outputs["Fac"], 0.62, 0.70)
             alb = nb.mix(nb.math("MULTIPLY", light, 0.35), alb, (0.85, 0.83, 0.80))
+        if spec.get("granite"):
+            # grey granite: light feldspar base, scan luminance only as large-scale breakup (the scan itself is brown rock)
+            gn = nb.noise(obj, 3.0, 4.0)
+            base = nb.mix(gn.outputs["Fac"], (0.15, 0.15, 0.145), (0.24, 0.235, 0.225))
+            alb = nb.mix(0.45, base, hs.outputs["Color"], blend="OVERLAY")
+            v = nb.new("ShaderNodeTexVoronoi")
+            nb.link(obj, v.inputs["Vector"])
+            v.inputs["Scale"].default_value = 260.0
+            dark = nb.maprange(v.outputs["Distance"], 0.0, 0.16, 1.0, 0.0)
+            alb = nb.mix(nb.math("MULTIPLY", dark, 0.75), alb, (0.05, 0.05, 0.055))
+            n2 = nb.noise(obj, 300.0, 1.0)
+            light = nb.maprange(n2.outputs["Fac"], 0.6, 0.66)
+            alb = nb.mix(nb.math("MULTIPLY", light, 0.5), alb, (0.55, 0.54, 0.52))
+            height = nb.math("ADD", nb.math("MULTIPLY", height, 0.4), nb.math("MULTIPLY", dark, 0.15))
+        if spec.get("tooled"):
+            # hand-dressed stone: parallel point-chisel strokes (~12 mm pitch, slightly wavy, rotated per face axis) + pitting
+            mp2 = nb.new("ShaderNodeMapping")
+            nb.link(obj, mp2.inputs["Vector"])
+            mp2.inputs["Rotation"].default_value = (0.6, 0.4, 0.8)
+            wv = nb.new("ShaderNodeTexWave", wave_type="BANDS", bands_direction="DIAGONAL", wave_profile="SAW")
+            nb.link(mp2.outputs[0], wv.inputs["Vector"])
+            wv.inputs["Scale"].default_value = 55.0
+            wv.inputs["Distortion"].default_value = 4.0
+            wv.inputs["Detail"].default_value = 3.0
+            pit = nb.noise(obj, 90.0, 2.0)
+            pits = nb.maprange(pit.outputs["Fac"], 0.55, 0.7)
+            tool = nb.math("SUBTRACT", nb.math("MULTIPLY", wv.outputs["Fac"], 0.5), nb.math("MULTIPLY", pits, 0.6))
+            height = nb.math("ADD", height, tool)
+        if spec.get("soot"):
+            # soot: dense at the hood mouth, fading up, streaked
+            sxyz = nb.new("ShaderNodeSeparateXYZ")
+            nb.link(obj, sxyz.inputs[0])
+            z0, z1 = spec["soot"]
+            band = nb.maprange(sxyz.outputs["Z"], z0, z1, 1.0, 0.0)
+            st = nb.new("ShaderNodeMapping")
+            nb.link(obj, st.inputs["Vector"])
+            st.inputs["Scale"].default_value = (14.0, 14.0, 1.5)
+            sn = nb.new("ShaderNodeTexNoise")
+            nb.link(st.outputs[0], sn.inputs["Vector"])
+            sn.inputs["Detail"].default_value = 6.0
+            streak = nb.maprange(sn.outputs["Fac"], 0.35, 0.65, 0.55, 1.0)
+            soot = nb.math("MULTIPLY", nb.math("POWER", band, 0.7), streak, clamp=True)
+            alb = nb.mix(soot, alb, (0.035, 0.03, 0.028))
+            rough = nb.mix(soot, rough, 0.95)
+        if spec.get("drip"):
+            # rain/water staining: dark vertical streaks running down from the rim (z_top -> z_bottom), strength s
+            zt_, zb_, st_ = spec["drip"]
+            dx = nb.new("ShaderNodeSeparateXYZ")
+            nb.link(obj, dx.inputs[0])
+            fall = nb.maprange(dx.outputs["Z"], zt_, zb_, 1.0, 0.0)
+            dm = nb.new("ShaderNodeMapping")
+            nb.link(obj, dm.inputs["Vector"])
+            dm.inputs["Scale"].default_value = (22.0, 22.0, 0.8)
+            dn = nb.new("ShaderNodeTexNoise")
+            nb.link(dm.outputs[0], dn.inputs["Vector"])
+            dn.inputs["Detail"].default_value = 5.0
+            dstreak = nb.maprange(dn.outputs["Fac"], 0.45, 0.7)
+            dmask = nb.math("MULTIPLY", nb.math("MULTIPLY", fall, dstreak), st_, clamp=True)
+            alb = nb.mix(dmask, alb, (0.05, 0.055, 0.04))
         if spec.get("rings") :
             # end grain: concentric growth rings around the pith on the 'aux' UV + radial checks
             uvn = nb.new("ShaderNodeUVMap", uv_map="aux")
@@ -294,8 +357,11 @@ def make_material(cls, meshy_img=None, paint_img=None):
             hs = nb.new("ShaderNodeHueSaturation")
             hs.inputs["Saturation"].default_value = spec["sat"]
             hs.inputs["Value"].default_value = spec["val"]
+            hs.inputs["Hue"].default_value = spec.get("hue", 0.5)
             nb.link(t.outputs["Color"], hs.inputs["Color"])
             alb = hs.outputs["Color"]
+            if spec.get("tint"):
+                alb = nb.mix(1.0, alb, spec["tint"], blend="MULTIPLY")
         else:
             alb = spec["color"]
         rough = spec["rough0"]
@@ -384,6 +450,16 @@ def make_material(cls, meshy_img=None, paint_img=None):
     bump.inputs["Distance"].default_value = 0.01
     if height is not None:
         nb.set(bump.inputs["Height"], height)
+    if spec["kind"] == "meshy" and MESHY_NRM is not None:
+        # DeepBump normal from Meshy's painted albedo (stitching, folds, fruit shapes) on the Meshy UV, under the micro bump
+        uvn2 = nb.new("ShaderNodeUVMap", uv_map="meshy_uv")
+        nt_ = nb.new("ShaderNodeTexImage")
+        nt_.image = MESHY_NRM
+        nb.link(uvn2.outputs["UV"], nt_.inputs["Vector"])
+        nm = nb.new("ShaderNodeNormalMap", uv_map="meshy_uv")
+        nm.inputs["Strength"].default_value = 0.8
+        nb.link(nt_.outputs["Color"], nm.inputs["Color"])
+        nb.link(nm.outputs["Normal"], bump.inputs["Normal"])
     nb.reroute("OUT_albedo", alb)
     nb.reroute("OUT_rough", rough)
     nb.reroute("OUT_metal", metal)

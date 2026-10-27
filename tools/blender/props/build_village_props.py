@@ -2,11 +2,11 @@
 These were rejected from Meshy (barrel rack, tavern sign, bench v1, trough v1) or don't exist as CC0.
 
   bench_hewn         1.80 x 0.32 x 0.45 m  split-log seat (flat top, bark underside), 4 splayed round legs through-wedged
-  trough_granite     2.00 x 0.70 x 0.60 m  carved granite (voxel-remeshed + chiselled displacement), moss, water plane
+  trough_granite     2.00 x 0.70 x 0.60 m  hewn granite: boolean basin, crisp 7 mm arrises, chipped edges, chisel tooling in the normal map, moss, water
   tavern_sign        1.05 m iron bracket   wall plate + square bar arm + scroll brace, 2 chains to the board top,
                                            0.75 x 0.50 board with a painted tankard emblem (both faces). Origin = wall mount.
   barrel_rack        1.95 x 0.80 x 0.87 m  3 oak barrels (18 staves, heads, 4 iron hoops each) on a hewn cradle rack
-  fence_wattle       2.00 x 0.12 x 1.05 m  7 stakes + 25 woven hazel courses
+  fence_wattle       2.00 x 0.12 x 1.10 m  7 stakes + ~36 dense courses of thin irregular hazel rods (<= 5k tris)
   fence_post_rail    2.60 x 0.16 x 1.25 m  2 hewn posts, 2 split rails through mortises
   haystack           2.3 dia x 2.6 m       medieval rick around a centre pole (rectangular bales would be anachronistic)
   hay_bundle         0.85 x 0.42 x 0.40 m  a straw-bound truss of hay (the period "bale")
@@ -210,29 +210,39 @@ def trough_granite():
     bpy.context.view_layer.objects.active = ob
     bpy.ops.object.modifier_apply(modifier="cut")
     bpy.data.objects.remove(cut)
+    # chipped arrises: knock a few irregular lumps off edges and corners (low-poly icospheres, exact boolean = crisp breaks)
+    chips = [(0.99, 0.35, 0.60, 0.05), (-1.0, -0.35, 0.60, 0.04), (0.35, -0.35, 0.60, 0.03), (-0.62, 0.35, 0.60, 0.025),
+             (-1.0, 0.35, 0.02, 0.05), (1.0, -0.35, 0.3, 0.03), (0.0, 0.23, 0.60, 0.022)]
+    for k, (cx, cy, cz, rr) in enumerate(chips):
+        bpy.ops.mesh.primitive_ico_sphere_add(subdivisions=1, radius=rr, location=(cx, cy, cz))
+        ch = bpy.context.active_object
+        ch.scale = (random.uniform(0.8, 1.6), random.uniform(0.7, 1.3), random.uniform(0.5, 1.0))
+        ch.rotation_euler = (random.uniform(0, 3), random.uniform(0, 3), random.uniform(0, 3))
+        bo = ob.modifiers.new("chip%d" % k, "BOOLEAN")
+        bo.operation = "DIFFERENCE"
+        bo.object = ch
+        bo.solver = "EXACT"
+        bpy.context.view_layer.objects.active = ob
+        bpy.ops.object.modifier_apply(modifier=bo.name)
+        bpy.data.objects.remove(ch)
+    # crisp, small arris bevel (hewn granite: sharp but not CG-perfect)
     md = ob.modifiers.new("bev", "BEVEL")
-    md.width = 0.035
-    md.segments = 3
-    md.limit_method = "NONE"
+    md.width = 0.007
+    md.segments = 2
+    md.limit_method = "ANGLE"
+    md.angle_limit = math.radians(40)
     bpy.ops.object.modifier_apply(modifier="bev")
-    rm = ob.modifiers.new("rm", "REMESH")
-    rm.mode = "VOXEL"
-    rm.voxel_size = 0.014
-    bpy.ops.object.modifier_apply(modifier="rm")
-    # chiselled surface: low-frequency waviness + tooled pits + a few chipped corners
+    # subdivide flat faces a little so AO/grime/moss have vertices to live on, then a 2 mm out-of-true wobble (hand dressing)
+    bm = bmesh.new()
+    bm.from_mesh(ob.data)
+    long_e = [e for e in bm.edges if e.calc_length() > 0.12]
+    bmesh.ops.subdivide_edges(bm, edges=long_e, cuts=3, use_grid_fill=True)
+    bmesh.ops.triangulate(bm, faces=[f for f in bm.faces if len(f.verts) > 4])
+    for v in bm.verts:
+        v.co += Vector((noise.noise(v.co * 2.5), noise.noise(v.co * 2.5 + Vector((5, 0, 0))), 0)) * 0.002
+    bm.to_mesh(ob.data)
+    bm.free()
     me = ob.data
-    for v in me.vertices:
-        p = v.co
-        n = v.normal
-        d = 0.006 * noise.noise(p * 3.0) + 0.0025 * noise.noise(p * 22.0) + 0.0015 * noise.noise(p * 60.0)
-        for cx, cy, cz, rr in ((0.98, 0.33, 0.6, 0.07), (-0.99, -0.34, 0.58, 0.05), (0.4, -0.35, 0.6, 0.04), (-0.99, 0.35, 0.05, 0.06)):
-            dd = (p - Vector((cx, cy, cz))).length
-            if dd < rr:
-                d -= (rr - dd) * 0.3
-        v.co = p + n * d
-    dec = ob.modifiers.new("dec", "DECIMATE")
-    dec.ratio = min(1.0, 9000 / max(1, len(me.polygons) * 2))
-    bpy.ops.object.modifier_apply(modifier="dec")
     me.materials.clear()                   # the boolean leaves an empty slot behind
     me.materials.append(mat("granite"))
     for p in me.polygons:
@@ -448,32 +458,43 @@ def barrel_rack():
 
 
 def fence_wattle():
+    """Dense hurdle: 7 stakes, ~36 courses of thin irregular hazel rods woven in and out, packed so nothing shows through at 3 m."""
     reset(15)
     P = Part("fence_wattle")
     n = 7
-    xs = [-0.96 + 1.92 * i / (n - 1) for i in range(n)]
+    xs = [-0.96 + 1.92 * i / (n - 1) + (random.uniform(-0.02, 0.02) if 0 < i < n - 1 else 0) for i in range(n)]
+    sr = []
     for i, x in enumerate(xs):
-        h = random.uniform(1.0, 1.08)
-        lean = Vector((random.uniform(-0.015, 0.015), random.uniform(-0.02, 0.02), 0))
-        pts = [Vector((x, 0, -0.02)) + lean * t + Vector((0, 0, h * t)) for t in np.linspace(0, 1, 6)]
-        rows, side, caps = tube(P, pts, lambda t: 0.032 - 0.005 * t, 7, "hazel", cap="endgrain", rough=0.06, seed=i)
-        # axe-cut top: tilt the top ring
+        h = random.uniform(1.04, 1.12)
+        r0 = random.uniform(0.024, 0.03)
+        sr.append(r0)
+        lean = Vector((random.uniform(-0.015, 0.015), random.uniform(-0.012, 0.012), 0))
+        pts = [Vector((x, 0, -0.02)) + lean * t + Vector((0, 0, h * t)) for t in np.linspace(0, 1, 4)]
+        rows, side, caps = tube(P, pts, lambda t, r0=r0: r0 - 0.004 * t, 6, "hazel", cap="endgrain", rough=0.06, seed=i)
         for v in rows[-1]:
             v.co.z += (v.co - pts[-1]).dot(Vector((1, 0.3, 0)).normalized()) * 0.6
-    courses = 25
-    for k in range(courses):
-        z = 0.07 + k * 0.037 + random.uniform(-0.003, 0.003)
-        r = random.uniform(0.015, 0.019)
-        pts = []
+    z = 0.05
+    k = 0
+    while z < 0.98:
+        r = random.uniform(0.009, 0.015)
+        z += r * 0.95                          # rods overlap their neighbours a little: no see-through gaps
         ph = 1 if k % 2 else -1
-        x0, x1 = -1.0 - random.uniform(0, 0.03), 1.0 + random.uniform(0, 0.03)
-        steps = 30
-        for s in range(steps + 1):
-            x = x0 + (x1 - x0) * s / steps
-            # weave: in front of / behind alternate stakes (cosine through the stake spacing)
-            y = ph * math.cos((x - xs[0]) / (xs[1] - xs[0]) * math.pi) * (0.03 + r)
-            pts.append(Vector((x, y, z + 0.006 * math.sin(x * 3.1 + k))))
-        tube(P, pts, lambda t, r=r: r * (1.0 - 0.25 * t), 5, "hazel", cap="endgrain", seed=k)
+        x0 = -1.0 - random.uniform(0.0, 0.05)
+        x1 = 1.0 + random.uniform(0.0, 0.06)
+        steps = 13
+        pts = []
+        for sidx in range(steps + 1):
+            t = sidx / steps
+            x = x0 + (x1 - x0) * t
+            # interpolate the stake index to get in-front / behind alternation
+            u = (x - xs[0]) / (xs[-1] - xs[0]) * (n - 1)
+            y = ph * math.cos(u * math.pi) * (0.026 + r) + random.uniform(-0.003, 0.003)
+            pts.append(Vector((x, y, z + 0.008 * math.sin(x * 2.3 + k * 1.7) + random.uniform(-0.002, 0.002))))
+        tube(P, pts, lambda t, r=r: r * (1.12 - 0.3 * t) if ph > 0 else r * (0.82 + 0.3 * t), 4, "hazel", cap="endgrain", seed=k,
+             twist=random.uniform(0, 1.5))
+        z += r * 0.95
+        k += 1
+    print("WATTLE courses", k, flush=True)
     return [P.obj()], 1024
 
 

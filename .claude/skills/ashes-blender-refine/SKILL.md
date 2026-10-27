@@ -39,6 +39,9 @@ Code: `tools/blender/props/refine_lib.py` (shared: material library, weathering 
   - wattle weavers alternate in front of and behind the stakes;
   - stone is voxel-remeshed (14 mm) with layered noise displacement and chipped corners, then decimated.
 - Painted emblems are drawn into an RGBA image with numpy (`make_paint`) and mixed in on the `aux` UV. The paint is chipped by noise and sits on the raised grain. Don't use lettering (it garbles at 1K).
+- Hewn stone (`trough_granite`): use an exact boolean for the basin and booleans with low-poly icospheres to chip the arrises, then a 7 mm angle-limited bevel, then subdivide the long edges and add a 2 mm wobble. Chisel tool marks are in the material (`tooled`: a sawtooth wave plus pits in the height, so they bake into the normal map), and the granite colour is procedural (`granite`). Don't voxel-remesh hewn stone: it melts the edges.
+- Dense weaves (`fence_wattle`): rods of 9–15 mm radius, 4-sided tubes with 16 rings, each course stacked 0.95 × its diameter above the last so the rods overlap with no see-through gaps. They alternate in front of and behind the stakes by course, with random radius, taper and overrun. About 36 courses come to 5k tris.
+- Replacing bad Meshy parts (`refine_meshy.replace_hood`): delete the faces of one class with bmesh, measure what's left (here the mantel shelf), and loft a chamfered replacement in place (here a plaster hood and flue up to a 3.0 m ceiling). It gets its own class (`plaster_hood`: lime plaster with a streaked `soot` band over a Z range) and a dummy `meshy_uv` so the join keeps the UV layers.
 - Avoid anachronisms: no rectangular baler hay bales (use a rick or a bound truss), no modern saws or hardware.
 
 ## Shared: UV, bake, export (`refine_lib`)
@@ -73,7 +76,9 @@ A whole prop gets one material, plus at most one unbaked slot (water or glass). 
 4. Final AAA sign-off still needs the asset in-game, in context, at gameplay distance. The towns worker does that when placing it.
 
 ## Blender extensions and AI tools (best-tool check, 2026-10-28)
-The extensions are installed in `%APPDATA%\Blender Foundation\Blender\5.2\extensions\user_default\` (see `ashes-external-tools`). `tools/external/blender.sh` points `BLENDER_USER_EXTENSIONS` at `C:\Users\Jonna\Tools\blender-extensions` and runs with `--factory-startup`, so **these extensions are not loaded in blender.sh runs**. To use one, run Blender with `BLENDER_USER_EXTENSIONS="$APPDATA/Blender Foundation/Blender/5.2/extensions"` and `addon_utils.enable("bl_ext.user_default.<id>")`.
+The extensions are installed in `%APPDATA%\Blender Foundation\Blender\5.2\extensions\user_default\` (see `ashes-external-tools`). `tools/external/blender.sh` loads them through a directory junction, `C:\Users\Jonna\Tools\blender-ext-headless\user_default`, which points at that folder. Enable one in a script with `addon_utils.enable("bl_ext.user_default.<id>", default_set=True)`, because `--factory-startup` doesn't auto-enable anything.
+
+**Never point a `--factory-startup` run straight at the `%APPDATA%` extensions folder.** With nothing enabled, Blender's wheel sync empties `%APPDATA%\...\extensions\.local\lib\python3.13\site-packages`, which deletes the GUI's cv2, PIL and m_tree. That happened once on 2026-10-28, and starting Blender normally once (`blender -b --python-expr pass`) restored it. The junction gives headless runs their own `.local` beside it, so the GUI install is never touched.
 
 | Tool | Use here | Verdict for this pipeline |
 |---|---|---|
@@ -82,7 +87,7 @@ The extensions are installed in `%APPDATA%\Blender Foundation\Blender\5.2\extens
 | `texel_density_checker` | check px/m after `smart_uv` | Use it when a prop looks blurry next to its neighbours. Target 400–512 px/m for street props at 1K, about 1000 for hand props. |
 | `ivygen`, `Bagapie` | ivy and moss on walls and wells (ref 20) | Ivy needs alpha-cut leaf cards, which breaks the one-opaque-set rule. Put ivy on **walls in the town scene** (the towns worker), not baked into props. Moss on props is done in the shader stack (`moss` in LIB). |
 | `looptools`, `bool_tool` | modelling helpers | Plain `BOOLEAN` modifiers (EXACT) do the job headless, as in the trough basin. |
-| DeepBump (`C:\Users\Jonna\Tools\deepbump`) | normal maps from Meshy's painted albedo (stitching, folds) for `meshy*` classes | Worth wiring in: feed the normal through a Normal Map node on `meshy_uv` into the bump. On 2026-10-28 its venv had no numpy/onnxruntime, so it was not used. Install the requirements first. |
+| DeepBump (`C:\Users\Jonna\Tools\deepbump`) | normal maps from Meshy's painted albedo (stitching, folds) for `meshy*` classes | **Used.** Shrink the Meshy `base_color.png` to 1K, then run `PYTHONIOENCODING=utf-8 C:\Users\Jonna\Tools\deepbump\venv\Scripts\python.exe cli.py in.png <work>\deepbump\<name>_nrm.png color_to_normals` from `DeepBump-8` (about 7 s each). `refine_meshy.py` picks up `<work>/deepbump/<name>_nrm.png` automatically (`RL.MESHY_NRM`), and a Normal Map node on `meshy_uv` feeds it under the micro bump. |
 
 ## Known gaps
 No real-scan iron, fabric, leather or hay-twine is on disk. Downloading Poly Haven `rusty_metal_02`, `fabric_pattern_07`/burlap-like and `leather_*` sets (CC0, needs owner OK to download) would replace the procedural bases in `LIB`.
