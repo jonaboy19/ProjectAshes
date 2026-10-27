@@ -25,7 +25,8 @@ func test_prefix_identical_and_appended() -> void:
 		assert_int(b.size()).is_greater_equal(a.size())
 		for j in a.size():
 			assert_str(String(b[j]["asset"])).is_equal(String(a[j]["asset"]))
-			assert_bool((b[j]["pos"] as Vector2).is_equal_approx(a[j]["pos"])).is_true()
+			var planned_pos: Vector2 = b[j].get("moved_from", b[j]["pos"])     # a lot moved for a lane link keeps its planned position
+			assert_bool(planned_pos.is_equal_approx(a[j]["pos"])).is_true()
 			assert_float(float(b[j]["yaw"])).is_equal_approx(float(a[j]["yaw"]), 0.0001)
 			assert_str(String(b[j].get("district", ""))).is_equal(String(a[j].get("district", "")))
 			assert_bool(bool(b[j].get("infill", false))).is_false()

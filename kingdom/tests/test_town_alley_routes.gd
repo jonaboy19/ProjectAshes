@@ -3,10 +3,7 @@ extends GdUnitTestSuite
 ## street graph routes from the front door to the main gate road without a partial route and without crossing a building footprint.
 
 const SG := preload("res://scripts/population/street_graph.gd")
-## Ashford is out: its south radial lane starts boxed in by planned houses around the plaza (a pre-existing island in the street graph,
-## 11 of its 20 planned houses could not route before this pass either); CityPlanner._link_lanes joins its north lane, the south lane is a
-## known gap (docs/plans/TOWNS_MEDIEVAL_PASS.md) because planned lots are never moved (save compatibility).
-const TOWNS := ["Kingsreach", "Stonehollow", "Thornfield", "Redwater", "Millbrook", "Highcliff"]
+const TOWNS := ["Ashford", "Kingsreach", "Stonehollow", "Thornfield", "Redwater", "Millbrook", "Highcliff"]
 
 
 func before() -> void:
@@ -58,3 +55,10 @@ func test_alley_doors_route_to_the_plaza() -> void:
 	assert_array(failed).override_failure_message("blocked alley routes: %s" % [failed]).is_empty()
 
 
+## Save migration: a lot moved for a lane link (CityPlanner._move_blocker) keeps its planned identity.
+func test_moved_lot_keeps_its_ids() -> void:
+	for s in WorldGen.settlements:
+		for lot: Dictionary in s["plan"]["lots"]:
+			if lot.has("moved_from"):
+				assert_bool(bool(lot.get("infill", false))).is_false()
+				assert_float((lot["moved_from"] as Vector2).distance_to(lot["pos"])).is_less_equal(8.01)

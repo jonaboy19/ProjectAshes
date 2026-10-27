@@ -712,7 +712,11 @@ func _interior_doors(root: Node3D, lots: Array) -> void:
 		var door := InteriorDoor.new()
 		door.name = "Door_%s_%d" % [asset, holder.get_child_count()]
 		var btype := String(lot.get("btype", ""))
-		door.interior_scene = BuildingProfiles.interior_scene(asset, BuildingProfiles.building_id(p), btype)
+		# a lot moved by CityPlanner._move_blocker keeps the identity of its planned position (door id, interior seed): save migration
+		var idp: Vector2 = lot.get("moved_from", p)
+		if lot.has("moved_from"):
+			door.set_meta("door_id", preload("res://scripts/world/door_model.gd").make_id(String(WorldGen.nearest_settlement(idp).get("name", "")), idp))
+		door.interior_scene = BuildingProfiles.interior_scene(asset, BuildingProfiles.building_id(idp), btype)
 		door.prompt_text = BuildingProfiles.prompt(asset)
 		if btype != "":       # town-kit lot (TownLots): its keeper, name and prompt come from the roster
 			door.set_meta("bid", String(lot.get("bid", "")))

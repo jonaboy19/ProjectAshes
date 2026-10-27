@@ -795,9 +795,26 @@ static func _link_lanes(plan_data: Dictionary, polys: Array) -> void:
 				continue
 			var c: Vector2 = plan_data["centre"]
 			var pr: float = plan_data["plaza_r"]
+			# a lane that starts inside a building (Ashford's south lane runs into the guild hall): link from the first lane point
+			# that is clear of every footprint, toward the far end of the lane
+			var pd := (other - p).normalized()
+			for step in 24:
+				var inside := false
+				for q4: PackedVector2Array in polys:
+					if q4[0].distance_to(p) < 30.0 and Geometry2D.is_point_in_polygon(p, Geometry2D.offset_polygon(q4, 1.1)[0]):
+						inside = true
+						break
+				if not inside:
+					break
+				p += pd
 			if p.distance_to(c) > pr + 1.0 and p.distance_to(c) - pr <= 45.0:
-				cands.append([p.distance_to(c) - pr, c + (p - c).normalized() * pr])
+				# plaza edge straight in, and fanned out +-60 deg so a link can pass round a building on the plaza
+				var a0 := (p - c).angle()
+				for dk: int in [0, 1, -1, 2, -2, 3, -3, 4, -4]:
+					var tp := c + Vector2.from_angle(a0 + deg_to_rad(15.0 * dk)) * pr
+					cands.append([p.distance_to(tp), tp])
 			cands.sort_custom(func(x: Array, y: Array) -> bool: return float(x[0]) < float(y[0]))
+			var linked := false
 			for cd: Array in cands:
 				var tq: Vector2 = cd[1]
 				var rect := _seg_rect(p, tq, 0.9)
@@ -810,7 +827,109 @@ static func _link_lanes(plan_data: Dictionary, polys: Array) -> void:
 						break
 				if clear:
 					streets.append({"a": tq, "b": p, "w": 1.8, "link": true})
+					linked = true
 					break
+			if not linked:
+				# a dog-leg: two link segments through a via point to the side (a gap between two houses on the plaza)
+				for cd3: Array in cands:
+					var tq3: Vector2 = cd3[1]
+					var perp := (tq3 - p).normalized().orthogonal()
+					for k5: float in [4.0, -4.0, 7.0, -7.0, 10.0, -10.0, 13.0, -13.0]:
+						var via := p + perp * k5     # step out sideways first, then in to the target (round a wide hall)
+						var c1 := _link_clear(polys, p, via)
+						var c2 := _link_clear(polys, via, tq3)
+						# one leg blocked by exactly one planned house: slide that house (save-migrated, see _move_blocker)
+						if c1 and not c2:
+							c2 = _move_blocker(plan_data, polys, via, tq3)
+						elif c2 and not c1:
+							c1 = _move_blocker(plan_data, polys, p, via)
+						if c1 and c2:
+							streets.append({"a": tq3, "b": via, "w": 1.8, "link": true})
+							streets.append({"a": via, "b": p, "w": 1.8, "link": true})
+							linked = true
+							break
+					if linked:
+						break
+			if not linked:
+				# exactly one planned house stands in a link: slide it (index kept, `moved_from` recorded: the builder keeps its door
+				# id and interior seed, so saved property and interiors follow it). Nearest link first.
+				for cd2: Array in cands:
+					var tq0: Vector2 = cd2[1]
+					if _move_blocker(plan_data, polys, p, tq0):
+						streets.append({"a": tq0, "b": p, "w": 1.8, "link": true})
+						break
+
+
+## The one planned lot whose footprint blocks a link from `p` to `q`, slid along its street (its local X) by the smallest of
+## +-2 .. +-8 m that clears the link, fits the town (walls, landmarks), stays off every street and keeps 0.3 m to every other
+## footprint. The lot keeps its index, asset and yaw; `moved_from` = its planned position (save migration: door id, interior
+## seed). The town-kit registry entry follows. False when no single lot blocks or no shift works.
+static func _move_blocker(plan_data: Dictionary, polys: Array, p: Vector2, q: Vector2) -> bool:
+	var lots: Array = plan_data["lots"]
+	var streets: Array = plan_data["streets"]
+	var rect := _seg_rect(p, q, 0.9)
+	var hits: Array[int] = []
+	for i in polys.size():
+		if not Geometry2D.intersect_polygons(rect, polys[i]).is_empty():
+			if i >= lots.size():
+				return false        # a landmark blocks: never move those
+			hits.append(i)
+	if hits.size() != 1:
+		return false
+	var j := hits[0]
+	var lot: Dictionary = lots[j]
+	var asset := String(lot["asset"])
+	var yaw := float(lot["yaw"])
+	var ex := Vector2(cos(yaw), -sin(yaw))
+	var ez := Vector2(sin(yaw), cos(yaw))
+	var c: Vector2 = plan_data["centre"]
+	var shifts: Array = []
+	for k: float in [2.0, -2.0, 3.0, -3.0, 4.0, -4.0, 5.0, -5.0, 6.0, -6.0, 8.0, -8.0]:
+		shifts.append(ex * k)          # along its street
+	for k2: float in [-2.0, -3.0, -4.0, -5.0, -6.0]:
+		shifts.append(ez * k2)         # back from its street
+	for sh: Vector2 in shifts:
+		var np: Vector2 = (lot["pos"] as Vector2) + sh
+		var poly := _lot_poly(np, yaw, asset)
+		if not Geometry2D.intersect_polygons(rect, poly).is_empty():
+			continue
+		if not fits(asset, np, yaw, c, float(plan_data["wall_radius"]), bool(plan_data["walls"]), float(plan_data["inner_wall"]), plan_data["landmarks"]):
+			continue
+		var ok := true
+		for i in polys.size():
+			if i != j and _poly_gap(poly, polys[i]) < 0.3:
+				ok = false
+				break
+		if ok:
+			for st: Dictionary in streets:
+				for v: Vector2 in Array(poly) + [np]:
+					if v.distance_to(Geometry2D.get_closest_point_to_segment(v, st["a"], st["b"])) < float(st["w"]) * 0.5 + 0.3:
+						ok = false
+						break
+				if not ok:
+					break
+		if not ok:
+			continue
+		lot["moved_from"] = lot["pos"]
+		lot["pos"] = np
+		polys[j] = poly
+		var bid := String(lot.get("bid", ""))
+		var sl: Dictionary = plan_data.get("slice", {})
+		if bid != "" and (sl.get("buildings", {}) as Dictionary).has(bid):
+			sl["buildings"][bid]["pos"] = np
+			sl["buildings"][bid]["door"] = BuildingProfiles.door_point(lot)
+		return true
+	return false
+
+
+static func _link_clear(polys: Array, a: Vector2, b: Vector2) -> bool:
+	var rect := _seg_rect(a, b, 0.9)
+	for q: PackedVector2Array in polys:
+		if q[0].distance_to((a + b) * 0.5) > a.distance_to(b) + 16.0:
+			continue
+		if not Geometry2D.intersect_polygons(rect, q).is_empty():
+			return false
+	return true
 
 
 static func _seg_rect(a: Vector2, b: Vector2, hw: float) -> PackedVector2Array:
