@@ -18,6 +18,10 @@ extends RefCounted
 ## update() is cheap (sites are a short list, grid watchers a small window) and only recomputes after the focus moved
 ## MOVE_EPS metres, a quality change, or a new registration.
 
+const NodePool := preload("res://scripts/core/node_pool.gd")
+const Loader := preload("res://scripts/core/threaded_loader.gd")
+const Quality := preload("res://scripts/core/quality.gd")
+
 enum Tier { UNLOADED, LOW, FULL }
 
 ## The focus moved further than this in one update(): a teleport, fast travel or a loading jump, not walking or riding (a
@@ -63,7 +67,7 @@ var _next_trim_ms := 0
 
 static func shared() -> RefCounted:
 	if _shared == null:
-		_shared = (load("res://scripts/core/cell_streamer.gd") as GDScript).new()
+		_shared = new()
 	return _shared
 
 
@@ -93,7 +97,7 @@ func view_radius() -> int:
 		var q := _quality()
 		if q != null:
 			return int(q.call("value", "view_radius"))
-	return int(preload("res://scripts/core/quality.gd").TIERS[_qt()]["view_radius"])
+	return int(Quality.TIERS[_qt()]["view_radius"])
 
 
 ## "full", "load", "hyst" or "free" (load + hyst) in metres for `profile` at the current quality tier.
@@ -270,6 +274,11 @@ func _set_holder_tier(_id: Variant, t: int, _old: int, holder: Dictionary) -> vo
 	holder["tier"] = t
 
 
+## Spawner helper: load `path` through the budgeted queue instead of a blocking load(); cb(path, resource) lands on a later frame.
+func request_scene(path: String, cb: Callable) -> void:
+	Loader.request(path, cb, "PackedScene")
+
+
 func site_count(profile: String) -> int:
 	return (_sites.get(profile, {}) as Dictionary).size()
 
@@ -296,7 +305,7 @@ func update(world_focus: Vector3) -> bool:
 			_update_sites(profile)
 	if jumped:
 		teleports += 1
-		(load("res://scripts/core/node_pool.gd") as GDScript).call("request_trim", IDLE_KEEP_AFTER_TELEPORT)   # the bodies of the place we left: freed one per step (update -> _trim_tick), not in this frame
+		NodePool.request_trim(IDLE_KEEP_AFTER_TELEPORT)   # the bodies of the place we left: freed one per step (update -> _trim_tick), not in this frame
 		teleported.emit(from, f)
 	return true
 
@@ -306,9 +315,8 @@ func _trim_tick() -> void:
 	var now := Time.get_ticks_msec()
 	if now < _next_trim_ms:
 		return
-	var np := load("res://scripts/core/node_pool.gd") as GDScript
-	_next_trim_ms = now + (100 if bool(np.call("trim_pending")) else 1000)
-	np.call("trim_step")
+	_next_trim_ms = now + (100 if NodePool.trim_pending() else 1000)
+	NodePool.trim_step()
 
 
 func _update_cells(profile: String) -> void:
