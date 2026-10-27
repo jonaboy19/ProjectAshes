@@ -4260,6 +4260,24 @@ func st_reach(npc: Node3D, label: String) -> bool:
 
 
 ## Real conversation: go to the place, wait for the character, walk up, E, then click the option the bot's picker chooses, to the end.
+## Act IV: the talk sheet offers "Lay Rowan's ember to rest" beside the dialogue options; the card asks where it rests (a runestone).
+func st_rowan_ember() -> bool:
+	var q := st_q()
+	var wanted := false
+	for sid: String in q.active_steps():
+		var o := q.current_objective(sid)
+		if String(o.get("type", "")) == "ember_choice" and String(o.get("who", "")) == "rowan":
+			wanted = true
+	if not wanted or not await click_option("Lay Rowan"):
+		return false
+	var ok := await click_option("Rest in a runestone")
+	if ok:
+		ok = await click_option(" m)")
+	L("Rowan's ember: laid to rest in a runestone through the cards: %s" % str(ok))
+	close_everything()
+	return ok
+
+
 func st_talk(npc_id: String, place: String) -> bool:
 	var dir := st_dir()
 	if npc_id in ["mother", "father"] and place in ["ashford", "ashford_ring"]:
@@ -4292,6 +4310,9 @@ func st_talk(npc_id: String, place: String) -> bool:
 	var lines: Array[String] = []
 	while hud.is_menu_open() and dir.in_conversation() and turns < 32:
 		turns += 1
+		if npc_id == "rowan_ashby" and await st_rowan_ember():
+			lines.append("(Rowan's ember laid to rest)")
+			break
 		var conv: Dictionary = dir._conv
 		var opts: Array = conv["options"]
 		lines.append(String(conv["line"]).left(60))
