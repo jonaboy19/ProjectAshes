@@ -4187,6 +4187,9 @@ func st_travel(dest: Vector2, label: String, tol := 4.0) -> void:
 		if Game.gold < fare:
 			st_hook("gold %d -> %d for the coach fare" % [Game.gold, fare + 20])
 			Game.gold = fare + 20
+		close_everything()
+		await ensure_alive()
+		L("coach: tree paused %s, hud fade visible %s" % [str(get_tree().paused), str(hud._fade.visible)])
 		var g0 := Game.gold
 		var h0: float = WorldSim.time_of_day
 		L("[HOOK-lite] coach ride through hud._on_travel_requested (the world-map click is skipped): %s, %.1f km, fare %d" % [String(to_ws["name"]), dist / 1000.0, fare])
@@ -4196,6 +4199,9 @@ func st_travel(dest: Vector2, label: String, tol := 4.0) -> void:
 		await wait(1.5)
 		check("coach ride to %s took the fare and moved the player" % String(to_ws["name"]), Game.gold < g0 and p2().distance_to(to_ws["pos"]) < 60.0,
 			"gold %d -> %d, hour %.1f -> %.1f, %.0f m from the stop" % [g0, Game.gold, h0, WorldSim.time_of_day, p2().distance_to(to_ws["pos"])])
+		if p2().distance_to(to_ws["pos"]) >= 60.0:
+			st_hook("teleport onto the waystation %s (the coach ride did not arrive: tree paused %s)" % [String(to_ws["name"]), str(get_tree().paused)])
+			await teleport((to_ws["pos"] as Vector2) + Vector2(3, 3), 0.0, 0.6)
 		await st_travel(dest, label, tol)     # the rest of the way (walk, or the next hop)
 		return
 	st_hook("teleport to %s, %.0f m (no coach stop near both ends: from-stop %.0f m away, goal-stop %.0f m)" % [label, d0,
