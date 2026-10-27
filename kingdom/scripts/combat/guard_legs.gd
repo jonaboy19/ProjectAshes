@@ -15,6 +15,10 @@ const MAX_WEIGHT := 0.75      ## never a full pose swap: the clip's own foot pla
 
 var target := 0.0
 var weight := 0.0
+## Pelvis-only crouch (guard while strafing / lock-on idle): lowers the hips toward the guard height without touching the
+## leg rotations, so moving feet keep their stepping clip; the rig's foot IK (it runs after this stage) bends the knees.
+var crouch_target := 0.0
+var crouch := 0.0
 var _ids: Array[int] = []
 var _rots: Array[Quaternion] = []
 var _pelvis := -1
@@ -28,6 +32,7 @@ static func attach(sk: Skeleton3D, ap: AnimationPlayer, guard_clip: String) -> S
 	var g: SkeletonModifier3D = (load("res://scripts/combat/guard_legs.gd") as GDScript).new()
 	g.name = "GuardLegs"
 	sk.add_child(g)
+	sk.move_child(g, 0)      # first in the stack: the rig's foot IK runs after it and keeps the soles on the ground
 	g.call("bind", sk, ap.get_animation(guard_clip))
 	return g
 
@@ -64,17 +69,18 @@ static func step_weight(w: float, tgt: float, dt: float) -> float:
 
 func _process_modification_with_delta(delta: float) -> void:
 	weight = step_weight(weight, target, delta)
-	if weight <= 0.001:
+	crouch = step_weight(crouch, crouch_target, delta)
+	if weight <= 0.001 and crouch <= 0.001:
 		return
 	var sk := get_skeleton()
 	if sk == null:
 		return
-	for i in _ids.size():
+	for i in (_ids.size() if weight > 0.001 else 0):
 		var b := _ids[i]
 		sk.set_bone_pose_rotation(b, sk.get_bone_pose_rotation(b).slerp(_rots[i], weight))
 	if _pelvis >= 0 and not is_nan(_pelvis_y):
 		var p := sk.get_bone_pose_position(_pelvis)
 		# lower toward the guard height only (never raise a deeper pose), x/z stay the clip's
 		if _pelvis_y < p.y:
-			p.y = lerpf(p.y, _pelvis_y, weight)
+			p.y = lerpf(p.y, _pelvis_y, maxf(weight, crouch))
 			sk.set_bone_pose_position(_pelvis, p)

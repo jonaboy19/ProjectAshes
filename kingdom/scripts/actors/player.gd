@@ -2374,7 +2374,10 @@ func _update_guard_legs() -> void:
 	if _guard_legs == null:
 		return
 	var recovering := _swing > 0.0 and _swing_elapsed > _swing_hit + 0.08 and _action != null and String(_action.anim).begins_with("Mx_")
-	_guard_legs.set("target", 1.0 if recovering else 0.0)
+	# guard between exchanges too: standing in lock-on / guard, the legs take the wide base; strafing, the hips drop only
+	var guarding := _guard_foe != null and _swing <= 0.0 and _dodge <= 0.0 and not dead
+	_guard_legs.set("target", 1.0 if recovering or (guarding and _move_speed < 0.4) else 0.0)
+	_guard_legs.set("crouch_target", 1.0 if guarding else 0.0)
 
 
 ## Combat guard stance: blade drawn and a living foe within GUARD_RANGE -> the weapon's bent-knee guard idle / armed walk

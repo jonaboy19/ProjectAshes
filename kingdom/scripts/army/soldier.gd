@@ -259,6 +259,7 @@ func _physics_process(delta: float) -> void:
 			_lean.set("aim_target", combat_target if engaging else null)
 		if _guard_legs != null:
 			_guard_legs.set("target", 1.0 if _cmotion.active and _cmotion.t > _cmotion.hit_t + 0.08 else 0.0)
+			_guard_legs.set("crouch_target", 1.0 if engaging and dist < 6.0 and not _cmotion.active else 0.0)
 		# guard footwork steps: directional strafe clips while circling a foe (feet follow the travel, no forward-walk skate)
 		_animator.set_strafing(engaging and dist < 6.0 and planar > 0.3)
 		_animator.update(delta, planar, Vector3(_velocity.x, 0.0, _velocity.z))

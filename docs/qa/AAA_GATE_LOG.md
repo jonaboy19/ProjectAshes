@@ -261,3 +261,8 @@ Files: `PA_plans/videos/WIP_combat_full_motion_slice_road_sword4_v9.mp4` (1v1 in
 - Contact dust only after a real step (> 0.5 m warped): fewer puffs.
 - Lock-on pivots: NOT done. The Mx_SnS turn clips turn in the pelvis, not the root, so rotating the capsule as well would double-turn. They need root-rotation extraction first (Blender RootMaker, or a converter pass that moves pelvis yaw into the root).
 - Timing (hit-stop 40/90/100/120 ms by weight, camera shake/roll by tier) is unchanged from pass 5; it holds on these takes.
+
+## 2026-10-27 Combat pass 10 (combat-motion worker) - player guard between exchanges - FAIL (improved, WIP)
+File: `PA_plans/videos/WIP_combat_full_motion_slice_road_sword5_v10.mp4`; sheet `docs/qa/golden/combat/fm_v10_guard_sheet.jpg`.
+- GuardLegs now also runs between exchanges. Standing guard (foe within 7 m, not swinging or dodging, < 0.4 m/s): the legs take the wide Block_Idle base. Strafing / moving: a pelvis-only crouch (the hips drop to the guard height) and the leg rotations are left to the stepping clip. The modifier now runs FIRST in the skeleton stack, so the rig's foot IK keeps the soles on the ground. Bandits get the same pelvis crouch while engaged.
+- Verdict: the player reads lower and wider between blows on most frames (row 3 of the sheet); a few recovery frames are still upright. Back dodge still the old back-step (the only low Mixamo back-dodge in our packs is the longbow one, which holds a bow). Lock-on pivots wait for the player worker's yaw extraction in root_extract.gd. Background: some stylised orange pines are still on the road edge after the world worker's v13/v14 tree swap.
