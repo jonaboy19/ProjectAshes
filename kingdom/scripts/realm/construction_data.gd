@@ -43,6 +43,15 @@ const MASTER_BONUS_CAP := 0.3
 const CROWD_FACTOR := 0.35
 const PLAYER_NEAR := 70.0
 
+## Upkeep of the fabric: a finished building loses `cond` (1 = sound) every day, taller tiers a little faster. Under
+## REPAIR_BELOW it is a repair job (materials = REPAIR_SHARE of its cost, scaled by the damage); under RUIN_BELOW it
+## shelters nobody and gives no role until repaired.
+const DECAY_PER_DAY := 0.004
+const DECAY_TIER_STEP := 0.25
+const REPAIR_BELOW := 0.6
+const RUIN_BELOW := 0.15
+const REPAIR_SHARE := 0.3
+
 ## Trails: uses needed for a footpath and a worn road between two buildings; speed multipliers.
 const FOOTPATH_USES := 8.0
 const ROAD_USES := 60.0

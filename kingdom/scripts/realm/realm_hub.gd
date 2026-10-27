@@ -122,8 +122,14 @@ func player_settlements() -> Array:
 		var fid := int(g.get("fid", 0))
 		var node := String(g.get("node", ""))
 		var o: Array = g["origin"]
-		out.append({"gid": gid, "fid": fid, "node": node, "name": String(g["name"]), "pos": Vector2(float(o[0]), float(o[2])),
-			"stage": fd.stage_name(fid) if fid > 0 else "", "pop": int(civ.population(node)) if node != "" else 0})
+		var pos := Vector2(float(o[0]), float(o[2]))
+		var cons: RefCounted = mods["construction"]
+		var hid: int = cons.holding_at(pos)
+		var f: Dictionary = fd.get_founding(fid) if fid > 0 else {}
+		out.append({"gid": gid, "fid": fid, "node": node, "name": String(g["name"]), "pos": pos,
+			"stage": fd.stage_name(fid) if fid > 0 else "", "pop": int(civ.population(node)) if node != "" else 0,
+			"tier": fd.scale_name(f) if not f.is_empty() else "camp",
+			"condition": cons.holding_condition(hid) if hid > 0 else 1.0, "repairs": cons.repair_jobs(hid).size() if hid > 0 else 0})
 	return out
 
 

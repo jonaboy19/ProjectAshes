@@ -1180,6 +1180,7 @@ func _complete(s: Dictionary) -> Array:
 	s["state"] = "done"
 	s["progress"] = float(s["total"])
 	s["done_day"] = _day
+	s["cond"] = 1.0
 	Events.log_to(hub, "build", "hd:%d" % int(s["holding"]), ["cn:%d" % int(s["id"])], "construction", "%s finished: %s" % [_hname(int(s["holding"])), d["name"]], 3)
 	for wid: String in (s["workers"] as Array).duplicate():
 		unassign(wid)
@@ -1276,13 +1277,16 @@ func _holding_sites(hid: int, done_only := true) -> Array:
 func beds_of(hid: int) -> int:
 	var n := int(kit_extra.get(hid, {}).get("beds", 0))      # Build-kit hook: kit beds count
 	for s: Dictionary in _holding_sites(hid):
-		n += int(D.CATALOG[String(s["kind"])].get("beds", 0))
+		if not is_ruined(s):
+			n += int(D.CATALOG[String(s["kind"])].get("beds", 0))
 	return n
 
 
 func roles_of(hid: int) -> Dictionary:
 	var out := {}
 	for s: Dictionary in _holding_sites(hid):
+		if is_ruined(s):
+			continue
 		var role := String(D.CATALOG[String(s["kind"])].get("role", ""))
 		out[role] = int(out.get(role, 0)) + 1
 	return out
@@ -1401,7 +1405,7 @@ func holding_info(hid: int) -> Dictionary:
 	var idn := holding_identity(hid)
 	return {"id": hid, "name": String(h["name"]), "level": String(h["level"]), "level_name": level_name(hid),
 		"buildings": _holding_sites(hid).size(), "beds": beds_of(hid), "pop": int(h["pop"]), "roles": roles_of(hid),
-		"next": next_level_needs(hid), "identity": String(idn["top"]), "store_used": store_used(hid), "store_cap": store_cap(hid)}
+		"next": next_level_needs(hid), "condition": holding_condition(hid), "repairs": repair_jobs(hid).size(), "identity": String(idn["top"]), "store_used": store_used(hid), "store_cap": store_cap(hid)}
 
 
 # ------------------------------------------------------------------ trails
@@ -1688,6 +1692,7 @@ func _day_upkeep(_ctx: Dictionary) -> Array:
 			h["pop"] = maxf(target, float(h["pop"]) - 1.0)
 		out.append_array(_update_level(hid))
 	_daily_trails()
+	out.append_array(_decay_day())
 	return out
 
 
@@ -1700,6 +1705,126 @@ func catch_up(days: int, ctx: Dictionary) -> Array:
 		_day += 1
 		out.append_array(_day_upkeep(ctx))
 	_flush_street_queue()
+	return out
+
+
+# ------------------------------------------------------------------ condition, decay and repair jobs
+
+## 0..1 condition of a finished building; saves from before decay have no `cond` and read as sound.
+static func condition_of(s: Dictionary) -> float:
+	return clampf(float(s.get("cond", 1.0)), 0.0, 1.0)
+
+
+static func is_ruined(s: Dictionary) -> bool:
+	return condition_of(s) < D.RUIN_BELOW
+
+
+func _maintained(s: Dictionary) -> bool:
+	return String(s["state"]) == "done" and not bool(s.get("npc", false)) and D.CATALOG.has(String(s["kind"]))
+
+
+## Mean condition of the finished buildings in a holding (1.0 when it has none).
+func holding_condition(hid: int) -> float:
+	var n := 0
+	var sum := 0.0
+	for s: Dictionary in _holding_sites(hid):
+		if _maintained(s):
+			n += 1
+			sum += condition_of(s)
+	return sum / n if n > 0 else 1.0
+
+
+## Materials a repair of site `site_id` takes: REPAIR_SHARE of its cost, scaled by the damage, at least 1 of each.
+func repair_needs(site_id: int) -> Dictionary:
+	var s: Dictionary = sites.get(site_id, {})
+	var out := {}
+	if s.is_empty() or not _maintained(s):
+		return out
+	var damage := 1.0 - condition_of(s)
+	var cost: Dictionary = D.def(String(s["kind"])).get("cost", {})
+	for item: String in cost:
+		out[item] = maxi(1, int(ceil(float(cost[item]) * D.REPAIR_SHARE * damage)))
+	return out
+
+
+## Buildings that need work (condition under REPAIR_BELOW), worst first. hid 0 = every holding.
+func repair_jobs(hid := 0) -> Array:
+	var out: Array = []
+	var ids := sites.keys()
+	ids.sort()
+	for id: int in ids:
+		var s: Dictionary = sites[id]
+		if not _maintained(s) or (hid > 0 and int(s["holding"]) != hid) or condition_of(s) >= D.REPAIR_BELOW:
+			continue
+		out.append({"site": id, "holding": int(s["holding"]), "kind": String(s["kind"]), "cond": condition_of(s),
+			"ruined": is_ruined(s), "needs": repair_needs(id)})
+	out.sort_custom(func(a: Dictionary, b: Dictionary) -> bool: return float(a["cond"]) < float(b["cond"]) if float(a["cond"]) != float(b["cond"]) else int(a["site"]) < int(b["site"]))
+	return out
+
+
+func _store_has(hid: int, needs: Dictionary) -> bool:
+	for item: String in needs:
+		if store_count(hid, item) < int(needs[item]):
+			return false
+	return true
+
+
+func _store_take_all(hid: int, needs: Dictionary) -> void:
+	var st: Dictionary = holdings[hid]["store"]
+	for item: String in needs:
+		st[item] = int(st[item]) - int(needs[item])
+
+
+## Player repair: materials come from the holding store first, then the bag. Restores full condition.
+func repair(site_id: int) -> Dictionary:
+	var s: Dictionary = sites.get(site_id, {})
+	if s.is_empty() or not _maintained(s):
+		return {"ok": false, "reason": "Nothing to repair."}
+	if condition_of(s) >= 1.0 - 1e-6:
+		return {"ok": false, "reason": "It is sound."}
+	var needs := repair_needs(site_id)
+	var hid := int(s["holding"])
+	for item: String in needs:
+		if store_count(hid, item) + _have(item) < int(needs[item]):
+			return {"ok": false, "reason": "Missing %s." % _item_name(item), "needs": needs}
+	for item: String in needs:
+		var from_store := mini(store_count(hid, item), int(needs[item]))
+		if from_store > 0:
+			(holdings[hid]["store"] as Dictionary)[item] = store_count(hid, item) - from_store
+		_take(item, int(needs[item]) - from_store)
+	s["cond"] = 1.0
+	_trail_dirty = true
+	return {"ok": true, "needs": needs}
+
+
+## One day of wear, then the settlement's own repair crew: each holding mends its worst building from its store.
+func _decay_day() -> Array:
+	var out: Array = []
+	var ids := sites.keys()
+	ids.sort()
+	for id: int in ids:
+		var s: Dictionary = sites[id]
+		if not _maintained(s):
+			continue
+		var before := condition_of(s)
+		var tier := int(D.CATALOG[String(s["kind"])].get("tier", 0))
+		var after := maxf(0.0, before - D.DECAY_PER_DAY * (1.0 + D.DECAY_TIER_STEP * tier))
+		s["cond"] = after
+		var nm := String(D.CATALOG[String(s["kind"])]["name"]).to_lower()
+		if before >= D.REPAIR_BELOW and after < D.REPAIR_BELOW:
+			out.append("%s: the %s is worn and needs repair." % [_hname(int(s["holding"])), nm])
+		elif before >= D.RUIN_BELOW and after < D.RUIN_BELOW:
+			out.append("%s: the %s has fallen into ruin." % [_hname(int(s["holding"])), nm])
+	var done_h := {}
+	for job: Dictionary in repair_jobs():
+		var hid := int(job["holding"])
+		if done_h.has(hid) or not holdings.has(hid) or not _store_has(hid, job["needs"]):
+			continue
+		done_h[hid] = true
+		_store_take_all(hid, job["needs"])
+		sites[int(job["site"])]["cond"] = 1.0
+		_trail_dirty = true
+		out.append("%s: the settlement repaired its %s." % [_hname(hid), String(D.CATALOG[String(job["kind"])]["name"]).to_lower()])
 	return out
 
 
