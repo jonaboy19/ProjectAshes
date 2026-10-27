@@ -66,7 +66,9 @@ const WEAPON_CARRY_RATE := 14.0  # 1/s into a swing
 const WEAPON_CARRY_IN := 4.5     # 1/s back to the carry: blends over the swing recovery with the arm, no snap
 const HOLSTER_RATE := 7.0        # 1/s: arm <-> back in ~0.15 s
 const BACK_GAP := 0.165          # m from the spine line (pelvis..neck) to the inner face of a prop on the back
-const SHIELD_BACK_DROP := -0.07    # m: a slung shield sits between the shoulder blades and the belt, its top below the head line
+const SHIELD_BACK_LIFT := 0.04     # m: a slung shield rides high on the back (ref 01)
+const SHIELD_BACK_LEFT := 0.09     # m toward the left shoulder ("right" in the back basis is the character's left): the right arm and back read
+const SHIELD_TILT_DEG := 20.0
 const BACK_DIAG_DEG := 35.0      # long weapons on the back: tilt from vertical, grip over the right shoulder
 const GUARD_MARGIN := 0.01       # m a hand prop is kept above the floor
 const PROP_GAIN := 0.0045
@@ -1056,6 +1058,8 @@ var _back_frame := {}        # cached: spine_03 / pelvis / neck bones and the bo
 
 
 func _holster_refresh() -> void:
+	if _scab == null or not is_instance_valid(_scab):
+		_scab = _skeleton.get_node_or_null("Scabbard") as Node3D
 	_hprops = _hprops.filter(func(e: Dictionary) -> bool:
 		var nv: Variant = e["node"]
 		return is_instance_valid(nv) and (nv as Node).is_inside_tree())
@@ -1165,6 +1169,8 @@ func _holster_pass(delta: float) -> void:
 	if _hprops.is_empty():
 		return
 	var bb := _back_basis()
+	_scab_step(bb, delta)
+	var scab_done := false
 	for e: Dictionary in _hprops:
 		var nv: Variant = e["node"]
 		if not is_instance_valid(nv):
@@ -1195,6 +1201,9 @@ func _holster_pass(delta: float) -> void:
 			continue
 		var att_g := _skeleton.global_transform * _skeleton.get_bone_global_pose(bi)
 		e["att_g"] = att_g
+		if not scab_done and kind == "hand" and _scab != null and is_instance_valid(_scab) and bool(bb.get("ok", false)) and String(att.bone_name).to_lower() == "hand_r":
+			scab_done = true
+			_scab.global_transform = _hip_socket(e, bb, att_g * node.transform)    # the sword frame: a sheathed blade sits inside it
 		if h > 0.0005 and bool(bb.get("ok", false)):
 			var hand_g := att_g * node.transform
 			var box: AABB = e["box"]
@@ -1241,6 +1250,9 @@ func _socket(e: Dictionary, bb: Dictionary, hand_g: Transform3D) -> Transform3D:
 		return _hip_socket(e, bb, hand_g)
 	var is_long := String(e["kind"]) != "shield"      # long weapons, and a sheathed sword while climbing, cross the back
 	var long_dir := up
+	if String(e["kind"]) == "shield":
+		# high on the back, over the left shoulder blade, top leaning toward the right shoulder: the point toward the left hip
+		long_dir = (up * cos(deg_to_rad(SHIELD_TILT_DEG)) - right * sin(deg_to_rad(SHIELD_TILT_DEG))).normalized()
 	var lsign := 1.0
 	if is_long:
 		long_dir = (up * cos(deg_to_rad(BACK_DIAG_DEG)) - right * sin(deg_to_rad(BACK_DIAG_DEG))).normalized()
@@ -1252,13 +1264,42 @@ func _socket(e: Dictionary, bb: Dictionary, hand_g: Transform3D) -> Transform3D:
 	cols[oi] = cols[(oi + 1) % 3].cross(cols[(oi + 2) % 3])
 	var basis := Basis(cols[0], cols[1], cols[2]).orthonormalized()
 	var half_thin := box.size[ti] * 0.5 * scl[ti]
-	var centre := (bb["line"] as Vector3) + back * (BACK_GAP + half_thin + _roll_gap) + up * (SHIELD_BACK_DROP if not is_long else 0.0)
+	var centre := (bb["line"] as Vector3) + back * (BACK_GAP + half_thin + _roll_gap) + (up * SHIELD_BACK_LIFT + right * SHIELD_BACK_LEFT if not is_long else Vector3.ZERO)
 	var b_scaled := basis.scaled(scl)
 	return Transform3D(b_scaled, centre - b_scaled * box.get_center())
 
 
+const HIP_FWD := 0.09      # m forward of the pelvis line: the frog sits on the front of the left hip, hilt forward
 const HIP_OUT := 0.2       # m from the pelvis to the scabbard, sideways
-const HIP_TILT_DEG := 25.0
+const HIP_TILT_DEG := 18.0      # from the pelvis up axis: with the walk's forward lean the blade hangs ~28 deg back in the world
+## The scabbard (Assets: "Scabbard" under the skeleton, top-level; tools/blender/props/build_scabbard.py) hangs in the hip socket
+## whether the sword is drawn or not, and swings a little about its belt frog: a damped pendulum driven by the pelvis's
+## forward/back acceleration (the tip lags a start, swings forward on a stop). Sword and scabbard share the swing.
+const SCAB_SWING_GAIN := 0.012     # rad per m/s^2 of forward acceleration
+const SCAB_SWING_MAX := 0.3
+const SCAB_STIFF := 55.0
+const SCAB_DAMP := 7.0
+var _scab: Node3D
+var _scab_ang := 0.0
+var _scab_vel := 0.0
+var _scab_prev := Vector3.INF
+var _scab_pv := Vector3.ZERO
+
+
+func _scab_step(bb: Dictionary, delta: float) -> void:
+	if delta <= 0.0 or not bool(bb.get("ok", false)):
+		return
+	var pel: Vector3 = bb["pel"]
+	var v := Vector3.ZERO if _scab_prev == Vector3.INF else (pel - _scab_prev) / delta
+	_scab_prev = pel
+	var acc := (v - _scab_pv) / delta
+	_scab_pv = v
+	if acc.length() > 60.0:
+		acc = Vector3.ZERO           # a teleport or a cut, not a swing
+	var a_fwd := -acc.dot(bb["back"] as Vector3)
+	var target := clampf(-a_fwd * SCAB_SWING_GAIN, -SCAB_SWING_MAX, SCAB_SWING_MAX)
+	_scab_vel += ((target - _scab_ang) * SCAB_STIFF - _scab_vel * SCAB_DAMP) * delta
+	_scab_ang = clampf(_scab_ang + _scab_vel * delta, -SCAB_SWING_MAX, SCAB_SWING_MAX)
 const HIP_TILT_SEATED_DEG := 78.0
 
 
@@ -1278,8 +1319,12 @@ func _hip_socket(e: Dictionary, bb: Dictionary, hand_g: Transform3D) -> Transfor
 	cols[ti] = side
 	cols[oi] = cols[(oi + 1) % 3].cross(cols[(oi + 2) % 3])
 	var basis := Basis(cols[0], cols[1], cols[2]).orthonormalized().scaled(scl)
-	var grip := (bb["pel"] as Vector3) + side * HIP_OUT + up * lerpf(0.04, 0.12, seated) - back * 0.04
-	return Transform3D(basis, grip - basis * (e["grip"] as Vector3))
+	var grip := (bb["pel"] as Vector3) + side * HIP_OUT + up * lerpf(0.04, 0.12, seated) - back * HIP_FWD
+	var xf := Transform3D(basis, grip - basis * (e["grip"] as Vector3))
+	if absf(_scab_ang) > 0.0005:
+		var r := Basis((bb["right"] as Vector3).normalized(), _scab_ang)
+		xf = Transform3D(r * xf.basis, grip + r * (xf.origin - grip))     # swings about the frog on the belt
+	return xf
 
 
 ## A hand prop whose lowest corner goes below the floor is turned about its grip (the bone) just enough to clear it.

@@ -372,6 +372,8 @@ const MH_DIR := "res://assets/generated/characters/"
 ## Guard gear from the armor library (CC-BY 3.0: Lotnik; Jacques Fourie; see CREDITS.md).
 const GUARD_HELM := "res://assets/incoming/armor/opengameart/cc-by/anglo-saxon-helmets/anglo_saxon_helm2.glb"
 const KITE_SHIELD := "res://assets/incoming/polyhaven/models/kite_shield/kite_shield_1k.gltf"
+const SCABBARD := "res://assets/generated/props/weapons/scabbard.glb"     # tools/blender/props/build_scabbard.py
+const SCABBARD_REFINED := "res://assets/props_refined/scabbard_arming/scabbard_arming.glb"   # textured by tools/blender/props/refine_scabbard.py
 const ARMING_SWORD := "res://assets/generated/props/weapons/arming_sword.glb"
 const GUARD_SHIELD := "res://assets/incoming/armor/polypizza_sel/shield_round_wood_boss.glb"
 ## Look names -> MakeHuman character GLBs (one is picked at random).
@@ -513,10 +515,19 @@ static func mh_character(file: String, height: float, keep: Array[String] = [], 
 		elif part.contains("Sword"):
 			# arming sword (tools/blender/props/build_arming_sword.py): 95 cm, origin at the grip, blade along +Y like the KayKit set
 			_attach(skeleton, "hand_r", ARMING_SWORD if ResourceLoader.exists(ARMING_SWORD) else WEAPONS + "Sword_Bronze.gltf", 0.95, Vector3(0.05, 0.02, 0), Vector3(0, 0, -90))
+			if ResourceLoader.exists(ARMING_SWORD) and ResourceLoader.exists(SCABBARD):
+				# the scabbard: placed every frame by ProceduralRig in the hip socket (the sheathed sword's own frame), so it is top-level
+				var scab_path := SCABBARD_REFINED if ResourceLoader.exists(SCABBARD_REFINED) else SCABBARD
+				var scab: Node3D = Assets.scene(scab_path).instantiate()
+				if scab_path == SCABBARD_REFINED:
+					_weather(scab, 0.5, 0.7)      # gate: the refined leather read mid-brown; near-black oiled leather
+				scab.name = "Scabbard"
+				scab.top_level = true
+				skeleton.add_child(scab)
 			# Poly Haven kite_shield (CC0 scan): 95 cm, point down, face out from the forearm
 		elif part.contains("Kite_Shield") and ResourceLoader.exists(KITE_SHIELD):
 			# Poly Haven kite_shield (CC0 scan, 10k tris, 1K PBR, double-sided): 95 cm, point down, face out from the forearm
-			_weather(_attach(skeleton, "lowerarm_l", KITE_SHIELD, 0.88, Vector3(0.13, 0, 0.06), Vector3(0, 90, 0)), 0.55, 0.75)
+			_weather(_attach(skeleton, "lowerarm_l", KITE_SHIELD, 0.76, Vector3(0.13, 0, 0.06), Vector3(0, 90, 0)), 0.55, 0.75)
 		elif part.contains("Shield"):
 			_attach(skeleton, "lowerarm_l", GUARD_SHIELD, 0.65, Vector3(0.12, 0, 0.08), Vector3(0, 90, 0))
 	var anim := AnimationPlayer.new()

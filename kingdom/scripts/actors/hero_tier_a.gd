@@ -252,7 +252,7 @@ static func upgrade_meshy(model: Node3D, saturation := 0.92) -> ShaderMaterial:
 static func _on_attachment(n: Node) -> bool:
 	var q := n.get_parent()
 	while q != null:
-		if q is BoneAttachment3D:
+		if q is BoneAttachment3D or q.name == &"Scabbard":
 			return true
 		if q is Skeleton3D:
 			return false
