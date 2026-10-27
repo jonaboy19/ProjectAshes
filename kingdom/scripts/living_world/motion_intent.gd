@@ -57,19 +57,37 @@ static func make() -> Dictionary:
 	return d
 
 
-## Refills every key with its default, in place (the `ik` array is cleared, keeping its capacity).
+## Refills every key with its default, in place (the `ik` array is cleared, keeping its capacity). One flat run of stores:
+## this is on the per-body per-think path.
 static func reset(d: Dictionary) -> void:
-	for ch in 4:
-		clear_channel_out(d, ch)
+	d["steer_x"] = 0.0
+	d["steer_z"] = 0.0
+	d["speed_mul"] = 1.0
+	d["stop"] = false
 	d["gait_clip"] = ""
 	d["gait_rate"] = 1.0
+	d["upper_clip"] = ""
 	d["oneshot_clip"] = ""
 	d["oneshot_channel"] = NO_CHANNEL
+	d["lean"] = 0.0
+	(d["ik"] as Array).clear()
+	d["look_prio"] = 0
+	d["look_x"] = 0.0
+	d["look_y"] = 0.0
+	d["look_z"] = 0.0
+	d["look_hold"] = 0.0
+	d["look_limit"] = 0.0
+	d["reaction"] = 0
 	d["tier"] = 0
 	d["body_rule"] = ""
 	d["loco_rule"] = ""
 	d["upper_rule"] = ""
 	d["head_rule"] = ""
+	d["b_steer_x"] = 0.0
+	d["b_steer_z"] = 0.0
+	d["b_speed_mul"] = 1.0
+	d["b_stop"] = false
+	d["u_oneshot"] = ""
 
 
 ## Candidate scratch of one rule: same keys, but `ik` points at a shared empty constant (rules assign their own constant array).
