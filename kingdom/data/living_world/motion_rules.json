@@ -1,0 +1,724 @@
+{
+ "_doc": "MotionRules registry (scripts/living_world/motion_rules.gd, docs/plans/NPC_MOTION_RULES.md). channel: head|upper|loco|body, arbitrated BODY > LOCO > UPPER > HEAD; higher priority wins a channel, min_hold_s keeps the winner until a STRICTLY higher priority preempts. tier = lowest (furthest) tier the rule runs at: near|mid|far. stub=true rows are skipped by evaluate() until a package registers a real function with MotionRules.register(id, callable). vat_clips mirrors data/living_world/vat_bake.json clip_sets; a FAR gait clip not listed resolves to Walk/Idle.",
+ "archetypes": {
+  "villager": {
+   "space_radius": 1.2,
+   "rvo_radius": 0.5,
+   "rvo_priority": 0.5,
+   "yield_rank": 2,
+   "curiosity": 0.5,
+   "gesture_amp": 1.0,
+   "head_limit_deg": 70,
+   "gaits": [
+    "Walk",
+    "Life_Walk_Brisk"
+   ]
+  },
+  "child": {
+   "space_radius": 0.8,
+   "rvo_radius": 0.3,
+   "rvo_priority": 0.2,
+   "yield_rank": 1,
+   "curiosity": 0.8,
+   "gesture_amp": 1.15,
+   "head_limit_deg": 80,
+   "gaits": [
+    "Walk",
+    "Life_Kid_Skip",
+    "Life_Kid_Run_Play"
+   ]
+  },
+  "elder": {
+   "space_radius": 1.2,
+   "rvo_radius": 0.5,
+   "rvo_priority": 0.6,
+   "yield_rank": 4,
+   "curiosity": 0.35,
+   "gesture_amp": 0.85,
+   "head_limit_deg": 50,
+   "gaits": [
+    "Life_Walk_Elder",
+    "Life_Walk_Cane"
+   ]
+  },
+  "guard": {
+   "space_radius": 1.0,
+   "rvo_radius": 0.9,
+   "rvo_priority": 0.8,
+   "yield_rank": 4,
+   "curiosity": 0.4,
+   "gesture_amp": 0.8,
+   "head_limit_deg": 75,
+   "gaits": [
+    "Life_Guard_Patrol_Walk",
+    "Walk"
+   ]
+  },
+  "bandit": {
+   "space_radius": 1.0,
+   "rvo_radius": 0.5,
+   "rvo_priority": 0.6,
+   "yield_rank": 2,
+   "curiosity": 0.3,
+   "gesture_amp": 1.0,
+   "head_limit_deg": 65,
+   "gaits": [
+    "Walk",
+    "Run"
+   ]
+  },
+  "follower": {
+   "space_radius": 0.9,
+   "rvo_radius": 0.5,
+   "rvo_priority": 0.5,
+   "yield_rank": 2,
+   "curiosity": 0.5,
+   "gesture_amp": 1.0,
+   "head_limit_deg": 70,
+   "gaits": [
+    "Walk",
+    "Run"
+   ]
+  },
+  "merchant": {
+   "space_radius": 1.1,
+   "rvo_radius": 0.5,
+   "rvo_priority": 0.55,
+   "yield_rank": 3,
+   "curiosity": 0.45,
+   "gesture_amp": 1.15,
+   "head_limit_deg": 60,
+   "gaits": [
+    "Walk",
+    "Life_Walk_Happy"
+   ]
+  },
+  "noble": {
+   "space_radius": 1.5,
+   "rvo_radius": 0.8,
+   "rvo_priority": 0.7,
+   "yield_rank": 5,
+   "curiosity": 0.3,
+   "gesture_amp": 0.9,
+   "head_limit_deg": 55,
+   "gaits": [
+    "Walk"
+   ]
+  }
+ },
+ "vat_clips": [
+  "Idle",
+  "Walk",
+  "Idle_Talking",
+  "Life_Walk_Happy",
+  "Life_Walk_Tired",
+  "Life_Walk_Elder",
+  "Life_Farm_Hoe",
+  "Life_Farm_Harvest",
+  "Life_Farm_Sow",
+  "Life_Chore_Sweep",
+  "Life_Wood_Chop",
+  "Life_Talk_Explain",
+  "Life_Talk_Listen_Nod",
+  "Life_Market_Call_Out",
+  "Walk+Life_Carry_Bucket_Upper",
+  "Walk+Life_Carry_Sack_Upper",
+  "Sitting_Idle",
+  "Life_Guard_Patrol_Walk",
+  "Life_Guard_Lean_Spear",
+  "Life_Guard_Attention",
+  "Life_Kid_Run_Play",
+  "Life_Kid_Skip",
+  "Life_Kid_Hopscotch",
+  "Life_Kid_Chase_Chicken"
+ ],
+ "fallback_clips": {
+  "moving": "Walk",
+  "idle": "Idle"
+ },
+ "rules": [
+  {
+   "id": "S1",
+   "name": "rvo_avoidance",
+   "enabled": true,
+   "stub": true,
+   "channel": "loco",
+   "priority": 2,
+   "min_hold_s": 0.2,
+   "tier": "mid",
+   "params": {
+    "time_horizon_s": 1.5,
+    "max_neighbors": 6,
+    "loaded_rank_bonus": 1
+   }
+  },
+  {
+   "id": "S2",
+   "name": "yield_give_way",
+   "enabled": true,
+   "stub": true,
+   "channel": "loco",
+   "priority": 3,
+   "min_hold_s": 0.6,
+   "tier": "mid",
+   "params": {
+    "horizon_s": 2.5,
+    "slow_mul": 0.4,
+    "side_m": 0.6
+   }
+  },
+  {
+   "id": "S3",
+   "name": "pass_right_shoulder_turn",
+   "enabled": true,
+   "stub": true,
+   "channel": "loco",
+   "priority": 3,
+   "min_hold_s": 0.6,
+   "tier": "mid",
+   "params": {
+    "max_corridor_m": 1.6,
+    "oncoming_m": 3.0,
+    "turn_s": 0.6,
+    "yaw_deg_min": 30,
+    "yaw_deg_max": 40,
+    "shoulder_tier": "near"
+   }
+  },
+  {
+   "id": "S4",
+   "name": "stop_for_mover",
+   "enabled": true,
+   "stub": true,
+   "channel": "loco",
+   "priority": 5,
+   "min_hold_s": 1.0,
+   "tier": "mid",
+   "params": {
+    "lookahead_s": 3.0,
+    "stop_dist_m": 2.6
+   }
+  },
+  {
+   "id": "S5",
+   "name": "avoid_hazards",
+   "enabled": true,
+   "stub": true,
+   "channel": "loco",
+   "priority": 2,
+   "min_hold_s": 0.5,
+   "tier": "mid",
+   "params": {
+    "radius_min_m": 0.8,
+    "radius_max_m": 2.0,
+    "runners_ignore": true
+   }
+  },
+  {
+   "id": "S6",
+   "name": "pair_walk",
+   "enabled": true,
+   "stub": true,
+   "channel": "loco",
+   "priority": 2,
+   "min_hold_s": 0.5,
+   "tier": "mid",
+   "params": {
+    "offset_m": 0.7,
+    "max_slot_err_m": 0.5
+   }
+  },
+  {
+   "id": "S7",
+   "name": "queue",
+   "enabled": true,
+   "stub": true,
+   "channel": "loco",
+   "priority": 3,
+   "min_hold_s": 1.0,
+   "tier": "mid",
+   "params": {
+    "gap_m": 0.85
+   }
+  },
+  {
+   "id": "S8",
+   "name": "road_lane",
+   "enabled": true,
+   "stub": true,
+   "channel": "loco",
+   "priority": 1,
+   "min_hold_s": 0.0,
+   "tier": "far",
+   "params": {
+    "min_edge_width_m": 3.0,
+    "lateral_min": 0.3,
+    "lateral_max": 0.45
+   }
+  },
+  {
+   "id": "A1",
+   "name": "head_turn_budget",
+   "enabled": true,
+   "stub": true,
+   "channel": "head",
+   "priority": 1,
+   "min_hold_s": 1.2,
+   "tier": "near",
+   "params": {
+    "look_slots_high": 6,
+    "look_slots_low": 3,
+    "hold_min_s": 1.2,
+    "hold_max_s": 3.0,
+    "cooldown_min_s": 4.0,
+    "cooldown_max_s": 9.0
+   }
+  },
+  {
+   "id": "A2",
+   "name": "glance_at_player",
+   "enabled": true,
+   "stub": true,
+   "channel": "head",
+   "priority": 3,
+   "min_hold_s": 1.2,
+   "tier": "near",
+   "params": {
+    "range_m": 3.0,
+    "notable_range_m": 6.0
+   }
+  },
+  {
+   "id": "A3",
+   "name": "eye_contact",
+   "enabled": true,
+   "stub": true,
+   "channel": "head",
+   "priority": 3,
+   "min_hold_s": 1.5,
+   "tier": "near",
+   "params": {
+    "dot_min": 0.9,
+    "range_m": 5.0,
+    "after_s": 1.0
+   }
+  },
+  {
+   "id": "A4",
+   "name": "look_at_speaker",
+   "enabled": true,
+   "stub": true,
+   "channel": "head",
+   "priority": 2,
+   "min_hold_s": 2.0,
+   "tier": "near",
+   "params": {
+    "shift_min_s": 2.0,
+    "shift_max_s": 4.0
+   }
+  },
+  {
+   "id": "A5",
+   "name": "look_at_noise",
+   "enabled": true,
+   "stub": true,
+   "channel": "head",
+   "priority": 4,
+   "min_hold_s": 1.2,
+   "tier": "near",
+   "params": {
+    "body_turn_deg": 30,
+    "feet_after_s": 1.5,
+    "delay_min_s": 0.15,
+    "delay_max_s": 0.4,
+    "body_turn_tier": "mid"
+   }
+  },
+  {
+   "id": "R1",
+   "name": "flinch_loud_sound",
+   "enabled": true,
+   "stub": true,
+   "channel": "upper",
+   "priority": 4,
+   "min_hold_s": 0.6,
+   "tier": "mid",
+   "params": {
+    "loudness_m": 25.0,
+    "range_m": 8.0
+   }
+  },
+  {
+   "id": "R2",
+   "name": "step_back_drawn_sword",
+   "enabled": true,
+   "stub": true,
+   "channel": "loco",
+   "priority": 3,
+   "min_hold_s": 0.9,
+   "tier": "mid",
+   "params": {
+    "armed_pressure_min": 0.2,
+    "armed_space_m": 2.8,
+    "settle_s": 1.0
+   }
+  },
+  {
+   "id": "R3",
+   "name": "crowd_ripple",
+   "enabled": true,
+   "stub": true,
+   "channel": "loco",
+   "priority": 6,
+   "min_hold_s": 1.5,
+   "tier": "far",
+   "params": {
+    "inner_m": 4.0,
+    "outer_m": 10.0,
+    "wave_mps": 6.0
+   }
+  },
+  {
+   "id": "R4",
+   "name": "curiosity_gather",
+   "enabled": true,
+   "stub": true,
+   "channel": "loco",
+   "priority": 2,
+   "min_hold_s": 3.0,
+   "tier": "mid",
+   "params": {
+    "curiosity_min": 0.5,
+    "slot_m": 0.9
+   }
+  },
+  {
+   "id": "R5",
+   "name": "flee_drop_load",
+   "enabled": true,
+   "stub": true,
+   "channel": "body",
+   "priority": 7,
+   "min_hold_s": 2.0,
+   "tier": "mid",
+   "params": {
+    "recarry_after_calm": true
+   }
+  },
+  {
+   "id": "R6",
+   "name": "weather_rain_sun",
+   "enabled": true,
+   "stub": true,
+   "channel": "upper",
+   "priority": 1,
+   "min_hold_s": 3.0,
+   "tier": "far",
+   "params": {
+    "rain_pace": 1.15
+   }
+  },
+  {
+   "id": "R7",
+   "name": "cold_snow",
+   "enabled": true,
+   "stub": true,
+   "channel": "upper",
+   "priority": 1,
+   "min_hold_s": 3.0,
+   "tier": "mid",
+   "params": {}
+  },
+  {
+   "id": "O1",
+   "name": "pick_by_need",
+   "enabled": true,
+   "stub": true,
+   "channel": "loco",
+   "priority": 1,
+   "min_hold_s": 0.0,
+   "tier": "far",
+   "params": {}
+  },
+  {
+   "id": "O2",
+   "name": "approach_arc",
+   "enabled": true,
+   "stub": true,
+   "channel": "loco",
+   "priority": 3,
+   "min_hold_s": 0.5,
+   "tier": "mid",
+   "params": {
+    "slow_last_m": 1.2
+   }
+  },
+  {
+   "id": "O3",
+   "name": "side_aware_entry",
+   "enabled": true,
+   "stub": true,
+   "channel": "body",
+   "priority": 3,
+   "min_hold_s": 0.5,
+   "tier": "mid",
+   "params": {}
+  },
+  {
+   "id": "O4",
+   "name": "hand_ik_on_props",
+   "enabled": true,
+   "stub": true,
+   "channel": "upper",
+   "priority": 3,
+   "min_hold_s": 0.15,
+   "tier": "near",
+   "params": {
+    "ik_budget": 4,
+    "blend_s": 0.15
+   }
+  },
+  {
+   "id": "O5",
+   "name": "occupancy_watchers",
+   "enabled": true,
+   "stub": true,
+   "channel": "loco",
+   "priority": 2,
+   "min_hold_s": 1.0,
+   "tier": "mid",
+   "params": {}
+  },
+  {
+   "id": "L1",
+   "name": "slope_stairs_feet",
+   "enabled": true,
+   "stub": true,
+   "channel": "loco",
+   "priority": 2,
+   "min_hold_s": 0.25,
+   "tier": "near",
+   "params": {
+    "slope_deg": 8.0,
+    "refresh_s": 0.25,
+    "ik_budget_high": 8,
+    "ik_budget_low": 2
+   }
+  },
+  {
+   "id": "L2",
+   "name": "lean_into_turns",
+   "enabled": true,
+   "stub": true,
+   "channel": "loco",
+   "priority": 1,
+   "min_hold_s": 0.0,
+   "tier": "mid",
+   "params": {
+    "k": 0.02,
+    "max_roll_deg": 5.0,
+    "max_pitch_deg": 3.0
+   }
+  },
+  {
+   "id": "L3",
+   "name": "stride_band",
+   "enabled": true,
+   "stub": true,
+   "channel": "loco",
+   "priority": 1,
+   "min_hold_s": 1.0,
+   "tier": "far",
+   "params": {
+    "rate_min": 0.75,
+    "rate_max": 1.3
+   }
+  },
+  {
+   "id": "L4",
+   "name": "start_stop_turn",
+   "enabled": true,
+   "stub": true,
+   "channel": "body",
+   "priority": 2,
+   "min_hold_s": 0.6,
+   "tier": "mid",
+   "params": {
+    "turn_deg": 100,
+    "max_speed_mps": 1.0,
+    "turn_tier": "near"
+   }
+  },
+  {
+   "id": "L5",
+   "name": "carry_gait",
+   "enabled": true,
+   "stub": true,
+   "channel": "upper",
+   "priority": 2,
+   "min_hold_s": 0.0,
+   "tier": "mid",
+   "params": {
+    "pace_mul": 0.85,
+    "rate_mul": 1.05
+   }
+  },
+  {
+   "id": "L6",
+   "name": "injured_tired_drunk",
+   "enabled": true,
+   "stub": true,
+   "channel": "loco",
+   "priority": 3,
+   "min_hold_s": 5.0,
+   "tier": "far",
+   "params": {
+    "weave_m": 0.4,
+    "tired_rest_below": 0.2
+   }
+  },
+  {
+   "id": "G1",
+   "name": "conversation_circle",
+   "enabled": true,
+   "stub": true,
+   "channel": "upper",
+   "priority": 2,
+   "min_hold_s": 3.0,
+   "tier": "mid",
+   "params": {
+    "radius_base_m": 0.55,
+    "radius_per_person_m": 0.25,
+    "token_min_s": 3.0,
+    "token_max_s": 7.0
+   }
+  },
+  {
+   "id": "G2",
+   "name": "family_walk",
+   "enabled": true,
+   "stub": true,
+   "channel": "loco",
+   "priority": 2,
+   "min_hold_s": 0.5,
+   "tier": "mid",
+   "params": {
+    "slot_m": 0.6,
+    "leash_m": 3.0
+   }
+  },
+  {
+   "id": "G3",
+   "name": "guard_patrol_phase_lock",
+   "enabled": true,
+   "stub": true,
+   "channel": "loco",
+   "priority": 2,
+   "min_hold_s": 0.0,
+   "tier": "far",
+   "params": {
+    "side_m": 0.9,
+    "phase_err_s": 0.05
+   }
+  },
+  {
+   "id": "G4",
+   "name": "children_orbit",
+   "enabled": true,
+   "stub": true,
+   "channel": "loco",
+   "priority": 1,
+   "min_hold_s": 1.0,
+   "tier": "mid",
+   "params": {
+    "radius_min_m": 2.0,
+    "radius_max_m": 5.0
+   }
+  },
+  {
+   "id": "C1",
+   "name": "tagged_library",
+   "enabled": false,
+   "stub": true,
+   "channel": "upper",
+   "priority": 0,
+   "min_hold_s": 0.0,
+   "tier": "far",
+   "params": {}
+  },
+  {
+   "id": "C2",
+   "name": "variety_pick",
+   "enabled": true,
+   "stub": true,
+   "channel": "upper",
+   "priority": 1,
+   "min_hold_s": 0.0,
+   "tier": "mid",
+   "params": {
+    "history": 3,
+    "neighbour_history": 2
+   }
+  },
+  {
+   "id": "C3",
+   "name": "personality_offsets",
+   "enabled": true,
+   "stub": true,
+   "channel": "loco",
+   "priority": 1,
+   "min_hold_s": 0.0,
+   "tier": "far",
+   "params": {
+    "speed_min": 0.88,
+    "speed_max": 1.12,
+    "rate_min": 0.93,
+    "rate_max": 1.07,
+    "pitch_min_deg": -3.0,
+    "pitch_max_deg": 4.0
+   }
+  },
+  {
+   "id": "B1",
+   "name": "bystander_ring",
+   "enabled": true,
+   "stub": true,
+   "channel": "body",
+   "priority": 5,
+   "min_hold_s": 2.0,
+   "tier": "mid",
+   "params": {
+    "watch_min_m": 6.0,
+    "watch_max_m": 12.0,
+    "wince_gap_s": 2.0
+   }
+  },
+  {
+   "id": "B2",
+   "name": "bandit_squad_hooks",
+   "enabled": true,
+   "stub": true,
+   "channel": "body",
+   "priority": 4,
+   "min_hold_s": 1.0,
+   "tier": "mid",
+   "params": {
+    "flank_spread_deg": 60
+   }
+  },
+  {
+   "id": "B3",
+   "name": "bumped_by_runner",
+   "enabled": true,
+   "stub": true,
+   "channel": "body",
+   "priority": 5,
+   "min_hold_s": 1.0,
+   "tier": "near",
+   "params": {
+    "push_m": 0.5,
+    "cooldown_s": 2.0
+   }
+  }
+ ]
+}
