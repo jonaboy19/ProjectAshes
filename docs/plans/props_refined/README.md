@@ -107,3 +107,26 @@ The coordinator downloaded and committed the sets (fbf4e24a9, logged in `docs/pl
 - `tools/blender/props/refine_scabbard.py` runs that builder, then applies brown_leather (dark), a lighter frog leather and rusty_metal_02, and bakes one set.
 - **Verdict: PASS (borderline).** The leather reads mid-brown rather than near-black, and the frog is a small tab, not straps to a belt. That needs a geometry change in the player worker's builder.
 - **Dependency:** `build_scabbard.py` is not committed (it is the player worker's file); `refine_scabbard.py` needs it to rerun.
+
+# Interior kit (2026-10-28), `kingdom/assets/props_refined/interior/<name>/`
+For the scenario-A house and the inn; it replaces the flat light-wood boxes and the shelf-like beds. Procedural, built at real dimensions by `tools/blender/props/build_interior_kit.py`. Scans: rough_wood, old_planks_02, beam_wall_01, rough_linen, rusty_metal_02, thatch_roof_angled. Clay, glaze and herbs are procedural. One 1K set each; the window glass is its own alpha-blended material, not baked.
+
+Sheet: `interior_sheet.jpg`. It is gated in a **dim, warm firelit light** (low cool ambient plus one low warm point light, `render_view(interior=True)`) against refs 09/20 and the KCD interior look.
+
+| name | tris | size (m) | what | verdict |
+|---|---|---|---|---|
+| bed_rope | 2.6k | 2.01 × 1.01 × 0.60 | oak frame with taller head posts and a headboard plank, rope lattice, straw mattress in undyed linen, bolster, rumpled grey-brown wool blanket over the foot two-thirds | PASS (borderline): the blanket reads as thin cloth rather than heavy wool, and the rope lattice is mostly hidden |
+| stool_three_leg | 0.3k | 0.38 × 0.39 × 0.45 | slab seat with end grain, 3 splayed legs | PASS |
+| chair_woven | 0.5k | 0.48 × 0.49 × 0.92 | post-and-rung chair, woven rush seat, 2 back slats | PASS |
+| chest_iron | 0.6k | 0.97 × 0.54 × 0.53 | planked chest on skids, 3 iron bands over the lid, girdle band, corner straps, hasp and lock plate, ring handles | PASS |
+| shelf_pottery | 1.2k | 1.20 × 0.26 × 0.55 | plank shelf on knee brackets with 2 jugs, 2 pots and a bowl (terracotta with dark glaze over the top half) | PASS. The existing CC0 ceramic_pot (3.6k tris, its own texture set) was not merged in, to keep one texture set. |
+| herbs_rack | 1.9k | 0.90 × 0.08 × 0.55 | pole on cords with 7 head-down bundles of splayed sprigs (dried green, brown, lavender), tied with twine | PASS |
+| window_closed / window_open | 0.8k | 1.24 × 0.25 × 1.36 (open: 1.44 × 0.73) | timber frame and mullion, diamond-leaded panes, two plank shutters with ledges, Z-braces and strap hinges (closed / open 100° inward) | PASS |
+| beam_2m / 3m / 4m | 0.2–0.3k | L × 0.20 × 0.25 | adzed, chamfered, smoke-dark joists with a slight sag | PASS |
+| post_2m / post_3m | 28 | 0.22 × 0.22 × H | chamfered corner posts | PASS (simple by design) |
+| floor_rushes | 2.7k | 1.9 × 1.5 × 0.03 | low straw/rush mat with about 380 loose strands at the edge | PASS (borderline): it's opaque geometry, so for dense coverage a Godot decal with alpha would blend better |
+
+Origins:
+- Furniture and posts: the feet (footprint centre, z = 0).
+- Windows: the bottom centre of the frame at the sill. The wall face is the XZ plane at y = 0, and the shutters swing into the room (−Y).
+- Beams: the start end, at the centre of the section, running along +X.

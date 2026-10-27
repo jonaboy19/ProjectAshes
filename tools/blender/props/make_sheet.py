@@ -28,17 +28,23 @@ if len(sys.argv) > 4 and sys.argv[4] == "pairs":
         tiles.append((f"{gate}/{k}_A_meshy.jpg", f"{k}: Meshy original", ""))
         tiles.append((f"{gate}/{k}_B_refined.jpg", f"{k}: refined", info.get(k, "")))
     A = []
+if len(sys.argv) > 4 and sys.argv[4] == "single":
+    # procedural kit (interior): one refined render per key in stats order, firelit interior gate light
+    for k in [k for k in info]:
+        tiles.append((f"{gate}/{k}_B_refined.jpg", f"{k}: procedural", info.get(k, "")))
+    A = []
 for n in A:
     tiles.append((f"{gate}/{n}_A_meshy.jpg", f"{n}: Meshy original", ""))
     tiles.append((f"{gate}/{n}_B_refined.jpg", f"{n}: refined", info.get(n, "")))
-for n in B:
+for n in (B if len(sys.argv) <= 4 else []):
     tiles.append((f"{gate}/{n}_B_refined.jpg", f"{n}: procedural", info.get(n, "")))
 cols = 4
 rows = (len(tiles) + cols - 1) // cols
 sheet = Image.new("RGB", (cols * TW, rows * TH + 40), (24, 24, 24))
 d = ImageDraw.Draw(sheet)
-d.text((10, 10), "Rising Ashes props_refined 2026-10-28: Eevee, kloofendal_overcast HDRI + soft sun, gameplay 3/4 camera; "
-       "Meshy | refined pairs" + ("" if len(sys.argv) > 4 else ", then procedural builds") + " (red figure = 1.75 m where shown)",
+d.text((10, 10), "Rising Ashes props_refined 2026-10-28: Eevee, gameplay 3/4 camera; " +
+       ("interior kit, dim firelit gate light (refs 09/20, KCD interiors)" if len(sys.argv) > 4 and sys.argv[4] == "single" else
+        "Meshy | refined pairs" + ("" if len(sys.argv) > 4 else ", then procedural builds") + " (red figure = 1.75 m where shown)"),
        fill=(230, 210, 150), font=font)
 for i, (path, title, sub) in enumerate(tiles):
     x, y = (i % cols) * TW, 40 + (i // cols) * TH

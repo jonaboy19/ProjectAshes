@@ -207,6 +207,18 @@ def make_material(cls, meshy_img=None, paint_img=None):
     nb = NB(m)
     p = nb.n["Principled BSDF"]
     outn = nb.n["Material Output"]
+    if spec["kind"] == "glass":
+        # leaded-window glass: greenish, slightly milky, semi-transparent (glTF alpha blend), not baked
+        p.inputs["Base Color"].default_value = (0.32, 0.38, 0.30, 1)
+        p.inputs["Roughness"].default_value = 0.18
+        p.inputs["Alpha"].default_value = 0.5
+        for attr, val in (("surface_render_method", "BLENDED"), ("blend_method", "BLEND")):
+            try:
+                setattr(m, attr, val)
+            except Exception:
+                pass
+        m["unbaked"] = True
+        return m
     if spec["kind"] == "water":
         p.inputs["Base Color"].default_value = (0.035, 0.045, 0.035, 1)
         p.inputs["Roughness"].default_value = 0.04
@@ -821,7 +833,7 @@ def bbox_of(obs):
     return mn, mx
 
 
-def render_view(obs, path, res=(640, 480), yaw=35.0, pitch=22.0, engine="BLENDER_EEVEE", hide=()):
+def render_view(obs, path, res=(640, 480), yaw=35.0, pitch=22.0, engine="BLENDER_EEVEE", hide=(), interior=False):
     """Gameplay-like 3/4 view (camera ~22 deg down, like a third-person camera at standing height), framed on obs."""
     sc = bpy.context.scene
     setup_world()
@@ -862,6 +874,24 @@ def render_view(obs, path, res=(640, 480), yaw=35.0, pitch=22.0, engine="BLENDER
         sc.view_settings.look = "AgX - Medium High Contrast"
     except TypeError:
         pass
+    if interior:
+        # KCD-style interior gate: dim cool ambient + one warm low "hearth" light to the side
+        sc.world.node_tree.nodes["Background"].inputs["Strength"].default_value = 0.12
+        bpy.data.objects["GateSun"].data.energy = 0.0
+        fl = bpy.data.objects.get("GateFire")
+        if fl is None:
+            ld = bpy.data.lights.new("GateFire", "POINT")
+            ld.color = (1.0, 0.62, 0.32)
+            ld.shadow_soft_size = 0.25
+            fl = bpy.data.objects.new("GateFire", ld)
+            sc.collection.objects.link(fl)
+        fl.data.energy = 120.0 * max(1.0, rad) ** 2
+        sd = Vector((math.sin(yr + 1.3), -math.cos(yr + 1.3), 0.0))
+        fl.location = c + sd * rad * 1.6 + Vector((0, 0, -0.1 * rad))
+    else:
+        bpy.data.objects["GateSun"].data.energy = 1.6
+        if "GateFire" in bpy.data.objects:
+            bpy.data.objects["GateFire"].data.energy = 0.0
     sc.render.resolution_x, sc.render.resolution_y = res
     sc.render.resolution_percentage = 100
     sc.render.image_settings.file_format = "JPEG"

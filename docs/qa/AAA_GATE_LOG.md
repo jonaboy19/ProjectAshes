@@ -414,3 +414,11 @@ Files: PA_plans/videos/slice_ashford_street_v4.mp4 (14:30), slice_ashford_street
 | NPCs / crowd impostors | FAIL (NPC lane) | faceted bodies; grey-blue distant impostors |
 | UI restraint | FAIL (UI lane) | "ASHFORD RING" world sign board and nameplates: core/nameplates.gd + main.gd:1062 station labels (not towns code) |
 **Verdict: FAIL. Not sent.**
+
+## 2026-10-28 Interior kit (Blender refine worker): asset-level gate in firelit light vs refs 09/20 / KCD interiors
+File: `docs/plans/props_refined/interior_sheet.jpg`; verdicts are in `docs/plans/props_refined/README.md` (Interior kit).
+| Result | Assets |
+|---|---|
+| PASS | stool_three_leg, chair_woven, chest_iron, shelf_pottery, herbs_rack, window_closed, window_open, beam_2m/3m/4m, post_2m/3m |
+| PASS (borderline) | bed_rope (the blanket reads light, not heavy wool), floor_rushes (opaque mat; a decal would blend better) |
+Not in-game yet: the towns worker places them and re-gates in the actual rooms.

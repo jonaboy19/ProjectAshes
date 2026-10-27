@@ -67,6 +67,12 @@ Code: `tools/blender/props/refine_lib.py` (shared: material library, weathering 
 - Replacing bad Meshy parts (`refine_meshy.replace_hood`): delete the faces of one class with bmesh, measure what's left (here the mantel shelf), and loft a chamfered replacement in place (here a plaster hood and flue up to a 3.0 m ceiling). It gets its own class (`plaster_hood`: lime plaster with a streaked `soot` band over a Z range) and a dummy `meshy_uv` so the join keeps the UV layers.
 - Avoid anachronisms: no rectangular baler hay bales (use a rick or a bound truss), no modern saws or hardware.
 
+## Interior kit pattern (`build_interior_kit.py`)
+- Import `Part`, `tube` and `box` from `build_village_props` (its build loop is behind `__main__`), and add kit classes to `RL.LIB`: `oak_old`, `planks_old`, `beam_dark`, `linen_raw`, `wool`, `clay`, `glaze`, `herb*` and `rush`.
+- Use `lathe()` for pottery. For drapery (the blanket), build a grid with fold noise and fold its edges down over the sides. For window glass, use an unbaked `glass` slot (alpha blend), joined after the bake like the trough water.
+- Gate interiors with `render_view(..., interior=True)`: about 0.12 ambient plus one warm low point light. An interior asset that only looks good under the bright overcast HDRI fails the KCD look.
+- Watch box orientation: `box()` lofts along local X. For a vertical board whose width runs along X and thickness along Y, use the permutation matrix `((0,1,0),(0,0,1),(1,0,0))`, not a single rotation.
+
 ## Shared: UV, bake, export (`refine_lib`)
 - `smart_uv` makes a new `bake_uv` (66° for Meshy, 60° for builds) and packs the islands.
 - `bake_asset` builds one set from every bakeable slot by rewiring each material's `OUT_albedo`, `OUT_rough`, `OUT_metal` and `OUT_ao` into an Emission node, baking EMIT, then baking the tangent NORMAL (OpenGL, as Godot expects):

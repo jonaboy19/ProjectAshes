@@ -688,6 +688,7 @@ def build(name):
     shutil.rmtree(tmp, ignore_errors=True)
 
 
-for n in (NAMES or list(ASSETS)):
-    build(n)
-print("DONE")
+if __name__ == "__main__":
+    for n in (NAMES or list(ASSETS)):
+        build(n)
+    print("DONE")
