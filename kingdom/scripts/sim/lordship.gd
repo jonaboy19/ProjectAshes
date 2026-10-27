@@ -37,7 +37,9 @@ extends RefCounted
 signal issue_raised(settlement: int, issue: Dictionary)
 signal village_changed(settlement: int)
 
-const REASONS: Array[String] = ["military_service", "purchase", "marriage", "crown"]
+const REASONS: Array[String] = ["military_service", "purchase", "marriage", "crown", "founded"]
+## A camp the player founded (READY_V1 C5) is held under FOUNDED_BASE + its build-kit grid id, past every WorldGen settlement index.
+const FOUNDED_BASE := 10000
 const TAX_RATES := {
 	"low": {"mult": 0.65, "loyalty": 0.35},
 	"fair": {"mult": 1.0, "loyalty": 0.0},
@@ -79,6 +81,16 @@ const ISSUE_POOL := {
 
 ## settlement id -> village dict.
 var villages: Dictionary = {}
+## Population of a founded village by its index (set by FoundedLord.bind: the growth module is the truth for those).
+var pop_source: Callable = Callable()
+
+
+static func founded_idx(gid: int) -> int:
+	return FOUNDED_BASE + gid
+
+
+static func is_founded_idx(idx: int) -> bool:
+	return idx >= FOUNDED_BASE
 
 
 # --- granting --------------------------------------------------------------------
@@ -97,12 +109,12 @@ func village(settlement_idx: int) -> Dictionary:
 
 ## Grants the player settlement_idx (reasons: "military_service", "purchase",
 ## "marriage", "crown"). A no-op returning the existing village if already held.
-func grant(settlement_idx: int, reason := "crown") -> Dictionary:
+func grant(settlement_idx: int, reason := "crown", info := {}) -> Dictionary:
 	if villages.has(settlement_idx):
 		return villages[settlement_idx]
 	var v := {
 		"settlement": settlement_idx, "reason": reason if reason in REASONS else "crown",
-		"granted_day": WorldSim.day, "population": _resident_count(settlement_idx),
+		"granted_day": WorldSim.day, "population": int(info["population"]) if info.has("population") else _resident_count(settlement_idx),
 		"refugees_taken": 0, "treasury": 60, "tax_rate": "fair", "loyalty": 55.0,
 		"food": 40.0, "militia": 4,
 		"infra": {"well": 1.0, "mill": 1.0, "granary": 1.0, "walls": 0.8, "roads": 0.85},
@@ -112,6 +124,12 @@ func grant(settlement_idx: int, reason := "crown") -> Dictionary:
 		"next_issue_id": 1, "next_project_id": 1,
 		"ledger": {"income": 0, "wages": 0, "food_produced": 0.0, "food_consumed": 0.0},
 	}
+	if is_founded_idx(settlement_idx):
+		var at: Vector2 = info.get("pos", Vector2.ZERO)
+		v["name"] = String(info.get("name", "the camp"))
+		v["pos"] = [at.x, at.y]
+		v["radius"] = float(info.get("radius", 40.0))
+		v["runestones"] = []
 	villages[settlement_idx] = v
 	village_changed.emit(settlement_idx)
 	return v
@@ -137,9 +155,20 @@ func loyalty_greeting_line(settlement_idx: int) -> String:
 
 
 func settlement_name(settlement_idx: int) -> String:
+	if is_founded_idx(settlement_idx):
+		return String(villages.get(settlement_idx, {}).get("name", "the camp"))
 	if settlement_idx < 0 or settlement_idx >= WorldGen.settlements.size():
 		return "?"
 	return String(WorldGen.settlements[settlement_idx].get("name", "?"))
+
+
+## Where a held village stands: {pos: Vector2, radius}. A founded camp keeps its own; the rest are WorldGen's settlements.
+func _place(settlement_idx: int) -> Dictionary:
+	if is_founded_idx(settlement_idx):
+		var v: Dictionary = villages.get(settlement_idx, {})
+		var p: Array = v.get("pos", [0.0, 0.0])
+		return {"pos": Vector2(float(p[0]), float(p[1])), "radius": float(v.get("radius", 40.0))}
+	return {"pos": WorldGen.settlements[settlement_idx]["pos"], "radius": float(WorldGen.settlements[settlement_idx]["radius"])}
 
 
 func _resident_count(settlement_idx: int) -> int:
@@ -154,6 +183,8 @@ func _resident_count(settlement_idx: int) -> int:
 ## for a settlement with no ring of its own.
 func _runestones_for(settlement_idx: int) -> Array:
 	var out: Array = []
+	if is_founded_idx(settlement_idx):
+		return out
 	for s: Dictionary in Frontier.runestones.stones:
 		if int(s.get("owner", -1)) == settlement_idx:
 			out.append(int(s["id"]))
@@ -183,6 +214,8 @@ func daily_tick(day: int, ctx: Dictionary) -> Array[String]:
 func _tick_village(v: Dictionary, day: int, season: String, at_war: bool) -> Array[String]:
 	var out: Array[String] = []
 	var name := settlement_name(int(v["settlement"]))
+	if is_founded_idx(int(v["settlement"])) and pop_source.is_valid():
+		v["population"] = maxi(1, int(pop_source.call(int(v["settlement"]))))     # the growth module counts the people of a founded village
 	# --- tax income ---
 	var rate: Dictionary = TAX_RATES.get(String(v["tax_rate"]), TAX_RATES["fair"])
 	var income := int(round(int(v["population"]) * BASE_TAX_PER_POP * float(rate["mult"])))
@@ -288,8 +321,9 @@ func _has_open_issue(v: Dictionary, kind: String) -> bool:
 
 
 func _living_den_near(settlement_idx: int) -> Dictionary:
-	var pos: Vector2 = WorldGen.settlements[settlement_idx]["pos"]
-	var radius: float = float(WorldGen.settlements[settlement_idx]["radius"]) * 6.0
+	var pl := _place(settlement_idx)
+	var pos: Vector2 = pl["pos"]
+	var radius: float = float(pl["radius"]) * 6.0
 	var best := {}
 	var best_d := INF
 	for den: Dictionary in Frontier.ecology.dens:
@@ -537,7 +571,8 @@ func _quest_clear_wolves(v: Dictionary, den_id: int) -> Dictionary:
 
 
 func _quest_bandits(v: Dictionary) -> Dictionary:
-	var pos: Vector2 = WorldGen.settlements[int(v["settlement"])]["pos"] + Vector2(0.0, float(WorldGen.settlements[int(v["settlement"])]["radius"]) * 3.0)
+	var pl := _place(int(v["settlement"]))
+	var pos: Vector2 = (pl["pos"] as Vector2) + Vector2(0.0, float(pl["radius"]) * 3.0)
 	return {"title": "Clear the bandits south of %s" % settlement_name(int(v["settlement"])),
 		"desc": "Riders have been robbing the southern road.",
 		"kind": "reach", "pos": pos, "radius": 40.0,
@@ -559,7 +594,7 @@ func _quest_repair_runestone(v: Dictionary, stone_id: int) -> Dictionary:
 func _quest_fetch_iron(v: Dictionary) -> Dictionary:
 	return {"title": "Fetch iron for the smith of %s" % settlement_name(int(v["settlement"])),
 		"desc": "The forge needs better ore than the village can dig on its own.",
-		"kind": "gather", "item": "iron_ore", "amount": 6, "pos": WorldGen.settlements[int(v["settlement"])]["pos"], "radius": 6.0,
+		"kind": "gather", "item": "iron_ore", "amount": 6, "pos": _place(int(v["settlement"]))["pos"], "radius": 6.0,
 		"reward": {"gold": 18, "sphere": "trade", "reputation": 2.0}, "days": 6}
 
 

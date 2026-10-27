@@ -264,6 +264,7 @@ func _new_life() -> void:
 			biography.start_chapter("lord", "", "lord", place, WorldSim.day)
 			biography.add_highlight("Granted the village of %s" % place, WorldSim.day)
 			Game.say("You are now lord of %s." % place))
+	preload("res://scripts/sim/founded_lord.gd").bind(realm, lordship, titles)   # READY_V1 C5: a camp that grows into a village makes you its lord
 	_last_abs = _abs_hours()
 	give("bread", 2)
 	_begin_life()
@@ -1720,6 +1721,7 @@ func restore(d: Dictionary) -> void:
 	appearance = d.get("appearance", {})
 	if player and is_instance_valid(player) and player.has_method("apply_appearance"):
 		player.apply_appearance()
+	preload("res://scripts/sim/founded_lord.gd").sync_titles(lordship, titles)   # READY_V1 C5: the title definitions are not saved
 	realm.warm_up()
 	_last_abs = _abs_hours()
 	if d.has("player") and player and is_instance_valid(player):

@@ -14,6 +14,32 @@ var _spawned: Dictionary = {}   # settlement id -> true
 
 func setup(p_hud: HUD) -> void:
 	hud = p_hud
+	# READY_V1 C5: a camp of yours that grows into a village gets its own Steward's Post (reuse spawn_for), now and after a load
+	var lord: Variant = _lordship()
+	if lord != null:
+		if not lord.village_changed.is_connected(_on_village):
+			lord.village_changed.connect(_on_village)
+		for idx: int in lord.held_settlements():
+			if lord.is_founded_idx(idx):
+				_spawn_founded(lord, idx)
+
+
+## The hall of a founded village: a Steward's Post beside the camp centre.
+func _spawn_founded(lord: Variant, idx: int) -> void:
+	var pl: Dictionary = lord._place(idx)
+	spawn_for({"id": idx, "pos": pl["pos"]})
+
+
+func _on_village(idx: int) -> void:
+	var lord: Variant = _lordship()
+	if lord == null or not lord.is_founded_idx(idx) or not lord.is_lord_of(idx) or _spawned.has(idx):
+		return
+	_spawn_founded(lord, idx)
+	if hud != null:
+		var name := String(lord.settlement_name(idx))
+		preload("res://scripts/ui/life_event_popup.gd").present(hud, {"title": "Lord of %s" % name,
+			"body": "Your camp has grown into a village, and its people look to you. The Steward's Post at %s is open: set the taxes, hear the matters of the day and start projects." % name,
+			"choices": [["Take the seat.", Callable()]]})
 
 
 ## A ring of candidate spots around a settlement's centre, closest first, so
@@ -48,6 +74,8 @@ func _lordship() -> Variant:
 func _menu(sid: int) -> Dictionary:
 	var lord: Variant = _lordship()
 	var name := String(WorldGen.settlements[sid].get("name", "the village")) if sid < WorldGen.settlements.size() else "the village"
+	if lord != null and lord.is_founded_idx(sid):
+		name = String(lord.settlement_name(sid))
 	if lord == null or not lord.is_lord_of(sid):
 		return {"title": "Steward's Post", "body": "\"This isn't your seat to hold, my lord.\"", "options": []}
 	var v: Dictionary = lord.village(sid)

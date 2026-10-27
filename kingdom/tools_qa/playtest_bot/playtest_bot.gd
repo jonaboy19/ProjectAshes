@@ -595,6 +595,7 @@ func _run_all() -> void:
 		["v1_hunt", _s_v1_hunt],
 		["v1_found", _s_v1_found],
 		["v1_settle", _s_v1_settle],
+		["v1_lord", _s_v1_lord],
 		["scen_a", _s_scen_a],
 	]
 	for e: Array in list:
@@ -635,6 +636,7 @@ func _stage_limit(name: String) -> float:
 		"v1_hunt": return 240.0
 		"v1_found": return 400.0
 		"v1_settle": return 700.0
+		"v1_lord": return 900.0
 		"scen_a": return 600.0
 		"st_save": return 200.0
 		"st_birth", "st_a1", "st_a2", "st_a3", "st_a4", "st_a5": return 1500.0
@@ -5471,6 +5473,56 @@ func _s_v1_settle() -> void:
 	await frames(2)
 	var texts: Array = (page.panels["settlement"] as Control).call("texts")
 	check("the Settlement page shows the ledger", "\n".join(texts).contains("%d people, room for %d" % [int(l["pop"]), int(l["capacity"])]), str(texts.slice(0, 4)))
+	close_everything()
+
+
+## READY_V1 C5: the camp grows to a Village (days fast-forwarded with WorldSim.advance_hours, the hub's own ticks) and the realm makes
+## you its lord: the title, the Steward's Post at the camp, the notification card, the Lord's Council on the founded index.
+func _s_v1_lord() -> void:
+	await _st_ready()
+	if Life.age() < 15:
+		set_age(16)
+	if not await st_found_camp():
+		return
+	var rows: Array = Life.realm.player_settlements()
+	var gid := int(rows[rows.size() - 1]["gid"])
+	var kit: RefCounted = Life.realm.mod("build_kit")
+	var growth: RefCounted = Life.realm.mod("growth")
+	var fm: RefCounted = Life.realm.mod("followers")
+	for i in 3:
+		fm.hire("guard", "s0", true, "bot%d" % i)
+	for item: String in SettlementSim.BAG:
+		Life.give(item, int(SettlementSim.BAG[item]))
+	L("[HOOK] pack stocked with building materials; three followers hired directly; WorldSim.advance_hours(24) per day (game time crawls at 1-2 fps)")
+	var idx: int = Life.lordship.founded_idx(gid)
+	for day in range(1, 91):
+		SettlementSim._player_turn(kit, gid, day)
+		WorldSim.advance_hours(24.0)
+		var guard := 0
+		while not Life.realm._queue.is_empty() and guard < 40000:
+			Life.realm.pump()
+			guard += 1
+		await frames(1)
+		if Life.lordship.is_lord_of(idx):
+			note("lord of the camp on bot day %d (%s, %d people)" % [day, growth.tier_name(gid), int(growth.state_of(gid)["pop"])])
+			break
+	check("the Village tier was reached", int(growth.state_of(gid)["tier"]) >= 2, growth.tier_name(gid))
+	check("the realm made the player lord of the camp, once", Life.lordship.is_lord_of(idx) and Life.lordship.held_settlements().filter(func(i: int) -> bool: return Life.lordship.is_founded_idx(i)).size() == 1)
+	var tid: String = preload("res://scripts/sim/founded_lord.gd").title_id(gid)
+	check("the title \"Lord of <camp>\" is earned", Life.titles.has(tid), String(Life.titles.get_def(tid).get("name", "")))
+	await frames(2)
+	var pop: Control = hud.get_node_or_null("LifeEventPopup")
+	check("a notification card announces the lordship", pop != null and pop.visible and String(pop._title_label.text).to_lower().contains("lord of"))
+	dismiss_popups()
+	var posts := 0
+	for c in main.lord_hall.get_children():
+		if c is Station and String(c.get("title")) == "Steward":
+			posts += 1
+	check("the Steward's Post stands at the camp", main.lord_hall._spawned.has(idx), "%d posts" % posts)
+	var council: Control = preload("res://scripts/ui/lord_council.gd").open_for(hud, idx)
+	await frames(2)
+	check("the Lord's Council opens for the camp", council.visible and String(council._box.get_node("Head").text).contains(growth.settlement_name(gid)), String(council._box.get_node("Head").text))
+	council.call("close_screen")
 	close_everything()
 
 
