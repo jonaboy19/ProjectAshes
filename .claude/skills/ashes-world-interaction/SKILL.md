@@ -3,6 +3,8 @@ name: ashes-world-interaction
 description: How to add or extend interactive world objects in Rising Ashes - doors, locks and keys, chests/drawers, levers, carryable physics props, trigger volumes, noise/damage impact, and their persistent save-state. Use before touching interior_door.gd, breakable.gd, home_chest.gd, adding any "press interact" object, trigger, lock or lockpicking, or saving world-object state.
 ---
 
+> **Mandatory for every task (owner rules, 2026-10-28):** (1) `ashes-best-tool-first` — use every fitting Godot built-in, installed addon, external tool (Blender, ffmpeg, Meshy, Mixamo, Poly Haven/ambientCG CC0) and cloud offload instead of hand-rolling; (2) `ashes-aaa-gate` — nothing is done or sent until it passes the AAA gate against `docs/plans/ref_aaa/`. The game is **PC-only** (min-spec: regular PC, possibly integrated GPU); ignore any mobile/phone wording below.
+
 # World interaction and save-state
 
 Full design: `docs/research/MINING_PERCEPTION_INTERACTION.md` (2.7-2.12, 4.6, gap list 5).

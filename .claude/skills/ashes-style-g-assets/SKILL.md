@@ -3,6 +3,8 @@ name: ashes-style-g-assets
 description: How to make or adapt any asset (house, stall, prop, gate, wall, character, foliage) so it matches Style G - proportions, silhouettes, painterly-real texture rules, weathering, tri and texture budgets, LODs, role names, CC0 sources, bpy steps for code-built pieces (lab_gate.gd patterns), and the hooded-traveller hero, townsfolk and guard specs. Use before modelling, importing or retexturing anything for Rising Ashes.
 ---
 
+> **Mandatory for every task (owner rules, 2026-10-28):** (1) `ashes-best-tool-first` — use every fitting Godot built-in, installed addon, external tool (Blender, ffmpeg, Meshy, Mixamo, Poly Haven/ambientCG CC0) and cloud offload instead of hand-rolling; (2) `ashes-aaa-gate` — nothing is done or sent until it passes the AAA gate against `docs/plans/ref_aaa/`. The game is **PC-only** (min-spec: regular PC, possibly integrated GPU); ignore any mobile/phone wording below.
+
 # Style G assets
 
 Look recipe: `ashes-style-g`. Judge: `ashes-style-g-qa`. Generic pipeline and licences: `ashes-asset-pipeline`, `ashes-open-source-sourcing`, `ashes-cloud-blender`.

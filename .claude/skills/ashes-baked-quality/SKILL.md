@@ -3,6 +3,8 @@ name: ashes-baked-quality
 description: Recipe for making Rising Ashes look richer on LOW/phones while getting cheaper - offline-baked vertex AO + painterly warm/cool light for town buildings (BakedVao), how to (re)bake, how it reaches materials, how to measure before/after against the gate-market target. Use when touching town building looks, LOW-tier richness, lightmaps/AO, atlases, HLOD/impostors or "LOW looks flat".
 ---
 
+> **Mandatory for every task (owner rules, 2026-10-28):** (1) `ashes-best-tool-first` — use every fitting Godot built-in, installed addon, external tool (Blender, ffmpeg, Meshy, Mixamo, Poly Haven/ambientCG CC0) and cloud offload instead of hand-rolling; (2) `ashes-aaa-gate` — nothing is done or sent until it passes the AAA gate against `docs/plans/ref_aaa/`. The game is **PC-only** (min-spec: regular PC, possibly integrated GPU); ignore any mobile/phone wording below.
+
 # Baked quality (mobile looks come from baking, not runtime power)
 
 ## Shipped (2026-10-06, phase 1)

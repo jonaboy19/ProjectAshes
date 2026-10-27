@@ -3,6 +3,8 @@ name: ashes-hero-character
 description: Tier-A character recipe for Rising Ashes (hero, companions, story NPCs) - pick a downloaded Meshy character, re-rig it to the UAL skeleton, smooth LOD0/LOD1/LOD2, the per-texel material-identity shader (skin SSS, hair anisotropy, linen/wool/leather/metal), optional built head (eyes, lashes, brows, hair cards, blink/expression shape keys) and the proof shots (turnaround, face, dialogue, shoulder cam, clip frame sheets). Use before touching the hero model, a companion or any close-up character.
 ---
 
+> **Mandatory for every task (owner rules, 2026-10-28):** (1) `ashes-best-tool-first` — use every fitting Godot built-in, installed addon, external tool (Blender, ffmpeg, Meshy, Mixamo, Poly Haven/ambientCG CC0) and cloud offload instead of hand-rolling; (2) `ashes-aaa-gate` — nothing is done or sent until it passes the AAA gate against `docs/plans/ref_aaa/`. The game is **PC-only** (min-spec: regular PC, possibly integrated GPU); ignore any mobile/phone wording below.
+
 # Tier-A hero / companion recipe
 
 Owner rule (2026-10-06): **use the downloaded Meshy models first**; build from scratch only what they lack.

@@ -3,6 +3,8 @@ name: ashes-style-g
 description: The master recipe for Rising Ashes' chosen look, Style G (Kingsreach gate market, target 03) - exact Environment, sun, fill, shadow tiers, hex palettes, shader and parameters per material role, camera, composition and density rules, per-tier differences, budgets, and how to apply it to any game scene via scripts/style_g.gd and resources/style_g. Use for any lighting, material, post-processing, scene dressing or camera work.
 ---
 
+> **Mandatory for every task (owner rules, 2026-10-28):** (1) `ashes-best-tool-first` — use every fitting Godot built-in, installed addon, external tool (Blender, ffmpeg, Meshy, Mixamo, Poly Haven/ambientCG CC0) and cloud offload instead of hand-rolling; (2) `ashes-aaa-gate` — nothing is done or sent until it passes the AAA gate against `docs/plans/ref_aaa/`. The game is **PC-only** (min-spec: regular PC, possibly integrated GPU); ignore any mobile/phone wording below.
+
 # Style G: recreate it exactly
 
 Chosen by the owner ("by far the best"). Target image: `docs/art/reference/03_TARGET_gate_market_detailed.webp` (also `00_MAIN_...`).

@@ -3,6 +3,8 @@ name: ashes-build-kit
 description: The Rising Ashes modular build kit and Palworld-style build mode - grid, sockets, support, costs/tiers, plans built by construction crews, renderer, save format, and how to add a piece. Use before touching data/build_kit, scripts/realm/build_kit.gd, scripts/build/*, or assets/incoming/build_kit.
 ---
 
+> **Mandatory for every task (owner rules, 2026-10-28):** (1) `ashes-best-tool-first` — use every fitting Godot built-in, installed addon, external tool (Blender, ffmpeg, Meshy, Mixamo, Poly Haven/ambientCG CC0) and cloud offload instead of hand-rolling; (2) `ashes-aaa-gate` — nothing is done or sent until it passes the AAA gate against `docs/plans/ref_aaa/`. The game is **PC-only** (min-spec: regular PC, possibly integrated GPU); ignore any mobile/phone wording below.
+
 # Build kit
 
 Files: `kingdom/data/build_kit/pieces.json` (catalogue, roads, blueprints) - `scripts/realm/build_kit.gd` (realm module "build_kit": grids, snap, support, plans, roads, save) - `scripts/build/kit_meshes.gd` (meshes + shared kit materials) - `scripts/build/build_renderer.gd` (MultiMesh per kind/look) - `scripts/build/build_mode.gd` (touch UI) - `scripts/build/road_tool.gd` - lab `tools_qa/build_lab/build_lab.tscn` - tests `tests/test_build_kit.gd`. Art: `assets/incoming/build_kit/<id>_lod0.glb` (+ `_lod1`), scripts `tools/blender/build_kit/`, sheets `docs/art/build_kit/`.

@@ -3,6 +3,8 @@ name: ashes-perception-ai
 description: How to build or extend NPC perception in Rising Ashes - vision (cone, light, stance), hearing events, suspicion/alert meter, investigate and search, alert sharing, body/evidence discovery, crime witnessing into Society. Use before touching npc_world.gd, utility_brain.gd, villager.gd witness code, society.commit_crime, or adding guards, stealth, or any "NPC notices X" behaviour.
 ---
 
+> **Mandatory for every task (owner rules, 2026-10-28):** (1) `ashes-best-tool-first` — use every fitting Godot built-in, installed addon, external tool (Blender, ffmpeg, Meshy, Mixamo, Poly Haven/ambientCG CC0) and cloud offload instead of hand-rolling; (2) `ashes-aaa-gate` — nothing is done or sent until it passes the AAA gate against `docs/plans/ref_aaa/`. The game is **PC-only** (min-spec: regular PC, possibly integrated GPU); ignore any mobile/phone wording below.
+
 # NPC perception, suspicion, search
 
 Full design and reference notes: `docs/research/MINING_PERCEPTION_INTERACTION.md` (sections 2.1-2.6, 4.1-4.5, gap list 5).

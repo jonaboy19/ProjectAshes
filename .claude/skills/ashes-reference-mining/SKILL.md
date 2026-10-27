@@ -3,6 +3,8 @@ name: ashes-reference-mining
 description: The process for "systems mining" - studying shipped open-source games as a reference textbook and turning the lessons into Rising Ashes designs, without copying GPL/AGPL/NC code or assets. Includes the approved reference-project table with licences and what each is good for. Use when a new system needs prior art, before designing AI, interaction, networking-free simulation, crafting, combat or save systems.
 ---
 
+> **Mandatory for every task (owner rules, 2026-10-28):** (1) `ashes-best-tool-first` — use every fitting Godot built-in, installed addon, external tool (Blender, ffmpeg, Meshy, Mixamo, Poly Haven/ambientCG CC0) and cloud offload instead of hand-rolling; (2) `ashes-aaa-gate` — nothing is done or sent until it passes the AAA gate against `docs/plans/ref_aaa/`. The game is **PC-only** (min-spec: regular PC, possibly integrated GPU); ignore any mobile/phone wording below.
+
 # Reference mining (read, understand, re-design)
 
 ## LICENCE RULE (strict)

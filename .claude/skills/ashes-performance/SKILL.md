@@ -3,6 +3,8 @@ name: ashes-performance
 description: Make Rising Ashes run at the highest fps with no lag or hitches on any phone. Use whenever the user mentions fps, lag, stutter, hitches, performance, optimization, frame time, or before merging anything that adds per-frame work, streaming, NPCs, or big assets.
 ---
 
+> **Mandatory for every task (owner rules, 2026-10-28):** (1) `ashes-best-tool-first` — use every fitting Godot built-in, installed addon, external tool (Blender, ffmpeg, Meshy, Mixamo, Poly Haven/ambientCG CC0) and cloud offload instead of hand-rolling; (2) `ashes-aaa-gate` — nothing is done or sent until it passes the AAA gate against `docs/plans/ref_aaa/`. The game is **PC-only** (min-spec: regular PC, possibly integrated GPU); ignore any mobile/phone wording below.
+
 # Rising Ashes performance workflow
 
 Goal: **60 fps with no hitches** on mid-range phones, a playable **30 fps** on the LOW tier on budget phones (Mali-G52 / Adreno 610 class), and uncapped smoothness on PC. The user said "highest fps, playable without lag". Treat stutter (p99 frame time) as seriously as the average.

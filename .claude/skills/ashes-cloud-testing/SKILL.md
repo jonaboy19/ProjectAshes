@@ -3,6 +3,8 @@ name: ashes-cloud-testing
 description: Exact commands and pitfalls for testing and rendering Rising Ashes inside the cloud container - gdUnit runs, class-cache errors, exit codes, xvfb screenshots, the shared-memory OOM problem and standalone harnesses. Use before running Godot in a cloud session or briefing an agent that will.
 ---
 
+> **Mandatory for every task (owner rules, 2026-10-28):** (1) `ashes-best-tool-first` — use every fitting Godot built-in, installed addon, external tool (Blender, ffmpeg, Meshy, Mixamo, Poly Haven/ambientCG CC0) and cloud offload instead of hand-rolling; (2) `ashes-aaa-gate` — nothing is done or sent until it passes the AAA gate against `docs/plans/ref_aaa/`. The game is **PC-only** (min-spec: regular PC, possibly integrated GPU); ignore any mobile/phone wording below.
+
 # Testing in the cloud container
 
 Godot is `G=/tmp/claude-0/godot/Godot_v4.6.2-stable_linux.x86_64`. Run everything from `kingdom/`.

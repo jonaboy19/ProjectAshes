@@ -3,6 +3,8 @@ name: ashes-cloud-offload
 description: Offload Rising Ashes work to cloud Claude sessions (RemoteTrigger one-shot routines) so the 16 GB laptop only does GPU/visual work - what qualifies, the routine template, PR flow into aaa/finish, review-and-merge routines and how to check results. Use whenever a task is code + headless tests, review, merging, data or docs.
 ---
 
+> **Mandatory for every task (owner rules, 2026-10-28):** (1) `ashes-best-tool-first` — use every fitting Godot built-in, installed addon, external tool (Blender, ffmpeg, Meshy, Mixamo, Poly Haven/ambientCG CC0) and cloud offload instead of hand-rolling; (2) `ashes-aaa-gate` — nothing is done or sent until it passes the AAA gate against `docs/plans/ref_aaa/`. The game is **PC-only** (min-spec: regular PC, possibly integrated GPU); ignore any mobile/phone wording below.
+
 # Cloud offload
 
 ## What goes to the cloud

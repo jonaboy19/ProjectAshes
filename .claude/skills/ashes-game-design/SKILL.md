@@ -3,6 +3,8 @@ name: ashes-game-design
 description: Standard for writing Rising Ashes game-design docs (new systems, regions, mechanics) - build on existing code, novelty check against competitors, mobile UX, perf budgets, balance targets, and work packages with owners. Use before designing any feature the owner asks for.
 ---
 
+> **Mandatory for every task (owner rules, 2026-10-28):** (1) `ashes-best-tool-first` — use every fitting Godot built-in, installed addon, external tool (Blender, ffmpeg, Meshy, Mixamo, Poly Haven/ambientCG CC0) and cloud offload instead of hand-rolling; (2) `ashes-aaa-gate` — nothing is done or sent until it passes the AAA gate against `docs/plans/ref_aaa/`. The game is **PC-only** (min-spec: regular PC, possibly integrated GPU); ignore any mobile/phone wording below.
+
 # Designing a Rising Ashes system
 
 The owner wants **complete, worked-out systems** with **never-seen-before twists**, in a harsh-but-fair medieval life-sim + kingdom + action RPG on phones.

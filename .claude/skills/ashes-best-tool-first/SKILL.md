@@ -3,6 +3,8 @@ name: ashes-best-tool-first
 description: MANDATORY first step for every Rising Ashes task (code, art, animation, world, towns, perf, QA) - check whether a Godot built-in, an installed addon, a Terrain3D feature, an external tool, a free asset pack, Mixamo/Meshy or cloud offloading already does it faster and better, and use that instead of writing it by hand. Owner rule (2026-10-27). Use before planning or coding anything.
 ---
 
+> **Mandatory for every task (owner rules, 2026-10-28):** (1) `ashes-best-tool-first` — use every fitting Godot built-in, installed addon, external tool (Blender, ffmpeg, Meshy, Mixamo, Poly Haven/ambientCG CC0) and cloud offload instead of hand-rolling; (2) `ashes-aaa-gate` — nothing is done or sent until it passes the AAA gate against `docs/plans/ref_aaa/`. The game is **PC-only** (min-spec: regular PC, possibly integrated GPU); ignore any mobile/phone wording below.
+
 # Best tool first (owner rule)
 
 Owner: "Every time you want to do something, check if there is any addon or anything that could help us out faster and better, and use that." Hand-writing something that an engine feature, addon or tool already does is a defect.
@@ -15,7 +17,7 @@ Owner: "Every time you want to do something, check if there is any addon or anyt
 5. **Free assets/code** — skill `ashes-open-source-sourcing` (CC0/MIT/Apache/BSD only; Quaternius, KayKit, Kenney, Poly Haven, ambientCG, Mixamo).
 6. **Animation sources** — skill `ashes-mixamo-meshy` (Mixamo via the owner's login in the browser pane; Meshy text-to-motion/3D with credits; pipelines already built).
 7. **Offload** — skill `ashes-cloud-offload`: anything headless-testable goes to a cloud routine, not the 16 GB laptop.
-8. Only then write custom code — and say why nothing above fitted.
+8. Only then write custom code — and the result must pass `ashes-aaa-gate` before it counts as done — and say why nothing above fitted.
 
 Rules: no paid tools (Meshy credits only, owner-approved); licences free + commercial-OK; log downloads in `docs/plans/DOWNLOADS.md`; min-spec is a regular PC possibly with integrated graphics (provide a low tier).
 
@@ -52,4 +54,4 @@ Check every visual change with a Movie Maker recording, not only screenshots: `g
 Instancer (trees/bushes/rocks/grass per region, `add_transforms`) · auto-shader (slope/height texturing) · macro variation + detail noise · steep-slope projection · colour map (biome tint/seasons) · wetness/roughness · holes (caves/mine mouths) · dynamic collision · navmesh baking from terrain · `Terrain3DData` height/normal/texture queries (feed SurfaceQuery). FSR2 crashes with Terrain3D 1.0.2 → FSR1 + TAA.
 
 ## Skills index (read the one that matches)
-ashes-external-tools · ashes-open-source-sourcing · ashes-mixamo-meshy · ashes-cloud-offload · ashes-animation-pipeline · ashes-performance · ashes-visual-qa · ashes-environment-look · ashes-art-style · ashes-world-interaction · ashes-melee-combat · ashes-build-kit · ashes-perception-ai · ashes-agent-orchestration · ashes-cloud-testing · ashes-work-package.
+**ashes-aaa-gate (mandatory before done or sending)** · ashes-external-tools · ashes-open-source-sourcing · ashes-mixamo-meshy · ashes-cloud-offload · ashes-animation-pipeline · ashes-performance · ashes-visual-qa · ashes-environment-look · ashes-art-style · ashes-world-interaction · ashes-melee-combat · ashes-build-kit · ashes-perception-ai · ashes-agent-orchestration · ashes-cloud-testing · ashes-work-package.

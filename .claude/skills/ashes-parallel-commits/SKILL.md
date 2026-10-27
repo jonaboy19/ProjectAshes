@@ -3,6 +3,8 @@ name: ashes-parallel-commits
 description: How the orchestrating Rising Ashes session commits and pushes safely while several subagents edit the same working tree - when to hold, partial staging, snapshot commits, pushing to branch and main. Use whenever agents run in parallel on one checkout, or when the stop hook reports uncommitted changes.
 ---
 
+> **Mandatory for every task (owner rules, 2026-10-28):** (1) `ashes-best-tool-first` — use every fitting Godot built-in, installed addon, external tool (Blender, ffmpeg, Meshy, Mixamo, Poly Haven/ambientCG CC0) and cloud offload instead of hand-rolling; (2) `ashes-aaa-gate` — nothing is done or sent until it passes the AAA gate against `docs/plans/ref_aaa/`. The game is **PC-only** (min-spec: regular PC, possibly integrated GPU); ignore any mobile/phone wording below.
+
 # Committing while agents share one tree
 
 Subagents never run git. The orchestrator commits for them.

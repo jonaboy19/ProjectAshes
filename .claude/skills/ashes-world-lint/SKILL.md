@@ -3,6 +3,8 @@ name: ashes-world-lint
 description: Headless visual-bug detector for the Rising Ashes world - finds floating, sunken, clipping, overlapping and road-blocking props and per-site draw-budget overruns without rendering or screenshots (no OOM). Use after changing any world placement code (region_dressing, settlement_builder, region1_look, vale_look, hidden_valley, region_caves_view, towers, site plans), before asking for a screenshot review, or when a prop looks like it floats or clips.
 ---
 
+> **Mandatory for every task (owner rules, 2026-10-28):** (1) `ashes-best-tool-first` — use every fitting Godot built-in, installed addon, external tool (Blender, ffmpeg, Meshy, Mixamo, Poly Haven/ambientCG CC0) and cloud offload instead of hand-rolling; (2) `ashes-aaa-gate` — nothing is done or sent until it passes the AAA gate against `docs/plans/ref_aaa/`. The game is **PC-only** (min-spec: regular PC, possibly integrated GPU); ignore any mobile/phone wording below.
+
 # ashes-world-lint
 
 Builds every site's dressing exactly like the game does (RegionDressing, Region1Look landmarks, Hidden Vale ValeLook, caves, dungeon tower spire + camp, all 30 settlements through SettlementBuilder) under the dummy renderer, then checks every placed mesh and every MultiMesh instance against `WorldGen`. About 50 s for the whole world, about 1 GB RAM, no GPU, no xvfb.

@@ -3,6 +3,8 @@ name: ashes-ci
 description: Use GitHub Actions (free on this public repo) instead of local runs for the full Rising Ashes test suite, secret scan and file-size guard, and read the results cheaply through the GitHub MCP tools. Use after every push, before claiming "tests pass", or when the container is short on memory.
 ---
 
+> **Mandatory for every task (owner rules, 2026-10-28):** (1) `ashes-best-tool-first` — use every fitting Godot built-in, installed addon, external tool (Blender, ffmpeg, Meshy, Mixamo, Poly Haven/ambientCG CC0) and cloud offload instead of hand-rolling; (2) `ashes-aaa-gate` — nothing is done or sent until it passes the AAA gate against `docs/plans/ref_aaa/`. The game is **PC-only** (min-spec: regular PC, possibly integrated GPU); ignore any mobile/phone wording below.
+
 # Free CI for Rising Ashes
 
 Workflow: `.github/workflows/tests.yml`. It runs on every push to `main` or `claude/**`, on PRs, and on manual dispatch. Public repos get unlimited Actions minutes, so the only cost is waiting.

@@ -3,6 +3,8 @@ name: ashes-animation-pipeline
 description: How Rising Ashes gets animations - free mocap sourcing (licence rules), Blender retargeting, GLB AnimationLibrary export, preview strips, and the Codex handoff. Use for any animation, mocap, IK or motion task.
 ---
 
+> **Mandatory for every task (owner rules, 2026-10-28):** (1) `ashes-best-tool-first` — use every fitting Godot built-in, installed addon, external tool (Blender, ffmpeg, Meshy, Mixamo, Poly Haven/ambientCG CC0) and cloud offload instead of hand-rolling; (2) `ashes-aaa-gate` — nothing is done or sent until it passes the AAA gate against `docs/plans/ref_aaa/`. The game is **PC-only** (min-spec: regular PC, possibly integrated GPU); ignore any mobile/phone wording below.
+
 # Animation pipeline
 
 **Ownership:** Codex owns animation BEHAVIOUR (state machines, controllers). The local and cloud sessions deliver only clips, libraries, techniques and demos, each with a handoff note.

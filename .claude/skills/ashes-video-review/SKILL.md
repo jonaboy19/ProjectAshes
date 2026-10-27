@@ -3,6 +3,8 @@ name: ashes-video-review
 description: Review motion (videos, animations, VFX, UI transitions, camera moves, gameplay) "stop-motion" style - capture many frames, tile them into numbered/timestamped contact sheets plus a motion-difference sheet, and read them in order. Use whenever something moves and must be judged - mocap clips, attack combos, spell VFX, intro/cutscene videos, menu transitions, fps hitches, or any video the owner sends.
 ---
 
+> **Mandatory for every task (owner rules, 2026-10-28):** (1) `ashes-best-tool-first` — use every fitting Godot built-in, installed addon, external tool (Blender, ffmpeg, Meshy, Mixamo, Poly Haven/ambientCG CC0) and cloud offload instead of hand-rolling; (2) `ashes-aaa-gate` — nothing is done or sent until it passes the AAA gate against `docs/plans/ref_aaa/`. The game is **PC-only** (min-spec: regular PC, possibly integrated GPU); ignore any mobile/phone wording below.
+
 # Stop-motion video review
 
 Claude can't watch a video, but it can read images. So we turn motion into **ordered contact sheets**: many frames per image, each labelled `#frame  hh:mm:ss.mmm`, read left→right and top→bottom like a comic.

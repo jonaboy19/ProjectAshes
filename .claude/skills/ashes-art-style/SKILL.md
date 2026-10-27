@@ -3,6 +3,8 @@ name: ashes-art-style
 description: The ONE visual style of Rising Ashes: Style G (gate market, target 03), see ashes-style-g, ashes-style-g-assets, ashes-style-g-qa. Use for any visual work — new assets (Blender, Meshy, open-source packs), materials, lighting, post-processing, village/city dressing, UI art, store screenshots — and to judge whether a screenshot matches the target look.
 ---
 
+> **Mandatory for every task (owner rules, 2026-10-28):** (1) `ashes-best-tool-first` — use every fitting Godot built-in, installed addon, external tool (Blender, ffmpeg, Meshy, Mixamo, Poly Haven/ambientCG CC0) and cloud offload instead of hand-rolling; (2) `ashes-aaa-gate` — nothing is done or sent until it passes the AAA gate against `docs/plans/ref_aaa/`. The game is **PC-only** (min-spec: regular PC, possibly integrated GPU); ignore any mobile/phone wording below.
+
 > **DECISION: Style G is THE game style** (Style Lab box G, the owner: "by far the best"; target `docs/art/reference/03_TARGET_gate_market_detailed.webp`).
 > Use these three skills for any visual work, they hold exact values and override anything below that differs:
 > - `ashes-style-g`: master recipe (Environment, lights, palettes, materials by role, camera, composition, tiers, budgets, how to apply). Code: `kingdom/scripts/style_g.gd`, baked `kingdom/resources/style_g/`.

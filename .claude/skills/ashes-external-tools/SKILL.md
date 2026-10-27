@@ -3,6 +3,8 @@ name: ashes-external-tools
 description: Approved external tools for Rising Ashes - animation (Rigify horse, Wiggle 2, Bone Dynamics, Expy Kit, RTMPose video mocap), world building (A.N.T.Landscape, erosion, Azgaar, Terrain3D), phone and GPU profiling (scrcpy, Perfetto, AGI, RenderDoc), meshes and textures (gltfpack LOD, Instant Meshes, Real-ESRGAN, Krita), NPC voices (Piper) and SFX (rFXGen, jsfxr) - with licence verdicts and headless commands. Also the agent MCP toolchain (DCC-MCP Godot and Blender, Serena, Context7, Debug Draw 3D): how to start and call them. Use before rigging, terrain, profiling the S22, simplifying or retopologising a GLB, upscaling a texture, generating voice lines or sound effects.
 ---
 
+> **Mandatory for every task (owner rules, 2026-10-28):** (1) `ashes-best-tool-first` — use every fitting Godot built-in, installed addon, external tool (Blender, ffmpeg, Meshy, Mixamo, Poly Haven/ambientCG CC0) and cloud offload instead of hand-rolling; (2) `ashes-aaa-gate` — nothing is done or sent until it passes the AAA gate against `docs/plans/ref_aaa/`. The game is **PC-only** (min-spec: regular PC, possibly integrated GPU); ignore any mobile/phone wording below.
+
 # External tools for Rising Ashes
 
 Installed in `C:\Users\Jonna\Tools\` (never in the repo). Full notes, gotchas and the rejected list: `tools/README_EXTERNAL_TOOLS.md`. Scripts: `tools/external/`. Proof images: `C:\Users\Jonna\Tools\_proof\`.

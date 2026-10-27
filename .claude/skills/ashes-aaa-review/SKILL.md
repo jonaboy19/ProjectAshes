@@ -3,7 +3,11 @@ name: ashes-aaa-review
 description: Self-review checklist to run after finishing ANY Rising Ashes task (asset, VFX, animation, UI, system). Asks "is this really done, and what would make it feel premium/AAA?" and turns the answers into next tasks. Use at every task completion and before reporting to the owner.
 ---
 
+> **Mandatory for every task (owner rules, 2026-10-28):** (1) `ashes-best-tool-first` — use every fitting Godot built-in, installed addon, external tool (Blender, ffmpeg, Meshy, Mixamo, Poly Haven/ambientCG CC0) and cloud offload instead of hand-rolling; (2) `ashes-aaa-gate` — nothing is done or sent until it passes the AAA gate against `docs/plans/ref_aaa/`. The game is **PC-only** (min-spec: regular PC, possibly integrated GPU); ignore any mobile/phone wording below.
+
 # "Is it finished?" loop
+
+> **Superseded by `ashes-aaa-gate` (2026-10-28).** The project is PC-only now (not mobile). Run the gate first; the PC min-spec is in `ashes-performance` and in the project memory.
 
 The owner wants the game pushed toward a premium, AAA feel on mobile. Never report "done" without running this loop.
 

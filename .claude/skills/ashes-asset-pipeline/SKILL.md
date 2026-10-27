@@ -3,6 +3,8 @@ name: ashes-asset-pipeline
 description: Make or bring in any 3D asset for Rising Ashes (buildings, houses, creatures, characters, armor, props) so it matches the art style and runs at 60 fps on phones. Use before generating with Meshy, building in Blender, or adding any model to kingdom/assets.
 ---
 
+> **Mandatory for every task (owner rules, 2026-10-28):** (1) `ashes-best-tool-first` — use every fitting Godot built-in, installed addon, external tool (Blender, ffmpeg, Meshy, Mixamo, Poly Haven/ambientCG CC0) and cloud offload instead of hand-rolling; (2) `ashes-aaa-gate` — nothing is done or sent until it passes the AAA gate against `docs/plans/ref_aaa/`. The game is **PC-only** (min-spec: regular PC, possibly integrated GPU); ignore any mobile/phone wording below.
+
 # Rising Ashes asset pipeline
 
 Target: Play Store / App Store, **60 fps on mid-range phones**. Every asset gets optimized before it's committed. No exceptions.

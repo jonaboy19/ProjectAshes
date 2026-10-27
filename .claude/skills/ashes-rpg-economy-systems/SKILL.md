@@ -2,6 +2,8 @@
 name: ashes-rpg-economy-systems
 description: Gathering, crafting, inventory/equipment, skill progression and world-persistence patterns (learned from Ryzom, re-implemented Godot-native) applied to Rising Ashes. Use before changing crafting.gd, gathering_items.gd, progression.gd, items_db.gd, equipment, save_manager.gd, or adding deposits, recipes, missions.
 ---
+
+> **Mandatory for every task (owner rules, 2026-10-28):** (1) `ashes-best-tool-first` — use every fitting Godot built-in, installed addon, external tool (Blender, ffmpeg, Meshy, Mixamo, Poly Haven/ambientCG CC0) and cloud offload instead of hand-rolling; (2) `ashes-aaa-gate` — nothing is done or sent until it passes the AAA gate against `docs/plans/ref_aaa/`. The game is **PC-only** (min-spec: regular PC, possibly integrated GPU); ignore any mobile/phone wording below.
 # Rising Ashes RPG economy systems
 
 Design source: `docs/research/MINING_COMBAT_WORLD.md` sections 3 and 5. Ryzom is AGPL: patterns only, never copy code or data.

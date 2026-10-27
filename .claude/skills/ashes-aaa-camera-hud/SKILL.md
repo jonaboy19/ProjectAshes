@@ -3,6 +3,8 @@ name: ashes-aaa-camera-hud
 description: How Rising Ashes frames the third-person camera and keeps the screen clean the AAA way (shoulder camera, occluder see-through, collision recovery, contextual HUD, no debug text in the world), with the before/after harness on the Ashford benchmark views. Use for any change to chase_camera.gd / player.gd camera code, HUD layout, nameplates, prompts, barks, alert glyphs, or when the owner says the game "doesn't feel AAA".
 ---
 
+> **Mandatory for every task (owner rules, 2026-10-28):** (1) `ashes-best-tool-first` — use every fitting Godot built-in, installed addon, external tool (Blender, ffmpeg, Meshy, Mixamo, Poly Haven/ambientCG CC0) and cloud offload instead of hand-rolling; (2) `ashes-aaa-gate` — nothing is done or sent until it passes the AAA gate against `docs/plans/ref_aaa/`. The game is **PC-only** (min-spec: regular PC, possibly integrated GPU); ignore any mobile/phone wording below.
+
 # AAA camera + clean screen
 
 Owner verdict (S22, 2026-10-06): "looks good, doesn't feel AAA". Causes, ranked: camera too high/far/wide and clipping

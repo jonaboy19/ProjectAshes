@@ -3,6 +3,8 @@ name: ashes-mixamo-meshy
 description: Getting animations and models fast for Rising Ashes - Mixamo downloads through the owner's logged-in browser pane, Meshy text-to-motion / text-to-3D with credits, and the ready-made pipelines that turn the results into graded, wired game clips on the UAL skeleton. Use whenever a motion or prop is missing.
 ---
 
+> **Mandatory for every task (owner rules, 2026-10-28):** (1) `ashes-best-tool-first` — use every fitting Godot built-in, installed addon, external tool (Blender, ffmpeg, Meshy, Mixamo, Poly Haven/ambientCG CC0) and cloud offload instead of hand-rolling; (2) `ashes-aaa-gate` — nothing is done or sent until it passes the AAA gate against `docs/plans/ref_aaa/`. The game is **PC-only** (min-spec: regular PC, possibly integrated GPU); ignore any mobile/phone wording below.
+
 # Mixamo + Meshy
 
 ## Order of preference

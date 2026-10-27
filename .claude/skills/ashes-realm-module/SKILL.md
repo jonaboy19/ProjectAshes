@@ -3,6 +3,8 @@ name: ashes-realm-module
 description: How to add or change a Rising Ashes realm simulation module (scripts/realm/*) - hub registration, tick tiers, chunked day ticks, gold ledger, determinism, saves and tests. Use for any new living-world, economy, war, society, exploration or progression system that runs over game time.
 ---
 
+> **Mandatory for every task (owner rules, 2026-10-28):** (1) `ashes-best-tool-first` — use every fitting Godot built-in, installed addon, external tool (Blender, ffmpeg, Meshy, Mixamo, Poly Haven/ambientCG CC0) and cloud offload instead of hand-rolling; (2) `ashes-aaa-gate` — nothing is done or sent until it passes the AAA gate against `docs/plans/ref_aaa/`. The game is **PC-only** (min-spec: regular PC, possibly integrated GPU); ignore any mobile/phone wording below.
+
 # Adding a realm module
 
 Specs: `docs/design/SIM_HIERARCHY.md` (budgets) and `docs/design/REALM_PLAN.md` (who owns what).

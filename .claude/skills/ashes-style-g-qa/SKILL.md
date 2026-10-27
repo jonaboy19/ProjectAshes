@@ -3,6 +3,8 @@ name: ashes-style-g-qa
 description: Scorecard and tools to judge any Rising Ashes screenshot against Style G / target 03 (gate market) - side-by-side compare with objective metrics, weighted checklist, minimum score to ship, and fixes for the usual failures (grey, flat, empty, cool light, neon ivy, orange goods). Use after every visual change and before telling the owner a scene "matches".
 ---
 
+> **Mandatory for every task (owner rules, 2026-10-28):** (1) `ashes-best-tool-first` — use every fitting Godot built-in, installed addon, external tool (Blender, ffmpeg, Meshy, Mixamo, Poly Haven/ambientCG CC0) and cloud offload instead of hand-rolling; (2) `ashes-aaa-gate` — nothing is done or sent until it passes the AAA gate against `docs/plans/ref_aaa/`. The game is **PC-only** (min-spec: regular PC, possibly integrated GPU); ignore any mobile/phone wording below.
+
 # Style G QA scorecard
 
 Target: `docs/art/reference/03_TARGET_gate_market_detailed.webp`. Recipe: skill `ashes-style-g`. Assets: `ashes-style-g-assets`.

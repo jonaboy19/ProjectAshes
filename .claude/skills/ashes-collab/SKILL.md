@@ -3,6 +3,8 @@ name: ashes-collab
 description: How to work on Rising Ashes alongside the parallel cloud Claude session and the Codex session without conflicts. Use at the start of every session on this repo, before any commit or push, and whenever a merge fails.
 ---
 
+> **Mandatory for every task (owner rules, 2026-10-28):** (1) `ashes-best-tool-first` — use every fitting Godot built-in, installed addon, external tool (Blender, ffmpeg, Meshy, Mixamo, Poly Haven/ambientCG CC0) and cloud offload instead of hand-rolling; (2) `ashes-aaa-gate` — nothing is done or sent until it passes the AAA gate against `docs/plans/ref_aaa/`. The game is **PC-only** (min-spec: regular PC, possibly integrated GPU); ignore any mobile/phone wording below.
+
 # Working in parallel on ProjectAshes
 
 Repo: `C:\Users\Jonna\Documents\ProjectAshes` (GitHub jonaboy19/ProjectAshes), branch **`claude/focused-curie-m09hbd`**, shared by:

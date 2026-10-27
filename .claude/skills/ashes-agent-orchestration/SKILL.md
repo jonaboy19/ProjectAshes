@@ -3,6 +3,8 @@ name: ashes-agent-orchestration
 description: How the local Rising Ashes session splits work across subagents cheaply and safely on a branch shared with a cloud session and Codex. Use when starting several parallel tasks.
 ---
 
+> **Mandatory for every task (owner rules, 2026-10-28):** (1) `ashes-best-tool-first` — use every fitting Godot built-in, installed addon, external tool (Blender, ffmpeg, Meshy, Mixamo, Poly Haven/ambientCG CC0) and cloud offload instead of hand-rolling; (2) `ashes-aaa-gate` — nothing is done or sent until it passes the AAA gate against `docs/plans/ref_aaa/`. The game is **PC-only** (min-spec: regular PC, possibly integrated GPU); ignore any mobile/phone wording below.
+
 # Orchestration
 
 - **Plan and judge with Opus. Execute with Sonnet** (build and asset work) **or Haiku** (file moves, renames, simple docs, licence checks).

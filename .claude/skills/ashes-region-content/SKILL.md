@@ -3,6 +3,8 @@ name: ashes-region-content
 description: How to add places to the Rising Ashes world (sites, landmarks, caves, dungeons, POIs, secret places, towers) without breaking ids, tests or the map - RegionSites plan hooks, own RNG streams, Discovery, map icons, dressing and budgets. Use for any new location, dungeon entrance, point of interest or hidden area.
 ---
 
+> **Mandatory for every task (owner rules, 2026-10-28):** (1) `ashes-best-tool-first` — use every fitting Godot built-in, installed addon, external tool (Blender, ffmpeg, Meshy, Mixamo, Poly Haven/ambientCG CC0) and cloud offload instead of hand-rolling; (2) `ashes-aaa-gate` — nothing is done or sent until it passes the AAA gate against `docs/plans/ref_aaa/`. The game is **PC-only** (min-spec: regular PC, possibly integrated GPU); ignore any mobile/phone wording below.
+
 # Adding places to the region
 
 - **Planning:** `scripts/world/region_sites.gd` `plan(seed)` builds `WorldGen.sites`. Every package appends in a separate planner file with ONE hook line near the end (`out.append_array(preload(...).sites(seed, out))`). Ids are reassigned by index at the end, so **append after everything**; never insert. Earlier ids must not move.

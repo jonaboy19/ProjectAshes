@@ -3,6 +3,8 @@ name: ashes-handoff
 description: Decide which Rising Ashes session should do a task (cloud Claude, local PC Claude, Codex, or free CI) and write the handoff so the other side can start without questions. Use when a task needs a GPU, lots of RAM, Blender with UI, a phone, Meshy, or animation work, or when the cloud container keeps OOM-killing renders.
 ---
 
+> **Mandatory for every task (owner rules, 2026-10-28):** (1) `ashes-best-tool-first` — use every fitting Godot built-in, installed addon, external tool (Blender, ffmpeg, Meshy, Mixamo, Poly Haven/ambientCG CC0) and cloud offload instead of hand-rolling; (2) `ashes-aaa-gate` — nothing is done or sent until it passes the AAA gate against `docs/plans/ref_aaa/`. The game is **PC-only** (min-spec: regular PC, possibly integrated GPU); ignore any mobile/phone wording below.
+
 # Who does what
 
 | Work | Best owner | Why |

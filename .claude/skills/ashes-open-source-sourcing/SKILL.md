@@ -3,9 +3,11 @@ name: ashes-open-source-sourcing
 description: Find, licence-check and import free open-source assets and code (models, rigs, animations, armor, textures, audio, Godot addons) for Rising Ashes, so nothing is made from scratch that already exists. Use whenever pulling anything from GitHub, Reddit, itch.io, OpenGameArt, Quaternius, KayKit, Kenney, Poly Haven and similar.
 ---
 
+> **Mandatory for every task (owner rules, 2026-10-28):** (1) `ashes-best-tool-first` — use every fitting Godot built-in, installed addon, external tool (Blender, ffmpeg, Meshy, Mixamo, Poly Haven/ambientCG CC0) and cloud offload instead of hand-rolling; (2) `ashes-aaa-gate` — nothing is done or sent until it passes the AAA gate against `docs/plans/ref_aaa/`. The game is **PC-only** (min-spec: regular PC, possibly integrated GPU); ignore any mobile/phone wording below.
+
 # Open-source sourcing for Rising Ashes
 
-The game ships **commercially** on the Play Store and App Store. Every asset must be **free and allowed for commercial use**.
+The game ships **commercially** on PC (Steam and similar; PC-only since 2026-10). Every asset must be **free and allowed for commercial use**.
 
 ## Licence gate (check at the actual source page, never from a Reddit post)
 | OK | Only with credit | Never |

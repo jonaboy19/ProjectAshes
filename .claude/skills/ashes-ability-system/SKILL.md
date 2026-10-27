@@ -2,6 +2,8 @@
 name: ashes-ability-system
 description: How to design and add techniques and powers for Rising Ashes power paths (magic, bending, sect donghua arts, knight arts, beast): resources, cooldowns, chant vs chantless, targeting, effects. Use before editing technique_caster.gd, skills.gd, power_paths.gd, or adding any technique, spell or special move.
 ---
+
+> **Mandatory for every task (owner rules, 2026-10-28):** (1) `ashes-best-tool-first` — use every fitting Godot built-in, installed addon, external tool (Blender, ffmpeg, Meshy, Mixamo, Poly Haven/ambientCG CC0) and cloud offload instead of hand-rolling; (2) `ashes-aaa-gate` — nothing is done or sent until it passes the AAA gate against `docs/plans/ref_aaa/`. The game is **PC-only** (min-spec: regular PC, possibly integrated GPU); ignore any mobile/phone wording below.
 # Rising Ashes ability system
 
 Design source: `docs/research/MINING_COMBAT_WORLD.md` section 2; canon in `docs/design/ACADEMY_PLAN.md`.

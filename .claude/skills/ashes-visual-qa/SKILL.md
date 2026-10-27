@@ -3,6 +3,8 @@ name: ashes-visual-qa
 description: Render in-game screenshots of Rising Ashes (headless cloud or PC) and judge them against the main art reference. Use after any visual change (assets, placement, lighting, UI, characters) and whenever the user asks to "show me" or "check visually".
 ---
 
+> **Mandatory for every task (owner rules, 2026-10-28):** (1) `ashes-best-tool-first` — use every fitting Godot built-in, installed addon, external tool (Blender, ffmpeg, Meshy, Mixamo, Poly Haven/ambientCG CC0) and cloud offload instead of hand-rolling; (2) `ashes-aaa-gate` — nothing is done or sent until it passes the AAA gate against `docs/plans/ref_aaa/`. The game is **PC-only** (min-spec: regular PC, possibly integrated GPU); ignore any mobile/phone wording below.
+
 # Visual QA for Rising Ashes
 
 The user wants to SEE results. Every visual change ends with a screenshot compared side by side with
