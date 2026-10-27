@@ -24,3 +24,11 @@ Subagents never run git. The orchestrator commits for them.
 
 ## Commit message
 Say what the player gets, list the systems, and note anything unverified. End with the Co-Authored-By and Claude-Session trailers.
+
+## Shared-worktree rules (2026-10-28, learned the hard way)
+Several local workers share ONE worktree (PA_wt_w3) and ONE git index.
+- **Commit:** pathspec commits only, `git commit -m "..." -- <your paths>`. Never a bare `git commit` after `git add`: it sweeps up other workers' staged changes. For files several workers edit (player.gd, assets.gd), ask the file's owner to commit your hunk, or wait until their edits are committed.
+- **Sync:** fetch `+refs/heads/aaa/finish:refs/remotes/origin/aaa/finish`. If you have local commits not on origin, `git rebase origin/aaa/finish`, or if others' uncommitted files block it, cherry-pick onto origin in a temp worktree (`git worktree add --detach ../PA_tmp origin/aaa/finish`), push from there and remove the worktree. Only with NO local commits use `git reset --keep origin/aaa/finish` (it silently drops unpushed commits). Push right after committing.
+- **Never commit** an import-time rewrite of `project.godot`; restore it with `git checkout -- kingdom/project.godot`.
+- **GPU:** wrap every Godot recording or perf run with the shared GPU lock (`tools/qa/gpu_lock.sh`, lock dir `PA_plans/locks/gpu.lock`); skip a run if free RAM is under 3 GB.
+- **Merging cloud branches:** the coordinator merges in a temp worktree; conflicts in `docs/plans/AAA_PROGRESS.md` are resolved by keeping both sides.
