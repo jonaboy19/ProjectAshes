@@ -89,6 +89,7 @@ var _paused: Array[Node] = []
 var _cam: Camera3D = null
 var _saved_env: Environment = null
 var _saved_view := -1
+var _preload_tried := false
 var _entering := false          # the room is instanced and waits one frame to be put into the world (see enter)
 
 
@@ -328,13 +329,15 @@ func enter(player: Node3D, spread := false) -> void:
 		return
 	_player = player
 	if spread and is_inside_tree():
-		var need := _missing_scenes()
+		var need := _missing_scenes() if not _preload_tried else []
 		if not need.is_empty():
 			# not in memory yet: the queue loads it inside its frame budget, then the room is made and put into the world
 			_entering = true
 			Loader.request_many(need, func(_r: Dictionary) -> void:
 				_entering = false
-				enter(player, true))
+				_preload_tried = true          # a scene that failed to load must not re-queue forever: _make_interior reports it
+				enter(player, true)
+				_preload_tried = false)
 			return
 	var _pi := Probe.t()
 	interior = _make_interior()
