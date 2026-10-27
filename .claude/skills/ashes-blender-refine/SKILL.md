@@ -27,6 +27,25 @@ Code: `tools/blender/props/refine_lib.py` (shared: material library, weathering 
 6. **Materials** come from `refine_lib.LIB`. Scan materials are box-projected in object space at real tile size and get bump from the scan's AO plus luminance. Tangent-space scan normals are wrong under box projection, so don't use them. Meshy's greyscale albedo is **overlaid** at `detail` (0.5, or 0.75 for stone) so the plank lines and stone joints Meshy painted stay readable. Parts with no CC0 scan on disk (iron, burlap, canvas, leather, produce) keep Meshy's albedo (`meshy*` classes, desaturated) or use a procedural base, plus a weave, grain or rust breakup.
 7. Then UV, bake and export (shared steps below), and render the original and the refined prop from the same camera.
 
+## Buildings and heavy Meshy meshes (`refine_buildings.py`)
+- The source is `ProjectAshes_art_staging/meshy_keep/<cat>/` (the codes are in `CATALOG.md`). Run `-- <codes> --preview` first: it renders the scaled original next to a **1.75 m figure** so you can check scale (doors 2–2.5 m, a gate passage ≥ 3.5 m, a nave about 8 m) and pick between variants.
+- **Weld before decimating** (`refine_meshy.weld`). glTF import splits vertices at every UV seam, so a 1M+ Meshy mesh is mostly loose triangles, and the collapse decimator turns it into shards. The tavern went from shattered to clean with this alone.
+- If the collapse decimator still stalls on fragment soup (cluttered props above about 2M tris), pre-simplify with **gltfpack** `-noq -si 0.006 -sa` and put the result in `<work>/simpl/<code>.glb` (`SIMPL` in the script). If the result melts or shatters at budget, **drop the asset**: that happened to the campfire and the tent.
+- When the source is more than 1.3 × the budget, a copy of the original is kept as the high-poly. `bake_asset(high=...)` bakes it onto the low mesh (selected-to-active, cage extrusion and ray distance at 0.4 % and 1.2 % of the diagonal) and whiteout-blends that with the material normal.
+- The `rules()` classifier works in this order:
+  1. ivy and plants keep Meshy's paint;
+  2. sloped faces high on the building (`nz` 0.3–0.97, z > `roof_z`) become the roof class;
+  3. lit windows (vertical faces) keep Meshy's paint;
+  4. a base slab;
+  5. dark faces become the `dark` class, and dark board walls the `dark_walls` class;
+  6. red becomes brick;
+  7. light, low-saturation faces become plaster;
+  8. brown faces with saturation above `timber_s` become timber;
+  9. everything else becomes stone.
+
+  Tune `timber_s` per building: brown stone and brick get misread as timber at 0.22, and a gate door is lost at 0.45.
+- Building scans in `LIB` (`b_*`) use real tile sizes (2.2–3 m) and Meshy detail overlay at 0.35, so Meshy's painted joints and the scan's joints don't double up.
+
 ## Task B: procedural build (`build_village_props.py`)
 - Every asset is a function that returns a `Part` (bmesh with per-face material classes and an `aux` UV). It is built in metres with +Z up, from the real dimensions in its docstring.
 - Building blocks: `Part.loft` (rings to quads, with caps), `tube` (a polyline with a radius function, a profile and noise roughness; caps get ring-centred `aux` UVs for end grain), and `box` (a chamfered section with jitter).
@@ -67,6 +86,7 @@ Code: `tools/blender/props/refine_lib.py` (shared: material library, weathering 
 | furniture, fences, stacks | ≤ 8k | 1K |
 | big street props (cart, hearth, rack) | ≤ 15k | 1K |
 | hero street props (well, market stall) | ≤ 15k | 2K |
+| buildings (LOD0; Godot makes LODs) | ≤ 40k | 2K |
 A whole prop gets one material, plus at most one unbaked slot (water or glass). Godot auto-LOD handles distance.
 
 ## Gate (mandatory, `ashes-aaa-gate`)

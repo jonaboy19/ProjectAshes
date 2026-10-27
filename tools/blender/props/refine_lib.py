@@ -535,7 +535,7 @@ def _setup_cycles(samples):
     sc.render.bake.use_clear = True
 
 
-def bake_asset(ob, size, tmpdir, tag, samples=24):
+def bake_asset(ob, size, tmpdir, tag, samples=24, high=None, extrusion=0.04, ray=0.12):
     """Bake every bakeable material slot of ob into one albedo / ORM / normal set on the 'bake_uv' layer.
     Returns the final glTF material (images packed, saved as files in tmpdir)."""
     _setup_cycles(samples)
@@ -591,6 +591,32 @@ def bake_asset(ob, size, tmpdir, tag, samples=24):
     target(imgs["normal"])
     bpy.ops.object.bake(type="NORMAL", normal_space="TANGENT", normal_r="POS_X", normal_g="POS_Y", normal_b="POS_Z", margin=8)
     print("BAKED", tag, "normal", flush=True)
+    if high is not None:
+        # geometry detail the decimation removed: bake the original high-poly onto the low (selected -> active) and
+        # whiteout-blend it with the material normal (n = normalize(a.xy + b.xy, a.z * b.z))
+        geo_img = new_img("geonormal", True)
+        target(geo_img)
+        high.hide_render = False
+        high.select_set(True)
+        ob.select_set(True)
+        bpy.context.view_layer.objects.active = ob
+        bpy.ops.object.bake(type="NORMAL", normal_space="TANGENT", normal_r="POS_X", normal_g="POS_Y", normal_b="POS_Z", margin=8,
+                            use_selected_to_active=True, cage_extrusion=extrusion, max_ray_distance=ray)
+        high.select_set(False)
+        def pxn(im):
+            a_ = np.empty(size * size * 4, dtype=np.float32)
+            im.pixels.foreach_get(a_)
+            return a_.reshape(size, size, 4)
+        na = pxn(imgs["normal"])
+        nbm = pxn(geo_img)
+        A = na[..., :3] * 2 - 1
+        B = nbm[..., :3] * 2 - 1
+        Nn = np.stack([A[..., 0] + B[..., 0], A[..., 1] + B[..., 1], A[..., 2] * B[..., 2]], -1)
+        Nn /= np.maximum(np.linalg.norm(Nn, axis=-1, keepdims=True), 1e-6)
+        na[..., :3] = Nn * 0.5 + 0.5
+        imgs["normal"].pixels.foreach_set(na.ravel())
+        bpy.data.images.remove(geo_img)
+        print("BAKED", tag, "high->low normal", flush=True)
 
     # ORM pack (R = AO, G = roughness, B = metallic)
     def px(im):

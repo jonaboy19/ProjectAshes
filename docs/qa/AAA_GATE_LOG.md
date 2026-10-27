@@ -288,3 +288,12 @@ Files: PA_plans/videos/slice_route_v14.mp4, side by side slice_route_v14_vs_ref0
 | Stylised props at the route start | FAIL (towns lane) | Ashford-edge bushes/props |
 | Perf on this route (RTX 4070 laptop, 1280x720, no capture) | FAIL HIGH / PASS LOW | HIGH 26.6 fps avg, p95 66 ms; LOW 60.7 fps avg, p95 39 ms. Sapling LOD0 trees (25-55k tris) + scan meadow are the cost; iGPU not measured |
 Verdict: WIP but now the right family next to ref 01. Not sendable as final: walls, puddle, distant hills, HIGH perf.
+
+## 2026-10-28 Refined buildings (Blender refine worker): asset-level gate vs refs 05/08/18/20
+File: `docs/plans/props_refined/buildings_sheet.jpg`; verdicts are in `docs/plans/props_refined/README.md` (buildings batch). Tools: Blender 5.2 headless (weld → collapse decimate → high→low normal bake → Cycles CPU 2K bake), on-disk Poly Haven CC0 scans, gltfpack `-sa` (tried on the 2.5–3M-tri props).
+| Result | Assets |
+|---|---|
+| PASS | B28 chapel, B44 tall timber house, B14 blacksmith, B54 half-timbered row, B70 tavern |
+| PASS (borderline) | B07 church (plain box), B16 brick church (Victorian spire), B10 gate (soft merlons), B42 tower (stylised taper), B43 house (muddy plaster), B52/B53 Tudor houses (plaster too grey), B60 cottage (flat dark thatch) |
+| DROPPED | P99 campfire (melts at budget), P112 tent (canvas shatters) |
+Not in-game yet: the towns worker re-gates each building in the street after placing it.

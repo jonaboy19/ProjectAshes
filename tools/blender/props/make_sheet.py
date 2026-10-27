@@ -1,5 +1,6 @@
 """Contact sheet for the refined props: Meshy original | refined pairs (Task A), then the procedural builds (Task B).
-Usage: python tools/blender/props/make_sheet.py <gate_dir> <stats.txt> <out.jpg>
+Usage: python tools/blender/props/make_sheet.py <gate_dir> <stats.txt> <out.jpg> [pairs]
+  pairs: generic Meshy|refined pairs for every key in stats.txt (used for the buildings batch, gate_b/stats_b.txt)
 """
 import sys
 from PIL import Image, ImageDraw, ImageFont
@@ -20,6 +21,13 @@ try:
 except OSError:
     font = small = ImageFont.load_default()
 tiles = []
+if len(sys.argv) > 4 and sys.argv[4] == "pairs":
+    # generic mode (buildings): every <key>_A_meshy.jpg / <key>_B_refined.jpg pair in the gate dir, keys from stats order
+    A, B = [k for k in info], []
+    for k in A:
+        tiles.append((f"{gate}/{k}_A_meshy.jpg", f"{k}: Meshy original", ""))
+        tiles.append((f"{gate}/{k}_B_refined.jpg", f"{k}: refined", info.get(k, "")))
+    A = []
 for n in A:
     tiles.append((f"{gate}/{n}_A_meshy.jpg", f"{n}: Meshy original", ""))
     tiles.append((f"{gate}/{n}_B_refined.jpg", f"{n}: refined", info.get(n, "")))
@@ -30,7 +38,8 @@ rows = (len(tiles) + cols - 1) // cols
 sheet = Image.new("RGB", (cols * TW, rows * TH + 40), (24, 24, 24))
 d = ImageDraw.Draw(sheet)
 d.text((10, 10), "Rising Ashes props_refined 2026-10-28: Eevee, kloofendal_overcast HDRI + soft sun, gameplay 3/4 camera; "
-       "Task A = Meshy | refined pairs, Task B = procedural", fill=(230, 210, 150), font=font)
+       "Meshy | refined pairs" + ("" if len(sys.argv) > 4 else ", then procedural builds") + " (red figure = 1.75 m where shown)",
+       fill=(230, 210, 150), font=font)
 for i, (path, title, sub) in enumerate(tiles):
     x, y = (i % cols) * TW, 40 + (i // cols) * TH
     try:

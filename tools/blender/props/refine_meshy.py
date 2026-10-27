@@ -125,7 +125,7 @@ def import_meshy(name):
     return ob, base
 
 
-def clean(ob):
+def clean(ob, recalc=True):
     me = ob.data
     diag = Vector(ob.dimensions).length
     bm = bmesh.new()
@@ -159,7 +159,8 @@ def clean(ob):
     bmesh.ops.delete(bm, geom=loose_e, context="EDGES")
     loose_v = [v for v in bm.verts if not v.link_edges]
     bmesh.ops.delete(bm, geom=loose_v, context="VERTS")
-    bmesh.ops.recalc_face_normals(bm, faces=bm.faces)
+    if recalc:
+        bmesh.ops.recalc_face_normals(bm, faces=bm.faces)
     bm.to_mesh(me)
     bm.free()
     print("CLEAN", ob.name, n0, "->", len(me.polygons), "faces; removed islands faces", len(set(kill)), flush=True)
@@ -183,10 +184,23 @@ def scale_to_size(ob, rule):
     print("SCALE", ob.name, round(s, 3), "dims", tuple(round(x, 2) for x in ob.dimensions), flush=True)
 
 
+def weld(ob, frac=0.0003):
+    """glTF import splits vertices at every UV seam / hard edge: a 1M+ Meshy mesh is then mostly loose triangles and the
+    collapse decimator shatters it. Weld first (UVs live on loops, so they survive)."""
+    bm = bmesh.new()
+    bm.from_mesh(ob.data)
+    n0 = len(bm.verts)
+    bmesh.ops.remove_doubles(bm, verts=bm.verts, dist=Vector(ob.dimensions).length * frac)
+    bm.to_mesh(ob.data)
+    print("WELD", ob.name, n0, "->", len(bm.verts), flush=True)
+    bm.free()
+
+
 def decimate(ob, budget):
     t = RL.tri_count(ob)
     if t <= budget:
         return
+    weld(ob)
     md = ob.modifiers.new("dec", "DECIMATE")
     md.ratio = budget / t * 0.98
     md.use_collapse_triangulate = True
@@ -217,7 +231,7 @@ def classify(ob, base_img, fn):
         r, g, b = np.median(np.array(cols), axis=0)
         h, s, v = colorsys.rgb_to_hsv(r, g, b)
         co = p.center
-        f = dict(h=h, s=s, v=v, z=co.z / zmax, r=math.hypot(co.x, co.y) / rmax, x=co.x, y=co.y)
+        f = dict(h=h, s=s, v=v, z=co.z / zmax, r=math.hypot(co.x, co.y) / rmax, x=co.x, y=co.y, nz=p.normal.z)
         labels.append(fn(f))
     # majority smoothing over edge neighbours (2 passes) to kill speckle at painted seams
     bm = bmesh.new()
@@ -398,6 +412,7 @@ def process(name):
     shutil.rmtree(tmp, ignore_errors=True)
 
 
-for n in (NAMES or list(RULES)):
-    process(n)
-print("DONE")
+if __name__ == "__main__":
+    for n in (NAMES or list(RULES)):
+        process(n)
+    print("DONE")
