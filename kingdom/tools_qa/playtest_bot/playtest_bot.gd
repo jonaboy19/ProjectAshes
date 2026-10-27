@@ -333,12 +333,23 @@ func walk_to(target: Vector2, tol := 2.5, timeout := 90.0, sprint := true, stuck
 	hold("sprint", sprint)
 	hold("move_forward", true)
 	var ok := false
+	var detour_until := -1.0
+	var detour_side := 1.0
+	var last_detour := now()
 	while now() - t_start < timeout:
 		var d := p2().distance_to(target)
 		if d <= tol:
 			ok = true
 			break
-		face(target, -0.15)
+		# no progress for 1.5 s: walk around the obstacle (65 deg off the line, alternating sides) before declaring stuck
+		if now() - maxf(best_t, last_detour) > 1.5 and now() > detour_until:
+			detour_until = now() + 1.6
+			detour_side = -detour_side
+			last_detour = now()
+		if now() < detour_until:
+			face(p2() + (target - p2()).rotated(deg_to_rad(65.0) * detour_side), -0.15)
+		else:
+			face(target, -0.15)
 		if d < best - 0.4:
 			best = d
 			best_t = now()
@@ -1725,6 +1736,12 @@ func _fight(e: Node3D, label: String, limit: float) -> bool:
 	var healed := false
 	var shots_taken := 0
 	var close_since := -1.0
+	# Obstacle steering: when holding forward stops closing the distance (a wall, a fence, a rock between us), walk around it:
+	# steer DETOUR_DEG off the straight line for DETOUR_S, alternating sides, then try straight again.
+	var best_d := INF
+	var best_t := now()
+	var detour_until := -1.0
+	var detour_side := 1.0
 	while now() - t_start < limit:
 		if not is_instance_valid(e) or bool(e.get("dead")):
 			break
@@ -1733,7 +1750,20 @@ func _fight(e: Node3D, label: String, limit: float) -> bool:
 			break
 		var ep := Vector2(e.global_position.x, e.global_position.z)
 		var d := p2().distance_to(ep)
-		face(ep, -0.2)
+		if d < best_d - 0.3:
+			best_d = d
+			best_t = now()
+		if d > 2.0 and now() - best_t > 1.5 and now() > detour_until:
+			detour_until = now() + 1.4
+			detour_side = -detour_side
+			best_t = now()
+			best_d = d
+			L("fight %s: no progress at %.1f m, walking around (%s)" % [label, d, "left" if detour_side > 0.0 else "right"])
+		if now() < detour_until:
+			var to := (ep - p2()).rotated(deg_to_rad(65.0) * detour_side)
+			face(p2() + to, -0.2)
+		else:
+			face(ep, -0.2)
 		# a small (child) body is held off by the foe's collider at ~2.3-2.6 m: after 3 s that close, swing from there (the swing's own lunge closes the gap)
 		if d <= 3.2:
 			if close_since < 0.0:
