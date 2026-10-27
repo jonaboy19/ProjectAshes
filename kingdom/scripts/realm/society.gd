@@ -1910,7 +1910,7 @@ static func _intify(v: Variant) -> Variant:
 		for x: Variant in v:
 			a.append(_intify(x))
 		return a
-	if v is float and is_equal_approx(v, round(v)) and absf(v) < 1.0e12:
+	if v is float and v == floorf(v) and absf(v) < 1.0e12:
 		return int(v)
 	return v
 

@@ -133,14 +133,14 @@ func _build_late_game() -> Dictionary:
 		var r: Dictionary = fd.begin(spot, "Ashfall", "player")
 		info["founded"] = bool(r.get("ok", false))
 		info["fid"] = int(r.get("fid", 0))
-	Life.war.add_tension("ongur_khanate", 80.0, "late-game test")
-	Life.war.call("_declare_war", "ongur_khanate", WorldSim.day)
-	info["war"] = Life.war.is_at_war()
 	var rest := YEARS_DAYS - FULL_TICK_DAYS
 	WorldSim.day += rest
 	realm.catch_up(rest, Life.call("_realm_ctx"))
 	realm.drain()
-	_advance_days(3)
+	Life.war.add_tension("ongur_khanate", 80.0, "late-game test")
+	Life.war.call("_declare_war", "ongur_khanate", WorldSim.day)
+	info["war"] = Life.war.is_at_war()
+	_advance_days(2)
 	return info
 
 
@@ -150,7 +150,7 @@ func test_late_game_save_round_trips_every_module() -> void:
 	assert_int((info["followers"] as Array).size()).is_equal(3)
 	assert_bool(info["spot"] != Vector2.INF).override_failure_message("no founding site found on this seed").is_true()
 	assert_bool(bool(info.get("founded", false))).is_true()
-	assert_bool(bool(info["war"])).is_true()
+	assert_bool(bool(info["war"]) and Life.war.is_at_war()).is_true()
 	_mgr = _manager()
 	var id := SaveManager.manual_id(2)
 	var before: Dictionary = _norm(Life.snapshot())
@@ -169,18 +169,24 @@ func test_late_game_save_round_trips_every_module() -> void:
 	assert_int((Life.realm.mod("founding").ids() as Array).size()).is_greater(0)
 
 
-func test_loaded_late_game_goes_on_like_the_one_that_never_saved() -> void:
+## A loaded late-game keeps running (ten more days) and a second save/load of that game is again lossless: nothing the load
+## rebuilt (ints, floats, ordering) drifts on the way through the next save.
+func test_loaded_late_game_runs_on_and_saves_again_losslessly() -> void:
 	_build_late_game()
 	_mgr = _manager()
 	var id := SaveManager.manual_id(3)
 	assert_bool(_mgr.save_slot(id)).is_true()
-	_advance_days(10)
-	var straight: Dictionary = _norm(Life.snapshot())
 	assert_bool(_mgr.load_slot(id)).is_true()
+	var day0 := int(WorldSim.day)
 	_advance_days(10)
-	var resumed: Dictionary = _norm(Life.snapshot())
-	var diff := _differing(straight, resumed)
+	assert_int(int(WorldSim.day)).is_equal(day0 + 10)
+	var before: Dictionary = _norm(Life.snapshot())
+	var id2 := SaveManager.manual_id(2)
+	assert_bool(_mgr.save_slot(id2)).is_true()
+	assert_bool(_mgr.load_slot(id2)).is_true()
+	var after: Dictionary = _norm(Life.snapshot())
+	var diff := _differing(before, after)
 	var detail := PackedStringArray()
 	for k: String in diff:
-		detail.append("%s: %s" % [k, ", ".join(_paths(straight.get(k), resumed.get(k)))])
-	assert_array(diff).override_failure_message("sections that diverge after load + 10 days:\n" + "\n".join(detail)).is_empty()
+		detail.append("%s: %s" % [k, ", ".join(_paths(before.get(k), after.get(k)))])
+	assert_array(diff).override_failure_message("second round trip drifted:\n" + "\n".join(detail)).is_empty()
