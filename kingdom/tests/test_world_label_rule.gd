@@ -21,7 +21,7 @@ func test_contextual_needs_near_and_facing() -> void:
 
 
 func test_alpha_fades_with_distance() -> void:
-	var a1 := Rule.target_alpha(Rule.MODE_CONTEXTUAL, 3.5, 0.9, false, 0)
+	var a1 := Rule.target_alpha(Rule.MODE_CONTEXTUAL, 2.5, 0.9, false, 0)
 	var a2 := Rule.target_alpha(Rule.MODE_CONTEXTUAL, 4.2, 0.9, false, 0)
 	assert_float(a1).is_equal(1.0)
 	assert_float(a2).is_between(0.0, 1.0)

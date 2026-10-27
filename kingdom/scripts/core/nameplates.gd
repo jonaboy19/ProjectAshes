@@ -58,7 +58,7 @@ static func _fade_to(t: Label3D, goal: float) -> void:
 	if t.has_meta("np_goal") and absf(float(t.get_meta("np_goal")) - goal) < 0.01:
 		return
 	t.set_meta("np_goal", goal)
-	var old: Variant = t.get_meta("np_tw", null)
+	var old: Variant = t.get_meta("np_tw") if t.has_meta("np_tw") else null
 	if old is Tween and (old as Tween).is_valid():
 		(old as Tween).kill()
 	if goal < 0.98:
