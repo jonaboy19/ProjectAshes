@@ -133,7 +133,13 @@ func _wall(pts: PackedVector2Array, gap_at: Vector2, gap: float, out: Array[Tran
 					_plant(["flowers_warm", "flowers_cool", "bush_hazel", "bush_berry"][_rng.randi() % 4], q2, _rng.randf_range(0.8, 1.2))
 
 
+## Stylised region-set plants (blob bushes, cartoon ferns) are banned on the benchmark slice; only scans/generated assets.
+const BANNED := ["bush_hazel", "bush_berry", "bush_dark", "bush_round", "fern_a", "fern_b", "grass_tall", "grass_a", "flowers_warm", "flowers_cool"]
+
+
 func _plant(kind: String, p: Vector2, s: float) -> void:
+	if kind in BANNED:
+		return
 	if not ResourceLoader.exists(NATURE + kind + ".glb") or WorldGen.road_distance(p.x, p.y) < 3.0:
 		return
 	if not _plants.has(kind):
@@ -182,7 +188,8 @@ func _road() -> void:
 	st.generate_tangents()
 	var mesh := st.commit()
 	var mat := StandardMaterial3D.new()
-	mat.albedo_texture = load(TRACKS + "diff_2k.jpg")
+	mat.albedo_texture = load("res://assets/incoming/polyhaven/textures/dirt/dirt_diff_2k.jpg")   # dusty grey-beige dirt (ref 01)
+	mat.detail_enabled = false
 	mat.normal_enabled = true
 	mat.normal_texture = load(TRACKS + "nor_gl_2k.jpg")
 	mat.roughness_texture = load(TRACKS + "arm_2k.jpg")
@@ -190,7 +197,8 @@ func _road() -> void:
 	mat.cull_mode = BaseMaterial3D.CULL_DISABLED
 	mat.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA_DEPTH_PRE_PASS
 	mat.vertex_color_use_as_albedo = true
-	mat.albedo_color = Color(0.78, 0.68, 0.58)     # Poly Haven muddy_tracks is red clay: pull it toward the KCD brown-grey dirt
+	mat.albedo_color = Color(0.92, 0.88, 0.82)     # ruts come from the muddy_tracks normal map; the colour from Poly Haven dirt
+	mat.normal_scale = 1.6
 	mesh.surface_set_material(0, mat)
 	var mi := MeshInstance3D.new()
 	mi.mesh = mesh
@@ -215,8 +223,99 @@ func _road() -> void:
 	add_child(pmi)
 
 
+const PH := "res://assets/incoming/polyhaven/models/"
+## Real-scan CC0 meadow (Poly Haven): [gltf, share, scale min, max, max distance from the road edge m]
+## Scales: the scans are true size (bermuda tufts ~2 cm, medium tufts ~15 cm); the meadow of ref 01 is knee-to-waist high.
+## v6 gate: the bermuda set is mostly dead/flattened tufts (read as brown scrub when scaled) and fern/nettle rendered near-black:
+## the meadow body is the two green medium tufts; ferns/nettles stay rare accents near the walls.
+const MEADOW := [["grass_medium_02/grass_medium_02_1k.gltf", 0.55, 3.2, 4.6, 9.0],
+	["grass_medium_01/grass_medium_01_1k.gltf", 0.43, 3.0, 4.4, 8.0], ["fern_02/fern_02_1k.gltf", 0.025, 0.7, 1.1, 9.0],
+	["nettle_plant/nettle_plant_1k.gltf", 0.015, 0.8, 1.1, 4.0], ["dandelion_01/dandelion_01_1k.gltf", 0.01, 1.0, 1.3, 3.0]]
+const CHUNK_M := 24.0
+
+
+## Dense continuous meadow from Poly Haven CC0 scans right up to the road edge (ref 01): every variant mesh of each gltf, MultiMesh
+## chunks of CHUNK_M m along the road with a 70 m distance fade; a narrow trampled strip at the edge stays sparser. LOW / iGPU: 40 %.
+func _meadow() -> void:
+	var variants: Array = []          # [mesh, share, smin, smax, reach]
+	for m: Array in MEADOW:
+		if not ResourceLoader.exists(PH + String(m[0])):
+			continue
+		var inst := (load(PH + String(m[0])) as PackedScene).instantiate()
+		var mis := inst.find_children("*", "MeshInstance3D", true, false)
+		for mi: MeshInstance3D in mis:
+			if String(mi.name).contains("dead") or String(mi.get_parent().name).contains("dead"):
+				continue
+			# Poly Haven scans carry their real size in the node transforms (the meshes are a few cm): keep the node basis
+			var tb := Transform3D()
+			var nd: Node = mi
+			while nd != null and nd != inst:
+				if nd is Node3D:
+					tb = (nd as Node3D).transform * tb
+				nd = nd.get_parent()
+			var mesh: Mesh = mi.mesh.duplicate()
+			for si in mesh.get_surface_count():
+				var sm := mesh.surface_get_material(si)
+				if sm is BaseMaterial3D:
+					var nm := (sm as BaseMaterial3D).duplicate() as BaseMaterial3D
+					nm.albedo_color = Color(0.82, 1.08, 0.62)      # ref 01 meadow: fresh mid-green, not straw
+					nm.cull_mode = BaseMaterial3D.CULL_DISABLED
+					mesh.surface_set_material(si, nm)
+			variants.append([mesh, float(m[1]) / mis.size(), m[2], m[3], m[4], tb.basis])
+		inst.free()
+	if variants.is_empty():
+		return
+	var cum := PackedFloat32Array()
+	var tot := 0.0
+	for v: Array in variants:
+		tot += float(v[1])
+		cum.append(tot)
+	var q: Node = Engine.get_main_loop().root.get_node_or_null("Quality") if Engine.get_main_loop() is SceneTree else null
+	var dens := clampf(float(q.call("value", "scatter")) if q and q.has_method("value") else 1.0, 0.4, 1.0)
+	var step := 0.5 / sqrt(dens)
+	var w := float(_d["path"].get("road_width", 3.0)) * 0.5
+	var buckets: Dictionary = {}       # Vector2i(variant, chunk) -> Array[Transform3D]
+	var walked := 0.0
+	for i in _path.size() - 1:
+		var a := _path[i]
+		var b := _path[i + 1]
+		var dir := (b - a).normalized()
+		var side := dir.orthogonal()
+		var length := a.distance_to(b)
+		var along := 0.0
+		while along < length:
+			for sd in [-1.0, 1.0]:
+				var off := w - 0.3
+				while off < w + 9.0:
+					off += step * _rng.randf_range(0.6, 1.4)
+					if off < w + 0.6 and _rng.randf() < 0.6:
+						continue             # trampled strip along the road edge
+					var r := _rng.randf() * tot
+					var vi := cum.bsearch(r)
+					var v: Array = variants[mini(vi, variants.size() - 1)]
+					if off - w > float(v[4]):
+						continue
+					var p: Vector2 = a + dir * (along + _rng.randf_range(-step, step)) + side * float(sd) * off
+					if WorldGen.road_distance(p.x, p.y) < 2.0:
+						continue
+					var s := _rng.randf_range(float(v[2]), float(v[3]))
+					var key := Vector2i(mini(vi, variants.size() - 1), int((walked + along) / CHUNK_M))
+					if not buckets.has(key):
+						buckets[key] = [] as Array[Transform3D]
+					(buckets[key] as Array).append(Transform3D(Basis(Vector3.UP, _rng.randf() * TAU).scaled(Vector3.ONE * s) * (v[5] as Basis), Vector3(p.x, _ground(p) - 0.03, p.y)))
+			along += step
+		walked += length
+	for key: Vector2i in buckets:
+		var ts: Array[Transform3D] = []
+		ts.assign(buckets[key])
+		_mmi((variants[key.x] as Array)[0], ts, 70.0)
+
+
 ## Soft tall-grass verges with flowers on both sides of the road (ref 01): a dense band, densest at the road edge, broken by gaps.
 func _verges() -> void:
+	_meadow()
+	if true:
+		return          # the clump verges below are replaced by the Poly Haven meadow (kept for A/B)
 	var w := float(_d["path"].get("road_width", 3.0)) * 0.5
 	for i in _path.size() - 1:
 		var a := _path[i]
@@ -274,12 +373,31 @@ func _copse() -> void:
 		_scene(String(pr[0]), Vector2(float(pr[1]), float(pr[2])), float(pr[3]), float(pr[4]))
 
 
+## Broadleaf kinds -> the Blender-generated realistic trees (tools/blender_trees/make_trees.py: oak/ash/beech, Poly Haven bark,
+## leaf-card atlas, LOD0/LOD1/LOD2 children) instead of the stylised region set (owner: no lollipop trees).
+const SLICE_TREES := "res://assets/generated/slice_trees/"
+const TREE_MAP := {"oak_a": "oak_0", "oak_b": "oak_1", "dark_oak": "oak_1", "beech_a": "beech_0", "beech_b": "beech_1", "young_oak": "ash_0"}
+
+
 func _scene(kind: String, p: Vector2, s: float, yaw: float) -> void:
+	if kind in BANNED:
+		return
 	var path := NATURE + kind + ".glb"
+	var real_tree := TREE_MAP.has(kind) and ResourceLoader.exists(SLICE_TREES + String(TREE_MAP[kind]) + ".gltf")
+	if real_tree:
+		path = SLICE_TREES + String(TREE_MAP[kind]) + ".gltf"
+		s *= 0.75 if kind != "young_oak" else 0.55       # generated trees are 14-17 m at scale 1
 	if not ResourceLoader.exists(path):
 		return
 	var n := (load(path) as PackedScene).instantiate() as Node3D
 	n.transform = Transform3D(Basis(Vector3.UP, yaw).scaled(Vector3.ONE * s), Vector3(p.x, _ground(p) - 0.1, p.y))
+	if real_tree:
+		var ranges := {"LOD0": [0.0, 45.0], "LOD1": [45.0, 160.0], "LOD2": [160.0, 2500.0]}
+		for gi in n.find_children("*", "GeometryInstance3D", true, false):
+			for k: String in ranges:
+				if String(gi.name).begins_with(k) or String(gi.get_parent().name).begins_with(k):
+					(gi as GeometryInstance3D).visibility_range_begin = float(ranges[k][0])
+					(gi as GeometryInstance3D).visibility_range_end = float(ranges[k][1])
 	add_child(n)
 
 
@@ -323,6 +441,8 @@ func _mmi(mesh: Mesh, ts: Array[Transform3D], range_end: float) -> void:
 	var mi := MultiMeshInstance3D.new()
 	mi.multimesh = mm
 	mi.visibility_range_end = range_end
+	mi.visibility_range_end_margin = range_end * 0.15
+	mi.visibility_range_fade_mode = GeometryInstance3D.VISIBILITY_RANGE_FADE_SELF
 	add_child(mi)
 
 

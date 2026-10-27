@@ -157,6 +157,10 @@ static func _make_assets() -> Terrain3DAssets:
 		ta.roughness = float(look[2])
 		if name == "grass":
 			ta.albedo_color = GRASS_TINT
+			if WorldMacro.is_real():
+				ta.albedo_color = Color(0.66, 0.7, 0.54)   # slice gate: mid-value olive meadow, not lime (ref 01)
+		elif name == "meadow" and WorldMacro.is_real():
+			ta.albedo_color = Color(0.7, 0.72, 0.56)
 		elif name == "snow" and WorldMacro.is_real():
 			ta.albedo_color = Color(1.15, 1.35, 1.75)   # W6: the scree-grey snow read as sand on the real fells; lift it to snow white
 		assets.set_texture(i, ta)
@@ -465,6 +469,8 @@ func _add_region(loc: Vector2i, maps: Array) -> void:
 		_inst.erase(loc)
 	_mutex.unlock()
 	var dt := Time.get_ticks_usec() - t0
+	if add_stats.size() < 3:
+		add_stats = [0, 0, 0]
 	add_stats = [int(add_stats[0]) + 1, int(add_stats[1]) + dt, maxi(int(add_stats[2]), dt)]
 
 

@@ -43,6 +43,7 @@ const STONE_DIR := "res://assets/cc0/textures/stacked_stone_wall/stacked_stone_w
 static func _drystone_mesh() -> Mesh:
 	var st := SurfaceTool.new()
 	st.begin(Mesh.PRIMITIVE_TRIANGLES)
+	st.set_smooth_group(-1)          # flat-shaded faces: smooth normals rounded every stone into a sandbag (slice gate v8)
 	var rng := RandomNumberGenerator.new()
 	rng.seed = 1883
 	var y := 0.0
@@ -188,12 +189,15 @@ func _mmi(mesh: Mesh, ts: Array[Transform3D], range_end: float) -> void:
 ## (saturation, contrast, brightness) and a fog tint, eased over ~3 s. Cheap: one biome lookup twice a second. Weather keeps owning fog density.
 ## [saturation, contrast, brightness, fog tint]
 ## Fog tints kept cool blue-grey (the warm beige fog turned far fells pastel pink); the marsh greener, the rift violet.
-const GRADE := [[1.08, 1.05, 1.0, Color(0.7, 0.8, 0.92)], [1.12, 1.08, 0.97, Color(0.62, 0.76, 0.78)], [1.1, 1.04, 1.0, Color(0.72, 0.82, 0.92)],
-	[1.06, 1.04, 1.0, Color(0.74, 0.8, 0.88)], [0.9, 1.0, 0.96, Color(0.66, 0.76, 0.72)], [1.0, 1.1, 1.0, Color(0.72, 0.78, 0.88)],
-	[1.0, 1.12, 0.94, Color(0.72, 0.55, 0.9)], [0.85, 1.08, 1.02, Color(0.78, 0.86, 1.0)]]
+## Benchmark slice gate (ref 01, owner 2026-10-28): natural, slightly desaturated outdoor grade (saturation ~0.85, gentle contrast)
+## instead of Style G's town grade (1.22 / 1.6), which made the countryside cartoon-saturated.
+const GRADE := [[0.86, 1.04, 1.0, Color(0.7, 0.8, 0.92)], [0.88, 1.06, 0.98, Color(0.62, 0.76, 0.78)], [0.86, 1.04, 1.0, Color(0.72, 0.82, 0.92)],
+	[0.85, 1.04, 1.0, Color(0.74, 0.8, 0.88)], [0.8, 1.02, 0.97, Color(0.66, 0.76, 0.72)], [0.84, 1.06, 1.0, Color(0.72, 0.78, 0.88)],
+	[0.9, 1.1, 0.95, Color(0.72, 0.55, 0.9)], [0.8, 1.06, 1.02, Color(0.78, 0.86, 1.0)]]
+var _tonemap_done := false
 var _g_t := 0.0
 var _g_target: Array = GRADE[0]
-var _g_cur := Vector3(1.0, 1.0, 1.0)
+var _g_cur := Vector3(0.86, 1.04, 1.0)
 var _g_fog := Color(0.78, 0.86, 0.95)
 
 
@@ -214,6 +218,11 @@ func _process(delta: float) -> void:
 	_g_cur = _g_cur.lerp(Vector3(_g_target[0], _g_target[1], _g_target[2]), k)
 	_g_fog = _g_fog.lerp(_g_target[3], k)
 	env.adjustment_enabled = true
+	if not _tonemap_done:
+		_tonemap_done = true
+		env.tonemap_mode = Environment.TONE_MAPPER_AGX        # filmic highlight roll-off, no neon greens (ashes-environment-look)
+		env.tonemap_exposure = 1.0
+		env.adjustment_color_correction = null
 	env.adjustment_saturation = _g_cur.x
 	env.adjustment_contrast = _g_cur.y
 	env.adjustment_brightness = _g_cur.z

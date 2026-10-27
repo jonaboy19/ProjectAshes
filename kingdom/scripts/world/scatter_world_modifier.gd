@@ -37,6 +37,8 @@ func allows(x: float, z: float) -> bool:
 	var biome := WorldBiomes.at(x, z)   # LEGACY (-1) unless the Valencious macro is on: then the biome sets the height cap and tree share
 	if h > WorldBiomes.max_height(role, biome):
 		return false
+	if WorldMacro.is_real() and preload("res://scripts/world/real_slice.gd").in_corridor(x, z, 60.0):
+		return false          # benchmark slice route: authored scans only, no stylised scatter (scripts/world/real_slice.gd)
 	var density := WorldBiomes.tree_density(biome, WorldGen.forest_density(x, z))
 	match role:
 		"tree":

@@ -46,6 +46,8 @@ static func mesh_assets(low_tier: bool) -> Array:
 		var tree := not (a.name.begins_with("bush") or a.name.begins_with("fern") or a.name.begins_with("rock") or a.name.begins_with("stump")
 			or a.name.begins_with("log") or a.name.begins_with("grass") or a.name.begins_with("flowers") or a.name.begins_with("boulder"))
 		var lods := _lod_scene(a.name)
+		if REALISTIC.has(a.name) and ResourceLoader.exists(SLICE_TREES + String(REALISTIC[a.name]) + ".gltf"):
+			lods = _lod_scene_from(SLICE_TREES + String(REALISTIC[a.name]) + ".gltf")   # benchmark gate: no lollipop trees
 		a.scene_file = lods[0]
 		var n: int = lods[1]
 		var k_low := 0.6 if low_tier else 1.0
@@ -63,6 +65,31 @@ static func mesh_assets(low_tier: bool) -> Array:
 
 ## [PackedScene with LOD0..LODn MeshInstance3D children (from <name>.glb, <name>_lod1.glb, <name>_lod2.glb), LOD count]: the layout
 ## Terrain3DMeshAsset reads its LODs from (children in order).
+## Broadleaf region kinds -> the Blender-generated realistic trees (tools/blender_trees/make_trees.py, LOD0/LOD1/LOD2 children).
+const SLICE_TREES := "res://assets/generated/slice_trees/"
+const REALISTIC := {"oak_a": "oak_0", "oak_b": "oak_1", "dark_oak": "oak_1", "beech_a": "beech_0", "beech_b": "beech_1", "young_oak": "ash_0"}
+
+
+static func _lod_scene_from(path: String) -> Array:
+	var inst := (load(path) as PackedScene).instantiate()
+	var root := Node3D.new()
+	var n := 0
+	for k in ["LOD0", "LOD1", "LOD2"]:
+		for mi: MeshInstance3D in inst.find_children(k + "*", "MeshInstance3D", true, false):
+			var c := MeshInstance3D.new()
+			c.name = "LOD%d" % n
+			c.mesh = mi.mesh
+			root.add_child(c)
+			c.owner = root
+			n += 1
+			break
+	inst.free()
+	var ps := PackedScene.new()
+	ps.pack(root)
+	root.free()
+	return [ps, maxi(n, 1)]
+
+
 static func _lod_scene(name: String) -> Array:
 	var root := Node3D.new()
 	root.name = name
@@ -132,6 +159,8 @@ static func plan(o: Vector2, size: float, density_mul: float) -> Dictionary:
 				if not _ids.has(kind):
 					continue
 				var s := lerpf(0.8, 1.3, WorldBiomes.pick_u(x, z, 23))
+				if REALISTIC.has(kind.substr(R.length())):
+					s *= 0.72          # the generated broadleaves are 14-17 m at scale 1
 				var yaw := TAU * WorldBiomes.pick_u(x, z, 29)
 				var t := Transform3D(Basis(Vector3.UP, yaw).scaled(Vector3(s, s, s)), Vector3(x, h - 0.15, z))
 				var id: int = _ids[kind]
