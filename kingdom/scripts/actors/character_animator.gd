@@ -96,6 +96,9 @@ var player: AnimationPlayer
 ## Extra stride multiplier for a body scaled after construction (the player's
 ## child years). Leg length at construction is measured automatically.
 var stride_scale := 1.0
+## How far the gait rate is held below (or above) what the ground speed needs, as a fraction (0 = clip and body match).
+## The foot lock leans on this: where the clip cannot keep up, the lock must carry the planted foot.
+var cadence_shortfall := 0.0
 ## Optional procedural rig (scripts/actors/procedural_rig.gd) fed from update():
 ## foot IK eases off for whole-body actions and turns off for swim/ride stances
 ## and terminal poses. Owners with more state (airborne) call its set_state after.
@@ -472,7 +475,9 @@ func update(delta: float, speed: float, move_dir := Vector3.ZERO) -> void:
 	var t := clampf(inverse_lerp(_pt_speed[seg], _pt_speed[seg + 1], pos), 0.0, 1.0)
 	var stride := lerpf(_pt_stride[seg], _pt_stride[seg + 1], t)
 	var natural := lerpf(_pt_natural[seg], _pt_natural[seg + 1], t)
-	var rate := clampf(_speed / maxf(stride, 0.01), natural * MIN_CADENCE, natural * MAX_CADENCE)
+	var needed := _speed / maxf(stride, 0.01)
+	var rate := clampf(needed, natural * MIN_CADENCE, natural * MAX_CADENCE)
+	cadence_shortfall = absf(needed - rate) / maxf(needed, 0.001)     # 0 = the clip keeps up with the body; >0 = the cap bites
 	tree["parameters/gait_rate/scale"] = rate
 	_advance_phase(delta, rate, moving)
 
