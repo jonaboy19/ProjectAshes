@@ -64,7 +64,7 @@ func tick(now_h: float) -> Array[Dictionary]:
 		var to_sid := int(rep["to"])
 		var kept := float((rep["kept_cargo"] as Dictionary).get("grain", 0))
 		var lost := float((rep["lost_cargo"] as Dictionary).get("grain", 0))
-		var garrisoned := not armies.defence(to_sid).is_empty()
+		var garrisoned: bool = not armies.defence(to_sid).is_empty()
 		if kept > 0.0:
 			if garrisoned:
 				armies.stock_up(to_sid, "food", kept * RATIONS_PER_GRAIN)

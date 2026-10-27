@@ -39,6 +39,7 @@ func _rig(risky: bool, seed_value: int) -> Dictionary:
 	var st: RefCounted = hub.mod("settlements")
 	var ar: RefCounted = hub.mod("armies")
 	st.add_stock(farm, "grain", 2000.0)
+	var start: float = st.supply_of(farm, "grain")
 	var g: Dictionary = ar.found("player", "garrison", "Fort garrison", fort, {"purse": 5000, "food": 0.0})
 	ar.muster(g["id"], "spear", 20, 0.0)
 	ar.set_defence(fort, {"garrison": g["id"]})
@@ -49,7 +50,7 @@ func _rig(risky: bool, seed_value: int) -> Dictionary:
 	var car := RACaravans.new()
 	chain.setup(st, ar, car, war, log)
 	return {"hub": hub, "st": st, "ar": ar, "chain": chain, "log": log, "war": war, "farm": farm, "fort": fort,
-		"gid": String(g["id"]), "tier": "frontier" if risky else "kingdom", "stone": 1.0 if risky else 0.0}
+		"gid": String(g["id"]), "start": start, "tier": "frontier" if risky else "kingdom", "stone": 1.0 if risky else 0.0}
 
 
 ## Finds a dispatch seed whose caravan is (or is not) ambushed, then returns the finished rig.
@@ -69,7 +70,7 @@ func _run(want_loss: bool) -> Dictionary:
 
 func test_link_1_caravan_takes_grain_out_of_the_source_stock() -> void:
 	var r := _run(false)
-	assert_float(r["st"].supply_of(r["farm"], "grain")).is_equal(2000.0 - GRAIN)
+	assert_float(r["st"].supply_of(r["farm"], "grain")).is_equal(float(r["start"]) - GRAIN)
 
 
 func test_link_2_delivery_feeds_the_garrison_larder() -> void:
@@ -82,7 +83,7 @@ func test_lost_caravan_reduces_stock_and_delivers_less() -> void:
 	var r := _run(true)
 	var lost := float(r["arrival"]["lost"])
 	assert_float(lost).is_greater(0.0)
-	assert_float(r["st"].supply_of(r["farm"], "grain")).is_equal(2000.0 - GRAIN)    # the loss is never refunded
+	assert_float(r["st"].supply_of(r["farm"], "grain")).is_equal(float(r["start"]) - GRAIN)    # the loss is never refunded
 	assert_float(float(r["arrival"]["kept"])).is_equal(GRAIN - lost)
 	assert_float(float(r["ar"].defence(r["fort"])["stock"]["food"])).is_equal(30.0 + GRAIN - lost)
 	assert_str(String(r["arrival"]["kind"])).is_equal("caravan_lost")
@@ -120,7 +121,7 @@ func test_link_5_opportunity_pushes_the_neighbours_tension_up() -> void:
 
 func test_every_step_is_published_and_linked_by_cause() -> void:
 	var r := _run(true)
-	_starve_days(r, 8)
+	_starve_days(r, 40)    # 20 men eat the delivered larder in about three weeks
 	var end: Dictionary = r["chain"].assess(r["fort"], NATION, 300.0, int(r["arrival"]["event"]))
 	var by_id := {}
 	for e: Dictionary in r["log"].since(0, 64):
