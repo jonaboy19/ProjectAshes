@@ -43,3 +43,14 @@ Add pure-logic tests: resolver truth table, cancel-window timings, token caps, a
 - Copy any GPL/AGPL code, tables, animation names or numbers from reference games.
 - Add per-weapon branches in player.gd; add data rows instead.
 - Call VFX/Audio inline from new combat code; emit signals (`swing_started`, `hit_confirmed`, `parried`) and subscribe.
+
+## AAA motion bar (owner, 2026-10-28: "fights lack motion, must be AAA level")
+A fight is only done when ALL of these layers show in the same Movie Maker duel, side-by-side with `docs/plans/ref_aaa/03_*.jpg`:
+1. **Variety:** 3+ clips per attack slot, never the same swing twice in a row; chosen by input direction, distance and randomness.
+2. **Matched reactions:** hit direction × strength (flinch, large react, stagger, knockdown and get-up) × state (block react when guarding); partial ragdoll (`PhysicalBoneSimulator3D`) on top; deaths match the killing blow's direction.
+3. **Procedural layers:** torso twist and head look at the target (`LookAtModifier3D`/additive), lean into lunges and away from hits, weight shifts and step-adjusts in guard (never frozen), foot IK on attacks and slopes, shield arm tracking the threat, tired breathing.
+4. **Footwork:** circling and stepping in and out in guard; attackers close distance, defenders give ground on heavy blows.
+5. **Impact feel:** hitstop by weight (about 40/90/120 ms for light, heavy and parry), directional camera kick, subtle trails on fast swings, metal sparks, footwork dust, spring-bone cloth and hair, sound hooks.
+6. **Transitions:** attack → recovery → guard blends, cancel windows, pivots in lock-on; no snaps.
+7. **AI rhythm:** feints, hesitation, backing off when hurt; one engager, the others circle.
+Clip sources: Mixamo packs in `ProjectAshes_art_staging\downloads\mixamo\packs\` + `combat_set4\` (INDEX.md).
