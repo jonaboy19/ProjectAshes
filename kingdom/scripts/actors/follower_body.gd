@@ -43,6 +43,7 @@ const WORK_RANGE := 30.0
 const ARRIVE := 0.7
 const TURN_RATE := 6.0
 
+const MotionApplyLib := preload("res://scripts/living_world/motion_apply.gd")
 var fid := ""
 var row := -1
 var order := "follow"
@@ -63,6 +64,7 @@ var _occ := "mercenary"
 var _name := ""
 var _look := "peasant"
 var _anim: AnimationPlayer
+var _mr: RefCounted       # MotionApply.Body (NPC motion layer, L-1)
 var _skeleton: Skeleton3D
 var _tag: Label3D
 var _fighter: RefCounted
@@ -568,10 +570,23 @@ func _face(p: Vector2, delta: float) -> void:
 func _animate(_delta: float) -> void:
 	if _anim == null:
 		return
+	if _mr == null:
+		_mr = MotionApplyLib.Body.new({"archetype": "follower", "id": absi(hash(fid))})
+	if _mr.due(_delta):
+		_mr.ctx["speed"] = _speed
+		_mr.ctx["heading"] = _heading
+		_mr.ctx["position"] = global_position
+		_mr.ctx["act"] = order
+		_mr.evaluate(MotionRules.TIER_NEAR)
+	MotionApplyLib.lean(_anim.get_parent() as Node3D, _mr.lean(), _delta)
 	if _speed > 0.3:
 		var running := _speed > 3.6
 		var clip := "Running_A" if running else "Walking_A"
 		var clip_speed := Villager.RUN_CLIP_SPEED if running else Villager.WALK_CLIP_SPEED
+		var mg: String = _mr.gait(_anim)
+		if mg != "" and not running:
+			clip = mg              # a motion rule chose the gait
+			clip_speed = float(LifeLibrary.info(mg).get("speed_mps", clip_speed))
 		if _anim.current_animation != clip:
 			_anim.play(clip, 0.2)
 			var length := _anim.current_animation_length

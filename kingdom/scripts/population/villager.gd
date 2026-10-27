@@ -162,6 +162,7 @@ const PROTEST_COOLDOWN_MS := 25000
 const GREET_RANGE := 3.4
 const BUBBLE_SECONDS := 3.2
 const STEP_RANGE := 11.0
+const MotionApply := preload("res://scripts/living_world/motion_apply.gd")
 const NpcFootEvents := preload("res://scripts/living_world/npc_foot_events.gd")
 const SurfaceFeedback := preload("res://scripts/world/surface_feedback.gd")
 ## A foot lands (skeleton contact, near the player only): audio / VFX hook; also sent to NpcFootEvents listeners.
@@ -231,6 +232,23 @@ var _props: LifeProps.Holder
 var _foot_bones := [-1, -1]          # foot_l / foot_r on the skeleton (per-foot contact events)
 var _foot_min := [1.0, 1.0]         # each foot's resting height above the root (adapts to the body size)
 var _foot_up := [true, true]
+# NPC motion layer (docs/plans/NPC_MOTION_RULES.md L-1): one intent + state per villager, refilled at the think rate;
+# a channel is applied only when a rule won it (MotionApply), so stub rules change nothing.
+var _mr_intent := MotionIntent.make()
+var _mr_state := MotionRules.new_state()
+var _mr_ctx := {}
+var _mr_persona := {}
+var _mr_steer := Vector2.ZERO
+var _mr_speed_mul := 1.0
+var _mr_stop := false
+var _mr_gait := ""
+var _mr_lean := 0.0
+var _mr_oneshot := ""
+static var _MOTION_OFF := OS.has_environment("ASHES_MOTION_OFF")   # A/B gate recordings: old behaviour
+var _pick_hist := PackedStringArray()   # ClipPicker history (last 3 clips)
+var _pick_verb := ""
+var _pick_cycle := -1
+var _pick_clip_now := ""
 var _carry := CarryErrand.new()     # street life: sack / crate / basket carried from a trip's start to its end
 ## LifeAmbience (docs/anim/patches/P13_villager_life_clips.md section 6): stable personality, idle fidgets, glances, walk style, rain hunch.
 var _amb: LifeAmbience
@@ -666,6 +684,8 @@ func _tick_body(delta: float) -> void:
 		Probe.add("villager.anim", _pa)
 	_update_head_look(delta)
 	_foot_contacts()
+	if _mr_lean != 0.0 or (_model_node != null and _model_node.rotation.z != 0.0):
+		MotionApply.lean(_model_node, _mr_lean, delta)
 	if _tag != null:     # AAA pass 5: the focused name is drawn by the HUD world icon; plates only with the dev overlay
 		_tag.visible = show_tag and not Nameplates.suppressed and _dev_overlay
 
@@ -1248,6 +1268,45 @@ func _ambience_tick(here: Vector2) -> void:
 		_fidget_until = Time.get_ticks_msec() + int(minf(_anim.get_animation(f).length, 6.0) * 1000.0)
 		_anim.play(f, 0.3)
 		_anim.speed_scale = _amb.anim_rate
+	_motion_think(weather)
+
+
+## L-1: build the motion ctx, evaluate the rules, keep what won. Think rate, NEAR/MID only (the caller already returned above).
+func _motion_think(weather: String) -> void:
+	if _MOTION_OFF:
+		return
+	if _mr_persona.is_empty():
+		_mr_persona = MotionApply.villager_persona(person, _child, _file.begins_with("elder"),
+			int(WorldSim.job[person]) if person < WorldSim.job.size() else 0, _amb.gesture, _amb.mood)
+	_mr_ctx["now"] = Time.get_ticks_msec() * 0.001
+	_mr_ctx["speed"] = _resolved_speed
+	_mr_ctx["velocity"] = Vector3(sin(_heading), 0.0, cos(_heading)) * _resolved_speed
+	_mr_ctx["heading"] = _heading
+	_mr_ctx["position"] = global_position
+	_mr_ctx["act"] = UtilityBrain.NAMES[_act] if _act >= 0 and _act < UtilityBrain.NAMES.size() else ""
+	_mr_ctx["carrying"] = _carry.carrying()
+	_mr_ctx["weather"] = weather
+	_mr_ctx["hour"] = DailyRhythm.local_time(person)
+	_mr_ctx["tired"] = _brain.rest < 0.35
+	_mr_ctx["child"] = _child
+	_mr_ctx["motion_state"] = _mr_state
+	MotionRules.evaluate_into(_mr_intent, _mr_ctx, _mr_persona, lod_tier)
+	var st := MotionApply.steer(_mr_intent)
+	_mr_steer = st[0]
+	_mr_speed_mul = st[1]
+	_mr_stop = st[2]
+	var g := String(_mr_intent["gait_clip"])
+	_mr_gait = g if MotionApply.won(_mr_intent, "loco_rule") and _anim.has_animation(g) else ""
+	if MotionApply.won(_mr_intent, "upper_rule") and _anim.has_animation(String(_mr_intent["upper_clip"])):
+		_amb_upper = String(_mr_intent["upper_clip"])
+	var os := String(_mr_intent["oneshot_clip"])
+	if os != "" and os != _mr_oneshot and _anim.has_animation(os) and _oneshot == "":
+		_begin_oneshot([os], minf(_anim.get_animation(os).length, 6.0))
+	_mr_oneshot = os
+	var lk := MotionApply.look_target(_mr_intent)
+	if lk != Vector3.INF:
+		_amb_look = lk
+	_mr_lean = float(_mr_intent["lean"])
 
 
 ## PopulationLOD hands the body to CrowdAnimLOD (animation rate, look-at, shadows and the VAT twin beyond MID).
@@ -1482,6 +1541,11 @@ func _steer(here: Vector2, delta: float) -> Vector2:
 				if next.length() > 0.01:
 					var sharp := 1.0 - clampf(dir.dot(next.normalized()), 0.0, 1.0)
 					target_speed *= 1.0 - 0.45 * sharp * (1.0 - d / 2.0)
+	if _mr_stop:
+		target_speed = 0.0          # a motion rule holds this body still
+	elif _mr_steer != Vector2.ZERO or _mr_speed_mul != 1.0:
+		target_speed *= _mr_speed_mul
+		dir = (dir + _mr_steer / maxf(_walk_speed, 0.3)).limit_length(1.0)
 	var crowd := _separation + _player_push * 1.5
 	var steer := dir + _avoid * 0.8 + crowd * 1.4
 	if target_speed <= 0.0 and crowd.length() > 0.35:
@@ -1526,6 +1590,9 @@ func _update_animation(delta: float) -> void:
 	if not running and _amb_walk != "":
 		clip = _amb_walk       # LifeAmbience: happy / sad / brisk / elder / cane gait, matched by its own speed_mps
 		clip_speed = float(LifeLibrary.info(clip).get("speed_mps", WALK_CLIP_SPEED))
+	if not running and _mr_gait != "":
+		clip = _mr_gait            # a motion rule chose the gait (matched by its own speed_mps)
+		clip_speed = float(LifeLibrary.info(clip).get("speed_mps", WALK_CLIP_SPEED)) / maxf(float(_mr_intent["gait_rate"]), 0.3)
 	if not running and _amb_upper != "":
 		clip = LifeLibrary.composite(_anim, clip, _amb_upper)      # legs from the walk, spine and arms from the rain hunch
 	var cycle_seconds := RUN_CYCLE_SECONDS if running else WALK_CYCLE_SECONDS
@@ -1696,7 +1763,8 @@ func _activity_for_person() -> String:
 				return _pick_clip(ALONE_CLIPS, 0)
 			# Take turns: one talks while the other listens, swapping every few seconds.
 			var t := int(Time.get_ticks_msec() / int(TURN_SECONDS * 1000.0))
-			return _pick_clip(TALK_CLIPS if (t % 2 == 0) == (person < _partner) else LISTEN_CLIPS, t / 2 + person)
+			var talking := (t % 2 == 0) == (person < _partner)
+			return _crowd_pick("talk" if talking else "listen", t / 2, TALK_CLIPS if talking else LISTEN_CLIPS)
 		Act.SHOP, Act.INN:
 			if job == 3:
 				return _first_clip(JOB_CLIPS[3])
@@ -1718,6 +1786,29 @@ func _activity_for_person() -> String:
 				return _first_clip(ACT_CLIPS.get(Act.WATER, []))
 			return ""
 	return _first_clip(ACT_CLIPS.get(_act, []))
+
+
+## Crowd variety (ClipPicker, NPC_MOTION_RULES C2/C3): no repeat of this person's last 3 clips, never the partner's current
+## clip, personality-weighted; stable within one decision `cycle`. Falls back to the old fixed list.
+func _crowd_pick(verb: String, cycle: int, fallback: Array) -> String:
+	if _MOTION_OFF:
+		return _pick_clip(fallback, cycle + person)
+	if verb == _pick_verb and cycle == _pick_cycle and _pick_clip_now != "":
+		return _pick_clip_now
+	var nb := PackedStringArray()
+	if _partner_node != null and is_instance_valid(_partner_node) and _partner_node.get("_activity_name") != null:
+		nb.append(String(_partner_node.get("_activity_name")))
+	var persona: Dictionary = _mr_persona if not _mr_persona.is_empty() else {"id": person}
+	var c := ClipPicker.pick({"verb": verb, "posture": "stand", "day": WorldSim.day, "cycle": cycle}, persona, _pick_hist, nb)
+	if c == "" or _anim == null or not _anim.has_animation(c):
+		c = _pick_clip(fallback, cycle + person)
+	_pick_verb = verb
+	_pick_cycle = cycle
+	_pick_clip_now = c
+	_pick_hist.append(c)
+	if _pick_hist.size() > 3:
+		_pick_hist.remove_at(0)
+	return c
 
 
 ## First clip in `names` the rig has ("" when none), cached per list.

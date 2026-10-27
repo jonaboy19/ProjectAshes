@@ -24,6 +24,7 @@ const CULL_DIST := 95.0
 
 static var _build_frame := -1
 
+const MotionApplyLib := preload("res://scripts/living_world/motion_apply.gd")
 var kind := "human"                # human | animal | vehicle | prop
 var scene: Node                    # the MicroScene that owns this actor (bookkeeping only)
 var anim: AnimationPlayer
@@ -42,6 +43,7 @@ var _path := PackedVector2Array()
 var _pi := 0
 var _heading := 0.0
 var _clip := ""
+var _mr: RefCounted       # MotionApply.Body (NPC motion layer, L-1), humans only
 var _props: LifeProps.Holder
 var _part_anims: Array = []        # [AnimationPlayer, animal kind] riding on a vehicle
 var _bubble: Label3D
@@ -241,6 +243,16 @@ func _tick(delta: float) -> void:
 		_bubble.visible = false
 		NpcWorld.bubbles_shown = maxi(NpcWorld.bubbles_shown - 1, 0)
 	_age += delta
+	if kind == "human" and anim != null:
+		if _mr == null:
+			_mr = MotionApplyLib.Body.new({"archetype": "child" if child else "villager", "id": get_instance_id() % 100000})
+		if _mr.due(delta):
+			_mr.ctx["speed"] = speed_now
+			_mr.ctx["heading"] = _heading
+			_mr.ctx["position"] = global_position
+			_mr.ctx["act"] = String(_cur.get("a", ""))
+			_mr.evaluate(MotionRules.TIER_NEAR)
+		MotionApplyLib.lean(anim.get_parent() as Node3D, _mr.lean(), delta)
 	_far_t -= delta
 	if _far_t <= 0.0:
 		# Out of sight, out of mind: an actor far behind the player (a cart that walked on) is freed.
@@ -378,6 +390,10 @@ func _play_idle() -> void:
 
 
 func _play_clip(clip: String, rate: float) -> void:
+	if _mr != null and speed_now > 0.15:
+		var mg: String = _mr.gait(anim)
+		if mg != "":
+			clip = mg              # a motion rule chose the gait
 	if anim == null or clip == "" or not anim.has_animation(clip):
 		return
 	if _clip != clip or not anim.is_playing():

@@ -389,3 +389,13 @@ Preview: `docs/qa/golden/slice/mpfb_pilot_villager_stage1.png` (Blender EEVEE, A
 | Medieval clothing | PARTIAL | CC0 suits02 viking tunic, hose, turn-up boots and belt read medieval. The tunic's mail chest panel is wrong for a villager: swap it for a plain wool tunic (retexture) in stage 2 |
 | Rig | PASS (names) | MPFB game_engine rig, 53 bones with the Unreal names the game uses (Root, pelvis, spine_01-03, clavicle/upperarm/lowerarm/hand, thigh/calf/foot/ball, fingers). The UAL rig has 65 (extra twist and IK bones); mapping and rest-pose check in stage 2 |
 | Budget | FAIL (expected at stage 1) | 45.7k tris unbaked. Stage 2: hidden-face delete under the clothes, decimate to 8k / 3k / 1k, bake to a 1K atlas, VAT tier |
+
+## 2026-10-28 · NPC anim lane · L-1: MotionRules hooked into villager / micro_actor / follower_body / soldier + ClipPicker talk variety
+Videos: PA_plans/videos/slice_2026-10-27_1515_fcbadbbed_l1_before.mp4 (ASHES_MOTION_OFF=1) vs slice_2026-10-27_1521_fcbadbbed_l1_after.mp4, same route and build.
+| Check | Result | Note |
+|---|---|---|
+| Hook is a no-op while M1 rules are stubs | PASS | every channel is applied only when a rule won it (MotionApply); before/after differ only by normal schedule randomness; same 37 engine errors in both runs, all from tutorial_game_bridge.gd (not this lane) |
+| villager.gd | done | _motion_think() at the think rate (NEAR/MID): ctx (speed, heading, act, carrying, weather, hour, tired), persona per archetype; steer, gait, upper, oneshot, look, lean (model-root roll) |
+| micro_actor / follower_body / soldier | done | MotionApply.Body (3.3 Hz, staggered): gait override + lean; soldier lean only (combat motion stays with the combat worker until L-7) |
+| ClipPicker crowd variety | done | talk / listen turns pick by verb with no repeat of the last 3 and never the partner's current clip (personality-weighted); fallback to the old lists |
+| Tests | 47/48 + 39/39 | test_clip_picker + test_smart_objects_v2: one perf budget miss (find(needs) 3.06 ms vs 3.0 on a loaded machine); test_motion_rules does not exist yet (M1 merged as "tests pending"); companions / combat / path suites green |

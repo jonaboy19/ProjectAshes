@@ -45,6 +45,7 @@ const SoldierAaaScript := preload("res://scripts/army/soldier_aaa.gd")      # AA
 const BASE_HP := 40.0
 const BASE_DAMAGE := 8.0
 
+const MotionApplyLib := preload("res://scripts/living_world/motion_apply.gd")
 var team := 0
 var squad: Squad
 var max_health := 40
@@ -59,6 +60,7 @@ var _file := ""
 var _keep: Array[String] = []
 var _model: Node3D
 var _anim: AnimationPlayer
+var _mr: RefCounted       # MotionApply.Body (NPC motion layer, L-1): lean / look only, combat motion stays here
 var _animator: CharacterAnimator
 var _impulse := Vector3.ZERO
 var _guard := 0.0
@@ -157,6 +159,14 @@ func _physics_process(delta: float) -> void:
 	_retarget -= delta
 	_update_lod()
 	_update_player_collision()
+	if _mr == null:
+		_mr = MotionApplyLib.Body.new({"archetype": "bandit" if team != 0 else "guard", "id": get_instance_id() % 100000})
+	if _mr.due(delta):
+		_mr.ctx["speed"] = velocity.length()
+		_mr.ctx["position"] = global_position
+		_mr.ctx["engaging"] = combat_target != null
+		_mr.evaluate(MotionRules.TIER_NEAR)
+	MotionApplyLib.lean(_model, _mr.lean(), delta)
 	if _retarget <= 0.0:
 		_retarget = 0.4
 		_pick_target()
