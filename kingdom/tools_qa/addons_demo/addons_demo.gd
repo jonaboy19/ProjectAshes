@@ -1,6 +1,6 @@
 extends Node3D
 ## Addon proof-of-life demos (QA only, not wired into gameplay).
-##   Godot --path kingdom --rendering-method mobile res://tools_qa/addons_demo/addons_demo.tscn -- --demo=<pcam|debugmenu|footsteps|grass|shatter> --capture=<abs dir>
+##   Godot --path kingdom --rendering-method mobile res://tools_qa/addons_demo/addons_demo.tscn -- --demo=<pcam|debugmenu|grass|shatter> --capture=<abs dir>
 ## Without --capture the demo stays open (interactive). With --capture it takes screenshots + a perf table and quits.
 
 const H := preload("res://tools_qa/addons_demo/harness.gd")
@@ -138,112 +138,6 @@ func _demo_debugmenu() -> void:
 	var mb := await H.measure(get_tree(), 240)
 	log_lines.append(H.fmt("debug menu not in tree", mb))
 	_finish("debugmenu")
-
-# ------------------------------------------------------------------ Material footsteps
-var _fs_log: PackedStringArray = []
-
-func _demo_footsteps() -> void:
-	# Three pads (grass / stone / wood), each StaticBody3D carries meta "surface_type" (the addon default key).
-	var kinds := {"grass": Color(0.35, 0.6, 0.25), "stone": Color(0.6, 0.6, 0.62), "wood": Color(0.55, 0.36, 0.2)}
-	var i := 0
-	for k in kinds:
-		var body := StaticBody3D.new()
-		body.set_meta("surface_type", k)
-		var col := CollisionShape3D.new()
-		var bs := BoxShape3D.new()
-		bs.size = Vector3(6, 0.4, 6)
-		col.shape = bs
-		body.add_child(col)
-		var mi := MeshInstance3D.new()
-		var bm := BoxMesh.new()
-		bm.size = bs.size
-		mi.mesh = bm
-		var mat := StandardMaterial3D.new()
-		mat.albedo_color = kinds[k]
-		mi.material_override = mat
-		body.add_child(mi)
-		body.position = Vector3(-6.5 + i * 6.5, -0.05, 0)
-		add_child(body)
-		i += 1
-	var chara := CharacterBody3D.new()
-	var cs := CollisionShape3D.new()
-	var cap := CapsuleShape3D.new()
-	cap.radius = 0.35
-	cap.height = 1.8
-	cs.shape = cap
-	chara.add_child(cs)
-	var cm := MeshInstance3D.new()
-	var capm := CapsuleMesh.new()
-	capm.radius = 0.35
-	capm.height = 1.8
-	cm.mesh = capm
-	chara.add_child(cm)
-	chara.position = Vector3(-8, 1.0, 0)
-	add_child(chara)
-	var fp := MaterialFootstepPlayer3D.new()
-	fp.character = chara
-	fp.debug = false
-	fp.target_position = Vector3(0, -1.2, 0)
-	fp.auto_play_type = MaterialFootstepPlayer3D.AutoPlayType.STATIC
-	fp.auto_play_delay = 0.3
-	var idx := 0
-	for k in kinds:
-		var s := MaterialFootstep.new()
-		s.material_name = k
-		s.movement_sound = _tone(k, 220.0 + 110.0 * idx)
-		fp.material_footstep_sound_map.append(s)
-		idx += 1
-	fp.default_material_footstep_movement_sound = _tone("DEFAULT", 90.0)
-	chara.add_child(fp)
-	var lbl := H.label(self, "")
-	lbl.position.y = 44
-	cam.position = Vector3(0, 3.5, 9)
-	cam.look_at(Vector3(0, 0.8, 0))
-
-	get_tree().physics_frame.connect(func() -> void:
-		chara.velocity = Vector3(3.0, -1.0, 0)
-		chara.move_and_slide()
-		if chara.position.x > 8.5:
-			chara.position.x = -8.0
-		var ap := fp.get_child(0) as AudioStreamPlayer3D
-		if ap and ap.stream and ap.playing:
-			var nm := String(ap.stream.resource_name)
-			lbl.text = "x=%.1f  last footstep sound: %s" % [chara.position.x, nm]
-			
-			if _fs_log.is_empty() or not _fs_log[-1].begins_with(nm):
-				_fs_log.append("%s@%.1f" % [nm, chara.position.x]))
-
-	if cap_dir == "":
-		return
-	await get_tree().create_timer(1.2).timeout
-	await H.shot(get_tree(), cap_dir, "footsteps_1")
-	await get_tree().create_timer(1.6).timeout
-	await H.shot(get_tree(), cap_dir, "footsteps_2")
-	await get_tree().create_timer(2.6).timeout
-	await H.shot(get_tree(), cap_dir, "footsteps_3")
-	await get_tree().create_timer(1.5).timeout
-	log_lines.append("surfaces detected in order while walking grass>stone>wood: " + ", ".join(_fs_log))
-	var m1 := await H.measure(get_tree(), 240)
-	log_lines.append(H.fmt("footstep player active (1 raycast + detector chain)", m1))
-	fp.auto_play_type = MaterialFootstepPlayer3D.AutoPlayType.DISABLED
-	var m0 := await H.measure(get_tree(), 240)
-	log_lines.append(H.fmt("footstep player disabled", m0))
-	_finish("footsteps")
-
-func _tone(nm: String, hz: float) -> AudioStreamWAV:
-	var rate := 22050
-	var n := int(rate * 0.08)
-	var data := PackedByteArray()
-	data.resize(n * 2)
-	for i in n:
-		var v := int(sin(TAU * hz * i / rate) * 9000.0 * (1.0 - float(i) / n))
-		data.encode_s16(i * 2, v)
-	var w := AudioStreamWAV.new()
-	w.format = AudioStreamWAV.FORMAT_16_BITS
-	w.mix_rate = rate
-	w.data = data
-	w.resource_name = nm
-	return w
 
 # ------------------------------------------------------------------ SimpleGrassTextured
 func _demo_grass() -> void:

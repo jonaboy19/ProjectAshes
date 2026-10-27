@@ -39,7 +39,7 @@ static func footstep(body: Node3D, pos: Vector3, volume_db := 0.0, speed := 3.0)
 	var fam: String = g["footstep"]
 	var audio := _audio(body)
 	if audio != null:
-		audio.call("play_footstep", pos, fam, volume_db + (3.0 if fam == "water" else 0.0))
+		audio.call("play_footstep", pos, fam, volume_db + (3.0 if fam == "water" else 0.0), body)   # body: positional NPC feet
 	_puff(body, pos, g["material"], clampf(speed / 4.0, 0.5, 1.5))
 	if g["hit"]:
 		_footprint(body, g["position"], g["normal"], g["material"])
@@ -51,7 +51,7 @@ static func land(body: Node3D, pos: Vector3, fall_speed: float) -> Dictionary:
 	var k := clampf(fall_speed / 8.0, 0.6, 2.5)
 	var audio := _audio(body)
 	if audio != null:
-		audio.call("play_footstep", pos, g["footstep"], 2.0 + 3.0 * k)
+		audio.call("play_footstep", pos, g["footstep"], 2.0 + 3.0 * k, body)
 	_puff(body, pos, g["material"], k * 1.6)
 	return g
 

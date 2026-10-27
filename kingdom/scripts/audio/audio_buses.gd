@@ -5,12 +5,15 @@ extends RefCounted
 ## works whether or not the .tres was updated and survives AudioServer layout swaps:
 ##
 ##   Master
-##   ├─ Music      + LowPass "Muffle"   (underwater)
-##   ├─ Ambience   + LowPass "Muffle"   (underwater)
-##   │   └─ Weather  + LowPass "Muffle" (indoors: rain on the roof, wind behind walls)
+##   ├─ Music      + LowPass "Muffle"   (underwater) + Compressor "Duck" (sidechain: Voice)
+##   ├─ Ambience   + LowPass "Muffle"   (underwater) + Compressor "Duck" (sidechain: Voice, gentler)
+##   │   ├─ Weather  + LowPass "Muffle" (indoors: rain on the roof, wind behind walls)
+##   │   └─ AmbOccluded + LowPass 1.1 kHz (positional emitters behind a wall: soundscape.gd occlusion)
 ##   ├─ SFX        + LowPass "Muffle"   (underwater)
 ##   │   ├─ Interior + Reverb           (preset per room: tavern, smithy, healer, house, guild)
-##   │   └─ SFXFar   + LowPass 2.4 kHz  (sounds beyond FAR_DISTANCE: distance air absorption)
+##   │   ├─ SFXFar   + LowPass 2.4 kHz  (sounds beyond FAR_DISTANCE: distance air absorption)
+##   │   └─ Zone     + Reverb (wet only) (Area3D reverb sends: alley, street, room, church, forest; soundscape.gd)
+##   ├─ Voice      (dialogue, barks: ducks Music and Ambience through the sidechain compressors)
 ##   └─ UI
 ##
 ## A low-pass that is fully open is disabled, so the idle cost is zero; muffle()
@@ -23,7 +26,22 @@ const SFX := "SFX"
 const SFX_FAR := "SFXFar"
 const INTERIOR := "Interior"
 const UI := "UI"
+const VOICE := "Voice"
+const ZONE := "Zone"
+const AMB_OCCLUDED := "AmbOccluded"
 const OPEN_HZ := 20000.0
+
+## Zone reverb (Area3D reverb sends into the wet-only Zone bus) per acoustic space; amount = the Area3D send level.
+## alley: tight slap between close walls; street: light early reflections; room / tavern / church: interiors;
+## forest: soft diffuse tail. "open" = no send.
+const ZONES := {
+	"alley": {"room_size": 0.28, "damping": 0.35, "predelay_msec": 9.0, "spread": 0.9, "hipass": 0.25, "amount": 0.32},
+	"street": {"room_size": 0.36, "damping": 0.55, "predelay_msec": 16.0, "spread": 1.0, "hipass": 0.3, "amount": 0.16},
+	"room": {"room_size": 0.2, "damping": 0.75, "predelay_msec": 6.0, "spread": 0.6, "hipass": 0.12, "amount": 0.22},
+	"tavern": {"room_size": 0.42, "damping": 0.62, "predelay_msec": 14.0, "spread": 0.8, "hipass": 0.15, "amount": 0.26},
+	"church": {"room_size": 0.86, "damping": 0.25, "predelay_msec": 42.0, "spread": 1.0, "hipass": 0.1, "amount": 0.45},
+	"forest": {"room_size": 0.55, "damping": 0.8, "predelay_msec": 28.0, "spread": 1.0, "hipass": 0.35, "amount": 0.14},
+}
 
 static var _tweens: Dictionary = {}   # bus -> running muffle Tween
 
@@ -43,11 +61,13 @@ static func bus_or_master(bus: String) -> String:
 
 ## Creates missing buses / effects. Safe to call any number of times.
 static func ensure_layout() -> void:
-	for b in [MUSIC, AMBIENCE, SFX, UI]:
+	for b in [MUSIC, AMBIENCE, SFX, VOICE, UI]:
 		_bus(b, "Master")
 	_bus(WEATHER, AMBIENCE)
+	_bus(AMB_OCCLUDED, AMBIENCE)
 	_bus(INTERIOR, SFX)
 	_bus(SFX_FAR, SFX)
+	_bus(ZONE, SFX)
 	for b in [MUSIC, AMBIENCE, WEATHER, SFX]:
 		_lowpass(b, "Muffle", OPEN_HZ, false)
 	var far := _lowpass(SFX_FAR, "Distance", 2400.0, true)
@@ -57,6 +77,44 @@ static func ensure_layout() -> void:
 		r.resource_name = "Reverb"
 		AudioServer.add_bus_effect(AudioServer.get_bus_index(INTERIOR), r)
 		set_room("tavern")
+	var occ := _lowpass(AMB_OCCLUDED, "Occlusion", 1100.0, true)
+	occ.resonance = 0.4
+	AudioServer.set_bus_volume_db(AudioServer.get_bus_index(AMB_OCCLUDED), -4.0)
+	if _effect(ZONE, "AudioEffectReverb") == null:
+		var z := AudioEffectReverb.new()
+		z.resource_name = "ZoneReverb"
+		z.dry = 0.0          # Area3D sends only the reflections here; the dry signal stays on its own bus
+		z.wet = 0.5
+		AudioServer.add_bus_effect(AudioServer.get_bus_index(ZONE), z)
+	# Dialogue ducking (built-in sidechain): Voice pushes Music down ~6 dB and the ambience ~3 dB while a line plays.
+	_duck(MUSIC, 0.06, 4.0)
+	_duck(AMBIENCE, 0.1, 2.5)
+
+
+static func _duck(bus: String, threshold: float, ratio: float) -> void:
+	if _effect_slot(bus, "Duck") >= 0:
+		return
+	var c := AudioEffectCompressor.new()
+	c.resource_name = "Duck"
+	c.threshold = linear_to_db(threshold)
+	c.ratio = ratio
+	c.attack_us = 20000.0
+	c.release_ms = 450.0
+	c.gain = 0.0
+	c.sidechain = VOICE
+	AudioServer.add_bus_effect(AudioServer.get_bus_index(bus), c)
+
+
+## Zone reverb character (ZONES key); returns the Area3D send amount (0 for "open" / unknown).
+static func set_zone(kind: String) -> float:
+	var r := _effect(ZONE, "AudioEffectReverb") as AudioEffectReverb
+	if r == null or not ZONES.has(kind):
+		return 0.0
+	var p: Dictionary = ZONES[kind]
+	for k: String in p:
+		if k != "amount":
+			r.set(k, p[k])
+	return float(p["amount"])
 
 
 ## Applies a room's reverb character to the Interior bus ("" leaves it as is).

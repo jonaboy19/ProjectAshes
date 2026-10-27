@@ -63,7 +63,9 @@ func _sound(delta: float, here: Vector2) -> void:
 	if centre != _placed_at:      # the street centre never moves: place the murmur once (WorldGen.height was sampled every frame)
 		_placed_at = centre
 		_murmur.global_position = Vector3(centre.x, WorldGen.height(centre.x, centre.y) + 1.6, centre.y)
-	var want := -14.0 if day and here.distance_to(centre) < NEAR else -60.0
+	# the AudioDirector soundscape (market walla on the stalls, forge, well: positional) replaces this murmur when on
+	var owned: bool = Audio.get("soundscape_active") == true
+	var want := -14.0 if day and not owned and here.distance_to(centre) < NEAR else -60.0
 	if _murmur.volume_db != want:
 		_murmur.volume_db = move_toward(_murmur.volume_db, want, 12.0 * delta)
 	if _murmur.volume_db > -55.0 and not _murmur.playing:

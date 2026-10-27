@@ -171,7 +171,8 @@ func _drive(p: AudioStreamPlayer, file: String, target: float, top_db: float, pi
 		return
 	if not p.playing:
 		if p.stream == null:
-			var s := MusicBank.load_stream(AMB + file + ".ogg")
+			var lic := "res://assets/audio/licensed_local/ambience/" + file + ".ogg"   # Sonniss bed when built locally
+			var s := MusicBank.load_stream(lic if ResourceLoader.exists(lic) or FileAccess.file_exists(lic) else AMB + file + ".ogg")
 			if s is AudioStreamOggVorbis:
 				(s as AudioStreamOggVorbis).loop = true
 			p.stream = s

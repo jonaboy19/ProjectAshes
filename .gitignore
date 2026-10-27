@@ -4,3 +4,8 @@ __pycache__/
 
 # Sentry SDK binaries: installed by tools/install_sentry.sh (43 MB), not committed
 kingdom/addons/sentry/
+
+# Sonniss GDC bundle audio: the licence forbids redistributing the raw sounds and this repo is public, so the
+# game-ready files stay local (built by tools/audio/build_licensed.py from ProjectAshes_art_staging). Only the README.
+kingdom/assets/audio/licensed_local/*
+!kingdom/assets/audio/licensed_local/README.md

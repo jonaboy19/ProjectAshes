@@ -45,6 +45,11 @@ const AudioBuses := preload("res://scripts/audio/audio_buses.gd")
 const MusicBank := preload("res://scripts/audio/music_bank.gd")
 const AdaptiveMusic := preload("res://scripts/audio/adaptive_music.gd")
 const EnvironmentAudio := preload("res://scripts/audio/environment_audio.gd")
+const Soundscape := preload("res://scripts/audio/soundscape.gd")
+const CombatFoley := preload("res://scripts/audio/combat_foley.gd")
+## Sonniss GDC bundle sounds (licence: no redistribution of the raw files, so never in git): when a sound name has files
+## here, they replace the CC0 variants of that name. A public clone without this folder plays the CC0 set.
+const LICENSED := "res://assets/audio/licensed_local/"
 
 const ROOT := "res://assets/audio/"
 const MAX_SFX_VOICES := 12
@@ -65,14 +70,14 @@ const BOSS_HEALTH := 200
 const BEDS := {
 	"village_day": 0.0, "village_night": 0.0, "meadow_day": -2.0, "forest_day": 0.0, "forest_night": 0.0,
 	"creek": 0.0, "danger": 1.0, "camp": 1.0, "tavern": 0.0, "smithy": 3.0, "healer": -1.0,
-	"house": -4.0, "guild": -5.0, "wind": 0.0, "scar_rift": 0.0,
+	"house": -4.0, "guild": -5.0, "church": -8.0, "wind": 0.0, "scar_rift": 0.0,
 }
 ## Which file plays for a bed (several beds share recordings).
 const BED_FILE := {
 	"village_day": "amb_village_day", "village_night": "amb_village_night", "meadow_day": "amb_meadow_day",
 	"forest_day": "amb_forest_day", "forest_night": "amb_forest_night", "creek": "amb_creek",
 	"danger": "amb_danger", "camp": "amb_camp", "tavern": "amb_tavern", "smithy": "amb_smithy",
-	"healer": "amb_healer", "house": "amb_healer", "guild": "amb_tavern", "wind": "amb_wind",
+	"healer": "amb_healer", "house": "amb_healer", "guild": "amb_tavern", "church": "amb_healer", "wind": "amb_wind",
 	"scar_rift": "region1/amb_r1_scar_rift_loop",   # Region 1 (C12): the corrupted ground hums
 }
 ## Spot sounds sprinkled around the listener per bed: [name, weight, volume_db].
@@ -90,6 +95,7 @@ const SPOTS := {
 	"smithy": [["anvil", 6, -2.0], ["bellows", 2, -6.0]],
 	"healer": [["page_turn", 3, -6.0]],
 	"house": [["page_turn", 1, -10.0]],
+	"church": [["page_turn", 1, -14.0]],
 	"guild": [["page_turn", 2, -8.0], ["mug_knock", 1, -10.0]],
 }
 ## Old Audio.sfx() kinds -> new sound names.
@@ -174,6 +180,21 @@ var _pool3d_root: Node3D
 var _pool2d: Array[AudioStreamPlayer] = []   # fallback when there is no 3D listener
 var _ui: Array[AudioStreamPlayer] = []
 var _steps: Array[AudioStreamPlayer] = []
+var _steps3d: Array[AudioStreamPlayer3D] = []     # the player's feet (3D at the foot, so zone reverb applies)
+var _npc_steps: Array[AudioStreamPlayer3D] = []   # NPC feet (HIGH 6, LOW 3 voices, culled past NPC_STEP_RANGE)
+var _player_step_t := -100.0                      # last animation-driven player footstep (SurfaceFeedback)
+var _step_n := 0
+var _npc_step_sec := 0
+var _npc_step_count := 0
+var _was_fast := false
+var _last_heading := Vector2.ZERO
+var _soundscape: Node
+var _foley: RefCounted
+var _legacy: Array = []                           # deferred legacy combat Audio.sfx calls [t, sound, at, db]
+## Positional ambience, zone reverb and occlusion (soundscape.gd); street_routines.gd mutes its own murmur when on.
+var soundscape_active := true
+## AUDIO_STEP_LOG=1: print the movie frame of every player footstep (QA alignment check, tools/qa/audio/audio_gate.sh).
+var _step_log := OS.has_environment("AUDIO_STEP_LOG")
 var _step_i := 0
 var _ui_i := 0
 var _started: Dictionary = {}      # player -> start time (for stealing the oldest voice)
@@ -208,6 +229,7 @@ func _ready() -> void:
 	process_mode = Node.PROCESS_MODE_ALWAYS
 	AudioBuses.ensure_layout()
 	_scan(ROOT)
+	_prefer_licensed()
 	_alias_region1()
 	_bed_a = _player2d("Ambience")
 	_bed_b = _player2d("Ambience")
@@ -221,6 +243,12 @@ func _ready() -> void:
 	_env.has_fn = has_sound
 	_env.pick_fn = _pick
 	add_child(_env)
+	_soundscape = Soundscape.new()
+	_soundscape.name = "Soundscape"
+	_soundscape.director = self
+	add_child(_soundscape)
+	_foley = CombatFoley.new()
+	_foley.bind(self)
 	for i in MAX_UI_VOICES:
 		_ui.append(_player2d("UI"))
 	for i in 2:
@@ -245,6 +273,12 @@ func _ready() -> void:
 # ------------------------------------------------------------------ public API
 ## Positional one-shot. `position` = Vector3 (world) or null (at the listener).
 func play_sfx(sound: String, position: Variant = null, volume_db := 0.0, pitch_jitter := 0.06) -> void:
+	play_sfx_pitched(sound, position, volume_db, 1.0, pitch_jitter)
+
+
+## play_sfx with a base pitch (combat foley: blade speed -> pitch). Voice lines (vo_*, r1_bark_*) go to the Voice bus,
+## which ducks music and ambience.
+func play_sfx_pitched(sound: String, position: Variant, volume_db: float, pitch: float, pitch_jitter := 0.06) -> void:
 	if sound == "thunder" and _env:
 		# weather.gd calls this after each strike's travel delay: near crack or far roll
 		_env.play_thunder(volume_db, volume_db > -5.0)
@@ -260,8 +294,8 @@ func play_sfx(sound: String, position: Variant = null, volume_db := 0.0, pitch_j
 		if p == null:
 			return
 		p.global_position = position
-		p.bus = _sfx_bus(d3)
-		_start(p, stream, volume_db, pitch_jitter)
+		p.bus = _voice_bus(sound, _sfx_bus(d3))
+		_start(p, stream, volume_db, pitch_jitter, pitch)
 	else:
 		var falloff := 0.0
 		var d := 0.0
@@ -271,8 +305,22 @@ func play_sfx(sound: String, position: Variant = null, volume_db := 0.0, pitch_j
 				return
 			falloff = -d * 0.45
 		var q := _voice2d(_pool2d)
-		q.bus = _sfx_bus(d)
-		_start(q, stream, volume_db + falloff, pitch_jitter)
+		q.bus = _voice_bus(sound, _sfx_bus(d))
+		_start(q, stream, volume_db + falloff, pitch_jitter, pitch)
+
+
+func _voice_bus(sound: String, fallback: String) -> String:
+	if (sound.begins_with("vo_") or sound.begins_with("r1_bark")) and AudioServer.get_bus_index(AudioBuses.VOICE) >= 0:
+		return AudioBuses.VOICE
+	return fallback
+
+
+## A loop stream for a positional emitter (soundscape.gd): a random variant of `sound`, looping.
+func pick_loop(sound: String) -> AudioStream:
+	var list: Array = _lib.get(sound, [])
+	if list.is_empty():
+		return null
+	return _load(list[randi() % list.size()], true)
 
 
 ## Wind bed level. `strength` uses weather.gd's scale: 1 = calm breeze, 2.4 = storm (0..3).
@@ -390,19 +438,63 @@ func play_ui(sound: String, volume_db := 0.0) -> void:
 const STEP_FALLBACK := {"water": "dirt", "mud": "dirt", "sand": "dirt", "metal": "stone"}
 
 
-## One footstep on a surface ("" = look it up at `position`).
-func play_footstep(position: Vector3, surface := "", volume_db := 0.0) -> void:
+## Beyond this NPC feet are not heard (and cost nothing).
+const NPC_STEP_RANGE := 14.0
+## Crowd cap: at most this many NPC footsteps per second (a busy square was ~10/s of cobble clatter on the slice route).
+const NPC_STEPS_PER_SEC := 6
+
+
+## One footstep on a surface ("" = look it up at `position`). `body` = who stepped (SurfaceFeedback passes it): the
+## player's feet play 3D at the foot with a gear / cloth layer; NPC feet play positional from their own small pool.
+func play_footstep(position: Vector3, surface := "", volume_db := 0.0, body: Node = null) -> void:
 	var s := surface if surface != "" else surface_at(position)
-	_surface = s
 	var stream := _pick("step_" + s)
 	if stream == null:
 		stream = _pick("step_" + str(STEP_FALLBACK.get(s, "dirt")))   # families without recordings (water, mud, sand)
 	if stream == null:
 		return
-	var p := _steps[_step_i]
-	_step_i = (_step_i + 1) % _steps.size()
-	p.bus = "Interior" if _interior != "" else "SFX"
-	_start(p, stream, volume_db - 4.0, 0.08)
+	var is_player := body == null or body == _player or body.is_in_group("player")
+	var bus := AudioBuses.INTERIOR if _interior != "" else AudioBuses.SFX
+	if not is_player:
+		if not _listener_ok() or _npc_steps.is_empty():
+			return
+		if listener.global_position.distance_to(position) > NPC_STEP_RANGE:
+			return
+		var sec := int(_now())
+		if sec != _npc_step_sec:
+			_npc_step_sec = sec
+			_npc_step_count = 0
+		_npc_step_count += 1
+		if _npc_step_count > NPC_STEPS_PER_SEC:
+			return
+		var n := _voice3d(_npc_steps)
+		n.global_position = position + Vector3.UP * 0.05
+		n.bus = bus
+		_start(n, stream, volume_db - 2.0, 0.09)
+		return
+	_surface = s
+	if body != null:
+		_player_step_t = _now()
+		if _step_log:
+			print("STEPFRAME %d %s" % [Engine.get_frames_drawn(), s])   # gate: audio onset vs the foot on the ground
+	if _listener_ok() and not _steps3d.is_empty():
+		var p3 := _voice3d(_steps3d)
+		p3.global_position = position + Vector3.UP * 0.05
+		p3.bus = bus
+		_start(p3, stream, volume_db + 1.0, 0.08)
+	else:
+		var p := _steps[_step_i]
+		_step_i = (_step_i + 1) % _steps.size()
+		p.bus = bus
+		_start(p, stream, volume_db - 4.0, 0.08)
+	# movement foley: gear and cloth under the feet (every other step at a run, now and then at a walk)
+	_step_n += 1
+	var v: Variant = body.get("velocity") if body != null else null
+	var spd: float = Vector2((v as Vector3).x, (v as Vector3).z).length() if v is Vector3 else 2.0
+	if spd > 4.0 and _step_n % 2 == 0 and has_sound("foley_gear"):
+		play_sfx("foley_gear", position + Vector3.UP * 1.0, volume_db - 6.0, 0.08)
+	elif spd > 0.8 and randf() < 0.22 and has_sound("foley_cloth"):
+		play_sfx("foley_cloth", position + Vector3.UP * 1.0, volume_db - 10.0, 0.08)
 
 
 ## Weather bed: "", "rain", "storm" or "wind" (weather.gd calls this on changes).
@@ -421,8 +513,23 @@ func set_mood(mood: String) -> void:
 
 
 ## Old API: Audio.sfx("swing" | "hit" | "clash" | "bell", position_or_null, volume_db).
+## Combat kinds are held for a moment: when combat_foley.gd hears the same blow on CombatEvents (richer, positional),
+## the legacy call is dropped, so nothing doubles; emitters that don't use CombatEvents yet still sound.
 func sfx(kind: String, at: Variant = null, volume_db := 0.0) -> void:
+	if kind in ["swing", "hit", "clash"] and _foley != null:
+		if _foley.recent(kind, 0.3):
+			return
+		_legacy.append([_now(), kind, at, volume_db])
+		return
 	play_sfx(LEGACY.get(kind, kind), at, volume_db)
+
+
+func _flush_legacy() -> void:
+	var now := _now()
+	while not _legacy.is_empty() and now - float(_legacy[0][0]) >= 0.08:
+		var e: Array = _legacy.pop_front()
+		if not _foley.recent(String(e[1]), 0.4):
+			play_sfx(LEGACY.get(e[1], e[1]), e[2], float(e[3]))
 
 
 func has_sound(sound: String) -> bool:
@@ -451,6 +558,8 @@ func surface_at(p: Vector3) -> String:
 
 # ------------------------------------------------------------------ frame loop
 func _process(delta: float) -> void:
+	if not _legacy.is_empty():
+		_flush_legacy()
 	_ctx_timer -= delta
 	if _ctx_timer <= 0.0:
 		_ctx_timer = 0.5
@@ -484,8 +593,9 @@ func _process(delta: float) -> void:
 			var busy := 0
 			for p in _pool3d:
 				busy += 1 if is_instance_valid(p) and p.playing else 0
-			print("[audio] voices %d/%d, long streams %d, music %s/%s threat %.0f, surface %s, played %s" % [
-				busy, _pool3d.size(), long_streams(), _music_mood, _music.current_clip(), _threat, _surface, _counts])
+			print("[audio] voices %d/%d, long streams %d, music %s/%s threat %.0f, surface %s, %s, played %s" % [
+				busy, _pool3d.size(), long_streams(), _music_mood, _music.current_clip(), _threat, _surface,
+				_soundscape.describe(), _counts])
 			_counts.clear()
 	_idle_timer -= delta
 	if _idle_timer <= 0.0:
@@ -583,6 +693,8 @@ func _interior_kind() -> String:
 		return "healer"
 	if scene.begins_with("guild"):
 		return "guild"
+	if scene.begins_with("chapel"):
+		return "church"
 	return "house"
 
 
@@ -601,7 +713,11 @@ func _set_bed(bed: String) -> void:
 	var stream: AudioStream = null
 	if bed != "":
 		var file := String(BED_FILE[bed])
-		stream = _load(ROOT + ("ambience/" + file if not file.begins_with("region1/") else file.replace("region1/", "region1/ambience/")) + ".ogg", true)
+		var lic := LICENSED + "ambience/" + file + ".ogg"
+		if ResourceLoader.exists(lic) or FileAccess.file_exists(lic):
+			stream = _load(lic, true)
+		else:
+			stream = _load(ROOT + ("ambience/" + file if not file.begins_with("region1/") else file.replace("region1/", "region1/ambience/")) + ".ogg", true)
 	_crossfade(_bed_a, _bed_b, stream, float(BEDS.get(bed, 0.0)), BED_FADE)
 	var t := _bed_a
 	_bed_a = _bed_b
@@ -775,6 +891,7 @@ func long_streams() -> int:
 		n += 1 if p.playing else 0
 	for c in _env.get_children():
 		n += 1 if (c as AudioStreamPlayer).playing else 0
+	n += _soundscape.playing() if _soundscape else 0
 	if _music.current_clip() != &"silence":
 		n += 1 + (1 if _music.bank and _music.bank.has_stem(_music.current_clip()) else 0)
 	return n
@@ -804,14 +921,37 @@ func _poll_player() -> void:
 		_stride = 0.0
 		return
 	var speed := moved / maxf(get_physics_process_delta_time(), 0.001)
+	_scuffs(pos, speed)
 	if speed < 0.6:
 		_stride = minf(_stride, 0.4)
+		return
+	# The player's feet come from the animation's footfalls (player.gd -> SurfaceFeedback -> play_footstep(body));
+	# this distance stride is only a fallback for bodies that never report one (it doubled every step before).
+	if _now() - _player_step_t < 1.5:
+		_stride = 0.0
 		return
 	_stride += moved
 	var stride_len := 2.1 if speed > 4.5 else 1.4
 	if _stride >= stride_len:
 		_stride = 0.0
 		play_footstep(pos, "", 2.0 if speed > 4.5 else 0.0)
+
+
+## Stop and turn foley: a scuff when a run brakes hard or the heading snaps round at speed.
+func _scuffs(pos: Vector3, speed: float) -> void:
+	var v: Variant = _player.get("velocity")
+	var h := Vector2((v as Vector3).x, (v as Vector3).z) if v is Vector3 else Vector2.ZERO
+	if _was_fast and speed < 1.0 and _cooling_free("scuff", 0.8):
+		play_sfx("step_scuff", pos, -8.0, 0.08)
+	elif speed > 2.5 and _last_heading.length() > 2.5 and h.length() > 2.5 and absf(_last_heading.angle_to(h)) > 1.6 \
+			and _cooling_free("scuff", 0.8):
+		play_sfx("step_scuff", pos, -9.0, 0.08)
+	_was_fast = speed > 3.2
+	_last_heading = h
+
+
+func _cooling_free(key: String, secs: float) -> bool:
+	return has_sound("step_scuff") and not _cooling(key, secs)
 
 
 func _poll_creatures() -> void:
@@ -955,7 +1095,11 @@ func _on_stats() -> void:
 # ------------------------------------------------------------------ plumbing
 func _listener_ok() -> bool:
 	if listener == null or not is_instance_valid(listener) or not listener.is_inside_tree():
-		return false
+		# scenes without Main (combat capture, test rigs) never set the listener: hear through the active camera
+		var cam := get_viewport().get_camera_3d() if get_viewport() else null
+		if cam == null or not cam.is_inside_tree():
+			return false
+		listener = cam
 	var vp := listener.get_viewport()
 	if _pool3d_root == null or not is_instance_valid(_pool3d_root) or _pool3d_root.get_viewport() != vp:
 		_build_pool3d(vp)
@@ -971,8 +1115,12 @@ func _build_pool3d(vp: Viewport) -> void:
 	_pool3d_root = Node3D.new()
 	_pool3d_root.name = "AudioDirectorVoices"
 	vp.add_child(_pool3d_root)
-	for i in MAX_SFX_VOICES + 3:
+	var npc_steps := 3 if Quality.tier <= Quality.LOW else 6
+	_steps3d.clear()
+	_npc_steps.clear()
+	for i in MAX_SFX_VOICES + 3 + 2 + npc_steps:
 		var p := AudioStreamPlayer3D.new()
+		p.area_mask = 1 | Soundscape.ZONE_LAYER      # zone reverb sends (soundscape.gd)
 		p.unit_size = 7.0
 		p.max_distance = MAX_DISTANCE + 15.0
 		# distance low-pass per voice (air absorption); SFXFar adds more past FAR_DISTANCE
@@ -983,8 +1131,16 @@ func _build_pool3d(vp: Viewport) -> void:
 		_pool3d_root.add_child(p)
 		if i < MAX_SFX_VOICES:
 			_pool3d.append(p)
-		else:
+		elif i < MAX_SFX_VOICES + 3:
 			_spots3d.append(p)
+		elif i < MAX_SFX_VOICES + 5:
+			p.unit_size = 3.0
+			p.max_distance = 20.0
+			_steps3d.append(p)
+		else:
+			p.unit_size = 3.0
+			p.max_distance = NPC_STEP_RANGE + 3.0
+			_npc_steps.append(p)
 
 
 func _voice3d(pool: Array[AudioStreamPlayer3D]) -> AudioStreamPlayer3D:
@@ -1013,10 +1169,10 @@ func _voice2d(pool: Array[AudioStreamPlayer]) -> AudioStreamPlayer:
 	return oldest
 
 
-func _start(p: Node, stream: AudioStream, volume_db: float, jitter: float) -> void:
+func _start(p: Node, stream: AudioStream, volume_db: float, jitter: float, pitch := 1.0) -> void:
 	p.set("stream", stream)
 	p.set("volume_db", volume_db)
-	p.set("pitch_scale", randf_range(1.0 - jitter, 1.0 + jitter) if jitter > 0.0 else 1.0)
+	p.set("pitch_scale", pitch * (randf_range(1.0 - jitter, 1.0 + jitter) if jitter > 0.0 else 1.0))
 	p.call("play")
 	_started[p] = _now()
 	if _log:
@@ -1087,6 +1243,15 @@ func _scan(dir: String) -> void:
 		var parts := stem.rsplit("_", true, 1)
 		if parts.size() == 2 and parts[1].is_valid_int():
 			_add(parts[0], path)
+
+
+## Names that have licensed_local recordings drop their CC0 variants (one consistent set per sound, the better one).
+func _prefer_licensed() -> void:
+	for key: String in _lib.keys():
+		var paths: Array = _lib[key]
+		var lic := paths.filter(func(q: String) -> bool: return q.begins_with(LICENSED))
+		if not lic.is_empty() and lic.size() < paths.size():
+			_lib[key] = lic
 
 
 func _add(key: String, path: String) -> void:

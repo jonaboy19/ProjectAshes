@@ -2,7 +2,7 @@
 
 [sub_resource type="AudioEffectHardLimiter" id="AudioEffectHardLimiter_master"]
 resource_name = "HardLimiter"
-ceiling_db = -0.5
+ceiling_db = -1.0
 
 [sub_resource type="AudioEffectReverb" id="AudioEffectReverb_interior"]
 resource_name = "Reverb"
