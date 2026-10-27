@@ -56,8 +56,13 @@ def band(value, key):
     return "banned"
 
 
-def grade_library_row(m):
-    """B1 grading of one library-mode measurement. Returns (verdict, reasons)."""
+WATER_PREFIXES = ("Swim_", "Tread_", "Dive_")
+
+
+def grade_library_row(m, clip=""):
+    """B1 grading of one library-mode measurement. Returns (verdict, reasons).
+    Water clips (WATER_PREFIXES) are played floating in water, never on the ground plane the library measures against: their
+    ground metrics (penetration, float, slide) are not graded (the body hangs below the surface by design); everything else is."""
     kind = m["kind"]
     verdict = "gold"
     reasons = []
@@ -82,7 +87,9 @@ def grade_library_row(m):
     if m["pops"] > 0:
         hit("banned" if m["pops"] >= POPS_BAN else "probation", "%d pop(s)" % m["pops"])
     upper = m.get("upper", False)
-    if not upper:
+    if clip.startswith(WATER_PREFIXES):
+        reasons.append("note: water clip, ground metrics not graded")
+    elif not upper:
         hit(band(m["pen_cm"], "pen_cm"), "ground penetration %.1f cm" % m["pen_cm"])
         if kind in ("loco", "loop"):
             hit(band(m["hover_cm"], "hover_cm"), "float %.1f cm" % m["hover_cm"])
@@ -165,7 +172,7 @@ def main():
             group = subject
         for clip, m in measured.items():
             key = clip if group == "ual" else "%s/%s" % (subject, clip)
-            verdict, reasons = grade_library_row(m)
+            verdict, reasons = grade_library_row(m, clip)
             cat = category_of(clip) if group == "ual" else "creature"
             entry = clips.get(key)
             if entry is not None:

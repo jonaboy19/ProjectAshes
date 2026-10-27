@@ -154,7 +154,7 @@ func _on_blocked(_attacker: Node, guard_broken: bool) -> void:
 	else:
 		# the shield takes the blow (Souls_Guard_Hit, golden gold); "Block_Hit" resolved to the banned Sword_Block sword parry,
 		# which swung the sword out and dropped the shield for half a second
-		p._animator.play_upper("Souls_Guard_Hit" if p._animator.has_clip("Souls_Guard_Hit") else "Block_Hit", 1.3)
+		p._animator.play_upper("Souls_Guard_Hit", 1.3)
 		Audio.sfx("clash")
 
 

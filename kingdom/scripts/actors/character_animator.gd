@@ -70,7 +70,7 @@ const MAX_STRAFE_CADENCE := 1.7
 ## static pose)]. The first clip the library has wins. Crouch_Fwd and Swim_Fwd
 ## speeds are estimates from their stride (not in the anim QA report yet).
 const STANCES := {
-	"crouch": [["Crouch_Idle"], ["Crouch_Fwd", "Walk_Stealth"], 1.1],
+	"crouch": [["Crouch_Idle"], ["Crouch_Fwd", "Walk_Stealth"], 0.76],      # measured ground speed (golden_set Crouch_Fwd)
 	"swim": [["Swim_Idle"], ["Swim_Fwd"], 2.2],
 	"ride": [["Driving", "Sitting_Idle", "Sit_Floor_Idle"], ["Driving", "Sitting_Idle", "Sit_Floor_Idle"], 0.0],
 	"sit_chair": [["Life_Rest_Sit_Chair", "Sitting_Idle", "Sit_Floor_Idle"], ["Life_Rest_Sit_Chair", "Sitting_Idle", "Sit_Floor_Idle"], 0.0],
@@ -159,12 +159,12 @@ func _init(model: Node3D, run_speed: float, _walk_speed := -1.0, walk_anim := "W
 	gait.max_space = maxf(maxf(run_speed, 7.5), _run_pt + 0.5)
 	gait.sync = true   # both cycles keep advancing, so their shared phase never drifts
 	var pts: Array = [[walk_anim, _walk_pt, 0.0]]
-	if walk_anim == "Walking_A" and run_anim == "Running_A":
+	if (walk_anim == "Walking_A" or walk_anim == "Walk") and (run_anim == "Running_A" or run_anim == "Jog_Fwd"):
 		for e: Array in GAIT_EXTRA:
 			if player.has_animation(String(e[0])):
 				pts.append([String(e[0]), float(e[1]) * leg, float(e[2])])
 	pts.append([run_anim, _run_pt, 0.0])
-	if walk_anim == "Walking_A" and run_anim == "Running_A":
+	if (walk_anim == "Walking_A" or walk_anim == "Walk") and (run_anim == "Running_A" or run_anim == "Jog_Fwd"):
 		for e: Array in GAIT_TOP:
 			if player.has_animation(String(e[0])):
 				pts.append([String(e[0]), float(e[1]) * leg, float(e[2])])

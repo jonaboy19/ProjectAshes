@@ -180,7 +180,7 @@ const SWIM_DRAIN := 3.0          # stamina/s treading water
 const SWIM_DRAIN_MOVING := 4.5   # extra stamina/s while stroking
 const DROWN_DPS := 4.0           # health/s once stamina is gone
 ## Crouch / stealth.
-const CROUCH_SPEED := 1.5
+const CROUCH_SPEED := 1.15     # Crouch_Fwd covers 0.76 m/s at rate 1: 1.15 keeps the cadence at 1.5x, the soles planted (1.5 slid 1.3 m/s)
 const NOISE_CROUCH := 4.0
 const NOISE_WALK := 10.0
 const NOISE_RUN := 18.0
@@ -599,7 +599,7 @@ func _build_body() -> void:
 			outfit.call("dress", body)
 	_body_node = body
 	_model.add_child(body)
-	_animator = CharacterAnimator.new(body, RUN, WALK, "Walking_A", "Running_A", "Idle", true, true)
+	_animator = CharacterAnimator.new(body, RUN, WALK, "Walk", "Jog_Fwd", "Idle", true, true)   # UAL names (the KayKit aliases Walking_A / Running_A are retired)
 	if _animator.player != null:
 		LifeLibrary.install(_animator.player)   # the life clips: sit enter / loop / exit, pick-up, chores (cached per skeleton)
 	# Root-driven actions need a new graph sample for every capsule physics tick.
@@ -2464,7 +2464,7 @@ func take_damage(amount: int, from: Node = null, knockback := Vector3.ZERO, forc
 				_swing = 0.0
 				_swing_id += 1
 				_kick(-facing() * float(res["push"]) * 2.0)
-				_animator.play_upper("Souls_Guard_Hit" if _animator.has_clip("Souls_Guard_Hit") else "Block_Hit", 1.5)
+				_animator.play_upper("Souls_Guard_Hit", 1.5)
 			clashed.emit(from, not lost)
 			return
 		HitResolver.Outcome.PARRIED:

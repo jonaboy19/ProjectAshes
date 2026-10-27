@@ -57,6 +57,8 @@ const TORSO_DAMP := 0.45       # damping ratio: a little overshoot reads as weig
 const LOCK_ON_LIFT := 0.045       # animated ball of the foot this high (m, at leg height 0.98) or lower: the stance starts
 const LOCK_OFF_LIFT := 0.065     # ... and ends above this (hysteresis)
 const LOCK_MAX := 0.25           # m of lag between the pinned and the animated foot before the pin is dragged along
+const REACH_MAX := 0.97          # a pinned foot is kept within this fraction of the leg length (pelvis drop)
+const REACH_DROP_MAX := 0.08     # ... dropping the pelvis at most this fraction of the leg (8 cm at 0.98 m)
 const LOCK_BLEND := 0.05         # s: 3 frames at 60 Hz
 const LOCK_MIN_SPEED := 0.35     # m/s: below this the clip is a standing idle, nothing to pin
 const WEAPON_CARRY_DEG := 45.0
@@ -156,6 +158,7 @@ var _lock_on: Array[bool] = [false, false]
 var _lock_xz: Array[Vector2] = [Vector2.ZERO, Vector2.ZERO]
 var _lock_w: Array[float] = [0.0, 0.0]
 var _pelvis_off := 0.0
+var _reach_drop := 0.0
 var _weight := 0.0
 
 # Secondary motion state.
@@ -695,12 +698,27 @@ func _pre_modify(delta: float) -> void:
 		_update_lock(i, delta)
 		lowest = minf(lowest, _ground[i])
 	_pelvis_off = lerpf(_pelvis_off, lowest * _weight, 1.0 - exp(-PELVIS_RATE * delta))
+	# Reach: a pinned foot the stretched mocap leg cannot reach any more (half the walk frames were at > 98 % of the leg, the foot
+	# then slid 4-5 cm per stance) pulls the pelvis down just enough, capped, eased: the planted foot stays planted.
+	var want_drop := 0.0
+	for i in 2:
+		if _lock_w[i] > 0.001:
+			var tgt := _foot_anim[i] + Vector3(0.0, _ground[i], 0.0)
+			var lk := Vector2(tgt.x, tgt.z).lerp(_lock_xz[i] + _ball_off[i], _lock_w[i])
+			var r := Vector2(hips[i].x - lk.x, hips[i].z - lk.y).length()
+			var h := hips[i].y + _pelvis_off - tgt.y
+			var reach := _leg_len * REACH_MAX
+			if r < reach and h > 0.0:
+				var h_ok := sqrt(reach * reach - r * r)
+				want_drop = maxf(want_drop, (h - h_ok) * _lock_w[i])
+	want_drop = minf(want_drop, _leg_len * REACH_DROP_MAX)
+	_reach_drop = want_drop if want_drop > _reach_drop else lerpf(_reach_drop, want_drop, 1.0 - exp(-12.0 * delta))
 	var pinned := maxf(_lock_w[0], _lock_w[1])
 	_ik.influence = maxf(_weight, pinned)       # a pinned foot needs the IK even where the ground blend is off (sprint)
-	if _weight <= 0.001 and absf(_pelvis_off) < 0.001 and pinned <= 0.001:
+	if _weight <= 0.001 and absf(_pelvis_off) < 0.001 and pinned <= 0.001 and _reach_drop < 0.0005:
 		return
 	# Pelvis: a world-space drop, converted into its parent bone's space.
-	var drop := _skeleton.global_basis.inverse() * Vector3(0.0, _pelvis_off, 0.0)
+	var drop := _skeleton.global_basis.inverse() * Vector3(0.0, _pelvis_off - _reach_drop, 0.0)
 	var parent := _skeleton.get_bone_parent(_pelvis)
 	if parent >= 0:
 		drop = _skeleton.get_bone_global_pose(parent).basis.inverse() * drop
@@ -715,7 +733,7 @@ func _pre_modify(delta: float) -> void:
 		var mid := (hips[i] + _foot_anim[i]) * 0.5
 		var bend := knees[i] - mid
 		bend = bend.normalized() if bend.length() > 0.02 * _leg_len else fwd
-		_markers[i + 2].global_position = knees[i] + Vector3(0.0, _pelvis_off, 0.0) + (bend + fwd * 0.3).normalized() * _leg_len * 0.6
+		_markers[i + 2].global_position = knees[i] + Vector3(0.0, _pelvis_off - _reach_drop, 0.0) + (bend + fwd * 0.3).normalized() * _leg_len * 0.6
 
 
 ## Pins foot `i` while its animated sole is planted (see LOCK_*). Player-only (always_near), never while airborne,

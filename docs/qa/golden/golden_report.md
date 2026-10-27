@@ -8,9 +8,9 @@ Generated 2026-10-27 by `tools/qa/anim_qa/golden_gate.py`.
 | creature | 0 | 114 | 215 |
 | death | 0 | 3 | 6 |
 | interaction | 34 | 14 | 10 |
-| locomotion | 23 | 9 | 25 |
+| locomotion | 23 | 14 | 20 |
 | traversal | 7 | 14 | 17 |
-| **total** | 110 | 347 | 378 |
+| **total** | 110 | 352 | 373 |
 
 ## Slots
 

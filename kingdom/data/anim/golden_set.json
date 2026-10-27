@@ -19526,8 +19526,8 @@
    },
    "contacts_fps": 30.0,
    "upper": false,
-   "status": "banned",
-   "why": "banned: ground penetration 7.1 cm; note: slide unscored (no usable ground-speed reference)"
+   "status": "probation",
+   "why": "note: water clip, ground metrics not graded; metrics gold, no passing frame-sheet review yet"
   },
   "Swim_Breaststroke": {
    "rig": "ual",
@@ -19551,8 +19551,8 @@
    },
    "contacts_fps": 30.0,
    "upper": false,
-   "status": "banned",
-   "why": "banned: float 15.0 cm; note: slide unscored (no usable ground-speed reference)"
+   "status": "probation",
+   "why": "note: water clip, ground metrics not graded; metrics gold, no passing frame-sheet review yet"
   },
   "Swim_Freestyle": {
    "rig": "ual",
@@ -19576,8 +19576,8 @@
    },
    "contacts_fps": 30.0,
    "upper": false,
-   "status": "banned",
-   "why": "banned: ground penetration 2.7 cm; banned: float 20.5 cm; note: slide unscored (no usable ground-speed reference)"
+   "status": "probation",
+   "why": "note: water clip, ground metrics not graded; metrics gold, no passing frame-sheet review yet"
   },
   "Swim_Fwd": {
    "rig": "ual",
@@ -19611,8 +19611,8 @@
    },
    "contacts_fps": 30.0,
    "upper": false,
-   "status": "banned",
-   "why": "banned: ground penetration 65.9 cm; note: slide unscored (no usable ground-speed reference)"
+   "status": "probation",
+   "why": "note: water clip, ground metrics not graded; metrics gold, no passing frame-sheet review yet"
   },
   "Swim_Idle": {
    "rig": "ual",
@@ -19646,8 +19646,8 @@
    },
    "contacts_fps": 30.0,
    "upper": false,
-   "status": "banned",
-   "why": "banned: ground penetration 145.9 cm; banned: slide mean 0.72 m/s; banned: slide max 1.02 m/s"
+   "status": "probation",
+   "why": "note: water clip, ground metrics not graded; metrics gold, no passing frame-sheet review yet"
   },
   "Sword_Attack": {
    "rig": "ual",

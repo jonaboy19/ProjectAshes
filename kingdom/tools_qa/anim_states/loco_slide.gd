@@ -55,10 +55,23 @@ func _run() -> void:
 	var an: RefCounted = _p.get("_animator")
 	if an != null:
 		print("LOCO gait points ", an.get("_pt_speed"), " strides ", an.get("_pt_stride"))
-	for c in [["slow", 0.4, false], ["walk", 1.0, false], ["sprint", 1.0, true]]:
-		await _case(String(c[0]), float(c[1]), bool(c[2]))
+	# case, stick strength, sprint, extra input ("" | move_back | move_left | move_right with block | crouch), golden clip it scores
+	var cases := [["slow", 0.4, false, "", "Walk"], ["walk", 1.0, false, "", "Jog_Fwd"], ["sprint", 1.0, true, "", "Sprint"]]
+	if OS.get_cmdline_user_args().has("--all"):
+		cases += [["back", 1.0, false, "move_back", "Walk_Backwards"], ["strafe_l", 1.0, false, "move_left", "Strafe_left"],
+				["strafe_r", 1.0, false, "move_right", "Strafe_right"], ["crouch", 1.0, false, "crouch", "Crouch_Fwd"]]
+	var results := {}
+	for c in cases:
+		var r: Dictionary = await _case(String(c[0]), float(c[1]), bool(c[2]), String(c[3]))
+		r["case"] = c[0]
+		results[String(c[4])] = r
 	Input.action_release("move_forward")
 	Input.action_release("sprint")
+	for a in OS.get_cmdline_user_args():
+		if a.begins_with("--json="):
+			var f := FileAccess.open(a.substr(7), FileAccess.WRITE)
+			f.store_string(JSON.stringify({"_doc": "In-game planted-foot slip of the player's locomotion clips (tools_qa/anim_states/loco_slide.gd --all): the real Player at its game speed, foot lock " + ("on" if lock else "off") + "; m/s. golden_gate.py scores these clips' slide from here.", "lock": lock, "clips": results}, "	"))
+			f.close()
 	quit()
 
 
@@ -81,7 +94,8 @@ func _on_updated() -> void:
 		_sole_h[i] = low
 	if _recording:
 		# skeleton_updated fires twice per frame with different poses (before / after the modifier stack): keep the LAST per frame
-		var row := [Engine.get_process_frames() * 1000000 / 60, _ball_w[0], _ball_w[1], _p.get_real_velocity(), _sole_h[0], _sole_h[1], _joint_p.duplicate(), _joint_h.duplicate()]
+		var rig_lw: Variant = _p.get("_rig").get("_lock_w") if _p.get("_rig") != null else [0.0, 0.0]
+		var row := [Engine.get_process_frames() * 1000000 / 60, _ball_w[0], _ball_w[1], _p.get_real_velocity(), _sole_h[0], _sole_h[1], _joint_p.duplicate(), _joint_h.duplicate(), (rig_lw as Array).duplicate()]
 		if not _rec.is_empty() and int(_rec[_rec.size() - 1][0]) == int(row[0]):
 			_rec[_rec.size() - 1] = row
 		else:
@@ -92,12 +106,19 @@ func _ball(i: int) -> Vector3:
 	return _ball_w[i]
 
 
-func _case(name: String, strength: float, sprint: bool) -> void:
+func _case(name: String, strength: float, sprint: bool, extra := "") -> Dictionary:
 	_p.global_position = Vector3(0, BASE, 0)
 	_p.velocity = Vector3.ZERO
 	for i in 30:
 		await physics_frame
-	Input.action_press("move_forward", strength)
+	var move := "move_forward"
+	if extra == "move_back" or extra == "move_left" or extra == "move_right":
+		move = extra
+	if extra == "move_left" or extra == "move_right":
+		Input.action_press("block")          # strafe footwork: the guard keeps the body facing forward
+	if extra == "crouch" and not bool(_p.get("crouching")):
+		_p.call("toggle_crouch")
+	Input.action_press(move, strength)
 	if sprint:
 		Input.action_press("sprint")
 	for i in 90:                      # accelerate, get through the start transition
@@ -113,8 +134,10 @@ func _case(name: String, strength: float, sprint: bool) -> void:
 		await physics_frame
 		_p.get_viewport().get_camera_3d().global_position = _p.global_position + Vector3(3.0, 1.3, 0.0)
 	_recording = false
-	Input.action_release("move_forward")
-	Input.action_release("sprint")
+	for a in ["move_forward", "move_back", "move_left", "move_right", "sprint", "block"]:
+		Input.action_release(a)
+	if extra == "crouch" and bool(_p.get("crouching")):
+		_p.call("toggle_crouch")
 	# Stance core: per foot, runs of >= 6 consecutive frames whose lowest joint (ankle / ball / toe tip, against its rest height)
 	# stays below 2 cm; the first and last 2 frames of a run (heel strike / toe-off roll) are dropped. Slip = world horizontal
 	# speed of the run's lowest joint (the same joint tracked through the run).
@@ -135,6 +158,10 @@ func _case(name: String, strength: float, sprint: bool) -> void:
 			elif not planted and run_start >= 0:
 				var end := i - 1
 				if end - run_start + 1 >= 6:
+					# Contact point slip: each frame the lowest of ankle / ball / toe tip is the contact; it slips when the SAME joint
+					# is still the contact on the next frame and moved across the ground (heel-to-ball roll hands the contact over
+					# from one joint to the next and is not slip). --tracked: the old metric (one joint through the whole stance).
+					var tracked := OS.get_cmdline_user_args().has("--tracked")
 					var hs: Array = _rec[run_start + 2][7]
 					var j := 0
 					for k in 3:
@@ -144,6 +171,19 @@ func _case(name: String, strength: float, sprint: bool) -> void:
 						var dt := float(int(_rec[m][0]) - int(_rec[m - 1][0])) / 1e6
 						if dt < 0.004:
 							continue
+						if not tracked:
+							var ha: Array = _rec[m - 1][7]
+							var hb: Array = _rec[m][7]
+							var ja := 0
+							var jb := 0
+							for k in 3:
+								if float(ha[f * 3 + k]) < float(ha[f * 3 + ja]):
+									ja = k
+								if float(hb[f * 3 + k]) < float(hb[f * 3 + jb]):
+									jb = k
+							if ja != jb:
+								continue
+							j = jb
 						var pa: Vector3 = (_rec[m - 1][6] as Array)[f * 3 + j]
 						var pb: Vector3 = (_rec[m][6] as Array)[f * 3 + j]
 						slips.append(Vector2(pb.x - pa.x, pb.z - pa.z).length() / dt)
@@ -153,6 +193,20 @@ func _case(name: String, strength: float, sprint: bool) -> void:
 			var hp: Array = _rec[i][7]
 			var pp: Array = _rec[i][6]
 			print("D %d hL=[%.3f %.3f %.3f] zL=[%.3f %.3f %.3f] hR=[%.3f %.3f %.3f] zR=[%.3f %.3f %.3f]" % [i, hp[0], hp[1], hp[2], pp[0].z, pp[1].z, pp[2].z, hp[3], hp[4], hp[5], pp[3].z, pp[4].z, pp[5].z])
+	# diagnostic: slip of the ball bone on frames where the rig holds the foot fully locked
+	var lk: Array[float] = []
+	for m in range(1, _rec.size()):
+		for f in 2:
+			if float((_rec[m][8] as Array)[f]) >= 0.99 and float((_rec[m - 1][8] as Array)[f]) >= 0.99:
+				var pa: Vector3 = _rec[m - 1][1 + f]
+				var pb: Vector3 = _rec[m][1 + f]
+				lk.append(Vector2(pb.x - pa.x, pb.z - pa.z).length() * 60.0)
+	var lkm := 0.0
+	var lkx := 0.0
+	for v in lk:
+		lkm += v
+		lkx = maxf(lkx, v)
+	print("LOCO %s locked_ball frames=%d mean=%.3f max=%.3f" % [name, lk.size(), lkm / maxf(lk.size(), 1), lkx])
 	var mean := 0.0
 	var mx := 0.0
 	for s in slips:
@@ -164,6 +218,7 @@ func _case(name: String, strength: float, sprint: bool) -> void:
 		spd += Vector2((r[3] as Vector3).x, (r[3] as Vector3).z).length()
 	spd /= maxf(_rec.size(), 1)
 	print("LOCO %s body=%.2f m/s contact_samples=%d slide_mean=%.3f slide_max=%.3f" % [name, spd, slips.size(), mean, mx])
+	return {"body_speed": snappedf(spd, 0.01), "samples": slips.size(), "slide_mean": snappedf(mean, 0.001), "slide_max": snappedf(mx, 0.001)}
 
 
 func rig_dbg() -> String:

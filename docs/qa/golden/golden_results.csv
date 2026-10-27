@@ -440,11 +440,11 @@ Stagger_Forward,ual,combat,once,1.333,probation,0.368,1.64,0.09,0.0,1,,0.0,0.0,,
 Stand_From_Floor,ual,combat,once,2.0,banned,0.807,4.804,13.87,0.07,0,,4.7,0.0,,banned: ground penetration 13.9 cm
 Strafe_left,ual,locomotion,loco,0.958,banned,0.464,1.581,0.1,0.0,0,4.01,0.1,0.0,,banned: slide mean 0.46 m/s; banned: slide max 1.58 m/s; probation: loop seam 4.0 deg
 Strafe_right,ual,locomotion,loco,0.958,banned,0.59,1.451,1.29,0.0,0,4.01,0.1,0.0,,probation: ground penetration 1.3 cm; banned: slide mean 0.59 m/s; banned: slide max 1.45 m/s; probation: loop seam 4.0 deg
-Swim_Backstroke,ual,locomotion,loco,5.233,banned,,,7.12,0.0,0,0.0,0.0,0.0,,banned: ground penetration 7.1 cm; note: slide unscored (no usable ground-speed reference)
-Swim_Breaststroke,ual,locomotion,loco,4.767,banned,,,0.37,14.97,0,0.0,0.0,0.0,,banned: float 15.0 cm; note: slide unscored (no usable ground-speed reference)
-Swim_Freestyle,ual,locomotion,loco,5.0,banned,,,2.71,20.51,0,0.0,0.0,0.0,,banned: ground penetration 2.7 cm; banned: float 20.5 cm; note: slide unscored (no usable ground-speed reference)
-Swim_Fwd,ual,locomotion,loco,1.333,banned,,,65.94,0.0,0,0.0,0.0,0.0,,banned: ground penetration 65.9 cm; note: slide unscored (no usable ground-speed reference)
-Swim_Idle,ual,locomotion,loco,3.333,banned,0.719,1.016,145.94,0.0,0,0.0,0.0,0.0,,banned: ground penetration 145.9 cm; banned: slide mean 0.72 m/s; banned: slide max 1.02 m/s
+Swim_Backstroke,ual,locomotion,loco,5.233,probation,,,7.12,0.0,0,0.0,0.0,0.0,,"note: water clip, ground metrics not graded; metrics gold, no passing frame-sheet review yet"
+Swim_Breaststroke,ual,locomotion,loco,4.767,probation,,,0.37,14.97,0,0.0,0.0,0.0,,"note: water clip, ground metrics not graded; metrics gold, no passing frame-sheet review yet"
+Swim_Freestyle,ual,locomotion,loco,5.0,probation,,,2.71,20.51,0,0.0,0.0,0.0,,"note: water clip, ground metrics not graded; metrics gold, no passing frame-sheet review yet"
+Swim_Fwd,ual,locomotion,loco,1.333,probation,,,65.94,0.0,0,0.0,0.0,0.0,,"note: water clip, ground metrics not graded; metrics gold, no passing frame-sheet review yet"
+Swim_Idle,ual,locomotion,loco,3.333,probation,0.719,1.016,145.94,0.0,0,0.0,0.0,0.0,,"note: water clip, ground metrics not graded; metrics gold, no passing frame-sheet review yet"
 Sword_Attack,ual,combat,once,1.533,probation,0.715,7.289,0.12,0.0,2,,0.0,0.0,,probation: 2 pop(s)
 Sword_Attack_Air_Vertical,ual,combat,once,4.792,banned,,,0.0,9.72,11,,3.7,0.0,,banned: 11 pop(s)
 Sword_Block,ual,combat,once,1.233,banned,0.053,0.262,0.19,0.0,9,,0.0,0.0,,banned: 9 pop(s)
