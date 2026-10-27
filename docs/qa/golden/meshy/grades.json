@@ -34,8 +34,14 @@
   "why": []
  },
  "Life_Mz_Kneel_Down": {
-  "auto": "gold",
-  "why": []
+  "auto": "banned",
+  "why": [
+   "player_young: banned: 4 pop(s)",
+   "player_young: probation: ground penetration 1.6 cm",
+   "villager_man_a: banned: 4 pop(s)",
+   "villager_man_a: probation: ground penetration 1.5 cm",
+   "villager_woman_a: banned: 4 pop(s)"
+  ]
  },
  "Life_Mz_Laundry_Scrub": {
   "auto": "probation",

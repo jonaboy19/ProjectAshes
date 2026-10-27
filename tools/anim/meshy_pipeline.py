@@ -36,7 +36,7 @@ SUBJECTS = "player_young,villager_man_a,villager_woman_a"
 
 
 def args():
-    global LIB, OUT
+    global LIB, OUT, LIB_RES
     a = {"step": sys.argv[1] if len(sys.argv) > 1 else "all", "queue": os.path.join(REPO, "tools", "anim", "meshy_queue_2026-10-28.json"),
          "downloads": "", "apply": False}
     i = 2
@@ -49,7 +49,9 @@ def args():
             a[k] = sys.argv[i + 1]
             i += 2
     if a.get("lib"):
-        LIB = os.path.abspath(a["lib"])      # tests: a scratch library instead of the shipped one
+        LIB = os.path.abspath(a["lib"])      # another library (Mixamo packs) or a scratch one for tests
+        if LIB.replace("\\", "/").startswith(K.replace("\\", "/") + "/"):
+            LIB_RES = "res://" + os.path.relpath(LIB, K).replace("\\", "/")
     if a.get("out"):
         OUT = os.path.abspath(a["out"])
     return a
@@ -73,7 +75,7 @@ def present(a, q):
 
 def spec_of(m, path, rig):
     c = {"name": m["clip"], "file": os.path.basename(path), "loop": bool(m.get("loop")), "inplace": m.get("inplace", "none")}
-    for k in ("foot_lock", "knee_lift", "hand_margin_extra", "lift_m", "contact_ik", "lock_vel", "lock_wander", "ik_smooth"):
+    for k in ("foot_lock", "knee_lift", "hand_margin_extra", "lift_m", "contact_ik", "lock_vel", "lock_wander", "ik_smooth", "toe_floor", "shift_m", "reverse", "lift_ramp", "yaw_deg", "yaw_shift"):
         if k in m and k != "contact_ik":
             c[k] = m[k]
     if m.get("contact_ik"):
@@ -121,7 +123,7 @@ def _sidecar(q, items):
              "exit": None, "blend_in": 0.3, "blend_out": 0.3, "events": {}, "anchor": None, "speed_mps": 0.0, "pair": None,
              "ik_l_on_prop": None, "mask_from": None, "tags": [], "note": m["prompt"], "source": "Meshy text-to-motion (%s, %s)" % (m.get("mode", "prime"), m["id"]),
              "frames": r.get("frames", 0), "seconds": round((r.get("frames", 1) - 1) / 30.0, 3)}
-        for k in ("contact_ik", "hand_contact", "seat_back"):
+        for k in ("contact_ik", "hand_contact", "seat_back", "entry_offset", "exit_offset", "exit_yaw"):
             if k in m:
                 e[k] = m[k]
         clips[m["clip"]] = e
@@ -154,6 +156,7 @@ def _git_import_dirty():
 
 def measure(a, q):
     before = _git_import_dirty()
+    os.makedirs(OUT, exist_ok=True)
     subprocess.run([GODOT, "--headless", "--path", K, "--import"], capture_output=True)
     ag = os.path.join(K, "scripts", "world", "assets.gd")
     raw = open(ag, "rb").read()
@@ -166,19 +169,19 @@ def measure(a, q):
         open(ag, "wb").write((txt[:e] + ', "%s"' % LIB_RES + txt[e:]).encode("utf-8"))
         names = ",".join(json.load(open(LIB + ".life.json"))["clips"].keys())
         subprocess.run([GODOT, "--headless", "--path", K, "-s", os.path.join(REPO, "tools", "qa", "anim_qa", "anim_qa.gd"), "--",
-                        "--library=" + SUBJECTS, "--tag=meshy", "--clips=" + names, "--out-dir=" + OUT], capture_output=True)
+                        "--library=" + SUBJECTS, "--tag=" + os.path.basename(OUT), "--clips=" + names, "--out-dir=" + OUT], capture_output=True)
     finally:   # take out only our entry: other workers may have edited assets.gd while Godot ran
         cur = open(ag, "rb").read().decode("utf-8")
         open(ag, "wb").write(cur.replace(', "%s"' % LIB_RES, "", 1).encode("utf-8"))
     for f in _git_import_dirty() - before:
         subprocess.run(["git", "-C", REPO, "checkout", "--", f])
-    print("measured ->", os.path.join(OUT, "golden_library_meshy.json"))
+    print("measured ->", os.path.join(OUT, "golden_library_%s.json" % os.path.basename(OUT)))
 
 
 def grade(a, q):
     sys.path.insert(0, os.path.join(REPO, "tools", "qa", "anim_qa"))
     import golden_gate as g
-    d = json.load(open(os.path.join(OUT, "golden_library_meshy.json")))
+    d = json.load(open(os.path.join(OUT, "golden_library_%s.json" % os.path.basename(OUT))))
     res = {}
     for sub, clips in d.items():
         for k, m in clips.items():
@@ -193,7 +196,7 @@ def grade(a, q):
     json.dump({k: {"auto": v, "why": w} for k, (v, w) in res.items()}, open(os.path.join(OUT, "grades.json"), "w"), indent=1)
     # golden_gate.py reads docs/qa/golden/golden_library_*.json (player subject): copy the player row set there
     gl = {"player_young": d.get("player_young", {})}
-    json.dump(gl, open(os.path.join(REPO, "docs", "qa", "golden", "golden_library_meshy.json"), "w"), indent=1)
+    json.dump(gl, open(os.path.join(REPO, "docs", "qa", "golden", "golden_library_%s.json" % os.path.basename(OUT)), "w"), indent=1)
     for k, (v, w) in sorted(res.items()):
         print("%-28s %-9s %s" % (k, v, "; ".join(w)[:150]))
 

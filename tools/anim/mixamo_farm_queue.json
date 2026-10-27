@@ -1,0 +1,192 @@
+{
+ "_doc": "Mixamo Farming Pack (owner download 2026-10-27, packs/farming) on UAL: retarget spec tools/anim/mixamo_pack_farming.json; this file maps clips to smart-object targets for meshy_pipeline.py measure/grade/wire (--lib .../UAL_Life_Mixamo_Farm.glb --queue this --out docs/qa/golden/mixamo_farm).",
+ "motions": [
+  {
+   "id": "Life_Mx2_Milk_Cow",
+   "clip": "Life_Mx2_Milk_Cow",
+   "prompt": "Mixamo: cow milking",
+   "loop": true,
+   "category": "work/farm",
+   "target": {
+    "type": "milking_stool",
+    "key": "loop",
+    "enable": false
+   },
+   "props": []
+  },
+  {
+   "id": "Life_Mx2_Dig_Plant",
+   "clip": "Life_Mx2_Dig_Plant",
+   "prompt": "Mixamo: dig and plant seeds",
+   "loop": true,
+   "category": "work/farm",
+   "target": {
+    "type": "field_row",
+    "key": "loop",
+    "enable": false
+   },
+   "props": []
+  },
+  {
+   "id": "Life_Mx2_Plant_Plant",
+   "clip": "Life_Mx2_Plant_Plant",
+   "prompt": "Mixamo: plant a plant (kneeling)",
+   "loop": true,
+   "category": "work/farm",
+   "target": {
+    "type": "field_sow",
+    "key": "loop",
+    "enable": false
+   },
+   "props": []
+  },
+  {
+   "id": "Life_Mx2_Pull_Plant_B",
+   "clip": "Life_Mx2_Pull_Plant_B",
+   "prompt": "Mixamo: pull plant (2)",
+   "loop": true,
+   "category": "work/farm",
+   "target": {
+    "type": "field_sow",
+    "key": "loop",
+    "enable": false
+   },
+   "props": []
+  },
+  {
+   "id": "Life_Mx2_Pick_Fruit_B",
+   "clip": "Life_Mx2_Pick_Fruit_B",
+   "prompt": "Mixamo: pick fruit (2)",
+   "loop": true,
+   "category": "work/farm",
+   "target": {
+    "type": "field_harvest",
+    "key": "loop",
+    "enable": false
+   },
+   "props": []
+  },
+  {
+   "id": "Life_Mx2_Pick_Fruit_C",
+   "clip": "Life_Mx2_Pick_Fruit_C",
+   "prompt": "Mixamo: pick fruit (3)",
+   "loop": true,
+   "category": "work/farm",
+   "target": {
+    "type": "field_harvest",
+    "key": "loop",
+    "enable": false
+   },
+   "props": []
+  },
+  {
+   "id": "Life_Mx2_Water",
+   "clip": "Life_Mx2_Water",
+   "prompt": "Mixamo: watering",
+   "loop": true,
+   "category": "work/farm",
+   "target": {
+    "type": "field_row",
+    "key": "loop",
+    "enable": false
+   },
+   "props": [
+    {
+     "id": "bucket",
+     "hand": "r"
+    }
+   ]
+  },
+  {
+   "id": "Life_Mx2_Kneel_Idle",
+   "clip": "Life_Mx2_Kneel_Idle",
+   "prompt": "Mixamo: kneeling idle",
+   "loop": true,
+   "category": "rest",
+   "target": null,
+   "props": []
+  },
+  {
+   "id": "Life_Mx2_Plant_Tree",
+   "clip": "Life_Mx2_Plant_Tree",
+   "prompt": "Mixamo: plant tree",
+   "loop": false,
+   "category": "work/farm",
+   "target": null,
+   "props": []
+  },
+  {
+   "id": "Life_Mx2_Box_Idle",
+   "clip": "Life_Mx2_Box_Idle",
+   "prompt": "Mixamo: box idle",
+   "loop": true,
+   "category": "carry/full",
+   "target": null,
+   "props": [
+    {
+     "id": "crate",
+     "hand": "both"
+    }
+   ]
+  },
+  {
+   "id": "Life_Mx2_Box_Walk_Arc",
+   "clip": "Life_Mx2_Box_Walk_Arc",
+   "prompt": "Mixamo: box walk arc",
+   "loop": true,
+   "category": "carry/full",
+   "target": null,
+   "props": [
+    {
+     "id": "crate",
+     "hand": "both"
+    }
+   ]
+  },
+  {
+   "id": "Life_Mx2_Holding_Idle",
+   "clip": "Life_Mx2_Holding_Idle",
+   "prompt": "Mixamo: holding idle",
+   "loop": true,
+   "category": "carry/full",
+   "target": null,
+   "props": []
+  },
+  {
+   "id": "Life_Mx2_Holding_Walk",
+   "clip": "Life_Mx2_Holding_Walk",
+   "prompt": "Mixamo: holding walk",
+   "loop": true,
+   "category": "carry/full",
+   "target": null,
+   "props": []
+  },
+  {
+   "id": "Life_Mx2_Wheelbarrow_Idle",
+   "clip": "Life_Mx2_Wheelbarrow_Idle",
+   "prompt": "Mixamo: wheelbarrow idle",
+   "loop": true,
+   "category": "carry/barrow",
+   "target": null,
+   "props": []
+  },
+  {
+   "id": "Life_Mx2_Wheelbarrow_Walk",
+   "clip": "Life_Mx2_Wheelbarrow_Walk",
+   "prompt": "Mixamo: wheelbarrow walk",
+   "loop": true,
+   "category": "carry/barrow",
+   "target": null,
+   "props": []
+  },
+  {
+   "id": "Life_Mx2_Wheelbarrow_Dump",
+   "clip": "Life_Mx2_Wheelbarrow_Dump",
+   "prompt": "Mixamo: wheelbarrow dump",
+   "loop": false,
+   "category": "carry/barrow",
+   "target": null,
+   "props": []
+  }
+ ]
+}

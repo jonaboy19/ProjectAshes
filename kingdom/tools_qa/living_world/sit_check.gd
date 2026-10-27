@@ -8,6 +8,9 @@ extends Node3D
 var look := "villager_man_a"
 var type := "bench"
 var shots := ""
+var bed_at := -1.0
+var bed_node: Node3D = null   # --type=bed: moved under the lying body when the loop starts
+var exit_clip := ""   # --exit=<clip>: exit clip override (e.g. a get-out-of-bed take)
 var loop_clip := ""   # --loop=<clip>: only this loop clip (the variant bag is seeded per person/day)
 
 
@@ -19,6 +22,8 @@ func _ready() -> void:
 			type = a.substr(7)
 		elif a.begins_with("--shots="):
 			shots = a.substr(8)
+		elif a.begins_with("--exit="):
+			exit_clip = a.substr(7)
 		elif a.begins_with("--loop="):
 			loop_clip = a.substr(7)
 	_run.call_deferred()
@@ -42,12 +47,22 @@ func _run() -> void:
 	fl.mesh = pm
 	add_child(fl)
 	var so := SmartObjects.new()
+	if exit_clip != "":
+		so.types[type]["activity"]["exit"] = exit_clip
 	if loop_clip != "":
 		so.types[type]["activity"]["loop"] = [loop_clip]
 	var spot := so.add(type, Transform3D(Basis.IDENTITY, Vector3.ZERO))
 	var prop_path := "res://assets/generated/props/bench.glb" if type == "bench" else "res://assets/generated/life_props/table.glb"
+	if type == "bed":
+		prop_path = "res://assets/incoming/build_kit/bed_simple_lod0.glb"
 	if ResourceLoader.exists(prop_path):
-		add_child((load(prop_path) as PackedScene).instantiate())
+		var pr := (load(prop_path) as PackedScene).instantiate()
+		add_child(pr)
+		bed_node = pr as Node3D
+		var bb := AABB()
+		for mi: MeshInstance3D in pr.find_children("*", "MeshInstance3D", true, false):
+			bb = bb.merge(mi.global_transform * mi.get_aabb()) if bb.size != Vector3.ZERO else mi.global_transform * mi.get_aabb()
+		print("SITPROP %s aabb pos=%s size=%s" % [prop_path.get_file(), bb.position, bb.size])
 	var m := Assets.mh_character(look, 1.7)
 	add_child(m)
 	var ap := Assets.animation_player(m)
@@ -99,6 +114,8 @@ func _run() -> void:
 		if c != "" and c != clip:
 			ap.play(c, float(LifeLibrary.info(c).get("blend_in", 0.25)))
 			print("SITCLIP t=%.1f phase=%d %s" % [t, int(out["phase"]), c])
+			if bed_node != null and int(out["phase"]) == 3:
+				bed_at = t + 0.6
 			clip = c
 		elif c == "" and clip != "":
 			ap.play("Idle", 0.25)
@@ -108,6 +125,17 @@ func _run() -> void:
 		elif c == "" and out["move_to"] == null and ap.current_animation == "Walk":
 			ap.play("Idle", 0.2)
 		ap.advance(dt)
+		if bed_at > 0.0 and t >= bed_at:
+			bed_at = -1.0
+			var hp := m.global_transform * sk.get_bone_global_pose(sk.find_bone("Head")).origin
+			var fp := m.global_transform * ((sk.get_bone_global_pose(sk.find_bone("foot_l")).origin + sk.get_bone_global_pose(sk.find_bone("foot_r")).origin) * 0.5)
+			var ax := Vector3(hp.x - fp.x, 0, hp.z - fp.z).normalized()
+			bed_node.global_position = Vector3((hp.x + fp.x) * 0.5, 0, (hp.z + fp.z) * 0.5) - ax * 0.05
+			bed_node.rotation.y = atan2(ax.z, -ax.x)   # bed model: long axis X, headboard at -X
+			var side := Vector3(-ax.z, 0, ax.x)
+			cam.global_position = bed_node.global_position + side * 3.4 + Vector3(0, 1.5, 0) - ax * 0.4
+			cam.look_at(bed_node.global_position + Vector3(0, 0.5, 0))
+			print("SITBED centre=%s head_dir=%s (slot frame: stand at origin facing +Z)" % [bed_node.global_position, ax])
 		if clip != "" and not ap.is_playing():
 			done_clip = true
 		elif clip != "" and ap.current_animation_position + dt >= ap.current_animation_length - 1e-3:

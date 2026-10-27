@@ -1,0 +1,306 @@
+[
+ {
+  "name": "Life_Mx2_Box_Idle",
+  "loop": true,
+  "seconds": 5.93,
+  "frames": 179,
+  "keys": 585,
+  "source": "box idle.fbx",
+  "range_s": [
+   0.0,
+   5.933333333333334
+  ],
+  "autotrim": null,
+  "loop_pts": null,
+  "floor_fix_m": 0.029,
+  "contact_lift_m": 0.0,
+  "min_foot_m": -0.0,
+  "travel_m": 0.0,
+  "hip_scale": 0.8509
+ },
+ {
+  "name": "Life_Mx2_Box_Walk_Arc",
+  "loop": true,
+  "seconds": 1.17,
+  "frames": 36,
+  "keys": 514,
+  "source": "box walk arc.fbx",
+  "range_s": [
+   0.0,
+   1.1666666666666667
+  ],
+  "autotrim": null,
+  "loop_pts": null,
+  "floor_fix_m": 0.037,
+  "contact_lift_m": 0.0,
+  "min_foot_m": -0.001,
+  "travel_m": 1.17,
+  "hip_scale": 0.8509
+ },
+ {
+  "name": "Life_Mx2_Milk_Cow",
+  "loop": true,
+  "seconds": 4.47,
+  "frames": 135,
+  "keys": 1792,
+  "source": "cow milking.fbx",
+  "range_s": [
+   0.0,
+   4.466666666666667
+  ],
+  "autotrim": null,
+  "loop_pts": null,
+  "floor_fix_m": 0.047,
+  "contact_lift_m": 0.0,
+  "min_foot_m": -0.0,
+  "travel_m": 0.0,
+  "hip_scale": 0.8509
+ },
+ {
+  "name": "Life_Mx2_Dig_Plant",
+  "loop": true,
+  "seconds": 5.4,
+  "frames": 163,
+  "keys": 2275,
+  "source": "dig and plant seeds.fbx",
+  "range_s": [
+   0.0,
+   5.4
+  ],
+  "autotrim": null,
+  "loop_pts": null,
+  "floor_fix_m": -0.01,
+  "contact_lift_m": 0.0,
+  "min_foot_m": -0.0,
+  "travel_m": 0.0,
+  "hip_scale": 0.8509
+ },
+ {
+  "name": "Life_Mx2_Holding_Idle",
+  "loop": true,
+  "seconds": 5.7,
+  "frames": 172,
+  "keys": 649,
+  "source": "holding idle.fbx",
+  "range_s": [
+   0.0,
+   5.7
+  ],
+  "autotrim": null,
+  "loop_pts": null,
+  "floor_fix_m": 0.049,
+  "contact_lift_m": 0.0,
+  "min_foot_m": -0.0,
+  "travel_m": 0.0,
+  "hip_scale": 0.8509
+ },
+ {
+  "name": "Life_Mx2_Holding_Walk",
+  "loop": true,
+  "seconds": 1.33,
+  "frames": 41,
+  "keys": 636,
+  "source": "holding walk.fbx",
+  "range_s": [
+   0.0,
+   1.3333333333333333
+  ],
+  "autotrim": null,
+  "loop_pts": null,
+  "floor_fix_m": 0.052,
+  "contact_lift_m": 0.0,
+  "min_foot_m": 0.0,
+  "travel_m": 1.41,
+  "hip_scale": 0.8509
+ },
+ {
+  "name": "Life_Mx2_Kneel_Idle",
+  "loop": true,
+  "seconds": 4.23,
+  "frames": 128,
+  "keys": 462,
+  "source": "kneeling idle.fbx",
+  "range_s": [
+   0.0,
+   4.233333333333333
+  ],
+  "autotrim": null,
+  "loop_pts": null,
+  "floor_fix_m": -0.095,
+  "contact_lift_m": 0.04,
+  "min_foot_m": 0.039,
+  "travel_m": 0.0,
+  "hip_scale": 0.8509
+ },
+ {
+  "name": "Life_Mx2_Pick_Fruit_B",
+  "loop": true,
+  "seconds": 6.17,
+  "frames": 186,
+  "keys": 2217,
+  "source": "pick fruit (2).fbx",
+  "range_s": [
+   0.0,
+   6.166666666666667
+  ],
+  "autotrim": null,
+  "loop_pts": null,
+  "floor_fix_m": 0.054,
+  "contact_lift_m": 0.0,
+  "min_foot_m": -0.0,
+  "travel_m": 0.0,
+  "hip_scale": 0.8509
+ },
+ {
+  "name": "Life_Mx2_Pick_Fruit_C",
+  "loop": true,
+  "seconds": 7.07,
+  "frames": 213,
+  "keys": 2735,
+  "source": "pick fruit (3).fbx",
+  "range_s": [
+   0.0,
+   7.066666666666666
+  ],
+  "autotrim": null,
+  "loop_pts": null,
+  "floor_fix_m": 0.075,
+  "contact_lift_m": 0.0,
+  "min_foot_m": -0.001,
+  "travel_m": 0.0,
+  "hip_scale": 0.8509
+ },
+ {
+  "name": "Life_Mx2_Plant_Plant",
+  "loop": true,
+  "seconds": 7.43,
+  "frames": 224,
+  "keys": 2972,
+  "source": "plant a plant.fbx",
+  "range_s": [
+   0.0,
+   7.433333333333334
+  ],
+  "autotrim": null,
+  "loop_pts": null,
+  "floor_fix_m": 0.004,
+  "contact_lift_m": 0.0,
+  "min_foot_m": -0.008,
+  "travel_m": 0.0,
+  "hip_scale": 0.8509
+ },
+ {
+  "name": "Life_Mx2_Plant_Tree",
+  "loop": false,
+  "seconds": 9.13,
+  "frames": 275,
+  "keys": 2701,
+  "source": "plant tree.fbx",
+  "range_s": [
+   null,
+   null
+  ],
+  "autotrim": null,
+  "loop_pts": null,
+  "floor_fix_m": 0.101,
+  "contact_lift_m": 0.0,
+  "min_foot_m": -0.001,
+  "travel_m": 0.0,
+  "hip_scale": 0.8509
+ },
+ {
+  "name": "Life_Mx2_Pull_Plant_B",
+  "loop": true,
+  "seconds": 4.7,
+  "frames": 142,
+  "keys": 2008,
+  "source": "pull plant (2).fbx",
+  "range_s": [
+   0.0,
+   4.7
+  ],
+  "autotrim": null,
+  "loop_pts": null,
+  "floor_fix_m": -0.035,
+  "contact_lift_m": 0.0,
+  "min_foot_m": -0.0,
+  "travel_m": 0.0,
+  "hip_scale": 0.8509
+ },
+ {
+  "name": "Life_Mx2_Water",
+  "loop": true,
+  "seconds": 5.57,
+  "frames": 168,
+  "keys": 1183,
+  "source": "watering.fbx",
+  "range_s": [
+   0.0,
+   5.566666666666666
+  ],
+  "autotrim": null,
+  "loop_pts": null,
+  "floor_fix_m": 0.067,
+  "contact_lift_m": 0.0,
+  "min_foot_m": -0.001,
+  "travel_m": 0.0,
+  "hip_scale": 0.8509
+ },
+ {
+  "name": "Life_Mx2_Wheelbarrow_Dump",
+  "loop": false,
+  "seconds": 6.23,
+  "frames": 188,
+  "keys": 2093,
+  "source": "wheelbarrow dump.fbx",
+  "range_s": [
+   null,
+   null
+  ],
+  "autotrim": null,
+  "loop_pts": null,
+  "floor_fix_m": 0.089,
+  "contact_lift_m": 0.0,
+  "min_foot_m": -0.002,
+  "travel_m": 0.0,
+  "hip_scale": 0.8509
+ },
+ {
+  "name": "Life_Mx2_Wheelbarrow_Idle",
+  "loop": true,
+  "seconds": 1.4,
+  "frames": 43,
+  "keys": 152,
+  "source": "wheelbarrow idle.fbx",
+  "range_s": [
+   0.0,
+   1.4
+  ],
+  "autotrim": null,
+  "loop_pts": null,
+  "floor_fix_m": 0.037,
+  "contact_lift_m": 0.0,
+  "min_foot_m": -0.0,
+  "travel_m": 0.0,
+  "hip_scale": 0.8509
+ },
+ {
+  "name": "Life_Mx2_Wheelbarrow_Walk",
+  "loop": true,
+  "seconds": 0.93,
+  "frames": 29,
+  "keys": 463,
+  "source": "wheelbarrow walk.fbx",
+  "range_s": [
+   0.0,
+   0.9333333333333333
+  ],
+  "autotrim": null,
+  "loop_pts": null,
+  "floor_fix_m": 0.08,
+  "contact_lift_m": 0.0,
+  "min_foot_m": 0.001,
+  "travel_m": 1.34,
+  "hip_scale": 0.8509
+ }
+]

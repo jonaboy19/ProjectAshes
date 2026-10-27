@@ -1,0 +1,726 @@
+{
+ "map": {
+  "pelvis": "Hips",
+  "spine_01": "Spine",
+  "spine_02": "Spine1",
+  "spine_03": "Spine2",
+  "neck_01": "Neck",
+  "Head": "Head",
+  "clavicle_l": "LeftShoulder",
+  "upperarm_l": "LeftArm",
+  "lowerarm_l": "LeftForeArm",
+  "hand_l": "LeftHand",
+  "thigh_l": "LeftUpLeg",
+  "calf_l": "LeftLeg",
+  "foot_l": "LeftFoot",
+  "ball_l": "LeftToeBase",
+  "thumb_01_l": "LeftHandThumb1",
+  "thumb_02_l": "LeftHandThumb2",
+  "thumb_03_l": "LeftHandThumb3",
+  "index_01_l": "LeftHandIndex1",
+  "index_02_l": "LeftHandIndex2",
+  "index_03_l": "LeftHandIndex3",
+  "middle_01_l": "LeftHandMiddle1",
+  "middle_02_l": "LeftHandMiddle2",
+  "middle_03_l": "LeftHandMiddle3",
+  "ring_01_l": "LeftHandRing1",
+  "ring_02_l": "LeftHandRing2",
+  "ring_03_l": "LeftHandRing3",
+  "pinky_01_l": "LeftHandPinky1",
+  "pinky_02_l": "LeftHandPinky2",
+  "pinky_03_l": "LeftHandPinky3",
+  "clavicle_r": "RightShoulder",
+  "upperarm_r": "RightArm",
+  "lowerarm_r": "RightForeArm",
+  "hand_r": "RightHand",
+  "thigh_r": "RightUpLeg",
+  "calf_r": "RightLeg",
+  "foot_r": "RightFoot",
+  "ball_r": "RightToeBase",
+  "thumb_01_r": "RightHandThumb1",
+  "thumb_02_r": "RightHandThumb2",
+  "thumb_03_r": "RightHandThumb3",
+  "index_01_r": "RightHandIndex1",
+  "index_02_r": "RightHandIndex2",
+  "index_03_r": "RightHandIndex3",
+  "middle_01_r": "RightHandMiddle1",
+  "middle_02_r": "RightHandMiddle2",
+  "middle_03_r": "RightHandMiddle3",
+  "ring_01_r": "RightHandRing1",
+  "ring_02_r": "RightHandRing2",
+  "ring_03_r": "RightHandRing3",
+  "pinky_01_r": "RightHandPinky1",
+  "pinky_02_r": "RightHandPinky2",
+  "pinky_03_r": "RightHandPinky3"
+ },
+ "clips": {
+  "Life_Mx2_Box_Idle_Loop": {
+   "before": [
+    0.022,
+    0.216
+   ],
+   "lowest_joints": [
+    [
+     "ball_r",
+     0.017
+    ],
+    [
+     "foot_r",
+     0.017
+    ],
+    [
+     "foot_l",
+     0.019
+    ],
+    [
+     "ball_l",
+     0.019
+    ]
+   ],
+   "after": [
+    0.008,
+    0.199
+   ],
+   "stance_frames": 356,
+   "locked_frames": 358,
+   "hand_seam_cm": 0.8,
+   "frames": 179,
+   "source": "box idle.fbx",
+   "seconds": 5.93,
+   "floor_fix_m": 0.029,
+   "contact_lift_m": 0.0,
+   "min_foot_m": -0.0,
+   "travel_m": 0.0,
+   "hip_scale": 0.8509,
+   "loop": true
+  },
+  "Life_Mx2_Box_Walk_Arc_Loop": {
+   "before": [
+    0.438,
+    3.987
+   ],
+   "lowest_joints": [
+    [
+     "foot_l",
+     0.014
+    ],
+    [
+     "ball_l",
+     0.014
+    ],
+    [
+     "ball_r",
+     0.018
+    ],
+    [
+     "foot_r",
+     0.023
+    ]
+   ],
+   "after": [
+    0.438,
+    3.987
+   ],
+   "stance_frames": 36,
+   "locked_frames": 0,
+   "hand_seam_cm": 24.9,
+   "frames": 36,
+   "source": "box walk arc.fbx",
+   "seconds": 1.17,
+   "floor_fix_m": 0.037,
+   "contact_lift_m": 0.0,
+   "min_foot_m": -0.001,
+   "travel_m": 1.17,
+   "hip_scale": 0.8509,
+   "loop": true
+  },
+  "Life_Mx2_Milk_Cow_Loop": {
+   "before": [
+    0.006,
+    0.047
+   ],
+   "lowest_joints": [
+    [
+     "foot_r",
+     0.015
+    ],
+    [
+     "ball_r",
+     0.015
+    ],
+    [
+     "foot_l",
+     0.016
+    ],
+    [
+     "ball_l",
+     0.016
+    ]
+   ],
+   "after": [
+    0.003,
+    0.016
+   ],
+   "stance_frames": 268,
+   "locked_frames": 270,
+   "hand_seam_cm": 0.7,
+   "frames": 135,
+   "source": "cow milking.fbx",
+   "seconds": 4.47,
+   "floor_fix_m": 0.047,
+   "contact_lift_m": 0.0,
+   "min_foot_m": -0.0,
+   "travel_m": 0.0,
+   "hip_scale": 0.8509,
+   "loop": true
+  },
+  "Life_Mx2_Dig_Plant_Loop": {
+   "knee_lift_max": 0.084,
+   "before": [
+    0.022,
+    0.164
+   ],
+   "hand_ik_l": [
+    162,
+    0.148
+   ],
+   "hand_ik_r": [
+    162,
+    0.162
+   ],
+   "lowest_joints": [
+    [
+     "ball_r",
+     0.042
+    ],
+    [
+     "ball_l",
+     0.047
+    ],
+    [
+     "thigh_r",
+     0.06
+    ],
+    [
+     "calf_r",
+     0.06
+    ]
+   ],
+   "after": [
+    0.003,
+    0.034
+   ],
+   "stance_frames": 317,
+   "locked_frames": 326,
+   "hand_seam_cm": 3.8,
+   "frames": 163,
+   "source": "dig and plant seeds.fbx",
+   "seconds": 5.4,
+   "floor_fix_m": -0.01,
+   "contact_lift_m": 0.0,
+   "min_foot_m": -0.0,
+   "travel_m": 0.0,
+   "hip_scale": 0.8509,
+   "loop": true
+  },
+  "Life_Mx2_Holding_Idle_Loop": {
+   "before": [
+    0.014,
+    0.121
+   ],
+   "lowest_joints": [
+    [
+     "ball_r",
+     0.015
+    ],
+    [
+     "foot_r",
+     0.015
+    ],
+    [
+     "ball_l",
+     0.018
+    ],
+    [
+     "foot_l",
+     0.018
+    ]
+   ],
+   "after": [
+    0.003,
+    0.019
+   ],
+   "stance_frames": 342,
+   "locked_frames": 344,
+   "hand_seam_cm": 0.4,
+   "frames": 172,
+   "source": "holding idle.fbx",
+   "seconds": 5.7,
+   "floor_fix_m": 0.049,
+   "contact_lift_m": 0.0,
+   "min_foot_m": -0.0,
+   "travel_m": 0.0,
+   "hip_scale": 0.8509,
+   "loop": true
+  },
+  "Life_Mx2_Holding_Walk_Loop": {
+   "before": [
+    0.562,
+    4.177
+   ],
+   "lowest_joints": [
+    [
+     "ball_r",
+     -0.003
+    ],
+    [
+     "ball_l",
+     0.009
+    ],
+    [
+     "foot_l",
+     0.016
+    ],
+    [
+     "foot_r",
+     0.017
+    ]
+   ],
+   "after": [
+    0.562,
+    4.177
+   ],
+   "stance_frames": 47,
+   "locked_frames": 0,
+   "hand_seam_cm": 1.4,
+   "frames": 41,
+   "source": "holding walk.fbx",
+   "seconds": 1.33,
+   "floor_fix_m": 0.052,
+   "contact_lift_m": 0.0,
+   "min_foot_m": 0.0,
+   "travel_m": 1.41,
+   "hip_scale": 0.8509,
+   "loop": true
+  },
+  "Life_Mx2_Kneel_Idle_Loop": {
+   "knee_lift_max": 0.04,
+   "before": [
+    0.0,
+    0.0
+   ],
+   "lowest_joints": [
+    [
+     "ball_r",
+     0.037
+    ],
+    [
+     "ball_l",
+     0.047
+    ],
+    [
+     "thigh_r",
+     0.06
+    ],
+    [
+     "calf_r",
+     0.06
+    ]
+   ],
+   "after": [
+    0.0,
+    0.0
+   ],
+   "stance_frames": 254,
+   "locked_frames": 256,
+   "hand_seam_cm": 0.0,
+   "frames": 128,
+   "source": "kneeling idle.fbx",
+   "seconds": 4.23,
+   "floor_fix_m": -0.095,
+   "contact_lift_m": 0.04,
+   "min_foot_m": 0.039,
+   "travel_m": 0.0,
+   "hip_scale": 0.8509,
+   "loop": true
+  },
+  "Life_Mx2_Pick_Fruit_B_Loop": {
+   "before": [
+    0.033,
+    0.148
+   ],
+   "lowest_joints": [
+    [
+     "foot_l",
+     0.02
+    ],
+    [
+     "ball_l",
+     0.02
+    ],
+    [
+     "foot_r",
+     0.023
+    ],
+    [
+     "ball_r",
+     0.023
+    ]
+   ],
+   "after": [
+    0.007,
+    0.029
+   ],
+   "stance_frames": 370,
+   "locked_frames": 372,
+   "hand_seam_cm": 0.5,
+   "frames": 186,
+   "source": "pick fruit (2).fbx",
+   "seconds": 6.17,
+   "floor_fix_m": 0.054,
+   "contact_lift_m": 0.0,
+   "min_foot_m": -0.0,
+   "travel_m": 0.0,
+   "hip_scale": 0.8509,
+   "loop": true
+  },
+  "Life_Mx2_Pick_Fruit_C_Loop": {
+   "before": [
+    0.11,
+    2.444
+   ],
+   "lowest_joints": [
+    [
+     "pinky_02_r",
+     0.011
+    ],
+    [
+     "pinky_01_r",
+     0.011
+    ],
+    [
+     "ring_02_r",
+     0.025
+    ],
+    [
+     "ring_01_r",
+     0.025
+    ]
+   ],
+   "after": [
+    0.055,
+    1.79
+   ],
+   "stance_frames": 112,
+   "locked_frames": 282,
+   "hand_seam_cm": 0.2,
+   "frames": 213,
+   "source": "pick fruit (3).fbx",
+   "seconds": 7.07,
+   "floor_fix_m": 0.075,
+   "contact_lift_m": 0.0,
+   "min_foot_m": -0.001,
+   "travel_m": 0.0,
+   "hip_scale": 0.8509,
+   "loop": true
+  },
+  "Life_Mx2_Plant_Plant_Loop": {
+   "knee_lift_max": 0.088,
+   "before": [
+    0.037,
+    0.159
+   ],
+   "hand_ik_l": [
+    193,
+    0.177
+   ],
+   "hand_ik_r": [
+    210,
+    0.293
+   ],
+   "lowest_joints": [
+    [
+     "ball_l",
+     0.04
+    ],
+    [
+     "ball_r",
+     0.052
+    ],
+    [
+     "thigh_l",
+     0.06
+    ],
+    [
+     "calf_l",
+     0.06
+    ]
+   ],
+   "after": [
+    0.037,
+    0.159
+   ],
+   "stance_frames": 442,
+   "locked_frames": 0,
+   "hand_seam_cm": 0.7,
+   "frames": 224,
+   "source": "plant a plant.fbx",
+   "seconds": 7.43,
+   "floor_fix_m": 0.004,
+   "contact_lift_m": 0.0,
+   "min_foot_m": -0.008,
+   "travel_m": 0.0,
+   "hip_scale": 0.8509,
+   "loop": true
+  },
+  "Life_Mx2_Plant_Tree": {
+   "before": [
+    0.043,
+    0.187
+   ],
+   "lowest_joints": [
+    [
+     "foot_l",
+     0.015
+    ],
+    [
+     "ball_l",
+     0.015
+    ],
+    [
+     "foot_r",
+     0.05
+    ],
+    [
+     "ball_r",
+     0.05
+    ]
+   ],
+   "after": [
+    0.048,
+    0.187
+   ],
+   "stance_frames": 82,
+   "locked_frames": 125,
+   "hand_seam_cm": 1.4,
+   "frames": 275,
+   "source": "plant tree.fbx",
+   "seconds": 9.13,
+   "floor_fix_m": 0.101,
+   "contact_lift_m": 0.0,
+   "min_foot_m": -0.001,
+   "travel_m": 0.0,
+   "hip_scale": 0.8509,
+   "loop": false
+  },
+  "Life_Mx2_Pull_Plant_B_Loop": {
+   "knee_lift_max": 0.078,
+   "before": [
+    0.027,
+    0.092
+   ],
+   "hand_ik_l": [
+    94,
+    0.115
+   ],
+   "hand_ik_r": [
+    97,
+    0.149
+   ],
+   "lowest_joints": [
+    [
+     "ball_r",
+     0.037
+    ],
+    [
+     "ball_l",
+     0.045
+    ],
+    [
+     "calf_r",
+     0.052
+    ],
+    [
+     "thigh_r",
+     0.052
+    ]
+   ],
+   "after": [
+    0.005,
+    0.029
+   ],
+   "stance_frames": 282,
+   "locked_frames": 284,
+   "hand_seam_cm": 4.5,
+   "frames": 142,
+   "source": "pull plant (2).fbx",
+   "seconds": 4.7,
+   "floor_fix_m": -0.035,
+   "contact_lift_m": 0.0,
+   "min_foot_m": -0.0,
+   "travel_m": 0.0,
+   "hip_scale": 0.8509,
+   "loop": true
+  },
+  "Life_Mx2_Water_Loop": {
+   "before": [
+    0.031,
+    0.139
+   ],
+   "lowest_joints": [
+    [
+     "foot_l",
+     0.029
+    ],
+    [
+     "ball_l",
+     0.029
+    ],
+    [
+     "foot_r",
+     0.03
+    ],
+    [
+     "ball_r",
+     0.03
+    ]
+   ],
+   "after": [
+    0.009,
+    0.041
+   ],
+   "stance_frames": 334,
+   "locked_frames": 336,
+   "hand_seam_cm": 0.5,
+   "frames": 168,
+   "source": "watering.fbx",
+   "seconds": 5.57,
+   "floor_fix_m": 0.067,
+   "contact_lift_m": 0.0,
+   "min_foot_m": -0.001,
+   "travel_m": 0.0,
+   "hip_scale": 0.8509,
+   "loop": true
+  },
+  "Life_Mx2_Wheelbarrow_Dump": {
+   "before": [
+    0.019,
+    0.088
+   ],
+   "lowest_joints": [
+    [
+     "foot_r",
+     0.022
+    ],
+    [
+     "ball_r",
+     0.022
+    ],
+    [
+     "foot_l",
+     0.048
+    ],
+    [
+     "ball_l",
+     0.048
+    ]
+   ],
+   "after": [
+    0.026,
+    0.081
+   ],
+   "stance_frames": 62,
+   "locked_frames": 195,
+   "hand_seam_cm": 0.6,
+   "frames": 188,
+   "source": "wheelbarrow dump.fbx",
+   "seconds": 6.23,
+   "floor_fix_m": 0.089,
+   "contact_lift_m": 0.0,
+   "min_foot_m": -0.002,
+   "travel_m": 0.0,
+   "hip_scale": 0.8509,
+   "loop": false
+  },
+  "Life_Mx2_Wheelbarrow_Idle_Loop": {
+   "before": [
+    0.009,
+    0.027
+   ],
+   "lowest_joints": [
+    [
+     "foot_l",
+     0.015
+    ],
+    [
+     "ball_l",
+     0.015
+    ],
+    [
+     "ball_r",
+     0.016
+    ],
+    [
+     "foot_r",
+     0.019
+    ]
+   ],
+   "after": [
+    0.002,
+    0.004
+   ],
+   "stance_frames": 84,
+   "locked_frames": 86,
+   "hand_seam_cm": 0.3,
+   "frames": 43,
+   "source": "wheelbarrow idle.fbx",
+   "seconds": 1.4,
+   "floor_fix_m": 0.037,
+   "contact_lift_m": 0.0,
+   "min_foot_m": -0.0,
+   "travel_m": 0.0,
+   "hip_scale": 0.8509,
+   "loop": true
+  },
+  "Life_Mx2_Wheelbarrow_Walk_Loop": {
+   "before": [
+    0.533,
+    5.363
+   ],
+   "lowest_joints": [
+    [
+     "ball_r",
+     0.008
+    ],
+    [
+     "foot_r",
+     0.016
+    ],
+    [
+     "foot_l",
+     0.017
+    ],
+    [
+     "ball_l",
+     0.017
+    ]
+   ],
+   "after": [
+    0.533,
+    5.363
+   ],
+   "stance_frames": 32,
+   "locked_frames": 0,
+   "hand_seam_cm": 0.7,
+   "frames": 29,
+   "source": "wheelbarrow walk.fbx",
+   "seconds": 0.93,
+   "floor_fix_m": 0.08,
+   "contact_lift_m": 0.0,
+   "min_foot_m": 0.001,
+   "travel_m": 1.34,
+   "hip_scale": 0.8509,
+   "loop": true
+  }
+ }
+}

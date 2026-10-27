@@ -96,6 +96,7 @@ HAND_MARGIN = 0.035      # hand joint centre above the floor (palm thickness)
 TIP_MARGIN = 0.012       # finger joints above the floor
 KNEE_MARGIN = 0.06       # knee joint centre above the floor (knee_lift clips: kneeling)
 ELBOW_MARGIN = 0.05      # elbow joint above the floor when the arm IK swings the bend plane
+TOE_MARGIN = 0.03        # ball joint / toe tip above the floor (toe_floor clips)
 ANKLE_MARGIN = 0.06      # ankle joint above the floor when the shin rests on it
 RETARGET = os.path.join(REPO, "kingdom", "tools", "anim", "retarget_bvh.py")
 UAL = os.path.join(REPO, "kingdom", "assets", "incoming", "quaternius", "universal-animation-library",
@@ -323,6 +324,8 @@ def post(g, cfg, foot_lock):
         # bake every frame of the bones the passes edit, so a per-frame edit never bleeds into the interpolation of the next
         # frame (sparse Douglas-Peucker keys + sequential edits used to accumulate: the old lift_m bug)
         BAKE = ["pelvis"] + [b + "_" + s for s in ("l", "r") for b in ("thigh", "calf", "foot", "upperarm", "lowerarm", "hand")]
+        if c.get("toe_floor"):
+            BAKE += ["ball_l", "ball_r"]
         snap = []
         for f in range(n):
             scene.frame_set(f)
@@ -349,6 +352,26 @@ def post(g, cfg, foot_lock):
                 pb["pelvis"].keyframe_insert("location", frame=f)
             rec["inplace_z_removed_m"] = round(rise, 3)
         # --- constant vertical offset (lift_m > 0 raises, < 0 lowers): knees / buttocks resting on the floor, lying poses
+        # --- yaw_deg (+ yaw_shift [x, y] m): rotate / move the whole take about the vertical axis in the root bone's frame
+        # (what the exported clip and the game, root track off, see): put a pair of clips (sleep loop + get-out-of-bed exit)
+        # in one frame where the exit ends standing over the root facing forward
+        if c.get("yaw_deg"):
+            Rz = (Matrix.Translation(Vector((*[float(x) for x in c.get("yaw_shift", [0.0, 0.0])], 0.0)))
+                  @ Matrix.Rotation(math.radians(float(c["yaw_deg"])), 4, "Z"))
+            mats = []
+            for f in range(n):
+                scene.frame_set(f)
+                Rt = (mw @ pb["root"].matrix) if "root" in pb else mw.copy()
+                Rf = Matrix.Translation(Rt.translation) @ Matrix.Rotation(Rt.to_euler().z, 4, "Z")
+                mats.append((Rf, mw @ pb["pelvis"].matrix))
+            for f in range(n):
+                scene.frame_set(f)
+                Rf, Mp = mats[f]
+                pb["pelvis"].matrix = mw.inverted() @ (Rf @ Rz @ Rf.inverted() @ Mp)
+                pb["pelvis"].keyframe_insert("location", frame=f)
+                pb["pelvis"].keyframe_insert("rotation_quaternion", frame=f)
+            rec["yaw_deg"] = c["yaw_deg"]
+            rec["yaw_shift"] = c.get("yaw_shift")
         if c.get("shift_m"):
             # constant horizontal pelvis shift (Blender world x, y): end-align transitions onto the loop they lead into
             sx_, sy_ = c["shift_m"]
@@ -377,6 +400,31 @@ def post(g, cfg, foot_lock):
                 pb["pelvis"].matrix = m
                 pb["pelvis"].keyframe_insert("location", frame=f)
             rec["lift_m"] = c["lift_m"]
+        # --- lift_ramp [[frame, dz], ...]: piecewise pelvis height offset (smoothstep between keys), e.g. a get-out-of-bed
+        # take recorded on a higher bed: lower the lying part onto our bed height and ease back to 0 once the feet are down
+        if c.get("lift_ramp"):
+            kk = sorted((int(a), float(b)) for a, b in c["lift_ramp"])
+            def ramp(f):
+                if f <= kk[0][0]:
+                    return kk[0][1]
+                for (f0, d0), (f1, d1) in zip(kk, kk[1:]):
+                    if f <= f1:
+                        w = (f - f0) / max(1, f1 - f0)
+                        w = w * w * (3 - 2 * w)
+                        return d0 + (d1 - d0) * w
+                return kk[-1][1]
+            dz = (mw.inverted().to_3x3() @ Vector((0, 0, 1))) / mw.to_scale().z
+            mats = []
+            for f in range(n):
+                scene.frame_set(f)
+                mats.append(pb["pelvis"].matrix.copy())
+            for f in range(n):
+                scene.frame_set(f)
+                m = mats[f].copy()
+                m.translation = m.translation + dz * ramp(f)
+                pb["pelvis"].matrix = m
+                pb["pelvis"].keyframe_insert("location", frame=f)
+            rec["lift_ramp"] = c["lift_ramp"]
         # --- knee/shin floor contact: per-frame pelvis raise so the knee joints stay KNEE_MARGIN above the floor
         if c.get("knee_lift"):
             dz = (mw.inverted().to_3x3() @ Vector((0, 0, 1))) / mw.to_scale().z
@@ -519,9 +567,71 @@ def post(g, cfg, foot_lock):
                             fixed += 1
                     key_bones((up, lo, en), f)
                 rec["hand_ik_" + s] = [fixed, round(max(need), 3)]
+        # --- toe_floor: kneel / crouch takes whose foot points into the ground (Meshy SMPL-H has no usable toe bone, so
+        # ball_* stays at rest): pitch the foot about the ankle until the ball joint is TOE_MARGIN above the floor, then
+        # the toe about the ball joint until its tip is - the toes tuck instead of stabbing through the floor
+        if c.get("toe_floor"):
+            # two passes: per frame the pitch each bone needs (radians, about its own horizontal axis), then a max filter +
+            # moving average so the correction eases in and out (a raw per-frame clamp popped the toes on/off)
+            def lat_axis(bn):
+                return ((mw @ pb[bn].matrix).to_3x3() @ Vector((1, 0, 0))).normalized()     # the bone's own side axis: stable
+            def need_pitch(bn, H, Tp):
+                # signed angle about the bone's side axis that lifts the tip to TOE_MARGIN (smallest |angle|), 0 when clear
+                if Tp.z >= TOE_MARGIN:
+                    return 0.0
+                k = lat_axis(bn)
+                v = Tp - H
+                for step in range(1, 121):
+                    for sg in (1.0, -1.0):
+                        a = sg * step * 0.01
+                        if H.z + (Matrix.Rotation(a, 3, k) @ v).z >= TOE_MARGIN:
+                            return a
+                return 0.0
+            def apply_pitch(bn, H, ang):
+                if abs(ang) <= 1e-5:
+                    return
+                R = Matrix.Rotation(ang, 4, lat_axis(bn))
+                pb[bn].matrix = mw.inverted() @ (Matrix.Translation(H) @ R @ Matrix.Translation(-H) @ (mw @ pb[bn].matrix))
+                upd()
+            def ease(raw):
+                # keep the sign, ease the size in and out (max filter + moving average on |angle|)
+                sgn = [1.0 if a >= 0 else -1.0 for a in raw]
+                mag = [abs(a) for a in raw]
+                rr = 5
+                mx = [max(mag[max(0, t - rr): t + rr + 1]) for t in range(n)]
+                sm = [max(mag[t], sum(mx[max(0, t - 4): t + 5]) / len(mx[max(0, t - 4): t + 5])) for t in range(n)]
+                last = 1.0
+                for t in range(n):                       # each frame keeps its own direction (carried through clear frames)
+                    if raw[t] != 0.0:
+                        last = sgn[t]
+                    sgn[t] = last
+                return [g * m for g, m in zip(sgn, sm)]
+            fixed = 0
+            for s in ("l", "r"):
+                fo, ba = "foot_" + s, "ball_" + s
+                raw = []
+                for f in range(n):
+                    scene.frame_set(f)
+                    raw.append(need_pitch(fo, mw @ pb[fo].head, mw @ pb[ba].head))
+                af = ease(raw)
+                for f in range(n):
+                    scene.frame_set(f)
+                    apply_pitch(fo, mw @ pb[fo].head, af[f])
+                    key_bones((fo,), f)
+                raw = []
+                for f in range(n):
+                    scene.frame_set(f)
+                    raw.append(need_pitch(ba, mw @ pb[ba].head, mw @ pb[ba].tail))
+                ab = ease(raw)
+                for f in range(n):
+                    scene.frame_set(f)
+                    apply_pitch(ba, mw @ pb[ba].head, ab[f])
+                    key_bones((ba,), f)
+                fixed += sum(1 for a, b in zip(af, ab) if a != 0 or b != 0)
+            rec["toe_floor_frames"] = fixed
         # loops: the passes above edit legs/arms per frame, which can open the loop seam again; blend the last
         # SEAM frames of every edited bone back onto frame 0 (smoothstep) so last == first
-        if c.get("loop") and (locked or c.get("knee_lift") or c.get("lift_m")):
+        if c.get("loop") and (locked or c.get("knee_lift") or c.get("lift_m") or c.get("toe_floor")):
             K = min(int(c.get("seam_blend", 8)), n // 3)
             first = {}
             scene.frame_set(0)

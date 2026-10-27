@@ -1,0 +1,124 @@
+{
+ "Life_Mx2_Box_Idle": {
+  "auto": "banned",
+  "why": [
+   "player_young: banned: slide max 0.19 m/s",
+   "villager_man_a: banned: slide max 0.17 m/s",
+   "villager_woman_a: banned: slide max 0.15 m/s"
+  ]
+ },
+ "Life_Mx2_Box_Walk_Arc": {
+  "auto": "banned",
+  "why": [
+   "player_young: banned: slide mean 0.53 m/s",
+   "player_young: banned: slide max 4.28 m/s",
+   "player_young: banned: loop seam 27.5 deg",
+   "villager_man_a: banned: slide mean 0.51 m/s",
+   "villager_man_a: banned: slide max 4.05 m/s",
+   "villager_man_a: banned: loop seam 27.5 deg",
+   "villager_woman_a: banned: slide mean 0.42 m/s",
+   "villager_woman_a: banned: slide max 2.98 m/s",
+   "villager_woman_a: banned: loop seam 27.5 deg"
+  ]
+ },
+ "Life_Mx2_Dig_Plant": {
+  "auto": "banned",
+  "why": [
+   "player_young: banned: 7 pop(s)",
+   "villager_man_a: banned: 7 pop(s)",
+   "villager_man_a: probation: float 2.6 cm",
+   "villager_woman_a: banned: 7 pop(s)",
+   "villager_woman_a: banned: float 3.6 cm"
+  ]
+ },
+ "Life_Mx2_Holding_Idle": {
+  "auto": "gold",
+  "why": []
+ },
+ "Life_Mx2_Holding_Walk": {
+  "auto": "banned",
+  "why": [
+   "player_young: banned: slide mean 0.37 m/s",
+   "player_young: banned: slide max 4.52 m/s",
+   "player_young: probation: loop seam 4.6 deg",
+   "villager_man_a: banned: slide mean 0.36 m/s",
+   "villager_man_a: banned: slide max 4.27 m/s",
+   "villager_man_a: probation: loop seam 4.6 deg",
+   "villager_woman_a: banned: slide mean 0.33 m/s",
+   "villager_woman_a: banned: slide max 4.07 m/s",
+   "villager_woman_a: probation: loop seam 4.6 deg"
+  ]
+ },
+ "Life_Mx2_Kneel_Idle": {
+  "auto": "banned",
+  "why": [
+   "villager_woman_a: banned: float 3.5 cm"
+  ]
+ },
+ "Life_Mx2_Milk_Cow": {
+  "auto": "banned",
+  "why": [
+   "player_young: banned: float 4.0 cm"
+  ]
+ },
+ "Life_Mx2_Pick_Fruit_B": {
+  "auto": "gold",
+  "why": []
+ },
+ "Life_Mx2_Pick_Fruit_C": {
+  "auto": "banned",
+  "why": [
+   "player_young: probation: ground penetration 1.8 cm",
+   "player_young: banned: slide mean 0.26 m/s",
+   "player_young: banned: slide max 3.56 m/s",
+   "villager_man_a: banned: slide mean 0.21 m/s",
+   "villager_man_a: banned: slide max 3.36 m/s",
+   "villager_woman_a: banned: slide mean 0.19 m/s",
+   "villager_woman_a: banned: slide max 3.18 m/s"
+  ]
+ },
+ "Life_Mx2_Plant_Plant": {
+  "auto": "banned",
+  "why": [
+   "player_young: banned: 13 pop(s)",
+   "villager_man_a: banned: 13 pop(s)",
+   "villager_man_a: probation: float 2.4 cm",
+   "villager_woman_a: banned: 13 pop(s)",
+   "villager_woman_a: banned: float 3.3 cm"
+  ]
+ },
+ "Life_Mx2_Plant_Tree": {
+  "auto": "gold",
+  "why": []
+ },
+ "Life_Mx2_Pull_Plant_B": {
+  "auto": "banned",
+  "why": [
+   "villager_woman_a: banned: float 3.5 cm",
+   "villager_woman_a: probation: loop seam 3.9 deg"
+  ]
+ },
+ "Life_Mx2_Water": {
+  "auto": "gold",
+  "why": []
+ },
+ "Life_Mx2_Wheelbarrow_Dump": {
+  "auto": "gold",
+  "why": []
+ },
+ "Life_Mx2_Wheelbarrow_Idle": {
+  "auto": "gold",
+  "why": []
+ },
+ "Life_Mx2_Wheelbarrow_Walk": {
+  "auto": "banned",
+  "why": [
+   "player_young: banned: slide mean 0.68 m/s",
+   "player_young: banned: slide max 5.98 m/s",
+   "villager_man_a: banned: slide mean 0.64 m/s",
+   "villager_man_a: banned: slide max 5.64 m/s",
+   "villager_woman_a: banned: slide mean 0.73 m/s",
+   "villager_woman_a: banned: slide max 5.36 m/s"
+  ]
+ }
+}

@@ -616,6 +616,11 @@ class Session:
 					var xo := _offset(String(act.get("exit", "")), "exit_offset")
 					if xo != Vector3.ZERO:
 						out["exit_to"] = sx.origin + sx.basis * xo
+					# turning exits (sidecar "exit_yaw", degrees about +Y): the clip ends facing away from the slot; turn the root
+					# with it so the next clip does not snap the body back round
+					var xy: Variant = LifeLibrary.info(String(act.get("exit", ""))).get("exit_yaw")
+					if xy != null:
+						out["face"] = atan2(sx.basis.z.x, sx.basis.z.z) + deg_to_rad(float(xy))
 		if phase != phase_in and phase in [ENTER, EXIT] and clip != "" and (LifeLibrary.info(clip).has("entry_offset") or LifeLibrary.info(clip).has("seat_back")):
 			# Cut into an enter / exit: the clip may start with the body away from its root (entry_offset, seat_back);
 			# place the root for THIS clip in the same frame the clip starts (blend_in 0 on those clips): no pop.

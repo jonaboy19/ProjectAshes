@@ -24,6 +24,9 @@ func run(bot: Node) -> void:
 	if hud is CanvasLayer:
 		(hud as CanvasLayer).visible = false
 	_config_dump()
+	if OS.get_environment("SLICE_CLIPS") != "":
+		await _clip_street(OS.get_environment("SLICE_CLIPS"))
+		return
 	var town: Dictionary = Slice.settlement("Ashford")
 	var c: Vector2 = town["pos"]
 	var gates: Array = town["plan"]["gates"]
@@ -151,3 +154,76 @@ func _config_dump() -> void:
 				L.call("anim.gait_points", names)
 			for st in ["Idle", "Walk", "Jog_Fwd", "Sprint", "Roll", "Death01", "Sword_Idle"]:
 				L.call("anim.resolve." + st, an.call("_clip", st) if an.has_method("_clip") else "?")
+
+
+## Clip gate in the real street (AAA gate: gameplay distance, real Ashford ground and light): SLICE_CLIPS="a,b,c;d,e,f" -
+## one page per ';' (12 s each). The hero stands at the square edge facing the centre (model hidden, game camera); villager
+## bodies stand 6-9 m ahead on the real ground (raycast), facing the camera, with their sidecar props, label above.
+func _clip_street(spec: String) -> void:
+	var town: Dictionary = Slice.settlement("Ashford")
+	var c: Vector2 = town["pos"]
+	var gates: Array = town["plan"]["gates"]
+	var g := Vector2(cos(float(gates[0])), sin(float(gates[0]))) if not gates.is_empty() else Vector2(1, 0)
+	var pr := float(town["plan"]["plaza_r"])
+	var a := c + g * (pr + 3.0)
+	await b.teleport(a, b.yaw_to(a, c), 2.0)
+	var mdl: Node = player.get("_model") if player else null
+	if mdl is Node3D:
+		(mdl as Node3D).visible = false
+	var fwd := (c - a).normalized()
+	var side := fwd.orthogonal()
+	var page_i := 0
+	for page: String in spec.split(";", false):
+		_seg("clips_%d %s" % [page_i, page])
+		var made: Array[Node3D] = []
+		var names := page.split(",", false)
+		for i in names.size():
+			var clip := String(names[i]).strip_edges()
+			# open cobbles in the foreground, left and right of the hero (the plaza crowd stands further in)
+			var slots := [Vector2(-3.4, 4.0), Vector2(-1.7, 4.6), Vector2(1.7, 4.6), Vector2(3.4, 4.0), Vector2(-2.6, 6.4), Vector2(2.6, 6.4)]
+			var sl: Vector2 = slots[i % slots.size()]
+			var p2 := a + fwd * sl.y + side * sl.x
+			var m := Assets.mh_character("villager_man_a", 1.7)
+			player.get_parent().add_child(m)       # the game world lives in a SubViewport: spawn beside the hero
+			m.global_position = Vector3(p2.x, _ground_y(p2), p2.y)
+			m.rotation.y = atan2(a.x - p2.x, a.y - p2.y)
+			var ap := Assets.animation_player(m)
+			LifeLibrary.install(ap)
+			var sk: Skeleton3D = m.find_children("*", "Skeleton3D", true, false)[0]
+			for pp: Dictionary in (LifeLibrary.info(clip).get("props", []) as Array):
+				LifeProps.attach(sk, String(pp.get("id", "")), String(pp.get("hand", "")))
+			if ap.has_animation(clip):
+				ap.get_animation(clip).loop_mode = Animation.LOOP_LINEAR
+				ap.play(clip)
+			else:
+				b.L("CLIPSTREET missing %s" % clip)
+			var lb := Label3D.new()
+			lb.text = clip.replace("Life_", "")
+			lb.font_size = 28
+			lb.pixel_size = 0.004
+			lb.billboard = BaseMaterial3D.BILLBOARD_ENABLED
+			lb.position = Vector3(0, 2.15, 0)
+			m.add_child(lb)
+			made.append(m)
+			b.L("CLIPSTREET %s at %s anim=%s cam=%s" % [clip, m.global_position, ap.current_animation, b.get_viewport().get_camera_3d().global_position if b.get_viewport().get_camera_3d() else Vector3.INF])
+		for k in 48:                     # re-hide the hero every step (the player script shows its model again)
+			if mdl is Node3D:
+				(mdl as Node3D).visible = false
+			await b.wait(0.25)
+		for m in made:
+			m.queue_free()
+		page_i += 1
+	_seg("end")
+	b.check("clip_street finished", true)
+
+
+func _ground_y(p: Vector2) -> float:
+	var space := (player as Node3D).get_world_3d().direct_space_state if player else null
+	if space:
+		var y0 := (player as Node3D).global_position.y      # from just above the hero's ground: never onto roofs / stalls / bunting
+		var q := PhysicsRayQueryParameters3D.create(Vector3(p.x, y0 + 2.0, p.y), Vector3(p.x, y0 - 6.0, p.y))
+		q.exclude = [(player as CollisionObject3D).get_rid()] if player is CollisionObject3D else []
+		var hit := space.intersect_ray(q)
+		if not hit.is_empty():
+			return float((hit["position"] as Vector3).y)
+	return WorldGen.height(p.x, p.y)

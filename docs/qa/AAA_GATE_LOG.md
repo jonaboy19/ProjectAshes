@@ -202,3 +202,20 @@ File: `PA_plans/videos/WIP_combat_full_motion_slice_road_sword_v7.mp4` (real ter
 - VFX: impact glow core and ground ring removed for every tier; hits show small sparks + dust only. No orb on the sheet.
 - Player side (split with the player worker: logic in `scripts/combat/player_combat_motion.gd`, one-line hooks in player.gd): flesh hits play the set-4 reaction by direction x strength (light = upper-body flinch over the guard legs, heavy = whole-body); the attack chain opens with its own step and then varies (never the same clip twice, a held direction still picks the cut).
 - Verdict: the duel now sits in the real route and both sides react, vary and keep spacing. Still FAIL: the review camera dips into roadside grass (raised to 2.0 m for the next run); some stylised orange/golden trees remain in the background (world lane); dodges still use the old roll; lock-on footwork, deaths by direction, shield-arm tracking, feints and 1v3 still open.
+
+## 2026-10-28 · NPC anim lane · Mixamo Farming Pack + Meshy probation fixes, gated in the real Ashford square
+Tools: Blender `tools/anim/mixamo_to_ual.py` (new passes: `toe_floor` foot/toe pitch on the bone's side axis with eased angles, `lift_ramp` piecewise pelvis height, `yaw_deg`/`yaw_shift` whole-take turn in the root bone's frame), `tools/anim/meshy_pipeline.py` (now any library: --lib/--queue/--out, tag from --out), anim_qa on player_young + villager_man_a + villager_woman_a, Movie Maker in the game itself: `tools_qa/video/slice_route.gd` clip-street mode (SLICE_CLIPS env; hero at the Ashford square edge, game camera, bodies on the real cobbles 10-14 m from the lens, LOW tier), `sit_check.tscn --type=bed --loop= --exit=` (bed model under the sleeper, side camera), ffmpeg sheets. Blender retarget/root_maker extensions: not needed (our passes already measure and fix per frame).
+Videos: PA_plans/videos/slice_2026-10-27_1116_205b95674_clipgate5.mp4 (street gate, 2 pages), meshy_bed_sleep_wake.mp4 (bed). Sheets: docs/qa/golden/mixamo_farm/sheet_0-2.jpg.
+| Clip | Gate | Note |
+|---|---|---|
+| Life_Mx2_Pick_Fruit_B | PASS, wired field_harvest | side reach and pick at chest height, feet planted; metrics gold on all 3 rigs |
+| Life_Mx2_Water | PASS, wired field_row | bucket held low, pour sweep, feet planted; gold on all rigs |
+| Life_Mx_Milk_Cow (owner set 2) | PASS, wired milking_stool | was gold but unwired; steady working squat reads at gameplay distance |
+| Life_Mz_Sleep_Bed | PASS (bed type, sole loop) | re-rooted into a bed frame: lies on a 0.45 m mattress with the root on the floor (villagers never take slot y); head on the pillow |
+| Life_Mz_Wake_Bed | HOLD | re-rooted: starts exactly on Sleep_Bed's pose, ends standing over the root facing forward (DONE pelvis 0.00 m/s: the exit_to/turn pop is gone); the source's 133 deg turn swings the legs out past the headboard post |
+| Life_Mz_Kneel_Down | FAIL | lift removed (the standing start no longer floats 6 cm); toe_floor tucks the toes, but 4 toe pops remain on the villager rig |
+| Life_Mx2_Wheelbarrow_Walk / Holding_Walk / Box_Walk_Arc | HOLD / FAIL | stride is clean once the root track is off (stance 2.02 / 1.45 / 1.41 m/s, speed_mps set); Holding/Box have empty hands; wheelbarrow needs the prop and a carry state |
+| Life_Mz_Carry_Sack_Walk | FAIL (legs) | planted-foot speed swings 0.7-1.8 m/s inside one cycle: no playback rate can fix it. The sack upper body can layer on our walk (LifeLibrary.composite), but villagers have no carry-errand state yet: the sack would pop in and out at every stop |
+| Life_Mx2_Dig_Plant / Plant_Plant | FAIL | 7 / 13 elbow pops: hands need 15-29 cm of IK (UAL arms longer than the actor) |
+| Life_Mx2_Pull_Plant_B / Kneel_Idle | HOLD | metrics gold except a 3.5 cm float on the dressed woman; hidden by the crowd in the street gate |
+Overall: three new work loops pass in the real street. They read at gameplay distance among the real townsfolk, with no sliding or pops. The bed pair is consistent, but no beds are placed in the world yet.

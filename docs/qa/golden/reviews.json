@@ -937,25 +937,25 @@
  },
  "Life_Mz_Sleep_Bed": {
   "sheet": "docs/qa/golden/meshy/gallery_c3.jpg",
-  "video": "C:/Users/Jonna/Documents/PA_plans/videos/meshy_c3.mp4",
+  "video": "C:/Users/Jonna/Documents/PA_plans/videos/meshy_bed_sleep_wake.mp4",
   "verdict": "pass",
-  "note": "on the back, arm across the chest, ankles crossed, slow breathing; no pops; lies on y=0 like Life_Mx_Sleep_Bed (bed slot lifts it)",
+  "note": "lies on the 0.45 m mattress, head on the pillow (bed frame shared with Wake_Bed); slow breathing, no pops",
   "by": "claude (Meshy prime 2026-10-28: Blender check sheet + Movie Maker clip_gallery on villager_man_a, q34/front, 1280x720)",
   "date": "2026-10-28"
  },
  "Life_Mz_Wake_Bed": {
   "sheet": "docs/qa/golden/meshy/gallery_c3.jpg",
-  "video": "C:/Users/Jonna/Documents/PA_plans/videos/meshy_c3.mp4",
+  "video": "C:/Users/Jonna/Documents/PA_plans/videos/meshy_bed_sleep_wake.mp4",
   "verdict": "hold",
-  "note": "starts mid-air at bed height and ends facing ~180 deg away: needs a bed-exit offset check in situ before use",
+  "note": "re-rooted: starts on Sleep_Bed's pose on a 0.45 m bed and ends standing over the root facing forward (sit_check DONE 0.00 m/s, no pop); the 133 deg source turn swings the legs out past the headboard post",
   "by": "claude (Meshy prime 2026-10-28: Blender check sheet + Movie Maker clip_gallery on villager_man_a, q34/front, 1280x720)",
   "date": "2026-10-28"
  },
  "Life_Mz_Kneel_Down": {
   "sheet": "docs/qa/golden/meshy/gallery_c4.jpg",
   "video": "C:/Users/Jonna/Documents/PA_plans/videos/meshy_c4.mp4",
-  "verdict": "hold",
-  "note": "good kneel, but lift_m 0.065 (toes went 6 cm through the floor) makes the standing start float 6 cm; needs a phase lift",
+  "verdict": "fail",
+  "note": "toe_floor pass (no lift: the standing start no longer floats) leaves 4 toe pops on the villager rig; the lift version floated 6 cm. Needs a hand-keyed toe pass",
   "by": "claude (Meshy prime 2026-10-28: Blender check sheet + Movie Maker clip_gallery on villager_man_a, q34/front, 1280x720)",
   "date": "2026-10-28"
  },
@@ -1085,6 +1085,134 @@
   "verdict": "fail",
   "note": "hunched walk with the arms hanging: no handle grip; skates (slide 0.67 m/s)",
   "by": "claude (Meshy prime 2026-10-28: Blender check sheet + Movie Maker clip_gallery on villager_man_a, q34/front, 1280x720)",
+  "date": "2026-10-28"
+ },
+ "Life_Mx2_Pick_Fruit_B": {
+  "sheet": "docs/qa/golden/mixamo_farm/sheet_1.jpg",
+  "video": "C:/Users/Jonna/Documents/PA_plans/videos/slice_2026-10-27_1116_205b95674_clipgate5.mp4",
+  "verdict": "pass",
+  "note": "standing side reach and pick at chest height, feet planted; reads as picking at gameplay distance",
+  "by": "claude (Ashford square, game camera ~10-14 m, Movie Maker LOW via slice_route SLICE_CLIPS + Blender check sheet)",
+  "date": "2026-10-28"
+ },
+ "Life_Mx2_Water": {
+  "sheet": "docs/qa/golden/mixamo_farm/sheet_2.jpg",
+  "video": "C:/Users/Jonna/Documents/PA_plans/videos/slice_2026-10-27_1116_205b95674_clipgate5.mp4",
+  "verdict": "pass",
+  "note": "bucket held low, pour sweep, feet planted; reads at gameplay distance",
+  "by": "claude (Ashford square, game camera ~10-14 m, Movie Maker LOW via slice_route SLICE_CLIPS + Blender check sheet)",
+  "date": "2026-10-28"
+ },
+ "Life_Mx2_Plant_Tree": {
+  "sheet": "docs/qa/golden/mixamo_farm/sheet_1.jpg",
+  "video": "C:/Users/Jonna/Documents/PA_plans/videos/slice_2026-10-27_1116_205b95674_clipgate5.mp4",
+  "verdict": "hold",
+  "note": "metrics gold but a one-shot with no smart-object slot yet",
+  "by": "claude (Ashford square, game camera ~10-14 m, Movie Maker LOW via slice_route SLICE_CLIPS + Blender check sheet)",
+  "date": "2026-10-28"
+ },
+ "Life_Mx2_Pull_Plant_B": {
+  "sheet": "docs/qa/golden/mixamo_farm/sheet_1.jpg",
+  "video": "C:/Users/Jonna/Documents/PA_plans/videos/slice_2026-10-27_1116_205b95674_clipgate5.mp4",
+  "verdict": "hold",
+  "note": "kneeling pull reads, but woman float 3.5 cm and it was hidden by the crowd in the street gate",
+  "by": "claude (Ashford square, game camera ~10-14 m, Movie Maker LOW via slice_route SLICE_CLIPS + Blender check sheet)",
+  "date": "2026-10-28"
+ },
+ "Life_Mx2_Kneel_Idle": {
+  "sheet": "docs/qa/golden/mixamo_farm/sheet_0.jpg",
+  "video": "C:/Users/Jonna/Documents/PA_plans/videos/slice_2026-10-27_1116_205b95674_clipgate5.mp4",
+  "verdict": "hold",
+  "note": "kneeling idle, woman float 3.5 cm; not verified in the street (crowd)",
+  "by": "claude (Ashford square, game camera ~10-14 m, Movie Maker LOW via slice_route SLICE_CLIPS + Blender check sheet)",
+  "date": "2026-10-28"
+ },
+ "Life_Mx2_Milk_Cow": {
+  "sheet": "docs/qa/golden/mixamo_farm/sheet_1.jpg",
+  "video": "C:/Users/Jonna/Documents/PA_plans/videos/slice_2026-10-27_1116_205b95674_clipgate5.mp4",
+  "verdict": "hold",
+  "note": "duplicate of Life_Mx_Milk_Cow; 4 cm float on the player rig",
+  "by": "claude (Ashford square, game camera ~10-14 m, Movie Maker LOW via slice_route SLICE_CLIPS + Blender check sheet)",
+  "date": "2026-10-28"
+ },
+ "Life_Mx2_Holding_Idle": {
+  "sheet": "docs/qa/golden/mixamo_farm/sheet_0.jpg",
+  "video": "C:/Users/Jonna/Documents/PA_plans/videos/slice_2026-10-27_1116_205b95674_clipgate5.mp4",
+  "verdict": "fail",
+  "note": "arms hang empty: nothing is held",
+  "by": "claude (Ashford square, game camera ~10-14 m, Movie Maker LOW via slice_route SLICE_CLIPS + Blender check sheet)",
+  "date": "2026-10-28"
+ },
+ "Life_Mx2_Holding_Walk": {
+  "sheet": "docs/qa/golden/mixamo_farm/sheet_0.jpg",
+  "video": "C:/Users/Jonna/Documents/PA_plans/videos/slice_2026-10-27_1116_205b95674_clipgate5.mp4",
+  "verdict": "fail",
+  "note": "arms hang empty; travel was on the root track: stance speed 1.45 m/s if ever reused",
+  "by": "claude (Ashford square, game camera ~10-14 m, Movie Maker LOW via slice_route SLICE_CLIPS + Blender check sheet)",
+  "date": "2026-10-28"
+ },
+ "Life_Mx2_Box_Idle": {
+  "sheet": "docs/qa/golden/mixamo_farm/sheet_0.jpg",
+  "video": "C:/Users/Jonna/Documents/PA_plans/videos/slice_2026-10-27_1116_205b95674_clipgate5.mp4",
+  "verdict": "fail",
+  "note": "one arm hangs, the other is out: no box grip",
+  "by": "claude (Ashford square, game camera ~10-14 m, Movie Maker LOW via slice_route SLICE_CLIPS + Blender check sheet)",
+  "date": "2026-10-28"
+ },
+ "Life_Mx2_Box_Walk_Arc": {
+  "sheet": "docs/qa/golden/mixamo_farm/sheet_0.jpg",
+  "video": "C:/Users/Jonna/Documents/PA_plans/videos/slice_2026-10-27_1116_205b95674_clipgate5.mp4",
+  "verdict": "fail",
+  "note": "no box grip, 27 deg loop seam",
+  "by": "claude (Ashford square, game camera ~10-14 m, Movie Maker LOW via slice_route SLICE_CLIPS + Blender check sheet)",
+  "date": "2026-10-28"
+ },
+ "Life_Mx2_Wheelbarrow_Idle": {
+  "sheet": "docs/qa/golden/mixamo_farm/sheet_2.jpg",
+  "video": "C:/Users/Jonna/Documents/PA_plans/videos/slice_2026-10-27_1116_205b95674_clipgate5.mp4",
+  "verdict": "hold",
+  "note": "hands at handle height; needs a wheelbarrow prop and a carry state",
+  "by": "claude (Ashford square, game camera ~10-14 m, Movie Maker LOW via slice_route SLICE_CLIPS + Blender check sheet)",
+  "date": "2026-10-28"
+ },
+ "Life_Mx2_Wheelbarrow_Dump": {
+  "sheet": "docs/qa/golden/mixamo_farm/sheet_2.jpg",
+  "video": "C:/Users/Jonna/Documents/PA_plans/videos/slice_2026-10-27_1116_205b95674_clipgate5.mp4",
+  "verdict": "hold",
+  "note": "needs a wheelbarrow prop and a carry state",
+  "by": "claude (Ashford square, game camera ~10-14 m, Movie Maker LOW via slice_route SLICE_CLIPS + Blender check sheet)",
+  "date": "2026-10-28"
+ },
+ "Life_Mx2_Wheelbarrow_Walk": {
+  "sheet": "docs/qa/golden/mixamo_farm/sheet_2.jpg",
+  "video": "C:/Users/Jonna/Documents/PA_plans/videos/slice_2026-10-27_1116_205b95674_clipgate5.mp4",
+  "verdict": "hold",
+  "note": "stride consistent: stance speed 2.02 m/s (speed_mps set); needs a wheelbarrow prop and a carry state",
+  "by": "claude (Ashford square, game camera ~10-14 m, Movie Maker LOW via slice_route SLICE_CLIPS + Blender check sheet)",
+  "date": "2026-10-28"
+ },
+ "Life_Mx2_Dig_Plant": {
+  "sheet": "docs/qa/golden/mixamo_farm/sheet_0.jpg",
+  "video": "C:/Users/Jonna/Documents/PA_plans/videos/slice_2026-10-27_1116_205b95674_clipgate5.mp4",
+  "verdict": "fail",
+  "note": "7 elbow pops: hands need 15 cm IK (UAL arms longer than the actor)",
+  "by": "claude (Ashford square, game camera ~10-14 m, Movie Maker LOW via slice_route SLICE_CLIPS + Blender check sheet)",
+  "date": "2026-10-28"
+ },
+ "Life_Mx2_Plant_Plant": {
+  "sheet": "docs/qa/golden/mixamo_farm/sheet_1.jpg",
+  "video": "C:/Users/Jonna/Documents/PA_plans/videos/slice_2026-10-27_1116_205b95674_clipgate5.mp4",
+  "verdict": "fail",
+  "note": "13 elbow pops: hands need 29 cm IK",
+  "by": "claude (Ashford square, game camera ~10-14 m, Movie Maker LOW via slice_route SLICE_CLIPS + Blender check sheet)",
+  "date": "2026-10-28"
+ },
+ "Life_Mx2_Pick_Fruit_C": {
+  "sheet": "docs/qa/golden/mixamo_farm/sheet_1.jpg",
+  "video": "C:/Users/Jonna/Documents/PA_plans/videos/slice_2026-10-27_1116_205b95674_clipgate5.mp4",
+  "verdict": "fail",
+  "note": "steps while picking (slide 0.26 m/s)",
+  "by": "claude (Ashford square, game camera ~10-14 m, Movie Maker LOW via slice_route SLICE_CLIPS + Blender check sheet)",
   "date": "2026-10-28"
  }
 }
