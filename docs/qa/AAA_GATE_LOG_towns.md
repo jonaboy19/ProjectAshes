@@ -70,3 +70,16 @@ Files: PA_plans/videos/slice_ashford_interior_v8.mp4 (13:00), slice_ashford_stre
 | Street camera | PARTIAL | margin 0.65 m and 1.6 m sideways search: no frames inside walls; the Ashford Ring menhirs have no collision, so the shot still passes close to one |
 | Street ground | FAIL (world lane) | wild plants gone (76e2a588c) but the plaza/streets still read as yellow grass from the eye-level camera |
 **Verdict: interior close to the refs' mood; overall slice still FAIL (street ground, NPCs, UI labels, edge kit houses).**
+
+## 2026-10-28 · towns lane · interiors pass 3-4 (WIP-good) + poor quarter + street v9 — interior PASS (WIP), street FAIL items narrowed
+Files: PA_plans/videos/slice_ashford_interior_v13.mp4 (13:00), slice_ashford_street_v9.mp4 (14:30), real world, Movie Maker 1280x720 30 fps HIGH, 0 script errors.
+| Check | Result | Note |
+|---|---|---|
+| Interior scale | PASS | ground ceiling 2.45 m (was 2.8), loft headroom 2.0; family_loft 6.2 x 5.4 m with the loft over the back 2.3 m; table out in the room, bench pulled up, stools at the hearth; layout validation + 81 interior tests green |
+| Interior density | PASS (WIP) | ~50 clustered real-scan/refined pieces (7 kinds per room, batched: every room <= 60 draws, counted incl. MultiMesh), hearth corner, cloaks on a peg rail, herb rack, skins, spinning wheel; no white ceramic blobs |
+| Interior walls / light | PASS (WIP) | limewash patches + rising damp tide line, close studding + mid rail + braces, soot over the hearth; dim firelit. Later polish: richer wall variation, darker room edges |
+| Poor quarter | PASS (partial) | hovels are now the refined B60 thatched cottage (lot sizes and door sides unchanged: save compat); remaining kit houses re-baked with aged linear colours, grey-brown thatch, wattle patches, back lean-tos on the poor narrow houses. Some low pale sheds at the lane end still read flat |
+| Street ground | PASS | setts / packed earth (world worker 0058ce261) |
+| Camera | PARTIAL | 1.2 m clearance first, 0.65 m where narrow; no frames inside walls; still passes close to one Ashford Ring menhir |
+| NPCs / UI labels | other lanes | |
+**Verdict: interior WIP-good (parked); street still FAIL on the menhir pass, the lane-end sheds and the NPC/UI lanes.**

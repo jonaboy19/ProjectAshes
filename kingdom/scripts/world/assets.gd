@@ -146,8 +146,10 @@ const BUILDINGS := {
 	"house_narrow_c": [GEN + "town_small/house_narrow_c.glb", 0.0, GEN + "town_small/house_narrow_c_lod1.glb", 40.0],
 	"house_narrow_poor_a": [GEN + "town_small/house_narrow_poor_a.glb", 0.0, GEN + "town_small/house_narrow_poor_a_lod1.glb", 40.0],
 	"house_narrow_poor_b": [GEN + "town_small/house_narrow_poor_b.glb", 0.0, GEN + "town_small/house_narrow_poor_b_lod1.glb", 40.0],
-	"house_hovel_a": [GEN + "town_small/house_hovel_a.glb", 0.0, GEN + "town_small/house_hovel_a_lod1.glb", 40.0],
-	"house_hovel_b": [GEN + "town_small/house_hovel_b.glb", 0.0, GEN + "town_small/house_hovel_b_lod1.glb", 40.0],
+	# poor-quarter hovels: the refined B60 thatched cottage (props_refined/buildings; same footprint class, lot sizes and
+	# door sides unchanged for save compat). The kit hovels stay in town_small/ for --townsoff and as a fallback.
+	"house_hovel_a": ["res://assets/props_refined/buildings/cottage_thatch/cottage_thatch.glb", 0.0],
+	"house_hovel_b": ["res://assets/props_refined/buildings/cottage_thatch/cottage_thatch.glb", 0.0],
 	# Benchmark slice props (docs/plans/CC0_SLICE_KIT.md PASS list; Meshy batch 2026-10-28 gated by the coordinator): real PBR, natural size
 	"ph_crate": ["res://assets/incoming/polyhaven/models/wooden_crate_01/wooden_crate_01_1k.gltf", 0.0],
 	"ph_barrel": ["res://assets/incoming/polyhaven/models/wine_barrel_01/wine_barrel_01_1k.gltf", 0.0],
@@ -526,9 +528,8 @@ static func mh_character(file: String, height: float, keep: Array[String] = [], 
 				scab.name = "Scabbard"
 				scab.top_level = true
 				skeleton.add_child(scab)
-			# Poly Haven kite_shield (CC0 scan): 95 cm, point down, face out from the forearm
 		elif part.contains("Kite_Shield") and ResourceLoader.exists(KITE_SHIELD):
-			# Poly Haven kite_shield (CC0 scan, 10k tris, 1K PBR, double-sided): 95 cm, point down, face out from the forearm
+			# Poly Haven kite_shield (CC0 scan): 95 cm, point down, face out from the forearm
 			_weather(_attach(skeleton, "lowerarm_l", KITE_SHIELD, 0.76, Vector3(0.13, 0, 0.06), Vector3(0, 90, 0)), 0.55, 0.75)
 		elif part.contains("Shield"):
 			_attach(skeleton, "lowerarm_l", GUARD_SHIELD, 0.65, Vector3(0.12, 0, 0.08), Vector3(0, 90, 0))

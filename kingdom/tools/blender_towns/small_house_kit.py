@@ -13,7 +13,7 @@ MATS = {
     # Gate 2026-10-28: Godot reads these vertex colours as LINEAR, so the old values (0.93 / 0.8) rendered near white:
     # aged limewash, smoke-and-rain dirty daub, dark weathered boards and old thatch now (linear values).
     "RA_plaster": (0.55, 0.5, 0.4), "RA_plaster_dirty": (0.36, 0.31, 0.23), "RA_timber": (0.09, 0.06, 0.04),
-    "RA_thatch": (0.34, 0.27, 0.15), "RA_shingle": (0.14, 0.12, 0.11), "RA_boards": (0.17, 0.12, 0.08),
+    "RA_thatch": (0.2, 0.17, 0.12), "RA_shingle": (0.14, 0.12, 0.11), "RA_boards": (0.17, 0.12, 0.08),
     "RA_stone": (0.5, 0.48, 0.44), "RA_dark": (0.06, 0.05, 0.045), "RA_window": (0.07, 0.06, 0.05), "RA_kit": (1.0, 1.0, 1.0),
 }
 
@@ -207,6 +207,11 @@ def narrow(name, w, d, storeys, roof, poor, seed):
     rh = max(2.3, w * 0.95) + rng.uniform(-0.2, 0.4)
     sag = rng.uniform(0.2, 0.45) if poor else rng.uniform(0.0, 0.12)
     b.gable_roof(w + 0.06 * storeys, d + jet, z, rh, 0.35, roof, sag, "RA_plaster_dirty" if poor else "RA_plaster")
+    if poor and not SIMPLE:
+        # a boarded lean-to against the back wall under a sagging pent roof (store, privy, goat)
+        lw = w * 0.8
+        b.box((rng.uniform(-0.2, 0.2), -d * 0.5 - 0.65, 0.85), (lw, 1.3, 1.7), "RA_boards", roll=rng.uniform(-0.03, 0.03))
+        b.box((0, -d * 0.5 - 0.7, 1.82), (lw + 0.3, 1.7, 0.08), roof, tilt=0.28)
     if rng.random() < 0.85:
         b.box((rng.uniform(-w * 0.2, w * 0.2), -d * 0.2, z + rh * 0.6), (0.55, 0.55, rh * 0.95), "RA_stone",
               rot=rng.uniform(-0.05, 0.05), roll=rng.uniform(-0.04, 0.04) if poor else 0.0)
