@@ -56,7 +56,7 @@ const VIEW_NAMES := ["First person", "Third person", "Town view", "Command view"
 ## AAA camera pass (2026-10-06, skill ashes-aaa-camera-hud): THIRD was 5.5 m / -0.32 rad with a 65 deg vertical FOV, which on a
 ## 19.5:9 phone is ~110 deg wide and reads as a strategy view. Now 3.9 m at shoulder height, pitched -0.2, FOV 54 (chase_camera.gd),
 ## with SHOULDER_OFFSET to the right: the hero fills about 40% of the screen height.
-const VIEW_RIG := [[0.0, -0.1], [3.9, -0.2], [26.0, -0.72], [85.0, -1.2]]
+const VIEW_RIG := [[0.0, -0.1], [3.0, -0.2], [26.0, -0.72], [85.0, -1.2]]
 const SHOULDER_OFFSET := 0.42     # metres right of the spine (camera-local), exploration and combat
 const SHOULDER_HEIGHT := 1.62     # pivot height for an adult (was 1.55)
 ## Inside a building (InteriorDoor.active): a shorter arm and the lens tipped down a little, so the player and the room

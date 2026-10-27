@@ -85,3 +85,17 @@ Tools used: Mixamo (owner packs) -> Blender 5.2 `mixamo_to_ual.py` (root kept, f
 | UI restraint | PASS (combat lane) | removed the red silhouettes, ground rings on blockable blows, finisher flash and parry speed lines; the orange lock arrow (player lane) remains |
 | Dust on footwork | FAIL | only on hits and dodges, not on steps |
 Verdict: a clear step up from "swinging in place" (the 1v1 now reads as two people fighting), but this is not ref-03 quality yet. Fix list: wider guard stance clips (Meshy request), blade-contact block and parry poses, directional light flinches, foot IK during lunges, step dust, 1v3 ring spacing and camera.
+
+## 2026-10-27 Slice movement pass 1: top run + gameplay camera (player-animation worker) - FAIL (improved, WIP)
+Route: `tools/qa/record_slice_move.sh` (idle, walk, run, turn, stop, 180, sprint, hayloft ladder), Movie Maker 30 fps, loading screen cut. Ref 01 (KCD2 traversal).
+Video: `PA_plans/videos/slice_move_before_after.mp4` (side by side). Sheets: `docs/qa/golden/slice/slice_move_before_after_sheet.jpg`, `slice_run_before_after.jpg`, `run_candidates_jogfwd_fast_medium.jpg`.
+Runtime clips (SLICECLIP): gait points Walk 1.00 / Mx_Walk_Standard 1.56 / Jog_Mid 2.42 / Mx_Run_Slow 3.30 / Mx_Run_Standard 4.39 / top. The 6.5 m/s run sat 100% on UAL Jog_Fwd (the high-knee bounce). It now sits on **Mx_Run_Fast** (Mixamo, retimed by clip_retime_bake, stance 5.87 m/s). Candidates were picked by eye on the same side camera: Jog_Fwd (high knee, heel kick to the hip), Mx_Run_Fast (compact, forward lean, natural arms), and Mx_Run_Medium (calmest, but 4.54 m/s would need a 1.43x cadence at 6.5 m/s, which reads frantic).
+| Check | Result | Note |
+|---|---|---|
+| Top run is not the high-knee Jog_Fwd | PASS | Mx_Run_Fast: lower knees, forward lean, and the drawn sword swings low instead of sticking out sideways |
+| Camera frames the character like ref 01 | PASS (partial) | arm 3.9 -> 3.0 m, sprint push 0.9 -> 0.45 m, open-ground push 0.35 -> 0.15 m, sprint FOV +7 -> +4: the player is about 1.4x larger in frame |
+| Starts / stops / 180 pivots read as weight shifts | FAIL | not touched yet: the starts still pop to speed and the stops are a short brake on the gait blend |
+| Sword sheathed when out of combat | FAIL | the player crosses the town with the sword drawn (KCD2 sheathes it) |
+| Route on clear ground | FAIL | the bot sprint clips a crate and a rune stone next to Ashford Ring, and the "The ring of stones" world label floats over the player |
+| Planted feet | not graded | the loco_slide numbers are unreliable on this machine right now: headless gives a foot/body ratio of 0.4 under CPU contention (other Godot instances), windowed gives 1.0. Judged by eye: no visible skate at the top run in the side view |
+Verdict: the run is calmer and the camera is closer, but the pass FAILs until the starts/stops/pivots and out-of-combat sheathing are done.

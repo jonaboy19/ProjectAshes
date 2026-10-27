@@ -41,6 +41,10 @@ const BACK_CLIP_SPEED := 1.0
 ## gait.sync every point puts its left foot down together, so the blend never mixes a planted foot with a swinging one.
 const GAIT_EXTRA := [["Mx_Walk_Standard", 1.57, 0.720], ["Jog_Mid", 2.44, 0.003], ["Mx_Run_Slow", 3.33, 0.720], ["Mx_Run_Standard", 4.43, 0.482]]
 const RUN_PHASE := 0.982
+## The top of the player's gait space in place of UAL Jog_Fwd (a high-knee, bouncing 0.93 s jog the owner called "AI slop"):
+## [clip, stance speed m/s on the 1.8 m rig, phase] as GAIT_EXTRA. Empty keeps Jog_Fwd. ASHES_TOP_RUN=clip:speed:phase overrides
+## it for review recordings (tools_qa/anim_states/loco_movie.gd).
+const TOP_RUN := ["Mx_Run_Fast", 5.87, 0.52]
 ## Above the run clip: [clip, speed, phase] for the sprint end of the blend space (the player's sprint drives the rig at ~11 m/s).
 const GAIT_TOP := []
 ## Measured body travel of the UAL strafe clips in rig space: Strafe_left moves
@@ -182,7 +186,11 @@ func _init(model: Node3D, run_speed: float, _walk_speed := -1.0, walk_anim := "W
 		for e: Array in GAIT_EXTRA:
 			if player.has_animation(String(e[0])):
 				pts.append([String(e[0]), float(e[1]) * leg, float(e[2])])
-	pts.append([run_anim, _run_pt, RUN_PHASE if run_anim == "Jog_Fwd" or run_anim == "Running_A" else 0.0])
+	var top := _top_run(run_anim, walk_anim, leg)
+	if top.is_empty():
+		pts.append([run_anim, _run_pt, RUN_PHASE if run_anim == "Jog_Fwd" or run_anim == "Running_A" else 0.0])
+	else:
+		pts.append(top)
 	if (walk_anim == "Walking_A" or walk_anim == "Walk") and (run_anim == "Running_A" or run_anim == "Jog_Fwd"):
 		for e: Array in GAIT_TOP:
 			if player.has_animation(String(e[0])):
@@ -830,3 +838,17 @@ func _clip(anim_name: String) -> String:
 	if preferred != "" and player.has_animation(preferred):
 		return preferred
 	return anim_name
+
+
+## The player's top gait point: TOP_RUN (or the ASHES_TOP_RUN review override) when its clip is loaded, else [].
+func _top_run(run_anim: String, walk_anim: String, leg: float) -> Array:
+	if not ((walk_anim == "Walking_A" or walk_anim == "Walk") and (run_anim == "Running_A" or run_anim == "Jog_Fwd")):
+		return []
+	var e: Array = TOP_RUN
+	var ov := OS.get_environment("ASHES_TOP_RUN")
+	if ov != "":
+		var f := ov.split(":")
+		e = [f[0], float(f[1]), float(f[2]) if f.size() > 2 else 0.0]
+	if e.is_empty() or not player.has_animation(String(e[0])):
+		return []
+	return [String(e[0]), float(e[1]) * leg, float(e[2])]
