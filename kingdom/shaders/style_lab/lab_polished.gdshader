@@ -58,7 +58,17 @@ uniform sampler2D wet_tex : filter_linear, repeat_disable;
 varying vec3 wpos;
 varying vec3 wnor;
 
+uniform float glow = 0.0;     // towns medieval pass: night windows (StyleG.night_glow sets it on the window material)
+uniform vec3 glow_color : source_color = vec3(1.0, 0.58, 0.26);
+uniform float sway = 0.0;     // towns medieval pass: cloth in the wind (banners, bunting, awnings, laundry): metres per metre of height
 void vertex() {
+	if (sway > 0.0) {
+		vec3 wp0 = (MODEL_MATRIX * vec4(VERTEX, 1.0)).xyz;
+		float hgt = max(VERTEX.y - 0.6, 0.0);
+		float ph = TIME * 1.7 + wp0.x * 0.35 + wp0.z * 0.27;
+		VERTEX.x += sway * hgt * (sin(ph) * 0.6 + sin(ph * 2.3) * 0.25);
+		VERTEX.z += sway * hgt * cos(ph * 0.8) * 0.4;
+	}
 	wpos = (MODEL_MATRIX * vec4(VERTEX, 1.0)).xyz;
 	wnor = normalize((MODEL_MATRIX * vec4(NORMAL, 0.0)).xyz);
 }
@@ -178,6 +188,11 @@ void fragment() {
 	RIM = rim_amount;
 	RIM_TINT = 0.6;
 	EMISSION += rim_color * pow(1.0 - clamp(dot(NORMAL, VIEW), 0.0, 1.0), 3.0) * rim_amount * 0.35 * h;
+	if (glow > 0.0) {
+		// about two houses in three have a lit window (instance origin hash), tallow orange
+		float on = step(0.33, fract(sin(dot(floor(MODEL_MATRIX[3].xz * 0.5), vec2(7.13, 3.71))) * 9631.7));
+		EMISSION += glow_color * glow * on;
+	}
 	if (alpha_cut > 0.0) {
 		ALPHA = t.a * albedo_color.a;
 		ALPHA_SCISSOR_THRESHOLD = alpha_cut;

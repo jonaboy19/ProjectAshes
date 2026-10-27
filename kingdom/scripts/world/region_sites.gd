@@ -83,6 +83,13 @@ static func plan(seed_value: int) -> Array[Dictionary]:
 	out.append_array(preload("res://scripts/world/region1_fill.gd").sites(seed_value, out))   # Region 1 fill clusters (meshy_free filler houses, sheds, stalls): planned very last, no id moves
 	# W4 landmarks and POIs (scripts/world/region1_w4.gd, data/region1/world/w4_sites.json): the very last sites, so no id above moves.
 	preload("res://scripts/world/region1_w4.gd").plan(out)
+	# Vertical slice: the bandit camp on the Ashford -> Kingsreach road (data/world/slice_dressing.json, own RNG, appended last: no id moves)
+	var rc_pos := preload("res://scripts/world/town_kit/slice_dressing.gd").road_camp_pos()
+	if rc_pos != Vector2.INF:
+		var rc_rng := RandomNumberGenerator.new()
+		rc_rng.seed = seed_value * 13 + 4242
+		var rc_name := String((preload("res://scripts/world/town_kit/slice_dressing.gd").data()["road_bandit_camp"] as Dictionary).get("name", "Road Camp"))
+		out.append(_bandit_camp({"pos": rc_pos, "radius": 30.0}, rc_rng, out, rc_name))
 	for i in out.size():
 		out[i]["id"] = i
 	Region1Terrain.activate_late()      # W4 terrain stamps (Rift, Ashen Scar, mine portals ...) start now: planning above ran on the unstamped ground

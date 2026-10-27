@@ -12,7 +12,7 @@ SIMPLE = False   # LOD1 pass: walls, roofs, chimneys and sills only (no frame, w
 MATS = {
     "RA_plaster": (0.78, 0.72, 0.6), "RA_plaster_dirty": (0.6, 0.55, 0.46), "RA_timber": (0.28, 0.19, 0.12),
     "RA_thatch": (0.55, 0.45, 0.27), "RA_shingle": (0.33, 0.28, 0.24), "RA_boards": (0.42, 0.33, 0.24),
-    "RA_stone": (0.5, 0.48, 0.44), "RA_dark": (0.06, 0.05, 0.045),
+    "RA_stone": (0.5, 0.48, 0.44), "RA_dark": (0.06, 0.05, 0.045), "RA_window": (0.07, 0.06, 0.05),
 }
 
 
@@ -119,14 +119,14 @@ def side_frame(b, d, z0, hgt, sx, y0, rng, poor, win=True):
         L = math.hypot(d * 0.45, hgt * 0.45)
         b.box((sx, y0 - d * 0.25, z0 + hgt * 0.25), (0.12, L, 0.12), "RA_timber", tilt=math.atan2(hgt * 0.45, d * 0.45))
     if win:
-        b.box((sx + sgn * 0.04, y0 + d * 0.22, z0 + hgt * 0.62), (0.06, 0.55, 0.6), "RA_dark")
+        b.box((sx + sgn * 0.04, y0 + d * 0.22, z0 + hgt * 0.62), (0.06, 0.55, 0.6), "RA_window")
         b.box((sx + sgn * 0.08, y0 + d * 0.22, z0 + hgt * 0.62 - 0.34), (0.12, 0.7, 0.07), "RA_timber")
 
 
 def window(b, x, fy, z, w, h, boarded):
     if SIMPLE:
         return
-    b.box((x, fy + 0.04, z), (w, 0.06, h), "RA_dark")
+    b.box((x, fy + 0.04, z), (w, 0.06, h), "RA_window")
     b.box((x, fy + 0.09, z - h * 0.5 - 0.04), (w + 0.14, 0.14, 0.07), "RA_timber")
     if boarded:
         for k in range(3):

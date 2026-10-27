@@ -508,6 +508,12 @@ static func _polished(role: String, orig: Material, skin_kind: int, tier: String
 	var towns_off := OS.get_cmdline_user_args().has("--townsoff")    # A/B (CityPlanner.towns_off)
 	sm.set_shader_parameter("moss", 0.0 if towns_off else AGE_MOSS.get(role, 0.0))
 	sm.set_shader_parameter("sun_fade", 0.0 if towns_off else AGE_FADE.get(role, 0.0))
+	if role == "window" and not towns_off:
+		_window_mats.append(sm)
+		sm.set_shader_parameter("glow", _night_k * 2.2)
+	if role in ["cloth", "awning", "banner", "flag"] and not towns_off:
+		sm.set_shader_parameter("sway", 0.035)     # cloth moves in the wind
+
 	if p["tex"] == null and DETAIL.has(role) and not is_char(role) and not towns_off:
 		_detail(sm, role, orig)
 	if game_mode and AGE_MOSS.has(role) and wet_texture() != null:
@@ -751,6 +757,8 @@ static func role_for_asset(key: String) -> String:
 ## Material resource names of the Blender sets (RG_* region kit, RA_* village kit) -> role; "" = use the asset's default role.
 static func role_for_material(name: String) -> String:
 	var n := name.to_lower()
+	if n.contains("ra_window"):
+		return "window"
 	if n.contains("roof") or n.contains("shingle") or n.contains("slate") or n.contains("thatch") or n.contains("hay"):
 		return "roof"
 	if n.contains("plaster"):
@@ -867,6 +875,22 @@ static func vertex_color_material(role := "timber", srgb := true, tier := "") ->
 
 ## Towns medieval pass: regional damp for the moss (128 x 128 over the 12.3 km world, from the macro biome map; the dry steppe
 ## edge in the far south). Built once; null before the macro map is loaded (the shader then uses a neutral 0.5).
+## Towns medieval pass: night windows. Every "window" role material (kit windows, RA_window) glows after dusk; the settlement
+## builder calls night_glow(hour) once a second (one uniform per material, no per-house work).
+static var _window_mats: Array[ShaderMaterial] = []
+static var _night_k := 0.0
+
+
+static func night_glow(hour: float) -> void:
+	var k := 1.0 - smoothstep(5.5, 7.0, hour) if hour < 12.0 else smoothstep(18.5, 20.0, hour)
+	if absf(k - _night_k) < 0.01:
+		return
+	_night_k = k
+	for m in _window_mats:
+		if is_instance_valid(m):
+			m.set_shader_parameter("glow", k * 2.2)
+
+
 const WET_OF_BIOME := [0.5, 0.8, 0.6, 0.5, 1.0, 0.55, 0.22, 0.4]   # grass forest meadow farmland marsh highland rift snow
 static var _wet_tex: Texture2D
 

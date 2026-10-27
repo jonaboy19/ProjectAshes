@@ -614,7 +614,7 @@ static func _frontage(plan_data: Dictionary, kind: String, seed_value: int) -> v
 		pts.append(lot["pos"])
 	var hull := PackedVector2Array()
 	if pts.size() >= 3:
-		var grown := Geometry2D.offset_polygon(Geometry2D.convex_hull(pts), 6.0)
+		var grown := Geometry2D.offset_polygon(Geometry2D.convex_hull(pts), 6.0 if walled else 14.0)   # villages: crofts along the outer lane too
 		if not grown.is_empty():
 			hull = grown[0]
 	plan_data["_hull"] = hull

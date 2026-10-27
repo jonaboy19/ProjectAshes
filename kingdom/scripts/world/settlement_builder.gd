@@ -66,7 +66,14 @@ var _prop_jobs: Array = []       # unfinished DistrictProps jobs (time-sliced, d
 var _merge_jobs: Array = []      # [{root, job}] StaticMerge jobs of finished towns (time-sliced)
 
 
+var _night_t := 0.0
+
+
 func _process(delta: float) -> void:
+	_night_t -= delta
+	if _night_t <= 0.0:
+		_night_t = 1.0
+		StyleG.night_glow(WorldSim.time_of_day)     # towns medieval pass: lit windows after dusk
 	var _pb := Probe.t()
 	Breakable.tick(delta)   # breakable clutter: melee sweep + regrowth (once per frame)
 	Probe.add("settle.breakable_tick", _pb)
@@ -324,6 +331,7 @@ func _build_co(s: Dictionary, sync: bool, spread: bool) -> Node3D:
 			return root
 	_bp = Probe.t()
 	_interior_doors(root, plan["lots"])
+	preload("res://scripts/world/town_kit/slice_dressing.gd").build_scenario_a(root, s)   # vertical slice: Ashford hayloft ladder + vaultable fence
 	Probe.add("settle.doors", _bp)
 	if spread:
 		await get_tree().process_frame      # spread over frames (update_now(true)); the town finishes a few frames later
