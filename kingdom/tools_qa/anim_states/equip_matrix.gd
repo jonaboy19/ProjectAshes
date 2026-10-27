@@ -20,6 +20,9 @@ const LOADOUTS := {
 	"spear": ["bronze_spear"],
 	"shortbow": ["ash_shortbow"],
 	"staff": ["ash_staff"],
+	"carry_crate": ["bronze_sword", "@carry:crate"],
+	"carry_sack": ["@carry:sack"],
+	"carry_log": ["iron_greatsword", "@carry:log"],
 }
 const STATES := [
 	["idle", 1.0], ["dodge_fwd", 1.4], ["walk", 1.4], ["sprint", 1.4], ["strafe_l", 1.0], ["crouch", 1.0], ["jump", 1.4], ["dodge", 1.4],
@@ -121,7 +124,7 @@ func _run() -> void:
 		if not only.is_empty() and not only.has(lo):
 			continue
 		await _dress(life, LOADOUTS[lo])
-		_p.call("set_sheathed", lo == "unarmed", true)   # unarmed = the sheathed stance (owner: no fists item)
+		_p.call("set_sheathed", lo == "unarmed" or OS.has_environment("MATRIX_SHEATHE"), true)   # unarmed = the sheathed stance (owner: no fists item)
 		var tiles: Array[Image] = []
 		for st: Array in STATES:
 			if not states.is_empty() and not states.has(String(st[0])):
@@ -142,11 +145,25 @@ func _dress(life: Node, items: Array) -> void:
 	for slot: String in ["main_hand", "off_hand"]:
 		if eq.has_method("unequip"):
 			eq.call("unequip", slot)
+	var carry := ""
 	for id in items:
-		eq.call("equip", String(id))
+		if String(id).begins_with("@carry:"):
+			carry = String(id).substr(7)
+		else:
+			eq.call("equip", String(id))
+	var held: Variant = _p.call("carrying") if _p.has_method("carrying") else null
+	if held != null:
+		_p.call("carry_drop")
+		(held as Node).queue_free()
 	_reset_player()
 	for i in 40:
 		await physics_frame
+	if carry != "":
+		var c: Node3D = (load("res://scripts/interaction/kinds/carryable.gd") as GDScript).call("spawn", root, _p.global_position + (_p.call("facing") as Vector3) * 0.7, carry)
+		await physics_frame
+		_p.call("carry_pick", c)
+		for i in 90:
+			await physics_frame
 
 
 func _reset_player() -> void:
@@ -163,6 +180,8 @@ func _reset_player() -> void:
 
 func _props() -> Array:
 	var out: Array = []
+	if _p.has_method("carrying") and _p.call("carrying") != null:
+		out.append([_p.call("carrying"), "spine_03"])
 	for att in _sk.find_children("*", "BoneAttachment3D", false, false):
 		var b := att as BoneAttachment3D
 		if not ["hand_r", "hand_l", "lowerarm_l", "spine_03", "pelvis"].has(b.bone_name):

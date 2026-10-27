@@ -759,7 +759,7 @@ func _physics_process(delta: float) -> void:
 	var dir := Vector3.ZERO if dead or _stunned > 0.0 else _input_dir()
 	var wade := WorldGen.water_depth(global_position.x, global_position.z)
 	_update_swim_state(wade)
-	blocking = Input.is_action_pressed("block") and stamina > 0.0 and _dodge <= 0.0 and not dead \
+	blocking = Input.is_action_pressed("block") and _carry == null and stamina > 0.0 and _dodge <= 0.0 and not dead \
 			and _stunned <= 0.0 and not swimming and not _jump_starting and not _jump_active \
 			and _land_time <= 0.0
 	if blocking:
@@ -773,7 +773,7 @@ func _physics_process(delta: float) -> void:
 		_set_crouch(false)            # sprinting stands up
 	var locked := is_instance_valid(_lock)
 	var running := (sprint or (touch_move.length() > 0.92 and not crouching) or view >= View.TOWN) \
-			and not blocking and not crouching and (not locked or sprint) and not _winded
+			and not blocking and not crouching and (not locked or sprint) and not _winded and _carry == null
 	_strafing = (blocking or (locked and not running)) and not swimming
 	_animator.set_strafing(_strafing and not blocking)
 	var speed := (RUN if running else WALK) * Life.needs.speed() * injury_speed()
@@ -783,6 +783,10 @@ func _physics_process(delta: float) -> void:
 		speed = minf(speed, LOCK_STRAFE_SPEED)
 	if blocking:
 		speed = WALK * 0.5
+	if _carry != null:
+		speed *= CarryK.SPEED_MULT
+	if _carry_busy > 0.0:
+		speed = 0.0               # bending down for the load / setting it down
 	if _swing > 0.0:
 		speed *= 0.4
 	if _flinch > 0.0:
@@ -875,6 +879,7 @@ func _physics_process(delta: float) -> void:
 		else:
 			_shield_ready = maxf(_shield_ready - delta, 0.0)
 		_update_sheathe(delta)
+		_update_carry(delta)
 		var rolling := _dodge > 0.0 and _dodge_roll
 		_rig.set("shield_slung", (not blocking and (_shield_ready <= 0.0 or rolling or not is_on_floor())) or bool(_rig.get("sheathed")))
 		_rig.set("long_holster", rolling)
@@ -1663,6 +1668,9 @@ func _update_look_target() -> void:
 func attack() -> void:
 	if dead or swimming or _mount != null or _jump_starting or _jump_active or _land_time > 0.0:
 		return
+	if _carry != null:
+		carry_drop()                   # the arms are full: attacking puts the load down first
+		return
 	if sheathed:
 		set_sheathed(false, true)      # attacking from the unarmed stance: a quick draw straight into the swing
 	if _arms.bow_tap():
@@ -1690,6 +1698,8 @@ func toggle_sheathe() -> void:
 func set_sheathed(on: bool, quick := false) -> void:
 	if dead or on == sheathed and _sheathe_pending <= 0.0:
 		return
+	if not on and _carry != null:
+		return                        # the arms are full
 	sheathed = on
 	_sheathe_target = on
 	if quick or _animator == null:
@@ -1712,6 +1722,86 @@ func _update_sheathe(delta: float) -> void:
 		set_sheathed(false, true)
 
 
+const CarryK := preload("res://scripts/interaction/kinds/carryable.gd")
+## Carrying (WP-01, scripts/interaction/kinds/carryable.gd): the load is lifted with Chore_Pick_Up_Box, held at the chest in
+## model space with both hands braced on its sides (arm IK), weapons sheathed; slower, no sprint / jump / dodge.
+const CARRY_PICK_RATE := 1.6
+const CARRY_LIFT_AT := 0.55       # s into the pick-up clip (at CARRY_PICK_RATE) when the load leaves the ground
+const CARRY_LIFT_TIME := 0.35     # s from the ground to the chest
+const CARRY_BUSY := 0.9
+const CARRY_CHEST := 1.32         # m, chest height of a full-size body
+var _carry: Node3D = null       # a Carryable (CarryK)
+var _carry_busy := 0.0
+var _carry_lift := 0.0            # < 0 waiting for the lift moment, 0..1 ground -> chest
+var _carry_was_sheathed := false
+var _carry_from := Transform3D.IDENTITY
+
+
+func carry_pick(obj: Node) -> bool:
+	if _carry != null or dead or swimming or _mount != null or obj.get_script() != CarryK or obj.get("carrier") != null:
+		return false
+	_carry = obj as Node3D
+	_carry.call("set_carried", self)
+	_carry_from = _carry.global_transform
+	_carry_was_sheathed = sheathed
+	set_sheathed(true, true)
+	_carry_busy = CARRY_BUSY
+	_carry_lift = -CARRY_LIFT_AT / CARRY_LIFT_TIME
+	if _animator.has_clip("Chore_Pick_Up_Box"):
+		_animator.play_full("Chore_Pick_Up_Box", CARRY_PICK_RATE)
+	return true
+
+
+func carry_drop() -> void:
+	if _carry == null:
+		return
+	var obj := _carry
+	_carry = null
+	if _rig:
+		_rig.call("set_hand_carry", 0, Vector3.ZERO, 0.0)
+		_rig.call("set_hand_carry", 1, Vector3.ZERO, 0.0)
+	var ahead := global_position + facing() * (0.45 + (obj.call("size") as Vector3).z * 0.5)
+	obj.global_transform = Transform3D(Basis(Vector3.UP, _model.rotation.y), Vector3(ahead.x, global_position.y, ahead.z))
+	obj.call("set_carried", null)
+	obj.emit_signal("put_down", self)
+	if _animator.has_clip("Chore_Pick_Up_Box"):
+		_animator.play_full("Chore_Pick_Up_Box", CARRY_PICK_RATE * 1.3)
+	_carry_busy = CARRY_BUSY * 0.6
+	if not _carry_was_sheathed:
+		set_sheathed(false, true)
+
+
+func carrying() -> Node3D:
+	return _carry
+
+
+func _update_carry(delta: float) -> void:
+	_carry_busy = maxf(_carry_busy - delta, 0.0)
+	if _carry == null:
+		return
+	if not is_instance_valid(_carry) or dead or swimming or _mount != null:
+		if is_instance_valid(_carry):
+			carry_drop()
+		_carry = null
+		return
+	_carry_lift = minf(_carry_lift + delta / CARRY_LIFT_TIME, 1.0)
+	var off := CarryK.hold_offset(CARRY_CHEST, (_carry.call("size") as Vector3))
+	var mb := _model.global_basis.orthonormalized()
+	var held := Transform3D(mb, _model.global_position + mb * (off * Life.body_scale()))
+	var t := clampf(_carry_lift, 0.0, 1.0)
+	t = t * t * (3.0 - 2.0 * t)
+	var xf := _carry_from.interpolate_with(held, t)
+	_carry.global_transform = xf
+	if _rig and _carry_lift > -0.3:
+		var w := clampf(_carry_lift + 0.3, 0.0, 1.0)
+		var c := xf.origin + xf.basis.y * (_carry.call("size") as Vector3).y * 0.5
+		var half := (_carry.call("size") as Vector3).x * 0.5 + 0.02
+		var side: Vector3 = mb.x
+		# hand 0 = left; the model faces +Z, so its +X is its left side
+		_rig.call("set_hand_carry", 0, c + side * half, w)
+		_rig.call("set_hand_carry", 1, c - side * half, w)
+
+
 ## Input entry points (main.gd): a tap fires attack() on release, a hold past the data hold time charges a heavy
 ## (bow: draws), release swings / fires. See player_arms.gd.
 func attack_press() -> void:
@@ -1725,7 +1815,7 @@ func attack_release() -> void:
 ## Space / the mobile button buffers a jump briefly through an attack lockout or
 ## the last few frames before landing. A second press in the air never relaunches.
 func jump() -> void:
-	if dead or swimming or _mount != null or _menu_open():
+	if dead or swimming or _mount != null or _menu_open() or _carry != null:
 		return
 	if _trav.on_jump_pressed():
 		return
@@ -2070,7 +2160,7 @@ func _reset_jump() -> void:
 ## Plain dodge-roll: short i-frame step, no VFX, no cooldown beyond stamina.
 ## Bound to the "dodge" action (K) and the HUD dodge button.
 func dodge() -> void:
-	if dead or swimming or _mount != null or _jump_starting or _jump_active or _land_time > 0.0:
+	if dead or swimming or _mount != null or _jump_starting or _jump_active or _land_time > 0.0 or _carry != null:
 		return
 	if _arms.knock_dodge():
 		return                       # floored: the press is a roll-out (player_arms.gd)

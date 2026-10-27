@@ -239,6 +239,20 @@ func set_hand_assist(side: int, point: Vector3, weight: float) -> void:
 		_build_arms()
 
 
+## Carrying a load in both arms (player.gd _update_carry): its own channel, above wall braces and weapon assists.
+var _load_pt: Array[Vector3] = [Vector3.ZERO, Vector3.ZERO]
+var _load_w: Array[float] = [0.0, 0.0]
+
+
+func set_hand_carry(side: int, point: Vector3, weight: float) -> void:
+	if side < 0 or side > 1:
+		return
+	_load_pt[side] = point
+	_load_w[side] = clampf(weight, 0.0, 1.0)
+	if _load_w[side] > 0.001 and _arms_state == 0 and always_near and _use_ik:
+		_build_arms()
+
+
 ## Shoulder-to-wrist length in metres (rest pose, at the current body scale); 0.37 when the rig has no arms.
 func arm_length() -> float:
 	var up := _skeleton.find_bone(ARMS[0][0])
@@ -838,6 +852,9 @@ func _arms_pre(xf: Transform3D, fwd: Vector3) -> void:
 		if _assist_w[s] > w:
 			w = _assist_w[s]
 			bp = _assist_pt[s]
+		if _load_w[s] > 0.001:
+			w = _load_w[s]
+			bp = _load_pt[s]
 		var ik := _arm_ik[s]
 		var shoulder := xf * _skeleton.get_bone_global_pose(_arm[s][0]).origin
 		var hand_pose := _skeleton.get_bone_global_pose(_arm[s][2])
@@ -874,7 +891,7 @@ func _post_modify(delta: float) -> void:
 			_skeleton.set_bone_pose_rotation(foot, (parent_q.inverse() * foot_q.slerp(desired, ik_w)).normalized())
 	if _arms_state == 1:
 		for s in 2:
-			if maxf(_brace_w[s], _assist_w[s]) > 0.001:
+			if maxf(maxf(_brace_w[s], _assist_w[s]), _load_w[s]) > 0.001:
 				# keep the animated hand orientation (the solved forearm would twist it)
 				var hand := _arm[s][2]
 				var fa_q := _skeleton.get_bone_global_pose(_arm[s][1]).basis.get_rotation_quaternion()
@@ -1035,8 +1052,11 @@ func _holster_refresh() -> void:
 				lng = 0 if absf(ax.x) > 0.5 else (2 if absf(ax.z) > 0.5 else 1)
 				if thin == lng:
 					thin = (lng + 1) % 3
+			# the grip (the hand bone) in the prop's own space, and which end of the long axis it is on
+			var grip_l := node.transform.affine_inverse() * Vector3.ZERO
+			var gsign := 1.0 if grip_l[lng] >= box.get_center()[lng] else -1.0
 			_hprops.append({"node": node, "att": att, "kind": kind, "h": 0.0, "rest": node.transform, "managed": managed,
-					"corners": corners, "box": box, "thin": thin, "long": lng, "out_sign": 0.0})
+					"corners": corners, "box": box, "thin": thin, "long": lng, "out_sign": 0.0, "grip": grip_l, "gsign": gsign})
 
 
 ## AABB of the prop's meshes in the prop node's own space.
@@ -1177,8 +1197,8 @@ func _socket(e: Dictionary, bb: Dictionary, hand_g: Transform3D) -> Transform3D:
 	var lsign := 1.0
 	if is_long:
 		long_dir = (up * cos(deg_to_rad(BACK_DIAG_DEG)) - right * sin(deg_to_rad(BACK_DIAG_DEG))).normalized()
-		# the grip end (the side of the box nearer the prop origin) goes up
-		lsign = 1.0 if box.get_center()[li] < 0.0 else -1.0
+		# the grip end goes up (over the shoulder)
+		lsign = float(e["gsign"])
 	var cols: Array[Vector3] = [Vector3.ZERO, Vector3.ZERO, Vector3.ZERO]
 	cols[ti] = back * float(e["out_sign"])
 	cols[li] = long_dir * lsign
@@ -1204,14 +1224,13 @@ func _hip_socket(e: Dictionary, bb: Dictionary, hand_g: Transform3D) -> Transfor
 	var li := int(e["long"])
 	var oi := 3 - ti - li
 	var grip_dir := (up * cos(deg_to_rad(HIP_TILT_DEG)) - back * sin(deg_to_rad(HIP_TILT_DEG))).normalized()   # grip up and forward
-	var lsign := 1.0 if box.get_center()[li] < 0.0 else -1.0     # grip end along grip_dir: the blade points down and back
 	var cols: Array[Vector3] = [Vector3.ZERO, Vector3.ZERO, Vector3.ZERO]
-	cols[li] = grip_dir * lsign
+	cols[li] = grip_dir * float(e["gsign"])      # the grip end up and forward: the blade points down and back
 	cols[ti] = side
 	cols[oi] = cols[(oi + 1) % 3].cross(cols[(oi + 2) % 3])
 	var basis := Basis(cols[0], cols[1], cols[2]).orthonormalized().scaled(scl)
 	var grip := (bb["pel"] as Vector3) + side * HIP_OUT + up * 0.04 - back * 0.04
-	return Transform3D(basis, grip)      # the prop origin is the grip
+	return Transform3D(basis, grip - basis * (e["grip"] as Vector3))
 
 
 ## A hand prop whose lowest corner goes below the floor is turned about its grip (the bone) just enough to clear it.
