@@ -86,7 +86,12 @@ func play(p_def: Dictionary) -> void:
 
 
 func _process(_delta: float) -> void:
-	if not running or cut == null:
+	if not running:
+		return
+	# Never leave the frozen player behind (a frozen player in the main story path was a release blocker: the cutscene
+	# player was gone or never sent `finished`, so process_mode was never restored): the cut is gone or overran by 3 s.
+	if cut == null or not is_instance_valid(cut) or cut.elapsed > _total + 3.0:
+		_end(true)
 		return
 	var t := cut.elapsed
 	while not _events.is_empty() and float(_events[0][0]) <= t:
@@ -230,3 +235,8 @@ func _stop_music() -> void:
 	tw.tween_property(m, "volume_db", -60.0, 1.5)
 	tw.tween_callback(m.queue_free)
 	m.reparent(get_tree().root) if is_inside_tree() else m.queue_free()
+
+
+func _exit_tree() -> void:
+	if running:
+		_end(true)      # freed mid-shot: give the frozen nodes back their process mode

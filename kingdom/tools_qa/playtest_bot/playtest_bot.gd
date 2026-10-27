@@ -337,6 +337,10 @@ func walk_to(target: Vector2, tol := 2.5, timeout := 90.0, sprint := true, stuck
 	var detour_side := 1.0
 	var last_detour := now()
 	while now() - t_start < timeout:
+		if get_tree().paused:
+			# a modal card (life-event popup: the age-12 Blessing, childhood moments) pauses the game; a player answers it
+			await dismiss_popups()
+			best_t = now()
 		var d := p2().distance_to(target)
 		if d <= tol:
 			ok = true
@@ -356,6 +360,7 @@ func walk_to(target: Vector2, tol := 2.5, timeout := 90.0, sprint := true, stuck
 			beat("walk %d" % roundi(d))
 		elif now() - best_t > stuck_s:
 			L("walk_to stuck at %s, %.1f m from %s" % [_pos2s(), d, str(target)])
+			L("  player state: %s" % _player_state())
 			break
 		await get_tree().process_frame
 		if _cancelled(g):
@@ -585,6 +590,7 @@ func _run_all() -> void:
 		["st_a4", _s_st_a4], ["st_a5", _s_st_a5], ["st_save", _s_st_save], ["st_probe", _s_st_probe],
 		["v1_recruit", _s_v1_recruit],
 		["v1_hunt", _s_v1_hunt],
+		["scen_a", _s_scen_a],
 	]
 	for e: Array in list:
 		if not _want(String(e[0])) and (String(e[0]) != "adult" or only.contains("st_")):
@@ -622,6 +628,7 @@ func _stage_limit(name: String) -> float:
 		"st_load", "st_probe": return 400.0
 		"v1_recruit": return 600.0
 		"v1_hunt": return 240.0
+		"scen_a": return 600.0
 		"st_save": return 200.0
 		"st_birth", "st_a1", "st_a2", "st_a3", "st_a4", "st_a5": return 1500.0
 	return 150.0
@@ -5373,3 +5380,34 @@ func _s_st_load() -> void:
 				diffs.append("%s: %s -> %s" % [k, JSON.stringify(a).left(100), JSON.stringify(b).left(100)])
 		check("chain load: the story (steps, flags, age, name) is what the last run saved", diffs.is_empty(), "; ".join(diffs))
 	await shot("chain_loaded")
+
+
+## Why the player might not move (stuck diagnostics).
+func _player_state() -> String:
+	var trav: Variant = player.get("_trav")
+	var ts := ""
+	if trav is Object:
+		for k in ["state", "_state", "mode", "_mode", "active"]:
+			var v: Variant = (trav as Object).get(k)
+			if v != null:
+				ts += "%s=%s " % [k, str(v)]
+	var fr := "pm %d can_process %s phys %s paused %s input %s" % [player.process_mode, str(player.can_process()), str(player.is_physics_processing()),
+			str(get_tree().paused), str(Input.get_vector("move_left", "move_right", "move_forward", "move_back"))]
+	var anc := ""
+	var n: Node = player.get_parent()
+	while n != null:
+		if n.process_mode == Node.PROCESS_MODE_DISABLED:
+			anc += n.name + "(disabled) "
+		n = n.get_parent()
+	return fr + " " + anc + " | " + "vel %s floor %s dead %s stunned %.2f mount %s seated %s carry %s dodge %.2f land %.2f lock %.2f swim %s trav[%s] menu %s ui %s anim_full %s" % [
+		str((player as CharacterBody3D).velocity.snapped(Vector3(0.01, 0.01, 0.01))), str((player as CharacterBody3D).is_on_floor()), str(player.dead),
+		float(player.get("_stunned")), str(player.get("_mount")), str(player.has_meta("seated_on")), str(player.get("_carry")),
+		float(player.get("_dodge")), float(player.get("_land_time")), float(player.get("_land_lock")), str(player.get("swimming")), ts,
+		str(hud != null and is_instance_valid(hud) and hud.is_menu_open()), str(player.call("_ui_blocking")),
+		str(player.get("_animator").call("is_full_busy") if player.get("_animator") else "-")]
+
+
+## Acceptance scenario A (WP-01): tools_qa/acceptance/movement_chain.gd.
+func _s_scen_a() -> void:
+	var chain: RefCounted = (load("res://tools_qa/acceptance/movement_chain.gd") as GDScript).new()
+	await chain.call("run", self)
