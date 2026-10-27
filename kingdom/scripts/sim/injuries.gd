@@ -38,6 +38,10 @@ const TYPES := {
 	"soul_fatigue": {"name": "Soul Fatigue", "severity": 2,
 		"effects": {"magicule_regen": -0.5, "stamina": -0.15, "xp_gain": -0.25},
 		"recovery_days": 3, "treat_cost": 18, "treat_hours": 8},
+	"sprained_ankle": {"name": "Sprained Ankle", "severity": 1, "effects": {"speed": -0.2},
+		"recovery_days": 2, "treat_cost": 3, "treat_hours": 1},
+	"broken_leg": {"name": "Broken Leg", "severity": 2, "effects": {"speed": -0.45, "stamina": -0.15},
+		"recovery_days": 20, "treat_cost": 26, "treat_hours": 12},
 	"broken_arm": {"name": "Broken Arm", "severity": 2, "effects": {"attack": -0.35},
 		"recovery_days": 24, "treat_cost": 28, "treat_hours": 12},
 	"torn_meridian": {"name": "Torn Meridian", "severity": 3, "effects": {"magicule_max": -0.2, "stamina": -0.1},
@@ -65,6 +69,24 @@ static func info(type: String) -> Dictionary:
 
 static func is_healer_only(type: String) -> bool:
 	return int(info(type).get("recovery_days", 0)) == HEALER_ONLY
+
+
+## Fall injuries (blueprint §3): what a landing from `height` metres does to the body. A landing roll (rolled) takes the first
+## 2.5 m off. "" = walked away from it. Light falls bruise, then the ankle goes, then the leg breaks.
+const FALL_SPRAIN_M := 4.0
+const FALL_RIBS_M := 6.0
+const FALL_BREAK_M := 9.0
+
+
+static func fall_injury(height: float, rolled: bool) -> String:
+	var h := height - (2.5 if rolled else 0.0)
+	if h >= FALL_BREAK_M:
+		return "broken_leg"
+	if h >= FALL_RIBS_M:
+		return "bruised_ribs"
+	if h >= FALL_SPRAIN_M:
+		return "sprained_ankle"
+	return ""
 
 
 ## Add an injury. `days` overrides the natural recovery time (ignored for

@@ -776,9 +776,9 @@ func _physics_process(delta: float) -> void:
 			and not blocking and not crouching and (not locked or sprint) and not _winded
 	_strafing = (blocking or (locked and not running)) and not swimming
 	_animator.set_strafing(_strafing and not blocking)
-	var speed := (RUN if running else WALK) * Life.needs.speed()
+	var speed := (RUN if running else WALK) * Life.needs.speed() * injury_speed()
 	if crouching:
-		speed = CROUCH_SPEED * Life.needs.speed()
+		speed = CROUCH_SPEED * Life.needs.speed() * injury_speed()
 	if locked and not running:
 		speed = minf(speed, LOCK_STRAFE_SPEED)
 	if blocking:
@@ -1999,6 +1999,10 @@ func _land_jump(impact_speed: float, dir: Vector3) -> void:
 		take_damage(roundi((fall_height - 6.0) * 8.0), null, Vector3.ZERO, true)
 		if dead:
 			return
+	var fall_inj := RAInjuries.fall_injury(fall_height, roll)
+	if fall_inj != "" and not swimming and not Life.injuries.has(fall_inj):
+		Life.injuries.add(fall_inj, WorldSim.day)
+		Game.say("You land badly: %s." % String(RAInjuries.info(fall_inj).get("name", fall_inj)).to_lower())
 	var ground := Vector3(global_position.x, WorldGen.height(global_position.x, global_position.z), global_position.z)
 	var water_surface := WorldGen.water_level_at(global_position.x, global_position.z)
 	if is_nan(water_surface):
@@ -2493,6 +2497,11 @@ func revive(teleport := true) -> void:
 
 
 ## Children are smaller; the body and camera height follow Life.body_scale().
+## Movement multiplier from injuries (a sprained ankle, a broken leg: RAInjuries effects["speed"]).
+func injury_speed() -> float:
+	return clampf(1.0 + float(Life.injuries.effects().get("speed", 0.0)), 0.3, 1.0)
+
+
 func apply_age() -> void:
 	var k := Life.body_scale()
 	_model.scale = Vector3.ONE * k
