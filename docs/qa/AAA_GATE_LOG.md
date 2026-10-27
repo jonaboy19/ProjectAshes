@@ -24,3 +24,16 @@ File: docs/qa/golden/slice/ladder_climb_after2.jpg (dressed test platform: weath
 | Weapons | PASS | shield on the back, sword across the back for the climb (no more hip blade sticking out); drawn back after with the draw clip |
 | Top-out | PASS (motion) | root motion extracted from Mx_Trav_Ladder_Top_Exit (RootExtract): the capsule follows the clip, it ends standing over the capsule and fades into idle - the end-pose pop is gone |
 | Overall vs ref 02 | FAIL | the climb pose itself is still stiff and wide-kneed (UAL Ladder_Climb_Up); left hand drifts toward the rail on some reaches. Next: the Mixamo climb or a pose pass |
+
+## 2026-10-27 world worker: countryside route (Ashford edge -> wall stile -> copse -> bandit camp), real world + Terrain3D
+Files: PA_plans/videos/slice_route_after.mp4 (v3), slice_route_before.mp4 (raw: route_before_raw.mp4), side-by-side PA_plans/videos/slice_route_vs_ref01.png. Tools: Movie Maker, ffmpeg, Terrain3D instancer/macro variation, Poly Haven CC0 muddy_tracks + stacked_stone_wall, authored data (slice_route.json).
+| Check | Result | Note |
+|---|---|---|
+| Ground worn/used, ruts, puddle, soft edges (ref 01) | FAIL | road edge now soft and brown-red, but ruts do not read (flat smear at gameplay distance), puddle barely visible |
+| Vegetation clustered/authored | FAIL | verge grass is separate clumps, not a continuous tall-grass mass; flowers too few |
+| Grouped tree masses | FAIL | copse/belt still read as single lollipop trees from the road |
+| Layered haze / soft cumulus sky | PASS-ish | haze layers on the fells read; sky cumulus OK but tiling pattern visible |
+| Exposure natural | PASS | no blown sky, no crushed shadows |
+| Materials (wall, road) PBR breakup | FAIL | wall OK; road albedo too saturated/red |
+| HUD/branding | PASS | hidden |
+Verdict: WIP, not sendable. Next: road texture scale + rut normal strength + desaturate; dense grass mass via GrassField/MultiMesh cards at 0.25 m; tree masses (8-15 trees per group, under-storey); puddle decal.

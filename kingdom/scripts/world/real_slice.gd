@@ -170,9 +170,11 @@ func _road() -> void:
 				var base := a if corner.x == 0 else b
 				var t := float(corner.y) / (cols - 1) - 0.5
 				var q := base + side * t * w * (1.0 + 0.08 * sin(v * 0.21 + corner.y))
-				quad.append(Vector3(q.x, WorldGen.height(q.x, q.y) + 0.04, q.y))
+				quad.append(Vector3(q.x, WorldGen.height(q.x, q.y) + 0.14, q.y))
 				uvs.append(Vector2(t + 0.5, (v + (seg if corner.x == 1 else 0.0)) / w))
 			for idx in [0, 1, 2, 0, 2, 3]:
+				var edge := absf(uvs[idx].x - 0.5) * 2.0
+				st.set_color(Color(1, 1, 1, 1.0 - smoothstep(0.55, 1.0, edge)))
 				st.set_uv(uvs[idx])
 				st.add_vertex(quad[idx])
 		v += seg
@@ -186,6 +188,9 @@ func _road() -> void:
 	mat.roughness_texture = load(TRACKS + "arm_2k.jpg")
 	mat.roughness_texture_channel = BaseMaterial3D.TEXTURE_CHANNEL_GREEN
 	mat.cull_mode = BaseMaterial3D.CULL_DISABLED
+	mat.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA_DEPTH_PRE_PASS
+	mat.vertex_color_use_as_albedo = true
+	mat.albedo_color = Color(0.78, 0.68, 0.58)     # Poly Haven muddy_tracks is red clay: pull it toward the KCD brown-grey dirt
 	mesh.surface_set_material(0, mat)
 	var mi := MeshInstance3D.new()
 	mi.mesh = mesh
@@ -224,10 +229,13 @@ func _verges() -> void:
 			for sd in [-1.0, 1.0]:
 				var off := w + 0.2 + pow(_rng.randf(), 1.6) * 7.5
 				var q: Vector2 = a + dir * (along + _rng.randf_range(-0.4, 0.4)) + side * float(sd) * off
-				if _rng.randf() < 0.12:
+				var r := _rng.randf()
+				if r < 0.06:
 					_plant(["flowers_warm", "flowers_cool"][_rng.randi() % 2], q, _rng.randf_range(0.8, 1.2))
+				elif r < 0.14:
+					_plant("grass_tall", q, _rng.randf_range(0.9, 1.3))
 				else:
-					_plant("grass_tall", q, _rng.randf_range(1.1, 1.8))
+					_plant("grass_a", q, _rng.randf_range(1.2, 2.0))
 			along += 0.55
 
 

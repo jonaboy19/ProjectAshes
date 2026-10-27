@@ -35,7 +35,7 @@ func _ready() -> void:
 
 var _field_queue: Array = []
 var _wall_mesh: Mesh
-const STONE_DIR := "res://assets/incoming/polyhaven/textures/mossy_stone_wall/mossy_stone_wall_"
+const STONE_DIR := "res://assets/cc0/textures/stacked_stone_wall/stacked_stone_wall_"   # CC0 slice kit (Poly Haven)
 
 
 ## A 4 m Lake District dry-stone wall segment: battered (wider at the foot), ~3 courses of irregular flat stones plus a row of
