@@ -14,7 +14,7 @@ static var counts := {"changes": 0, "on_screen": 0, "on_screen_faded": 0}
 static var by_kind := {}         # "full>none@on" -> n
 
 
-static func report(cam: Camera3D, focus: Vector3, now_state: Dictionary, pos_of: Callable, faded: Dictionary = {}) -> void:
+static func report(cam: Camera3D, focus: Vector3, now_state: Dictionary, pos_of: Callable, faded: Dictionary = {}, in_fade_band: Callable = Callable()) -> void:
 	if not enabled or cam == null:
 		return
 	var ids := {}
@@ -34,7 +34,7 @@ static func report(cam: Camera3D, focus: Vector3, now_state: Dictionary, pos_of:
 		counts["changes"] += 1
 		var k := "%s>%s@%s" % [NAMES[a], NAMES[b], "on" if on else "off"]
 		if on:
-			if faded.has(id):
+			if faded.has(id) or (in_fade_band.is_valid() and a != Rep.FULL and b != Rep.FULL and bool(in_fade_band.call(d))):
 				counts["on_screen_faded"] += 1
 				k += "(faded)"
 			else:
@@ -54,4 +54,8 @@ static func tick(delta: float) -> void:
 
 
 static func summary() -> void:
+	var reps := [0, 0, 0, 0]
+	for id in _state:
+		reps[int(_state[id])] += 1
+	print("POPLOG_DRAWN sprite=%d vat=%d full=%d" % [reps[1], reps[2], reps[3]])
 	print("POPLOG_SUM changes=%d on_screen=%d on_screen_faded=%d kinds=%s" % [counts["changes"], counts["on_screen"], counts["on_screen_faded"], by_kind])

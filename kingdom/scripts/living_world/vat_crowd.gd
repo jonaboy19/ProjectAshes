@@ -252,6 +252,14 @@ func play(id: int, clip: String, phase_s := -1.0, speed := 1.0) -> void:
 	_write_custom(id)
 
 
+## Distance dither fade-out ending at `far` metres from the camera (0 = off), on every look bucket.
+func set_fade(far: float) -> void:
+	for b in _mmi:
+		var m := (_mmi[b] as MultiMeshInstance3D).material_override as ShaderMaterial
+		if m:
+			m.set_shader_parameter("fade_far", far)
+
+
 ## Clip time the shader shows now for `id` (wrapped for loops).
 func clip_time(id: int) -> float:
 	if not _data.has(id):

@@ -194,10 +194,18 @@ func _drain_spawns() -> void:
 		return
 	var _pt := Probe.t()
 	var built := 0
-	while not _spawn_queue.is_empty() and built < MAX_SPAWNS_PER_FRAME:
+	var tries := _spawn_queue.size()
+	while not _spawn_queue.is_empty() and built < MAX_SPAWNS_PER_FRAME and tries > 0:
+		tries -= 1
 		var id: int = _spawn_queue.pop_front()
 		_spawn_queued.erase(id)
 		if _full.has(id) or not _want_full.has(id) or WorldSim.is_indoors(id):
+			continue
+		# A body that would appear from nothing in view (stepping out of a door, entering the band): wait until the view
+		# turns, unless it is right next to the player. Residents shown as VAT / sprite hand over in place instead.
+		if vis_gate and not _drawn_prev.has(id) and _spawn_hidden_from_view(id):
+			_spawn_queue.append(id)
+			_spawn_queued[id] = true
 			continue
 		_full[id] = _spawn(id)
 		full_count = _full.size()
@@ -261,9 +269,14 @@ func refresh(step_delta := 0.25, spread := false) -> void:
 		_full_range = float(Quality.value("pop_full_range"))
 		_sprite_range = float(Quality.value("pop_sprite_range"))
 		_vat_range = float(Quality.value("vat_range"))
+	# Band-edge fades instead of pops (camera sits ~5 m behind the focus): sprites fade out at the far edge; the VAT tier
+	# fades out over its last 18 m and the sprite that replaces a resident there fades in over the next 18 m.
 	for m in _sprite_mats:
 		if m is ShaderMaterial:
 			(m as ShaderMaterial).set_shader_parameter("fade_far", _sprite_range + 6.0)
+			(m as ShaderMaterial).set_shader_parameter("fade_near", (_vat_range + 23.0) if _vat else 0.0)
+	if _vat:
+		_vat.crowd.set_fade(_vat_range + 5.0)
 	# Perf (release QA 2026-10-06): in the capital people_near returned ~1-2k residents and every refresh filtered, weighted and
 	# lambda-sorted all of them (~20 ms on the PC, ~100 ms on the S22, 4x a second) to keep ~22 (LOW). The query radius now
 	# adapts so about 4x what the tier can show come back; it never drops below the full-model band, so bodies are unchanged.
@@ -309,12 +322,18 @@ func refresh(step_delta := 0.25, spread := false) -> void:
 		if not (within_budget or too_close_for_sprite):
 			continue
 		want_full[entry[1]] = true
+	var _kept_in_view := 0
 	for id in _full.keys():
 		if want_full.has(id):
 			continue
 		var v: Villager = _full[id]
 		# A body on the ground stays where it fell while the player is anywhere near.
 		if v.is_down() and v.global_position.distance_squared_to(focus) < 90.0 * 90.0:
+			continue
+		# In view and not going indoors: keep the body until the view turns (spawn QA: no body vanishing on screen).
+		if vis_gate and _kept_in_view < 6 and not WorldSim.is_indoors(id) and v.global_position.distance_squared_to(focus) < _full_range * _full_range * 2.25 and _vis_cam_sees(v.global_position):
+			want_full[id] = true
+			_kept_in_view += 1
 			continue
 		# Someone standing against the player keeps their body until they step away.
 		if not FollowerManager.owns(id) and not WorldSim.is_indoors(id) and v.global_position.distance_squared_to(focus) < CONTACT_KEEP * CONTACT_KEEP:
@@ -324,6 +343,7 @@ func refresh(step_delta := 0.25, spread := false) -> void:
 		_villagers.erase(v)
 		v.queue_free()
 		_full.erase(id)
+		_drawn_prev[id] = 2          # the crowd tier may take this resident over at once (it was visible a moment ago)
 	# Bodies on the ground (killed / knocked out, also after a load) near the player get a lying body.
 	if Takedown.down_count() > 0:
 		for did: int in Takedown.persons():
@@ -676,6 +696,19 @@ func _advance_sprite_route(id: int, from: Vector2, graph: StreetGraph, delta: fl
 	return current
 
 
+func _vis_cam_sees(p: Vector3) -> bool:
+	if _vis_cam == null or not is_instance_valid(_vis_cam) or not _vis_cam.current:
+		_vis_cam = get_viewport().get_camera_3d() if is_inside_tree() else null
+	return _vis_cam != null and _in_wide_view(p + Vector3(0, 1.0, 0))
+
+
+func _spawn_hidden_from_view(id: int) -> bool:
+	var d2 := (WorldSim.pos[id] as Vector2).distance_squared_to(Vector2(focus.x, focus.z))
+	if d2 <= NEAR_ALWAYS * NEAR_ALWAYS:
+		return false
+	return _on_view(id, d2, false)
+
+
 ## True when resident `id` (squared distance d2 to the focus) is inside the camera view and nearer than VIS_GATE of its
 ## draw band (VAT or sprite range): a change there would be a visible pop.
 func _on_view(id: int, d2: float, vat_band: bool) -> bool:
@@ -687,7 +720,27 @@ func _on_view(id: int, d2: float, vat_band: bool) -> bool:
 	if d2 > band * band:
 		return false
 	var p: Vector2 = WorldSim.pos[id]
-	return _vis_cam.is_position_in_frustum(Vector3(p.x, WorldGen.height(p.x, p.y) + 1.0, p.y))
+	return _in_wide_view(Vector3(p.x, WorldGen.height(p.x, p.y) + 1.0, p.y))
+
+
+## In view with a margin: the gates run on a time-sliced pass while the camera keeps turning, so "in view" means
+## within the horizontal FOV + VIEW_MARGIN_DEG either side (anything about to enter the view counts as seen).
+const VIEW_MARGIN_DEG := 30.0
+func _in_wide_view(w: Vector3) -> bool:
+	var cxf := _vis_cam.global_transform
+	var to := w - cxf.origin
+	var fwd := -cxf.basis.z
+	to.y = 0.0
+	fwd.y = 0.0
+	if to.length() < 0.5:
+		return true
+	var aspect := 16.0 / 9.0
+	var vp := get_viewport()
+	if vp:
+		var sz := vp.get_visible_rect().size
+		aspect = sz.x / maxf(sz.y, 1.0)
+	var half_h := rad_to_deg(atan(tan(deg_to_rad(_vis_cam.fov) * 0.5) * aspect))
+	return rad_to_deg(fwd.normalized().angle_to(to.normalized())) < half_h + VIEW_MARGIN_DEG
 
 
 ## --pop-log: every resident's representation after a finished refresh (see PopVisibilityLog).
@@ -713,7 +766,16 @@ func _pop_log_report(active: Dictionary, vat_ids: Dictionary) -> void:
 	for id in st:
 		if int(st[id]) == PopVisibilityLog.Rep.SPRITE and (WorldSim.pos[id] as Vector2).distance_squared_to(Vector2(focus.x, focus.z)) > edge:
 			faded[id] = true
-	PopVisibilityLog.report(get_viewport().get_camera_3d(), focus, st, pos_of, faded)
+	# bodies that took over a VAT instance in place (same look, pose, clip time): a hand-off, not a pop
+	for id in _full:
+		var fv = _full[id]
+		if is_instance_valid(fv) and not (fv as Villager).handoff.is_empty():
+			faded[id] = true
+	var vr := _vat_range if _vat else -1000.0
+	var sr := _sprite_range
+	# changes inside the dither bands (VAT fade-out vr-18..vr, sprite fade-in vr..vr+23, sprite fade-out sr-24..sr+6)
+	var in_band := func(d: float) -> bool: return (d > vr - 20.0 and d < vr + 25.0) or d > sr - 26.0
+	PopVisibilityLog.report(get_viewport().get_camera_3d(), focus, st, pos_of, faded, in_band)
 
 
 func _sprite_heading(id: int, fallback: Vector2) -> Vector2:
@@ -779,6 +841,8 @@ func _spawn(id: int) -> Villager:
 	var keep: Array[String] = []
 	keep.assign(model[1])
 	var v := Villager.create(id, model[0], keep)
+	if _vat:
+		v.handoff = _vat.handoff(id)       # same look, pose, place and clip time as the VAT instance it replaces
 	v.neighbours = _villagers
 	_villagers.append(v)
 	add_child(v)
