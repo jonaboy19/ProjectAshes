@@ -162,6 +162,7 @@ var _lock_w: Array[float] = [0.0, 0.0]
 ## Heel-toe lock: a stance that starts on the heel pins the ANKLE until the ball comes down, then hands the pin to the ball (where the
 ## pinned ankle puts it), so neither the heel at strike nor the ball at toe-off slides.
 var _lock_heel: Array[bool] = [false, false]
+var _lock_yaw: Array[float] = [NAN, NAN]
 var _ball_h: Array[float] = [1.0, 1.0]
 const HEEL_BALL_UP := 0.02      # m: ball this high above its rest at plant -> heel strike
 const HEEL_BALL_DOWN := 0.012   # m: ball down -> pin moves to the ball
@@ -714,7 +715,7 @@ func _pre_modify(delta: float) -> void:
 	for i in 2:
 		if _lock_w[i] > 0.001:
 			var tgt := _foot_anim[i] + Vector3(0.0, _ground[i], 0.0)
-			var lk := Vector2(tgt.x, tgt.z).lerp(_lock_xz[i] + (Vector2.ZERO if _lock_heel[i] else _ball_off[i]), _lock_w[i])
+			var lk := Vector2(tgt.x, tgt.z).lerp(_lock_xz[i] + (Vector2.ZERO if _lock_heel[i] else _yawed_off(i)), _lock_w[i])
 			var r := Vector2(hips[i].x - lk.x, hips[i].z - lk.y).length()
 			var h := hips[i].y + _pelvis_off - tgt.y
 			var reach := _leg_len * REACH_MAX
@@ -736,7 +737,7 @@ func _pre_modify(delta: float) -> void:
 	for i in 2:
 		var target := _foot_anim[i] + Vector3(0.0, _ground[i], 0.0)
 		if _lock_w[i] > 0.001:
-			var lk := Vector2(target.x, target.z).lerp(_lock_xz[i] + (Vector2.ZERO if _lock_heel[i] else _ball_off[i]), _lock_w[i])
+			var lk := Vector2(target.x, target.z).lerp(_lock_xz[i] + (Vector2.ZERO if _lock_heel[i] else _yawed_off(i)), _lock_w[i])
 			target.x = lk.x
 			target.z = lk.y
 		_markers[i].global_position = target
@@ -760,6 +761,7 @@ func _update_lock(i: int, delta: float) -> void:
 			_lock_on[i] = true
 			_lock_heel[i] = _ball_h[i] / k > HEEL_BALL_UP and speed < HEEL_LOCK_MAX_SPEED * k   # walking heel strikes; jogs land on the forefoot
 			_lock_xz[i] = Vector2(_foot_anim[i].x, _foot_anim[i].z) if _lock_heel[i] else anim_xz
+			_lock_yaw[i] = _foot_yaw(i)
 		elif _lock_heel[i] and _ball_h[i] / k < HEEL_BALL_DOWN:
 			_lock_heel[i] = false
 			_lock_xz[i] = _lock_xz[i] - _ball_off[i]       # the ball where the pinned ankle puts it
@@ -922,6 +924,11 @@ func _post_modify(delta: float) -> void:
 				tilt = Quaternion.IDENTITY.slerp(tilt, MAX_TILT / angle)
 			tilt = Quaternion.IDENTITY.slerp(tilt, _plant[i])
 			var desired := (skel_q.inverse() * tilt * skel_q) * _foot_rot[i]
+			if _lock_w[i] > 0.001 and not is_nan(_lock_yaw[i]):
+				# a planted foot keeps the heading it landed with: the clip's stance yaw swings the toe sideways (adult walk:
+				# 0.28 m/s of the 0.39 m/s slip was lateral, at the toe tip)
+				var dy := wrapf(_lock_yaw[i] - _foot_yaw(i), -PI, PI) * _lock_w[i]
+				desired = (skel_q.inverse() * Quaternion(Vector3.UP, dy) * skel_q) * desired
 			var foot := _leg[i][2]
 			var parent_q := _skeleton.get_bone_global_pose(_leg[i][1]).basis.get_rotation_quaternion()
 			var foot_q := _skeleton.get_bone_global_pose(foot).basis.get_rotation_quaternion()
@@ -1340,3 +1347,18 @@ func jolt(world_dir: Vector3, strength: float) -> void:
 		return
 	var local := _model.global_basis.orthonormalized().inverse() * world_dir
 	_lean_v += Vector2(local.z, local.x).limit_length(1.0) * strength
+
+
+## World yaw of the animated foot (heel to ball direction), radians.
+func _foot_yaw(i: int) -> float:
+	var fw := Vector2(-_ball_off[i].x, -_ball_off[i].y)     # ball minus ankle, world xz
+	return atan2(fw.x, fw.y) if fw.length_squared() > 1e-6 else 0.0
+
+
+## The ankle's offset from the ball (world xz) with the foot turned back to the heading it was planted with.
+func _yawed_off(i: int) -> Vector2:
+	if is_nan(_lock_yaw[i]) or _lock_w[i] <= 0.001:
+		return _ball_off[i]
+	var dy := wrapf(_lock_yaw[i] - _foot_yaw(i), -PI, PI) * _lock_w[i]
+	var o := _ball_off[i]
+	return Vector2(o.x * cos(dy) + o.y * sin(dy), -o.x * sin(dy) + o.y * cos(dy))

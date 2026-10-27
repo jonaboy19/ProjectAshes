@@ -23,6 +23,13 @@ func run(bot: Node) -> void:
 	b = bot
 	player = b.get("player")
 	WorldSim.time_of_day = 11.0
+	if OS.has_environment("PLAYTEST_MOVIE"):
+		# owner video: no HUD, no debug overlays
+		var hud: Variant = b.get("hud")
+		if hud is CanvasItem:
+			(hud as CanvasItem).visible = false
+		elif hud is CanvasLayer:
+			(hud as CanvasLayer).visible = false
 	var town: Dictionary = Slice.settlement(String(Slice.data().get("scenario_a", {}).get("town", "Ashford")))
 	if town.is_empty():
 		b.check("scenario A: the scenario town exists", false)

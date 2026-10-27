@@ -130,7 +130,13 @@ func _on_hp_watch(cur: int, _mx: int) -> void:
 
 
 func now() -> float:
+	if _movie_fps > 0.0:
+		return float(Engine.get_process_frames() - _movie_f0) / _movie_fps     # Movie Maker: game time, not wall time (renders slower)
 	return (Time.get_ticks_msec() - t0) / 1000.0
+
+
+var _movie_fps := float(OS.get_environment("PLAYTEST_MOVIE_FPS")) if OS.has_environment("PLAYTEST_MOVIE_FPS") else 0.0
+var _movie_f0 := Engine.get_process_frames()
 
 
 func L(s: String) -> void:
