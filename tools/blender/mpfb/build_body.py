@@ -28,6 +28,8 @@ PRESETS = {
                   "cupsize": 0.5, "firmness": 0.5, "race": {"asian": 0.0, "caucasian": 1.0, "african": 0.0}},
         "skin": "skins/middleage_caucasian_male/middleage_caucasian_male.mhmat",
         "eyebrows": "eyebrows/eyebrow004/eyebrow004.mhclo",
+        "eyes": "eyes/low-poly/low-poly.mhclo",
+        "eye_mat": "eyes/materials/brown.mhmat",
         "hair": "hair/short02/short02.mhclo",
         "clothes": ["clothes/rehmanpolanski_viking_tunic/rehmanpolanski_viking_tunic.mhclo",
                     "clothes/rehmanpolanski_viking_pants/rehmanpolanski_viking_pants.mhclo",
@@ -50,6 +52,8 @@ basemesh.name = "MPFB_" + PRESET
 rig = HumanService.add_builtin_rig(basemesh, "game_engine", import_weights=True)
 HumanService.set_character_skin(path(pre["skin"]), basemesh, skin_type="GAMEENGINE")
 HumanService.add_mhclo_asset(path(pre["eyebrows"]), basemesh, asset_type="Eyebrows", subdiv_levels=0)
+if pre.get("eyes"):
+    HumanService.add_mhclo_asset(path(pre["eyes"]), basemesh, asset_type="Eyes", subdiv_levels=0, alternative_materials=None)
 HumanService.add_mhclo_asset(path(pre["hair"]), basemesh, asset_type="Hair", subdiv_levels=0)
 for c in pre["clothes"]:
     HumanService.add_mhclo_asset(path(c), basemesh, asset_type="Clothes", subdiv_levels=0)
@@ -65,7 +69,9 @@ print("MPFB objects", [o.name for o in bpy.data.objects], "tris", tris)
 if rig:
     print("MPFB bones", len(rig.data.bones), [b.name for b in rig.data.bones][:12])
 
-if PREVIEW:
+if os.environ.get("MPFB_NO_EXPORT"):
+    pass
+elif PREVIEW:
     scn = bpy.context.scene
     cam = bpy.data.objects.new("Cam", bpy.data.cameras.new("Cam"))
     scn.collection.objects.link(cam)
@@ -86,7 +92,8 @@ if PREVIEW:
     bpy.ops.render.render(write_still=True)
     print("MPFB preview", PREVIEW)
 
-bpy.ops.object.select_all(action="SELECT")
-bpy.ops.export_scene.gltf(filepath=OUT, export_format="GLB", export_yup=True, export_apply=True, export_skins=True,
+if not os.environ.get("MPFB_NO_EXPORT"):
+  bpy.ops.object.select_all(action="SELECT")
+  bpy.ops.export_scene.gltf(filepath=OUT, export_format="GLB", export_yup=True, export_apply=True, export_skins=True,
                           export_animations=False, use_selection=True)
-print("MPFB_DONE", OUT)
+  print("MPFB_DONE", OUT)
