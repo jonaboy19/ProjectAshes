@@ -845,6 +845,8 @@ func _physics_process(delta: float) -> void:
 	var planar := _move_dir * _move_speed + _impulse
 	if _cmotion.active:
 		planar += _cmotion_step(delta)
+	if is_instance_valid(_guard_foe) and not _guard_foe.get("dead"):
+		planar = CombatMotion.limit_approach(planar, global_position, _guard_foe.global_position) + CombatMotion.body_push(global_position, _guard_foe.global_position)     # stop at arm's length, never inside the foe
 	velocity.x = planar.x
 	velocity.z = planar.z
 	_impulse = _impulse.move_toward(Vector3.ZERO, IMPULSE_DECEL * delta)
@@ -1235,9 +1237,7 @@ func _update_lock(delta: float) -> void:
 		_yaw = lerp_angle(_yaw, atan2(-to.x, -to.z), 1.0 - exp(-6.0 * delta))
 	if view == View.THIRD:
 		_pitch = lerpf(_pitch, LOCK_PITCH, 1.0 - exp(-3.0 * delta))
-	var t := Time.get_ticks_msec() * 0.001
-	_lock_marker.global_position = _lock.global_position + Vector3.UP * (_lock_height + sin(t * 4.0) * 0.06)
-	_lock_marker.rotation.y = t * 2.5
+	_lock_marker.global_position = _lock.global_position + Vector3.UP * (_lock_height + 0.12)
 
 
 ## Height of a body's collision capsule top above its origin (1.8 m when unknown).
@@ -1255,18 +1255,19 @@ func _body_top(node: Node3D) -> float:
 	return 1.8
 
 
-## A small downward cone that floats over the locked target, drawn over everything.
+## A small, quiet downward tick over the locked target (benchmark UI restraint, AAA gate ref 03): pale, half-transparent,
+## depth-tested and still, so it reads as a cue rather than an orange arcade arrow.
 func _build_lock_marker() -> void:
 	var cone := CylinderMesh.new()
-	cone.top_radius = 0.16
+	cone.top_radius = 0.055
 	cone.bottom_radius = 0.0
-	cone.height = 0.3
+	cone.height = 0.11
 	cone.radial_segments = 8
 	cone.rings = 1
 	var mat := StandardMaterial3D.new()
 	mat.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
-	mat.albedo_color = Color(1.0, 0.45, 0.2)
-	mat.no_depth_test = true
+	mat.albedo_color = Color(0.92, 0.88, 0.8, 0.55)
+	mat.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
 	mat.render_priority = 10
 	cone.material = mat
 	_lock_marker = MeshInstance3D.new()
@@ -1737,7 +1738,40 @@ func set_sheathed(on: bool, quick := false) -> void:
 	_sheathe_pending = SHEATHE_AT if on else DRAW_AT
 
 
+## Out of combat the blade goes home by itself (KCD2): the game starts sheathed, and a drawn weapon is sheathed after
+## AUTO_SHEATHE_S with no swing, no block and no foe within AUTO_SHEATHE_RANGE. Attacking or blocking draws again (attack / above).
+const AUTO_SHEATHE_S := 5.0
+const AUTO_SHEATHE_RANGE := 14.0
+var _calm_t := -1.0              # s since the last combat cue; -1 until the first tick (starts sheathed, no clip)
+var _calm_check := 0.0
+
+
+func _update_auto_sheathe(delta: float) -> void:
+	if _calm_t < 0.0:
+		_calm_t = 0.0
+		if _carry == null and not sheathed:
+			set_sheathed(true, true)
+		return
+	if sheathed or dead or _carry != null or _sheathe_pending > 0.0:
+		_calm_t = 0.0
+		return
+	if blocking or _swing > 0.0 or _attack_buffer > 0.0:
+		_calm_t = 0.0
+		return
+	_calm_check -= delta
+	if _calm_check <= 0.0:
+		_calm_check = 0.5
+		if _nearest_enemy(AUTO_SHEATHE_RANGE, -1.0) != null:
+			_calm_t = 0.0
+			return
+	_calm_t += delta
+	if _calm_t >= AUTO_SHEATHE_S:
+		_calm_t = 0.0
+		set_sheathed(true)
+
+
 func _update_sheathe(delta: float) -> void:
+	_update_auto_sheathe(delta)
 	if _sheathe_pending > 0.0:
 		_sheathe_pending -= delta
 		if _sheathe_pending <= 0.0 and _rig:
@@ -2309,6 +2343,7 @@ func _start_swing() -> void:
 
 var _cmotion_target: Node3D
 var _guard_check := 0.0
+var _guard_foe: Node3D
 
 
 ## Combat guard stance: blade drawn and a living foe within GUARD_RANGE -> the weapon's bent-knee guard idle / armed walk
@@ -2327,6 +2362,7 @@ func _update_guard_stance(delta: float) -> void:
 	var want := ""
 	if not dead and not swimming and _mount == null and not crouching and _carry == null and not bool(_rig.get("sheathed") if _rig else false):
 		var foe := _nearest_enemy(GUARD_RANGE, -1.0)
+		_guard_foe = foe
 		if foe != null:
 			want = "guard_" + combat_style
 	if want != cur:
@@ -2346,6 +2382,8 @@ func _local_input() -> Vector2:
 func _cmotion_step(delta: float) -> Vector3:
 	if dead or _stunned > 0.0 or _swing <= 0.0:
 		_cmotion.stop()
+		if _swing <= 0.0 and not dead and String(_action.anim if _action else "").begins_with("Mx_"):
+			_animator.stop_attack()     # the swing's recovery is over: fade into the guard idle instead of playing the clip out tall
 		return Vector3.ZERO
 	var to := Vector3.ZERO
 	if is_instance_valid(_cmotion_target) and not _cmotion_target.get("dead"):

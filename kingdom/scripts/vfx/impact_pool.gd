@@ -18,7 +18,7 @@ const DUST_MAX := 8
 ## Per tier (light, heavy, finisher): overall size, spark share, slash count, seconds the slot is busy.
 const TIER_SIZE := [0.45, 0.65, 0.95]      ## smaller: contact reads from the bodies, not a flare (AAA gate ref 03)
 const TIER_SPARKS := [0.4, 0.7, 1.0]
-const TIER_SLASHES := [1, 2, 3]
+const TIER_SLASHES := [0, 0, 0]          ## no slash starbursts (coordinator review: cartoonish next to ref 03)
 const BUSY := [0.45, 0.5, 0.55]
 ## Ground ring diameter in metres (a body is ~0.7 m wide: a finisher ring is ~2.5 body widths) and its start alpha.
 const RING_SIZE := [1.2, 1.5, 1.8]
@@ -191,10 +191,10 @@ func play(pos: Vector3, element := "physical", tier := 0, dir := Vector3.ZERO, l
 	var flash: MeshInstance3D = slot["flash"]
 	var fm: ShaderMaterial = slot["flash_mat"]
 	_tint(fm, warm)
-	flash.visible = not landing
+	flash.visible = not landing and tier >= 1      # light hits: sparks + dust only, no glow core
 	fm.set_shader_parameter("bb_scale", size * 0.5)
 	fm.set_shader_parameter("fade", 1.0)
-	tw.tween_property(fm, "shader_parameter/bb_scale", size * 1.7, 0.10).set_ease(Tween.EASE_OUT)
+	tw.tween_property(fm, "shader_parameter/bb_scale", size * 0.9, 0.08).set_ease(Tween.EASE_OUT)
 	tw.tween_property(fm, "shader_parameter/fade", 0.0, 0.12).set_delay(0.03)
 
 	var ring: MeshInstance3D = slot["ring"]

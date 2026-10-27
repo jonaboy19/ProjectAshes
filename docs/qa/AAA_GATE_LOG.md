@@ -111,3 +111,11 @@ Tools used: `stance_measure.gd` ranked every idle/guard clip by foot spread and 
 | Blades actually meet | FAIL | no blade-contact parry IK yet |
 | Environment | n/a (world lane) | the real terrain reads better than the meadow; Terrain3D instancer errors in the log belong to the world worker |
 Verdict: the bandit side now reads close to the ref 03 posture, and hits physically rock the body. The player's tall follow-through and the missing blade contact keep this at FAIL.
+
+## 2026-10-27 Combat full motion pass 3 (combat-motion worker) - coordinator FAILs 1-3
+File: `PA_plans/videos/WIP_combat_full_motion_slice_clearing_sword_v3.mp4` (same copse clearing, same script).
+| Coordinator FAIL | Result | Evidence |
+|---|---|---|
+| 1 Bodies interpenetrate in the opening exchange | PASS | Both fighters now fade their closing speed to zero at BODY_GAP 0.85 m (capsule radii + 0.15 m) via `CombatMotion.limit_approach`, with a soft overlap push (`body_push`). The warp stops at 1.1 m. Telemetry: the closest centre distance was 0.69 m before and is 0.86 m now; 0 frames under 0.85 m. On the sheet the bodies no longer merge. |
+| 2 Spiky starburst impact | PASS | impact_pool has no slash quads; light hits have no glow core (sparks + dust only); heavy cores are about half the size. |
+| 3 Player tall between swings | FAIL (improved) | Recovery now ends at 70 % (stop_attack fades into the Block_Idle guard; soldiers do the same when _busy ends), so the guard shows sooner. The additive crouch layer during recovery is not done, and the player still reads tall in the Mixamo follow-through frames. |

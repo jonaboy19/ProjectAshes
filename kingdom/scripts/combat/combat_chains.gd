@@ -21,6 +21,7 @@ const MIN_RATE := 0.8
 const MAX_RATE := 2.2
 const CHAIN_CANCEL := 0.22     ## s after contact the next light may cut in
 const RECOVER_CAP := 0.80      ## clip s after the contact the swing still owns the body (rest of the clip is cut)
+const RECOVER_SHARE := 0.7     ## the guard idle takes over at 70 % of that recovery (player.gd / soldier.gd stop_attack)
 const ACTIVE_MIN := 0.06
 
 ## style -> rows. light: chain order; dir: cut -> clip; extras: reach, arc_dot, damage scale.
@@ -69,7 +70,7 @@ static func row(style: String, id: String, clip: String, want_hit: float, damage
 	var a0 := minf(float(act[0]), hit - 0.01) / rate
 	var a1 := maxf(float(act[1]), hit + 0.02) / rate
 	var hit_p := hit / rate
-	var end := minf(float(m["len"]), hit + RECOVER_CAP) / rate
+	var end := (hit + (minf(float(m["len"]), hit + RECOVER_CAP) - hit) * RECOVER_SHARE) / rate
 	var a := Action.new()
 	a.id = id
 	a.style = style

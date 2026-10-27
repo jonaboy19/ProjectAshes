@@ -70,7 +70,7 @@ func test_in_place_clip_gets_capped_added_step() -> void:
 
 func test_never_enters_the_victim() -> void:
 	var r := _run(_clip(2.5), Vector3(0, 0, 1.0), 0.9, 1.0)
-	assert_float((r[0] as Vector3).z).is_less_equal(1.0 - CM.MIN_GAP + 0.01)
+	assert_float((r[0] as Vector3).z).is_less_equal(maxf(1.0 - CM.MIN_GAP, 0.0) + 0.01)
 
 
 func test_turn_is_rate_limited_and_converges() -> void:
@@ -89,3 +89,20 @@ func test_moving_target_is_tracked() -> void:
 func test_out_of_range_target_not_chased() -> void:
 	var r := _run(_clip(0.8), Vector3(0, 0, 9.0), 0.6, 1.0)
 	assert_float((r[0] as Vector3).z).is_equal_approx(0.8, 0.02)
+
+
+func test_body_push_separates_only_when_overlapping() -> void:
+	assert_vector(CM.body_push(Vector3.ZERO, Vector3(0, 0, 2.0))).is_equal(Vector3.ZERO)
+	var p := CM.body_push(Vector3.ZERO, Vector3(0, 0, 0.5))
+	assert_float(p.z).is_less(0.0)                     # pushed away from the other body
+	assert_float(p.length()).is_equal_approx((CM.BODY_GAP - 0.5) * CM.PUSH_RATE, 0.001)
+	assert_float(CM.body_push(Vector3.ZERO, Vector3.ZERO).length()).is_greater(0.0)   # exact overlap still resolves
+
+
+func test_limit_approach_stops_closing_at_the_gap_but_keeps_sideways() -> void:
+	var v := Vector3(0, 0, 4.0)
+	assert_vector(CM.limit_approach(v, Vector3.ZERO, Vector3(0, 0, 3.0))).is_equal(v)
+	assert_float(CM.limit_approach(v, Vector3.ZERO, Vector3(0, 0, CM.BODY_GAP)).z).is_equal_approx(0.0, 0.001)
+	var side := CM.limit_approach(Vector3(2, 0, 4), Vector3.ZERO, Vector3(0, 0, CM.BODY_GAP))
+	assert_float(side.x).is_equal_approx(2.0, 0.001)
+	assert_vector(CM.limit_approach(Vector3(0, 0, -3), Vector3.ZERO, Vector3(0, 0, 0.5))).is_equal(Vector3(0, 0, -3))

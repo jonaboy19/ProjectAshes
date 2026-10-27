@@ -22,7 +22,10 @@ const MAX_SCALE := 1.6            ## beyond this the planted feet visibly skate
 const MAX_ADD := 1.0            ## m an in-place clip may be pulled toward the target
 const MAX_ADD_SPEED := 5.5      ## m/s cap of that added step
 const MAX_TURN := 9.0           ## rad/s turn toward the target during the warp window
-const MIN_GAP := 0.95           ## m between centres: never warp closer (bodies must not interpenetrate)
+const MIN_GAP := 1.1            ## m between centres: never warp closer (two 0.35 m capsules + 0.15 m + the swing's forward lean)
+const BODY_GAP := 0.85          ## m: closer than this two fighters are pushed apart (capsule radii + 0.15 m)
+const PUSH_RATE := 10.0         ## 1/s: overlap metres -> separating speed (soft)
+const APPROACH_SLOW := 0.35     ## m beyond BODY_GAP where closing speed fades to zero
 const MAX_WARP_RANGE := 6.0     ## m: further targets are not chased (the clip plays 1:1)
 const FWD := Vector3(0, 0, 1)   ## UAL model forward (+Z, player.gd faces with atan2(x, z))
 
@@ -83,6 +86,32 @@ static func anim_of(animator: Object, clip: String) -> Animation:
 	for v in p:
 		most = maxf(most, v.length())
 	return a if most > 0.05 else null
+
+
+## Soft body-to-body separation for fighters (both sides call it every physics frame): a velocity pushing `me` away from
+## `other` while their centres are closer than BODY_GAP. Root motion, lunges and knockback never leave bodies inside each other.
+static func body_push(me: Vector3, other: Vector3, gap := BODY_GAP) -> Vector3:
+	var d := Vector3(me.x - other.x, 0.0, me.z - other.z)
+	var l := d.length()
+	if l >= gap:
+		return Vector3.ZERO
+	var dir := d / l if l > 0.001 else Vector3(1, 0, 0)
+	return dir * (gap - l) * PUSH_RATE
+
+
+## `vel` with its closing component toward `other` faded out as the bodies near BODY_GAP (zero at the gap): walking,
+## charging and lunging fighters stop at arm's length instead of sliding into each other. Sideways and backward motion pass.
+static func limit_approach(vel: Vector3, me: Vector3, other: Vector3, gap := BODY_GAP) -> Vector3:
+	var d := Vector3(other.x - me.x, 0.0, other.z - me.z)
+	var l := d.length()
+	if l < 0.001 or l > gap + APPROACH_SLOW:
+		return vel
+	var dir := d / l
+	var closing := vel.dot(dir)
+	if closing <= 0.0:
+		return vel
+	var keep := clampf((l - gap) / APPROACH_SLOW, 0.0, 1.0)
+	return vel - dir * closing * (1.0 - keep)
 
 
 static func sample(prof: PackedVector3Array, at: float) -> Vector3:

@@ -194,6 +194,11 @@ func _physics_process(delta: float) -> void:
 	if _busy > 0.0:
 		_velocity *= 0.4
 	var step_velocity := _velocity + _impulse
+	if engaging:
+		step_velocity = CombatMotion.limit_approach(step_velocity, global_position, combat_target.global_position) + CombatMotion.body_push(global_position, combat_target.global_position)    # stop at arm's length, never inside the foe
+	if _cmotion.active and _busy <= 0.0:
+		_cmotion.stop()
+		_animator.stop_attack()          # recovery over: back to the guard idle
 	if _cmotion.active:
 		var tv := Vector3.ZERO
 		if engaging:
