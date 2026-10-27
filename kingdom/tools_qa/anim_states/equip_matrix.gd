@@ -34,7 +34,7 @@ const LOADOUTS := {
 const STATES := [
 	["idle", 1.0], ["dodge_fwd", 1.4], ["walk", 1.4], ["sprint", 1.4], ["strafe_l", 1.0], ["crouch", 1.0], ["jump", 1.4], ["dodge", 1.4],
 	["attack", 1.6], ["block", 1.2], ["hit", 1.0], ["death", 1.6],
-	["block_hit", 1.8], ["sit", 2.0], ["hit_front", 1.4], ["hit_back", 1.4], ["hit_left", 1.4], ["hit_heavy", 2.0],
+	["block_hit", 1.8], ["sit", 2.0], ["combo", 2.6], ["hit_front", 1.4], ["hit_back", 1.4], ["hit_left", 1.4], ["hit_heavy", 2.0],
 ]
 var _p: CharacterBody3D
 var _sk: Skeleton3D
@@ -42,6 +42,7 @@ var _cam: Camera3D
 var _out := "user://equip"
 var _prev := {}
 var _rows: PackedStringArray = []
+var _foe: Node3D = null
 var _strip := ""          # --strip=dodge_fwd: 8 frames of that state per loadout -> strip_<loadout>_<state>.png
 var _strip_imgs: Array[Image] = []
 var _skin_check := false   # --skin: body_cm against the real skinned body (CPU-skinned vertices) instead of the capsule
@@ -321,6 +322,16 @@ func _state(lo: String, st: String, secs: float) -> Image:
 					foe.queue_free()
 				"death":
 					_p.call("take_damage", 9999, null, Vector3.ZERO, true)
+		if st == "combo" and fired:
+			# a bandit 1.6 m ahead takes a 4-hit chain: press attack every 0.12 s so the next swing buffers into each cancel window
+			if _foe == null:
+				_foe = (load("res://scripts/army/soldier.gd") as GDScript).call("create", 1, "Bandit", "Bandit", ["1H_Sword", "Round_Shield"] as Array[String])
+				root.add_child(_foe)
+				var fd: Vector3 = _p.call("facing")
+				_foe.global_position = _p.global_position + fd * 1.6
+				_foe.look_at(_p.global_position, Vector3.UP, true)
+			if fmod(t, 0.12) < 1.0 / 60.0 and t < 2.0:
+				_p.call("attack")
 		if st == "attack" and t > 0.9 and t < 0.92:
 			_p.call("attack")
 		if t > 0.3:
@@ -353,6 +364,9 @@ func _state(lo: String, st: String, secs: float) -> Image:
 			sh.blit_rect(_strip_imgs[i], Rect2i(0, 0, 480, 270), Vector2i((i % 4) * 480, (i / 4) * 270))
 		sh.save_png(_out.path_join("strip_%s_%s.png" % [lo, st]))
 		_strip_imgs.clear()
+	if _foe != null:
+		_foe.queue_free()
+		_foe = null
 	if st == "death":
 		_p.call("revive", false) if _p.has_method("revive") else null
 	if img != null:
