@@ -597,6 +597,8 @@ func _run_all() -> void:
 		["v1_recruit", _s_v1_recruit],
 		["v1_hunt", _s_v1_hunt],
 		["scen_a", _s_scen_a],
+		["slice_move", _s_slice_move],
+		["slice_route", _s_slice_route],
 	]
 	for e: Array in list:
 		if not _want(String(e[0])) and (String(e[0]) != "adult" or only.contains("st_")):
@@ -635,6 +637,8 @@ func _stage_limit(name: String) -> float:
 		"v1_recruit": return 600.0
 		"v1_hunt": return 240.0
 		"scen_a": return 600.0
+		"slice_move": return 300.0
+		"slice_route": return 400.0
 		"st_save": return 200.0
 		"st_birth", "st_a1", "st_a2", "st_a3", "st_a4", "st_a5": return 1500.0
 	return 150.0
@@ -5417,3 +5421,15 @@ func _player_state() -> String:
 func _s_scen_a() -> void:
 	var chain: RefCounted = (load("res://tools_qa/acceptance/movement_chain.gd") as GDScript).new()
 	await chain.call("run", self)
+
+
+## Benchmark slice, player movement route (tools_qa/acceptance/slice_move.gd).
+func _s_slice_move() -> void:
+	var r: RefCounted = (load("res://tools_qa/acceptance/slice_move.gd") as GDScript).new()
+	await r.call("run", self)
+
+
+## Benchmark slice, video QA route (tools_qa/video/slice_route.gd; recorder tools/qa/video/record_slice.sh).
+func _s_slice_route() -> void:
+	var r: RefCounted = (load("res://tools_qa/video/slice_route.gd") as GDScript).new()
+	await r.call("run", self)

@@ -449,8 +449,14 @@ static func _ladder_pose(plan: Dictionary, t: float) -> Vector3:
 	if t < a:
 		var k := _ss(t / a)
 		return Vector3(lerpf(st.x, at.x, k), st.y, lerpf(st.z, at.z, k))
+	var cy: float = plan.get("climb_y", dest.y)
 	if t < a + d:
-		return Vector3(at.x, lerpf(st.y, dest.y, (t - a) / d), at.z)
+		return Vector3(at.x, lerpf(st.y, cy, (t - a) / d), at.z)
+	if plan.has("exit_clip"):
+		# the top-out clip carries the body over the top; its root sits further back (hands 0.45 m ahead of a pelvis 0.55 m
+		# behind the root, where the climb clip has the pelvis over the root): the capsule steps back with it, follows at the end
+		var inw0: Vector3 = plan["inward"]
+		return Vector3(at.x, cy, at.z) - inw0 * float(plan.get("exit_back", 0.0))
 	var k2 := _ss((t - a - d) / e)
 	return Vector3(lerpf(at.x, dest.x, k2), dest.y, lerpf(at.z, dest.z, k2))
 
@@ -692,6 +698,11 @@ class Driver extends RefCounted:
 		var dur: float = plan["duration"]
 		p.global_position = T.pose(plan, minf(t, dur))
 		p.velocity = Vector3.ZERO
+		if kind == &"ladder":
+			_ladder_hands(delta)
+			if plan.has("exit_clip") and not plan.has("exit_started") and t >= float(plan["a"]) + float(plan["d"]):
+				plan["exit_started"] = true
+				_play(String(plan["exit_clip"]), float(plan["exit_rate"]))
 		if t < dur:
 			return
 		match String(plan["shape"]):
@@ -787,7 +798,14 @@ class Driver extends RefCounted:
 		p.apply_floor_snap()
 		state = S.IDLE
 		_tail = float(plan.get("handover", 0.0)) - t
-		if _tail <= 0.0:
+		if plan.has("exit_clip"):
+			_tail = -1.0
+			_match_clip_heading()
+			var an: Variant = p.get("_animator")
+			if an != null:
+				var tr: AnimationTree = (an as Object).get("tree")
+				tr["parameters/full/request"] = AnimationNodeOneShot.ONE_SHOT_REQUEST_ABORT
+		elif _tail <= 0.0:
 			_tail = -1.0
 			_stop_clip()
 		_cooldown = float((cfg.get("auto_vault", {}) as Dictionary).get("cooldown", 0.6))
@@ -798,7 +816,86 @@ class Driver extends RefCounted:
 		finished.emit(k)
 
 
+	## The top-out clip turns the body on its way over (it ends turned away from where its root faces): before the clip is cut, turn
+	## the model to the heading the clip's hips end with, so the idle that follows does not snap round.
+	func _match_clip_heading() -> void:
+		var m: Variant = p.get("_model")
+		if not (m is Node3D):
+			return
+		var model := m as Node3D
+		var f := model.find_children("*", "Skeleton3D", true, false)
+		if f.is_empty():
+			return
+		var sk := f[0] as Skeleton3D
+		var pl := sk.find_bone("thigh_l")
+		var pr := sk.find_bone("thigh_r")
+		if pl < 0 or pr < 0:
+			return
+		var xf := sk.global_transform
+		var lat := (xf * sk.get_bone_global_pose(pl).origin) - (xf * sk.get_bone_global_pose(pr).origin)
+		lat.y = 0.0
+		if lat.length() < 0.01:
+			return
+		var fwd := Vector3.UP.cross(lat).normalized() * -1.0       # hips' forward from the left-minus-right hip line
+		var want := atan2(fwd.x, fwd.z)
+		if OS.has_environment("LAD_DBG"):
+			print("LADDBG heading model %.2f -> hips %.2f" % [model.rotation.y, want])
+		model.rotation.y = want
+
+
+	## Body size relative to the adult rig (children climb with smaller reach).
+	func _body_k() -> float:
+		var m: Variant = p.get("_model")
+		return (m as Node3D).scale.x if m is Node3D else 1.0
+
+
+	## While climbing, each hand grips the nearest rung on its own rail (arm IK through ProceduralRig.set_hand_brace), so the
+	## hands close on the wood instead of waving in front of it; released for the top-out clip and at the end.
+	func _ladder_hands(_delta: float) -> void:
+		var rig: Variant = p.get("_rig")
+		if not (rig is Object):
+			return
+		var grip := not plan.has("exit_started") and t > float(plan["a"]) * 0.5
+		var lad: Vector3 = plan.get("ladder", Vector3.ZERO)
+		var inw: Vector3 = plan["inward"]
+		var right := inw.cross(Vector3.UP).normalized()       # the climber's right
+		var sk: Variant = null
+		var model: Variant = p.get("_model")
+		if model is Node3D:
+			var f := (model as Node3D).find_children("*", "Skeleton3D", true, false)
+			sk = f[0] if not f.is_empty() else null
+		var rung: float = plan.get("rung", 0.31)
+		var base_y: float = (plan["start"] as Vector3).y
+		for side in 2:
+			var w := 0.0
+			var pt := Vector3.ZERO
+			var wkey := "hand_w_%d" % side
+			if grip and sk is Skeleton3D:
+				var skel := sk as Skeleton3D
+				var hb := skel.find_bone("hand_l" if side == 0 else "hand_r")
+				var hp := (skel.global_transform * skel.get_bone_global_pose(hb)).origin
+				# grip only while the hand holds still in the world (the clip's hold phase); the reach to the next rung is free
+				var key := "hand_prev_%d" % side
+				var prev: Vector3 = plan.get(key, hp)
+				plan[key] = hp
+				var vy := absf(hp.y - prev.y) / maxf(_delta, 0.001)
+				var hold := 1.0 - smoothstep(0.15, 0.45, vy)
+				plan[wkey] = move_toward(float(plan.get(wkey, 0.0)), hold, _delta * 8.0)
+				var rb: float = plan.get("rung_base", 0.3)
+				var ry := base_y + rb + roundf((hp.y - base_y - rb) / rung) * rung      # nearest rung to the animated hand
+				var rail := -right * 0.2 if side == 0 else right * 0.2
+				pt = Vector3(lad.x, ry, lad.z) + rail - inw * 0.03
+				w = float(plan[wkey])
+			(rig as Object).call("set_hand_brace", side, pt, -inw, w)
+
+
 	func _release_body() -> void:
+		if kind == &"ladder" and not bool(plan.get("was_sheathed", true)) and p.has_method("set_sheathed"):
+			p.call("set_sheathed", false, false)     # drawn back with the draw clip, not snapped into the hand
+		var rig: Variant = p.get("_rig")
+		if rig is Object and kind == &"ladder":
+			(rig as Object).call("set_hand_brace", 0, Vector3.ZERO, Vector3.UP, 0.0)
+			(rig as Object).call("set_hand_brace", 1, Vector3.ZERO, Vector3.UP, 0.0)
 		p.collision_mask = _saved_mask
 		p.reset_physics_interpolation()
 
@@ -924,11 +1021,40 @@ class Driver extends RefCounted:
 		var to_ladder := Vector3(ladder_at.x - s.x, 0.0, ladder_at.z - s.z)
 		var inward := to_ladder.normalized() if to_ladder.length() > 0.05 else facing_dir()
 		var clip := String(lc["up_clip"]) if to_top else String(lc["down_clip"])
-		plan = {"kind": &"ladder", "shape": "ladder", "start": s, "at": Vector3(ladder_at.x, s.y, ladder_at.z), "dest": dest,
+		var k := _body_k()
+		# the body hangs off the rungs (hands reach the ladder plane), not inside the ladder
+		var at := Vector3(ladder_at.x, s.y, ladder_at.z) - inward * float(lc.get("stand_off", 0.42)) * k
+		plan = {"kind": &"ladder", "shape": "ladder", "start": s, "at": at, "dest": dest, "ladder": ladder_at,
 			"a": float(lc["align_time"]), "d": d, "e": float(lc["exit_time"]), "inward": inward, "rate": 1.0,
 			"duration": float(lc["align_time"]) + d + float(lc["exit_time"]), "handover": 0.0, "exit_speed": 0.0,
-			"end": dest, "top_y": dest.y}
+			"end": dest, "top_y": dest.y, "rung": float(lc.get("rung", 0.32)), "rung_base": float(lc.get("rung_base", 0.3))}
+		var xc := String(lc.get("top_exit_clip", ""))
+		var rise := float(lc.get("top_exit_rise", 1.53)) * k
+		if to_top and _has_clip(xc) and dest.y - s.y > rise + 0.3:
+			# Top-out (Mx_Trav_Ladder_Top_Exit): climb until the hands are at the top, then the clip hauls the body over
+			var cy := dest.y - rise
+			# end just before the clip's own fade-out starts (OneShot fadeout 0.15 s): the capsule then jumps to the clip's end pose
+			# in the same frame the clip is cut, instead of the fade blending back to a pose at the old root (a 1-frame dangle)
+			var xd := float(lc.get("top_exit_time", 4.0)) / float(lc.get("top_exit_rate", 1.4)) - 0.2
+			plan["climb_y"] = cy
+			plan["d"] = maxf(absf(cy - s.y) / float(lc["speed"]), float(lc["min_time"]))
+			plan["e"] = xd
+			plan["exit_clip"] = xc
+			plan["exit_rate"] = float(lc.get("top_exit_rate", 1.4))
+			plan["duration"] = float(lc["align_time"]) + float(plan["d"]) + xd
+			plan["exit_back"] = float(lc.get("top_exit_back", 0.52)) * k
+			plan["end"] = Vector3(at.x, cy + rise, at.z) + inward * (float(lc.get("top_exit_fwd", 0.72)) - float(lc.get("top_exit_back", 0.52))) * k
 		kind = &"ladder"
+		# both hands go to the rungs: weapons to their hip / back sockets for the climb, back in hand afterwards
+		plan["was_sheathed"] = bool(p.get("sheathed")) if p.get("sheathed") != null else true
+		if p.has_method("set_sheathed"):
+			p.call("set_sheathed", true, true)
+		# camera level with the climber: a high orbit arm runs into the loft floor above the ladder, pulls in to the head and hides
+		# the body (player._update_camera); looking along the ladder keeps the climber framed up to the top-out
+		if p.get("_pitch") != null:
+			p.set("_pitch", maxf(float(p.get("_pitch")), 0.02))
+		if p.get("_yaw") != null:
+			p.set("_yaw", atan2(-inward.x, -inward.z))       # and behind the climber (the ladder, not the camera, in front of him)
 		_enter_move(clip, float(lc["speed"]) / float(lc["clip_speed"]))
 		_done = done
 		started.emit(&"ladder")

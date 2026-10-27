@@ -18,6 +18,9 @@ static func spawn(parent: Node, bottom_pos: Vector3, top_pos: Vector3, label := 
 	l.name = label.replace(" ", "")
 	parent.add_child(l)
 	l.global_position = bottom_pos
+	var lean := Vector2(top_pos.x - bottom_pos.x, top_pos.z - bottom_pos.z)
+	if lean.length() > 0.05:
+		l.rotation.y = atan2(lean.x, lean.y)      # the ladder faces the climber (rails across, the top marker beyond it)
 	l.bottom.global_position = bottom_pos
 	l.top.global_position = top_pos
 	l._build_visual(top_pos.y - bottom_pos.y)
@@ -63,25 +66,73 @@ func climb(player: Node3D, to_top: bool) -> Vector3:
 	return dest
 
 
+## Rung spacing and first-rung height: they match the climb clip's hand / foot contacts (Ladder_Climb_Up: 0.31 m), so the hand IK in
+## scripts/actors/traversal.gd (_ladder_hands) lands the hands on real rungs. Keep in sync with data/movement/traversal.json "ladder".
+const RUNG := 0.31
+const RUNG_BASE := 0.39
+const RAIL_GLB := "res://assets/generated/props/ladder/ladder_rail.glb"
+const RUNG_GLB := "res://assets/generated/props/ladder/ladder_rung.glb"
+static var _wood: StandardMaterial3D
+static var _rope: StandardMaterial3D
+
+
+static func _materials() -> void:
+	if _wood != null:
+		return
+	var tex := "res://assets/incoming/polyhaven/textures/medieval_wood/medieval_wood_"
+	_wood = StandardMaterial3D.new()
+	_wood.albedo_texture = load(tex + "diff_2k.jpg")
+	_wood.albedo_color = Color(0.82, 0.78, 0.72)          # weathered: a little grey and pale
+	_wood.normal_enabled = true
+	_wood.normal_texture = load(tex + "nor_gl_2k.jpg")
+	_wood.roughness_texture = load(tex + "arm_2k.jpg")
+	_wood.roughness_texture_channel = BaseMaterial3D.TEXTURE_CHANNEL_GREEN
+	_wood.ao_enabled = true
+	_wood.ao_texture = load(tex + "arm_2k.jpg")
+	_wood.ao_texture_channel = BaseMaterial3D.TEXTURE_CHANNEL_RED
+	_wood.uv1_triplanar = true
+	_wood.uv1_scale = Vector3(2.0, 2.0, 2.0)
+	_rope = StandardMaterial3D.new()
+	_rope.albedo_color = Color(0.56, 0.47, 0.33)
+	_rope.roughness = 0.95
+
+
 func _build_visual(h: float) -> void:
-	var wood := StandardMaterial3D.new()
-	wood.albedo_color = Color(0.4, 0.27, 0.15)
-	wood.roughness = 0.95
-	var mid := Vector3(0, h * 0.5, 0)
+	_materials()
+	var rail_len := h + 0.35                # the rails stand above the top so the climber has something to hold on the top-out
+	if ResourceLoader.exists(RAIL_GLB) and ResourceLoader.exists(RUNG_GLB):
+		for sx in [-0.22, 0.22]:
+			var r: Node3D = (load(RAIL_GLB) as PackedScene).instantiate()
+			r.scale = Vector3(-1.0 if sx < 0.0 else 1.0, rail_len, 1.0)      # split faces inward
+			r.position = Vector3(sx, 0, 0)
+			_paint(r, _wood)
+			add_child(r)
+		var y := RUNG_BASE
+		while y < h + 0.05:
+			var g: Node3D = (load(RUNG_GLB) as PackedScene).instantiate()
+			g.position = Vector3(0, y, 0)
+			g.rotation.y = randf_range(-0.03, 0.03)
+			_paint(g, null)
+			add_child(g)
+			y += RUNG
+		return
+	# fallback (no generated parts)
 	for sx in [-0.22, 0.22]:
 		var rail := MeshInstance3D.new()
 		var rm := BoxMesh.new()
 		rm.size = Vector3(0.06, h, 0.06)
 		rail.mesh = rm
-		rail.material_override = wood
-		rail.position = mid + Vector3(sx, 0, 0)
+		rail.material_override = _wood
+		rail.position = Vector3(sx, h * 0.5, 0)
 		add_child(rail)
-	var rungs := int(h / 0.32)
-	for i in rungs:
-		var rung := MeshInstance3D.new()
-		var gm := BoxMesh.new()
-		gm.size = Vector3(0.44, 0.04, 0.04)
-		rung.mesh = gm
-		rung.material_override = wood
-		rung.position = Vector3(0, 0.3 + float(i) * 0.32, 0)
-		add_child(rung)
+
+
+## Wood surfaces get the textured wood, the rope keeps a rope colour (surface material names from build_ladder.py).
+static func _paint(n: Node, force: Material) -> void:
+	for mi in n.find_children("*", "MeshInstance3D", true, false):
+		var m := mi as MeshInstance3D
+		for si in m.mesh.get_surface_count():
+			var src := m.mesh.surface_get_material(si)
+			var nm := String(src.resource_name) if src != null else ""
+			m.set_surface_override_material(si, force if force != null else (_rope if nm.contains("Rope") else _wood))
+
