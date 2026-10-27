@@ -104,11 +104,13 @@ func _ready() -> void:
 		_ground_material.set_shader_parameter(layer + "_normal", load(TEX % [tex_name, tex_name, "nor_gl"]))
 		_ground_material.set_shader_parameter(layer + "_arm", load(TEX % [tex_name, tex_name, "arm"]))
 	# Streets: the user's hand-painted honey cobbles (art reference) instead of the scanned set.
-	_ground_material.set_shader_parameter("cobble_albedo", load("res://assets/art/textures/cobblestone.png"))
-	_ground_material.set_shader_parameter("cobble_normal", load("res://assets/art/textures/cobblestone_normal.png"))
-	_ground_material.set_shader_parameter("cobble_arm", load("res://assets/art/textures/cobblestone_arm.png"))   # AO, rough, metal
+	# Benchmark slice (AAA gate, refs 06/20): the CC0 real-scan setts with grass in the joints (CC0_SLICE_KIT.md), not the painted set.
+	const CB := "res://assets/cc0/textures/cobblestone_floor_04/cobblestone_floor_04_%s_2k.jpg"
+	_ground_material.set_shader_parameter("cobble_albedo", load(CB % "diff"))
+	_ground_material.set_shader_parameter("cobble_normal", load(CB % "nor_gl"))
+	_ground_material.set_shader_parameter("cobble_arm", load(CB % "arm"))   # AO, rough, metal
 	_ground_material.set_shader_parameter("macro_noise", _noise_texture(0.01, 3, false))
-	_ground_material.set_shader_parameter("cobble_tint", Color(1.0, 0.97, 0.92))     # Style G honey cobbles (light touch: the sun warms them)
+	_ground_material.set_shader_parameter("cobble_tint", Color(0.92, 0.88, 0.82))     # real-scan setts, a touch darker and warm (CC0 kit note)
 	for tree: String in REGION_TREES:
 		var kind: String = REGION + tree
 		if not ResourceLoader.exists("res://assets/generated/" + kind + "_lod2.glb"):

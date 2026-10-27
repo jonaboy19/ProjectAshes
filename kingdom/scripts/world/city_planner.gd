@@ -653,8 +653,8 @@ static func _frontage(plan_data: Dictionary, kind: String, seed_value: int) -> v
 					pool = tall + RICH
 				elif tier == 2:
 					pool = POOR if walled else HOVELS
-				elif not own.is_empty() and rng.randf() < 0.3:
-					pool = own
+				elif not own.is_empty() and rng.randf() < 0.85:
+					pool = own      # benchmark slice (AAA gate): street fronts use the town's own textured houses; the kit is for poor rows / alleys
 				var asset: String = pool[rng.randi() % pool.size()]
 				if KIT_THATCH.has(asset) != (rng.randf() < thatch) and rng.randf() < 0.7:
 					asset = pool[rng.randi() % pool.size()]      # one re-draw toward the town's roof mix

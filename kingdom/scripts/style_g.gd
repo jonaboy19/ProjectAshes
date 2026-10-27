@@ -342,8 +342,9 @@ static var _weather_tex: Texture2D
 const AGE_MOSS := {"house": 0.75, "roof": 0.85, "stone": 0.7, "plaster": 0.45, "timber": 0.3, "wood": 0.22, "stall": 0.1, "cobble": 0.15}
 const AGE_FADE := {"house": 0.85, "roof": 1.0, "stall": 0.3}
 ## Towns medieval pass: CC0 detail for flat-colour kit materials, per role: [Poly Haven set, amount, scale (1/m)].
-const DETAIL := {"timber": ["medieval_wood", 0.75, 0.45], "wood": ["medieval_wood", 0.7, 0.45], "plaster": ["clay_plaster", 0.6, 0.3],
-	"house": ["clay_plaster", 0.5, 0.3], "stone": ["mossy_stone_wall", 0.7, 0.3], "roof": ["castle_wall_slates", 0.75, 0.4]}
+## Benchmark slice: CC0 real scans (assets/cc0/textures, docs/plans/CC0_SLICE_KIT.md) where the kit has them ("cc0:" prefix).
+const DETAIL := {"timber": ["cc0:weathered_brown_planks", 0.85, 0.5], "wood": ["cc0:old_planks_02", 0.8, 0.5], "plaster": ["cc0:worn_mossy_plasterwall", 0.6, 0.5],
+	"house": ["cc0:rough_plaster_03", 0.6, 0.3], "stone": ["cc0:old_stone_wall", 0.8, 0.3], "roof": ["cc0:roof_slates_02", 0.85, 0.45]}
 
 
 static func _detail(sm: ShaderMaterial, role: String, orig: Material) -> void:
@@ -353,7 +354,12 @@ static func _detail(sm: ShaderMaterial, role: String, orig: Material) -> void:
 		var n := orig.resource_name.to_lower()
 		if n.contains("thatch") or n.contains("hay") or n.contains("straw") or n.contains("reed"):
 			set_name = "thatch_roof_angled"
-	var tex := ph(set_name, "diff")
+	var tex: Texture2D = null
+	if set_name.begins_with("cc0:"):
+		var cp := "res://assets/cc0/textures/%s/%s_diff_2k.jpg" % [set_name.substr(4), set_name.substr(4)]
+		tex = load(cp) if ResourceLoader.exists(cp) else null
+	else:
+		tex = ph(set_name, "diff")
 	if tex == null:
 		return
 	sm.set_shader_parameter("detail_tex", tex)
@@ -761,7 +767,7 @@ static func role_for_asset(key: String) -> String:
 ## Material resource names of the Blender sets (RG_* region kit, RA_* village kit) -> role; "" = use the asset's default role.
 static func role_for_material(name: String) -> String:
 	var n := name.to_lower()
-	if n.contains("ra_window"):
+	if n.contains("ra_window") or n.contains("tk_window"):
 		return "window"
 	if n.contains("roof") or n.contains("shingle") or n.contains("slate") or n.contains("thatch") or n.contains("hay"):
 		return "roof"
@@ -810,9 +816,10 @@ static func restyle_mesh(mesh: ArrayMesh, key: String, tier := "", role := "") -
 		var b := orig as BaseMaterial3D
 		var src: Material = orig
 		var fmt_col := (mesh.surface_get_format(i) & Mesh.ARRAY_FORMAT_COLOR) != 0
-		if (not b.vertex_color_use_as_albedo and not fmt_col) or (fmt_col and b.resource_name.to_lower().contains("ra_kit")):   # small house kit: part colours live in the vertex colours
+		var kit_mat := fmt_col and (b.resource_name.to_lower().contains("ra_kit") or b.resource_name.to_lower().begins_with("tk_"))
+		if (not b.vertex_color_use_as_albedo and not fmt_col) or kit_mat:   # small house kit: part colours live in the vertex colours
 			var _pv := Probe.t()
-			src = _vcol_copy(b, not b.resource_name.to_lower().contains("ra_kit"))   # glTF vertex colours are linear                     # no baked colours: let instance colours tint it (town identity)
+			src = _vcol_copy(b, not kit_mat)   # glTF vertex colours are linear                     # no baked colours: let instance colours tint it (town identity)
 			Probe.add("styleg.vcol_copy", _pv)
 		var r := role
 		var by_name := role_for_material(b.resource_name)

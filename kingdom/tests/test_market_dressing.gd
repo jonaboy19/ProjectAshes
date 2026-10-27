@@ -112,7 +112,7 @@ func test_settlement_dressing_is_render_only_and_within_budget() -> void:
 		if dec.cull_mask == TownDecals.GROUND_LAYER:
 			var k := Vector2i(floori(dec.global_position.x / 64.0), floori(dec.global_position.z / 64.0))
 			chunks[k] = int(chunks.get(k, 0)) + 1
-			assert_int(chunks[k]).is_less_equal(TownDecals.CHUNK_CAP)
+			assert_int(chunks[k]).is_less_equal(TownDecals.chunk_cap())
 		else:
 			walls += 1
 	# budget numbers for docs/qa/PERFORMANCE.md

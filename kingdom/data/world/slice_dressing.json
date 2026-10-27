@@ -2,10 +2,99 @@
   "_doc": "Vertical slice dressing (docs/plans/MASTER_BACKLOG.md scenario A + the road bandit camp). Every position is RELATIVE to its town: x = metres along the town's first-gate axis (outward), z = metres to the left of it; the ground height is sampled at build time. Relocatable with the town (new real-terrain world).",
   "scenario_a": {
     "town": "Ashford",
-    "hayloft": {"at": [34.0, -26.0], "yaw_deg": 0.0, "floor_h": 3.2, "size": [6.0, 4.0]},
-    "fence": {"at": [26.0, -22.0], "length": 8.0, "height": 1.05},
+    "hayloft": {
+      "at": [
+        34.0,
+        -26.0
+      ],
+      "yaw_deg": 0.0,
+      "floor_h": 3.2,
+      "size": [
+        6.0,
+        4.0
+      ]
+    },
+    "fence": {
+      "at": [
+        26.0,
+        -22.0
+      ],
+      "length": 8.0,
+      "height": 1.05
+    },
     "house_bid": "ashford_house_1",
     "notes": "house_bid = the town-kit home the bot enters (interior has chairs); the chair sit itself is WP-01 (player SmartObject sit)."
   },
-  "road_bandit_camp": {"from": "Ashford", "to": "Kingsreach", "frac": 0.55, "offset": 55.0, "name": "Kingsreach Road Camp"}
+  "road_bandit_camp": {
+    "from": "Ashford",
+    "to": "Kingsreach",
+    "frac": 0.55,
+    "offset": 55.0,
+    "name": "Kingsreach Road Camp"
+  },
+  "street_set": {
+    "town": "Ashford",
+    "street": 0,
+    "_doc": "pieces along plan streets[street] (plaza -> first gate): t = fraction along it, side = -1 left / 1 right, setback = metres past the street edge, yaw_off = degrees from facing the street",
+    "pieces": [
+      {
+        "key": "ms_cart",
+        "t": 0.42,
+        "side": -1,
+        "setback": 0.6,
+        "yaw_off": 80
+      },
+      {
+        "key": "ms_stall",
+        "t": 0.28,
+        "side": 1,
+        "setback": 0.4,
+        "yaw_off": 0
+      },
+      {
+        "key": "ms_crate_stack",
+        "t": 0.33,
+        "side": 1,
+        "setback": 0.3,
+        "yaw_off": 20
+      },
+      {
+        "key": "ms_crate_stack",
+        "t": 0.58,
+        "side": -1,
+        "setback": 0.3,
+        "yaw_off": -15
+      },
+      {
+        "key": "ph_barrel",
+        "t": 0.5,
+        "side": 1,
+        "setback": 0.2,
+        "yaw_off": 0
+      },
+      {
+        "key": "ph_barrel",
+        "t": 0.51,
+        "side": 1,
+        "setback": 0.9,
+        "yaw_off": 40
+      },
+      {
+        "key": "ms_well",
+        "t": 0.72,
+        "side": 1,
+        "setback": 1.2,
+        "yaw_off": 0
+      }
+    ],
+    "door_pots": true
+  },
+  "view_closer": {
+    "town": "Ashford",
+    "asset": "chapel",
+    "street": 0,
+    "min": 10.0,
+    "max": 60.0,
+    "_doc": "a landmark on the main street's axis beyond the square, closing the view from the gate (refs 05/08); first clear spot from min to max metres past the plaza edge"
+  }
 }

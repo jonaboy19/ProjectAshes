@@ -62,6 +62,11 @@ func run(m: Node) -> void:
 	for i in 90:
 		WorldSim.time_of_day = hour
 		await get_tree().process_frame
+	for cl in get_tree().root.find_children("*", "CanvasLayer", true, false):
+		(cl as CanvasLayer).visible = false     # footage of the world only: no work dialogs, prompts or tags (UI is judged separately)
+	for ch in main.get_children():
+		if ch is Control and not (ch is SubViewportContainer):
+			(ch as Control).visible = false
 	print("FLY_START ", Engine.get_frames_drawn())
 	# walk the street graph between keyframes (the NPC router): the camera never cuts through a building
 	var g: RefCounted = preload("res://scripts/population/street_graph.gd").for_settlement(int(town["id"]))
@@ -99,6 +104,7 @@ func run(m: Node) -> void:
 		main.settlements.focus = p
 		main.population.focus = p
 		WorldSim.time_of_day = hour
+		_hide_ui()      # dialogs and prompts that open during the walk
 		await get_tree().process_frame
 	print("FLY_END ", Engine.get_frames_drawn())
 	get_tree().quit(0)
@@ -135,6 +141,21 @@ func _keys(town: Dictionary, kind: String) -> Array:
 			keys.append([_eye(gate.lerp(edge, 0.5), 2.2), _eye(c, 3.0)])
 			keys.append([_eye(edge, 2.4), _eye(c, 3.0)])
 			keys.append([_eye(edge, 32.0), _eye(c, 0.0)])     # rise straight up at the plaza edge (a castle's centre is the keep)
+		"slice":
+			# benchmark slice route (BENCHMARK_SLICE.md): up the main street to the square, then into the most built-up side street
+			var start2 := c + dir * (pr + 34.0)
+			keys.append([_eye(start2), _eye(c, 2.0)])
+			keys.append([_eye(c + dir * (pr + 6.0)), _eye(c, 2.0)])
+			var lane2 := _best_lane(plan, first_alley)
+			if not lane2.is_empty():
+				var la: Vector2 = lane2["a"]
+				var lb: Vector2 = lane2["b"]
+				if la.distance_to(c) > lb.distance_to(c):
+					var tmp := la
+					la = lb
+					lb = tmp
+				keys.append([_eye(la), _eye(lb)])
+				keys.append([_eye(la.lerp(lb, 0.85)), _eye(lb + (lb - la).normalized() * 10.0)])
 		"lane_alley":
 			var lane := _best_lane(plan, first_alley)
 			if not lane.is_empty():
@@ -194,3 +215,11 @@ func _best_lane(plan: Dictionary, first: int) -> Dictionary:
 			bs = n
 			best = streets[i]
 	return best
+
+
+func _hide_ui() -> void:
+	for cl in get_tree().root.find_children("*", "CanvasLayer", true, false):
+		(cl as CanvasLayer).visible = false
+	for ch in main.get_children():
+		if ch is Control and not (ch is SubViewportContainer):
+			(ch as Control).visible = false

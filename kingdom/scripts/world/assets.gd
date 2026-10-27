@@ -152,12 +152,17 @@ const BUILDINGS := {
 	"ph_bucket": ["res://assets/incoming/polyhaven/models/wooden_bucket_01/wooden_bucket_01_1k.gltf", 0.0],
 	"ph_lantern": ["res://assets/incoming/polyhaven/models/wooden_lantern_01/wooden_lantern_01_1k.gltf", 0.0],
 	"cc0_pot": ["res://assets/cc0/props/planter_pot_clay/planter_pot_clay_1k.gltf", 0.0],
-	"ms_cart": ["res://assets/meshy_slice/cart.glb", 0.0],
-	"ms_well": ["res://assets/meshy_slice/well.glb", 0.0],
-	"ms_crate_stack": ["res://assets/meshy_slice/crate_stack.glb", 0.0],
-	"ms_stall": ["res://assets/meshy_slice/market_stall.glb", 0.0],
-	"ms_table": ["res://assets/meshy_slice/trestle_table.glb", 0.0],
-	"ms_hearth": ["res://assets/meshy_slice/hearth.glb", 0.0],
+	"ms_cart": ["res://assets/props_refined/cart/cart.glb", 0.0],
+	"ms_well": ["res://assets/props_refined/well/well.glb", 0.0],
+	"ms_crate_stack": ["res://assets/props_refined/crate_stack/crate_stack.glb", 0.0],
+	"ms_stall": ["res://assets/props_refined/market_stall/market_stall.glb", 0.0],
+	"ms_table": ["res://assets/props_refined/trestle_table/trestle_table.glb", 0.0],
+	"ms_hearth": ["res://assets/props_refined/hearth/hearth.glb", 0.0],
+	# Blender-refined props (docs/plans/props_refined/README.md): the shared keys below now point at them too (towns + edges match)
+	"pr_bench": ["res://assets/props_refined/bench_hewn/bench_hewn.glb", 0.0],
+	"pr_tavern_sign": ["res://assets/props_refined/tavern_sign/tavern_sign.glb", 0.0],
+	"pr_barrel_rack": ["res://assets/props_refined/barrel_rack/barrel_rack.glb", 0.0],
+	"pr_fence_rail": ["res://assets/props_refined/fence_post_rail/fence_post_rail.glb", 0.0],
 	"stable": [GEN + "village_barn.glb", 0.0, GEN + "village_barn_lod1.glb", 45.0, GEN + "village_barn_lod2.glb", 100.0],
 	"sawmill": [VILLAGE + "Buildings/FBX/Sawmill.fbx", 12.0],
 	"mill": [VILLAGE + "Buildings/FBX/Mill.fbx", 11.0],
@@ -177,14 +182,14 @@ const BUILDINGS := {
 	"hand_cart": [GEN + "hand_cart.glb", 0.0],
 	"lamp_post": [GEN + "props/lamp_post.glb", 0.0],   # shared props atlas (local session)
 	"signpost": [GEN + "props/signpost.glb", 0.0],
-	"haystack": [GEN + "haystack.glb", 0.0],
-	"woodpile": [GEN + "woodpile.glb", 0.0],
+	"haystack": ["res://assets/props_refined/haystack/haystack.glb", 0.0],
+	"woodpile": ["res://assets/props_refined/firewood_stack/firewood_stack.glb", 0.0],
 	"washing_line": [GEN + "washing_line.glb", 0.0],
 	"garden_plot": [GEN + "garden_plot.glb", 0.0],
 	"field_crops": [GEN + "field_crops.glb", 0.0],
-	"crate_stack": [GEN + "props/crate_stack.glb", 0.0],
+	"crate_stack": ["res://assets/props_refined/crate_stack/crate_stack.glb", 0.0],
 	"sack_pile": [GEN + "props/sack_pile.glb", 0.0],
-	"water_trough": [GEN + "props/water_trough.glb", 0.0],
+	"water_trough": ["res://assets/props_refined/trough_granite/trough_granite.glb", 0.0],
 	"basket_produce": [GEN + "props/basket_produce.glb", 0.0],
 	"produce_table": [GEN + "props/produce_table.glb", 0.0],
 	"covered_wagon": [GEN + "props/covered_wagon.glb", 0.0],
@@ -193,7 +198,7 @@ const BUILDINGS := {
 	"flower_planter": [GEN + "props/flower_planter.glb", 0.0],
 	"barrel": [GEN + "props/barrel.glb", 0.0],
 	"crate": [GEN + "props/crate.glb", 0.0],
-	"hay": [GEN + "props/hay_bales.glb", 0.0],
+	"hay": ["res://assets/props_refined/hay_bundle/hay_bundle.glb", 0.0],
 	"bench": [GEN + "props/bench.glb", 0.0],
 	"castle": [GEN + "castle_keep.glb", 0.0],
 	"temple": [GEN + "temple.glb", 0.0],
@@ -207,8 +212,8 @@ const BUILDINGS := {
 	"house_town_c": [GEN + "townhouse_c.glb", 0.0, GEN + "townhouse_c_lod1.glb", 60.0, GEN + "townhouse_c_lod2.glb", 130.0],
 	"house_town_d": [GEN + "townhouse_d.glb", 0.0, GEN + "townhouse_d_lod1.glb", 60.0, GEN + "townhouse_d_lod2.glb", 130.0],
 	# Kingsreach gate-market dressing (main art reference): stalls, lamps, banners, bunting.
-	"market_stall_red": [GEN + "market_stall_red.glb", 0.0],
-	"market_stall_green": [GEN + "market_stall_green.glb", 0.0],
+	"market_stall_red": ["res://assets/props_refined/market_stall/market_stall.glb", 0.0],
+	"market_stall_green": ["res://assets/props_refined/market_stall/market_stall.glb", 0.0],
 	"street_lamp": [GEN + "street_lamp.glb", 0.0],
 	# Meshy free community pack pieces for district dressing (native size, origin centred on the base): docs/qa/ASSET_AUDIT.md "use the unused models".
 	"mf_street_lamp_twin_gold": [MF + "lighting/street_lamp_twin_gold_lod0.glb", 0.0],
@@ -505,6 +510,7 @@ static func mh_character(file: String, height: float, keep: Array[String] = [], 
 		elif part.contains("Sword"):
 			# arming sword (tools/blender/props/build_arming_sword.py): 95 cm, origin at the grip, blade along +Y like the KayKit set
 			_attach(skeleton, "hand_r", ARMING_SWORD if ResourceLoader.exists(ARMING_SWORD) else WEAPONS + "Sword_Bronze.gltf", 0.95, Vector3(0.05, 0.02, 0), Vector3(0, 0, -90))
+			# Poly Haven kite_shield (CC0 scan): 95 cm, point down, face out from the forearm
 		elif part.contains("Shield"):
 			_attach(skeleton, "lowerarm_l", GUARD_SHIELD, 0.65, Vector3(0.12, 0, 0.08), Vector3(0, 90, 0))
 	var anim := AnimationPlayer.new()
@@ -816,7 +822,7 @@ static func building_mesh(key: String) -> ArrayMesh:
 	var entry: Array = BUILDINGS[key.get_slice(":lod", 0)]
 	var path: String = entry[lod * 2]
 	# Benchmark slice: real-scan / gated Meshy props keep their own PBR materials (normal + roughness maps); Style G would flatten them
-	var keep_pbr := path.contains("/polyhaven/models/") or path.contains("/assets/cc0/") or path.contains("/meshy_slice/")
+	var keep_pbr := path.contains("/polyhaven/models/") or path.contains("/assets/cc0/") or path.contains("/meshy_slice/") or path.contains("/props_refined/")
 	var mesh := merged_mesh(path, not keep_pbr)
 	if mesh == null:
 		return null
@@ -837,6 +843,7 @@ static func building_mesh(key: String) -> ArrayMesh:
 	TownAtlas.fold(mesh, key)           # far stages: shared texture page (see town_atlas.gd)
 	if key.begins_with("lamp_post") or key.begins_with("street_lamp"):
 		_tame_lamp_glow(mesh)
+	_tame_emission_maps(mesh)       # benchmark slice: night glare on the inn (emissive-textured meshy_free props)
 	_building_cache[key] = mesh
 	return mesh
 
@@ -1182,3 +1189,16 @@ static func _ashlar(mesh: ArrayMesh) -> void:
 		a.set_shader_parameter("value_gain", 1.3)
 		a.set_shader_parameter("warm_tint", Color(1.04, 0.98, 0.86))
 		mesh.surface_set_material(i, a)
+
+
+## Benchmark slice (night glare on the Ashford inn): meshy_free props (wall lanterns, shop signs ...) keep their own material when
+## it is emissive, and their emission MAP covers far more than the flame, so under night exposure whole boards and lanterns read as flat
+## white slabs. Cap the energy of emissive-textured surfaces (a lantern still glows warm, the sign no longer does).
+static func _tame_emission_maps(mesh: ArrayMesh) -> void:
+	for i in mesh.get_surface_count():
+		var b := mesh.surface_get_material(i) as BaseMaterial3D
+		if b == null or not b.emission_enabled or b.emission_texture == null or b.emission_energy_multiplier <= 0.35:
+			continue
+		var g := b.duplicate() as BaseMaterial3D
+		g.emission_energy_multiplier = 0.35
+		mesh.surface_set_material(i, g)

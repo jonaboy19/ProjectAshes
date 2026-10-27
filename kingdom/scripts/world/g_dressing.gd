@@ -110,7 +110,8 @@ static func dress_town(root: Node3D, s: Dictionary, plan: Dictionary, footprint:
 		made["tubs"] += tubs[i].size()
 		made["baskets"] += baskets[i].size()
 		_bake(kit, Extra.flower_tub(i, lite), tubs[i])
-		_bake(kit, Extra.basket(i, lite), baskets[i])
+		if CityPlanner.towns_off():
+			_bake(kit, Extra.basket(i, lite), baskets[i])     # benchmark slice: the procedural fruit baskets read as toys (gate ref 11); off
 	var range_end := 60.0 if lite else CULL
 	_emit(holder, leaf, Extra.vc_material(true), "Ivy", range_end)
 	_emit(holder, kit, Extra.vc_material(), "Kit", range_end * 0.8)

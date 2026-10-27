@@ -16,6 +16,14 @@ MATS = {
 }
 
 
+# Benchmark slice (AAA gate: no flat colours): 4 surfaces per house, each a Style G role with a CC0 real-scan detail texture;
+# the part colours stay in the vertex colours (TK_ = town kit: StyleG reads the vertex colours of these as linear).
+SURF = {"RA_plaster": "TK_plaster", "RA_plaster_dirty": "TK_plaster", "RA_stone": "TK_plaster", "RA_timber": "TK_timber",
+        "RA_boards": "TK_timber", "RA_dark": "TK_timber", "RA_thatch": "TK_thatch", "RA_shingle": "TK_shingle", "RA_window": "TK_window"}
+for _k in ("TK_plaster", "TK_timber", "TK_thatch", "TK_shingle", "TK_window"):
+    MATS[_k] = (1.0, 1.0, 1.0) if _k != "TK_window" else (0.07, 0.06, 0.05)
+
+
 def mat(name):
     m = bpy.data.materials.get(name)
     if m is None:
@@ -83,12 +91,16 @@ class B:
         me = bpy.data.meshes.new(self.name)
         bmesh.ops.recalc_face_normals(self.bm, faces=self.bm.faces)
         col = self.bm.loops.layers.color.new("Col")
+        used = []
         for f in self.bm.faces:
             n = self.mats[f.material_index]
             c = MATS[n]
             for lp in f.loops:
                 lp[col] = (c[0], c[1], c[2], 1.0)
-            f.material_index = 1 if n == "RA_window" else 0
+            sn = SURF[n]
+            if sn not in used:
+                used.append(sn)
+            f.material_index = used.index(sn)
         self.bm.to_mesh(me)
         # make "Col" the only, active and render colour attribute, so glTF COLOR_0 carries the part colours
         for ca in list(me.color_attributes):
@@ -96,8 +108,8 @@ class B:
                 me.color_attributes.remove(ca)
         me.color_attributes.active_color_name = "Col"
         me.color_attributes.render_color_index = me.color_attributes.find("Col")
-        me.materials.append(mat("RA_kit"))
-        me.materials.append(mat("RA_window"))
+        for sn in used:
+            me.materials.append(mat(sn))
         ob = bpy.data.objects.new(self.name, me)
         bpy.context.scene.collection.objects.link(ob)
         return ob
@@ -113,6 +125,12 @@ def frame(b, w, z0, hgt, fy, rng, poor):
     b.box((0, fy, z0 + hgt - 0.08), (w + 0.1, t, 0.16), "RA_timber")
     if w > 3.0:
         b.box((0, fy, z0 + hgt * 0.5), (t * 0.9, t * 0.9, hgt), "RA_timber")
+    # close studding (KCD / Kuttenberg street fronts): uprights every ~0.55 m and a mid rail, so no wall is a blank plane
+    n = max(2, int(w / 0.55))
+    for k in range(1, n):
+        x = -w * 0.5 + w * k / n
+        b.box((x, fy + 0.03, z0 + hgt * 0.5), (0.1, 0.08, hgt - 0.1), "RA_timber")     # proud of the plaster face
+    b.box((0, fy + 0.03, z0 + hgt * 0.42), (w, 0.08, 0.11), "RA_timber")
     if rng.random() < 0.75:   # one diagonal brace
         L = math.hypot(w * 0.45, hgt * 0.9)
         ang = math.atan2(hgt * 0.9, w * 0.45) * rng.choice((-1, 1))
@@ -130,6 +148,9 @@ def side_frame(b, d, z0, hgt, sx, y0, rng, poor, win=True):
     b.box((sx, y0, z0 + 0.07), (t, d, 0.14), "RA_timber")
     b.box((sx, y0, z0 + hgt - 0.08), (t, d, 0.16), "RA_timber")
     b.box((sx, y0, z0 + hgt * 0.5), (t, d, 0.12), "RA_timber")
+    n = max(2, int(d / 0.6))
+    for k in range(1, n):
+        b.box((sx, y0 - d * 0.5 + d * k / n, z0 + hgt * 0.5), (0.08, 0.09, hgt - 0.1), "RA_timber")
     if rng.random() < 0.8:
         L = math.hypot(d * 0.45, hgt * 0.45)
         b.box((sx, y0 - d * 0.25, z0 + hgt * 0.25), (0.12, L, 0.12), "RA_timber", tilt=math.atan2(hgt * 0.45, d * 0.45))

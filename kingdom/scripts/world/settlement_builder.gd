@@ -348,6 +348,8 @@ func _build_co(s: Dictionary, sync: bool, spread: bool) -> Node3D:
 	_bp = Probe.t()
 	_interior_doors(root, plan["lots"])
 	preload("res://scripts/world/town_kit/slice_dressing.gd").build_scenario_a(root, s)   # vertical slice: Ashford hayloft ladder + vaultable fence
+	preload("res://scripts/world/town_kit/slice_dressing.gd").build_street_set(root, s)   # benchmark slice: Meshy / CC0 set pieces on the main street
+	preload("res://scripts/world/town_kit/slice_dressing.gd").build_view_closer(root, s)   # benchmark slice: landmark closing the main street view
 	Probe.add("settle.doors", _bp)
 	if spread:
 		await get_tree().process_frame      # spread over frames (update_now(true)); the town finishes a few frames later
@@ -360,7 +362,7 @@ func _build_co(s: Dictionary, sync: bool, spread: bool) -> Node3D:
 	# assuming the lot's flat base_h -- avoids a crate floating/sinking by the same
 	# amount the building next to it now corrects for.
 	var door_clutter := {}
-	var kinds := ["crate", "sack_pile", "barrel"]
+	var kinds := ["ph_crate", "sack_pile", "ph_barrel", "ph_bucket"]     # benchmark slice: real-scan crates / barrels / buckets (CC0 kit PASS)
 	for lot in plan["lots"]:
 		var p: Vector2 = lot["pos"]
 		var yaw: float = lot["yaw"]
@@ -2218,6 +2220,27 @@ func _decals(root: Node3D, s: Dictionary, plan: Dictionary) -> void:
 				var at := a + dir * t + nrm * rng.randf_range(-0.9, 0.9)
 				put_ground.call("ruts", at, atan2(dir.x, dir.y), Vector3(2.8, 2.0, rng.randf_range(9.0, 13.0)))
 			t += rng.randf_range(12.0, 22.0)
+	# Benchmark slice (gate: "ground reads worn, soft transitions at edges"): mud straddling both edges of the main streets, so the
+	# paving breaks into dirt instead of a hard line against the grass (refs 01 / 20). Own RNG: the decals above keep their places.
+	if not CityPlanner.towns_off():
+		var vrng := RandomNumberGenerator.new()
+		vrng.seed = 7311 + int(s["id"])
+		for st3: Dictionary in plan["streets"]:
+			if float(st3["w"]) < 3.5 or bool(st3.get("alley", false)):
+				continue
+			var a3: Vector2 = st3["a"]
+			var b3: Vector2 = st3["b"]
+			var len3 := a3.distance_to(b3)
+			var dir3 := (b3 - a3) / maxf(len3, 0.001)
+			var nrm3 := Vector2(-dir3.y, dir3.x)
+			var t3 := pr + 2.0 + vrng.randf_range(0.0, 4.0)
+			while t3 < len3 - 2.0:
+				for sd: float in [-1.0, 1.0]:
+					if vrng.randf() < 0.75:
+						var at3 := a3 + dir3 * t3 + nrm3 * sd * (float(st3["w"]) * 0.5 + vrng.randf_range(-0.3, 0.6))
+						put_ground.call("dirt" if vrng.randf() < 0.6 else "ruts", at3, atan2(dir3.x, dir3.y) + vrng.randf_range(-0.3, 0.3),
+							Vector3(vrng.randf_range(2.2, 3.4), 2.0, vrng.randf_range(3.5, 6.5)), Color(0.85, 0.78, 0.68, 0.95))
+				t3 += vrng.randf_range(6.0, 9.0)
 	var n_pud := 6 if s["kind"] == "village" else 9
 	for i in n_pud:
 		var at: Vector2

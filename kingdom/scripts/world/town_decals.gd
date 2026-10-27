@@ -55,7 +55,7 @@ static func make(kind: String, size: Vector3, mask: int, tint := Color.WHITE) ->
 	var d := Decal.new()
 	d.size = size
 	d.texture_albedo = _t(spec[0])
-	d.texture_normal = _t(spec[1])
+	d.texture_normal = _masked_normal(spec[1], spec[0])
 	d.texture_orm = _t(spec[2])
 	d.modulate = tint
 	d.cull_mask = mask
@@ -77,11 +77,56 @@ static func wall_basis(n: Vector3) -> Basis:
 
 ## One ground-decal budget per settlement root, shared by every builder that paints the terrain (SettlementBuilder, the
 ## district mud, the benchmark street): at most CHUNK_CAP per 64 m terrain chunk. Returns true and takes a slot when free.
+## Ground decals per 64 m chunk: Forward+ (PC) clusters decals, so the street-edge mud of the benchmark slice fits; Mobile keeps 5.
+static func chunk_cap() -> int:
+	return 16 if RenderingServer.get_current_rendering_method() == "forward_plus" else CHUNK_CAP
+
+
 static func claim_ground(root: Node, x: float, z: float) -> bool:
 	var counts: Dictionary = root.get_meta("ground_decal_chunks", {})
 	var ck := Vector2i(floori(x / 64.0), floori(z / 64.0))
-	if int(counts.get(ck, 0)) >= CHUNK_CAP:
+	# Forward+ (PC) clusters decals (no 8-per-mesh limit of the Mobile renderer): room for the street-edge mud of the benchmark slice
+	var cap := chunk_cap()
+	if int(counts.get(ck, 0)) >= cap:
 		return false
 	counts[ck] = int(counts.get(ck, 0)) + 1
 	root.set_meta("ground_decal_chunks", counts)
 	return true
+
+
+## Benchmark slice (night glare on the Ashford inn): the decal normal maps have alpha 1 everywhere, and Godot uses the normal map's
+## alpha as its blend mask, so a decal replaced the normals of EVERY surface in its projection box (sign boards, lanterns, crates on the
+## inn porch), which lit up as flat slabs at night. The normal map gets the albedo's alpha (built once per kind, cached).
+static func _masked_normal(normal_name: String, albedo_name: String) -> Texture2D:
+	if normal_name == "":
+		return null
+	var key := normal_name + "|masked"
+	if _tex.has(key):
+		return _tex[key]
+	var n := _t(normal_name)
+	var a := _t(albedo_name)
+	if n == null or a == null:
+		return n
+	var ni := n.get_image()
+	var ai := a.get_image()
+	if ni == null or ai == null:
+		return n
+	ni = ni.duplicate()
+	ai = ai.duplicate()
+	if ni.is_compressed():
+		ni.decompress()
+	if ai.is_compressed():
+		ai.decompress()
+	ni.convert(Image.FORMAT_RGBA8)
+	ai.convert(Image.FORMAT_RGBA8)
+	if ai.get_size() != ni.get_size():
+		ai.resize(ni.get_width(), ni.get_height())
+	for y in ni.get_height():
+		for x in ni.get_width():
+			var c := ni.get_pixel(x, y)
+			c.a = ai.get_pixel(x, y).a
+			ni.set_pixel(x, y, c)
+	ni.generate_mipmaps()
+	var t := ImageTexture.create_from_image(ni)
+	_tex[key] = t
+	return t

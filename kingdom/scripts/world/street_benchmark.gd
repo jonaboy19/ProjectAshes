@@ -195,7 +195,12 @@ static func build(b: Node, root: Node3D, s: Dictionary, plan: Dictionary, market
 				var dec := Decal.new()
 				dec.size = Vector3(5.0, 2.4, 4.4)
 				dec.texture_emission = g
-				dec.emission_energy = 3.0
+				# 3.0 with no fades blew every sign, lantern and crate in the 5 m box out to flat white slabs at night (benchmark slice
+				# AAA gate: found by elimination, docs/qa/AAA_GATE_LOG.md): a soft spill that fades with height and off the wall plane
+				dec.emission_energy = 0.5
+				dec.upper_fade = 0.6
+				dec.lower_fade = 0.6
+				dec.normal_fade = 0.6
 				dec.modulate = Color(1, 1, 1, 0.0)        # emission only, keep the wall albedo
 				dec.cull_mask = TownDecals.WALL_LAYER
 				dec.distance_fade_enabled = true

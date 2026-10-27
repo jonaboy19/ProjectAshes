@@ -156,8 +156,8 @@ func build(parent: Node3D) -> Dictionary:
 				m.emission = Color(1.0, 0.55, 0.2)
 				m.emission_energy_multiplier = 2.2
 				m.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
-		mesh.surface_set_material(0, m)
 		materials[mat_key] = m
+		mesh.surface_set_material(0, _solid_detail() if mat_key == "solid" else m)
 		var mi := MeshInstance3D.new()
 		mi.name = "Kit_" + key.replace("|", "_")
 		mi.mesh = mesh
@@ -192,3 +192,27 @@ func build(parent: Node3D) -> Dictionary:
 			cs.rotation.y = float(c[2])
 			body.add_child(cs)
 	return out
+
+
+## Benchmark slice (AAA gate: no flat colours): the "solid" surface gets CC0 real-scan detail by vertex colour (plaster / wood / stone,
+## shaders/interior/interior_kit_solid.gdshader). One shared material for every room; `--townsoff` keeps the flat look for A/B.
+static var _solid_mat: Material
+
+
+static func _solid_detail() -> Material:
+	if _solid_mat != null:
+		return _solid_mat
+	if OS.get_cmdline_user_args().has("--townsoff"):
+		var f := StandardMaterial3D.new()
+		f.vertex_color_use_as_albedo = true
+		f.roughness = 0.92
+		_solid_mat = f
+		return f
+	var sm := ShaderMaterial.new()
+	sm.shader = preload("res://shaders/interior/interior_kit_solid.gdshader")
+	const T := "res://assets/cc0/textures/%s/%s_diff_2k.jpg"
+	sm.set_shader_parameter("plaster_tex", load(T % ["rough_plaster_03", "rough_plaster_03"]))
+	sm.set_shader_parameter("wood_tex", load(T % ["old_wood_floor", "old_wood_floor"]))
+	sm.set_shader_parameter("stone_tex", load(T % ["rustic_stone_wall", "rustic_stone_wall"]))
+	_solid_mat = sm
+	return sm

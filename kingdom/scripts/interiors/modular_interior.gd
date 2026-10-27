@@ -224,11 +224,44 @@ func _cloth(p: Dictionary, k := 0) -> Color:
 	return CLOTHS[absi(hash("%s%d" % [pos, k])) % CLOTHS.size()]
 
 
+## Benchmark slice (AAA gate: no flat-colour props): prop types that have a gated real-scan / Meshy model use it (natural size,
+## box collider), everything else keeps the box build below. `--townsoff` keeps the old boxes for A/B recordings.
+const REAL_PROPS := {"hearth": "ms_hearth", "table": "ms_table", "barrel": "ph_barrel", "crate": "ph_crate"}
+const STOOL_PATH := "res://assets/cc0/props/painted_wooden_stool/painted_wooden_stool_1k.gltf"
+
+
+func _real_prop(p: Dictionary, t: String) -> bool:
+	if CityPlanner.towns_off():
+		return false
+	var mesh: Mesh = null
+	if REAL_PROPS.has(t):
+		mesh = Assets.building_mesh(REAL_PROPS[t])
+	elif t == "stool" and ResourceLoader.exists(STOOL_PATH):
+		mesh = Assets.merged_mesh(STOOL_PATH, false)
+	if mesh == null:
+		return false
+	var bb := mesh.get_aabb()
+	var yaw := deg_to_rad(float(p.get("y", 0.0)))
+	var mi := MeshInstance3D.new()
+	mi.mesh = mesh
+	add_child(mi)
+	var at := _world_centre(p, Vector3(-(bb.position.x + bb.size.x * 0.5), -bb.position.y, -(bb.position.z + bb.size.z * 0.5)))
+	mi.position = at
+	mi.rotation.y = yaw
+	if t != "stool":
+		kit.collider(_world_centre(p, Vector3(0, bb.size.y * 0.5, 0)), bb.size, yaw)
+	return true
+
+
 func _build_prop(p: Dictionary) -> void:
 	var t := String(p["t"])
 	var f: Vector2 = Layouts.FOOT.get(t, Vector2(0.5, 0.5))
 	var w := float(p.get("w", f.x))
 	var dd := float(p.get("dd", f.y))
+	if _real_prop(p, t):
+		if t == "hearth":
+			_pb(p, Vector3(0, 0.3, 0.45), Vector3(0.5, 0.25, 0.03), Color.WHITE, "fire")     # keep the fire glow the hearth use reads
+		return
 	match t:
 		"bed", "cot":
 			_pb(p, Vector3(0, 0.15, 0), Vector3(w, 0.3, dd), WOOD, "solid", true)

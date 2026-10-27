@@ -136,3 +136,128 @@ static func _solid(parent: Node3D, at: Vector3, size: Vector3, mat: Material, ta
 	body.position = at
 	parent.add_child(body)
 	SQ.tag(body, &"wood", tags)
+
+
+## Benchmark slice: the gated Meshy / CC0 set pieces along the scenario town's main street (data "street_set"), each on the street
+## edge where it clears every house footprint and keeps 2 m in front of every door; clay pots with a plant by the main-street doors.
+## Colliders tagged wood (SurfaceQuery). Returns the placed nodes.
+static func build_street_set(root: Node3D, s: Dictionary) -> Array:
+	var ss: Dictionary = data().get("street_set", {})
+	var out: Array = []
+	if ss.is_empty() or String(s["name"]) != String(ss.get("town", "")):
+		return out
+	var plan: Dictionary = s["plan"]
+	var st: Dictionary = (plan["streets"] as Array)[int(ss.get("street", 0))]
+	var a: Vector2 = st["a"]
+	var b: Vector2 = st["b"]
+	var dir := (b - a).normalized()
+	var nrm := Vector2(-dir.y, dir.x)
+	var L := a.distance_to(b)
+	var polys: Array = []
+	var doors: Array[Vector2] = []
+	for lot: Dictionary in plan["lots"]:
+		polys.append(CityPlanner._lot_poly(lot["pos"], lot["yaw"], String(lot["asset"])))
+		doors.append(CityPlanner.door_point(lot))
+	for pc: Dictionary in ss.get("pieces", []):
+		var key := String(pc["key"])
+		var mesh: ArrayMesh = Assets.building_mesh(key)
+		if mesh == null:
+			continue
+		var bb := mesh.get_aabb()
+		var side := float(pc["side"])
+		var reach := maxf(bb.size.x, bb.size.z) * 0.5
+		var p := a + dir * L * float(pc["t"]) + nrm * side * (float(st["w"]) * 0.5 + float(pc["setback"]) + reach)
+		var ok := true
+		for q: PackedVector2Array in polys:
+			if q[0].distance_to(p) < 20.0 and Geometry2D.is_point_in_polygon(p, Geometry2D.offset_polygon(q, reach)[0]):
+				ok = false
+				break
+		for dp: Vector2 in doors:
+			if dp.distance_to(p) < reach + 2.0:
+				ok = false
+				break
+		if not ok:
+			continue
+		var yaw := atan2(-nrm.x * side, -nrm.y * side) + deg_to_rad(float(pc.get("yaw_off", 0.0)))
+		var node := Assets.building_node(key, true)
+		root.add_child(node)
+		node.global_position = Vector3(p.x, WorldGen.height(p.x, p.y), p.y)
+		node.rotation.y = yaw
+		for body in node.find_children("*", "StaticBody3D", true, false):
+			SQ.tag(body, &"wood", {vaultable = bb.size.y < 1.3})
+		out.append(node)
+	if bool(ss.get("door_pots", false)) and Assets.building_mesh("cc0_pot") != null:
+		var pots: Array[Transform3D] = []
+		for i in (plan["lots"] as Array).size():
+			var lot: Dictionary = plan["lots"][i]
+			var dp: Vector2 = doors[i]
+			if dp.distance_to(Geometry2D.get_closest_point_to_segment(dp, a, b)) > float(st["w"]) * 0.5 + 6.0:
+				continue
+			var yaw2 := float(lot["yaw"])
+			var sidev := Vector2(cos(yaw2), -sin(yaw2))
+			for k: float in [-1.0, 1.0]:
+				var q2 := dp + sidev * k * 0.95
+				pots.append(Transform3D(Basis(Vector3.UP, yaw2 + k), Vector3(q2.x, WorldGen.height(q2.x, q2.y) - 0.02, q2.y)))
+		if not pots.is_empty():
+			var mm := MultiMesh.new()
+			mm.transform_format = MultiMesh.TRANSFORM_3D
+			mm.mesh = Assets.building_mesh("cc0_pot")
+			mm.instance_count = pots.size()
+			for i in pots.size():
+				mm.set_instance_transform(i, pots[i])
+			var mmi := MultiMeshInstance3D.new()
+			mmi.multimesh = mm
+			mmi.visibility_range_end = 70.0
+			root.add_child(mmi)
+	return out
+
+
+## Benchmark slice: a landmark that closes the view down the main street (data "view_closer"; refs 05/08). It stands on the street's
+## axis beyond the square, at the first distance where its footprint clears every lot, street and landmark, facing the gate.
+static func build_view_closer(root: Node3D, s: Dictionary) -> Node3D:
+	var vc: Dictionary = data().get("view_closer", {})
+	if vc.is_empty() or String(s["name"]) != String(vc.get("town", "")):
+		return null
+	var plan: Dictionary = s["plan"]
+	var st: Dictionary = (plan["streets"] as Array)[int(vc.get("street", 0))]
+	var c: Vector2 = s["pos"]
+	var dir := ((st["b"] as Vector2) - (st["a"] as Vector2)).normalized()   # plaza -> gate
+	var key := String(vc["asset"])
+	var mesh: ArrayMesh = Assets.building_mesh(key)
+	if mesh == null:
+		return null
+	var bb := mesh.get_aabb()
+	var hx := bb.size.x * 0.5 + 0.8
+	var hz := bb.size.z * 0.5 + 0.8
+	var yaw := atan2(dir.x, dir.y)          # front (+Z) toward the gate, down the street
+	var polys: Array = []
+	for lot: Dictionary in plan["lots"]:
+		polys.append(CityPlanner._lot_poly(lot["pos"], lot["yaw"], String(lot["asset"])))
+	var d := float(vc["min"])
+	while d <= float(vc["max"]):
+		var p := c - dir * (float(plan["plaza_r"]) + d + hz)
+		var poly := CityPlanner._rect(p, yaw, hx, hz)
+		var ok := CityPlanner.landmark_clearance(plan, p) > maxf(hx, hz)
+		if ok:
+			for q: PackedVector2Array in polys:
+				if q[0].distance_to(p) < 40.0 and CityPlanner._poly_gap(poly, q) < 0.5:
+					ok = false
+					break
+		if ok:
+			for st2: Dictionary in plan["streets"]:
+				for v: Vector2 in Array(poly) + [p]:
+					if v.distance_to(Geometry2D.get_closest_point_to_segment(v, st2["a"], st2["b"])) < float(st2["w"]) * 0.5:
+						ok = false
+						break
+				if not ok:
+					break
+		if ok:
+			var node := Assets.building_node(key, true)
+			root.add_child(node)
+			node.global_position = Vector3(p.x, WorldGen.height(p.x, p.y) - 0.1, p.y)
+			node.rotation.y = yaw
+			for body in node.find_children("*", "StaticBody3D", true, false):
+				SQ.tag(body, &"stone", {climbable = true})
+			return node
+		d += 2.0
+	return null
