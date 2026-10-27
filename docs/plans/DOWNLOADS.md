@@ -103,3 +103,53 @@ Net new downloads this pass: **none** (every gap was either covered by an instal
 |---|---|---|---|---|
 | AWS Terrain Tiles, terrarium PNG, zoom 13, 16 x 15 tiles (x 4012-4027, y 2600-2614), English Lake District 54.40-54.76 N, 3.68-3.02 W | https://s3.amazonaws.com/elevation-tiles-prod/terrarium/13/{x}/{y}.png (registry: https://registry.opendata.aws/terrain-tiles/) | 21.1 MB tiles + 63 MB float32 mosaic (npy) | Open data, free. Credit required: "Terrain Tiles: Mapzen / Linux Foundation, hosted on AWS Open Data". Underlying for this area: SRTM (NASA, public domain), EU-DEM (Copernicus, produced with funding by the EU), OS Terrain 50 (contains OS data (c) Crown copyright and database right, Open Government Licence). Full list: https://github.com/tilezen/joerd/blob/master/docs/attribution.md | `ProjectAshes_art_staging\terrain_real\tiles\z13\`, `mosaic_z13.npy`, `mosaic_meta.json` |
 Fetched by `kingdom/tools/world/real_terrain_fetch.py` (cached, re-runnable). No OSM data used: lakes, coast and rivers are derived from the DEM itself (flat-surface lake detection + D8 flow accumulation). Add the credit line above to the game credits.
+
+
+## CC0 slice kit: Poly Haven + ambientCG (assets worker, 2026-10-27)
+Public APIs, no accounts (`api.polyhaven.com/files/<id>`, `ambientcg.com/get?file=<id>_2K-JPG.zip`); md5 checked against the Poly Haven API. Raw files: `ProjectAshes_art_staging\downloads\polyhaven\<id>\` and `...\downloadsmbientcg\<id>\` (untrusted data, nothing executed from there). Curated copies with LICENSE.txt in `kingdom/assets/cc0/<category>/<id>/`. Gate and placement notes: `docs/plans/CC0_SLICE_KIT.md`.
+Total downloaded **307 MB** (budget 3 GB); in repo after rejects **240 MB**. Resolution: 1K props, 2K materials/HDRIs. Items already in `kingdom/assets/incoming/polyhaven/` were not re-downloaded.
+
+| id | source | licence | format | size | status | intended use |
+|---|---|---|---|---|---|---|
+| `painted_wooden_stool` | https://polyhaven.com/a/painted_wooden_stool | CC0 1.0 | 1K model glTF | 1.9 MB | IMPORTED | tavern/house interior seat |
+| `painted_wooden_table` | https://polyhaven.com/a/painted_wooden_table | CC0 1.0 | 1K model glTF | 1.8 MB | SKIPPED (staging only) | trestle table: Meshy is making one (coordinator) |
+| `planter_box_01` | https://polyhaven.com/a/planter_box_01 | CC0 1.0 | 1K model glTF | 2.3 MB | REJECTED | black plastic liner visible |
+| `planter_pot_clay` | https://polyhaven.com/a/planter_pot_clay | CC0 1.0 | 1K model glTF | 1.8 MB | IMPORTED | flower pots by doors/windows, street |
+| `cross_pein_hammer` | https://polyhaven.com/a/cross_pein_hammer | CC0 1.0 | 1K model glTF | 1.5 MB | IMPORTED | workbench / smithy clutter |
+| `picke_dirty_01` | https://polyhaven.com/a/picke_dirty_01 | CC0 1.0 | 1K model glTF | 2.2 MB | IMPORTED | leaning tool, field wall / camp |
+| `handsaw_wood` | https://polyhaven.com/a/handsaw_wood | CC0 1.0 | 1K model glTF | 2.5 MB | REJECTED | modern D-handle Western saw |
+| `rock_07` | https://polyhaven.com/a/rock_07 | CC0 1.0 | 1K model glTF | 2.2 MB | REJECTED | 0.3 m stone, glossy red ironstone, 14.8k tris |
+| `rock_09` | https://polyhaven.com/a/rock_09 | CC0 1.0 | 1K model glTF | 2.0 MB | REJECTED | 7 cm pebble with 12.4k tris |
+| `boulder_01` | https://polyhaven.com/a/boulder_01 | CC0 1.0 | 1K model glTF | 5.8 MB | IMPORTED (decimated 66k->26.6k) | countryside roadside boulder |
+| `dead_tree_trunk_02` | https://polyhaven.com/a/dead_tree_trunk_02 | CC0 1.0 | 1K model glTF | 4.9 MB | IMPORTED (decimated 83k->16k) | fallen log, copse / camp |
+| `dry_branches_medium_01` | https://polyhaven.com/a/dry_branches_medium_01 | CC0 1.0 | 1K model glTF | 3.3 MB | IMPORTED | forest-floor debris, camp firewood scatter |
+| `wooden_cutting_board` | https://polyhaven.com/a/wooden_cutting_board | CC0 1.0 | 1K model glTF | 2.0 MB | REJECTED | modern varnished butcher board |
+| `cobblestone_floor_04` | https://polyhaven.com/a/cobblestone_floor_04 | CC0 1.0 | 2K texture diff/nor_gl/arm jpg | 6.1 MB | IMPORTED | slice material, see CC0_SLICE_KIT.md |
+| `cobblestone_floor_08` | https://polyhaven.com/a/cobblestone_floor_08 | CC0 1.0 | 2K texture diff/nor_gl/arm jpg | 7.0 MB | IMPORTED | slice material, see CC0_SLICE_KIT.md |
+| `mossy_cobblestone` | https://polyhaven.com/a/mossy_cobblestone | CC0 1.0 | 2K texture diff/nor_gl/arm jpg | 11.9 MB | IMPORTED | slice material, see CC0_SLICE_KIT.md |
+| `cobblestone_05` | https://polyhaven.com/a/cobblestone_05 | CC0 1.0 | 2K texture diff/nor_gl/arm jpg | 4.0 MB | IMPORTED | slice material, see CC0_SLICE_KIT.md |
+| `cobblestone_large_01` | https://polyhaven.com/a/cobblestone_large_01 | CC0 1.0 | 2K texture diff/nor_gl/arm jpg | 7.8 MB | IMPORTED | slice material, see CC0_SLICE_KIT.md |
+| `cobblestone_floor_13` | https://polyhaven.com/a/cobblestone_floor_13 | CC0 1.0 | 2K texture diff/nor_gl/arm jpg | 7.9 MB | IMPORTED | slice material, see CC0_SLICE_KIT.md |
+| `muddy_tracks` | https://polyhaven.com/a/muddy_tracks | CC0 1.0 | 2K texture diff/nor_gl/arm jpg | 12.1 MB | IMPORTED | slice material, see CC0_SLICE_KIT.md |
+| `mud_forest` | https://polyhaven.com/a/mud_forest | CC0 1.0 | 2K texture diff/nor_gl/arm jpg | 12.9 MB | IMPORTED | slice material, see CC0_SLICE_KIT.md |
+| `brown_mud_rocks_01` | https://polyhaven.com/a/brown_mud_rocks_01 | CC0 1.0 | 2K texture diff/nor_gl/arm jpg | 9.2 MB | IMPORTED | slice material, see CC0_SLICE_KIT.md |
+| `brown_mud_03` | https://polyhaven.com/a/brown_mud_03 | CC0 1.0 | 2K texture diff/nor_gl/arm jpg | 6.9 MB | IMPORTED | slice material, see CC0_SLICE_KIT.md |
+| `forest_floor` | https://polyhaven.com/a/forest_floor | CC0 1.0 | 2K texture diff/nor_gl/arm jpg | 14.7 MB | IMPORTED | slice material, see CC0_SLICE_KIT.md |
+| `forrest_ground_01` | https://polyhaven.com/a/forrest_ground_01 | CC0 1.0 | 2K texture diff/nor_gl/arm jpg | 9.8 MB | IMPORTED | slice material, see CC0_SLICE_KIT.md |
+| `leaves_forest_ground` | https://polyhaven.com/a/leaves_forest_ground | CC0 1.0 | 2K texture diff/nor_gl/arm jpg | 13.1 MB | IMPORTED | slice material, see CC0_SLICE_KIT.md |
+| `worn_mossy_plasterwall` | https://polyhaven.com/a/worn_mossy_plasterwall | CC0 1.0 | 2K texture diff/nor_gl/arm jpg | 10.9 MB | IMPORTED | slice material, see CC0_SLICE_KIT.md |
+| `rough_plaster_03` | https://polyhaven.com/a/rough_plaster_03 | CC0 1.0 | 2K texture diff/nor_gl/arm jpg | 6.4 MB | IMPORTED | slice material, see CC0_SLICE_KIT.md |
+| `plaster_stone_wall_01` | https://polyhaven.com/a/plaster_stone_wall_01 | CC0 1.0 | 2K texture diff/nor_gl/arm jpg | 8.6 MB | REJECTED | white blotchy, reads as footprints in snow |
+| `old_planks_02` | https://polyhaven.com/a/old_planks_02 | CC0 1.0 | 2K texture diff/nor_gl/arm jpg | 4.3 MB | IMPORTED | slice material, see CC0_SLICE_KIT.md |
+| `rough_wood` | https://polyhaven.com/a/rough_wood | CC0 1.0 | 2K texture diff/nor_gl/arm jpg | 5.3 MB | IMPORTED | slice material, see CC0_SLICE_KIT.md |
+| `weathered_brown_planks` | https://polyhaven.com/a/weathered_brown_planks | CC0 1.0 | 2K texture diff/nor_gl/arm jpg | 2.8 MB | IMPORTED | slice material, see CC0_SLICE_KIT.md |
+| `old_wood_floor` | https://polyhaven.com/a/old_wood_floor | CC0 1.0 | 2K texture diff/nor_gl/arm jpg | 8.8 MB | IMPORTED | slice material, see CC0_SLICE_KIT.md |
+| `old_stone_wall` | https://polyhaven.com/a/old_stone_wall | CC0 1.0 | 2K texture diff/nor_gl/arm jpg | 9.9 MB | IMPORTED | slice material, see CC0_SLICE_KIT.md |
+| `rustic_stone_wall` | https://polyhaven.com/a/rustic_stone_wall | CC0 1.0 | 2K texture diff/nor_gl/arm jpg | 11.4 MB | IMPORTED | slice material, see CC0_SLICE_KIT.md |
+| `stacked_stone_wall` | https://polyhaven.com/a/stacked_stone_wall | CC0 1.0 | 2K texture diff/nor_gl/arm jpg | 9.9 MB | IMPORTED | slice material, see CC0_SLICE_KIT.md |
+| `stone_wall_04` | https://polyhaven.com/a/stone_wall_04 | CC0 1.0 | 2K texture diff/nor_gl/arm jpg | 11.7 MB | IMPORTED | slice material, see CC0_SLICE_KIT.md |
+| `roof_slates_02` | https://polyhaven.com/a/roof_slates_02 | CC0 1.0 | 2K texture diff/nor_gl/arm jpg | 5.5 MB | IMPORTED | slice material, see CC0_SLICE_KIT.md |
+| `reed_roof_03` | https://polyhaven.com/a/reed_roof_03 | CC0 1.0 | 2K texture diff/nor_gl/arm jpg | 8.4 MB | IMPORTED | slice material, see CC0_SLICE_KIT.md |
+| `belfast_open_field` | https://polyhaven.com/a/belfast_open_field | CC0 1.0 | 2K HDRI .hdr | 6.5 MB | IMPORTED | lookdev only (overcast) |
+| `barnaslingan_02` | https://polyhaven.com/a/barnaslingan_02 | CC0 1.0 | 2K HDRI .hdr | 6.8 MB | IMPORTED | lookdev only (partly cloudy) |
+| `ThatchedRoof001A` | https://ambientcg.com/view?id=ThatchedRoof001A | CC0 1.0 | 2K texture zip (Color/NormalGL/Roughness/AO) | 32.5 MB | REJECTED | reads as brushed fabric, no straw relief |
