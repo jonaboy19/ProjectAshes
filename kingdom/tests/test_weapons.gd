@@ -81,7 +81,7 @@ func test_tap_fires_the_light_combo_on_release() -> void:
 	assert_int(_p.swing_id()).is_equal(0)
 	arms.release()
 	assert_int(_p.swing_id()).is_equal(1)
-	assert_str(_p._action.id).is_equal("sword_1")
+	assert_str(_p._action.id).is_equal("sword_fm_1")
 
 
 func test_hold_past_the_threshold_charges_and_release_swings_the_heavy() -> void:
@@ -96,7 +96,7 @@ func test_hold_past_the_threshold_charges_and_release_swings_the_heavy() -> void
 	var id_before: int = _p.swing_id()
 	arms.release()
 	assert_int(_p.swing_id()).is_equal(id_before + 1)
-	assert_str(_p._action.id).is_equal("sword_heavy")
+	assert_str(_p._action.id).is_equal("sword_fm_heavy")
 	assert_bool(_p._action.guard_break).is_true()
 	assert_bool(arms.charging).is_false()
 
@@ -150,7 +150,7 @@ func test_a_hit_taken_cancels_the_charge() -> void:
 # --- move table follows the equipped weapon -------------------------------------------------------------
 
 func test_weapon_types_map_to_tables() -> void:
-	for pair in [["sword", "sword"], ["axe", "sword"], ["greatsword", "sword"], ["spear", "spear"], ["halberd", "spear"],
+	for pair in [["sword", "sword"], ["axe", "axe"], ["greatsword", "greatsword"], ["mace", "axe"], ["warhammer", "greatsword"], ["spear", "spear"], ["halberd", "spear"],
 			["staff", "staff"], ["wand", "staff"], ["shortbow", "bow"], ["longbow", "bow"], ["crossbow", "bow"], ["", "sword"]]:
 		assert_str(Rules.style_for_type(pair[0])).override_failure_message(pair[0]).is_equal(pair[1])
 
@@ -501,7 +501,7 @@ func test_a_hit_while_holding_buffers_the_hold_and_restarts_it_when_control_retu
 	var id_before: int = _p.swing_id()
 	arms.release()
 	assert_int(_p.swing_id()).is_equal(id_before + 1)
-	assert_str(_p._action.id).is_equal("sword_heavy")
+	assert_str(_p._action.id).is_equal("sword_fm_heavy")
 
 
 func test_a_press_during_knockdown_starts_when_the_player_is_up() -> void:

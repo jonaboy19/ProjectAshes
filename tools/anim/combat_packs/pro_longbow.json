@@ -1,0 +1,245 @@
+{
+ "clips": [
+  {
+   "name": "Mx_Bow_Fall_A_Land_To_Run_Forward",
+   "file": "fall a land to run forward.fbx",
+   "inplace": "smooth",
+   "inplace_sigma": 0.08,
+   "floor": "min"
+  },
+  {
+   "name": "Mx_Bow_Fall_A_Land_To_Standing_Idle_01",
+   "file": "fall a land to standing idle 01.fbx",
+   "inplace": "smooth",
+   "inplace_sigma": 0.08,
+   "floor": "min"
+  },
+  {
+   "name": "Mx_Bow_Fall_A_Loop",
+   "file": "fall a loop.fbx",
+   "loop": true,
+   "inplace": "linear",
+   "floor": "min"
+  },
+  {
+   "name": "Mx_Bow_Aim_Overdraw",
+   "file": "standing aim overdraw.fbx",
+   "inplace": "smooth",
+   "inplace_sigma": 0.08
+  },
+  {
+   "name": "Mx_Bow_Aim_Recoil",
+   "file": "standing aim recoil.fbx",
+   "inplace": "smooth",
+   "inplace_sigma": 0.08
+  },
+  {
+   "name": "Mx_Bow_Aim_Walk_Back",
+   "file": "standing aim walk back.fbx",
+   "loop": true,
+   "inplace": "linear"
+  },
+  {
+   "name": "Mx_Bow_Aim_Walk_Forward",
+   "file": "standing aim walk forward.fbx",
+   "loop": true,
+   "inplace": "linear"
+  },
+  {
+   "name": "Mx_Bow_Aim_Walk_Left",
+   "file": "standing aim walk left.fbx",
+   "loop": true,
+   "inplace": "linear"
+  },
+  {
+   "name": "Mx_Bow_Aim_Walk_Right",
+   "file": "standing aim walk right.fbx",
+   "loop": true,
+   "inplace": "linear"
+  },
+  {
+   "name": "Mx_Bow_Block",
+   "file": "standing block.fbx",
+   "inplace": "smooth",
+   "inplace_sigma": 0.08
+  },
+  {
+   "name": "Mx_Bow_Death_Backward_01",
+   "file": "standing death backward 01.fbx",
+   "inplace": "smooth",
+   "inplace_sigma": 0.08,
+   "floor": "min"
+  },
+  {
+   "name": "Mx_Bow_Death_Forward_01",
+   "file": "standing death forward 01.fbx",
+   "inplace": "smooth",
+   "inplace_sigma": 0.08,
+   "floor": "min"
+  },
+  {
+   "name": "Mx_Bow_Disarm_Bow",
+   "file": "standing disarm bow.fbx",
+   "inplace": "smooth",
+   "inplace_sigma": 0.08
+  },
+  {
+   "name": "Mx_Bow_Dive_Forward",
+   "file": "standing dive forward.fbx",
+   "inplace": "smooth",
+   "inplace_sigma": 0.08
+  },
+  {
+   "name": "Mx_Bow_Dodge_Backward",
+   "file": "standing dodge backward.fbx",
+   "inplace": "smooth",
+   "inplace_sigma": 0.08
+  },
+  {
+   "name": "Mx_Bow_Dodge_Forward",
+   "file": "standing dodge forward.fbx",
+   "inplace": "smooth",
+   "inplace_sigma": 0.08
+  },
+  {
+   "name": "Mx_Bow_Dodge_Left",
+   "file": "standing dodge left.fbx",
+   "inplace": "smooth",
+   "inplace_sigma": 0.08
+  },
+  {
+   "name": "Mx_Bow_Dodge_Right",
+   "file": "standing dodge right.fbx",
+   "inplace": "smooth",
+   "inplace_sigma": 0.08
+  },
+  {
+   "name": "Mx_Bow_Draw_Arrow",
+   "file": "standing draw arrow.fbx",
+   "inplace": "smooth",
+   "inplace_sigma": 0.08
+  },
+  {
+   "name": "Mx_Bow_Equip_Bow",
+   "file": "standing equip bow.fbx",
+   "inplace": "smooth",
+   "inplace_sigma": 0.08
+  },
+  {
+   "name": "Mx_Bow_Idle_01",
+   "file": "standing idle 01.fbx",
+   "loop": true,
+   "inplace": "linear"
+  },
+  {
+   "name": "Mx_Bow_Idle_02_Looking",
+   "file": "standing idle 02 looking.fbx",
+   "loop": true,
+   "inplace": "linear"
+  },
+  {
+   "name": "Mx_Bow_Idle_03_Examine",
+   "file": "standing idle 03 examine.fbx",
+   "loop": true,
+   "inplace": "linear"
+  },
+  {
+   "name": "Mx_Bow_Kick",
+   "file": "standing melee kick.fbx",
+   "inplace": "smooth",
+   "inplace_sigma": 0.08
+  },
+  {
+   "name": "Mx_Bow_Punch",
+   "file": "standing melee punch.fbx",
+   "inplace": "smooth",
+   "inplace_sigma": 0.08
+  },
+  {
+   "name": "Mx_Bow_React_Small_From_Front",
+   "file": "standing react small from front.fbx",
+   "inplace": "smooth",
+   "inplace_sigma": 0.08,
+   "floor": "min"
+  },
+  {
+   "name": "Mx_Bow_React_Small_From_Headshot",
+   "file": "standing react small from headshot.fbx",
+   "inplace": "smooth",
+   "inplace_sigma": 0.08,
+   "floor": "min"
+  },
+  {
+   "name": "Mx_Bow_Run_Back",
+   "file": "standing run back.fbx",
+   "loop": true,
+   "inplace": "linear"
+  },
+  {
+   "name": "Mx_Bow_Run_Forward_Stop",
+   "file": "standing run forward stop.fbx",
+   "inplace": "smooth",
+   "inplace_sigma": 0.08
+  },
+  {
+   "name": "Mx_Bow_Run_Forward",
+   "file": "standing run forward.fbx",
+   "loop": true,
+   "inplace": "linear"
+  },
+  {
+   "name": "Mx_Bow_Run_Left",
+   "file": "standing run left.fbx",
+   "loop": true,
+   "inplace": "linear"
+  },
+  {
+   "name": "Mx_Bow_Run_Right",
+   "file": "standing run right.fbx",
+   "loop": true,
+   "inplace": "linear"
+  },
+  {
+   "name": "Mx_Bow_Turn_90_Left",
+   "file": "standing turn 90 left.fbx",
+   "inplace": "smooth",
+   "inplace_sigma": 0.08
+  },
+  {
+   "name": "Mx_Bow_Turn_90_Right",
+   "file": "standing turn 90 right.fbx",
+   "inplace": "smooth",
+   "inplace_sigma": 0.08
+  },
+  {
+   "name": "Mx_Bow_Walk_Back",
+   "file": "standing walk back.fbx",
+   "loop": true,
+   "inplace": "linear"
+  },
+  {
+   "name": "Mx_Bow_Walk_Forward",
+   "file": "standing walk forward.fbx",
+   "loop": true,
+   "inplace": "linear"
+  },
+  {
+   "name": "Mx_Bow_Walk_Left",
+   "file": "standing walk left.fbx",
+   "loop": true,
+   "inplace": "linear"
+  },
+  {
+   "name": "Mx_Bow_Walk_Right",
+   "file": "standing walk right.fbx",
+   "loop": true,
+   "inplace": "linear"
+  },
+  {
+   "name": "Mx_Bow_Unarmed_Idle_01",
+   "file": "unarmed idle 01.fbx",
+   "loop": true,
+   "inplace": "linear"
+  }
+ ]
+}

@@ -1,0 +1,895 @@
+[
+ {
+  "name": "Mx_Axe_Crouch_Idle",
+  "loop": true,
+  "seconds": 1.63,
+  "frames": 50,
+  "keys": 363,
+  "source": "crouch idle.fbx",
+  "range_s": [
+   0.0,
+   1.6333333333333333
+  ],
+  "autotrim": null,
+  "loop_pts": null,
+  "floor_fix_m": 0.0,
+  "contact_lift_m": 0.011,
+  "min_foot_m": -0.02,
+  "travel_m": 0.0,
+  "hip_scale": 0.8509
+ },
+ {
+  "name": "Mx_Axe_Crouch_To_Standing_Idle",
+  "loop": false,
+  "seconds": 0.6,
+  "frames": 19,
+  "keys": 374,
+  "source": "crouch to standing idle.fbx",
+  "range_s": [
+   null,
+   null
+  ],
+  "autotrim": null,
+  "loop_pts": null,
+  "floor_fix_m": 0.051,
+  "contact_lift_m": 0.0,
+  "min_foot_m": -0.0,
+  "travel_m": 0.0,
+  "hip_scale": 0.8509
+ },
+ {
+  "name": "Mx_Axe_Block_Idle",
+  "loop": true,
+  "seconds": 1.63,
+  "frames": 50,
+  "keys": 282,
+  "source": "standing block idle.fbx",
+  "range_s": [
+   0.0,
+   1.6333333333333333
+  ],
+  "autotrim": null,
+  "loop_pts": null,
+  "floor_fix_m": 0.046,
+  "contact_lift_m": 0.0,
+  "min_foot_m": -0.0,
+  "travel_m": 0.0,
+  "hip_scale": 0.8509
+ },
+ {
+  "name": "Mx_Axe_Block_React_Large",
+  "loop": false,
+  "seconds": 1.0,
+  "frames": 31,
+  "keys": 872,
+  "source": "standing block react large.fbx",
+  "range_s": [
+   null,
+   null
+  ],
+  "autotrim": null,
+  "loop_pts": null,
+  "floor_fix_m": 0.047,
+  "contact_lift_m": 0.0,
+  "min_foot_m": -0.0,
+  "travel_m": 0.03,
+  "hip_scale": 0.8509
+ },
+ {
+  "name": "Mx_Axe_Disarm_Over_Shoulder",
+  "loop": false,
+  "seconds": 1.63,
+  "frames": 50,
+  "keys": 1060,
+  "source": "standing disarm over shoulder.fbx",
+  "range_s": [
+   null,
+   null
+  ],
+  "autotrim": null,
+  "loop_pts": null,
+  "floor_fix_m": 0.052,
+  "contact_lift_m": 0.0,
+  "min_foot_m": -0.0,
+  "travel_m": 0.18,
+  "hip_scale": 0.8509
+ },
+ {
+  "name": "Mx_Axe_Disarm_Underarm",
+  "loop": false,
+  "seconds": 1.63,
+  "frames": 50,
+  "keys": 863,
+  "source": "standing disarm underarm.fbx",
+  "range_s": [
+   null,
+   null
+  ],
+  "autotrim": null,
+  "loop_pts": null,
+  "floor_fix_m": 0.055,
+  "contact_lift_m": 0.0,
+  "min_foot_m": -0.0,
+  "travel_m": 0.02,
+  "hip_scale": 0.8509
+ },
+ {
+  "name": "Mx_Axe_Idle_Looking_V_1",
+  "loop": true,
+  "seconds": 11.23,
+  "frames": 338,
+  "keys": 2044,
+  "source": "standing idle looking ver. 1.fbx",
+  "range_s": [
+   0.0,
+   11.233333333333333
+  ],
+  "autotrim": null,
+  "loop_pts": null,
+  "floor_fix_m": 0.054,
+  "contact_lift_m": 0.0,
+  "min_foot_m": -0.002,
+  "travel_m": 0.0,
+  "hip_scale": 0.8509
+ },
+ {
+  "name": "Mx_Axe_Idle_Looking_V_2",
+  "loop": true,
+  "seconds": 7.63,
+  "frames": 230,
+  "keys": 1467,
+  "source": "standing idle looking ver. 2.fbx",
+  "range_s": [
+   0.0,
+   7.633333333333334
+  ],
+  "autotrim": null,
+  "loop_pts": null,
+  "floor_fix_m": 0.05,
+  "contact_lift_m": 0.0,
+  "min_foot_m": -0.001,
+  "travel_m": 0.01,
+  "hip_scale": 0.8509
+ },
+ {
+  "name": "Mx_Axe_Idle",
+  "loop": true,
+  "seconds": 1.77,
+  "frames": 54,
+  "keys": 380,
+  "source": "standing idle.fbx",
+  "range_s": [
+   0.0,
+   1.7666666666666666
+  ],
+  "autotrim": null,
+  "loop_pts": null,
+  "floor_fix_m": 0.054,
+  "contact_lift_m": 0.0,
+  "min_foot_m": -0.0,
+  "travel_m": 0.0,
+  "hip_scale": 0.8509
+ },
+ {
+  "name": "Mx_Axe_Jump",
+  "loop": false,
+  "seconds": 1.83,
+  "frames": 56,
+  "keys": 1238,
+  "source": "standing jump.fbx",
+  "range_s": [
+   null,
+   null
+  ],
+  "autotrim": null,
+  "loop_pts": null,
+  "floor_fix_m": 0.063,
+  "contact_lift_m": 0.0,
+  "min_foot_m": -0.012,
+  "travel_m": 0.01,
+  "hip_scale": 0.8509
+ },
+ {
+  "name": "Mx_Axe_Attack_360_High",
+  "loop": false,
+  "seconds": 3.17,
+  "frames": 96,
+  "keys": 1957,
+  "source": "standing melee attack 360 high.fbx",
+  "range_s": [
+   null,
+   null
+  ],
+  "autotrim": null,
+  "loop_pts": null,
+  "floor_fix_m": 0.056,
+  "contact_lift_m": 0.0,
+  "min_foot_m": -0.002,
+  "travel_m": 0.03,
+  "hip_scale": 0.8509
+ },
+ {
+  "name": "Mx_Axe_Attack_360_Low",
+  "loop": false,
+  "seconds": 2.5,
+  "frames": 76,
+  "keys": 1854,
+  "source": "standing melee attack 360 low.fbx",
+  "range_s": [
+   null,
+   null
+  ],
+  "autotrim": null,
+  "loop_pts": null,
+  "floor_fix_m": 0.084,
+  "contact_lift_m": 0.0,
+  "min_foot_m": -0.004,
+  "travel_m": 0.01,
+  "hip_scale": 0.8509
+ },
+ {
+  "name": "Mx_Axe_Attack_Backhand",
+  "loop": false,
+  "seconds": 3.17,
+  "frames": 96,
+  "keys": 1881,
+  "source": "standing melee attack backhand.fbx",
+  "range_s": [
+   null,
+   null
+  ],
+  "autotrim": null,
+  "loop_pts": null,
+  "floor_fix_m": 0.07,
+  "contact_lift_m": 0.0,
+  "min_foot_m": -0.015,
+  "travel_m": 0.02,
+  "hip_scale": 0.8509
+ },
+ {
+  "name": "Mx_Axe_Attack_Downward",
+  "loop": false,
+  "seconds": 2.27,
+  "frames": 69,
+  "keys": 1327,
+  "source": "standing melee attack downward.fbx",
+  "range_s": [
+   null,
+   null
+  ],
+  "autotrim": null,
+  "loop_pts": null,
+  "floor_fix_m": 0.068,
+  "contact_lift_m": 0.0,
+  "min_foot_m": -0.002,
+  "travel_m": 0.01,
+  "hip_scale": 0.8509
+ },
+ {
+  "name": "Mx_Axe_Attack_Horizontal",
+  "loop": false,
+  "seconds": 2.4,
+  "frames": 73,
+  "keys": 1326,
+  "source": "standing melee attack horizontal.fbx",
+  "range_s": [
+   null,
+   null
+  ],
+  "autotrim": null,
+  "loop_pts": null,
+  "floor_fix_m": 0.061,
+  "contact_lift_m": 0.0,
+  "min_foot_m": -0.001,
+  "travel_m": 0.0,
+  "hip_scale": 0.8509
+ },
+ {
+  "name": "Mx_Axe_Attack_Kick_V_1",
+  "loop": false,
+  "seconds": 1.87,
+  "frames": 57,
+  "keys": 1152,
+  "source": "standing melee attack kick ver. 1.fbx",
+  "range_s": [
+   null,
+   null
+  ],
+  "autotrim": null,
+  "loop_pts": null,
+  "floor_fix_m": 0.051,
+  "contact_lift_m": 0.0,
+  "min_foot_m": -0.0,
+  "travel_m": 0.0,
+  "hip_scale": 0.8509
+ },
+ {
+  "name": "Mx_Axe_Attack_Kick_V_2",
+  "loop": false,
+  "seconds": 1.4,
+  "frames": 43,
+  "keys": 1014,
+  "source": "standing melee attack kick ver. 2.fbx",
+  "range_s": [
+   null,
+   null
+  ],
+  "autotrim": null,
+  "loop_pts": null,
+  "floor_fix_m": 0.052,
+  "contact_lift_m": 0.0,
+  "min_foot_m": -0.0,
+  "travel_m": 0.02,
+  "hip_scale": 0.8509
+ },
+ {
+  "name": "Mx_Axe_Combo_Attack_V_1",
+  "loop": false,
+  "seconds": 4.67,
+  "frames": 141,
+  "keys": 2671,
+  "source": "standing melee combo attack ver. 1.fbx",
+  "range_s": [
+   null,
+   null
+  ],
+  "autotrim": null,
+  "loop_pts": null,
+  "floor_fix_m": 0.068,
+  "contact_lift_m": 0.0,
+  "min_foot_m": -0.007,
+  "travel_m": 1.32,
+  "hip_scale": 0.8509
+ },
+ {
+  "name": "Mx_Axe_Combo_Attack_V_2",
+  "loop": false,
+  "seconds": 4.2,
+  "frames": 127,
+  "keys": 2704,
+  "source": "standing melee combo attack ver. 2.fbx",
+  "range_s": [
+   null,
+   null
+  ],
+  "autotrim": null,
+  "loop_pts": null,
+  "floor_fix_m": 0.083,
+  "contact_lift_m": 0.0,
+  "min_foot_m": -0.019,
+  "travel_m": 0.01,
+  "hip_scale": 0.8509
+ },
+ {
+  "name": "Mx_Axe_Combo_Attack_V_3",
+  "loop": false,
+  "seconds": 2.73,
+  "frames": 83,
+  "keys": 1590,
+  "source": "standing melee combo attack ver. 3.fbx",
+  "range_s": [
+   null,
+   null
+  ],
+  "autotrim": null,
+  "loop_pts": null,
+  "floor_fix_m": 0.06,
+  "contact_lift_m": 0.0,
+  "min_foot_m": -0.001,
+  "travel_m": 0.01,
+  "hip_scale": 0.8509
+ },
+ {
+  "name": "Mx_Axe_Run_Jump_Attack",
+  "loop": false,
+  "seconds": 3.67,
+  "frames": 111,
+  "keys": 2079,
+  "source": "standing melee run jump attack.fbx",
+  "range_s": [
+   null,
+   null
+  ],
+  "autotrim": null,
+  "loop_pts": null,
+  "floor_fix_m": 0.076,
+  "contact_lift_m": 0.0,
+  "min_foot_m": -0.002,
+  "travel_m": 3.13,
+  "hip_scale": 0.8509
+ },
+ {
+  "name": "Mx_Axe_React_Large_From_Left",
+  "loop": false,
+  "seconds": 1.0,
+  "frames": 31,
+  "keys": 819,
+  "source": "standing react large from left.fbx",
+  "range_s": [
+   null,
+   null
+  ],
+  "autotrim": null,
+  "loop_pts": null,
+  "floor_fix_m": 0.074,
+  "contact_lift_m": 0.0,
+  "min_foot_m": -0.001,
+  "travel_m": 0.01,
+  "hip_scale": 0.8509
+ },
+ {
+  "name": "Mx_Axe_React_Large_From_Right",
+  "loop": false,
+  "seconds": 1.7,
+  "frames": 52,
+  "keys": 947,
+  "source": "standing react large from right.fbx",
+  "range_s": [
+   null,
+   null
+  ],
+  "autotrim": null,
+  "loop_pts": null,
+  "floor_fix_m": 0.052,
+  "contact_lift_m": 0.0,
+  "min_foot_m": -0.0,
+  "travel_m": 0.01,
+  "hip_scale": 0.8509
+ },
+ {
+  "name": "Mx_Axe_React_Large_Gut",
+  "loop": false,
+  "seconds": 1.47,
+  "frames": 45,
+  "keys": 822,
+  "source": "standing react large gut.fbx",
+  "range_s": [
+   null,
+   null
+  ],
+  "autotrim": null,
+  "loop_pts": null,
+  "floor_fix_m": 0.082,
+  "contact_lift_m": 0.0,
+  "min_foot_m": -0.001,
+  "travel_m": 0.02,
+  "hip_scale": 0.8509
+ },
+ {
+  "name": "Mx_Axe_Run_Back",
+  "loop": true,
+  "seconds": 0.77,
+  "frames": 24,
+  "keys": 650,
+  "source": "standing run back.fbx",
+  "range_s": [
+   0.0,
+   0.7666666666666667
+  ],
+  "autotrim": null,
+  "loop_pts": null,
+  "floor_fix_m": 0.063,
+  "contact_lift_m": 0.0,
+  "min_foot_m": -0.002,
+  "travel_m": 1.28,
+  "hip_scale": 0.8509
+ },
+ {
+  "name": "Mx_Axe_Run_Forward",
+  "loop": true,
+  "seconds": 0.7,
+  "frames": 22,
+  "keys": 547,
+  "source": "standing run forward.fbx",
+  "range_s": [
+   0.0,
+   0.7
+  ],
+  "autotrim": null,
+  "loop_pts": null,
+  "floor_fix_m": 0.052,
+  "contact_lift_m": 0.0,
+  "min_foot_m": -0.0,
+  "travel_m": 1.51,
+  "hip_scale": 0.8509
+ },
+ {
+  "name": "Mx_Axe_Taunt_Battlecry",
+  "loop": false,
+  "seconds": 2.83,
+  "frames": 86,
+  "keys": 1446,
+  "source": "standing taunt battlecry.fbx",
+  "range_s": [
+   null,
+   null
+  ],
+  "autotrim": null,
+  "loop_pts": null,
+  "floor_fix_m": 0.051,
+  "contact_lift_m": 0.0,
+  "min_foot_m": -0.0,
+  "travel_m": 0.01,
+  "hip_scale": 0.8509
+ },
+ {
+  "name": "Mx_Axe_Taunt_Chest_Thump",
+  "loop": false,
+  "seconds": 2.53,
+  "frames": 77,
+  "keys": 1254,
+  "source": "standing taunt chest thump.fbx",
+  "range_s": [
+   null,
+   null
+  ],
+  "autotrim": null,
+  "loop_pts": null,
+  "floor_fix_m": 0.051,
+  "contact_lift_m": 0.0,
+  "min_foot_m": -0.001,
+  "travel_m": 0.03,
+  "hip_scale": 0.8509
+ },
+ {
+  "name": "Mx_Axe_Turn_Left_90",
+  "loop": false,
+  "seconds": 1.73,
+  "frames": 53,
+  "keys": 738,
+  "source": "standing turn left 90.fbx",
+  "range_s": [
+   null,
+   null
+  ],
+  "autotrim": null,
+  "loop_pts": null,
+  "floor_fix_m": 0.057,
+  "contact_lift_m": 0.0,
+  "min_foot_m": -0.001,
+  "travel_m": 0.04,
+  "hip_scale": 0.8509
+ },
+ {
+  "name": "Mx_Axe_Turn_Right_90",
+  "loop": false,
+  "seconds": 1.63,
+  "frames": 50,
+  "keys": 803,
+  "source": "standing turn right 90.fbx",
+  "range_s": [
+   null,
+   null
+  ],
+  "autotrim": null,
+  "loop_pts": null,
+  "floor_fix_m": 0.059,
+  "contact_lift_m": 0.0,
+  "min_foot_m": -0.0,
+  "travel_m": 0.04,
+  "hip_scale": 0.8509
+ },
+ {
+  "name": "Mx_Axe_Walk_Back",
+  "loop": true,
+  "seconds": 1.33,
+  "frames": 41,
+  "keys": 674,
+  "source": "standing walk back.fbx",
+  "range_s": [
+   0.0,
+   1.3333333333333333
+  ],
+  "autotrim": null,
+  "loop_pts": null,
+  "floor_fix_m": 0.065,
+  "contact_lift_m": 0.0,
+  "min_foot_m": -0.001,
+  "travel_m": 1.08,
+  "hip_scale": 0.8509
+ },
+ {
+  "name": "Mx_Axe_Walk_Forward",
+  "loop": true,
+  "seconds": 1.3,
+  "frames": 40,
+  "keys": 594,
+  "source": "standing walk forward.fbx",
+  "range_s": [
+   0.0,
+   1.3
+  ],
+  "autotrim": null,
+  "loop_pts": null,
+  "floor_fix_m": 0.046,
+  "contact_lift_m": 0.0,
+  "min_foot_m": -0.0,
+  "travel_m": 1.16,
+  "hip_scale": 0.8509
+ },
+ {
+  "name": "Mx_Axe_Walk_Left",
+  "loop": true,
+  "seconds": 1.2,
+  "frames": 37,
+  "keys": 566,
+  "source": "standing walk left.fbx",
+  "range_s": [
+   0.0,
+   1.2
+  ],
+  "autotrim": null,
+  "loop_pts": null,
+  "floor_fix_m": 0.044,
+  "contact_lift_m": 0.0,
+  "min_foot_m": -0.001,
+  "travel_m": 0.99,
+  "hip_scale": 0.8509
+ },
+ {
+  "name": "Mx_Axe_Walk_Right",
+  "loop": true,
+  "seconds": 1.23,
+  "frames": 38,
+  "keys": 774,
+  "source": "standing walk right.fbx",
+  "range_s": [
+   0.0,
+   1.2333333333333334
+  ],
+  "autotrim": null,
+  "loop_pts": null,
+  "floor_fix_m": 0.06,
+  "contact_lift_m": 0.0,
+  "min_foot_m": -0.001,
+  "travel_m": 1.15,
+  "hip_scale": 0.8509
+ },
+ {
+  "name": "Mx_Axe_Unarmed_Equip_Over_Shoulder",
+  "loop": false,
+  "seconds": 1.67,
+  "frames": 51,
+  "keys": 1057,
+  "source": "unarmed equip over shoulder.fbx",
+  "range_s": [
+   null,
+   null
+  ],
+  "autotrim": null,
+  "loop_pts": null,
+  "floor_fix_m": 0.052,
+  "contact_lift_m": 0.0,
+  "min_foot_m": -0.0,
+  "travel_m": 0.18,
+  "hip_scale": 0.8509
+ },
+ {
+  "name": "Mx_Axe_Unarmed_Equip_Underarm",
+  "loop": false,
+  "seconds": 1.1,
+  "frames": 34,
+  "keys": 883,
+  "source": "unarmed equip underarm.fbx",
+  "range_s": [
+   null,
+   null
+  ],
+  "autotrim": null,
+  "loop_pts": null,
+  "floor_fix_m": 0.054,
+  "contact_lift_m": 0.0,
+  "min_foot_m": -0.0,
+  "travel_m": 0.02,
+  "hip_scale": 0.8509
+ },
+ {
+  "name": "Mx_Axe_Unarmed_Idle_Looking_V_1",
+  "loop": true,
+  "seconds": 11.07,
+  "frames": 333,
+  "keys": 2447,
+  "source": "unarmed idle looking ver. 1.fbx",
+  "range_s": [
+   0.0,
+   11.066666666666666
+  ],
+  "autotrim": null,
+  "loop_pts": null,
+  "floor_fix_m": 0.054,
+  "contact_lift_m": 0.0,
+  "min_foot_m": -0.0,
+  "travel_m": 0.0,
+  "hip_scale": 0.8509
+ },
+ {
+  "name": "Mx_Axe_Unarmed_Idle_Looking_V_2",
+  "loop": true,
+  "seconds": 6.97,
+  "frames": 210,
+  "keys": 771,
+  "source": "unarmed idle looking ver. 2.fbx",
+  "range_s": [
+   0.0,
+   6.966666666666667
+  ],
+  "autotrim": null,
+  "loop_pts": null,
+  "floor_fix_m": 0.053,
+  "contact_lift_m": 0.0,
+  "min_foot_m": -0.0,
+  "travel_m": 0.0,
+  "hip_scale": 0.8509
+ },
+ {
+  "name": "Mx_Axe_Unarmed_Idle",
+  "loop": true,
+  "seconds": 1.77,
+  "frames": 54,
+  "keys": 432,
+  "source": "unarmed idle.fbx",
+  "range_s": [
+   0.0,
+   1.7666666666666666
+  ],
+  "autotrim": null,
+  "loop_pts": null,
+  "floor_fix_m": 0.051,
+  "contact_lift_m": 0.0,
+  "min_foot_m": -0.0,
+  "travel_m": 0.0,
+  "hip_scale": 0.8509
+ },
+ {
+  "name": "Mx_Axe_Unarmed_Jump_Running",
+  "loop": false,
+  "seconds": 1.4,
+  "frames": 43,
+  "keys": 1388,
+  "source": "unarmed jump running.fbx",
+  "range_s": [
+   null,
+   null
+  ],
+  "autotrim": null,
+  "loop_pts": null,
+  "floor_fix_m": 0.045,
+  "contact_lift_m": 0.0,
+  "min_foot_m": -0.006,
+  "travel_m": 2.85,
+  "hip_scale": 0.8509
+ },
+ {
+  "name": "Mx_Axe_Unarmed_Jump",
+  "loop": false,
+  "seconds": 2.33,
+  "frames": 71,
+  "keys": 2191,
+  "source": "unarmed jump.fbx",
+  "range_s": [
+   null,
+   null
+  ],
+  "autotrim": null,
+  "loop_pts": null,
+  "floor_fix_m": 0.069,
+  "contact_lift_m": 0.0,
+  "min_foot_m": -0.0,
+  "travel_m": 0.0,
+  "hip_scale": 0.8509
+ },
+ {
+  "name": "Mx_Axe_Unarmed_Run_Back",
+  "loop": true,
+  "seconds": 0.73,
+  "frames": 23,
+  "keys": 510,
+  "source": "unarmed run back.fbx",
+  "range_s": [
+   0.0,
+   0.7333333333333333
+  ],
+  "autotrim": null,
+  "loop_pts": null,
+  "floor_fix_m": 0.062,
+  "contact_lift_m": 0.0,
+  "min_foot_m": -0.001,
+  "travel_m": 1.3,
+  "hip_scale": 0.8509
+ },
+ {
+  "name": "Mx_Axe_Unarmed_Run_Forward",
+  "loop": true,
+  "seconds": 0.77,
+  "frames": 24,
+  "keys": 470,
+  "source": "unarmed run forward.fbx",
+  "range_s": [
+   0.0,
+   0.7666666666666667
+  ],
+  "autotrim": null,
+  "loop_pts": null,
+  "floor_fix_m": 0.047,
+  "contact_lift_m": 0.0,
+  "min_foot_m": -0.004,
+  "travel_m": 1.77,
+  "hip_scale": 0.8509
+ },
+ {
+  "name": "Mx_Axe_Unarmed_Turn_Left_90",
+  "loop": false,
+  "seconds": 1.5,
+  "frames": 46,
+  "keys": 740,
+  "source": "unarmed turn left 90.fbx",
+  "range_s": [
+   null,
+   null
+  ],
+  "autotrim": null,
+  "loop_pts": null,
+  "floor_fix_m": 0.056,
+  "contact_lift_m": 0.0,
+  "min_foot_m": -0.001,
+  "travel_m": 0.03,
+  "hip_scale": 0.8509
+ },
+ {
+  "name": "Mx_Axe_Unarmed_Turn_Right_90",
+  "loop": false,
+  "seconds": 1.5,
+  "frames": 46,
+  "keys": 829,
+  "source": "unarmed turn right 90.fbx",
+  "range_s": [
+   null,
+   null
+  ],
+  "autotrim": null,
+  "loop_pts": null,
+  "floor_fix_m": 0.055,
+  "contact_lift_m": 0.0,
+  "min_foot_m": -0.0,
+  "travel_m": 0.03,
+  "hip_scale": 0.8509
+ },
+ {
+  "name": "Mx_Axe_Unarmed_Walk_Back",
+  "loop": true,
+  "seconds": 1.27,
+  "frames": 39,
+  "keys": 940,
+  "source": "unarmed walk back.fbx",
+  "range_s": [
+   0.0,
+   1.2666666666666666
+  ],
+  "autotrim": null,
+  "loop_pts": null,
+  "floor_fix_m": 0.048,
+  "contact_lift_m": 0.0,
+  "min_foot_m": -0.0,
+  "travel_m": 0.97,
+  "hip_scale": 0.8509
+ },
+ {
+  "name": "Mx_Axe_Unarmed_Walk_Forward",
+  "loop": true,
+  "seconds": 1.33,
+  "frames": 41,
+  "keys": 981,
+  "source": "unarmed walk forward.fbx",
+  "range_s": [
+   0.0,
+   1.3333333333333333
+  ],
+  "autotrim": null,
+  "loop_pts": null,
+  "floor_fix_m": 0.041,
+  "contact_lift_m": 0.0,
+  "min_foot_m": -0.002,
+  "travel_m": 1.16,
+  "hip_scale": 0.8509
+ }
+]

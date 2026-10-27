@@ -14,7 +14,7 @@ const FOV_MAX := 6.0
 const ROLL := [0.0, 0.012, 0.026]           # radians of camera roll
 const ROLL_MAX := 0.035
 const SHAKE := [0.22, 0.34, 0.5]
-const FLASH := [0.0, 0.0, 0.16]             # short warm full-screen tint, ONE frame, finishers only
+const FLASH := [0.0, 0.0, 0.0]              # no full-screen flash (AAA gate ref 03: contact reads from the bodies)
 
 ## A blow counts as heavy at this knockback, poise damage or damage (riposte hits are heavy too).
 const HEAVY_KNOCK := 3.0

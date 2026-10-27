@@ -6,6 +6,7 @@ extends RefCounted
 
 const Action := preload("res://scripts/combat/combat_action.gd")
 const WeaponRules := preload("res://scripts/combat/weapon_rules.gd")
+const Chains := preload("res://scripts/combat/combat_chains.gd")   # full-motion Mixamo chains (sword, greatsword, axe)
 
 const CANCEL_TAIL := 0.22          ## last fraction of a combo swing that the next swing may cut
 const ACTIVE_LEAD := 0.03          ## active window opens this long before the contact frame (old ACTIVE_BEFORE)
@@ -169,6 +170,11 @@ const CREATURE := {
 
 ## Ordered light combo for the player's weapon style ("sword", "spear", "staff"); "bow" is a single ranged shot row.
 static func combo(style: String) -> Array:
+	var fm := Chains.combo(style)
+	if not fm.is_empty():
+		return fm
+	if style in ["greatsword", "axe"]:
+		style = "sword"
 	var key := "combo:" + style
 	if _cache.has(key):
 		return _cache[key]
@@ -195,6 +201,11 @@ static func combo(style: String) -> Array:
 
 ## The hold-to-charge heavy of a weapon style, or null (the bow has none: holding draws it).
 static func heavy(style: String) -> Resource:
+	var fm := Chains.heavy(style, WeaponRules.hold_time())
+	if fm != null:
+		return fm
+	if style in ["greatsword", "axe"]:
+		style = "sword"
 	var key := "heavy:" + style
 	if _cache.has(key):
 		return _cache[key]

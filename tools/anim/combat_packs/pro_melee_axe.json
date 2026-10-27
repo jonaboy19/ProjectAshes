@@ -1,0 +1,290 @@
+{
+ "clips": [
+  {
+   "name": "Mx_Axe_Crouch_Idle",
+   "file": "crouch idle.fbx",
+   "loop": true,
+   "inplace": "linear"
+  },
+  {
+   "name": "Mx_Axe_Crouch_To_Standing_Idle",
+   "file": "crouch to standing idle.fbx",
+   "inplace": "smooth",
+   "inplace_sigma": 0.08
+  },
+  {
+   "name": "Mx_Axe_Block_Idle",
+   "file": "standing block idle.fbx",
+   "loop": true,
+   "inplace": "linear"
+  },
+  {
+   "name": "Mx_Axe_Block_React_Large",
+   "file": "standing block react large.fbx",
+   "inplace": "smooth",
+   "inplace_sigma": 0.08,
+   "floor": "min"
+  },
+  {
+   "name": "Mx_Axe_Disarm_Over_Shoulder",
+   "file": "standing disarm over shoulder.fbx",
+   "inplace": "smooth",
+   "inplace_sigma": 0.08
+  },
+  {
+   "name": "Mx_Axe_Disarm_Underarm",
+   "file": "standing disarm underarm.fbx",
+   "inplace": "smooth",
+   "inplace_sigma": 0.08
+  },
+  {
+   "name": "Mx_Axe_Idle_Looking_V_1",
+   "file": "standing idle looking ver. 1.fbx",
+   "loop": true,
+   "inplace": "linear"
+  },
+  {
+   "name": "Mx_Axe_Idle_Looking_V_2",
+   "file": "standing idle looking ver. 2.fbx",
+   "loop": true,
+   "inplace": "linear"
+  },
+  {
+   "name": "Mx_Axe_Idle",
+   "file": "standing idle.fbx",
+   "loop": true,
+   "inplace": "linear"
+  },
+  {
+   "name": "Mx_Axe_Jump",
+   "file": "standing jump.fbx",
+   "inplace": "smooth",
+   "inplace_sigma": 0.08
+  },
+  {
+   "name": "Mx_Axe_Attack_360_High",
+   "file": "standing melee attack 360 high.fbx",
+   "inplace": "smooth",
+   "inplace_sigma": 0.08
+  },
+  {
+   "name": "Mx_Axe_Attack_360_Low",
+   "file": "standing melee attack 360 low.fbx",
+   "inplace": "smooth",
+   "inplace_sigma": 0.08
+  },
+  {
+   "name": "Mx_Axe_Attack_Backhand",
+   "file": "standing melee attack backhand.fbx",
+   "inplace": "smooth",
+   "inplace_sigma": 0.08
+  },
+  {
+   "name": "Mx_Axe_Attack_Downward",
+   "file": "standing melee attack downward.fbx",
+   "inplace": "smooth",
+   "inplace_sigma": 0.08
+  },
+  {
+   "name": "Mx_Axe_Attack_Horizontal",
+   "file": "standing melee attack horizontal.fbx",
+   "inplace": "smooth",
+   "inplace_sigma": 0.08
+  },
+  {
+   "name": "Mx_Axe_Attack_Kick_V_1",
+   "file": "standing melee attack kick ver. 1.fbx",
+   "inplace": "smooth",
+   "inplace_sigma": 0.08
+  },
+  {
+   "name": "Mx_Axe_Attack_Kick_V_2",
+   "file": "standing melee attack kick ver. 2.fbx",
+   "inplace": "smooth",
+   "inplace_sigma": 0.08
+  },
+  {
+   "name": "Mx_Axe_Combo_Attack_V_1",
+   "file": "standing melee combo attack ver. 1.fbx",
+   "inplace": "smooth",
+   "inplace_sigma": 0.08
+  },
+  {
+   "name": "Mx_Axe_Combo_Attack_V_2",
+   "file": "standing melee combo attack ver. 2.fbx",
+   "inplace": "smooth",
+   "inplace_sigma": 0.08
+  },
+  {
+   "name": "Mx_Axe_Combo_Attack_V_3",
+   "file": "standing melee combo attack ver. 3.fbx",
+   "inplace": "smooth",
+   "inplace_sigma": 0.08
+  },
+  {
+   "name": "Mx_Axe_Run_Jump_Attack",
+   "file": "standing melee run jump attack.fbx",
+   "inplace": "smooth",
+   "inplace_sigma": 0.08
+  },
+  {
+   "name": "Mx_Axe_React_Large_From_Left",
+   "file": "standing react large from left.fbx",
+   "inplace": "smooth",
+   "inplace_sigma": 0.08,
+   "floor": "min"
+  },
+  {
+   "name": "Mx_Axe_React_Large_From_Right",
+   "file": "standing react large from right.fbx",
+   "inplace": "smooth",
+   "inplace_sigma": 0.08,
+   "floor": "min"
+  },
+  {
+   "name": "Mx_Axe_React_Large_Gut",
+   "file": "standing react large gut.fbx",
+   "inplace": "smooth",
+   "inplace_sigma": 0.08,
+   "floor": "min"
+  },
+  {
+   "name": "Mx_Axe_Run_Back",
+   "file": "standing run back.fbx",
+   "loop": true,
+   "inplace": "linear"
+  },
+  {
+   "name": "Mx_Axe_Run_Forward",
+   "file": "standing run forward.fbx",
+   "loop": true,
+   "inplace": "linear"
+  },
+  {
+   "name": "Mx_Axe_Taunt_Battlecry",
+   "file": "standing taunt battlecry.fbx",
+   "inplace": "smooth",
+   "inplace_sigma": 0.08
+  },
+  {
+   "name": "Mx_Axe_Taunt_Chest_Thump",
+   "file": "standing taunt chest thump.fbx",
+   "inplace": "smooth",
+   "inplace_sigma": 0.08
+  },
+  {
+   "name": "Mx_Axe_Turn_Left_90",
+   "file": "standing turn left 90.fbx",
+   "inplace": "smooth",
+   "inplace_sigma": 0.08
+  },
+  {
+   "name": "Mx_Axe_Turn_Right_90",
+   "file": "standing turn right 90.fbx",
+   "inplace": "smooth",
+   "inplace_sigma": 0.08
+  },
+  {
+   "name": "Mx_Axe_Walk_Back",
+   "file": "standing walk back.fbx",
+   "loop": true,
+   "inplace": "linear"
+  },
+  {
+   "name": "Mx_Axe_Walk_Forward",
+   "file": "standing walk forward.fbx",
+   "loop": true,
+   "inplace": "linear"
+  },
+  {
+   "name": "Mx_Axe_Walk_Left",
+   "file": "standing walk left.fbx",
+   "loop": true,
+   "inplace": "linear"
+  },
+  {
+   "name": "Mx_Axe_Walk_Right",
+   "file": "standing walk right.fbx",
+   "loop": true,
+   "inplace": "linear"
+  },
+  {
+   "name": "Mx_Axe_Unarmed_Equip_Over_Shoulder",
+   "file": "unarmed equip over shoulder.fbx",
+   "inplace": "smooth",
+   "inplace_sigma": 0.08
+  },
+  {
+   "name": "Mx_Axe_Unarmed_Equip_Underarm",
+   "file": "unarmed equip underarm.fbx",
+   "inplace": "smooth",
+   "inplace_sigma": 0.08
+  },
+  {
+   "name": "Mx_Axe_Unarmed_Idle_Looking_V_1",
+   "file": "unarmed idle looking ver. 1.fbx",
+   "loop": true,
+   "inplace": "linear"
+  },
+  {
+   "name": "Mx_Axe_Unarmed_Idle_Looking_V_2",
+   "file": "unarmed idle looking ver. 2.fbx",
+   "loop": true,
+   "inplace": "linear"
+  },
+  {
+   "name": "Mx_Axe_Unarmed_Idle",
+   "file": "unarmed idle.fbx",
+   "loop": true,
+   "inplace": "linear"
+  },
+  {
+   "name": "Mx_Axe_Unarmed_Jump_Running",
+   "file": "unarmed jump running.fbx",
+   "inplace": "smooth",
+   "inplace_sigma": 0.08
+  },
+  {
+   "name": "Mx_Axe_Unarmed_Jump",
+   "file": "unarmed jump.fbx",
+   "inplace": "smooth",
+   "inplace_sigma": 0.08
+  },
+  {
+   "name": "Mx_Axe_Unarmed_Run_Back",
+   "file": "unarmed run back.fbx",
+   "loop": true,
+   "inplace": "linear"
+  },
+  {
+   "name": "Mx_Axe_Unarmed_Run_Forward",
+   "file": "unarmed run forward.fbx",
+   "loop": true,
+   "inplace": "linear"
+  },
+  {
+   "name": "Mx_Axe_Unarmed_Turn_Left_90",
+   "file": "unarmed turn left 90.fbx",
+   "inplace": "smooth",
+   "inplace_sigma": 0.08
+  },
+  {
+   "name": "Mx_Axe_Unarmed_Turn_Right_90",
+   "file": "unarmed turn right 90.fbx",
+   "inplace": "smooth",
+   "inplace_sigma": 0.08
+  },
+  {
+   "name": "Mx_Axe_Unarmed_Walk_Back",
+   "file": "unarmed walk back.fbx",
+   "loop": true,
+   "inplace": "linear"
+  },
+  {
+   "name": "Mx_Axe_Unarmed_Walk_Forward",
+   "file": "unarmed walk forward.fbx",
+   "loop": true,
+   "inplace": "linear"
+  }
+ ]
+}

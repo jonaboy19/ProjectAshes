@@ -1,0 +1,2106 @@
+{
+ "map": {
+  "pelvis": "Hips",
+  "spine_01": "Spine",
+  "spine_02": "Spine1",
+  "spine_03": "Spine2",
+  "neck_01": "Neck",
+  "Head": "Head",
+  "clavicle_l": "LeftShoulder",
+  "upperarm_l": "LeftArm",
+  "lowerarm_l": "LeftForeArm",
+  "hand_l": "LeftHand",
+  "thigh_l": "LeftUpLeg",
+  "calf_l": "LeftLeg",
+  "foot_l": "LeftFoot",
+  "ball_l": "LeftToeBase",
+  "thumb_01_l": "LeftHandThumb1",
+  "thumb_02_l": "LeftHandThumb2",
+  "thumb_03_l": "LeftHandThumb3",
+  "index_01_l": "LeftHandIndex1",
+  "index_02_l": "LeftHandIndex2",
+  "index_03_l": "LeftHandIndex3",
+  "middle_01_l": "LeftHandMiddle1",
+  "middle_02_l": "LeftHandMiddle2",
+  "middle_03_l": "LeftHandMiddle3",
+  "ring_01_l": "LeftHandRing1",
+  "ring_02_l": "LeftHandRing2",
+  "ring_03_l": "LeftHandRing3",
+  "pinky_01_l": "LeftHandPinky1",
+  "pinky_02_l": "LeftHandPinky2",
+  "pinky_03_l": "LeftHandPinky3",
+  "clavicle_r": "RightShoulder",
+  "upperarm_r": "RightArm",
+  "lowerarm_r": "RightForeArm",
+  "hand_r": "RightHand",
+  "thigh_r": "RightUpLeg",
+  "calf_r": "RightLeg",
+  "foot_r": "RightFoot",
+  "ball_r": "RightToeBase",
+  "thumb_01_r": "RightHandThumb1",
+  "thumb_02_r": "RightHandThumb2",
+  "thumb_03_r": "RightHandThumb3",
+  "index_01_r": "RightHandIndex1",
+  "index_02_r": "RightHandIndex2",
+  "index_03_r": "RightHandIndex3",
+  "middle_01_r": "RightHandMiddle1",
+  "middle_02_r": "RightHandMiddle2",
+  "middle_03_r": "RightHandMiddle3",
+  "ring_01_r": "RightHandRing1",
+  "ring_02_r": "RightHandRing2",
+  "ring_03_r": "RightHandRing3",
+  "pinky_01_r": "RightHandPinky1",
+  "pinky_02_r": "RightHandPinky2",
+  "pinky_03_r": "RightHandPinky3"
+ },
+ "clips": {
+  "Mx_GS_Draw_A_Great_Sword_1": {
+   "before": [
+    0.225,
+    1.234
+   ],
+   "lowest_joints": [
+    [
+     "ball_l",
+     0.015
+    ],
+    [
+     "foot_l",
+     0.017
+    ],
+    [
+     "foot_r",
+     0.02
+    ],
+    [
+     "ball_r",
+     0.02
+    ]
+   ],
+   "after": [
+    0.179,
+    1.697
+   ],
+   "stance_frames": 28,
+   "locked_frames": 34,
+   "hand_seam_cm": 101.2,
+   "frames": 15,
+   "source": "draw a great sword 1.fbx",
+   "seconds": 0.47,
+   "floor_fix_m": 0.046,
+   "contact_lift_m": 0.0,
+   "min_foot_m": -0.0,
+   "travel_m": 0.08,
+   "hip_scale": 0.8509,
+   "loop": false
+  },
+  "Mx_GS_Draw_A_Great_Sword_2": {
+   "before": [
+    0.424,
+    2.711
+   ],
+   "lowest_joints": [
+    [
+     "ball_r",
+     0.011
+    ],
+    [
+     "ball_l",
+     0.013
+    ],
+    [
+     "foot_r",
+     0.015
+    ],
+    [
+     "foot_l",
+     0.016
+    ]
+   ],
+   "after": [
+    0.401,
+    4.499
+   ],
+   "stance_frames": 46,
+   "locked_frames": 49,
+   "hand_seam_cm": 109.3,
+   "frames": 24,
+   "source": "draw a great sword 2.fbx",
+   "seconds": 0.77,
+   "floor_fix_m": 0.053,
+   "contact_lift_m": 0.0,
+   "min_foot_m": -0.001,
+   "travel_m": 0.11,
+   "hip_scale": 0.8509,
+   "loop": false
+  },
+  "Mx_GS_180_Turn_2": {
+   "before": [
+    1.03,
+    4.382
+   ],
+   "lowest_joints": [
+    [
+     "ball_l",
+     0.003
+    ],
+    [
+     "foot_r",
+     0.015
+    ],
+    [
+     "ball_r",
+     0.015
+    ],
+    [
+     "foot_l",
+     0.027
+    ]
+   ],
+   "after": [
+    1.03,
+    4.382
+   ],
+   "stance_frames": 16,
+   "locked_frames": 0,
+   "hand_seam_cm": 145.7,
+   "frames": 18,
+   "source": "great sword 180 turn (2).fbx",
+   "seconds": 0.57,
+   "floor_fix_m": 0.067,
+   "contact_lift_m": 0.0,
+   "min_foot_m": 0.0,
+   "travel_m": 0.2,
+   "hip_scale": 0.8509,
+   "loop": false
+  },
+  "Mx_GS_180_Turn": {
+   "before": [
+    0.719,
+    2.725
+   ],
+   "lowest_joints": [
+    [
+     "foot_l",
+     0.015
+    ],
+    [
+     "ball_l",
+     0.015
+    ],
+    [
+     "foot_r",
+     0.019
+    ],
+    [
+     "ball_r",
+     0.019
+    ]
+   ],
+   "after": [
+    0.719,
+    2.725
+   ],
+   "stance_frames": 37,
+   "locked_frames": 0,
+   "hand_seam_cm": 118.5,
+   "frames": 25,
+   "source": "great sword 180 turn.fbx",
+   "seconds": 0.8,
+   "floor_fix_m": 0.067,
+   "contact_lift_m": 0.0,
+   "min_foot_m": -0.0,
+   "travel_m": 0.02,
+   "hip_scale": 0.8509,
+   "loop": false
+  },
+  "Mx_GS_Attack": {
+   "before": [
+    0.137,
+    0.353
+   ],
+   "lowest_joints": [
+    [
+     "ball_r",
+     0.016
+    ],
+    [
+     "foot_r",
+     0.019
+    ],
+    [
+     "foot_l",
+     0.022
+    ],
+    [
+     "ball_l",
+     0.022
+    ]
+   ],
+   "after": [
+    0.126,
+    0.574
+   ],
+   "stance_frames": 47,
+   "locked_frames": 94,
+   "hand_seam_cm": 0.0,
+   "frames": 37,
+   "source": "great sword attack.fbx",
+   "seconds": 1.2,
+   "floor_fix_m": 0.06,
+   "contact_lift_m": 0.0,
+   "min_foot_m": -0.0,
+   "travel_m": 0.0,
+   "hip_scale": 0.8509,
+   "loop": false
+  },
+  "Mx_GS_Blocking_2": {
+   "before": [
+    0.013,
+    0.031
+   ],
+   "lowest_joints": [
+    [
+     "foot_l",
+     0.015
+    ],
+    [
+     "ball_l",
+     0.015
+    ],
+    [
+     "foot_r",
+     0.02
+    ],
+    [
+     "ball_r",
+     0.02
+    ]
+   ],
+   "after": [
+    0.003,
+    0.012
+   ],
+   "stance_frames": 58,
+   "locked_frames": 60,
+   "hand_seam_cm": 0.0,
+   "frames": 30,
+   "source": "great sword blocking (2).fbx",
+   "seconds": 0.97,
+   "floor_fix_m": 0.044,
+   "contact_lift_m": 0.0,
+   "min_foot_m": -0.0,
+   "travel_m": 0.0,
+   "hip_scale": 0.8509,
+   "loop": false
+  },
+  "Mx_GS_Blocking_3": {
+   "before": [
+    0.239,
+    1.109
+   ],
+   "lowest_joints": [
+    [
+     "foot_l",
+     0.017
+    ],
+    [
+     "ball_l",
+     0.017
+    ],
+    [
+     "ball_r",
+     0.019
+    ],
+    [
+     "foot_r",
+     0.02
+    ]
+   ],
+   "after": [
+    0.217,
+    0.968
+   ],
+   "stance_frames": 30,
+   "locked_frames": 35,
+   "hand_seam_cm": 92.2,
+   "frames": 16,
+   "source": "great sword blocking (3).fbx",
+   "seconds": 0.5,
+   "floor_fix_m": 0.053,
+   "contact_lift_m": 0.0,
+   "min_foot_m": 0.0,
+   "travel_m": 0.08,
+   "hip_scale": 0.8509,
+   "loop": false
+  },
+  "Mx_GS_Blocking": {
+   "before": [
+    0.249,
+    0.97
+   ],
+   "lowest_joints": [
+    [
+     "foot_l",
+     0.015
+    ],
+    [
+     "ball_l",
+     0.015
+    ],
+    [
+     "foot_r",
+     0.016
+    ],
+    [
+     "ball_r",
+     0.016
+    ]
+   ],
+   "after": [
+    0.234,
+    1.021
+   ],
+   "stance_frames": 30,
+   "locked_frames": 44,
+   "hand_seam_cm": 92.2,
+   "frames": 16,
+   "source": "great sword blocking.fbx",
+   "seconds": 0.5,
+   "floor_fix_m": 0.053,
+   "contact_lift_m": 0.0,
+   "min_foot_m": 0.0,
+   "travel_m": 0.08,
+   "hip_scale": 0.8509,
+   "loop": false
+  },
+  "Mx_GS_Casting": {
+   "before": [
+    0.088,
+    1.832
+   ],
+   "lowest_joints": [
+    [
+     "index_01_r",
+     0.016
+    ],
+    [
+     "index_02_r",
+     0.016
+    ],
+    [
+     "ball_l",
+     0.016
+    ],
+    [
+     "foot_l",
+     0.018
+    ]
+   ],
+   "after": [
+    0.054,
+    1.832
+   ],
+   "stance_frames": 138,
+   "locked_frames": 203,
+   "hand_seam_cm": 0.0,
+   "frames": 145,
+   "source": "great sword casting.fbx",
+   "seconds": 4.8,
+   "floor_fix_m": 0.06,
+   "contact_lift_m": 0.134,
+   "min_foot_m": -0.003,
+   "travel_m": 0.0,
+   "hip_scale": 0.8509,
+   "loop": false
+  },
+  "Mx_GS_Crouching_2_Loop": {
+   "before": [
+    0.269,
+    2.089
+   ],
+   "lowest_joints": [
+    [
+     "ball_r",
+     -0.021
+    ],
+    [
+     "foot_r",
+     -0.001
+    ],
+    [
+     "foot_l",
+     0.011
+    ],
+    [
+     "ball_l",
+     0.011
+    ]
+   ],
+   "after": [
+    0.565,
+    2.31
+   ],
+   "stance_frames": 36,
+   "locked_frames": 34,
+   "hand_seam_cm": 38.6,
+   "frames": 21,
+   "source": "great sword crouching (2).fbx",
+   "seconds": 0.67,
+   "floor_fix_m": 0.057,
+   "contact_lift_m": 0.0,
+   "min_foot_m": -0.0,
+   "travel_m": 0.32,
+   "hip_scale": 0.8509,
+   "loop": true
+  },
+  "Mx_GS_Crouching_3_Loop": {
+   "before": [
+    0.005,
+    0.026
+   ],
+   "lowest_joints": [
+    [
+     "foot_r",
+     -0.005
+    ],
+    [
+     "ball_r",
+     -0.005
+    ],
+    [
+     "foot_l",
+     -0.002
+    ],
+    [
+     "ball_l",
+     -0.002
+    ]
+   ],
+   "after": [
+    0.003,
+    0.013
+   ],
+   "stance_frames": 108,
+   "locked_frames": 110,
+   "hand_seam_cm": 0.0,
+   "frames": 55,
+   "source": "great sword crouching (3).fbx",
+   "seconds": 1.8,
+   "floor_fix_m": 0.0,
+   "contact_lift_m": 0.023,
+   "min_foot_m": -0.02,
+   "travel_m": 0.0,
+   "hip_scale": 0.8509,
+   "loop": true
+  },
+  "Mx_GS_Crouching_4_Loop": {
+   "before": [
+    0.123,
+    0.303
+   ],
+   "lowest_joints": [
+    [
+     "ball_l",
+     -0.009
+    ],
+    [
+     "foot_l",
+     -0.009
+    ],
+    [
+     "ball_r",
+     -0.005
+    ],
+    [
+     "foot_r",
+     -0.005
+    ]
+   ],
+   "after": [
+    0.225,
+    0.934
+   ],
+   "stance_frames": 20,
+   "locked_frames": 22,
+   "hand_seam_cm": 19.4,
+   "frames": 11,
+   "source": "great sword crouching (4).fbx",
+   "seconds": 0.33,
+   "floor_fix_m": 0.0,
+   "contact_lift_m": 0.023,
+   "min_foot_m": -0.02,
+   "travel_m": 0.07,
+   "hip_scale": 0.8509,
+   "loop": true
+  },
+  "Mx_GS_Crouching_5_Loop": {
+   "before": [
+    0.006,
+    0.025
+   ],
+   "lowest_joints": [
+    [
+     "foot_r",
+     -0.005
+    ],
+    [
+     "ball_r",
+     -0.005
+    ],
+    [
+     "foot_l",
+     0.003
+    ],
+    [
+     "ball_l",
+     0.003
+    ]
+   ],
+   "after": [
+    0.003,
+    0.009
+   ],
+   "stance_frames": 82,
+   "locked_frames": 84,
+   "hand_seam_cm": 0.2,
+   "frames": 42,
+   "source": "great sword crouching (5).fbx",
+   "seconds": 1.37,
+   "floor_fix_m": 0.0,
+   "contact_lift_m": 0.009,
+   "min_foot_m": -0.02,
+   "travel_m": 0.0,
+   "hip_scale": 0.8509,
+   "loop": true
+  },
+  "Mx_GS_Crouching_6_Loop": {
+   "before": [
+    0.084,
+    0.231
+   ],
+   "lowest_joints": [
+    [
+     "foot_r",
+     -0.005
+    ],
+    [
+     "ball_r",
+     -0.005
+    ],
+    [
+     "ball_l",
+     -0.004
+    ],
+    [
+     "foot_l",
+     -0.004
+    ]
+   ],
+   "after": [
+    0.186,
+    0.853
+   ],
+   "stance_frames": 26,
+   "locked_frames": 28,
+   "hand_seam_cm": 42.1,
+   "frames": 14,
+   "source": "great sword crouching (6).fbx",
+   "seconds": 0.43,
+   "floor_fix_m": 0.0,
+   "contact_lift_m": 0.022,
+   "min_foot_m": -0.019,
+   "travel_m": 0.08,
+   "hip_scale": 0.8509,
+   "loop": true
+  },
+  "Mx_GS_Crouching_Loop": {
+   "before": [
+    0.528,
+    3.011
+   ],
+   "lowest_joints": [
+    [
+     "foot_r",
+     -0.032
+    ],
+    [
+     "ball_r",
+     -0.032
+    ],
+    [
+     "foot_l",
+     -0.001
+    ],
+    [
+     "ball_l",
+     -0.001
+    ]
+   ],
+   "after": [
+    0.911,
+    3.022
+   ],
+   "stance_frames": 38,
+   "locked_frames": 32,
+   "hand_seam_cm": 32.2,
+   "frames": 20,
+   "source": "great sword crouching.fbx",
+   "seconds": 0.63,
+   "floor_fix_m": 0.059,
+   "contact_lift_m": 0.0,
+   "min_foot_m": -0.007,
+   "travel_m": 0.34,
+   "hip_scale": 0.8509,
+   "loop": true
+  },
+  "Mx_GS_High_Spin_Attack": {
+   "before": [
+    0.571,
+    1.688
+   ],
+   "lowest_joints": [
+    [
+     "ball_l",
+     0.005
+    ],
+    [
+     "foot_l",
+     0.01
+    ],
+    [
+     "ball_r",
+     0.01
+    ],
+    [
+     "foot_r",
+     0.024
+    ]
+   ],
+   "after": [
+    0.527,
+    1.688
+   ],
+   "stance_frames": 22,
+   "locked_frames": 15,
+   "hand_seam_cm": 20.6,
+   "frames": 57,
+   "source": "great sword high spin attack.fbx",
+   "seconds": 1.87,
+   "floor_fix_m": 0.083,
+   "contact_lift_m": 0.0,
+   "min_foot_m": -0.005,
+   "travel_m": 1.96,
+   "hip_scale": 0.8509,
+   "loop": false
+  },
+  "Mx_GS_Idle_2_Loop": {
+   "before": [
+    0.034,
+    0.133
+   ],
+   "lowest_joints": [
+    [
+     "ball_l",
+     0.015
+    ],
+    [
+     "foot_l",
+     0.015
+    ],
+    [
+     "foot_r",
+     0.017
+    ],
+    [
+     "ball_r",
+     0.017
+    ]
+   ],
+   "after": [
+    0.003,
+    0.019
+   ],
+   "stance_frames": 172,
+   "locked_frames": 174,
+   "hand_seam_cm": 13.5,
+   "frames": 87,
+   "source": "great sword idle (2).fbx",
+   "seconds": 2.87,
+   "floor_fix_m": 0.053,
+   "contact_lift_m": 0.0,
+   "min_foot_m": -0.0,
+   "travel_m": 0.01,
+   "hip_scale": 0.8509,
+   "loop": true
+  },
+  "Mx_GS_Idle_3_Loop": {
+   "before": [
+    0.037,
+    0.13
+   ],
+   "lowest_joints": [
+    [
+     "ball_l",
+     0.016
+    ],
+    [
+     "foot_l",
+     0.016
+    ],
+    [
+     "foot_r",
+     0.019
+    ],
+    [
+     "ball_r",
+     0.019
+    ]
+   ],
+   "after": [
+    0.005,
+    0.027
+   ],
+   "stance_frames": 214,
+   "locked_frames": 216,
+   "hand_seam_cm": 3.6,
+   "frames": 108,
+   "source": "great sword idle (3).fbx",
+   "seconds": 3.57,
+   "floor_fix_m": 0.055,
+   "contact_lift_m": 0.0,
+   "min_foot_m": -0.0,
+   "travel_m": 0.01,
+   "hip_scale": 0.8509,
+   "loop": true
+  },
+  "Mx_GS_Idle_4_Loop": {
+   "before": [
+    0.036,
+    0.16
+   ],
+   "lowest_joints": [
+    [
+     "ball_l",
+     0.019
+    ],
+    [
+     "foot_l",
+     0.019
+    ],
+    [
+     "foot_r",
+     0.022
+    ],
+    [
+     "ball_r",
+     0.022
+    ]
+   ],
+   "after": [
+    0.007,
+    0.032
+   ],
+   "stance_frames": 220,
+   "locked_frames": 222,
+   "hand_seam_cm": 1.9,
+   "frames": 111,
+   "source": "great sword idle (4).fbx",
+   "seconds": 3.67,
+   "floor_fix_m": 0.058,
+   "contact_lift_m": 0.0,
+   "min_foot_m": -0.0,
+   "travel_m": 0.01,
+   "hip_scale": 0.8509,
+   "loop": true
+  },
+  "Mx_GS_Idle_5_Loop": {
+   "before": [
+    0.031,
+    0.19
+   ],
+   "lowest_joints": [
+    [
+     "ball_l",
+     0.014
+    ],
+    [
+     "foot_l",
+     0.015
+    ],
+    [
+     "foot_r",
+     0.017
+    ],
+    [
+     "ball_r",
+     0.017
+    ]
+   ],
+   "after": [
+    0.005,
+    0.043
+   ],
+   "stance_frames": 448,
+   "locked_frames": 450,
+   "hand_seam_cm": 2.7,
+   "frames": 225,
+   "source": "great sword idle (5).fbx",
+   "seconds": 7.47,
+   "floor_fix_m": 0.053,
+   "contact_lift_m": 0.0,
+   "min_foot_m": -0.0,
+   "travel_m": 0.0,
+   "hip_scale": 0.8509,
+   "loop": true
+  },
+  "Mx_GS_Idle_Loop": {
+   "before": [
+    0.01,
+    0.028
+   ],
+   "lowest_joints": [
+    [
+     "ball_l",
+     0.014
+    ],
+    [
+     "foot_l",
+     0.015
+    ],
+    [
+     "foot_r",
+     0.017
+    ],
+    [
+     "ball_r",
+     0.017
+    ]
+   ],
+   "after": [
+    0.002,
+    0.007
+   ],
+   "stance_frames": 118,
+   "locked_frames": 120,
+   "hand_seam_cm": 0.1,
+   "frames": 60,
+   "source": "great sword idle.fbx",
+   "seconds": 1.97,
+   "floor_fix_m": 0.053,
+   "contact_lift_m": 0.0,
+   "min_foot_m": -0.0,
+   "travel_m": 0.0,
+   "hip_scale": 0.8509,
+   "loop": true
+  },
+  "Mx_GS_Impact_2": {
+   "before": [
+    0.078,
+    0.214
+   ],
+   "lowest_joints": [
+    [
+     "ball_l",
+     0.036
+    ],
+    [
+     "foot_l",
+     0.036
+    ],
+    [
+     "foot_r",
+     0.039
+    ],
+    [
+     "ball_r",
+     0.039
+    ]
+   ],
+   "after": [
+    0.009,
+    0.04
+   ],
+   "stance_frames": 72,
+   "locked_frames": 74,
+   "hand_seam_cm": 0.0,
+   "frames": 37,
+   "source": "great sword impact (2).fbx",
+   "seconds": 1.2,
+   "floor_fix_m": 0.074,
+   "contact_lift_m": 0.0,
+   "min_foot_m": -0.0,
+   "travel_m": 0.0,
+   "hip_scale": 0.8509,
+   "loop": false
+  },
+  "Mx_GS_Impact_3": {
+   "before": [
+    0.093,
+    0.291
+   ],
+   "lowest_joints": [
+    [
+     "foot_l",
+     0.015
+    ],
+    [
+     "ball_l",
+     0.015
+    ],
+    [
+     "foot_r",
+     0.017
+    ],
+    [
+     "ball_r",
+     0.017
+    ]
+   ],
+   "after": [
+    0.03,
+    0.289
+   ],
+   "stance_frames": 76,
+   "locked_frames": 96,
+   "hand_seam_cm": 0.0,
+   "frames": 39,
+   "source": "great sword impact (3).fbx",
+   "seconds": 1.27,
+   "floor_fix_m": 0.052,
+   "contact_lift_m": 0.0,
+   "min_foot_m": -0.001,
+   "travel_m": 0.01,
+   "hip_scale": 0.8509,
+   "loop": false
+  },
+  "Mx_GS_Impact_4": {
+   "before": [
+    0.073,
+    0.231
+   ],
+   "lowest_joints": [
+    [
+     "foot_r",
+     0.015
+    ],
+    [
+     "ball_r",
+     0.015
+    ],
+    [
+     "foot_l",
+     0.023
+    ],
+    [
+     "ball_l",
+     0.023
+    ]
+   ],
+   "after": [
+    0.007,
+    0.036
+   ],
+   "stance_frames": 40,
+   "locked_frames": 42,
+   "hand_seam_cm": 0.0,
+   "frames": 21,
+   "source": "great sword impact (4).fbx",
+   "seconds": 0.67,
+   "floor_fix_m": 0.03,
+   "contact_lift_m": 0.0,
+   "min_foot_m": -0.0,
+   "travel_m": 0.01,
+   "hip_scale": 0.8509,
+   "loop": false
+  },
+  "Mx_GS_Impact_5": {
+   "before": [
+    0.052,
+    0.179
+   ],
+   "lowest_joints": [
+    [
+     "foot_r",
+     0.015
+    ],
+    [
+     "ball_r",
+     0.015
+    ],
+    [
+     "foot_l",
+     0.019
+    ],
+    [
+     "ball_l",
+     0.019
+    ]
+   ],
+   "after": [
+    0.014,
+    0.056
+   ],
+   "stance_frames": 58,
+   "locked_frames": 60,
+   "hand_seam_cm": 0.0,
+   "frames": 30,
+   "source": "great sword impact (5).fbx",
+   "seconds": 0.97,
+   "floor_fix_m": 0.043,
+   "contact_lift_m": 0.0,
+   "min_foot_m": -0.0,
+   "travel_m": 0.01,
+   "hip_scale": 0.8509,
+   "loop": false
+  },
+  "Mx_GS_Impact": {
+   "before": [
+    0.037,
+    0.087
+   ],
+   "lowest_joints": [
+    [
+     "foot_l",
+     0.015
+    ],
+    [
+     "ball_l",
+     0.015
+    ],
+    [
+     "foot_r",
+     0.02
+    ],
+    [
+     "ball_r",
+     0.02
+    ]
+   ],
+   "after": [
+    0.003,
+    0.019
+   ],
+   "stance_frames": 52,
+   "locked_frames": 54,
+   "hand_seam_cm": 0.8,
+   "frames": 27,
+   "source": "great sword impact.fbx",
+   "seconds": 0.87,
+   "floor_fix_m": 0.044,
+   "contact_lift_m": 0.0,
+   "min_foot_m": -0.0,
+   "travel_m": 0.0,
+   "hip_scale": 0.8509,
+   "loop": false
+  },
+  "Mx_GS_Jump_2": {
+   "before": [
+    0.124,
+    0.523
+   ],
+   "lowest_joints": [
+    [
+     "ball_l",
+     0.009
+    ],
+    [
+     "foot_l",
+     0.011
+    ],
+    [
+     "ball_r",
+     0.013
+    ],
+    [
+     "foot_r",
+     0.015
+    ]
+   ],
+   "after": [
+    0.111,
+    0.841
+   ],
+   "stance_frames": 24,
+   "locked_frames": 42,
+   "hand_seam_cm": 0.0,
+   "frames": 28,
+   "source": "great sword jump (2).fbx",
+   "seconds": 0.9,
+   "floor_fix_m": 0.059,
+   "contact_lift_m": 0.0,
+   "min_foot_m": -0.004,
+   "travel_m": 0.01,
+   "hip_scale": 0.8509,
+   "loop": false
+  },
+  "Mx_GS_Jump_Attack": {
+   "before": [
+    0.617,
+    2.127
+   ],
+   "lowest_joints": [
+    [
+     "ball_l",
+     0.01
+    ],
+    [
+     "ball_r",
+     0.012
+    ],
+    [
+     "foot_l",
+     0.012
+    ],
+    [
+     "foot_r",
+     0.013
+    ]
+   ],
+   "after": [
+    0.601,
+    2.127
+   ],
+   "stance_frames": 42,
+   "locked_frames": 11,
+   "hand_seam_cm": 30.1,
+   "frames": 66,
+   "source": "great sword jump attack.fbx",
+   "seconds": 2.17,
+   "floor_fix_m": 0.069,
+   "contact_lift_m": 0.0,
+   "min_foot_m": -0.003,
+   "travel_m": 2.68,
+   "hip_scale": 0.8509,
+   "loop": false
+  },
+  "Mx_GS_Jump": {
+   "before": [
+    0.417,
+    0.651
+   ],
+   "lowest_joints": [
+    [
+     "ball_r",
+     0.007
+    ],
+    [
+     "foot_r",
+     0.015
+    ],
+    [
+     "ball_l",
+     0.026
+    ],
+    [
+     "foot_l",
+     0.086
+    ]
+   ],
+   "after": [
+    0.417,
+    0.651
+   ],
+   "stance_frames": 4,
+   "locked_frames": 0,
+   "hand_seam_cm": 0.0,
+   "frames": 20,
+   "source": "great sword jump.fbx",
+   "seconds": 0.63,
+   "floor_fix_m": 0.061,
+   "contact_lift_m": 0.0,
+   "min_foot_m": -0.0,
+   "travel_m": 1.35,
+   "hip_scale": 0.8509,
+   "loop": false
+  },
+  "Mx_GS_Kick_2": {
+   "before": [
+    0.133,
+    0.257
+   ],
+   "lowest_joints": [
+    [
+     "foot_r",
+     0.044
+    ],
+    [
+     "ball_r",
+     0.044
+    ],
+    [
+     "ball_l",
+     0.085
+    ],
+    [
+     "foot_l",
+     0.086
+    ]
+   ],
+   "after": [
+    0.0,
+    0.0
+   ],
+   "stance_frames": 0,
+   "locked_frames": 21,
+   "hand_seam_cm": 0.0,
+   "frames": 53,
+   "source": "great sword kick (2).fbx",
+   "seconds": 1.73,
+   "floor_fix_m": 0.129,
+   "contact_lift_m": 0.0,
+   "min_foot_m": -0.005,
+   "travel_m": 0.01,
+   "hip_scale": 0.8509,
+   "loop": false
+  },
+  "Mx_GS_Kick": {
+   "before": [
+    0.502,
+    0.832
+   ],
+   "lowest_joints": [
+    [
+     "ball_l",
+     0.009
+    ],
+    [
+     "foot_l",
+     0.013
+    ],
+    [
+     "ball_r",
+     0.048
+    ],
+    [
+     "foot_r",
+     0.049
+    ]
+   ],
+   "after": [
+    0.502,
+    0.832
+   ],
+   "stance_frames": 15,
+   "locked_frames": 36,
+   "hand_seam_cm": 0.0,
+   "frames": 46,
+   "source": "great sword kick.fbx",
+   "seconds": 1.5,
+   "floor_fix_m": 0.084,
+   "contact_lift_m": 0.0,
+   "min_foot_m": -0.002,
+   "travel_m": 0.01,
+   "hip_scale": 0.8509,
+   "loop": false
+  },
+  "Mx_GS_Power_Up": {
+   "before": [
+    0.131,
+    2.699
+   ],
+   "lowest_joints": [
+    [
+     "ball_r",
+     0.019
+    ],
+    [
+     "ball_l",
+     0.021
+    ],
+    [
+     "foot_l",
+     0.021
+    ],
+    [
+     "foot_r",
+     0.023
+    ]
+   ],
+   "after": [
+    0.072,
+    2.837
+   ],
+   "stance_frames": 176,
+   "locked_frames": 196,
+   "hand_seam_cm": 9.9,
+   "frames": 94,
+   "source": "great sword power up.fbx",
+   "seconds": 3.1,
+   "floor_fix_m": 0.06,
+   "contact_lift_m": 0.0,
+   "min_foot_m": -0.001,
+   "travel_m": 0.07,
+   "hip_scale": 0.8509,
+   "loop": false
+  },
+  "Mx_GS_Run_2_Loop": {
+   "before": [
+    0.553,
+    0.802
+   ],
+   "lowest_joints": [
+    [
+     "foot_l",
+     0.009
+    ],
+    [
+     "ball_l",
+     0.009
+    ],
+    [
+     "foot_r",
+     0.019
+    ],
+    [
+     "ball_r",
+     0.019
+    ]
+   ],
+   "after": [
+    0.553,
+    0.802
+   ],
+   "stance_frames": 7,
+   "locked_frames": 0,
+   "hand_seam_cm": 7.3,
+   "frames": 18,
+   "source": "great sword run (2).fbx",
+   "seconds": 0.57,
+   "floor_fix_m": 0.076,
+   "contact_lift_m": 0.0,
+   "min_foot_m": -0.006,
+   "travel_m": 2.11,
+   "hip_scale": 0.8509,
+   "loop": true
+  },
+  "Mx_GS_Run_Loop": {
+   "before": [
+    0.321,
+    0.784
+   ],
+   "lowest_joints": [
+    [
+     "foot_r",
+     0.005
+    ],
+    [
+     "ball_r",
+     0.005
+    ],
+    [
+     "foot_l",
+     0.016
+    ],
+    [
+     "ball_l",
+     0.016
+    ]
+   ],
+   "after": [
+    0.612,
+    1.986
+   ],
+   "stance_frames": 14,
+   "locked_frames": 14,
+   "hand_seam_cm": 9.8,
+   "frames": 22,
+   "source": "great sword run.fbx",
+   "seconds": 0.7,
+   "floor_fix_m": 0.072,
+   "contact_lift_m": 0.0,
+   "min_foot_m": -0.0,
+   "travel_m": 1.57,
+   "hip_scale": 0.8509,
+   "loop": true
+  },
+  "Mx_GS_Slash_2": {
+   "before": [
+    0.577,
+    0.902
+   ],
+   "lowest_joints": [
+    [
+     "ball_l",
+     -0.01
+    ],
+    [
+     "foot_l",
+     -0.005
+    ],
+    [
+     "ball_r",
+     0.025
+    ],
+    [
+     "foot_r",
+     0.025
+    ]
+   ],
+   "after": [
+    0.577,
+    0.902
+   ],
+   "stance_frames": 18,
+   "locked_frames": 0,
+   "hand_seam_cm": 0.0,
+   "frames": 107,
+   "source": "great sword slash (2).fbx",
+   "seconds": 3.53,
+   "floor_fix_m": 0.077,
+   "contact_lift_m": 0.003,
+   "min_foot_m": -0.02,
+   "travel_m": 2.68,
+   "hip_scale": 0.8509,
+   "loop": false
+  },
+  "Mx_GS_Slash_3": {
+   "before": [
+    0.419,
+    4.884
+   ],
+   "lowest_joints": [
+    [
+     "foot_r",
+     0.013
+    ],
+    [
+     "ball_r",
+     0.013
+    ],
+    [
+     "foot_l",
+     0.022
+    ],
+    [
+     "ball_l",
+     0.022
+    ]
+   ],
+   "after": [
+    0.416,
+    5.368
+   ],
+   "stance_frames": 90,
+   "locked_frames": 58,
+   "hand_seam_cm": 3.5,
+   "frames": 56,
+   "source": "great sword slash (3).fbx",
+   "seconds": 1.83,
+   "floor_fix_m": 0.062,
+   "contact_lift_m": 0.0,
+   "min_foot_m": -0.002,
+   "travel_m": 0.03,
+   "hip_scale": 0.8509,
+   "loop": false
+  },
+  "Mx_GS_Slash_4": {
+   "before": [
+    0.308,
+    1.233
+   ],
+   "lowest_joints": [
+    [
+     "foot_l",
+     0.014
+    ],
+    [
+     "ball_l",
+     0.014
+    ],
+    [
+     "foot_r",
+     0.017
+    ],
+    [
+     "ball_r",
+     0.017
+    ]
+   ],
+   "after": [
+    0.323,
+    1.233
+   ],
+   "stance_frames": 64,
+   "locked_frames": 41,
+   "hand_seam_cm": 0.3,
+   "frames": 55,
+   "source": "great sword slash (4).fbx",
+   "seconds": 1.8,
+   "floor_fix_m": 0.052,
+   "contact_lift_m": 0.0,
+   "min_foot_m": -0.001,
+   "travel_m": 0.97,
+   "hip_scale": 0.8509,
+   "loop": false
+  },
+  "Mx_GS_Slash_5": {
+   "before": [
+    0.507,
+    4.529
+   ],
+   "lowest_joints": [
+    [
+     "ball_l",
+     -0.006
+    ],
+    [
+     "foot_l",
+     -0.005
+    ],
+    [
+     "foot_r",
+     -0.003
+    ],
+    [
+     "ball_r",
+     -0.003
+    ]
+   ],
+   "after": [
+    0.476,
+    5.112
+   ],
+   "stance_frames": 71,
+   "locked_frames": 70,
+   "hand_seam_cm": 5.9,
+   "frames": 44,
+   "source": "great sword slash (5).fbx",
+   "seconds": 1.43,
+   "floor_fix_m": 0.0,
+   "contact_lift_m": 0.059,
+   "min_foot_m": -0.02,
+   "travel_m": 0.01,
+   "hip_scale": 0.8509,
+   "loop": false
+  },
+  "Mx_GS_Slash": {
+   "before": [
+    0.38,
+    2.286
+   ],
+   "lowest_joints": [
+    [
+     "foot_l",
+     0.014
+    ],
+    [
+     "ball_l",
+     0.014
+    ],
+    [
+     "foot_r",
+     0.018
+    ],
+    [
+     "ball_r",
+     0.018
+    ]
+   ],
+   "after": [
+    0.391,
+    2.792
+   ],
+   "stance_frames": 54,
+   "locked_frames": 48,
+   "hand_seam_cm": 0.0,
+   "frames": 39,
+   "source": "great sword slash.fbx",
+   "seconds": 1.27,
+   "floor_fix_m": 0.054,
+   "contact_lift_m": 0.0,
+   "min_foot_m": -0.001,
+   "travel_m": 0.01,
+   "hip_scale": 0.8509,
+   "loop": false
+  },
+  "Mx_GS_Slide_Attack": {
+   "before": [
+    0.866,
+    2.102
+   ],
+   "lowest_joints": [
+    [
+     "foot_r",
+     0.014
+    ],
+    [
+     "ball_r",
+     0.014
+    ],
+    [
+     "foot_l",
+     0.022
+    ],
+    [
+     "ball_l",
+     0.022
+    ]
+   ],
+   "after": [
+    0.866,
+    2.102
+   ],
+   "stance_frames": 37,
+   "locked_frames": 0,
+   "hand_seam_cm": 31.0,
+   "frames": 65,
+   "source": "great sword slide attack.fbx",
+   "seconds": 2.13,
+   "floor_fix_m": 0.06,
+   "contact_lift_m": 0.0,
+   "min_foot_m": -0.001,
+   "travel_m": 2.94,
+   "hip_scale": 0.8509,
+   "loop": false
+  },
+  "Mx_GS_Strafe_2_Loop": {
+   "before": [
+    0.17,
+    0.425
+   ],
+   "lowest_joints": [
+    [
+     "ball_r",
+     0.017
+    ],
+    [
+     "ball_l",
+     0.017
+    ],
+    [
+     "foot_l",
+     0.017
+    ],
+    [
+     "foot_r",
+     0.018
+    ]
+   ],
+   "after": [
+    0.419,
+    3.993
+   ],
+   "stance_frames": 38,
+   "locked_frames": 42,
+   "hand_seam_cm": 1.7,
+   "frames": 35,
+   "source": "great sword strafe (2).fbx",
+   "seconds": 1.13,
+   "floor_fix_m": 0.057,
+   "contact_lift_m": 0.0,
+   "min_foot_m": -0.001,
+   "travel_m": 1.2,
+   "hip_scale": 0.8509,
+   "loop": true
+  },
+  "Mx_GS_Strafe_3_Loop": {
+   "before": [
+    0.71,
+    4.853
+   ],
+   "lowest_joints": [
+    [
+     "ball_r",
+     0.012
+    ],
+    [
+     "ball_l",
+     0.012
+    ],
+    [
+     "foot_l",
+     0.013
+    ],
+    [
+     "foot_r",
+     0.019
+    ]
+   ],
+   "after": [
+    0.71,
+    4.853
+   ],
+   "stance_frames": 12,
+   "locked_frames": 0,
+   "hand_seam_cm": 7.1,
+   "frames": 17,
+   "source": "great sword strafe (3).fbx",
+   "seconds": 0.53,
+   "floor_fix_m": 0.076,
+   "contact_lift_m": 0.0,
+   "min_foot_m": -0.002,
+   "travel_m": 1.1,
+   "hip_scale": 0.8509,
+   "loop": true
+  },
+  "Mx_GS_Strafe_4_Loop": {
+   "before": [
+    0.34,
+    0.61
+   ],
+   "lowest_joints": [
+    [
+     "ball_l",
+     0.002
+    ],
+    [
+     "foot_l",
+     0.008
+    ],
+    [
+     "ball_r",
+     0.019
+    ],
+    [
+     "foot_r",
+     0.021
+    ]
+   ],
+   "after": [
+    0.34,
+    0.61
+   ],
+   "stance_frames": 11,
+   "locked_frames": 0,
+   "hand_seam_cm": 4.5,
+   "frames": 19,
+   "source": "great sword strafe (4).fbx",
+   "seconds": 0.6,
+   "floor_fix_m": 0.067,
+   "contact_lift_m": 0.0,
+   "min_foot_m": -0.007,
+   "travel_m": 1.63,
+   "hip_scale": 0.8509,
+   "loop": true
+  },
+  "Mx_GS_Strafe_Loop": {
+   "before": [
+    0.716,
+    4.207
+   ],
+   "lowest_joints": [
+    [
+     "ball_l",
+     0.003
+    ],
+    [
+     "ball_r",
+     0.014
+    ],
+    [
+     "foot_r",
+     0.016
+    ],
+    [
+     "foot_l",
+     0.024
+    ]
+   ],
+   "after": [
+    0.935,
+    4.207
+   ],
+   "stance_frames": 50,
+   "locked_frames": 42,
+   "hand_seam_cm": 1.6,
+   "frames": 33,
+   "source": "great sword strafe.fbx",
+   "seconds": 1.07,
+   "floor_fix_m": 0.054,
+   "contact_lift_m": 0.0,
+   "min_foot_m": 0.0,
+   "travel_m": 1.05,
+   "hip_scale": 0.8509,
+   "loop": true
+  },
+  "Mx_GS_Turn_2": {
+   "before": [
+    0.605,
+    2.618
+   ],
+   "lowest_joints": [
+    [
+     "ball_r",
+     0.005
+    ],
+    [
+     "foot_l",
+     0.014
+    ],
+    [
+     "ball_l",
+     0.014
+    ],
+    [
+     "foot_r",
+     0.017
+    ]
+   ],
+   "after": [
+    0.581,
+    2.618
+   ],
+   "stance_frames": 44,
+   "locked_frames": 19,
+   "hand_seam_cm": 76.1,
+   "frames": 25,
+   "source": "great sword turn (2).fbx",
+   "seconds": 0.8,
+   "floor_fix_m": 0.053,
+   "contact_lift_m": 0.0,
+   "min_foot_m": -0.0,
+   "travel_m": 0.1,
+   "hip_scale": 0.8509,
+   "loop": false
+  },
+  "Mx_GS_Turn": {
+   "before": [
+    0.73,
+    3.42
+   ],
+   "lowest_joints": [
+    [
+     "foot_l",
+     0.015
+    ],
+    [
+     "ball_l",
+     0.015
+    ],
+    [
+     "ball_r",
+     0.016
+    ],
+    [
+     "foot_r",
+     0.017
+    ]
+   ],
+   "after": [
+    0.739,
+    3.358
+   ],
+   "stance_frames": 44,
+   "locked_frames": 43,
+   "hand_seam_cm": 82.7,
+   "frames": 23,
+   "source": "great sword turn.fbx",
+   "seconds": 0.73,
+   "floor_fix_m": 0.053,
+   "contact_lift_m": 0.0,
+   "min_foot_m": -0.0,
+   "travel_m": 0.13,
+   "hip_scale": 0.8509,
+   "loop": false
+  },
+  "Mx_GS_Walk_2_Loop": {
+   "before": [
+    0.428,
+    3.181
+   ],
+   "lowest_joints": [
+    [
+     "ball_l",
+     0.014
+    ],
+    [
+     "ball_r",
+     0.014
+    ],
+    [
+     "foot_r",
+     0.017
+    ],
+    [
+     "foot_l",
+     0.024
+    ]
+   ],
+   "after": [
+    0.548,
+    5.125
+   ],
+   "stance_frames": 50,
+   "locked_frames": 61,
+   "hand_seam_cm": 1.2,
+   "frames": 39,
+   "source": "great sword walk (2).fbx",
+   "seconds": 1.27,
+   "floor_fix_m": 0.053,
+   "contact_lift_m": 0.0,
+   "min_foot_m": -0.0,
+   "travel_m": 1.12,
+   "hip_scale": 0.8509,
+   "loop": true
+  },
+  "Mx_GS_Walk_Loop": {
+   "before": [
+    0.161,
+    0.559
+   ],
+   "lowest_joints": [
+    [
+     "ball_l",
+     0.009
+    ],
+    [
+     "foot_l",
+     0.014
+    ],
+    [
+     "foot_r",
+     0.015
+    ],
+    [
+     "ball_r",
+     0.015
+    ]
+   ],
+   "after": [
+    0.267,
+    1.308
+   ],
+   "stance_frames": 45,
+   "locked_frames": 61,
+   "hand_seam_cm": 1.0,
+   "frames": 41,
+   "source": "great sword walk.fbx",
+   "seconds": 1.33,
+   "floor_fix_m": 0.049,
+   "contact_lift_m": 0.0,
+   "min_foot_m": -0.001,
+   "travel_m": 1.26,
+   "hip_scale": 0.8509,
+   "loop": true
+  },
+  "Mx_GS_Spell_Cast": {
+   "before": [
+    0.32,
+    1.955
+   ],
+   "lowest_joints": [
+    [
+     "ball_l",
+     0.014
+    ],
+    [
+     "foot_l",
+     0.015
+    ],
+    [
+     "foot_r",
+     0.018
+    ],
+    [
+     "ball_r",
+     0.018
+    ]
+   ],
+   "after": [
+    0.32,
+    1.955
+   ],
+   "stance_frames": 68,
+   "locked_frames": 63,
+   "hand_seam_cm": 0.0,
+   "frames": 35,
+   "source": "spell cast.fbx",
+   "seconds": 1.13,
+   "floor_fix_m": 0.055,
+   "contact_lift_m": 0.0,
+   "min_foot_m": -0.001,
+   "travel_m": 0.01,
+   "hip_scale": 0.8509,
+   "loop": false
+  },
+  "Mx_GS_Death_2": {
+   "before": [
+    0.264,
+    1.512
+   ],
+   "hand_ik_l": [
+    13,
+    0.005
+   ],
+   "lowest_joints": [
+    [
+     "ball_l",
+     0.02
+    ],
+    [
+     "foot_l",
+     0.021
+    ],
+    [
+     "pinky_01_l",
+     0.026
+    ],
+    [
+     "ball_r",
+     0.028
+    ]
+   ],
+   "after": [
+    0.227,
+    1.512
+   ],
+   "stance_frames": 28,
+   "locked_frames": 19,
+   "hand_seam_cm": 98.8,
+   "frames": 76,
+   "source": "two handed sword death (2).fbx",
+   "seconds": 2.5,
+   "floor_fix_m": 0.077,
+   "contact_lift_m": 0.072,
+   "min_foot_m": -0.02,
+   "travel_m": 1.09,
+   "hip_scale": 0.8509,
+   "loop": false
+  },
+  "Mx_GS_Death": {
+   "before": [
+    0.132,
+    0.525
+   ],
+   "hand_ik_r": [
+    20,
+    0.007
+   ],
+   "lowest_joints": [
+    [
+     "thumb_02_r",
+     0.013
+    ],
+    [
+     "thumb_03_r",
+     0.013
+    ],
+    [
+     "foot_l",
+     0.016
+    ],
+    [
+     "ball_l",
+     0.016
+    ]
+   ],
+   "after": [
+    0.095,
+    0.476
+   ],
+   "stance_frames": 28,
+   "locked_frames": 66,
+   "hand_seam_cm": 113.9,
+   "frames": 73,
+   "source": "two handed sword death.fbx",
+   "seconds": 2.4,
+   "floor_fix_m": 0.081,
+   "contact_lift_m": 0.01,
+   "min_foot_m": -0.003,
+   "travel_m": 0.74,
+   "hip_scale": 0.8509,
+   "loop": false
+  }
+ }
+}

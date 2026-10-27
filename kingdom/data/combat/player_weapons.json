@@ -2,8 +2,8 @@
  "_doc": "F3 player combat tuning: heavy-attack hold, weapon-type to move-table map, bow draw/aim/ammo, projectile pool caps, knockdown thresholds and clips. Read by scripts/combat/weapon_rules.gd (built-in defaults when missing). Clip names only: Codex owns blends.",
  "heavy": {"hold_time": 0.3, "charge_max": 1.0, "charge_bonus": 0.25, "tap_cutoff_note": "a press shorter than hold_time is a tap (light combo, fired on release)"},
  "style_of_type": {
-  "sword": "sword", "greatsword": "sword", "sabre": "sword", "dagger": "sword", "axe": "sword", "battleaxe": "sword",
-  "mace": "sword", "warhammer": "sword", "fist": "sword",
+  "sword": "sword", "greatsword": "greatsword", "sabre": "sword", "dagger": "sword", "axe": "axe", "battleaxe": "greatsword",
+  "mace": "axe", "warhammer": "greatsword", "fist": "sword",
   "spear": "spear", "halberd": "spear",
   "staff": "staff", "wand": "staff",
   "shortbow": "bow", "longbow": "bow", "crossbow": "bow"

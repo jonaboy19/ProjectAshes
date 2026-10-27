@@ -1,0 +1,124 @@
+{
+ "clips": [
+  {
+   "name": "Mx_Inj_Backwards_Turn_Left",
+   "file": "injured backwards turn left.fbx",
+   "inplace": "smooth",
+   "inplace_sigma": 0.08
+  },
+  {
+   "name": "Mx_Inj_Backwards_Turn_Right",
+   "file": "injured backwards turn right.fbx",
+   "inplace": "smooth",
+   "inplace_sigma": 0.08
+  },
+  {
+   "name": "Mx_Inj_Hurting_Idle",
+   "file": "injured hurting idle.fbx",
+   "loop": true,
+   "inplace": "linear"
+  },
+  {
+   "name": "Mx_Inj_Idle",
+   "file": "injured idle.fbx",
+   "loop": true,
+   "inplace": "linear"
+  },
+  {
+   "name": "Mx_Inj_Run_Backwards_Left_Turn",
+   "file": "injured run backwards left turn.fbx",
+   "inplace": "smooth",
+   "inplace_sigma": 0.08
+  },
+  {
+   "name": "Mx_Inj_Run_Backwards_Right_Turn",
+   "file": "injured run backwards right turn.fbx",
+   "inplace": "smooth",
+   "inplace_sigma": 0.08
+  },
+  {
+   "name": "Mx_Inj_Run_Backwards",
+   "file": "injured run backwards.fbx",
+   "loop": true,
+   "inplace": "linear"
+  },
+  {
+   "name": "Mx_Inj_Run_Jump",
+   "file": "injured run jump.fbx",
+   "inplace": "smooth",
+   "inplace_sigma": 0.08
+  },
+  {
+   "name": "Mx_Inj_Run_Left_Turn",
+   "file": "injured run left turn.fbx",
+   "inplace": "smooth",
+   "inplace_sigma": 0.08
+  },
+  {
+   "name": "Mx_Inj_Run_Right_Turn",
+   "file": "injured run right turn.fbx",
+   "inplace": "smooth",
+   "inplace_sigma": 0.08
+  },
+  {
+   "name": "Mx_Inj_Run",
+   "file": "injured run.fbx",
+   "loop": true,
+   "inplace": "linear"
+  },
+  {
+   "name": "Mx_Inj_Jump",
+   "file": "injured standing jump.fbx",
+   "inplace": "smooth",
+   "inplace_sigma": 0.08
+  },
+  {
+   "name": "Mx_Inj_Stumble_Idle",
+   "file": "injured stumble idle.fbx",
+   "loop": true,
+   "inplace": "linear"
+  },
+  {
+   "name": "Mx_Inj_Turn_Left",
+   "file": "injured turn left.fbx",
+   "inplace": "smooth",
+   "inplace_sigma": 0.08
+  },
+  {
+   "name": "Mx_Inj_Turn_Right",
+   "file": "injured turn right.fbx",
+   "inplace": "smooth",
+   "inplace_sigma": 0.08
+  },
+  {
+   "name": "Mx_Inj_Walk_Backwards",
+   "file": "injured walk backwards.fbx",
+   "loop": true,
+   "inplace": "linear"
+  },
+  {
+   "name": "Mx_Inj_Walk_Left_Turn",
+   "file": "injured walk left turn.fbx",
+   "inplace": "smooth",
+   "inplace_sigma": 0.08
+  },
+  {
+   "name": "Mx_Inj_Walk_Right_Turn",
+   "file": "injured walk right turn.fbx",
+   "inplace": "smooth",
+   "inplace_sigma": 0.08
+  },
+  {
+   "name": "Mx_Inj_Walk",
+   "file": "injured walk.fbx",
+   "loop": true,
+   "inplace": "linear"
+  },
+  {
+   "name": "Mx_Inj_Wave_Idle",
+   "file": "injured wave idle.fbx",
+   "loop": true,
+   "inplace": "linear"
+  }
+ ]
+}

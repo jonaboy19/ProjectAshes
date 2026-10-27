@@ -1,0 +1,971 @@
+[
+ {
+  "name": "Mx_GS_Draw_A_Great_Sword_1",
+  "loop": false,
+  "seconds": 0.47,
+  "frames": 15,
+  "keys": 418,
+  "source": "draw a great sword 1.fbx",
+  "range_s": [
+   null,
+   null
+  ],
+  "autotrim": null,
+  "loop_pts": null,
+  "floor_fix_m": 0.046,
+  "contact_lift_m": 0.0,
+  "min_foot_m": -0.0,
+  "travel_m": 0.08,
+  "hip_scale": 0.8509
+ },
+ {
+  "name": "Mx_GS_Draw_A_Great_Sword_2",
+  "loop": false,
+  "seconds": 0.77,
+  "frames": 24,
+  "keys": 617,
+  "source": "draw a great sword 2.fbx",
+  "range_s": [
+   null,
+   null
+  ],
+  "autotrim": null,
+  "loop_pts": null,
+  "floor_fix_m": 0.053,
+  "contact_lift_m": 0.0,
+  "min_foot_m": -0.001,
+  "travel_m": 0.11,
+  "hip_scale": 0.8509
+ },
+ {
+  "name": "Mx_GS_180_Turn_2",
+  "loop": false,
+  "seconds": 0.57,
+  "frames": 18,
+  "keys": 431,
+  "source": "great sword 180 turn (2).fbx",
+  "range_s": [
+   null,
+   null
+  ],
+  "autotrim": null,
+  "loop_pts": null,
+  "floor_fix_m": 0.067,
+  "contact_lift_m": 0.0,
+  "min_foot_m": 0.0,
+  "travel_m": 0.2,
+  "hip_scale": 0.8509
+ },
+ {
+  "name": "Mx_GS_180_Turn",
+  "loop": false,
+  "seconds": 0.8,
+  "frames": 25,
+  "keys": 530,
+  "source": "great sword 180 turn.fbx",
+  "range_s": [
+   null,
+   null
+  ],
+  "autotrim": null,
+  "loop_pts": null,
+  "floor_fix_m": 0.067,
+  "contact_lift_m": 0.0,
+  "min_foot_m": -0.0,
+  "travel_m": 0.02,
+  "hip_scale": 0.8509
+ },
+ {
+  "name": "Mx_GS_Attack",
+  "loop": false,
+  "seconds": 1.2,
+  "frames": 37,
+  "keys": 649,
+  "source": "great sword attack.fbx",
+  "range_s": [
+   null,
+   null
+  ],
+  "autotrim": null,
+  "loop_pts": null,
+  "floor_fix_m": 0.06,
+  "contact_lift_m": 0.0,
+  "min_foot_m": -0.0,
+  "travel_m": 0.0,
+  "hip_scale": 0.8509
+ },
+ {
+  "name": "Mx_GS_Blocking_2",
+  "loop": false,
+  "seconds": 0.97,
+  "frames": 30,
+  "keys": 151,
+  "source": "great sword blocking (2).fbx",
+  "range_s": [
+   null,
+   null
+  ],
+  "autotrim": null,
+  "loop_pts": null,
+  "floor_fix_m": 0.044,
+  "contact_lift_m": 0.0,
+  "min_foot_m": -0.0,
+  "travel_m": 0.0,
+  "hip_scale": 0.8509
+ },
+ {
+  "name": "Mx_GS_Blocking_3",
+  "loop": false,
+  "seconds": 0.5,
+  "frames": 16,
+  "keys": 318,
+  "source": "great sword blocking (3).fbx",
+  "range_s": [
+   null,
+   null
+  ],
+  "autotrim": null,
+  "loop_pts": null,
+  "floor_fix_m": 0.053,
+  "contact_lift_m": 0.0,
+  "min_foot_m": 0.0,
+  "travel_m": 0.08,
+  "hip_scale": 0.8509
+ },
+ {
+  "name": "Mx_GS_Blocking",
+  "loop": false,
+  "seconds": 0.5,
+  "frames": 16,
+  "keys": 308,
+  "source": "great sword blocking.fbx",
+  "range_s": [
+   null,
+   null
+  ],
+  "autotrim": null,
+  "loop_pts": null,
+  "floor_fix_m": 0.053,
+  "contact_lift_m": 0.0,
+  "min_foot_m": 0.0,
+  "travel_m": 0.08,
+  "hip_scale": 0.8509
+ },
+ {
+  "name": "Mx_GS_Casting",
+  "loop": false,
+  "seconds": 4.8,
+  "frames": 145,
+  "keys": 1512,
+  "source": "great sword casting.fbx",
+  "range_s": [
+   null,
+   null
+  ],
+  "autotrim": null,
+  "loop_pts": null,
+  "floor_fix_m": 0.06,
+  "contact_lift_m": 0.134,
+  "min_foot_m": -0.003,
+  "travel_m": 0.0,
+  "hip_scale": 0.8509
+ },
+ {
+  "name": "Mx_GS_Crouching_2",
+  "loop": true,
+  "seconds": 0.67,
+  "frames": 21,
+  "keys": 393,
+  "source": "great sword crouching (2).fbx",
+  "range_s": [
+   0.0,
+   0.6666666666666666
+  ],
+  "autotrim": null,
+  "loop_pts": null,
+  "floor_fix_m": 0.057,
+  "contact_lift_m": 0.0,
+  "min_foot_m": -0.0,
+  "travel_m": 0.32,
+  "hip_scale": 0.8509
+ },
+ {
+  "name": "Mx_GS_Crouching_3",
+  "loop": true,
+  "seconds": 1.8,
+  "frames": 55,
+  "keys": 144,
+  "source": "great sword crouching (3).fbx",
+  "range_s": [
+   0.0,
+   1.8
+  ],
+  "autotrim": null,
+  "loop_pts": null,
+  "floor_fix_m": 0.0,
+  "contact_lift_m": 0.023,
+  "min_foot_m": -0.02,
+  "travel_m": 0.0,
+  "hip_scale": 0.8509
+ },
+ {
+  "name": "Mx_GS_Crouching_4",
+  "loop": true,
+  "seconds": 0.33,
+  "frames": 11,
+  "keys": 220,
+  "source": "great sword crouching (4).fbx",
+  "range_s": [
+   0.0,
+   0.3333333333333333
+  ],
+  "autotrim": null,
+  "loop_pts": null,
+  "floor_fix_m": 0.0,
+  "contact_lift_m": 0.023,
+  "min_foot_m": -0.02,
+  "travel_m": 0.07,
+  "hip_scale": 0.8509
+ },
+ {
+  "name": "Mx_GS_Crouching_5",
+  "loop": true,
+  "seconds": 1.37,
+  "frames": 42,
+  "keys": 145,
+  "source": "great sword crouching (5).fbx",
+  "range_s": [
+   0.0,
+   1.3666666666666667
+  ],
+  "autotrim": null,
+  "loop_pts": null,
+  "floor_fix_m": 0.0,
+  "contact_lift_m": 0.009,
+  "min_foot_m": -0.02,
+  "travel_m": 0.0,
+  "hip_scale": 0.8509
+ },
+ {
+  "name": "Mx_GS_Crouching_6",
+  "loop": true,
+  "seconds": 0.43,
+  "frames": 14,
+  "keys": 233,
+  "source": "great sword crouching (6).fbx",
+  "range_s": [
+   0.0,
+   0.43333333333333335
+  ],
+  "autotrim": null,
+  "loop_pts": null,
+  "floor_fix_m": 0.0,
+  "contact_lift_m": 0.022,
+  "min_foot_m": -0.019,
+  "travel_m": 0.08,
+  "hip_scale": 0.8509
+ },
+ {
+  "name": "Mx_GS_Crouching",
+  "loop": true,
+  "seconds": 0.63,
+  "frames": 20,
+  "keys": 358,
+  "source": "great sword crouching.fbx",
+  "range_s": [
+   0.0,
+   0.6333333333333333
+  ],
+  "autotrim": null,
+  "loop_pts": null,
+  "floor_fix_m": 0.059,
+  "contact_lift_m": 0.0,
+  "min_foot_m": -0.007,
+  "travel_m": 0.34,
+  "hip_scale": 0.8509
+ },
+ {
+  "name": "Mx_GS_High_Spin_Attack",
+  "loop": false,
+  "seconds": 1.87,
+  "frames": 57,
+  "keys": 1150,
+  "source": "great sword high spin attack.fbx",
+  "range_s": [
+   null,
+   null
+  ],
+  "autotrim": null,
+  "loop_pts": null,
+  "floor_fix_m": 0.083,
+  "contact_lift_m": 0.0,
+  "min_foot_m": -0.005,
+  "travel_m": 1.96,
+  "hip_scale": 0.8509
+ },
+ {
+  "name": "Mx_GS_Idle_2",
+  "loop": true,
+  "seconds": 2.87,
+  "frames": 87,
+  "keys": 429,
+  "source": "great sword idle (2).fbx",
+  "range_s": [
+   0.0,
+   2.8666666666666667
+  ],
+  "autotrim": null,
+  "loop_pts": null,
+  "floor_fix_m": 0.053,
+  "contact_lift_m": 0.0,
+  "min_foot_m": -0.0,
+  "travel_m": 0.01,
+  "hip_scale": 0.8509
+ },
+ {
+  "name": "Mx_GS_Idle_3",
+  "loop": true,
+  "seconds": 3.57,
+  "frames": 108,
+  "keys": 1140,
+  "source": "great sword idle (3).fbx",
+  "range_s": [
+   0.0,
+   3.566666666666667
+  ],
+  "autotrim": null,
+  "loop_pts": null,
+  "floor_fix_m": 0.055,
+  "contact_lift_m": 0.0,
+  "min_foot_m": -0.0,
+  "travel_m": 0.01,
+  "hip_scale": 0.8509
+ },
+ {
+  "name": "Mx_GS_Idle_4",
+  "loop": true,
+  "seconds": 3.67,
+  "frames": 111,
+  "keys": 1356,
+  "source": "great sword idle (4).fbx",
+  "range_s": [
+   0.0,
+   3.6666666666666665
+  ],
+  "autotrim": null,
+  "loop_pts": null,
+  "floor_fix_m": 0.058,
+  "contact_lift_m": 0.0,
+  "min_foot_m": -0.0,
+  "travel_m": 0.01,
+  "hip_scale": 0.8509
+ },
+ {
+  "name": "Mx_GS_Idle_5",
+  "loop": true,
+  "seconds": 7.47,
+  "frames": 225,
+  "keys": 1707,
+  "source": "great sword idle (5).fbx",
+  "range_s": [
+   0.0,
+   7.466666666666667
+  ],
+  "autotrim": null,
+  "loop_pts": null,
+  "floor_fix_m": 0.053,
+  "contact_lift_m": 0.0,
+  "min_foot_m": -0.0,
+  "travel_m": 0.0,
+  "hip_scale": 0.8509
+ },
+ {
+  "name": "Mx_GS_Idle",
+  "loop": true,
+  "seconds": 1.97,
+  "frames": 60,
+  "keys": 175,
+  "source": "great sword idle.fbx",
+  "range_s": [
+   0.0,
+   1.9666666666666666
+  ],
+  "autotrim": null,
+  "loop_pts": null,
+  "floor_fix_m": 0.053,
+  "contact_lift_m": 0.0,
+  "min_foot_m": -0.0,
+  "travel_m": 0.0,
+  "hip_scale": 0.8509
+ },
+ {
+  "name": "Mx_GS_Impact_2",
+  "loop": false,
+  "seconds": 1.2,
+  "frames": 37,
+  "keys": 514,
+  "source": "great sword impact (2).fbx",
+  "range_s": [
+   null,
+   null
+  ],
+  "autotrim": null,
+  "loop_pts": null,
+  "floor_fix_m": 0.074,
+  "contact_lift_m": 0.0,
+  "min_foot_m": -0.0,
+  "travel_m": 0.0,
+  "hip_scale": 0.8509
+ },
+ {
+  "name": "Mx_GS_Impact_3",
+  "loop": false,
+  "seconds": 1.27,
+  "frames": 39,
+  "keys": 792,
+  "source": "great sword impact (3).fbx",
+  "range_s": [
+   null,
+   null
+  ],
+  "autotrim": null,
+  "loop_pts": null,
+  "floor_fix_m": 0.052,
+  "contact_lift_m": 0.0,
+  "min_foot_m": -0.001,
+  "travel_m": 0.01,
+  "hip_scale": 0.8509
+ },
+ {
+  "name": "Mx_GS_Impact_4",
+  "loop": false,
+  "seconds": 0.67,
+  "frames": 21,
+  "keys": 294,
+  "source": "great sword impact (4).fbx",
+  "range_s": [
+   null,
+   null
+  ],
+  "autotrim": null,
+  "loop_pts": null,
+  "floor_fix_m": 0.03,
+  "contact_lift_m": 0.0,
+  "min_foot_m": -0.0,
+  "travel_m": 0.01,
+  "hip_scale": 0.8509
+ },
+ {
+  "name": "Mx_GS_Impact_5",
+  "loop": false,
+  "seconds": 0.97,
+  "frames": 30,
+  "keys": 386,
+  "source": "great sword impact (5).fbx",
+  "range_s": [
+   null,
+   null
+  ],
+  "autotrim": null,
+  "loop_pts": null,
+  "floor_fix_m": 0.043,
+  "contact_lift_m": 0.0,
+  "min_foot_m": -0.0,
+  "travel_m": 0.01,
+  "hip_scale": 0.8509
+ },
+ {
+  "name": "Mx_GS_Impact",
+  "loop": false,
+  "seconds": 0.87,
+  "frames": 27,
+  "keys": 233,
+  "source": "great sword impact.fbx",
+  "range_s": [
+   null,
+   null
+  ],
+  "autotrim": null,
+  "loop_pts": null,
+  "floor_fix_m": 0.044,
+  "contact_lift_m": 0.0,
+  "min_foot_m": -0.0,
+  "travel_m": 0.0,
+  "hip_scale": 0.8509
+ },
+ {
+  "name": "Mx_GS_Jump_2",
+  "loop": false,
+  "seconds": 0.9,
+  "frames": 28,
+  "keys": 551,
+  "source": "great sword jump (2).fbx",
+  "range_s": [
+   null,
+   null
+  ],
+  "autotrim": null,
+  "loop_pts": null,
+  "floor_fix_m": 0.059,
+  "contact_lift_m": 0.0,
+  "min_foot_m": -0.004,
+  "travel_m": 0.01,
+  "hip_scale": 0.8509
+ },
+ {
+  "name": "Mx_GS_Jump_Attack",
+  "loop": false,
+  "seconds": 2.17,
+  "frames": 66,
+  "keys": 1304,
+  "source": "great sword jump attack.fbx",
+  "range_s": [
+   null,
+   null
+  ],
+  "autotrim": null,
+  "loop_pts": null,
+  "floor_fix_m": 0.069,
+  "contact_lift_m": 0.0,
+  "min_foot_m": -0.003,
+  "travel_m": 2.68,
+  "hip_scale": 0.8509
+ },
+ {
+  "name": "Mx_GS_Jump",
+  "loop": false,
+  "seconds": 0.63,
+  "frames": 20,
+  "keys": 449,
+  "source": "great sword jump.fbx",
+  "range_s": [
+   null,
+   null
+  ],
+  "autotrim": null,
+  "loop_pts": null,
+  "floor_fix_m": 0.061,
+  "contact_lift_m": 0.0,
+  "min_foot_m": -0.0,
+  "travel_m": 1.35,
+  "hip_scale": 0.8509
+ },
+ {
+  "name": "Mx_GS_Kick_2",
+  "loop": false,
+  "seconds": 1.73,
+  "frames": 53,
+  "keys": 1097,
+  "source": "great sword kick (2).fbx",
+  "range_s": [
+   null,
+   null
+  ],
+  "autotrim": null,
+  "loop_pts": null,
+  "floor_fix_m": 0.129,
+  "contact_lift_m": 0.0,
+  "min_foot_m": -0.005,
+  "travel_m": 0.01,
+  "hip_scale": 0.8509
+ },
+ {
+  "name": "Mx_GS_Kick",
+  "loop": false,
+  "seconds": 1.5,
+  "frames": 46,
+  "keys": 889,
+  "source": "great sword kick.fbx",
+  "range_s": [
+   null,
+   null
+  ],
+  "autotrim": null,
+  "loop_pts": null,
+  "floor_fix_m": 0.084,
+  "contact_lift_m": 0.0,
+  "min_foot_m": -0.002,
+  "travel_m": 0.01,
+  "hip_scale": 0.8509
+ },
+ {
+  "name": "Mx_GS_Power_Up",
+  "loop": false,
+  "seconds": 3.1,
+  "frames": 94,
+  "keys": 1452,
+  "source": "great sword power up.fbx",
+  "range_s": [
+   null,
+   null
+  ],
+  "autotrim": null,
+  "loop_pts": null,
+  "floor_fix_m": 0.06,
+  "contact_lift_m": 0.0,
+  "min_foot_m": -0.001,
+  "travel_m": 0.07,
+  "hip_scale": 0.8509
+ },
+ {
+  "name": "Mx_GS_Run_2",
+  "loop": true,
+  "seconds": 0.57,
+  "frames": 18,
+  "keys": 409,
+  "source": "great sword run (2).fbx",
+  "range_s": [
+   0.0,
+   0.5666666666666667
+  ],
+  "autotrim": null,
+  "loop_pts": null,
+  "floor_fix_m": 0.076,
+  "contact_lift_m": 0.0,
+  "min_foot_m": -0.006,
+  "travel_m": 2.11,
+  "hip_scale": 0.8509
+ },
+ {
+  "name": "Mx_GS_Run",
+  "loop": true,
+  "seconds": 0.7,
+  "frames": 22,
+  "keys": 478,
+  "source": "great sword run.fbx",
+  "range_s": [
+   0.0,
+   0.7
+  ],
+  "autotrim": null,
+  "loop_pts": null,
+  "floor_fix_m": 0.072,
+  "contact_lift_m": 0.0,
+  "min_foot_m": -0.0,
+  "travel_m": 1.57,
+  "hip_scale": 0.8509
+ },
+ {
+  "name": "Mx_GS_Slash_2",
+  "loop": false,
+  "seconds": 3.53,
+  "frames": 107,
+  "keys": 1789,
+  "source": "great sword slash (2).fbx",
+  "range_s": [
+   null,
+   null
+  ],
+  "autotrim": null,
+  "loop_pts": null,
+  "floor_fix_m": 0.077,
+  "contact_lift_m": 0.003,
+  "min_foot_m": -0.02,
+  "travel_m": 2.68,
+  "hip_scale": 0.8509
+ },
+ {
+  "name": "Mx_GS_Slash_3",
+  "loop": false,
+  "seconds": 1.83,
+  "frames": 56,
+  "keys": 1019,
+  "source": "great sword slash (3).fbx",
+  "range_s": [
+   null,
+   null
+  ],
+  "autotrim": null,
+  "loop_pts": null,
+  "floor_fix_m": 0.062,
+  "contact_lift_m": 0.0,
+  "min_foot_m": -0.002,
+  "travel_m": 0.03,
+  "hip_scale": 0.8509
+ },
+ {
+  "name": "Mx_GS_Slash_4",
+  "loop": false,
+  "seconds": 1.8,
+  "frames": 55,
+  "keys": 981,
+  "source": "great sword slash (4).fbx",
+  "range_s": [
+   null,
+   null
+  ],
+  "autotrim": null,
+  "loop_pts": null,
+  "floor_fix_m": 0.052,
+  "contact_lift_m": 0.0,
+  "min_foot_m": -0.001,
+  "travel_m": 0.97,
+  "hip_scale": 0.8509
+ },
+ {
+  "name": "Mx_GS_Slash_5",
+  "loop": false,
+  "seconds": 1.43,
+  "frames": 44,
+  "keys": 866,
+  "source": "great sword slash (5).fbx",
+  "range_s": [
+   null,
+   null
+  ],
+  "autotrim": null,
+  "loop_pts": null,
+  "floor_fix_m": 0.0,
+  "contact_lift_m": 0.059,
+  "min_foot_m": -0.02,
+  "travel_m": 0.01,
+  "hip_scale": 0.8509
+ },
+ {
+  "name": "Mx_GS_Slash",
+  "loop": false,
+  "seconds": 1.27,
+  "frames": 39,
+  "keys": 837,
+  "source": "great sword slash.fbx",
+  "range_s": [
+   null,
+   null
+  ],
+  "autotrim": null,
+  "loop_pts": null,
+  "floor_fix_m": 0.054,
+  "contact_lift_m": 0.0,
+  "min_foot_m": -0.001,
+  "travel_m": 0.01,
+  "hip_scale": 0.8509
+ },
+ {
+  "name": "Mx_GS_Slide_Attack",
+  "loop": false,
+  "seconds": 2.13,
+  "frames": 65,
+  "keys": 1336,
+  "source": "great sword slide attack.fbx",
+  "range_s": [
+   null,
+   null
+  ],
+  "autotrim": null,
+  "loop_pts": null,
+  "floor_fix_m": 0.06,
+  "contact_lift_m": 0.0,
+  "min_foot_m": -0.001,
+  "travel_m": 2.94,
+  "hip_scale": 0.8509
+ },
+ {
+  "name": "Mx_GS_Strafe_2",
+  "loop": true,
+  "seconds": 1.13,
+  "frames": 35,
+  "keys": 476,
+  "source": "great sword strafe (2).fbx",
+  "range_s": [
+   0.0,
+   1.1333333333333333
+  ],
+  "autotrim": null,
+  "loop_pts": null,
+  "floor_fix_m": 0.057,
+  "contact_lift_m": 0.0,
+  "min_foot_m": -0.001,
+  "travel_m": 1.2,
+  "hip_scale": 0.8509
+ },
+ {
+  "name": "Mx_GS_Strafe_3",
+  "loop": true,
+  "seconds": 0.53,
+  "frames": 17,
+  "keys": 384,
+  "source": "great sword strafe (3).fbx",
+  "range_s": [
+   0.0,
+   0.5333333333333333
+  ],
+  "autotrim": null,
+  "loop_pts": null,
+  "floor_fix_m": 0.076,
+  "contact_lift_m": 0.0,
+  "min_foot_m": -0.002,
+  "travel_m": 1.1,
+  "hip_scale": 0.8509
+ },
+ {
+  "name": "Mx_GS_Strafe_4",
+  "loop": true,
+  "seconds": 0.6,
+  "frames": 19,
+  "keys": 424,
+  "source": "great sword strafe (4).fbx",
+  "range_s": [
+   0.0,
+   0.6
+  ],
+  "autotrim": null,
+  "loop_pts": null,
+  "floor_fix_m": 0.067,
+  "contact_lift_m": 0.0,
+  "min_foot_m": -0.007,
+  "travel_m": 1.63,
+  "hip_scale": 0.8509
+ },
+ {
+  "name": "Mx_GS_Strafe",
+  "loop": true,
+  "seconds": 1.07,
+  "frames": 33,
+  "keys": 498,
+  "source": "great sword strafe.fbx",
+  "range_s": [
+   0.0,
+   1.0666666666666667
+  ],
+  "autotrim": null,
+  "loop_pts": null,
+  "floor_fix_m": 0.054,
+  "contact_lift_m": 0.0,
+  "min_foot_m": 0.0,
+  "travel_m": 1.05,
+  "hip_scale": 0.8509
+ },
+ {
+  "name": "Mx_GS_Turn_2",
+  "loop": false,
+  "seconds": 0.8,
+  "frames": 25,
+  "keys": 430,
+  "source": "great sword turn (2).fbx",
+  "range_s": [
+   null,
+   null
+  ],
+  "autotrim": null,
+  "loop_pts": null,
+  "floor_fix_m": 0.053,
+  "contact_lift_m": 0.0,
+  "min_foot_m": -0.0,
+  "travel_m": 0.1,
+  "hip_scale": 0.8509
+ },
+ {
+  "name": "Mx_GS_Turn",
+  "loop": false,
+  "seconds": 0.73,
+  "frames": 23,
+  "keys": 411,
+  "source": "great sword turn.fbx",
+  "range_s": [
+   null,
+   null
+  ],
+  "autotrim": null,
+  "loop_pts": null,
+  "floor_fix_m": 0.053,
+  "contact_lift_m": 0.0,
+  "min_foot_m": -0.0,
+  "travel_m": 0.13,
+  "hip_scale": 0.8509
+ },
+ {
+  "name": "Mx_GS_Walk_2",
+  "loop": true,
+  "seconds": 1.27,
+  "frames": 39,
+  "keys": 557,
+  "source": "great sword walk (2).fbx",
+  "range_s": [
+   0.0,
+   1.2666666666666666
+  ],
+  "autotrim": null,
+  "loop_pts": null,
+  "floor_fix_m": 0.053,
+  "contact_lift_m": 0.0,
+  "min_foot_m": -0.0,
+  "travel_m": 1.12,
+  "hip_scale": 0.8509
+ },
+ {
+  "name": "Mx_GS_Walk",
+  "loop": true,
+  "seconds": 1.33,
+  "frames": 41,
+  "keys": 544,
+  "source": "great sword walk.fbx",
+  "range_s": [
+   0.0,
+   1.3333333333333333
+  ],
+  "autotrim": null,
+  "loop_pts": null,
+  "floor_fix_m": 0.049,
+  "contact_lift_m": 0.0,
+  "min_foot_m": -0.001,
+  "travel_m": 1.26,
+  "hip_scale": 0.8509
+ },
+ {
+  "name": "Mx_GS_Spell_Cast",
+  "loop": false,
+  "seconds": 1.13,
+  "frames": 35,
+  "keys": 933,
+  "source": "spell cast.fbx",
+  "range_s": [
+   null,
+   null
+  ],
+  "autotrim": null,
+  "loop_pts": null,
+  "floor_fix_m": 0.055,
+  "contact_lift_m": 0.0,
+  "min_foot_m": -0.001,
+  "travel_m": 0.01,
+  "hip_scale": 0.8509
+ },
+ {
+  "name": "Mx_GS_Death_2",
+  "loop": false,
+  "seconds": 2.5,
+  "frames": 76,
+  "keys": 1478,
+  "source": "two handed sword death (2).fbx",
+  "range_s": [
+   null,
+   null
+  ],
+  "autotrim": null,
+  "loop_pts": null,
+  "floor_fix_m": 0.077,
+  "contact_lift_m": 0.072,
+  "min_foot_m": -0.02,
+  "travel_m": 1.09,
+  "hip_scale": 0.8509
+ },
+ {
+  "name": "Mx_GS_Death",
+  "loop": false,
+  "seconds": 2.4,
+  "frames": 73,
+  "keys": 1226,
+  "source": "two handed sword death.fbx",
+  "range_s": [
+   null,
+   null
+  ],
+  "autotrim": null,
+  "loop_pts": null,
+  "floor_fix_m": 0.081,
+  "contact_lift_m": 0.01,
+  "min_foot_m": -0.003,
+  "travel_m": 0.74,
+  "hip_scale": 0.8509
+ }
+]

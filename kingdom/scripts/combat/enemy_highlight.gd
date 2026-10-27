@@ -10,8 +10,8 @@ const SHADER := preload("res://shaders/enemy_rim.gdshader")
 const NODE_NAME := "EnemyHighlight"
 const MAX_ACTIVE := 3
 const MAX_MESHES := 8
-const LOCK_STRENGTH := 0.95
-const STRIKE_STRENGTH := 1.0
+const LOCK_STRENGTH := 0.12      ## UI restraint (BENCHMARK_SLICE item 7): a faint rim, never a red silhouette
+const STRIKE_STRENGTH := 0.18
 const LOCK_COLOR := Color(1.0, 0.28, 0.12)
 const STRIKE_COLOR := Color(1.0, 0.12, 0.05)
 

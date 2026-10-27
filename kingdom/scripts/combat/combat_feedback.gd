@@ -131,10 +131,9 @@ func _element_of(action: Resource) -> String:
 func _on_parried(_attacker: Node, at: Vector3, grade: String) -> void:
 	var p := _p
 	p._animator.play_upper("Block_Hit", 1.8)
-	VFX.impact_frame(p.get_parent(), p.global_position + Vector3.UP * 1.2, 0.5)
+	# Grounded medieval read (AAA gate ref 03): steel sparks at the blades, no manga speed lines or big flare.
 	Audio.sfx("clash")
-	VFX.sparks(p.get_parent(), at, Color(1.0, 0.97, 0.75), 60 if grade == "perfect" else 42)
-	VFX.flash(p.get_parent(), at, Color(1.0, 0.9, 0.6), 3.0, 0.15, 5.0)
+	VFX.sparks(p.get_parent(), at, Color(1.0, 0.85, 0.55), 22 if grade == "perfect" else 14)
 	ImpactPool.at(p.get_parent()).play(at, "physical", Feel.Tier.HEAVY, -p.facing())
 	p._add_camera_shake(0.3)
 	p._fov_punch(4.0)

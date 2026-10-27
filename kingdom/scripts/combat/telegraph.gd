@@ -15,9 +15,10 @@ static func begin(actor: Node3D, move: Resource, reach: float, windup: float, he
 	if actor == null or not actor.is_inside_tree() or actor.get_parent() == null:
 		return
 	var world := actor.get_parent()
-	Highlight.at(world).strike(actor, windup)
-	var heavy := Feel.is_heavy_move(move) if move != null else heavy_default
-	if heavy:
+	# UI restraint (BENCHMARK_SLICE item 7, AAA gate ref 03): the body's own wind-up is the tell. Rim and ground ring only
+	# mark blows you cannot block.
+	if move != null and bool(move.unblockable):
+		Highlight.at(world).strike(actor, windup)
 		Rings.at(world).begin(actor, maxf(reach, 1.2), windup, "", true)
 
 

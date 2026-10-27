@@ -1,0 +1,315 @@
+{
+ "clips": [
+  {
+   "name": "Mx_SnS_Draw_Sword_1",
+   "file": "draw sword 1.fbx",
+   "inplace": "smooth",
+   "inplace_sigma": 0.08
+  },
+  {
+   "name": "Mx_SnS_Draw_Sword_2",
+   "file": "draw sword 2.fbx",
+   "inplace": "smooth",
+   "inplace_sigma": 0.08
+  },
+  {
+   "name": "Mx_SnS_Sheath_Sword_1",
+   "file": "sheath sword 1.fbx",
+   "inplace": "smooth",
+   "inplace_sigma": 0.08
+  },
+  {
+   "name": "Mx_SnS_Sheath_Sword_2",
+   "file": "sheath sword 2.fbx",
+   "inplace": "smooth",
+   "inplace_sigma": 0.08
+  },
+  {
+   "name": "Mx_SnS_180_Turn_2",
+   "file": "sword and shield 180 turn (2).fbx",
+   "inplace": "smooth",
+   "inplace_sigma": 0.08
+  },
+  {
+   "name": "Mx_SnS_180_Turn",
+   "file": "sword and shield 180 turn.fbx",
+   "inplace": "smooth",
+   "inplace_sigma": 0.08
+  },
+  {
+   "name": "Mx_SnS_Attack_2",
+   "file": "sword and shield attack (2).fbx",
+   "inplace": "smooth",
+   "inplace_sigma": 0.08
+  },
+  {
+   "name": "Mx_SnS_Attack_3",
+   "file": "sword and shield attack (3).fbx",
+   "inplace": "smooth",
+   "inplace_sigma": 0.08
+  },
+  {
+   "name": "Mx_SnS_Attack_4",
+   "file": "sword and shield attack (4).fbx",
+   "inplace": "smooth",
+   "inplace_sigma": 0.08
+  },
+  {
+   "name": "Mx_SnS_Attack",
+   "file": "sword and shield attack.fbx",
+   "inplace": "smooth",
+   "inplace_sigma": 0.08
+  },
+  {
+   "name": "Mx_SnS_Block_2",
+   "file": "sword and shield block (2).fbx",
+   "inplace": "smooth",
+   "inplace_sigma": 0.08
+  },
+  {
+   "name": "Mx_SnS_Block_Idle",
+   "file": "sword and shield block idle.fbx",
+   "loop": true,
+   "inplace": "linear"
+  },
+  {
+   "name": "Mx_SnS_Block",
+   "file": "sword and shield block.fbx",
+   "inplace": "smooth",
+   "inplace_sigma": 0.08
+  },
+  {
+   "name": "Mx_SnS_Casting_2",
+   "file": "sword and shield casting (2).fbx",
+   "inplace": "smooth",
+   "inplace_sigma": 0.08
+  },
+  {
+   "name": "Mx_SnS_Casting",
+   "file": "sword and shield casting.fbx",
+   "inplace": "smooth",
+   "inplace_sigma": 0.08
+  },
+  {
+   "name": "Mx_SnS_Crouch_Block_2",
+   "file": "sword and shield crouch block (2).fbx",
+   "inplace": "smooth",
+   "inplace_sigma": 0.08
+  },
+  {
+   "name": "Mx_SnS_Crouch_Block_Idle",
+   "file": "sword and shield crouch block idle.fbx",
+   "loop": true,
+   "inplace": "linear"
+  },
+  {
+   "name": "Mx_SnS_Crouch_Block",
+   "file": "sword and shield crouch block.fbx",
+   "inplace": "smooth",
+   "inplace_sigma": 0.08
+  },
+  {
+   "name": "Mx_SnS_Crouch_Idle",
+   "file": "sword and shield crouch idle.fbx",
+   "loop": true,
+   "inplace": "linear"
+  },
+  {
+   "name": "Mx_SnS_Crouch",
+   "file": "sword and shield crouch.fbx",
+   "inplace": "smooth",
+   "inplace_sigma": 0.08
+  },
+  {
+   "name": "Mx_SnS_Crouching_2",
+   "file": "sword and shield crouching (2).fbx",
+   "loop": true,
+   "inplace": "linear"
+  },
+  {
+   "name": "Mx_SnS_Crouching_3",
+   "file": "sword and shield crouching (3).fbx",
+   "loop": true,
+   "inplace": "linear"
+  },
+  {
+   "name": "Mx_SnS_Crouching",
+   "file": "sword and shield crouching.fbx",
+   "loop": true,
+   "inplace": "linear"
+  },
+  {
+   "name": "Mx_SnS_Death_2",
+   "file": "sword and shield death (2).fbx",
+   "inplace": "smooth",
+   "inplace_sigma": 0.08,
+   "floor": "min"
+  },
+  {
+   "name": "Mx_SnS_Death",
+   "file": "sword and shield death.fbx",
+   "inplace": "smooth",
+   "inplace_sigma": 0.08,
+   "floor": "min"
+  },
+  {
+   "name": "Mx_SnS_Idle_2",
+   "file": "sword and shield idle (2).fbx",
+   "loop": true,
+   "inplace": "linear"
+  },
+  {
+   "name": "Mx_SnS_Idle_3",
+   "file": "sword and shield idle (3).fbx",
+   "loop": true,
+   "inplace": "linear"
+  },
+  {
+   "name": "Mx_SnS_Idle_4",
+   "file": "sword and shield idle (4).fbx",
+   "loop": true,
+   "inplace": "linear"
+  },
+  {
+   "name": "Mx_SnS_Idle",
+   "file": "sword and shield idle.fbx",
+   "loop": true,
+   "inplace": "linear"
+  },
+  {
+   "name": "Mx_SnS_Impact_2",
+   "file": "sword and shield impact (2).fbx",
+   "inplace": "smooth",
+   "inplace_sigma": 0.08,
+   "floor": "min"
+  },
+  {
+   "name": "Mx_SnS_Impact_3",
+   "file": "sword and shield impact (3).fbx",
+   "inplace": "smooth",
+   "inplace_sigma": 0.08,
+   "floor": "min"
+  },
+  {
+   "name": "Mx_SnS_Impact",
+   "file": "sword and shield impact.fbx",
+   "inplace": "smooth",
+   "inplace_sigma": 0.08,
+   "floor": "min"
+  },
+  {
+   "name": "Mx_SnS_Jump_2",
+   "file": "sword and shield jump (2).fbx",
+   "inplace": "smooth",
+   "inplace_sigma": 0.08
+  },
+  {
+   "name": "Mx_SnS_Jump",
+   "file": "sword and shield jump.fbx",
+   "inplace": "smooth",
+   "inplace_sigma": 0.08
+  },
+  {
+   "name": "Mx_SnS_Kick",
+   "file": "sword and shield kick.fbx",
+   "inplace": "smooth",
+   "inplace_sigma": 0.08
+  },
+  {
+   "name": "Mx_SnS_Power_Up",
+   "file": "sword and shield power up.fbx",
+   "inplace": "smooth",
+   "inplace_sigma": 0.08
+  },
+  {
+   "name": "Mx_SnS_Run_2",
+   "file": "sword and shield run (2).fbx",
+   "loop": true,
+   "inplace": "linear"
+  },
+  {
+   "name": "Mx_SnS_Run",
+   "file": "sword and shield run.fbx",
+   "loop": true,
+   "inplace": "linear"
+  },
+  {
+   "name": "Mx_SnS_Slash_2",
+   "file": "sword and shield slash (2).fbx",
+   "inplace": "smooth",
+   "inplace_sigma": 0.08
+  },
+  {
+   "name": "Mx_SnS_Slash_3",
+   "file": "sword and shield slash (3).fbx",
+   "inplace": "smooth",
+   "inplace_sigma": 0.08
+  },
+  {
+   "name": "Mx_SnS_Slash_4",
+   "file": "sword and shield slash (4).fbx",
+   "inplace": "smooth",
+   "inplace_sigma": 0.08
+  },
+  {
+   "name": "Mx_SnS_Slash_5",
+   "file": "sword and shield slash (5).fbx",
+   "inplace": "smooth",
+   "inplace_sigma": 0.08
+  },
+  {
+   "name": "Mx_SnS_Slash",
+   "file": "sword and shield slash.fbx",
+   "inplace": "smooth",
+   "inplace_sigma": 0.08
+  },
+  {
+   "name": "Mx_SnS_Strafe_2",
+   "file": "sword and shield strafe (2).fbx",
+   "loop": true,
+   "inplace": "linear"
+  },
+  {
+   "name": "Mx_SnS_Strafe_3",
+   "file": "sword and shield strafe (3).fbx",
+   "loop": true,
+   "inplace": "linear"
+  },
+  {
+   "name": "Mx_SnS_Strafe_4",
+   "file": "sword and shield strafe (4).fbx",
+   "loop": true,
+   "inplace": "linear"
+  },
+  {
+   "name": "Mx_SnS_Strafe",
+   "file": "sword and shield strafe.fbx",
+   "loop": true,
+   "inplace": "linear"
+  },
+  {
+   "name": "Mx_SnS_Turn_2",
+   "file": "sword and shield turn (2).fbx",
+   "inplace": "smooth",
+   "inplace_sigma": 0.08
+  },
+  {
+   "name": "Mx_SnS_Turn",
+   "file": "sword and shield turn.fbx",
+   "inplace": "smooth",
+   "inplace_sigma": 0.08
+  },
+  {
+   "name": "Mx_SnS_Walk_2",
+   "file": "sword and shield walk (2).fbx",
+   "loop": true,
+   "inplace": "linear"
+  },
+  {
+   "name": "Mx_SnS_Walk",
+   "file": "sword and shield walk.fbx",
+   "loop": true,
+   "inplace": "linear"
+  }
+ ]
+}

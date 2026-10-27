@@ -1,0 +1,317 @@
+{
+ "clips": [
+  {
+   "name": "Mx_GS_Draw_A_Great_Sword_1",
+   "file": "draw a great sword 1.fbx",
+   "inplace": "smooth",
+   "inplace_sigma": 0.08
+  },
+  {
+   "name": "Mx_GS_Draw_A_Great_Sword_2",
+   "file": "draw a great sword 2.fbx",
+   "inplace": "smooth",
+   "inplace_sigma": 0.08
+  },
+  {
+   "name": "Mx_GS_180_Turn_2",
+   "file": "great sword 180 turn (2).fbx",
+   "inplace": "smooth",
+   "inplace_sigma": 0.08
+  },
+  {
+   "name": "Mx_GS_180_Turn",
+   "file": "great sword 180 turn.fbx",
+   "inplace": "smooth",
+   "inplace_sigma": 0.08
+  },
+  {
+   "name": "Mx_GS_Attack",
+   "file": "great sword attack.fbx",
+   "inplace": "smooth",
+   "inplace_sigma": 0.08
+  },
+  {
+   "name": "Mx_GS_Blocking_2",
+   "file": "great sword blocking (2).fbx",
+   "inplace": "smooth",
+   "inplace_sigma": 0.08
+  },
+  {
+   "name": "Mx_GS_Blocking_3",
+   "file": "great sword blocking (3).fbx",
+   "inplace": "smooth",
+   "inplace_sigma": 0.08
+  },
+  {
+   "name": "Mx_GS_Blocking",
+   "file": "great sword blocking.fbx",
+   "inplace": "smooth",
+   "inplace_sigma": 0.08
+  },
+  {
+   "name": "Mx_GS_Casting",
+   "file": "great sword casting.fbx",
+   "inplace": "smooth",
+   "inplace_sigma": 0.08
+  },
+  {
+   "name": "Mx_GS_Crouching_2",
+   "file": "great sword crouching (2).fbx",
+   "loop": true,
+   "inplace": "linear"
+  },
+  {
+   "name": "Mx_GS_Crouching_3",
+   "file": "great sword crouching (3).fbx",
+   "loop": true,
+   "inplace": "linear"
+  },
+  {
+   "name": "Mx_GS_Crouching_4",
+   "file": "great sword crouching (4).fbx",
+   "loop": true,
+   "inplace": "linear"
+  },
+  {
+   "name": "Mx_GS_Crouching_5",
+   "file": "great sword crouching (5).fbx",
+   "loop": true,
+   "inplace": "linear"
+  },
+  {
+   "name": "Mx_GS_Crouching_6",
+   "file": "great sword crouching (6).fbx",
+   "loop": true,
+   "inplace": "linear"
+  },
+  {
+   "name": "Mx_GS_Crouching",
+   "file": "great sword crouching.fbx",
+   "loop": true,
+   "inplace": "linear"
+  },
+  {
+   "name": "Mx_GS_High_Spin_Attack",
+   "file": "great sword high spin attack.fbx",
+   "inplace": "smooth",
+   "inplace_sigma": 0.08
+  },
+  {
+   "name": "Mx_GS_Idle_2",
+   "file": "great sword idle (2).fbx",
+   "loop": true,
+   "inplace": "linear"
+  },
+  {
+   "name": "Mx_GS_Idle_3",
+   "file": "great sword idle (3).fbx",
+   "loop": true,
+   "inplace": "linear"
+  },
+  {
+   "name": "Mx_GS_Idle_4",
+   "file": "great sword idle (4).fbx",
+   "loop": true,
+   "inplace": "linear"
+  },
+  {
+   "name": "Mx_GS_Idle_5",
+   "file": "great sword idle (5).fbx",
+   "loop": true,
+   "inplace": "linear"
+  },
+  {
+   "name": "Mx_GS_Idle",
+   "file": "great sword idle.fbx",
+   "loop": true,
+   "inplace": "linear"
+  },
+  {
+   "name": "Mx_GS_Impact_2",
+   "file": "great sword impact (2).fbx",
+   "inplace": "smooth",
+   "inplace_sigma": 0.08,
+   "floor": "min"
+  },
+  {
+   "name": "Mx_GS_Impact_3",
+   "file": "great sword impact (3).fbx",
+   "inplace": "smooth",
+   "inplace_sigma": 0.08,
+   "floor": "min"
+  },
+  {
+   "name": "Mx_GS_Impact_4",
+   "file": "great sword impact (4).fbx",
+   "inplace": "smooth",
+   "inplace_sigma": 0.08,
+   "floor": "min"
+  },
+  {
+   "name": "Mx_GS_Impact_5",
+   "file": "great sword impact (5).fbx",
+   "inplace": "smooth",
+   "inplace_sigma": 0.08,
+   "floor": "min"
+  },
+  {
+   "name": "Mx_GS_Impact",
+   "file": "great sword impact.fbx",
+   "inplace": "smooth",
+   "inplace_sigma": 0.08,
+   "floor": "min"
+  },
+  {
+   "name": "Mx_GS_Jump_2",
+   "file": "great sword jump (2).fbx",
+   "inplace": "smooth",
+   "inplace_sigma": 0.08
+  },
+  {
+   "name": "Mx_GS_Jump_Attack",
+   "file": "great sword jump attack.fbx",
+   "inplace": "smooth",
+   "inplace_sigma": 0.08
+  },
+  {
+   "name": "Mx_GS_Jump",
+   "file": "great sword jump.fbx",
+   "inplace": "smooth",
+   "inplace_sigma": 0.08
+  },
+  {
+   "name": "Mx_GS_Kick_2",
+   "file": "great sword kick (2).fbx",
+   "inplace": "smooth",
+   "inplace_sigma": 0.08
+  },
+  {
+   "name": "Mx_GS_Kick",
+   "file": "great sword kick.fbx",
+   "inplace": "smooth",
+   "inplace_sigma": 0.08
+  },
+  {
+   "name": "Mx_GS_Power_Up",
+   "file": "great sword power up.fbx",
+   "inplace": "smooth",
+   "inplace_sigma": 0.08
+  },
+  {
+   "name": "Mx_GS_Run_2",
+   "file": "great sword run (2).fbx",
+   "loop": true,
+   "inplace": "linear"
+  },
+  {
+   "name": "Mx_GS_Run",
+   "file": "great sword run.fbx",
+   "loop": true,
+   "inplace": "linear"
+  },
+  {
+   "name": "Mx_GS_Slash_2",
+   "file": "great sword slash (2).fbx",
+   "inplace": "smooth",
+   "inplace_sigma": 0.08
+  },
+  {
+   "name": "Mx_GS_Slash_3",
+   "file": "great sword slash (3).fbx",
+   "inplace": "smooth",
+   "inplace_sigma": 0.08
+  },
+  {
+   "name": "Mx_GS_Slash_4",
+   "file": "great sword slash (4).fbx",
+   "inplace": "smooth",
+   "inplace_sigma": 0.08
+  },
+  {
+   "name": "Mx_GS_Slash_5",
+   "file": "great sword slash (5).fbx",
+   "inplace": "smooth",
+   "inplace_sigma": 0.08
+  },
+  {
+   "name": "Mx_GS_Slash",
+   "file": "great sword slash.fbx",
+   "inplace": "smooth",
+   "inplace_sigma": 0.08
+  },
+  {
+   "name": "Mx_GS_Slide_Attack",
+   "file": "great sword slide attack.fbx",
+   "inplace": "smooth",
+   "inplace_sigma": 0.08
+  },
+  {
+   "name": "Mx_GS_Strafe_2",
+   "file": "great sword strafe (2).fbx",
+   "loop": true,
+   "inplace": "linear"
+  },
+  {
+   "name": "Mx_GS_Strafe_3",
+   "file": "great sword strafe (3).fbx",
+   "loop": true,
+   "inplace": "linear"
+  },
+  {
+   "name": "Mx_GS_Strafe_4",
+   "file": "great sword strafe (4).fbx",
+   "loop": true,
+   "inplace": "linear"
+  },
+  {
+   "name": "Mx_GS_Strafe",
+   "file": "great sword strafe.fbx",
+   "loop": true,
+   "inplace": "linear"
+  },
+  {
+   "name": "Mx_GS_Turn_2",
+   "file": "great sword turn (2).fbx",
+   "inplace": "smooth",
+   "inplace_sigma": 0.08
+  },
+  {
+   "name": "Mx_GS_Turn",
+   "file": "great sword turn.fbx",
+   "inplace": "smooth",
+   "inplace_sigma": 0.08
+  },
+  {
+   "name": "Mx_GS_Walk_2",
+   "file": "great sword walk (2).fbx",
+   "loop": true,
+   "inplace": "linear"
+  },
+  {
+   "name": "Mx_GS_Walk",
+   "file": "great sword walk.fbx",
+   "loop": true,
+   "inplace": "linear"
+  },
+  {
+   "name": "Mx_GS_Spell_Cast",
+   "file": "spell cast.fbx",
+   "inplace": "smooth",
+   "inplace_sigma": 0.08
+  },
+  {
+   "name": "Mx_GS_Death_2",
+   "file": "two handed sword death (2).fbx",
+   "inplace": "smooth",
+   "inplace_sigma": 0.08,
+   "floor": "min"
+  },
+  {
+   "name": "Mx_GS_Death",
+   "file": "two handed sword death.fbx",
+   "inplace": "smooth",
+   "inplace_sigma": 0.08,
+   "floor": "min"
+  }
+ ]
+}

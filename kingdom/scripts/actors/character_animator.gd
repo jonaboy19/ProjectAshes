@@ -81,9 +81,13 @@ const STANCES := {
 	"sit_bench": [["Life_Rest_Sit_Bench", "Life_Rest_Sit_Chair", "Sitting_Idle"], ["Life_Rest_Sit_Bench", "Life_Rest_Sit_Chair", "Sitting_Idle"], 0.0],
 	"sit_mx": [["Life_Mx_Sit_Chair", "Life_Rest_Sit_Chair", "Sitting_Idle"], ["Life_Mx_Sit_Chair", "Life_Rest_Sit_Chair", "Sitting_Idle"], 0.0],   # pelvis 0.05 m behind the root, pairs with Life_Mx_Stand_To_Sit / Sit_To_Stand
 	"slide": [["Slide", "Slide_Loop", "Crouch_Idle"], ["Slide", "Slide_Loop", "Crouch_Idle"], 0.0],         # steep-slope slide (ground_realism.gd)
+	# Combat guard stances (owner Mixamo packs; combat-motion worker): wide bent-knee guard idle and armed walk near a foe.
+	"guard_sword": [["Mx_SnS_Idle"], ["Mx_SnS_Walk"], 1.28],
+	"guard_greatsword": [["Mx_GS_Idle"], ["Mx_GS_Walk"], 0.95],
+	"guard_axe": [["Mx_Axe_Idle"], ["Mx_Axe_Walk_Forward"], 0.89],
 }
 ## Ground speed (m/s at rate 1) of stance moving clips, by the clip actually picked (the first the library has).
-const STANCE_SPEEDS := {"Mx3_Crouch_Fwd": 1.81, "Crouch_Fwd": 0.76, "Walk_Stealth": 1.09}
+const STANCE_SPEEDS := {"Mx3_Crouch_Fwd": 1.81, "Crouch_Fwd": 0.76, "Walk_Stealth": 1.09, "Mx_SnS_Walk": 1.28, "Mx_GS_Walk": 0.95, "Mx_Axe_Walk_Forward": 0.89}
 ## Guard-stance footwork clips, best first: [left, right, back, left speed, right speed, back speed] (m/s at rate 1;
 ## treadmill-cleaned Mixamo set 3 first: tools/anim/loco/cfg_loco_mixamo3.json).
 ## The Mixamo set 3 strafes measured worse in game (1.5-2.3 m/s slip: the guard-stance take is bladed and its heading needs
@@ -592,7 +596,10 @@ func play_upper(anim_name: String, time_scale := 1.0) -> void:
 func play_attack(clip: String, time_scale := 1.0, standing := true) -> void:
 	var base := _clip(clip).trim_suffix("_Upper")
 	var up_name := base + "_Upper"
-	if not player.has_animation(up_name) or not player.has_animation(base):
+	var whole_body := base.begins_with("Mx_") and player.has_animation(base)   # full-motion Mixamo swings: the whole body, every time
+	if whole_body:
+		standing = true
+	elif not player.has_animation(up_name) or not player.has_animation(base):
 		play_upper(clip, time_scale)
 		return
 	var old := "a" if _atk_slot == 0 else "b"

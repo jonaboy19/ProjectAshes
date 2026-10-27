@@ -28,8 +28,8 @@ func test_swing_started_signal_carries_the_action() -> void:
 	_p.swing_started.connect(func(action: Resource, info: Dictionary) -> void: got.append([action, info]))
 	_p.attack()
 	assert_int(got.size()).is_equal(1)
-	assert_str(got[0][0].id).is_equal("sword_1")
-	assert_float(got[0][1]["hit_t"]).is_equal_approx(0.25, 0.0001)
+	assert_str(got[0][0].id).is_equal(String(Moves.combo("sword")[0].id))
+	assert_float(got[0][1]["hit_t"]).is_equal_approx(Moves.combo("sword")[0].hit_time(), 0.0001)   # the table owns timing (full-motion chain)
 
 
 func test_attack_cannot_chain_before_the_cancel_window() -> void:
@@ -79,12 +79,12 @@ func test_f3_hold_attack_is_a_heavy_and_tap_is_a_light() -> void:
 	_p._arms.press(false)
 	_p._arms.tick(0.1)
 	_p._arms.release()
-	assert_str(_p._action.id).is_equal("sword_1")
+	assert_str(_p._action.id).is_equal(String(Moves.combo("sword")[0].id))
 	_p._swing = 0.0
 	_p._combo_window = 0.0
 	_p._arms.press(false)
 	_p._arms.tick(0.5)
 	_p._arms.release()
-	assert_str(_p._action.id).is_equal("sword_heavy")
+	assert_str(_p._action.id).is_equal(String(Moves.heavy("sword").id))
 	assert_float(_p._swing).is_equal_approx(Moves.heavy("sword").total(), 0.0001)
 	assert_float(_p.stamina).is_less(100.0 - Moves.combo("sword")[0].cost)

@@ -35,6 +35,7 @@ var _blade_tip := Vector3.ZERO
 var _sk: Skeleton3D
 var _enemies: Array = []
 var _last_swing_id := -1
+var _style := "sword"
 
 
 func _ready() -> void:
@@ -337,6 +338,15 @@ func _run() -> void:
 	Life.life_path.set_age(18, WorldSim.day, WorldSim.time_of_day)
 	player.apply_age()
 	player.set_view(Player.View.THIRD)
+	# Full-motion combat A/B: --classic-combat = the old in-place swings; --style=greatsword|axe|sword; HUD hidden for review movies.
+	var args := _args()
+	if args.has("classic-combat"):
+		(load("res://scripts/combat/combat_chains.gd") as GDScript).set("enabled", false)
+		(load("res://scripts/combat/combat_motion.gd") as GDScript).set("enabled", false)
+	_style = String(args.get("style", "sword"))
+	if args.has("nohud"):
+		main.hud.visible = false
+		_label.visible = false
 	_find_blade()
 	log_line("Quality tier=%d blade_bone=%d tip=%s" % [Quality.tier, _blade_bone, _blade_tip])
 	_flat = await _find_flat(140.0)
@@ -354,6 +364,8 @@ func _run() -> void:
 	if want("c10"): await _c10_bandit()
 	if want("c11"): await _c11_kill_goblin()
 	if want("c12"): await _c12_dodge()
+	if want("fm01"): await _fm01_duel()
+	if want("fm02"): await _fm02_three()
 	log_line("ALL DONE")
 	_csv.flush()
 	get_tree().quit()
@@ -539,3 +551,106 @@ func _c12_dodge() -> void:
 	key(KEY_W, false)
 	await frames(24)
 	finish()
+
+
+# --- full-motion review duels (combat-motion worker) -----------------------------------------
+
+var _rcam: Camera3D
+var _rcam_side := 1.0
+
+
+## Wait n frames: the player's own camera sits behind the player looking at `target` (so W walks at the foe), while a
+## separate review camera films a side-on two-shot of both bodies (smoothed). The player cannot die in a review movie.
+func _hold(target: Node3D, n: int, _off := 0.0) -> void:
+	if _rcam == null:
+		_rcam = Camera3D.new()
+		_rcam.fov = 50.0
+		main.world.add_child(_rcam)
+	for i in n:
+		player.health = maxi(player.health, int(player.max_health * 0.6))
+		player.stamina = maxf(player.stamina, 40.0)
+		if is_instance_valid(target):
+			player.set_camera(yaw_to(target.global_position), -0.2)
+			var a := player.global_position
+			var b := target.global_position
+			var mid := (a + b) * 0.5
+			var line := b - a
+			line.y = 0.0
+			var side := Vector3(-line.z, 0, line.x).normalized() * _rcam_side
+			var wide := _off > 1.0          # group fights: higher and further back so circling fighters do not block the lens
+			var want := mid + side * maxf(7.5 if wide else 4.2, line.length() * 1.3) - line.normalized() * (2.5 if wide else 0.0) + Vector3.UP * (3.2 if wide else 1.5)
+			_rcam.global_position = want if not _rcam.current else _rcam.global_position.lerp(want, 0.08)
+			_rcam.current = true
+			_rcam.look_at(mid + Vector3.UP * 0.9)
+		await get_tree().process_frame
+
+
+func _attack_dir(target: Node3D, dir_key: Key, gap: int) -> void:
+	if dir_key != KEY_NONE:
+		key(dir_key, true)
+	await frames(2)
+	await tap(KEY_J)
+	if dir_key != KEY_NONE:
+		key(dir_key, false)
+	await _hold(target, gap)
+
+
+## Player vs one bandit: lock on, walk in, light chain (the swings travel into the bandit), guard the reply,
+## directional cuts, heavy, then let the bandit press.
+func _fm01_duel() -> void:
+	await teleport(_flat, 0.0, 20)
+	player.combat_style = _style
+	var b := _spawn_bandit(_flat + _fwd() * 6.0)
+	_refill()
+	await frames(10)
+	begin("fm01_duel_" + _style)
+	await _hold(b, 20)
+	key(KEY_W, true)
+	await _hold(b, 30)                     # approach
+	key(KEY_W, false)
+	for i in 4:                            # light chain from ~3 m: each step closes in
+		await tap(KEY_J)
+		await _hold(b, 16)
+	await _hold(b, 20)
+	key(KEY_L, true)                       # guard the reply
+	await _hold(b, 45)
+	key(KEY_L, false)
+	await _attack_dir(b, KEY_A, 18)        # directional cuts
+	await _attack_dir(b, KEY_D, 18)
+	await _attack_dir(b, KEY_S, 24)
+	key(KEY_S, true)                       # back off, then lunge back in
+	await _hold(b, 25)
+	key(KEY_S, false)
+	key(KEY_J, true)                       # heavy (hold)
+	await _hold(b, 18)
+	key(KEY_J, false)
+	await _hold(b, 40)
+	if player.health < player.max_health * 0.4:
+		player.health = player.max_health
+	await _hold(b, 60)                     # bandit presses
+	finish()
+	await _clear_enemies()
+
+
+## Player vs three bandits: spacing, turning to the next foe, swings travelling between them.
+func _fm02_three() -> void:
+	await teleport(_flat, 0.0, 20)
+	player.combat_style = _style
+	var f := _fwd()
+	var side := Vector2(f.y, -f.x)
+	var bs: Array = [_spawn_bandit(_flat + f * 5.0), _spawn_bandit(_flat + f * 4.0 + side * 3.5), _spawn_bandit(_flat + f * 4.0 - side * 3.5)]
+	_refill()
+	await frames(10)
+	begin("fm02_three_" + _style)
+	await _hold(bs[0], 20, 1.6)
+	for round in 3:
+		for i in 3:
+			await tap(KEY_J)
+			await _hold(bs[0], 15, 1.6)
+		key(KEY_L, true)
+		await _hold(bs[0], 30, 1.6)
+		key(KEY_L, false)
+		await _hold(bs[0], 10, 1.6)
+		player.health = maxi(player.health, player.max_health / 2)
+	finish()
+	await _clear_enemies()

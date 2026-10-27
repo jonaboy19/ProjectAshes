@@ -36,10 +36,12 @@ func is_paused(mixer: AnimationMixer) -> bool:
 
 func _process(_delta: float) -> void:
 	var now := Time.get_ticks_msec()
-	for mixer: AnimationMixer in _until.keys():
-		if not is_instance_valid(mixer):
-			_until.erase(mixer)
-		elif now >= int(_until[mixer][0]):
+	for key: Variant in _until.keys():
+		if not is_instance_valid(key):      # untyped: a freed mixer (killed actor) must not hit a typed loop variable
+			_until.erase(key)
+			continue
+		var mixer := key as AnimationMixer
+		if now >= int(_until[mixer][0]):
 			_restore(mixer)
 			_until.erase(mixer)
 	set_process(not _until.is_empty())

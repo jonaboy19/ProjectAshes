@@ -52,7 +52,7 @@ func test_the_real_sword_combo_maps_light_light_light_finisher() -> void:
 func test_only_finishers_flash_and_cues_stay_inside_limits() -> void:
 	assert_float(Feel.FLASH[Feel.Tier.LIGHT]).is_equal(0.0)
 	assert_float(Feel.FLASH[Feel.Tier.HEAVY]).is_equal(0.0)
-	assert_float(Feel.FLASH[Feel.Tier.FINISHER]).is_greater(0.0)
+	assert_float(Feel.FLASH[Feel.Tier.FINISHER]).is_equal(0.0)
 	for t in 3:
 		assert_float(Feel.fov_punch(t)).is_less_equal(Feel.FOV_MAX)
 		assert_float(Feel.roll(t)).is_less_equal(Feel.ROLL_MAX)
@@ -240,13 +240,16 @@ func test_highlight_applies_caps_and_restores() -> void:
 			assert_object(m.material_overlay).is_null()
 
 
-func test_telegraph_helper_rings_only_heavy_attacks() -> void:
+func test_telegraph_helper_rings_only_unblockable_and_rims_only_heavy() -> void:
 	var w := _world()
 	var a := _actor(w)
 	Telegraph.begin(a, Moves.find("goblin", "goblin_slash"), 2.2, 0.4)
 	assert_int(Rings.at(w).active_count()).is_equal(0)
-	assert_bool(Highlight.at(w).is_highlighted(a)).is_true()
+	assert_bool(Highlight.at(w).is_highlighted(a)).is_false()     # a light swing: the body's wind-up is the only tell
 	Telegraph.begin(a, Moves.find("troll", "troll_smash"), 3.2, 0.6)
+	assert_int(Rings.at(w).active_count()).is_equal(0)            # heavy but blockable: no rim, no ground ring
+	assert_bool(Highlight.at(w).is_highlighted(a)).is_false()
+	Telegraph.begin(a, Moves.find("troll", "troll_slam"), 3.0, 0.6)
 	assert_int(Rings.at(w).active_count()).is_equal(1)
 	Telegraph.end(a)
 	assert_int(Rings.at(w).active_count()).is_equal(0)

@@ -1,0 +1,858 @@
+{
+ "map": {
+  "pelvis": "Hips",
+  "spine_01": "Spine",
+  "spine_02": "Spine1",
+  "spine_03": "Spine2",
+  "neck_01": "Neck",
+  "Head": "Head",
+  "clavicle_l": "LeftShoulder",
+  "upperarm_l": "LeftArm",
+  "lowerarm_l": "LeftForeArm",
+  "hand_l": "LeftHand",
+  "thigh_l": "LeftUpLeg",
+  "calf_l": "LeftLeg",
+  "foot_l": "LeftFoot",
+  "ball_l": "LeftToeBase",
+  "thumb_01_l": "LeftHandThumb1",
+  "thumb_02_l": "LeftHandThumb2",
+  "thumb_03_l": "LeftHandThumb3",
+  "index_01_l": "LeftHandIndex1",
+  "index_02_l": "LeftHandIndex2",
+  "index_03_l": "LeftHandIndex3",
+  "middle_01_l": "LeftHandMiddle1",
+  "middle_02_l": "LeftHandMiddle2",
+  "middle_03_l": "LeftHandMiddle3",
+  "ring_01_l": "LeftHandRing1",
+  "ring_02_l": "LeftHandRing2",
+  "ring_03_l": "LeftHandRing3",
+  "pinky_01_l": "LeftHandPinky1",
+  "pinky_02_l": "LeftHandPinky2",
+  "pinky_03_l": "LeftHandPinky3",
+  "clavicle_r": "RightShoulder",
+  "upperarm_r": "RightArm",
+  "lowerarm_r": "RightForeArm",
+  "hand_r": "RightHand",
+  "thigh_r": "RightUpLeg",
+  "calf_r": "RightLeg",
+  "foot_r": "RightFoot",
+  "ball_r": "RightToeBase",
+  "thumb_01_r": "RightHandThumb1",
+  "thumb_02_r": "RightHandThumb2",
+  "thumb_03_r": "RightHandThumb3",
+  "index_01_r": "RightHandIndex1",
+  "index_02_r": "RightHandIndex2",
+  "index_03_r": "RightHandIndex3",
+  "middle_01_r": "RightHandMiddle1",
+  "middle_02_r": "RightHandMiddle2",
+  "middle_03_r": "RightHandMiddle3",
+  "ring_01_r": "RightHandRing1",
+  "ring_02_r": "RightHandRing2",
+  "ring_03_r": "RightHandRing3",
+  "pinky_01_r": "RightHandPinky1",
+  "pinky_02_r": "RightHandPinky2",
+  "pinky_03_r": "RightHandPinky3"
+ },
+ "clips": {
+  "Mx_Inj_Backwards_Turn_Left": {
+   "before": [
+    0.403,
+    3.578
+   ],
+   "lowest_joints": [
+    [
+     "ball_r",
+     0.011
+    ],
+    [
+     "foot_r",
+     0.017
+    ],
+    [
+     "ball_l",
+     0.018
+    ],
+    [
+     "foot_l",
+     0.019
+    ]
+   ],
+   "after": [
+    0.481,
+    4.248
+   ],
+   "stance_frames": 22,
+   "locked_frames": 43,
+   "hand_seam_cm": 0.0,
+   "frames": 23,
+   "source": "injured backwards turn left.fbx",
+   "seconds": 0.73,
+   "floor_fix_m": 0.077,
+   "contact_lift_m": 0.0,
+   "min_foot_m": -0.001,
+   "travel_m": 0.64,
+   "hip_scale": 0.8509,
+   "loop": false
+  },
+  "Mx_Inj_Backwards_Turn_Right": {
+   "before": [
+    0.493,
+    2.076
+   ],
+   "lowest_joints": [
+    [
+     "ball_r",
+     0.012
+    ],
+    [
+     "foot_r",
+     0.016
+    ],
+    [
+     "foot_l",
+     0.017
+    ],
+    [
+     "ball_l",
+     0.017
+    ]
+   ],
+   "after": [
+    0.503,
+    2.602
+   ],
+   "stance_frames": 25,
+   "locked_frames": 29,
+   "hand_seam_cm": 0.0,
+   "frames": 22,
+   "source": "injured backwards turn right.fbx",
+   "seconds": 0.7,
+   "floor_fix_m": 0.08,
+   "contact_lift_m": 0.0,
+   "min_foot_m": -0.001,
+   "travel_m": 0.74,
+   "hip_scale": 0.8509,
+   "loop": false
+  },
+  "Mx_Inj_Hurting_Idle_Loop": {
+   "before": [
+    0.068,
+    0.185
+   ],
+   "lowest_joints": [
+    [
+     "ball_l",
+     0.025
+    ],
+    [
+     "foot_l",
+     0.029
+    ],
+    [
+     "ball_r",
+     0.034
+    ],
+    [
+     "foot_r",
+     0.038
+    ]
+   ],
+   "after": [
+    0.052,
+    0.052
+   ],
+   "stance_frames": 2,
+   "locked_frames": 55,
+   "hand_seam_cm": 0.3,
+   "frames": 179,
+   "source": "injured hurting idle.fbx",
+   "seconds": 5.93,
+   "floor_fix_m": 0.103,
+   "contact_lift_m": 0.0,
+   "min_foot_m": -0.013,
+   "travel_m": 0.0,
+   "hip_scale": 0.8509,
+   "loop": true
+  },
+  "Mx_Inj_Idle_Loop": {
+   "before": [
+    0.029,
+    0.334
+   ],
+   "lowest_joints": [
+    [
+     "ball_l",
+     -0.001
+    ],
+    [
+     "foot_l",
+     0.013
+    ],
+    [
+     "ball_r",
+     0.029
+    ],
+    [
+     "foot_r",
+     0.032
+    ]
+   ],
+   "after": [
+    0.021,
+    0.451
+   ],
+   "stance_frames": 552,
+   "locked_frames": 323,
+   "hand_seam_cm": 2.0,
+   "frames": 277,
+   "source": "injured idle.fbx",
+   "seconds": 9.2,
+   "floor_fix_m": 0.065,
+   "contact_lift_m": 0.0,
+   "min_foot_m": -0.002,
+   "travel_m": 0.01,
+   "hip_scale": 0.8509,
+   "loop": true
+  },
+  "Mx_Inj_Run_Backwards_Left_Turn": {
+   "before": [
+    1.604,
+    5.498
+   ],
+   "lowest_joints": [
+    [
+     "foot_l",
+     0.016
+    ],
+    [
+     "ball_l",
+     0.016
+    ],
+    [
+     "ball_r",
+     0.036
+    ],
+    [
+     "foot_r",
+     0.036
+    ]
+   ],
+   "after": [
+    1.604,
+    5.498
+   ],
+   "stance_frames": 12,
+   "locked_frames": 0,
+   "hand_seam_cm": 11.0,
+   "frames": 16,
+   "source": "injured run backwards left turn.fbx",
+   "seconds": 0.5,
+   "floor_fix_m": 0.072,
+   "contact_lift_m": 0.0,
+   "min_foot_m": 0.0,
+   "travel_m": 0.91,
+   "hip_scale": 0.8509,
+   "loop": false
+  },
+  "Mx_Inj_Run_Backwards_Right_Turn": {
+   "before": [
+    0.337,
+    0.55
+   ],
+   "lowest_joints": [
+    [
+     "ball_l",
+     0.011
+    ],
+    [
+     "foot_l",
+     0.016
+    ],
+    [
+     "ball_r",
+     0.018
+    ],
+    [
+     "foot_r",
+     0.024
+    ]
+   ],
+   "after": [
+    0.34,
+    0.602
+   ],
+   "stance_frames": 15,
+   "locked_frames": 9,
+   "hand_seam_cm": 13.5,
+   "frames": 17,
+   "source": "injured run backwards right turn.fbx",
+   "seconds": 0.53,
+   "floor_fix_m": 0.073,
+   "contact_lift_m": 0.0,
+   "min_foot_m": 0.001,
+   "travel_m": 0.8,
+   "hip_scale": 0.8509,
+   "loop": false
+  },
+  "Mx_Inj_Run_Backwards_Loop": {
+   "before": [
+    0.246,
+    0.501
+   ],
+   "lowest_joints": [
+    [
+     "ball_l",
+     0.005
+    ],
+    [
+     "foot_l",
+     0.015
+    ],
+    [
+     "ball_r",
+     0.017
+    ],
+    [
+     "foot_r",
+     0.04
+    ]
+   ],
+   "after": [
+    0.746,
+    3.968
+   ],
+   "stance_frames": 9,
+   "locked_frames": 16,
+   "hand_seam_cm": 4.2,
+   "frames": 18,
+   "source": "injured run backwards.fbx",
+   "seconds": 0.57,
+   "floor_fix_m": 0.074,
+   "contact_lift_m": 0.0,
+   "min_foot_m": 0.0,
+   "travel_m": 0.85,
+   "hip_scale": 0.8509,
+   "loop": true
+  },
+  "Mx_Inj_Run_Jump": {
+   "before": [
+    0.235,
+    0.328
+   ],
+   "lowest_joints": [
+    [
+     "ball_r",
+     0.011
+    ],
+    [
+     "foot_r",
+     0.015
+    ],
+    [
+     "ball_l",
+     0.055
+    ],
+    [
+     "foot_l",
+     0.072
+    ]
+   ],
+   "after": [
+    0.235,
+    0.328
+   ],
+   "stance_frames": 5,
+   "locked_frames": 0,
+   "hand_seam_cm": 0.0,
+   "frames": 23,
+   "source": "injured run jump.fbx",
+   "seconds": 0.73,
+   "floor_fix_m": 0.086,
+   "contact_lift_m": 0.0,
+   "min_foot_m": -0.0,
+   "travel_m": 1.58,
+   "hip_scale": 0.8509,
+   "loop": false
+  },
+  "Mx_Inj_Run_Left_Turn": {
+   "before": [
+    0.482,
+    2.018
+   ],
+   "lowest_joints": [
+    [
+     "ball_l",
+     0.003
+    ],
+    [
+     "ball_r",
+     0.005
+    ],
+    [
+     "foot_r",
+     0.016
+    ],
+    [
+     "foot_l",
+     0.019
+    ]
+   ],
+   "after": [
+    0.443,
+    2.018
+   ],
+   "stance_frames": 16,
+   "locked_frames": 9,
+   "hand_seam_cm": 32.5,
+   "frames": 19,
+   "source": "injured run left turn.fbx",
+   "seconds": 0.6,
+   "floor_fix_m": 0.086,
+   "contact_lift_m": 0.0,
+   "min_foot_m": 0.0,
+   "travel_m": 1.13,
+   "hip_scale": 0.8509,
+   "loop": false
+  },
+  "Mx_Inj_Run_Right_Turn": {
+   "before": [
+    0.348,
+    0.683
+   ],
+   "lowest_joints": [
+    [
+     "ball_r",
+     0.013
+    ],
+    [
+     "foot_r",
+     0.015
+    ],
+    [
+     "ball_l",
+     0.027
+    ],
+    [
+     "foot_l",
+     0.039
+    ]
+   ],
+   "after": [
+    0.343,
+    0.683
+   ],
+   "stance_frames": 14,
+   "locked_frames": 14,
+   "hand_seam_cm": 11.5,
+   "frames": 20,
+   "source": "injured run right turn.fbx",
+   "seconds": 0.63,
+   "floor_fix_m": 0.097,
+   "contact_lift_m": 0.0,
+   "min_foot_m": -0.0,
+   "travel_m": 1.14,
+   "hip_scale": 0.8509,
+   "loop": false
+  },
+  "Mx_Inj_Run_Loop": {
+   "before": [
+    0.687,
+    4.548
+   ],
+   "lowest_joints": [
+    [
+     "ball_l",
+     0.003
+    ],
+    [
+     "ball_r",
+     0.012
+    ],
+    [
+     "foot_r",
+     0.013
+    ],
+    [
+     "foot_l",
+     0.024
+    ]
+   ],
+   "after": [
+    1.026,
+    4.804
+   ],
+   "stance_frames": 18,
+   "locked_frames": 23,
+   "hand_seam_cm": 4.5,
+   "frames": 19,
+   "source": "injured run.fbx",
+   "seconds": 0.6,
+   "floor_fix_m": 0.092,
+   "contact_lift_m": 0.0,
+   "min_foot_m": -0.0,
+   "travel_m": 1.31,
+   "hip_scale": 0.8509,
+   "loop": true
+  },
+  "Mx_Inj_Jump": {
+   "before": [
+    0.105,
+    0.412
+   ],
+   "lowest_joints": [
+    [
+     "ball_r",
+     -0.007
+    ],
+    [
+     "foot_r",
+     -0.0
+    ],
+    [
+     "ball_l",
+     0.007
+    ],
+    [
+     "foot_l",
+     0.009
+    ]
+   ],
+   "after": [
+    0.194,
+    1.142
+   ],
+   "stance_frames": 32,
+   "locked_frames": 54,
+   "hand_seam_cm": 1.4,
+   "frames": 57,
+   "source": "injured standing jump.fbx",
+   "seconds": 1.87,
+   "floor_fix_m": 0.072,
+   "contact_lift_m": 0.0,
+   "min_foot_m": -0.015,
+   "travel_m": 0.0,
+   "hip_scale": 0.8509,
+   "loop": false
+  },
+  "Mx_Inj_Stumble_Idle_Loop": {
+   "before": [
+    0.133,
+    0.58
+   ],
+   "lowest_joints": [
+    [
+     "ball_l",
+     0.014
+    ],
+    [
+     "foot_l",
+     0.015
+    ],
+    [
+     "ball_r",
+     0.022
+    ],
+    [
+     "foot_r",
+     0.022
+    ]
+   ],
+   "after": [
+    0.109,
+    0.474
+   ],
+   "stance_frames": 44,
+   "locked_frames": 154,
+   "hand_seam_cm": 0.3,
+   "frames": 152,
+   "source": "injured stumble idle.fbx",
+   "seconds": 5.03,
+   "floor_fix_m": 0.081,
+   "contact_lift_m": 0.0,
+   "min_foot_m": -0.014,
+   "travel_m": 0.0,
+   "hip_scale": 0.8509,
+   "loop": true
+  },
+  "Mx_Inj_Turn_Left": {
+   "before": [
+    0.381,
+    2.868
+   ],
+   "lowest_joints": [
+    [
+     "ball_l",
+     0.007
+    ],
+    [
+     "foot_l",
+     0.015
+    ],
+    [
+     "ball_r",
+     0.018
+    ],
+    [
+     "foot_r",
+     0.023
+    ]
+   ],
+   "after": [
+    0.342,
+    3.12
+   ],
+   "stance_frames": 47,
+   "locked_frames": 45,
+   "hand_seam_cm": 52.3,
+   "frames": 28,
+   "source": "injured turn left.fbx",
+   "seconds": 0.9,
+   "floor_fix_m": 0.06,
+   "contact_lift_m": 0.0,
+   "min_foot_m": -0.0,
+   "travel_m": 0.03,
+   "hip_scale": 0.8509,
+   "loop": false
+  },
+  "Mx_Inj_Turn_Right": {
+   "before": [
+    0.581,
+    1.988
+   ],
+   "lowest_joints": [
+    [
+     "ball_l",
+     0.008
+    ],
+    [
+     "foot_l",
+     0.015
+    ],
+    [
+     "ball_r",
+     0.016
+    ],
+    [
+     "foot_r",
+     0.025
+    ]
+   ],
+   "after": [
+    0.566,
+    2.017
+   ],
+   "stance_frames": 33,
+   "locked_frames": 16,
+   "hand_seam_cm": 49.4,
+   "frames": 22,
+   "source": "injured turn right.fbx",
+   "seconds": 0.7,
+   "floor_fix_m": 0.065,
+   "contact_lift_m": 0.0,
+   "min_foot_m": -0.0,
+   "travel_m": 0.03,
+   "hip_scale": 0.8509,
+   "loop": false
+  },
+  "Mx_Inj_Walk_Backwards_Loop": {
+   "before": [
+    0.296,
+    3.488
+   ],
+   "lowest_joints": [
+    [
+     "ball_l",
+     0.001
+    ],
+    [
+     "foot_l",
+     0.013
+    ],
+    [
+     "ball_r",
+     0.026
+    ],
+    [
+     "foot_r",
+     0.033
+    ]
+   ],
+   "after": [
+    0.361,
+    3.848
+   ],
+   "stance_frames": 67,
+   "locked_frames": 96,
+   "hand_seam_cm": 1.4,
+   "frames": 50,
+   "source": "injured walk backwards.fbx",
+   "seconds": 1.63,
+   "floor_fix_m": 0.074,
+   "contact_lift_m": 0.0,
+   "min_foot_m": -0.002,
+   "travel_m": 1.22,
+   "hip_scale": 0.8509,
+   "loop": true
+  },
+  "Mx_Inj_Walk_Left_Turn": {
+   "before": [
+    0.384,
+    2.656
+   ],
+   "lowest_joints": [
+    [
+     "ball_r",
+     0.014
+    ],
+    [
+     "foot_r",
+     0.015
+    ],
+    [
+     "ball_l",
+     0.02
+    ],
+    [
+     "foot_l",
+     0.026
+    ]
+   ],
+   "after": [
+    0.344,
+    3.216
+   ],
+   "stance_frames": 73,
+   "locked_frames": 99,
+   "hand_seam_cm": 0.0,
+   "frames": 61,
+   "source": "injured walk left turn.fbx",
+   "seconds": 2.0,
+   "floor_fix_m": 0.086,
+   "contact_lift_m": 0.0,
+   "min_foot_m": -0.0,
+   "travel_m": 1.81,
+   "hip_scale": 0.8509,
+   "loop": false
+  },
+  "Mx_Inj_Walk_Right_Turn": {
+   "before": [
+    0.18,
+    0.504
+   ],
+   "lowest_joints": [
+    [
+     "foot_r",
+     0.023
+    ],
+    [
+     "ball_r",
+     0.023
+    ],
+    [
+     "ball_l",
+     0.029
+    ],
+    [
+     "foot_l",
+     0.029
+    ]
+   ],
+   "after": [
+    0.193,
+    1.187
+   ],
+   "stance_frames": 51,
+   "locked_frames": 89,
+   "hand_seam_cm": 14.8,
+   "frames": 56,
+   "source": "injured walk right turn.fbx",
+   "seconds": 1.83,
+   "floor_fix_m": 0.092,
+   "contact_lift_m": 0.0,
+   "min_foot_m": -0.003,
+   "travel_m": 1.99,
+   "hip_scale": 0.8509,
+   "loop": false
+  },
+  "Mx_Inj_Walk_Loop": {
+   "before": [
+    0.174,
+    0.816
+   ],
+   "lowest_joints": [
+    [
+     "foot_r",
+     0.024
+    ],
+    [
+     "ball_r",
+     0.024
+    ],
+    [
+     "ball_l",
+     0.024
+    ],
+    [
+     "foot_l",
+     0.03
+    ]
+   ],
+   "after": [
+    0.242,
+    1.18
+   ],
+   "stance_frames": 46,
+   "locked_frames": 74,
+   "hand_seam_cm": 5.3,
+   "frames": 49,
+   "source": "injured walk.fbx",
+   "seconds": 1.6,
+   "floor_fix_m": 0.085,
+   "contact_lift_m": 0.0,
+   "min_foot_m": -0.001,
+   "travel_m": 1.75,
+   "hip_scale": 0.8509,
+   "loop": true
+  },
+  "Mx_Inj_Wave_Idle_Loop": {
+   "before": [
+    0.103,
+    0.848
+   ],
+   "lowest_joints": [
+    [
+     "foot_l",
+     0.011
+    ],
+    [
+     "ball_l",
+     0.011
+    ],
+    [
+     "ball_r",
+     0.029
+    ],
+    [
+     "foot_r",
+     0.032
+    ]
+   ],
+   "after": [
+    0.06,
+    0.449
+   ],
+   "stance_frames": 81,
+   "locked_frames": 187,
+   "hand_seam_cm": 0.3,
+   "frames": 151,
+   "source": "injured wave idle.fbx",
+   "seconds": 5.0,
+   "floor_fix_m": 0.093,
+   "contact_lift_m": 0.0,
+   "min_foot_m": -0.004,
+   "travel_m": 0.0,
+   "hip_scale": 0.8509,
+   "loop": true
+  }
+ }
+}

@@ -16,13 +16,13 @@ const SLASHES := 3
 const SPARK_MAX := 28
 const DUST_MAX := 8
 ## Per tier (light, heavy, finisher): overall size, spark share, slash count, seconds the slot is busy.
-const TIER_SIZE := [0.8, 1.15, 1.6]
+const TIER_SIZE := [0.45, 0.65, 0.95]      ## smaller: contact reads from the bodies, not a flare (AAA gate ref 03)
 const TIER_SPARKS := [0.4, 0.7, 1.0]
 const TIER_SLASHES := [1, 2, 3]
 const BUSY := [0.45, 0.5, 0.55]
 ## Ground ring diameter in metres (a body is ~0.7 m wide: a finisher ring is ~2.5 body widths) and its start alpha.
 const RING_SIZE := [1.2, 1.5, 1.8]
-const RING_ALPHA := [0.6, 0.8, 1.0]
+const RING_ALPHA := [0.0, 0.12, 0.25]      ## no glowing ground ring on ordinary hits; dust carries the footwork
 
 ## Warm Style G palettes. pal: tint/hot/edge; rise: spark gravity y; v: spark speed; life: spark life;
 ## dust: dust colour (or null); splat: ground splat colour; ring: ring speed scale.

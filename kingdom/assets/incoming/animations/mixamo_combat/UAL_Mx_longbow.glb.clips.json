@@ -1,0 +1,743 @@
+[
+ {
+  "name": "Mx_Bow_Fall_A_Land_To_Run_Forward",
+  "loop": false,
+  "seconds": 0.93,
+  "frames": 29,
+  "keys": 795,
+  "source": "fall a land to run forward.fbx",
+  "range_s": [
+   null,
+   null
+  ],
+  "autotrim": null,
+  "loop_pts": null,
+  "floor_fix_m": 0.117,
+  "contact_lift_m": 0.0,
+  "min_foot_m": -0.001,
+  "travel_m": 1.4,
+  "hip_scale": 0.8509
+ },
+ {
+  "name": "Mx_Bow_Fall_A_Land_To_Standing_Idle_01",
+  "loop": false,
+  "seconds": 0.7,
+  "frames": 22,
+  "keys": 382,
+  "source": "fall a land to standing idle 01.fbx",
+  "range_s": [
+   null,
+   null
+  ],
+  "autotrim": null,
+  "loop_pts": null,
+  "floor_fix_m": 0.074,
+  "contact_lift_m": 0.0,
+  "min_foot_m": -0.0,
+  "travel_m": 0.0,
+  "hip_scale": 0.8509
+ },
+ {
+  "name": "Mx_Bow_Fall_A_Loop",
+  "loop": true,
+  "seconds": 1.03,
+  "frames": 32,
+  "keys": 298,
+  "source": "fall a loop.fbx",
+  "range_s": [
+   0.0,
+   1.0333333333333334
+  ],
+  "autotrim": null,
+  "loop_pts": null,
+  "floor_fix_m": -0.078,
+  "contact_lift_m": 0.0,
+  "min_foot_m": -0.0,
+  "travel_m": 0.0,
+  "hip_scale": 0.8509
+ },
+ {
+  "name": "Mx_Bow_Aim_Overdraw",
+  "loop": false,
+  "seconds": 3.67,
+  "frames": 111,
+  "keys": 241,
+  "source": "standing aim overdraw.fbx",
+  "range_s": [
+   null,
+   null
+  ],
+  "autotrim": null,
+  "loop_pts": null,
+  "floor_fix_m": 0.049,
+  "contact_lift_m": 0.0,
+  "min_foot_m": -0.0,
+  "travel_m": 0.03,
+  "hip_scale": 0.8509
+ },
+ {
+  "name": "Mx_Bow_Aim_Recoil",
+  "loop": false,
+  "seconds": 0.7,
+  "frames": 22,
+  "keys": 459,
+  "source": "standing aim recoil.fbx",
+  "range_s": [
+   null,
+   null
+  ],
+  "autotrim": null,
+  "loop_pts": null,
+  "floor_fix_m": 0.058,
+  "contact_lift_m": 0.0,
+  "min_foot_m": -0.0,
+  "travel_m": 0.03,
+  "hip_scale": 0.8509
+ },
+ {
+  "name": "Mx_Bow_Aim_Walk_Back",
+  "loop": true,
+  "seconds": 1.43,
+  "frames": 44,
+  "keys": 535,
+  "source": "standing aim walk back.fbx",
+  "range_s": [
+   0.0,
+   1.4333333333333333
+  ],
+  "autotrim": null,
+  "loop_pts": null,
+  "floor_fix_m": 0.055,
+  "contact_lift_m": 0.0,
+  "min_foot_m": -0.0,
+  "travel_m": 1.15,
+  "hip_scale": 0.8509
+ },
+ {
+  "name": "Mx_Bow_Aim_Walk_Forward",
+  "loop": true,
+  "seconds": 1.17,
+  "frames": 36,
+  "keys": 418,
+  "source": "standing aim walk forward.fbx",
+  "range_s": [
+   0.0,
+   1.1666666666666667
+  ],
+  "autotrim": null,
+  "loop_pts": null,
+  "floor_fix_m": 0.055,
+  "contact_lift_m": 0.0,
+  "min_foot_m": -0.0,
+  "travel_m": 1.15,
+  "hip_scale": 0.8509
+ },
+ {
+  "name": "Mx_Bow_Aim_Walk_Left",
+  "loop": true,
+  "seconds": 1.17,
+  "frames": 36,
+  "keys": 471,
+  "source": "standing aim walk left.fbx",
+  "range_s": [
+   0.0,
+   1.1666666666666667
+  ],
+  "autotrim": null,
+  "loop_pts": null,
+  "floor_fix_m": 0.056,
+  "contact_lift_m": 0.0,
+  "min_foot_m": -0.001,
+  "travel_m": 1.49,
+  "hip_scale": 0.8509
+ },
+ {
+  "name": "Mx_Bow_Aim_Walk_Right",
+  "loop": true,
+  "seconds": 1.27,
+  "frames": 39,
+  "keys": 478,
+  "source": "standing aim walk right.fbx",
+  "range_s": [
+   0.0,
+   1.2666666666666666
+  ],
+  "autotrim": null,
+  "loop_pts": null,
+  "floor_fix_m": 0.054,
+  "contact_lift_m": 0.0,
+  "min_foot_m": 0.0,
+  "travel_m": 1.59,
+  "hip_scale": 0.8509
+ },
+ {
+  "name": "Mx_Bow_Block",
+  "loop": false,
+  "seconds": 1.93,
+  "frames": 59,
+  "keys": 998,
+  "source": "standing block.fbx",
+  "range_s": [
+   null,
+   null
+  ],
+  "autotrim": null,
+  "loop_pts": null,
+  "floor_fix_m": 0.05,
+  "contact_lift_m": 0.0,
+  "min_foot_m": -0.001,
+  "travel_m": 0.0,
+  "hip_scale": 0.8509
+ },
+ {
+  "name": "Mx_Bow_Death_Backward_01",
+  "loop": false,
+  "seconds": 3.07,
+  "frames": 93,
+  "keys": 2197,
+  "source": "standing death backward 01.fbx",
+  "range_s": [
+   null,
+   null
+  ],
+  "autotrim": null,
+  "loop_pts": null,
+  "floor_fix_m": 0.042,
+  "contact_lift_m": 0.008,
+  "min_foot_m": -0.008,
+  "travel_m": 0.97,
+  "hip_scale": 0.8509
+ },
+ {
+  "name": "Mx_Bow_Death_Forward_01",
+  "loop": false,
+  "seconds": 3.17,
+  "frames": 96,
+  "keys": 1838,
+  "source": "standing death forward 01.fbx",
+  "range_s": [
+   null,
+   null
+  ],
+  "autotrim": null,
+  "loop_pts": null,
+  "floor_fix_m": 0.105,
+  "contact_lift_m": 0.046,
+  "min_foot_m": 0.015,
+  "travel_m": 1.13,
+  "hip_scale": 0.8509
+ },
+ {
+  "name": "Mx_Bow_Disarm_Bow",
+  "loop": false,
+  "seconds": 1.1,
+  "frames": 34,
+  "keys": 1005,
+  "source": "standing disarm bow.fbx",
+  "range_s": [
+   null,
+   null
+  ],
+  "autotrim": null,
+  "loop_pts": null,
+  "floor_fix_m": 0.051,
+  "contact_lift_m": 0.0,
+  "min_foot_m": 0.0,
+  "travel_m": 0.0,
+  "hip_scale": 0.8509
+ },
+ {
+  "name": "Mx_Bow_Dive_Forward",
+  "loop": false,
+  "seconds": 1.63,
+  "frames": 50,
+  "keys": 1300,
+  "source": "standing dive forward.fbx",
+  "range_s": [
+   null,
+   null
+  ],
+  "autotrim": null,
+  "loop_pts": null,
+  "floor_fix_m": 0.163,
+  "contact_lift_m": 0.139,
+  "min_foot_m": 0.035,
+  "travel_m": 3.04,
+  "hip_scale": 0.8509
+ },
+ {
+  "name": "Mx_Bow_Dodge_Backward",
+  "loop": false,
+  "seconds": 1.63,
+  "frames": 50,
+  "keys": 851,
+  "source": "standing dodge backward.fbx",
+  "range_s": [
+   null,
+   null
+  ],
+  "autotrim": null,
+  "loop_pts": null,
+  "floor_fix_m": 0.059,
+  "contact_lift_m": 0.0,
+  "min_foot_m": -0.0,
+  "travel_m": 1.85,
+  "hip_scale": 0.8509
+ },
+ {
+  "name": "Mx_Bow_Dodge_Forward",
+  "loop": false,
+  "seconds": 1.0,
+  "frames": 31,
+  "keys": 738,
+  "source": "standing dodge forward.fbx",
+  "range_s": [
+   null,
+   null
+  ],
+  "autotrim": null,
+  "loop_pts": null,
+  "floor_fix_m": 0.059,
+  "contact_lift_m": 0.0,
+  "min_foot_m": -0.001,
+  "travel_m": 1.81,
+  "hip_scale": 0.8509
+ },
+ {
+  "name": "Mx_Bow_Dodge_Left",
+  "loop": false,
+  "seconds": 0.97,
+  "frames": 30,
+  "keys": 795,
+  "source": "standing dodge left.fbx",
+  "range_s": [
+   null,
+   null
+  ],
+  "autotrim": null,
+  "loop_pts": null,
+  "floor_fix_m": 0.055,
+  "contact_lift_m": 0.0,
+  "min_foot_m": -0.001,
+  "travel_m": 1.56,
+  "hip_scale": 0.8509
+ },
+ {
+  "name": "Mx_Bow_Dodge_Right",
+  "loop": false,
+  "seconds": 0.97,
+  "frames": 30,
+  "keys": 706,
+  "source": "standing dodge right.fbx",
+  "range_s": [
+   null,
+   null
+  ],
+  "autotrim": null,
+  "loop_pts": null,
+  "floor_fix_m": 0.053,
+  "contact_lift_m": 0.0,
+  "min_foot_m": -0.0,
+  "travel_m": 1.6,
+  "hip_scale": 0.8509
+ },
+ {
+  "name": "Mx_Bow_Draw_Arrow",
+  "loop": false,
+  "seconds": 1.0,
+  "frames": 31,
+  "keys": 597,
+  "source": "standing draw arrow.fbx",
+  "range_s": [
+   null,
+   null
+  ],
+  "autotrim": null,
+  "loop_pts": null,
+  "floor_fix_m": 0.049,
+  "contact_lift_m": 0.0,
+  "min_foot_m": -0.001,
+  "travel_m": 0.03,
+  "hip_scale": 0.8509
+ },
+ {
+  "name": "Mx_Bow_Equip_Bow",
+  "loop": false,
+  "seconds": 0.9,
+  "frames": 28,
+  "keys": 888,
+  "source": "standing equip bow.fbx",
+  "range_s": [
+   null,
+   null
+  ],
+  "autotrim": null,
+  "loop_pts": null,
+  "floor_fix_m": 0.05,
+  "contact_lift_m": 0.0,
+  "min_foot_m": -0.001,
+  "travel_m": 0.01,
+  "hip_scale": 0.8509
+ },
+ {
+  "name": "Mx_Bow_Idle_01",
+  "loop": true,
+  "seconds": 5.07,
+  "frames": 153,
+  "keys": 455,
+  "source": "standing idle 01.fbx",
+  "range_s": [
+   0.0,
+   5.066666666666666
+  ],
+  "autotrim": null,
+  "loop_pts": null,
+  "floor_fix_m": 0.049,
+  "contact_lift_m": 0.0,
+  "min_foot_m": -0.0,
+  "travel_m": 0.0,
+  "hip_scale": 0.8509
+ },
+ {
+  "name": "Mx_Bow_Idle_02_Looking",
+  "loop": true,
+  "seconds": 3.07,
+  "frames": 93,
+  "keys": 762,
+  "source": "standing idle 02 looking.fbx",
+  "range_s": [
+   0.0,
+   3.066666666666667
+  ],
+  "autotrim": null,
+  "loop_pts": null,
+  "floor_fix_m": 0.052,
+  "contact_lift_m": 0.0,
+  "min_foot_m": -0.0,
+  "travel_m": 0.0,
+  "hip_scale": 0.8509
+ },
+ {
+  "name": "Mx_Bow_Idle_03_Examine",
+  "loop": true,
+  "seconds": 5.03,
+  "frames": 152,
+  "keys": 882,
+  "source": "standing idle 03 examine.fbx",
+  "range_s": [
+   0.0,
+   5.033333333333333
+  ],
+  "autotrim": null,
+  "loop_pts": null,
+  "floor_fix_m": 0.05,
+  "contact_lift_m": 0.0,
+  "min_foot_m": -0.0,
+  "travel_m": 0.0,
+  "hip_scale": 0.8509
+ },
+ {
+  "name": "Mx_Bow_Kick",
+  "loop": false,
+  "seconds": 1.43,
+  "frames": 44,
+  "keys": 1278,
+  "source": "standing melee kick.fbx",
+  "range_s": [
+   null,
+   null
+  ],
+  "autotrim": null,
+  "loop_pts": null,
+  "floor_fix_m": 0.051,
+  "contact_lift_m": 0.0,
+  "min_foot_m": -0.001,
+  "travel_m": 0.0,
+  "hip_scale": 0.8509
+ },
+ {
+  "name": "Mx_Bow_Punch",
+  "loop": false,
+  "seconds": 1.0,
+  "frames": 31,
+  "keys": 713,
+  "source": "standing melee punch.fbx",
+  "range_s": [
+   null,
+   null
+  ],
+  "autotrim": null,
+  "loop_pts": null,
+  "floor_fix_m": 0.051,
+  "contact_lift_m": 0.0,
+  "min_foot_m": -0.0,
+  "travel_m": 0.01,
+  "hip_scale": 0.8509
+ },
+ {
+  "name": "Mx_Bow_React_Small_From_Front",
+  "loop": false,
+  "seconds": 1.27,
+  "frames": 39,
+  "keys": 707,
+  "source": "standing react small from front.fbx",
+  "range_s": [
+   null,
+   null
+  ],
+  "autotrim": null,
+  "loop_pts": null,
+  "floor_fix_m": 0.053,
+  "contact_lift_m": 0.0,
+  "min_foot_m": -0.002,
+  "travel_m": 0.01,
+  "hip_scale": 0.8509
+ },
+ {
+  "name": "Mx_Bow_React_Small_From_Headshot",
+  "loop": false,
+  "seconds": 0.8,
+  "frames": 25,
+  "keys": 526,
+  "source": "standing react small from headshot.fbx",
+  "range_s": [
+   null,
+   null
+  ],
+  "autotrim": null,
+  "loop_pts": null,
+  "floor_fix_m": 0.05,
+  "contact_lift_m": 0.0,
+  "min_foot_m": -0.001,
+  "travel_m": 0.01,
+  "hip_scale": 0.8509
+ },
+ {
+  "name": "Mx_Bow_Run_Back",
+  "loop": true,
+  "seconds": 0.63,
+  "frames": 20,
+  "keys": 593,
+  "source": "standing run back.fbx",
+  "range_s": [
+   0.0,
+   0.6333333333333333
+  ],
+  "autotrim": null,
+  "loop_pts": null,
+  "floor_fix_m": 0.08,
+  "contact_lift_m": 0.0,
+  "min_foot_m": 0.002,
+  "travel_m": 1.56,
+  "hip_scale": 0.8509
+ },
+ {
+  "name": "Mx_Bow_Run_Forward_Stop",
+  "loop": false,
+  "seconds": 0.87,
+  "frames": 27,
+  "keys": 566,
+  "source": "standing run forward stop.fbx",
+  "range_s": [
+   null,
+   null
+  ],
+  "autotrim": null,
+  "loop_pts": null,
+  "floor_fix_m": 0.056,
+  "contact_lift_m": 0.0,
+  "min_foot_m": -0.002,
+  "travel_m": 0.36,
+  "hip_scale": 0.8509
+ },
+ {
+  "name": "Mx_Bow_Run_Forward",
+  "loop": true,
+  "seconds": 0.83,
+  "frames": 26,
+  "keys": 651,
+  "source": "standing run forward.fbx",
+  "range_s": [
+   0.0,
+   0.8333333333333334
+  ],
+  "autotrim": null,
+  "loop_pts": null,
+  "floor_fix_m": 0.08,
+  "contact_lift_m": 0.0,
+  "min_foot_m": -0.002,
+  "travel_m": 2.59,
+  "hip_scale": 0.8509
+ },
+ {
+  "name": "Mx_Bow_Run_Left",
+  "loop": true,
+  "seconds": 0.63,
+  "frames": 20,
+  "keys": 595,
+  "source": "standing run left.fbx",
+  "range_s": [
+   0.0,
+   0.6333333333333333
+  ],
+  "autotrim": null,
+  "loop_pts": null,
+  "floor_fix_m": 0.079,
+  "contact_lift_m": 0.0,
+  "min_foot_m": 0.002,
+  "travel_m": 1.71,
+  "hip_scale": 0.8509
+ },
+ {
+  "name": "Mx_Bow_Run_Right",
+  "loop": true,
+  "seconds": 0.73,
+  "frames": 23,
+  "keys": 613,
+  "source": "standing run right.fbx",
+  "range_s": [
+   0.0,
+   0.7333333333333333
+  ],
+  "autotrim": null,
+  "loop_pts": null,
+  "floor_fix_m": 0.069,
+  "contact_lift_m": 0.0,
+  "min_foot_m": -0.008,
+  "travel_m": 2.02,
+  "hip_scale": 0.8509
+ },
+ {
+  "name": "Mx_Bow_Turn_90_Left",
+  "loop": false,
+  "seconds": 1.27,
+  "frames": 39,
+  "keys": 664,
+  "source": "standing turn 90 left.fbx",
+  "range_s": [
+   null,
+   null
+  ],
+  "autotrim": null,
+  "loop_pts": null,
+  "floor_fix_m": 0.061,
+  "contact_lift_m": 0.0,
+  "min_foot_m": -0.0,
+  "travel_m": 0.02,
+  "hip_scale": 0.8509
+ },
+ {
+  "name": "Mx_Bow_Turn_90_Right",
+  "loop": false,
+  "seconds": 1.1,
+  "frames": 34,
+  "keys": 531,
+  "source": "standing turn 90 right.fbx",
+  "range_s": [
+   null,
+   null
+  ],
+  "autotrim": null,
+  "loop_pts": null,
+  "floor_fix_m": 0.06,
+  "contact_lift_m": 0.0,
+  "min_foot_m": -0.0,
+  "travel_m": 0.01,
+  "hip_scale": 0.8509
+ },
+ {
+  "name": "Mx_Bow_Walk_Back",
+  "loop": true,
+  "seconds": 1.43,
+  "frames": 44,
+  "keys": 504,
+  "source": "standing walk back.fbx",
+  "range_s": [
+   0.0,
+   1.4333333333333333
+  ],
+  "autotrim": null,
+  "loop_pts": null,
+  "floor_fix_m": 0.053,
+  "contact_lift_m": 0.0,
+  "min_foot_m": -0.0,
+  "travel_m": 1.16,
+  "hip_scale": 0.8509
+ },
+ {
+  "name": "Mx_Bow_Walk_Forward",
+  "loop": true,
+  "seconds": 1.17,
+  "frames": 36,
+  "keys": 454,
+  "source": "standing walk forward.fbx",
+  "range_s": [
+   0.0,
+   1.1666666666666667
+  ],
+  "autotrim": null,
+  "loop_pts": null,
+  "floor_fix_m": 0.054,
+  "contact_lift_m": 0.0,
+  "min_foot_m": -0.001,
+  "travel_m": 1.15,
+  "hip_scale": 0.8509
+ },
+ {
+  "name": "Mx_Bow_Walk_Left",
+  "loop": true,
+  "seconds": 1.17,
+  "frames": 36,
+  "keys": 554,
+  "source": "standing walk left.fbx",
+  "range_s": [
+   0.0,
+   1.1666666666666667
+  ],
+  "autotrim": null,
+  "loop_pts": null,
+  "floor_fix_m": 0.058,
+  "contact_lift_m": 0.0,
+  "min_foot_m": -0.0,
+  "travel_m": 1.49,
+  "hip_scale": 0.8509
+ },
+ {
+  "name": "Mx_Bow_Walk_Right",
+  "loop": true,
+  "seconds": 1.17,
+  "frames": 36,
+  "keys": 492,
+  "source": "standing walk right.fbx",
+  "range_s": [
+   0.0,
+   1.1666666666666667
+  ],
+  "autotrim": null,
+  "loop_pts": null,
+  "floor_fix_m": 0.054,
+  "contact_lift_m": 0.0,
+  "min_foot_m": -0.001,
+  "travel_m": 1.59,
+  "hip_scale": 0.8509
+ },
+ {
+  "name": "Mx_Bow_Unarmed_Idle_01",
+  "loop": true,
+  "seconds": 4.93,
+  "frames": 149,
+  "keys": 637,
+  "source": "unarmed idle 01.fbx",
+  "range_s": [
+   0.0,
+   4.933333333333334
+  ],
+  "autotrim": null,
+  "loop_pts": null,
+  "floor_fix_m": 0.05,
+  "contact_lift_m": 0.0,
+  "min_foot_m": -0.0,
+  "travel_m": 0.0,
+  "hip_scale": 0.8509
+ }
+]

@@ -25,6 +25,14 @@ const CombatStats := preload("res://scripts/combat/combat_stats.gd")
 const NpcCaster := preload("res://scripts/combat/npc_caster.gd")
 const BendingLibrary := preload("res://scripts/actors/bending_library.gd")
 const EffectSet := preload("res://scripts/abilities/effect_set.gd")
+const CombatMotion := preload("res://scripts/combat/combat_motion.gd")    # full-motion: root-motion swings warped onto the target
+const CombatChains := preload("res://scripts/combat/combat_chains.gd")
+## Full-motion fighters start a swing from this far: the clip's own steps (warped) close the gap, so blows travel.
+const FM_ATTACK_RANGE := 3.0
+## Several fighters on one target: only token holders (creature_attack_tokens.gd) close in; the rest circle at RING_R,
+## facing the fight, so a group spaces out instead of stacking into one body.
+const Tokens := preload("res://scripts/actors/creature_attack_tokens.gd")
+const RING_R := 3.6
 const SoldierAaaScript := preload("res://scripts/army/soldier_aaa.gd")      # AAA mocap swings / parry / head hits (docs/anim/aaa_wiring/)
 ## Pre-table soldier numbers. Army fights keep them: the table's HP/damage apply to duels with the player;
 ## blows between NPCs are multiplied by max_health / BASE_HP, so a 170-200 HP body loses the SAME FRACTION of its
@@ -123,7 +131,7 @@ func _ready() -> void:
 	_model = Assets.character(_file, 1.75, _keep)
 	add_child(_model)
 	_anim = Assets.animation_player(_model)
-	_animator = CharacterAnimator.new(_model, RUN, WALK)
+	_animator = CharacterAnimator.new(_model, RUN, WALK, "Walking_A", "Running_A", "Idle", true)   # stances: combat guard
 	_ragdoll = Ragdoll.attach(self, _model, [_animator.tree, _anim])
 	_sprite = MeshInstance3D.new()
 	_sprite.mesh = ImpostorBaker.quad()
@@ -162,7 +170,13 @@ func _physics_process(delta: float) -> void:
 	var casting: bool = _caster != null and _caster.is_casting()
 	if casting:
 		_face(to_goal)                       # planted: chanting or winding up
-	elif engaging and dist <= ATTACK_RANGE:
+	elif engaging and not _has_slot(dist):
+		_face(to_goal)
+		# wait your turn: hold the ring and side-step around the target (guard stance walk)
+		var radial := to_goal / maxf(dist, 0.01)
+		var tangent := Vector3(-radial.z, 0, radial.x) * (1.0 if get_instance_id() % 2 == 0 else -1.0)
+		desired = radial * clampf(dist - RING_R, -1.0, 1.0) * WALK + tangent * WALK * 0.45
+	elif engaging and dist <= _attack_range():
 		_face(to_goal)
 		if _attack_cooldown <= 0.0 and _busy <= 0.0:
 			_attack()
@@ -176,6 +190,13 @@ func _physics_process(delta: float) -> void:
 	if _busy > 0.0:
 		_velocity *= 0.4
 	var step_velocity := _velocity + _impulse
+	if _cmotion.active:
+		var tv := Vector3.ZERO
+		if engaging:
+			tv = combat_target.global_position - global_position
+		var rm: Dictionary = _cmotion.step(delta, rotation.y, tv)
+		rotation.y = float(rm["yaw"])
+		step_velocity = rm["vel"] + _impulse     # the swing owns the feet
 	var p := global_position + step_velocity * delta
 	_impulse = _impulse.move_toward(Vector3.ZERO, 25.0 * delta)
 	p.y = WorldGen.height(p.x, p.z)
@@ -200,6 +221,7 @@ func _physics_process(delta: float) -> void:
 		elif not engaging:
 			_face(squad.facing_for(self) if squad else Vector3.FORWARD)
 	if _model.visible:
+		_animator.set_stance(_guard_stance() if engaging and dist < 6.0 and not casting else "")
 		_animator.update(delta, planar)
 		_animator.set_blocking(_guard > 0.0)
 		if planar > 0.5:
@@ -244,12 +266,11 @@ func _pick_target_inner() -> void:
 
 func _separation() -> Vector3:
 	var push := Vector3.ZERO
-	if squad == null:
-		return push
-	for other in squad.soldiers:
-		if other == self:
+	var others: Array = squad.soldiers if squad else get_tree().get_nodes_in_group("team%d" % team)
+	for other in others:
+		if other == self or not (other is Node3D):
 			continue
-		var d := global_position - other.global_position
+		var d: Vector3 = global_position - (other as Node3D).global_position
 		d.y = 0.0
 		var len := d.length()
 		if len < 1.2 and len > 0.001:
@@ -295,12 +316,23 @@ func _attack() -> void:
 		clip_hit = aaa["contact"]
 		hit_delay = maxf(hit_delay, clip_hit / 1.6)           # the clip is rated 1.6x at most: the contact (and the telegraph) follow it
 		_busy = maxf(_busy, hit_delay + 0.3)
-	_animator.play_attack(swing_clip, clampf((clip_hit if clip_hit > 0.0 else 0.3) / maxf(hit_delay, 0.1), 0.6, 1.6), _velocity.length() < 0.3)
+	var swing_rate := clampf((clip_hit if clip_hit > 0.0 else 0.3) / maxf(hit_delay, 0.1), 0.6, 1.6)
+	var fm := _fm_swing()
+	if fm != null:
+		swing_clip = String(fm.anim)
+		swing_rate = fm.anim_speed
+		hit_delay = fm.hit_time()
+		_busy = fm.hit_time() + 0.45
+	_animator.play_attack(swing_clip, swing_rate, fm != null or _velocity.length() < 0.3)
+	_cmotion.stop()
+	var rm_anim: Animation = CombatMotion.anim_of(_animator, swing_clip) if fm != null else null
+	if rm_anim != null:
+		_cmotion.begin(rm_anim, swing_rate, hit_delay * swing_rate, _model.scale.x, 1.25)
 	var move := _cur_move
 	Telegraph.begin(self, move, move.reach if move != null else ATTACK_RANGE, hit_delay)
 	get_tree().create_timer(hit_delay).timeout.connect(func() -> void:
 		if not dead and is_instance_valid(victim) and not victim.get("dead") \
-				and global_position.distance_to(victim.global_position) < ATTACK_RANGE + 0.5:
+				and global_position.distance_to(victim.global_position) < ATTACK_RANGE + 0.6:
 			victim.take_damage(dmg, self)
 			Audio.sfx("clash" if randf() < 0.5 else "hit", global_position, -6.0)
 		if _cur_move == move:
@@ -318,6 +350,7 @@ func attack_info() -> Dictionary:
 func take_damage(amount: int, from: Node = null, knockback := Vector3.ZERO) -> void:
 	if dead:
 		return
+	_cmotion.stop()      # a hit cuts the swing's travel
 	if _caster != null and amount > 0:
 		amount = int(_caster.deal(float(amount))["amount"])      # wards and absorbs soak a blow before it lands (raw blow units, then army scaling)
 		if amount <= 0:
@@ -405,6 +438,7 @@ func _hit_side(from: Node) -> String:
 
 
 func _die() -> void:
+	Tokens.release(self)
 	dead = true
 	_release_caster()
 	remove_from_group("team%d" % team)
@@ -560,6 +594,42 @@ func _tick_foe_fx(delta: float) -> void:
 func _get_up() -> void:
 	_animator.stop_full()
 	_animator.stop_upper()
+
+
+var _cmotion := CombatMotion.new()
+var _fm_pick := 0
+
+
+## True when this fighter may close in on its target (always, unless another fighter holds the slot).
+func _has_slot(dist: float) -> bool:
+	if combat_target == null or not combat_target.is_in_group("player") or dist > ENGAGE_RANGE:
+		return true
+	Tokens.engage(self, combat_target)
+	return Tokens.request(self, combat_target, 1) or _busy > 0.0
+
+
+func _fm_style() -> String:
+	return "greatsword" if "2H_Sword" in _keep else "sword"
+
+
+func _guard_stance() -> String:
+	return "guard_" + _fm_style() if CombatChains.has_style(_fm_style()) else ""
+
+
+func _attack_range() -> float:
+	return FM_ATTACK_RANGE if CombatChains.has_style(_fm_style()) else ATTACK_RANGE
+
+
+## A full-motion swing row for this fighter: heavy moves (cleave / bash) take the finisher, others walk the light chain.
+func _fm_swing() -> Resource:
+	var style := _fm_style()
+	var chain := CombatChains.combo(style)
+	if chain.is_empty():
+		return null
+	if _cur_move != null and (bool(_cur_move.unblockable) or float(_cur_move.poise_damage) >= 20.0):
+		return chain[chain.size() - 1]
+	_fm_pick = (_fm_pick + 1) % (chain.size() - 1)
+	return chain[_fm_pick]
 
 
 func _face(dir: Vector3) -> void:

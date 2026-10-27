@@ -1,0 +1,971 @@
+[
+ {
+  "name": "Mx_SnS_Draw_Sword_1",
+  "loop": false,
+  "seconds": 0.5,
+  "frames": 16,
+  "keys": 550,
+  "source": "draw sword 1.fbx",
+  "range_s": [
+   null,
+   null
+  ],
+  "autotrim": null,
+  "loop_pts": null,
+  "floor_fix_m": 0.045,
+  "contact_lift_m": 0.0,
+  "min_foot_m": 0.0,
+  "travel_m": 0.06,
+  "hip_scale": 0.8509
+ },
+ {
+  "name": "Mx_SnS_Draw_Sword_2",
+  "loop": false,
+  "seconds": 0.77,
+  "frames": 24,
+  "keys": 476,
+  "source": "draw sword 2.fbx",
+  "range_s": [
+   null,
+   null
+  ],
+  "autotrim": null,
+  "loop_pts": null,
+  "floor_fix_m": 0.054,
+  "contact_lift_m": 0.0,
+  "min_foot_m": -0.001,
+  "travel_m": 0.08,
+  "hip_scale": 0.8509
+ },
+ {
+  "name": "Mx_SnS_Sheath_Sword_1",
+  "loop": false,
+  "seconds": 1.27,
+  "frames": 39,
+  "keys": 495,
+  "source": "sheath sword 1.fbx",
+  "range_s": [
+   null,
+   null
+  ],
+  "autotrim": null,
+  "loop_pts": null,
+  "floor_fix_m": 0.051,
+  "contact_lift_m": 0.0,
+  "min_foot_m": -0.003,
+  "travel_m": 0.07,
+  "hip_scale": 0.8509
+ },
+ {
+  "name": "Mx_SnS_Sheath_Sword_2",
+  "loop": false,
+  "seconds": 0.8,
+  "frames": 25,
+  "keys": 575,
+  "source": "sheath sword 2.fbx",
+  "range_s": [
+   null,
+   null
+  ],
+  "autotrim": null,
+  "loop_pts": null,
+  "floor_fix_m": 0.045,
+  "contact_lift_m": 0.0,
+  "min_foot_m": -0.0,
+  "travel_m": 0.07,
+  "hip_scale": 0.8509
+ },
+ {
+  "name": "Mx_SnS_180_Turn_2",
+  "loop": false,
+  "seconds": 0.83,
+  "frames": 26,
+  "keys": 537,
+  "source": "sword and shield 180 turn (2).fbx",
+  "range_s": [
+   null,
+   null
+  ],
+  "autotrim": null,
+  "loop_pts": null,
+  "floor_fix_m": 0.066,
+  "contact_lift_m": 0.0,
+  "min_foot_m": -0.0,
+  "travel_m": 0.43,
+  "hip_scale": 0.8509
+ },
+ {
+  "name": "Mx_SnS_180_Turn",
+  "loop": false,
+  "seconds": 0.8,
+  "frames": 25,
+  "keys": 465,
+  "source": "sword and shield 180 turn.fbx",
+  "range_s": [
+   null,
+   null
+  ],
+  "autotrim": null,
+  "loop_pts": null,
+  "floor_fix_m": 0.049,
+  "contact_lift_m": 0.0,
+  "min_foot_m": -0.0,
+  "travel_m": 0.22,
+  "hip_scale": 0.8509
+ },
+ {
+  "name": "Mx_SnS_Attack_2",
+  "loop": false,
+  "seconds": 1.3,
+  "frames": 40,
+  "keys": 770,
+  "source": "sword and shield attack (2).fbx",
+  "range_s": [
+   null,
+   null
+  ],
+  "autotrim": null,
+  "loop_pts": null,
+  "floor_fix_m": 0.066,
+  "contact_lift_m": 0.0,
+  "min_foot_m": -0.0,
+  "travel_m": 2.39,
+  "hip_scale": 0.8509
+ },
+ {
+  "name": "Mx_SnS_Attack_3",
+  "loop": false,
+  "seconds": 1.73,
+  "frames": 53,
+  "keys": 1316,
+  "source": "sword and shield attack (3).fbx",
+  "range_s": [
+   null,
+   null
+  ],
+  "autotrim": null,
+  "loop_pts": null,
+  "floor_fix_m": 0.06,
+  "contact_lift_m": 0.0,
+  "min_foot_m": -0.007,
+  "travel_m": 2.05,
+  "hip_scale": 0.8509
+ },
+ {
+  "name": "Mx_SnS_Attack_4",
+  "loop": false,
+  "seconds": 1.0,
+  "frames": 31,
+  "keys": 598,
+  "source": "sword and shield attack (4).fbx",
+  "range_s": [
+   null,
+   null
+  ],
+  "autotrim": null,
+  "loop_pts": null,
+  "floor_fix_m": 0.054,
+  "contact_lift_m": 0.0,
+  "min_foot_m": -0.0,
+  "travel_m": 0.01,
+  "hip_scale": 0.8509
+ },
+ {
+  "name": "Mx_SnS_Attack",
+  "loop": false,
+  "seconds": 2.33,
+  "frames": 71,
+  "keys": 1756,
+  "source": "sword and shield attack.fbx",
+  "range_s": [
+   null,
+   null
+  ],
+  "autotrim": null,
+  "loop_pts": null,
+  "floor_fix_m": 0.064,
+  "contact_lift_m": 0.0,
+  "min_foot_m": -0.004,
+  "travel_m": 3.04,
+  "hip_scale": 0.8509
+ },
+ {
+  "name": "Mx_SnS_Block_2",
+  "loop": false,
+  "seconds": 0.5,
+  "frames": 16,
+  "keys": 313,
+  "source": "sword and shield block (2).fbx",
+  "range_s": [
+   null,
+   null
+  ],
+  "autotrim": null,
+  "loop_pts": null,
+  "floor_fix_m": 0.051,
+  "contact_lift_m": 0.0,
+  "min_foot_m": 0.001,
+  "travel_m": 0.24,
+  "hip_scale": 0.8509
+ },
+ {
+  "name": "Mx_SnS_Block_Idle",
+  "loop": true,
+  "seconds": 1.33,
+  "frames": 41,
+  "keys": 170,
+  "source": "sword and shield block idle.fbx",
+  "range_s": [
+   0.0,
+   1.3333333333333333
+  ],
+  "autotrim": null,
+  "loop_pts": null,
+  "floor_fix_m": 0.047,
+  "contact_lift_m": 0.0,
+  "min_foot_m": -0.0,
+  "travel_m": 0.0,
+  "hip_scale": 0.8509
+ },
+ {
+  "name": "Mx_SnS_Block",
+  "loop": false,
+  "seconds": 0.57,
+  "frames": 18,
+  "keys": 317,
+  "source": "sword and shield block.fbx",
+  "range_s": [
+   null,
+   null
+  ],
+  "autotrim": null,
+  "loop_pts": null,
+  "floor_fix_m": 0.057,
+  "contact_lift_m": 0.0,
+  "min_foot_m": 0.0,
+  "travel_m": 0.21,
+  "hip_scale": 0.8509
+ },
+ {
+  "name": "Mx_SnS_Casting_2",
+  "loop": false,
+  "seconds": 1.03,
+  "frames": 32,
+  "keys": 553,
+  "source": "sword and shield casting (2).fbx",
+  "range_s": [
+   null,
+   null
+  ],
+  "autotrim": null,
+  "loop_pts": null,
+  "floor_fix_m": 0.055,
+  "contact_lift_m": 0.0,
+  "min_foot_m": -0.0,
+  "travel_m": 0.0,
+  "hip_scale": 0.8509
+ },
+ {
+  "name": "Mx_SnS_Casting",
+  "loop": false,
+  "seconds": 2.97,
+  "frames": 90,
+  "keys": 967,
+  "source": "sword and shield casting.fbx",
+  "range_s": [
+   null,
+   null
+  ],
+  "autotrim": null,
+  "loop_pts": null,
+  "floor_fix_m": 0.071,
+  "contact_lift_m": 0.075,
+  "min_foot_m": -0.009,
+  "travel_m": 0.01,
+  "hip_scale": 0.8509
+ },
+ {
+  "name": "Mx_SnS_Crouch_Block_2",
+  "loop": false,
+  "seconds": 0.67,
+  "frames": 21,
+  "keys": 347,
+  "source": "sword and shield crouch block (2).fbx",
+  "range_s": [
+   null,
+   null
+  ],
+  "autotrim": null,
+  "loop_pts": null,
+  "floor_fix_m": 0.0,
+  "contact_lift_m": 0.005,
+  "min_foot_m": -0.02,
+  "travel_m": 0.01,
+  "hip_scale": 0.8509
+ },
+ {
+  "name": "Mx_SnS_Crouch_Block_Idle",
+  "loop": true,
+  "seconds": 0.23,
+  "frames": 8,
+  "keys": 111,
+  "source": "sword and shield crouch block idle.fbx",
+  "range_s": [
+   0.0,
+   0.23333333333333334
+  ],
+  "autotrim": null,
+  "loop_pts": null,
+  "floor_fix_m": 0.0,
+  "contact_lift_m": 0.0,
+  "min_foot_m": -0.016,
+  "travel_m": 0.0,
+  "hip_scale": 0.8509
+ },
+ {
+  "name": "Mx_SnS_Crouch_Block",
+  "loop": false,
+  "seconds": 0.47,
+  "frames": 15,
+  "keys": 419,
+  "source": "sword and shield crouch block.fbx",
+  "range_s": [
+   null,
+   null
+  ],
+  "autotrim": null,
+  "loop_pts": null,
+  "floor_fix_m": 0.0,
+  "contact_lift_m": 0.008,
+  "min_foot_m": -0.02,
+  "travel_m": 0.25,
+  "hip_scale": 0.8509
+ },
+ {
+  "name": "Mx_SnS_Crouch_Idle",
+  "loop": true,
+  "seconds": 2.37,
+  "frames": 72,
+  "keys": 194,
+  "source": "sword and shield crouch idle.fbx",
+  "range_s": [
+   0.0,
+   2.3666666666666667
+  ],
+  "autotrim": null,
+  "loop_pts": null,
+  "floor_fix_m": 0.0,
+  "contact_lift_m": 0.008,
+  "min_foot_m": -0.02,
+  "travel_m": 0.0,
+  "hip_scale": 0.8509
+ },
+ {
+  "name": "Mx_SnS_Crouch",
+  "loop": false,
+  "seconds": 0.57,
+  "frames": 18,
+  "keys": 282,
+  "source": "sword and shield crouch.fbx",
+  "range_s": [
+   null,
+   null
+  ],
+  "autotrim": null,
+  "loop_pts": null,
+  "floor_fix_m": 0.06,
+  "contact_lift_m": 0.0,
+  "min_foot_m": 0.0,
+  "travel_m": 0.21,
+  "hip_scale": 0.8509
+ },
+ {
+  "name": "Mx_SnS_Crouching_2",
+  "loop": true,
+  "seconds": 0.37,
+  "frames": 12,
+  "keys": 173,
+  "source": "sword and shield crouching (2).fbx",
+  "range_s": [
+   0.0,
+   0.36666666666666664
+  ],
+  "autotrim": null,
+  "loop_pts": null,
+  "floor_fix_m": 0.0,
+  "contact_lift_m": 0.007,
+  "min_foot_m": -0.02,
+  "travel_m": 0.21,
+  "hip_scale": 0.8509
+ },
+ {
+  "name": "Mx_SnS_Crouching_3",
+  "loop": true,
+  "seconds": 0.6,
+  "frames": 19,
+  "keys": 318,
+  "source": "sword and shield crouching (3).fbx",
+  "range_s": [
+   0.0,
+   0.6
+  ],
+  "autotrim": null,
+  "loop_pts": null,
+  "floor_fix_m": 0.0,
+  "contact_lift_m": 0.016,
+  "min_foot_m": -0.02,
+  "travel_m": 0.0,
+  "hip_scale": 0.8509
+ },
+ {
+  "name": "Mx_SnS_Crouching",
+  "loop": true,
+  "seconds": 0.47,
+  "frames": 15,
+  "keys": 255,
+  "source": "sword and shield crouching.fbx",
+  "range_s": [
+   0.0,
+   0.4666666666666667
+  ],
+  "autotrim": null,
+  "loop_pts": null,
+  "floor_fix_m": 0.054,
+  "contact_lift_m": 0.0,
+  "min_foot_m": -0.0,
+  "travel_m": 0.22,
+  "hip_scale": 0.8509
+ },
+ {
+  "name": "Mx_SnS_Death_2",
+  "loop": false,
+  "seconds": 3.9,
+  "frames": 118,
+  "keys": 1158,
+  "source": "sword and shield death (2).fbx",
+  "range_s": [
+   null,
+   null
+  ],
+  "autotrim": null,
+  "loop_pts": null,
+  "floor_fix_m": 0.114,
+  "contact_lift_m": 0.109,
+  "min_foot_m": -0.001,
+  "travel_m": 0.88,
+  "hip_scale": 0.8509
+ },
+ {
+  "name": "Mx_SnS_Death",
+  "loop": false,
+  "seconds": 2.3,
+  "frames": 70,
+  "keys": 930,
+  "source": "sword and shield death.fbx",
+  "range_s": [
+   null,
+   null
+  ],
+  "autotrim": null,
+  "loop_pts": null,
+  "floor_fix_m": 0.032,
+  "contact_lift_m": 0.025,
+  "min_foot_m": -0.02,
+  "travel_m": 1.05,
+  "hip_scale": 0.8509
+ },
+ {
+  "name": "Mx_SnS_Idle_2",
+  "loop": true,
+  "seconds": 7.4,
+  "frames": 223,
+  "keys": 1089,
+  "source": "sword and shield idle (2).fbx",
+  "range_s": [
+   0.0,
+   7.4
+  ],
+  "autotrim": null,
+  "loop_pts": null,
+  "floor_fix_m": 0.056,
+  "contact_lift_m": 0.0,
+  "min_foot_m": -0.001,
+  "travel_m": 0.01,
+  "hip_scale": 0.8509
+ },
+ {
+  "name": "Mx_SnS_Idle_3",
+  "loop": true,
+  "seconds": 8.63,
+  "frames": 260,
+  "keys": 1270,
+  "source": "sword and shield idle (3).fbx",
+  "range_s": [
+   0.0,
+   8.633333333333333
+  ],
+  "autotrim": null,
+  "loop_pts": null,
+  "floor_fix_m": 0.06,
+  "contact_lift_m": 0.0,
+  "min_foot_m": -0.0,
+  "travel_m": 0.0,
+  "hip_scale": 0.8509
+ },
+ {
+  "name": "Mx_SnS_Idle_4",
+  "loop": true,
+  "seconds": 2.47,
+  "frames": 75,
+  "keys": 264,
+  "source": "sword and shield idle (4).fbx",
+  "range_s": [
+   0.0,
+   2.466666666666667
+  ],
+  "autotrim": null,
+  "loop_pts": null,
+  "floor_fix_m": 0.055,
+  "contact_lift_m": 0.0,
+  "min_foot_m": -0.0,
+  "travel_m": 0.0,
+  "hip_scale": 0.8509
+ },
+ {
+  "name": "Mx_SnS_Idle",
+  "loop": true,
+  "seconds": 3.57,
+  "frames": 108,
+  "keys": 616,
+  "source": "sword and shield idle.fbx",
+  "range_s": [
+   0.0,
+   3.566666666666667
+  ],
+  "autotrim": null,
+  "loop_pts": null,
+  "floor_fix_m": 0.053,
+  "contact_lift_m": 0.0,
+  "min_foot_m": -0.001,
+  "travel_m": 0.01,
+  "hip_scale": 0.8509
+ },
+ {
+  "name": "Mx_SnS_Impact_2",
+  "loop": false,
+  "seconds": 0.97,
+  "frames": 30,
+  "keys": 455,
+  "source": "sword and shield impact (2).fbx",
+  "range_s": [
+   null,
+   null
+  ],
+  "autotrim": null,
+  "loop_pts": null,
+  "floor_fix_m": 0.069,
+  "contact_lift_m": 0.0,
+  "min_foot_m": -0.0,
+  "travel_m": 0.01,
+  "hip_scale": 0.8509
+ },
+ {
+  "name": "Mx_SnS_Impact_3",
+  "loop": false,
+  "seconds": 0.7,
+  "frames": 22,
+  "keys": 441,
+  "source": "sword and shield impact (3).fbx",
+  "range_s": [
+   null,
+   null
+  ],
+  "autotrim": null,
+  "loop_pts": null,
+  "floor_fix_m": 0.054,
+  "contact_lift_m": 0.0,
+  "min_foot_m": -0.0,
+  "travel_m": 0.02,
+  "hip_scale": 0.8509
+ },
+ {
+  "name": "Mx_SnS_Impact",
+  "loop": false,
+  "seconds": 0.7,
+  "frames": 22,
+  "keys": 478,
+  "source": "sword and shield impact.fbx",
+  "range_s": [
+   null,
+   null
+  ],
+  "autotrim": null,
+  "loop_pts": null,
+  "floor_fix_m": 0.046,
+  "contact_lift_m": 0.0,
+  "min_foot_m": -0.0,
+  "travel_m": 0.01,
+  "hip_scale": 0.8509
+ },
+ {
+  "name": "Mx_SnS_Jump_2",
+  "loop": false,
+  "seconds": 0.97,
+  "frames": 30,
+  "keys": 690,
+  "source": "sword and shield jump (2).fbx",
+  "range_s": [
+   null,
+   null
+  ],
+  "autotrim": null,
+  "loop_pts": null,
+  "floor_fix_m": 0.054,
+  "contact_lift_m": 0.0,
+  "min_foot_m": -0.0,
+  "travel_m": 0.0,
+  "hip_scale": 0.8509
+ },
+ {
+  "name": "Mx_SnS_Jump",
+  "loop": false,
+  "seconds": 0.83,
+  "frames": 26,
+  "keys": 556,
+  "source": "sword and shield jump.fbx",
+  "range_s": [
+   null,
+   null
+  ],
+  "autotrim": null,
+  "loop_pts": null,
+  "floor_fix_m": 0.066,
+  "contact_lift_m": 0.0,
+  "min_foot_m": -0.0,
+  "travel_m": 2.05,
+  "hip_scale": 0.8509
+ },
+ {
+  "name": "Mx_SnS_Kick",
+  "loop": false,
+  "seconds": 1.2,
+  "frames": 37,
+  "keys": 956,
+  "source": "sword and shield kick.fbx",
+  "range_s": [
+   null,
+   null
+  ],
+  "autotrim": null,
+  "loop_pts": null,
+  "floor_fix_m": 0.058,
+  "contact_lift_m": 0.0,
+  "min_foot_m": -0.002,
+  "travel_m": 0.01,
+  "hip_scale": 0.8509
+ },
+ {
+  "name": "Mx_SnS_Power_Up",
+  "loop": false,
+  "seconds": 2.37,
+  "frames": 72,
+  "keys": 794,
+  "source": "sword and shield power up.fbx",
+  "range_s": [
+   null,
+   null
+  ],
+  "autotrim": null,
+  "loop_pts": null,
+  "floor_fix_m": 0.054,
+  "contact_lift_m": 0.0,
+  "min_foot_m": -0.0,
+  "travel_m": 0.0,
+  "hip_scale": 0.8509
+ },
+ {
+  "name": "Mx_SnS_Run_2",
+  "loop": true,
+  "seconds": 0.5,
+  "frames": 16,
+  "keys": 385,
+  "source": "sword and shield run (2).fbx",
+  "range_s": [
+   0.0,
+   0.5
+  ],
+  "autotrim": null,
+  "loop_pts": null,
+  "floor_fix_m": 0.05,
+  "contact_lift_m": 0.0,
+  "min_foot_m": 0.001,
+  "travel_m": 1.87,
+  "hip_scale": 0.8509
+ },
+ {
+  "name": "Mx_SnS_Run",
+  "loop": true,
+  "seconds": 0.67,
+  "frames": 21,
+  "keys": 468,
+  "source": "sword and shield run.fbx",
+  "range_s": [
+   0.0,
+   0.6666666666666666
+  ],
+  "autotrim": null,
+  "loop_pts": null,
+  "floor_fix_m": 0.074,
+  "contact_lift_m": 0.0,
+  "min_foot_m": -0.006,
+  "travel_m": 2.35,
+  "hip_scale": 0.8509
+ },
+ {
+  "name": "Mx_SnS_Slash_2",
+  "loop": false,
+  "seconds": 3.53,
+  "frames": 107,
+  "keys": 2945,
+  "source": "sword and shield slash (2).fbx",
+  "range_s": [
+   null,
+   null
+  ],
+  "autotrim": null,
+  "loop_pts": null,
+  "floor_fix_m": 0.066,
+  "contact_lift_m": 0.0,
+  "min_foot_m": -0.011,
+  "travel_m": 2.09,
+  "hip_scale": 0.8509
+ },
+ {
+  "name": "Mx_SnS_Slash_3",
+  "loop": false,
+  "seconds": 1.57,
+  "frames": 48,
+  "keys": 870,
+  "source": "sword and shield slash (3).fbx",
+  "range_s": [
+   null,
+   null
+  ],
+  "autotrim": null,
+  "loop_pts": null,
+  "floor_fix_m": 0.054,
+  "contact_lift_m": 0.0,
+  "min_foot_m": -0.001,
+  "travel_m": 0.01,
+  "hip_scale": 0.8509
+ },
+ {
+  "name": "Mx_SnS_Slash_4",
+  "loop": false,
+  "seconds": 2.3,
+  "frames": 70,
+  "keys": 1958,
+  "source": "sword and shield slash (4).fbx",
+  "range_s": [
+   null,
+   null
+  ],
+  "autotrim": null,
+  "loop_pts": null,
+  "floor_fix_m": 0.068,
+  "contact_lift_m": 0.0,
+  "min_foot_m": -0.011,
+  "travel_m": 0.87,
+  "hip_scale": 0.8509
+ },
+ {
+  "name": "Mx_SnS_Slash_5",
+  "loop": false,
+  "seconds": 1.37,
+  "frames": 42,
+  "keys": 732,
+  "source": "sword and shield slash (5).fbx",
+  "range_s": [
+   null,
+   null
+  ],
+  "autotrim": null,
+  "loop_pts": null,
+  "floor_fix_m": 0.0,
+  "contact_lift_m": 0.047,
+  "min_foot_m": -0.02,
+  "travel_m": 0.01,
+  "hip_scale": 0.8509
+ },
+ {
+  "name": "Mx_SnS_Slash",
+  "loop": false,
+  "seconds": 1.5,
+  "frames": 46,
+  "keys": 785,
+  "source": "sword and shield slash.fbx",
+  "range_s": [
+   null,
+   null
+  ],
+  "autotrim": null,
+  "loop_pts": null,
+  "floor_fix_m": 0.086,
+  "contact_lift_m": 0.0,
+  "min_foot_m": -0.001,
+  "travel_m": 0.02,
+  "hip_scale": 0.8509
+ },
+ {
+  "name": "Mx_SnS_Strafe_2",
+  "loop": true,
+  "seconds": 1.27,
+  "frames": 39,
+  "keys": 489,
+  "source": "sword and shield strafe (2).fbx",
+  "range_s": [
+   0.0,
+   1.2666666666666666
+  ],
+  "autotrim": null,
+  "loop_pts": null,
+  "floor_fix_m": 0.045,
+  "contact_lift_m": 0.0,
+  "min_foot_m": -0.0,
+  "travel_m": 1.16,
+  "hip_scale": 0.8509
+ },
+ {
+  "name": "Mx_SnS_Strafe_3",
+  "loop": true,
+  "seconds": 0.63,
+  "frames": 20,
+  "keys": 436,
+  "source": "sword and shield strafe (3).fbx",
+  "range_s": [
+   0.0,
+   0.6333333333333333
+  ],
+  "autotrim": null,
+  "loop_pts": null,
+  "floor_fix_m": 0.053,
+  "contact_lift_m": 0.0,
+  "min_foot_m": 0.0,
+  "travel_m": 1.87,
+  "hip_scale": 0.8509
+ },
+ {
+  "name": "Mx_SnS_Strafe_4",
+  "loop": true,
+  "seconds": 0.67,
+  "frames": 21,
+  "keys": 399,
+  "source": "sword and shield strafe (4).fbx",
+  "range_s": [
+   0.0,
+   0.6666666666666666
+  ],
+  "autotrim": null,
+  "loop_pts": null,
+  "floor_fix_m": 0.055,
+  "contact_lift_m": 0.0,
+  "min_foot_m": -0.004,
+  "travel_m": 1.94,
+  "hip_scale": 0.8509
+ },
+ {
+  "name": "Mx_SnS_Strafe",
+  "loop": true,
+  "seconds": 1.1,
+  "frames": 34,
+  "keys": 458,
+  "source": "sword and shield strafe.fbx",
+  "range_s": [
+   0.0,
+   1.1
+  ],
+  "autotrim": null,
+  "loop_pts": null,
+  "floor_fix_m": 0.049,
+  "contact_lift_m": 0.0,
+  "min_foot_m": -0.0,
+  "travel_m": 1.14,
+  "hip_scale": 0.8509
+ },
+ {
+  "name": "Mx_SnS_Turn_2",
+  "loop": false,
+  "seconds": 0.93,
+  "frames": 29,
+  "keys": 409,
+  "source": "sword and shield turn (2).fbx",
+  "range_s": [
+   null,
+   null
+  ],
+  "autotrim": null,
+  "loop_pts": null,
+  "floor_fix_m": 0.056,
+  "contact_lift_m": 0.0,
+  "min_foot_m": -0.001,
+  "travel_m": 0.04,
+  "hip_scale": 0.8509
+ },
+ {
+  "name": "Mx_SnS_Turn",
+  "loop": false,
+  "seconds": 0.87,
+  "frames": 27,
+  "keys": 397,
+  "source": "sword and shield turn.fbx",
+  "range_s": [
+   null,
+   null
+  ],
+  "autotrim": null,
+  "loop_pts": null,
+  "floor_fix_m": 0.057,
+  "contact_lift_m": 0.0,
+  "min_foot_m": -0.0,
+  "travel_m": 0.06,
+  "hip_scale": 0.8509
+ },
+ {
+  "name": "Mx_SnS_Walk_2",
+  "loop": true,
+  "seconds": 1.23,
+  "frames": 38,
+  "keys": 450,
+  "source": "sword and shield walk (2).fbx",
+  "range_s": [
+   0.0,
+   1.2333333333333334
+  ],
+  "autotrim": null,
+  "loop_pts": null,
+  "floor_fix_m": 0.054,
+  "contact_lift_m": 0.0,
+  "min_foot_m": -0.0,
+  "travel_m": 1.2,
+  "hip_scale": 0.8509
+ },
+ {
+  "name": "Mx_SnS_Walk",
+  "loop": true,
+  "seconds": 1.07,
+  "frames": 33,
+  "keys": 464,
+  "source": "sword and shield walk.fbx",
+  "range_s": [
+   0.0,
+   1.0666666666666667
+  ],
+  "autotrim": null,
+  "loop_pts": null,
+  "floor_fix_m": 0.048,
+  "contact_lift_m": 0.0,
+  "min_foot_m": -0.001,
+  "travel_m": 1.37,
+  "hip_scale": 0.8509
+ }
+]

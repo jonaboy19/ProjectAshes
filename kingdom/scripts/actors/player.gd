@@ -205,6 +205,10 @@ const PlayerArms := preload("res://scripts/actors/player_arms.gd")   # F3: heavy
 const HitResolver := preload("res://scripts/combat/hit_resolver.gd")
 const CombatFeedback := preload("res://scripts/combat/combat_feedback.gd")
 const CombatFeel := preload("res://scripts/combat/combat_feel.gd")
+## Full-motion combat: root-motion attacks warped onto the target (combat-motion worker; scripts/combat/combat_motion.gd).
+const CombatMotion := preload("res://scripts/combat/combat_motion.gd")
+const CombatChains := preload("res://scripts/combat/combat_chains.gd")
+var _cmotion := CombatMotion.new()
 const EnemyHighlight := preload("res://scripts/combat/enemy_highlight.gd")
 const ChaseCamera := preload("res://scripts/actors/chase_camera.gd")
 const SurfaceFX := preload("res://scripts/world/surface_feedback.gd")
@@ -777,6 +781,7 @@ func _physics_process(delta: float) -> void:
 	_track_block(delta)
 	_animator.set_blocking(blocking)
 	_consume_buffers()
+	_update_guard_stance(delta)
 
 	var sprint := Input.is_action_pressed("sprint")
 	if sprint and crouching and dir.length() > 0.1:
@@ -798,7 +803,7 @@ func _physics_process(delta: float) -> void:
 	if _carry_busy > 0.0:
 		speed = 0.0               # bending down for the load / setting it down
 	if _swing > 0.0:
-		speed *= 0.4
+		speed *= 0.0 if _cmotion.active else 0.4      # a root-motion swing owns its travel
 	if _flinch > 0.0:
 		speed *= 0.5
 	if swimming:
@@ -838,6 +843,8 @@ func _physics_process(delta: float) -> void:
 	else:
 		_steer(target, delta, (0.2 if _jump_running else AIR_CONTROL) if _jump_active else (1.0 if grounded else AIR_CONTROL))
 	var planar := _move_dir * _move_speed + _impulse
+	if _cmotion.active:
+		planar += _cmotion_step(delta)
 	velocity.x = planar.x
 	velocity.z = planar.z
 	_impulse = _impulse.move_toward(Vector3.ZERO, IMPULSE_DECEL * delta)
@@ -2238,7 +2245,7 @@ func _start_swing() -> void:
 		_animator.stop_full()
 	var steps := CombatMoves.combo(combat_style)
 	_combo = (_combo + 1) % steps.size() if _combo_window > 0.0 else 0
-	var action: Resource = _arms.take_forced(steps[_combo])    # a released heavy replaces the combo step
+	var action: Resource = _arms.take_forced(CombatChains.pick(combat_style, steps, _combo, _local_input()))    # a held direction picks the cut    # a released heavy replaces the combo step
 	_action = action
 	var weak: bool = stamina < action.cost
 	# A tired swing plays at 0.7x, so its blade (and hit) arrives later too.
@@ -2246,7 +2253,14 @@ func _start_swing() -> void:
 	_spend(action.cost)
 	# Target assist: face the locked target, else snap toward an enemy roughly in front.
 	var target: Node3D = _magnet_target()
-	if target:
+	var rate_rm: float = action.anim_speed * (0.7 if weak else 1.0)
+	var rm_anim: Animation = CombatMotion.anim_of(_animator, String(action.anim)) if action.root_motion else null
+	_cmotion.stop()
+	if rm_anim != null:
+		# Root-motion swing: the clip's own steps carry the body, warped onto the target (turn + stretch, combat_motion.gd).
+		_cmotion.begin(rm_anim, rate_rm, hit_t * rate_rm, _model.scale.x, LUNGE_STANDOFF)
+		_cmotion_target = target
+	elif target:
 		var to := target.global_position - global_position
 		_model.rotation.y = atan2(to.x, to.z)
 	var lunge := ATTACK_LUNGE
@@ -2261,7 +2275,9 @@ func _start_swing() -> void:
 	var gap_to_standoff := 0.0
 	if target:
 		gap_to_standoff = Vector2(target.global_position.x - global_position.x, target.global_position.z - global_position.z).length() - LUNGE_STANDOFF
-	if action.root_motion and standing and step_m > 0.0 and gap_to_standoff <= 0.6:
+	if _cmotion.active:
+		pass
+	elif action.root_motion and standing and step_m > 0.0 and gap_to_standoff <= 0.6:
 		# P9: a standing swing lunges by the clip's authored step, starting on its step frame, so the lead foot plants where the capsule stops.
 		if target:
 			step_m = minf(step_m, maxf(Vector2(target.global_position.x - global_position.x, target.global_position.z - global_position.z).length() - LUNGE_STANDOFF, 0.0))
@@ -2289,6 +2305,52 @@ func _start_swing() -> void:
 	swing_started.emit(action, {"hit_t": hit_t, "yaw": _model.rotation.y, "weak": weak, "riposte": riposte,
 		"combo": _combo, "anim_speed": rate, "first_person": _viewmodel.visible, "id": _swing_id})
 	get_tree().create_timer(hit_t).timeout.connect(_resolve_hit.bind(damage, action.knockback, action.finisher, _swing_id))
+
+
+var _cmotion_target: Node3D
+var _guard_check := 0.0
+
+
+## Combat guard stance: blade drawn and a living foe within GUARD_RANGE -> the weapon's bent-knee guard idle / armed walk
+## (CharacterAnimator STANCES guard_*); only toggles between "" and guard_* so crouch / swim / ride keep their own.
+const GUARD_RANGE := 7.0
+func _update_guard_stance(delta: float) -> void:
+	_guard_check -= delta
+	if _guard_check > 0.0:
+		return
+	_guard_check = 0.25
+	var cur := _animator.stance()
+	if cur != "" and not cur.begins_with("guard_"):
+		return
+	var want := ""
+	if not dead and not swimming and _mount == null and not crouching and _carry == null and not bool(_rig.get("sheathed") if _rig else false):
+		var foe := _nearest_enemy(GUARD_RANGE, -1.0)
+		if foe != null:
+			want = "guard_" + combat_style
+	if want != cur:
+		_animator.set_stance(want)
+
+
+## Movement input relative to the body: x = right, y = forward (directional attacks).
+func _local_input() -> Vector2:
+	var d := _input_dir()
+	if d.length() < 0.1:
+		return Vector2.ZERO
+	var l := Basis(Vector3.UP, -_model.rotation.y) * d
+	return Vector2(-l.x, l.z)
+
+
+## Root-motion swing velocity for this frame; turns the model toward the target inside the warp window.
+func _cmotion_step(delta: float) -> Vector3:
+	if dead or _stunned > 0.0 or _swing <= 0.0:
+		_cmotion.stop()
+		return Vector3.ZERO
+	var to := Vector3.ZERO
+	if is_instance_valid(_cmotion_target) and not _cmotion_target.get("dead"):
+		to = _cmotion_target.global_position - global_position
+	var r: Dictionary = _cmotion.step(delta, _model.rotation.y, to)
+	_model.rotation.y = float(r["yaw"])
+	return r["vel"]
 
 
 ## The locked target, else the best living enemy in the magnetism cone (combat_feel.gd pick_target).
@@ -2356,6 +2418,7 @@ func _resolve_hit(damage: int, knockback: float, finisher: bool, id := -1) -> vo
 
 func _start_dodge(is_ability: bool) -> void:
 	_interrupt_technique("dodge")
+	_cmotion.stop()
 	_cancel_locomotion_transition()
 	_dodging_ability = is_ability
 	if is_ability:
