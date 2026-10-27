@@ -31,6 +31,7 @@ const Events := preload("res://scripts/realm/events.gd")
 const D := preload("res://scripts/realm/organizations_data.gd")
 const BZ := preload("res://scripts/realm/businesses.gd")
 const Registry := preload("res://scripts/realm/registry.gd")
+const Knowledge := preload("res://scripts/realm/knowledge.gd")
 const Persona := preload("res://scripts/realm/persona.gd")
 const Core := preload("res://scripts/sim/utility_core.gd")
 const FD := preload("res://scripts/realm/farming_data.gd")
@@ -1573,7 +1574,7 @@ func _a_move(ch: String, rec: Dictionary, c: Dictionary, day: int, facts: Dictio
 			if t == from:
 				continue
 			var d := float(nw.road_distance(from, t)) if nw != null else 500.0
-			if d < bd and d < 900.0 and _town_facts(t, day)["hunger"] < 0.3:
+			if d < bd and d < 900.0 and Knowledge.heard_hunger(nw, from, t, day) < 0.3:   # hunger elsewhere is only what the news brought
 				bd = d
 				to = t
 	if to < 0 or to == from:

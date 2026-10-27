@@ -7,6 +7,7 @@ const AF := preload("res://scripts/ui/ashes_frame.gd")
 const Kit := preload("res://scripts/ui/gamemenu/gm_kit.gd")
 const Tokens := preload("res://scripts/ui/war/war_tokens.gd")
 const WarUnits := preload("res://scripts/realm/war_units.gd")
+const Knowledge := preload("res://scripts/realm/knowledge.gd")
 
 const TABS := [["units", "Units"], ["orders", "Orders"], ["intel", "Intel"], ["battles", "Battles"], ["part", "Your part"]]
 const STANCE := {"line": "Balanced", "wedge": "Aggressive", "square": "Defensive", "skirmish": "Loose", "column": "Marching"}
@@ -599,7 +600,11 @@ func _tab_part() -> void:
 		var wc := _card(AF.GOLD)
 		wc.add_child(Kit.lbl("The war: day %d, for %s" % [war.war_day(), String(war.war.get("goal", "tribute"))], 17, AF.TEXT, true))
 		wc.add_child(_bar("Crown weary", clampf(war.exhaustion(), 0.0, 1.0), Color("5fae4c"), "%d%%" % int(war.exhaustion() * 100.0)))
-		wc.add_child(_bar("Enemy weary", clampf(war.enemy_exhaustion(), 0.0, 1.0), Color("c2412f"), "%d%%" % int(war.enemy_exhaustion() * 100.0)))
+		var weary := _enemy_weariness(float(war.enemy_exhaustion()))   # the enemy's state is known only through scouts (WP-08)
+		if weary == "":
+			wc.add_child(Kit.lbl("Enemy weariness: unknown, no scout has reported.", 15, AF.TEXT_DIM, true))
+		else:
+			wc.add_child(Kit.lbl("Enemy weariness (scouts say): " + weary, 15, AF.TEXT, true))
 	var leads: Array = wi.call("leads")
 	if not leads.is_empty():
 		_box.add_child(Kit.section("Word on the road", 17))
@@ -624,6 +629,14 @@ func _tab_part() -> void:
 		_box.add_child(Kit.section("What you have done", 17))
 		for i in range(log.size() - 1, maxi(-1, log.size() - 5), -1):
 			_box.add_child(Kit.lbl("Day %d: %s" % [int(log[i]["day"]), String(log[i]["text"])], 14, AF.TEXT_DIM, true))
+
+
+func _enemy_weariness(true_value: float) -> String:
+	var h: Variant = map.realm_override if map.realm_override != null else Life.realm
+	var wi_mod: Variant = h.mod("war_intel") if h != null else null
+	if wi_mod == null:
+		return ""
+	return Knowledge.enemy_weariness_label(wi_mod, wi_mod.viewer_owner(), true_value)
 
 
 func _action_buttons(c: Control, id: String, wi: RefCounted) -> void:

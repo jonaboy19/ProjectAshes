@@ -670,6 +670,11 @@ func set_viewer(acct: String, sid: int, role: String, owner: String, holdings: A
 	_viewer = {"acct": acct, "sid": sid, "role": role, "owner": owner, "holdings": holdings.duplicate()}
 
 
+## Owner id of whoever the digest is written for ("" before set_viewer).
+func viewer_owner() -> String:
+	return String(_viewer.get("owner", ""))
+
+
 func inbox() -> Array:
 	return _inbox.duplicate(true)
 
