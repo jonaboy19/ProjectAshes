@@ -1,0 +1,449 @@
+{
+ "Life_Mocap_Buy": {
+  "auto": "gold",
+  "why": []
+ },
+ "Life_Mocap_Carry_Heavy": {
+  "auto": "banned",
+  "why": [
+   "player_young: probation: ground penetration 2.0 cm",
+   "player_young: banned: slide mean 0.51 m/s",
+   "player_young: banned: slide max 2.82 m/s",
+   "villager_man_a: probation: ground penetration 1.8 cm",
+   "villager_man_a: banned: slide mean 0.48 m/s",
+   "villager_man_a: banned: slide max 2.67 m/s",
+   "villager_woman_a: banned: slide mean 0.44 m/s",
+   "villager_woman_a: banned: slide max 2.04 m/s"
+  ]
+ },
+ "Life_Mocap_Chop_Wood": {
+  "auto": "probation",
+  "why": [
+   "player_young: probation: 1 pop(s)",
+   "player_young: probation: ground penetration 1.3 cm",
+   "villager_man_a: probation: 1 pop(s)",
+   "villager_man_a: probation: ground penetration 1.1 cm",
+   "villager_woman_a: probation: 1 pop(s)"
+  ]
+ },
+ "Life_Mocap_Chug": {
+  "auto": "gold",
+  "why": []
+ },
+ "Life_Mocap_Cold": {
+  "auto": "probation",
+  "why": [
+   "player_young: probation: ground penetration 1.3 cm"
+  ]
+ },
+ "Life_Mocap_Comfort_A": {
+  "auto": "probation",
+  "why": [
+   "player_young: probation: 2 pop(s)",
+   "villager_man_a: probation: 2 pop(s)",
+   "villager_woman_a: probation: 2 pop(s)"
+  ]
+ },
+ "Life_Mocap_Comfort_B": {
+  "auto": "gold",
+  "why": []
+ },
+ "Life_Mocap_Converse_A": {
+  "auto": "banned",
+  "why": [
+   "player_young: probation: slide mean 0.04 m/s",
+   "player_young: banned: slide max 0.21 m/s",
+   "villager_man_a: probation: slide mean 0.04 m/s",
+   "villager_man_a: banned: slide max 0.20 m/s",
+   "villager_woman_a: probation: slide mean 0.04 m/s",
+   "villager_woman_a: banned: slide max 0.19 m/s"
+  ]
+ },
+ "Life_Mocap_Converse_B": {
+  "auto": "banned",
+  "why": [
+   "player_young: banned: slide mean 0.07 m/s",
+   "player_young: banned: slide max 0.42 m/s",
+   "villager_man_a: banned: slide mean 0.06 m/s",
+   "villager_man_a: banned: slide max 0.39 m/s",
+   "villager_woman_a: banned: slide mean 0.06 m/s",
+   "villager_woman_a: banned: slide max 0.36 m/s"
+  ]
+ },
+ "Life_Mocap_Cry": {
+  "auto": "probation",
+  "why": [
+   "player_young: probation: 1 pop(s)",
+   "villager_man_a: probation: 1 pop(s)",
+   "villager_woman_a: probation: 1 pop(s)"
+  ]
+ },
+ "Life_Mocap_Dig": {
+  "auto": "gold",
+  "why": []
+ },
+ "Life_Mocap_Direct_Wave": {
+  "auto": "gold",
+  "why": []
+ },
+ "Life_Mocap_Directions": {
+  "auto": "gold",
+  "why": []
+ },
+ "Life_Mocap_Drink": {
+  "auto": "gold",
+  "why": []
+ },
+ "Life_Mocap_Eat_Soup": {
+  "auto": "gold",
+  "why": []
+ },
+ "Life_Mocap_Eat_Table": {
+  "auto": "gold",
+  "why": []
+ },
+ "Life_Mocap_Fiddle": {
+  "auto": "banned",
+  "why": [
+   "player_young: probation: slide mean 0.04 m/s",
+   "player_young: banned: slide max 0.19 m/s",
+   "villager_man_a: probation: slide mean 0.04 m/s",
+   "villager_man_a: banned: slide max 0.18 m/s",
+   "villager_woman_a: probation: slide mean 0.04 m/s",
+   "villager_woman_a: banned: slide max 0.17 m/s"
+  ]
+ },
+ "Life_Mocap_Fish": {
+  "auto": "probation",
+  "why": [
+   "player_young: probation: 2 pop(s)",
+   "player_young: probation: ground penetration 1.2 cm",
+   "villager_man_a: probation: 2 pop(s)",
+   "villager_woman_a: probation: 2 pop(s)"
+  ]
+ },
+ "Life_Mocap_Hammer_Nail": {
+  "auto": "banned",
+  "why": [
+   "player_young: banned: slide mean 0.09 m/s",
+   "player_young: banned: slide max 1.13 m/s",
+   "villager_man_a: banned: slide mean 0.09 m/s",
+   "villager_man_a: banned: slide max 1.04 m/s",
+   "villager_woman_a: banned: slide mean 0.10 m/s",
+   "villager_woman_a: banned: slide max 1.18 m/s"
+  ]
+ },
+ "Life_Mocap_Handshake_A": {
+  "auto": "probation",
+  "why": [
+   "player_young: probation: 1 pop(s)",
+   "player_young: probation: ground penetration 1.6 cm",
+   "villager_man_a: probation: 1 pop(s)",
+   "villager_man_a: probation: ground penetration 1.2 cm",
+   "villager_woman_a: probation: 1 pop(s)"
+  ]
+ },
+ "Life_Mocap_Handshake_B": {
+  "auto": "banned",
+  "why": [
+   "player_young: banned: ground penetration 5.5 cm",
+   "villager_man_a: banned: ground penetration 5.4 cm"
+  ]
+ },
+ "Life_Mocap_Happy": {
+  "auto": "probation",
+  "why": [
+   "player_young: probation: ground penetration 1.3 cm",
+   "villager_man_a: probation: ground penetration 1.1 cm"
+  ]
+ },
+ "Life_Mocap_Hopscotch": {
+  "auto": "gold",
+  "why": []
+ },
+ "Life_Mocap_Laugh": {
+  "auto": "probation",
+  "why": [
+   "player_young: probation: ground penetration 1.2 cm",
+   "villager_man_a: probation: ground penetration 1.1 cm"
+  ]
+ },
+ "Life_Mocap_Look_Around": {
+  "auto": "probation",
+  "why": [
+   "player_young: probation: ground penetration 1.0 cm"
+  ]
+ },
+ "Life_Mocap_Move_Box": {
+  "auto": "gold",
+  "why": []
+ },
+ "Life_Mocap_Pay": {
+  "auto": "gold",
+  "why": []
+ },
+ "Life_Mocap_Pick_Place": {
+  "auto": "banned",
+  "why": [
+   "player_young: banned: ground penetration 2.1 cm",
+   "villager_man_a: banned: ground penetration 2.0 cm"
+  ]
+ },
+ "Life_Mocap_Plant": {
+  "auto": "gold",
+  "why": []
+ },
+ "Life_Mocap_Quarrel_A": {
+  "auto": "banned",
+  "why": [
+   "player_young: banned: ground penetration 8.1 cm",
+   "player_young: banned: slide mean 0.75 m/s",
+   "player_young: banned: slide max 4.30 m/s",
+   "villager_man_a: banned: ground penetration 7.5 cm",
+   "villager_man_a: banned: slide mean 0.73 m/s",
+   "villager_man_a: banned: slide max 4.25 m/s",
+   "villager_woman_a: banned: slide mean 0.61 m/s",
+   "villager_woman_a: banned: slide max 3.87 m/s"
+  ]
+ },
+ "Life_Mocap_Quarrel_B": {
+  "auto": "banned",
+  "why": [
+   "player_young: banned: ground penetration 2.1 cm",
+   "player_young: banned: slide mean 0.44 m/s",
+   "player_young: banned: slide max 1.79 m/s",
+   "villager_man_a: probation: ground penetration 1.8 cm",
+   "villager_man_a: banned: slide mean 0.42 m/s",
+   "villager_man_a: banned: slide max 1.74 m/s",
+   "villager_woman_a: banned: slide mean 0.40 m/s",
+   "villager_woman_a: banned: slide max 1.71 m/s"
+  ]
+ },
+ "Life_Mocap_Rake": {
+  "auto": "probation",
+  "why": [
+   "player_young: probation: ground penetration 1.5 cm",
+   "villager_man_a: probation: ground penetration 1.1 cm"
+  ]
+ },
+ "Life_Mocap_Sad": {
+  "auto": "probation",
+  "why": [
+   "player_young: probation: ground penetration 1.1 cm"
+  ]
+ },
+ "Life_Mocap_Saw": {
+  "auto": "banned",
+  "why": [
+   "player_young: banned: slide mean 0.07 m/s",
+   "player_young: banned: slide max 0.32 m/s",
+   "villager_man_a: banned: slide mean 0.06 m/s",
+   "villager_man_a: banned: slide max 0.30 m/s",
+   "villager_woman_a: banned: slide mean 0.07 m/s",
+   "villager_woman_a: banned: slide max 0.91 m/s"
+  ]
+ },
+ "Life_Mocap_Shift_Weight": {
+  "auto": "banned",
+  "why": [
+   "player_young: banned: slide mean 0.10 m/s",
+   "player_young: banned: slide max 0.29 m/s",
+   "villager_man_a: banned: slide mean 0.10 m/s",
+   "villager_man_a: banned: slide max 0.27 m/s",
+   "villager_woman_a: banned: slide mean 0.09 m/s",
+   "villager_woman_a: banned: slide max 0.26 m/s"
+  ]
+ },
+ "Life_Mocap_Sit_Stool_Enter": {
+  "auto": "gold",
+  "why": []
+ },
+ "Life_Mocap_Sit_Stool_Exit": {
+  "auto": "gold",
+  "why": []
+ },
+ "Life_Mocap_Sit_Stool_Idle": {
+  "auto": "gold",
+  "why": []
+ },
+ "Life_Mocap_Skip": {
+  "auto": "banned",
+  "why": [
+   "player_young: banned: slide mean 0.58 m/s",
+   "player_young: banned: slide max 1.89 m/s",
+   "villager_man_a: banned: slide mean 0.64 m/s",
+   "villager_man_a: banned: slide max 2.53 m/s",
+   "villager_woman_a: banned: slide mean 0.49 m/s",
+   "villager_woman_a: banned: slide max 1.67 m/s"
+  ]
+ },
+ "Life_Mocap_Slice": {
+  "auto": "gold",
+  "why": []
+ },
+ "Life_Mocap_Stir": {
+  "auto": "banned",
+  "why": [
+   "player_young: banned: slide mean 0.06 m/s",
+   "player_young: banned: slide max 0.27 m/s",
+   "villager_man_a: banned: slide mean 0.05 m/s",
+   "villager_man_a: banned: slide max 0.25 m/s",
+   "villager_woman_a: banned: slide mean 0.05 m/s",
+   "villager_woman_a: banned: slide max 0.25 m/s"
+  ]
+ },
+ "Life_Mocap_Stretch_Yawn": {
+  "auto": "probation",
+  "why": [
+   "player_young: probation: ground penetration 1.5 cm",
+   "villager_man_a: probation: ground penetration 1.3 cm"
+  ]
+ },
+ "Life_Mocap_Sweep": {
+  "auto": "gold",
+  "why": []
+ },
+ "Life_Mocap_Tag_Bluff": {
+  "auto": "banned",
+  "why": [
+   "player_young: banned: ground penetration 3.8 cm",
+   "villager_man_a: banned: ground penetration 3.7 cm"
+  ]
+ },
+ "Life_Mocap_Teach": {
+  "auto": "probation",
+  "why": [
+   "villager_man_a: probation: ground penetration 1.1 cm"
+  ]
+ },
+ "Life_Mocap_Wave_Hello": {
+  "auto": "probation",
+  "why": [
+   "player_young: probation: ground penetration 1.5 cm",
+   "villager_man_a: probation: ground penetration 1.3 cm"
+  ]
+ },
+ "Life_Walk_Brisk": {
+  "auto": "banned",
+  "why": [
+   "player_young: probation: ground penetration 1.6 cm",
+   "player_young: banned: slide mean 0.34 m/s",
+   "player_young: banned: slide max 3.39 m/s",
+   "villager_man_a: probation: ground penetration 1.4 cm",
+   "villager_man_a: banned: slide mean 0.33 m/s",
+   "villager_man_a: banned: slide max 3.20 m/s",
+   "villager_woman_a: banned: slide mean 0.35 m/s",
+   "villager_woman_a: banned: slide max 3.13 m/s"
+  ]
+ },
+ "Life_Walk_Careful": {
+  "auto": "banned",
+  "why": [
+   "player_young: probation: ground penetration 1.8 cm",
+   "player_young: banned: slide mean 0.29 m/s",
+   "player_young: banned: slide max 2.43 m/s",
+   "villager_man_a: probation: ground penetration 1.6 cm",
+   "villager_man_a: banned: slide mean 0.29 m/s",
+   "villager_man_a: banned: slide max 2.25 m/s",
+   "villager_woman_a: banned: slide mean 0.32 m/s",
+   "villager_woman_a: banned: slide max 2.19 m/s"
+  ]
+ },
+ "Life_Walk_Drunk": {
+  "auto": "banned",
+  "why": [
+   "player_young: banned: ground penetration 2.3 cm",
+   "player_young: banned: slide mean 0.29 m/s",
+   "player_young: banned: slide max 2.08 m/s",
+   "villager_man_a: banned: ground penetration 2.0 cm",
+   "villager_man_a: banned: slide mean 0.26 m/s",
+   "villager_man_a: banned: slide max 1.98 m/s",
+   "villager_woman_a: banned: slide mean 0.27 m/s",
+   "villager_woman_a: banned: slide max 1.94 m/s"
+  ]
+ },
+ "Life_Walk_Elder": {
+  "auto": "banned",
+  "why": [
+   "player_young: banned: slide mean 0.07 m/s",
+   "player_young: banned: slide max 1.41 m/s",
+   "villager_man_a: banned: slide mean 0.07 m/s",
+   "villager_man_a: banned: slide max 1.34 m/s",
+   "villager_woman_a: banned: slide mean 0.07 m/s",
+   "villager_woman_a: banned: slide max 1.29 m/s"
+  ]
+ },
+ "Life_Walk_Happy": {
+  "auto": "banned",
+  "why": [
+   "player_young: probation: ground penetration 1.8 cm",
+   "player_young: banned: slide mean 0.64 m/s",
+   "player_young: banned: slide max 2.02 m/s",
+   "villager_man_a: probation: ground penetration 1.7 cm",
+   "villager_man_a: banned: slide mean 0.61 m/s",
+   "villager_man_a: banned: slide max 1.78 m/s",
+   "villager_woman_a: banned: slide mean 0.55 m/s",
+   "villager_woman_a: banned: slide max 1.77 m/s"
+  ]
+ },
+ "Life_Walk_Limp": {
+  "auto": "banned",
+  "why": [
+   "player_young: probation: ground penetration 1.6 cm",
+   "player_young: banned: slide mean 0.72 m/s",
+   "player_young: banned: slide max 1.87 m/s",
+   "villager_man_a: probation: ground penetration 1.5 cm",
+   "villager_man_a: banned: slide mean 0.66 m/s",
+   "villager_man_a: banned: slide max 1.82 m/s",
+   "villager_woman_a: banned: slide mean 0.64 m/s",
+   "villager_woman_a: banned: slide max 1.72 m/s"
+  ]
+ },
+ "Life_Walk_March": {
+  "auto": "banned",
+  "why": [
+   "player_young: banned: ground penetration 2.0 cm",
+   "player_young: banned: slide mean 0.23 m/s",
+   "player_young: banned: slide max 1.67 m/s",
+   "villager_man_a: probation: ground penetration 1.7 cm",
+   "villager_man_a: banned: slide mean 0.25 m/s",
+   "villager_man_a: banned: slide max 1.56 m/s",
+   "villager_woman_a: banned: slide mean 0.30 m/s",
+   "villager_woman_a: banned: slide max 4.54 m/s"
+  ]
+ },
+ "Life_Walk_Proud": {
+  "auto": "banned",
+  "why": [
+   "player_young: banned: slide mean 0.16 m/s",
+   "player_young: banned: slide max 0.51 m/s",
+   "villager_man_a: banned: slide mean 0.15 m/s",
+   "villager_man_a: banned: slide max 0.48 m/s",
+   "villager_woman_a: banned: slide mean 0.15 m/s",
+   "villager_woman_a: banned: slide max 0.60 m/s"
+  ]
+ },
+ "Life_Walk_Sad": {
+  "auto": "banned",
+  "why": [
+   "player_young: probation: ground penetration 1.1 cm",
+   "player_young: banned: slide mean 0.26 m/s",
+   "player_young: banned: slide max 1.90 m/s",
+   "villager_man_a: banned: slide mean 0.27 m/s",
+   "villager_man_a: banned: slide max 1.85 m/s",
+   "villager_woman_a: banned: slide mean 0.26 m/s",
+   "villager_woman_a: banned: slide max 1.76 m/s"
+  ]
+ },
+ "Life_Walk_Tired": {
+  "auto": "banned",
+  "why": [
+   "player_young: banned: slide mean 0.21 m/s",
+   "player_young: banned: slide max 1.69 m/s",
+   "villager_man_a: banned: slide mean 0.19 m/s",
+   "villager_man_a: banned: slide max 1.61 m/s",
+   "villager_woman_a: banned: slide mean 0.20 m/s",
+   "villager_woman_a: banned: slide max 1.58 m/s"
+  ]
+ }
+}

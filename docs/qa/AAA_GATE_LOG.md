@@ -297,3 +297,16 @@ File: `docs/plans/props_refined/buildings_sheet.jpg`; verdicts are in `docs/plan
 | PASS (borderline) | B07 church (plain box), B16 brick church (Victorian spire), B10 gate (soft merlons), B42 tower (stylised taper), B43 house (muddy plaster), B52/B53 Tudor houses (plaster too grey), B60 cottage (flat dark thatch) |
 | DROPPED | P99 campfire (melts at budget), P112 tent (canvas shatters) |
 Not in-game yet: the towns worker re-gates each building in the street after placing it.
+
+## 2026-10-28 · NPC anim lane · carry errand, Mixamo work set 5, CMU household re-gate (Ashford street, Movie Maker)
+Videos: PA_plans/videos/slice_2026-10-27_1200_6c8da63f1_carrygate.mp4 (carry), slice_2026-10-27_1246_cc15cdc05_set5gate.mp4 (set 5 + CMU), slice_2026-10-27_1153_44c565499_carry2.mp4 (route with ASHES_CARRY_SHARE=0.8).
+| Item | Gate | Note |
+|---|---|---|
+| Carry errand (villager.gd + carry_errand.gd) | PASS | pick-up bend lifts the sack off the cobbles; sack on the shoulder reads naturally walking and standing; crate held at the waist reads OK; 30% of daytime trips >= 12 m, work trips set the load down at the spot's approach point, indoor trips set it down first. Headless check: 26 errands started in one slice run at share 0.8 |
+| Life_Mx5_Talk_General / Talk_Explain / Talk_Funny / Argue_B / Agree_Nod | PASS, wired conversation | natural gestures, planted feet, read at 10-14 m among the real crowd |
+| Life_Mx5_Sit_Cross_Legged / Sit_Reclined | PASS, wired sit_ground | on the ground, no penetration (+3 cm lift on reclined) |
+| Life_Mx5_Look_Around_B | PASS, wall_idle loop | standing idle |
+| Life_Mx5 wall leans | HOLD | lean on air in the open plaza: judge at a wall |
+| Life_Mx5 chair sits (laugh / cheer / drink) | HOLD | tavern-table sit_check: pelvis 30-33 cm off the seat, exit pop 9 m/s: needs seat alignment |
+| CMU Life_Mocap_Sweep / Dig / Slice / Eat_Soup / Eat_Table | PASS (metrics gold today; sweep with the broom seen in the street) | Sweep, Dig, Slice already wired |
+| CMU Life_Mocap_Stir / Saw / Hammer_Nail | FAIL | feet slide 0.05-0.09 m/s mean: need a foot-pin pass (our pipeline doesn't take CMU BVH yet) |
