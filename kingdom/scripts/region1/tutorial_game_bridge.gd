@@ -82,7 +82,7 @@ func context() -> Dictionary:
 	ctx["touch"] = DisplayServer.is_touchscreen_available()
 	var near: Node = player.nearest_interactable() if player.has_method("nearest_interactable") else null
 	ctx["near_npc"] = near != null and near.is_in_group("villager")
-	ctx["near_bed"] = near != null and String(near.get("verb") if "verb" in near else "") == "Sleep"
+	ctx["near_bed"] = near != null and str(near.get("verb") if "verb" in near else "") == "Sleep"
 	ctx["near_interactable"] = near != null and not ctx["near_npc"] and not ctx["near_bed"]
 	var life := get_node_or_null("/root/Life")
 	if life != null and life.get("needs") != null:
