@@ -37,6 +37,7 @@ var standoff := 1.2
 var body_scale := 1.0
 var scale_used := 1.0           ## debug / telemetry
 var warped_m := 0.0             ## total forward metres moved by this action
+var crossed_hit := false        ## true on the frame the contact frame passes (callers plant dust under the lead foot)
 var _prof := PackedVector3Array()
 var _added := 0.0
 
@@ -136,6 +137,7 @@ func step(dt: float, yaw: float, to_target: Vector3) -> Dictionary:
 		return {"vel": Vector3.ZERO, "yaw": yaw}
 	var t0 := t
 	t += dt * rate
+	crossed_hit = t0 < hit_t and t >= hit_t
 	var length := (_prof.size() - 1) / FPS if _prof.size() > 1 else hit_t
 	var flat := Vector3(to_target.x, 0.0, to_target.z)
 	var dist := flat.length()

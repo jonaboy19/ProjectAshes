@@ -99,3 +99,15 @@ Runtime clips (SLICECLIP): gait points Walk 1.00 / Mx_Walk_Standard 1.56 / Jog_M
 | Route on clear ground | FAIL | the bot sprint clips a crate and a rune stone next to Ashford Ring, and the "The ring of stones" world label floats over the player |
 | Planted feet | not graded | the loco_slide numbers are unreliable on this machine right now: headless gives a foot/body ratio of 0.4 under CPU contention (other Godot instances), windowed gives 1.0. Judged by eye: no visible skate at the top run in the side view |
 Verdict: the run is calmer and the camera is closer, but the pass FAILs until the starts/stops/pivots and out-of-combat sheathing are done.
+
+## 2026-10-27 Combat full motion pass 2 (combat-motion worker) - FAIL (improved, WIP)
+File: `PA_plans/videos/WIP_combat_full_motion_slice_clearing_sword.mp4`. Recorded in the real slice (`--terrain_backend=terrain3d --world_macro=real`, copse clearing 360,152), not in the meadow. Meshy returns 402, so this pass uses only existing clips and built-ins.
+Tools used: `stance_measure.gd` ranked every idle/guard clip by foot spread and pelvis drop. Mx_SnS_Block_Idle measured 1.05 m spread, a 22 cm drop and the shield hand at chin height, so it is now the guard idle (Axe_Block_Idle and GS_Blocking_2 for the other styles), and no additive layer was needed. Light hits use a PhysicalBoneSimulator3D partial ragdoll (`scripts/combat/partial_ragdoll.gd`, chest/head/arms at influence 0.3 for about 0.25 s, pushed along the hit, only within 18 m of the camera, capped by Ragdoll.MAX_LIVE). Contact dust uses the pooled `VFXSpells._dust` under the lead foot on the contact frame of travelling swings.
+| Check | Result | Note |
+|---|---|---|
+| Wide bent-knee stances, shields raised | PASS (bandit) / FAIL (player) | the bandit now holds a low guard with the shield up. The player's guard stance switches on (log: stance=guard_sword), but between chained swings the player is mostly in follow-through, and the Mixamo slashes stand tall |
+| Target reacts in hit direction | PASS | the upper body is pushed away from the blow on top of the side flinch clip; heavy blows still knock down into the ragdoll |
+| Dust on footwork | PASS (partial) | a puff on the contact plant; plain steps still have none |
+| Blades actually meet | FAIL | no blade-contact parry IK yet |
+| Environment | n/a (world lane) | the real terrain reads better than the meadow; Terrain3D instancer errors in the log belong to the world worker |
+Verdict: the bandit side now reads close to the ref 03 posture, and hits physically rock the body. The player's tall follow-through and the missing blade contact keep this at FAIL.

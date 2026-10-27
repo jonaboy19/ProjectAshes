@@ -18,6 +18,10 @@ const PLAYER_SOLID_RANGE := 16.0
 const WORLD_LAYER := 1
 const SOLDIER_LAYER := 4
 const Ragdoll := preload("res://scripts/actors/ragdoll.gd")
+const PartialRagdoll := preload("res://scripts/combat/partial_ragdoll.gd")   # Ragdoll + upper-body hit push
+const VFXSpells := preload("res://scripts/vfx/vfx_spells.gd")
+## Partial-ragdoll hit pushes only near the camera (PhysicalBoneSimulator3D bodies are built per hit; Ragdoll.MAX_LIVE caps them).
+const HIT_PUSH_RANGE := 18.0
 const Fighter := preload("res://scripts/combat/npc_fighter.gd")
 const AbilityLib := preload("res://scripts/abilities/ability_lib.gd")
 const Telegraph := preload("res://scripts/combat/telegraph.gd")
@@ -132,7 +136,7 @@ func _ready() -> void:
 	add_child(_model)
 	_anim = Assets.animation_player(_model)
 	_animator = CharacterAnimator.new(_model, RUN, WALK, "Walking_A", "Running_A", "Idle", true)   # stances: combat guard
-	_ragdoll = Ragdoll.attach(self, _model, [_animator.tree, _anim])
+	_ragdoll = PartialRagdoll.attach_partial(self, _model, [_animator.tree, _anim])
 	_sprite = MeshInstance3D.new()
 	_sprite.mesh = ImpostorBaker.quad()
 	_sprite.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
@@ -197,6 +201,9 @@ func _physics_process(delta: float) -> void:
 		var rm: Dictionary = _cmotion.step(delta, rotation.y, tv)
 		rotation.y = float(rm["yaw"])
 		step_velocity = rm["vel"] + _impulse     # the swing owns the feet
+		if _cmotion.crossed_hit and _cmotion.warped_m > 0.25 and _model.visible:
+			var foot := global_position + global_transform.basis.z * 0.35
+			VFXSpells._dust(get_parent(), Vector3(foot.x, WorldGen.height(foot.x, foot.z), foot.z), 0.3)
 	var p := global_position + step_velocity * delta
 	_impulse = _impulse.move_toward(Vector3.ZERO, 25.0 * delta)
 	p.y = WorldGen.height(p.x, p.z)
@@ -399,6 +406,21 @@ func take_damage(amount: int, from: Node = null, knockback := Vector3.ZERO) -> v
 			_animator.play_full("Hit_Heavy_" + _hit_side(from), 1.0)
 		else:
 			_animator.play_upper(SoldierAaaScript.light_hit(self, _hit_side(from), randf()), 1.0)
+		_hit_push(from, knockback)
+
+
+## Directional hit push: the upper body (chest, head, arms) goes physical for ~0.25 s at influence 0.3 and is shoved
+## away from the attacker while the reaction clip keeps playing (PhysicalBoneSimulator3D partial ragdoll).
+func _hit_push(from: Node, knockback: Vector3) -> void:
+	if _ragdoll == null or not _ragdoll.has_method("hit_react") or not _model.visible:
+		return
+	var cam := get_viewport().get_camera_3d()
+	if cam == null or cam.global_position.distance_to(global_position) > HIT_PUSH_RANGE:
+		return
+	var dir := knockback
+	if dir.length() < 0.05 and from is Node3D:
+		dir = global_position - (from as Node3D).global_position
+	_ragdoll.call("hit_react", dir, 2.6, 0.3)
 
 
 ## A heavy blow broke the guard (the player's guard-break attacks call this): a stumble instead of the block flinch.

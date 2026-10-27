@@ -349,7 +349,12 @@ func _run() -> void:
 		_label.visible = false
 	_find_blade()
 	log_line("Quality tier=%d blade_bone=%d tip=%s" % [Quality.tier, _blade_bone, _blade_tip])
-	_flat = await _find_flat(140.0)
+	if String(_args().get("spot", "")) != "":
+		# a fixed spot (e.g. the slice copse clearing on the real terrain: --world_macro=real --spot=360,152)
+		var sp := String(_args()["spot"]).split(",")
+		_flat = Vector2(float(sp[0]), float(sp[1]))
+	else:
+		_flat = await _find_flat(140.0)
 	await teleport(_flat, 0.0, 40)
 	log_line("flat ground %s" % _flat)
 	if want("c01"): await _c01_combo_air()
@@ -608,6 +613,7 @@ func _fm01_duel() -> void:
 	key(KEY_W, true)
 	await _hold(b, 30)                     # approach
 	key(KEY_W, false)
+	log_line("stance=%s sheathed=%s" % [player._animator.stance(), str(player._rig.get("sheathed") if player._rig else "?")])
 	for i in 4:                            # light chain from ~3 m: each step closes in
 		await tap(KEY_J)
 		await _hold(b, 16)

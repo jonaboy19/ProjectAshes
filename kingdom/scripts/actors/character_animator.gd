@@ -86,9 +86,9 @@ const STANCES := {
 	"sit_mx": [["Life_Mx_Sit_Chair", "Life_Rest_Sit_Chair", "Sitting_Idle"], ["Life_Mx_Sit_Chair", "Life_Rest_Sit_Chair", "Sitting_Idle"], 0.0],   # pelvis 0.05 m behind the root, pairs with Life_Mx_Stand_To_Sit / Sit_To_Stand
 	"slide": [["Slide", "Slide_Loop", "Crouch_Idle"], ["Slide", "Slide_Loop", "Crouch_Idle"], 0.0],         # steep-slope slide (ground_realism.gd)
 	# Combat guard stances (owner Mixamo packs; combat-motion worker): wide bent-knee guard idle and armed walk near a foe.
-	"guard_sword": [["Mx_SnS_Idle"], ["Mx_SnS_Walk"], 1.28],
-	"guard_greatsword": [["Mx_GS_Idle"], ["Mx_GS_Walk"], 0.95],
-	"guard_axe": [["Mx_Axe_Idle"], ["Mx_Axe_Walk_Forward"], 0.89],
+	"guard_sword": [["Mx_SnS_Block_Idle", "Mx_SnS_Idle"], ["Mx_SnS_Walk"], 1.28],     # Block_Idle: 1.05 m feet, pelvis -22 cm, shield at the chin (stance_measure.gd)
+	"guard_greatsword": [["Mx_GS_Blocking_2", "Mx_GS_Idle"], ["Mx_GS_Walk"], 0.95],   # Blocking_2 held: pelvis -23 cm
+	"guard_axe": [["Mx_Axe_Block_Idle", "Mx_Axe_Idle"], ["Mx_Axe_Walk_Forward"], 0.89],   # Block_Idle: pelvis -22 cm, guard up
 }
 ## Ground speed (m/s at rate 1) of stance moving clips, by the clip actually picked (the first the library has).
 const STANCE_SPEEDS := {"Mx3_Crouch_Fwd": 1.81, "Crouch_Fwd": 0.76, "Walk_Stealth": 1.09, "Mx_SnS_Walk": 1.28, "Mx_GS_Walk": 0.95, "Mx_Axe_Walk_Forward": 0.89}

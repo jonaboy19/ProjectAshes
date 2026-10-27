@@ -2319,6 +2319,8 @@ func _update_guard_stance(delta: float) -> void:
 	if _guard_check > 0.0:
 		return
 	_guard_check = 0.25
+	if _animator == null:
+		return
 	var cur := _animator.stance()
 	if cur != "" and not cur.begins_with("guard_"):
 		return
@@ -2350,6 +2352,10 @@ func _cmotion_step(delta: float) -> Vector3:
 		to = _cmotion_target.global_position - global_position
 	var r: Dictionary = _cmotion.step(delta, _model.rotation.y, to)
 	_model.rotation.y = float(r["yaw"])
+	if _cmotion.crossed_hit and _cmotion.warped_m > 0.25:
+		# the lead foot plants on contact after a travelling swing: a puff of dust (ref 03)
+		var foot := global_position + facing() * 0.35
+		VFXSpells._dust(get_parent(), Vector3(foot.x, WorldGen.height(foot.x, foot.z), foot.z), 0.3)
 	return r["vel"]
 
 
