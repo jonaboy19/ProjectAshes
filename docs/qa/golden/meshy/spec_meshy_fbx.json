@@ -1,0 +1,150 @@
+{
+ "clips": [
+  {
+   "name": "Life_Mz_Chop_Wood",
+   "file": "m01_chop_wood.fbx",
+   "loop": true,
+   "inplace": "none",
+   "lock_vel": 0.9,
+   "lock_wander": 0.25
+  },
+  {
+   "name": "Life_Mz_Smith_Hammer",
+   "file": "m02_smith_hammer.fbx",
+   "loop": true,
+   "inplace": "none",
+   "lock_vel": 1.2,
+   "lock_wander": 0.35
+  },
+  {
+   "name": "Life_Mz_Plant_Kneel",
+   "file": "m03_plant_kneel.fbx",
+   "loop": true,
+   "inplace": "none",
+   "knee_lift": true
+  },
+  {
+   "name": "Life_Mz_Laundry_Scrub",
+   "file": "m04_laundry_scrub.fbx",
+   "loop": true,
+   "inplace": "none"
+  },
+  {
+   "name": "Life_Mz_Stir_Cauldron",
+   "file": "m05_stir_cauldron.fbx",
+   "loop": true,
+   "inplace": "none"
+  },
+  {
+   "name": "Life_Mz_Sweep",
+   "file": "m06_sweep.fbx",
+   "loop": true,
+   "inplace": "none"
+  },
+  {
+   "name": "Life_Mz_Mine_Pickaxe",
+   "file": "m07_mine_pickaxe.fbx",
+   "loop": true,
+   "inplace": "none",
+   "lock_vel": 0.9,
+   "lock_wander": 0.25
+  },
+  {
+   "name": "Life_Mz_Nail_Bench",
+   "file": "m08_nail_bench.fbx",
+   "loop": true,
+   "inplace": "none"
+  },
+  {
+   "name": "Life_Mz_Sleep_Bed",
+   "file": "m09_sleep_bed.fbx",
+   "loop": true,
+   "inplace": "none",
+   "lift_m": 0.04,
+   "floor": "min",
+   "contact": true
+  },
+  {
+   "name": "Life_Mz_Wake_Bed",
+   "file": "m10_wake_bed.fbx",
+   "loop": false,
+   "inplace": "none"
+  },
+  {
+   "name": "Life_Mz_Eat_Seated",
+   "file": "m11_eat_seated.fbx",
+   "loop": true,
+   "inplace": "none",
+   "floor": "min",
+   "contact": true
+  },
+  {
+   "name": "Life_Mz_Milk_Stool",
+   "file": "m12_milk_stool.fbx",
+   "loop": true,
+   "inplace": "none",
+   "floor": "min",
+   "contact": true
+  },
+  {
+   "name": "Life_Mz_Scythe",
+   "file": "m13_scythe_inplace.fbx",
+   "loop": true,
+   "inplace": "none",
+   "lock_vel": 0.9,
+   "lock_wander": 0.25
+  },
+  {
+   "name": "Life_Mz_Wheelbarrow_Walk",
+   "file": "m14_wheelbarrow.fbx",
+   "loop": true,
+   "inplace": "linear",
+   "foot_lock": false
+  },
+  {
+   "name": "Life_Mz_Lute",
+   "file": "m15_lute.fbx",
+   "loop": true,
+   "inplace": "none"
+  },
+  {
+   "name": "Life_Mz_Kneel_Down",
+   "file": "m16_kneel_down.fbx",
+   "loop": false,
+   "inplace": "none",
+   "lift_m": 0.065,
+   "knee_lift": true
+  },
+  {
+   "name": "Life_Mz_Forge_Glowing",
+   "file": "m17_forge_anvil.fbx",
+   "loop": true,
+   "inplace": "none",
+   "lock_vel": 0.9,
+   "lock_wander": 0.25
+  },
+  {
+   "name": "Life_Mz_Butcher",
+   "file": "m18_butcher.fbx",
+   "loop": true,
+   "inplace": "none"
+  },
+  {
+   "name": "Life_Mz_Tankard_Laugh",
+   "file": "m19_tankard_seated.fbx",
+   "loop": true,
+   "inplace": "none",
+   "lock_vel": 0.9,
+   "lock_wander": 0.25,
+   "floor": "min",
+   "contact": true
+  },
+  {
+   "name": "Life_Mz_Carry_Sack_Walk",
+   "file": "m20_carry_sack.fbx",
+   "loop": true,
+   "inplace": "linear",
+   "foot_lock": false
+  }
+ ]
+}

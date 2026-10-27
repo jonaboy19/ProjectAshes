@@ -204,7 +204,7 @@ func _library_clips(ap: AnimationPlayer) -> Dictionary:
 		var kind := "loop" if looping else "once"
 		if low.contains("death") or low.contains("dead") or low.begins_with("die"):
 			kind = "death"
-		elif low.begins_with("sit") or low.contains("_sit") or low.contains("sitting"):
+		elif low.begins_with("sit") or low.contains("_sit") or low.contains("sitting") or low.contains("seated") or low.contains("_stool") or low.contains("sleep"):
 			kind = "sit"
 		elif low.contains("jump") or low.contains("fall") or low.contains("land"):
 			kind = "jump"

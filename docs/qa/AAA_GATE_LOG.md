@@ -43,3 +43,29 @@ File: docs/qa/golden/slice/arming_sword_in_hand.png (walk / attack / block, side
 
 ## 2026-10-28 · player lane · ladder pass 3 — top-out PASS, climb pose FAIL
 File: docs/qa/golden/slice/ladder_topout_pass3.jpg. (a) Measured: the capsule and hips are centred on the ladder (hips x within +-3 cm of its centre); the off-centre read came from the hands on the rail ends (x +-0.24, rails at +-0.26) -> (c) each holding hand is now pinned a hand-width inside its rail on the nearest rung (arm IK, hold phase only). (b) The top-out arm flail is baked out of Mx_Trav_Ladder_Top_Exit at library build (arm tracks ease into the Idle arm pose from 1.6 to 2.5 s; RootExtract._calm_arms): arms stay down as he steps onto the deck. Frame-diff: no spikes besides the scripted camera cut. Still FAIL overall: the climb pose (UAL Ladder_Climb_Up) is stiff; the sword on the back sticks out past the shoulder at the top.
+
+## 2026-10-28 · NPC anim lane · Meshy prime text-to-motion batch (20 clips, m01-m20) on the UAL villager — 2 PASS, 7 HOLD, 11 FAIL
+Tools: Meshy prime FBX (SMPL-H 52 bones) -> Blender `tools/anim/mixamo_to_ual.py` rig `meshy_fbx` (auto bone orientation; mesh stripped; floor fix, foot lock with per-clip lock_vel/lock_wander, loop seam blend, lift_m), `tools/anim/meshy_pipeline.py` (retarget / sheet / measure with anim_qa on player_young + villager_man_a + villager_woman_a / grade with golden_gate), Movie Maker `tools_qa/living_world/clip_gallery.tscn` (villager_man_a with LifeProps, 1280x720 30 fps, q34 + front, gameplay distance 6-9 m), `tools_qa/living_world/sit_check.tscn --loop=` for the in-situ seat check, ffmpeg sheets. Sheets: docs/qa/golden/meshy/sheet_0-3.jpg (Blender, 8 frames per clip) and gallery_*.jpg; videos: PA_plans/videos/meshy_*.mp4.
+| Clip | Gate | Slip mean/max m/s (villager) | Note |
+|---|---|---|---|
+| m19 Tankard_Laugh | PASS | lock 0.01/0.03 | seated, mug to the mouth with the head back, laughs, mug back to the knee; feet planted. In situ at tavern_table: pelvis-to-seat 3 cm, no pop at enter/exit. Wired: tavern_table.loop |
+| m09 Sleep_Bed | PASS | n/a (lying) | on the back, arm across the chest, ankles crossed, slow breathing; lift_m 0.04 cleared 3.5 cm floor penetration. Wired: bed.loop |
+| m10 Wake_Bed | HOLD | n/a | starts mid-air at bed height and ends facing ~180 deg away: needs a bed-exit offset check in situ |
+| m16 Kneel_Down | HOLD | 0.04/0.43 | good kneel, but the lift that clears the toes (6 cm) makes the standing start float 6 cm; needs a phase-limited lift |
+| m12 Milk_Stool | HOLD | 0.03/0.25 | frog-legged wide squat, hands reach low between the knees: only plausible next to a cow |
+| m18 Butcher | HOLD | 0.01/0.03 | hunched, knife at thigh height, hands barely move: low energy, the knife never meets a table top |
+| m08 Nail_Bench | HOLD | 0.01/0.02 | small hand movement at hip height, no readable hammer strike |
+| m05 Stir_Cauldron | HOLD | 0.01/0.05 | small waist-height circles, weak reach into the pot |
+| m04 Laundry_Scrub | HOLD | 0.01/0.04 | stooped scrub, small motion; 1.2 cm penetration on the player rig |
+| m11 Eat_Seated | FAIL | 0.00/0.02 | bread and bowl stay in the lap; the food never reaches the mouth (robotic) |
+| m17 Forge_Glowing | FAIL | 0.02/0.08 | bent over with limp arms reaching toward the ground at nothing |
+| m02 Smith_Hammer | FAIL | 0.03/0.08 (player rig 0.16 max) | hammer and tongs held crossed at the chest and waved; no strike at anvil height (hands miss the prop) |
+| m15 Lute | FAIL | 0.01/0.04 | lute held upright like a cello, strumming near the face: wrong grip |
+| m06 Sweep | FAIL | 0.19/0.80 | lunging golf swings, broom head in the air, steps |
+| m01 Chop_Wood | FAIL | 0.07/0.31 | overhead swing into a deep crouch, axe into the ground beside the feet, steps |
+| m07 Mine_Pickaxe | FAIL | 0.09/0.30 | lunging swings with steps |
+| m13 Scythe | FAIL | 0.39/1.30 | wild lunges with big steps; reads like stretching, not mowing |
+| m03 Plant_Kneel | FAIL | 0.04/0.11 | on all fours, knees 10 cm through the floor |
+| m20 Carry_Sack_Walk | FAIL | 0.69 (vs ground speed) | sack on the shoulder reads well, but the stride skates |
+| m14 Wheelbarrow_Walk | FAIL | 0.67 (vs ground speed) | hunched walk with the arms hanging, no handle grip; skates |
+Overall: the prime clips read low-energy and generic. Work loops hover hands at hip height instead of at the work surface, and tools are waved rather than struck. Only the two "rest" clips meet the bar. Re-prompt advice is in the coordinator report.

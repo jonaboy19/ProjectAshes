@@ -63,7 +63,7 @@ def present(a, q):
     """Queue motions whose download exists: [(motion, path, rig)]."""
     out = []
     for m in q["motions"]:
-        for ext, rig in ((".bvh", "meshy_bvh"), (".glb", "meshy")):
+        for ext, rig in ((".fbx", "meshy_fbx"), (".bvh", "meshy_bvh"), (".glb", "meshy")):
             p = os.path.join(a["downloads"], m["id"] + ext)
             if os.path.exists(p):
                 out.append((m, p, rig))
@@ -73,7 +73,7 @@ def present(a, q):
 
 def spec_of(m, path, rig):
     c = {"name": m["clip"], "file": os.path.basename(path), "loop": bool(m.get("loop")), "inplace": m.get("inplace", "none")}
-    for k in ("foot_lock", "knee_lift", "hand_margin_extra", "lift_m", "contact_ik"):
+    for k in ("foot_lock", "knee_lift", "hand_margin_extra", "lift_m", "contact_ik", "lock_vel", "lock_wander", "ik_smooth"):
         if k in m and k != "contact_ik":
             c[k] = m[k]
     if m.get("contact_ik"):
@@ -158,16 +158,18 @@ def measure(a, q):
     ag = os.path.join(K, "scripts", "world", "assets.gd")
     raw = open(ag, "rb").read()
     txt = raw.decode("utf-8")
-    m = re.search(r'(\tUAL_ANIM_DIR \+ "mixamo_owner/UAL_Mixamo_Owner2\.glb")\]', txt)
+    m = re.search(r'const UAL_FILES := \[.*?(\.glb")\]', txt, re.S)   # last entry of the list, whatever it is
     if not m:
         sys.exit("assets.gd UAL_FILES anchor not found")
     try:
-        open(ag, "wb").write(txt.replace(m.group(0), m.group(1) + ', "%s"]' % LIB_RES).encode("utf-8"))
+        e = m.end(1)
+        open(ag, "wb").write((txt[:e] + ', "%s"' % LIB_RES + txt[e:]).encode("utf-8"))
         names = ",".join(json.load(open(LIB + ".life.json"))["clips"].keys())
         subprocess.run([GODOT, "--headless", "--path", K, "-s", os.path.join(REPO, "tools", "qa", "anim_qa", "anim_qa.gd"), "--",
                         "--library=" + SUBJECTS, "--tag=meshy", "--clips=" + names, "--out-dir=" + OUT], capture_output=True)
-    finally:
-        open(ag, "wb").write(raw)
+    finally:   # take out only our entry: other workers may have edited assets.gd while Godot ran
+        cur = open(ag, "rb").read().decode("utf-8")
+        open(ag, "wb").write(cur.replace(', "%s"' % LIB_RES, "", 1).encode("utf-8"))
     for f in _git_import_dirty() - before:
         subprocess.run(["git", "-C", REPO, "checkout", "--", f])
     print("measured ->", os.path.join(OUT, "golden_library_meshy.json"))

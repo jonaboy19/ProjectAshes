@@ -6,7 +6,7 @@
 set -u
 R=/c/Users/Jonna/Documents/PA_wt_w3; cd $R/kingdom
 G=${GODOT:-/c/Users/Jonna/Downloads/Godot_v4.6.3-stable_win64/Godot_v4.6.3-stable_win64.exe}
-LABEL=${1:-}; Q=${2:---quality=high}
+LABEL=${1:-}; Q=${2:---quality=low}
 SHA=$(git -C $R rev-parse --short HEAD); D=$(date +%Y-%m-%d_%H%M)
 NAME="slice_${D}_${SHA}${LABEL:+_$LABEL}"
 TMP="$TEMP/slice_rec/$NAME"; mkdir -p "$TMP"
@@ -20,4 +20,6 @@ git -C $R status --porcelain | sort > "$TMP/s2.txt"; comm -13 "$TMP/s1.txt" "$TM
 bash $R/tools/qa/video/analyse_tour.sh "$TMP/slice.avi" "$TMP/an" 0.12 > /dev/null 2>&1
 cp "$TMP/an/tour.mp4" "$OUTV/$NAME.mp4" 2>/dev/null
 mkdir -p "$R/docs/qa/video/slice/$NAME"; cp "$TMP"/an/sheet_*.jpg "$TMP/an/spikes.tsv" "$R/docs/qa/video/slice/$NAME/" 2>/dev/null
+# disk is tight: keep only the MP4, the sheets and the sidecar
+[ -s "$OUTV/$NAME.mp4" ] && rm -f "$TMP/slice.avi" "$TMP/an/tour.mp4"
 echo "RECORDED $OUTV/$NAME.mp4 $(ls -la "$OUTV/$NAME.mp4" 2>/dev/null | awk '{print $5}') sheets=$(ls "$R/docs/qa/video/slice/$NAME" | wc -l) crash=$(grep -c CrashHandler "$TMP/log.txt")"

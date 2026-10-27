@@ -11,7 +11,7 @@ Shared batch tool (owner Mixamo downloads: locomotion set S3.1c and the owner_se
           [--foot-lock on|off]         default on: pins planted feet (see FOOT LOCK)
           [--only <substring>]         retarget a subset
           [--report <file.json>]       per-clip QA numbers (default <out>.mixamo.json)
-          [--rig mixamo|meshy|meshy_bvh]  source skeleton: Mixamo FBX (default), Meshy rigged GLB (clip spec gives
+          [--rig mixamo|meshy|meshy_bvh|meshy_fbx]  source skeleton: Mixamo FBX (default), Meshy rigged GLB (clip spec gives
                                        "file" = the .glb and "action"), Meshy text-to-motion BVH
 
 Raw Mixamo FBX never go into the repo (licence: no raw redistribution); only the retargeted GLB does.
@@ -79,7 +79,17 @@ for _s, _S in (("l", "Left"), ("r", "Right")):
         MESHY_BVH["thumb_0%d_%s" % (_i, _s)] = "%sHandThumb%d" % (_S, _i)
         for _f, _F in (("index", "Index"), ("middle", "Middle"), ("ring", "Ring"), ("pinky", "Pinky")):
             MESHY_BVH["%s_0%d_%s" % (_f, _i, _s)] = "%sHand%s%d" % (_S, _F, _i + 1)
-RIGS = {"mixamo": ("fbx", MAP), "meshy": ("gltf", MESHY_GLB), "meshy_bvh": ("bvh", MESHY_BVH)}
+# Meshy text-to-motion PRIME export (2026-10-28): FBX with an SMPL-H skeleton (52 bones, Pelvis / L_Hip ... / L_Wrist +
+# 3-segment fingers), cm units (scale 0.01), +90 deg X, 30 fps, includes Meshy's skinned preview mesh (dropped on import).
+SMPLH = {"pelvis": "Pelvis", "spine_01": "Spine1", "spine_02": "Spine2", "spine_03": "Spine3", "neck_01": "Neck", "Head": "Head"}
+for _s, _S in (("l", "L"), ("r", "R")):
+    SMPLH.update({"clavicle_" + _s: _S + "_Collar", "upperarm_" + _s: _S + "_Shoulder", "lowerarm_" + _s: _S + "_Elbow",
+                  "hand_" + _s: _S + "_Wrist", "thigh_" + _s: _S + "_Hip", "calf_" + _s: _S + "_Knee",
+                  "foot_" + _s: _S + "_Ankle", "ball_" + _s: _S + "_Foot"})
+    for _i in (1, 2, 3):
+        for _f, _F in (("thumb", "Thumb"), ("index", "Index"), ("middle", "Middle"), ("ring", "Ring"), ("pinky", "Pinky")):
+            SMPLH["%s_0%d_%s" % (_f, _i, _s)] = "%s_%s%d" % (_S, _F, _i)
+RIGS = {"mixamo": ("fbx", MAP), "meshy": ("gltf", MESHY_GLB), "meshy_bvh": ("bvh", MESHY_BVH), "meshy_fbx": ("fbx", SMPLH)}
 
 REPO = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", ".."))
 HAND_MARGIN = 0.035      # hand joint centre above the floor (palm thickness)
@@ -131,7 +141,7 @@ def build_cfg(a):
         c = dict(c)
         c.setdefault("heading", "start")
         c.setdefault("inplace", "smooth")
-        if c.get("loop") and RIGS[a["rig"]][0] != "fbx":
+        if c.get("loop") and a["rig"] != "mixamo":
             c.setdefault("loop_native", False)         # Meshy cycles are not frame-exact: find loop points + crossfade
         if c.get("loop") and c.get("loop_native", True) and "end" not in c:
             # Mixamo cycles repeat frame 1 as the last frame: drop it so the seam is exact
@@ -155,10 +165,11 @@ def build_cfg(a):
     has_fingers = any(k.startswith("index_") for k in bmap)
     cfg = {
         "source_type": st, "fbx_dir": src, "bvh_dir": src, "source_fps": 30, "ual": UAL, "out": os.path.abspath(a["out"]),
-        "map": bmap, "no_match": ["pelvis"], "heading": "start", "smooth": 0.0 if st == "fbx" else 0.04,
+        "map": bmap, "no_match": ["pelvis"] + (["Head", "ball_l", "ball_r"] + [k for k in bmap if k.endswith(("_03_l", "_03_r"))] if a["rig"] == "meshy_fbx" else []), "heading": "start", "smooth": 0.0 if st == "fbx" else 0.04,
         "fingers": None if has_fingers else "relaxed", "finger_poses": {} if has_fingers else {"relaxed": ["Idle_Loop", 0.0]},
         "check_directions": True, "root_motion_track": a["root-motion"] == "keep", "contact": True,
         "clips": out_clips,
+        "fbx_auto_orient": a["rig"] == "meshy_fbx",
     }
     return cfg
 

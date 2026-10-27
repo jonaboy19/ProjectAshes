@@ -548,7 +548,8 @@ for clip in cfg["clips"]:
     elif src_type == "fbx":
         # source = one FBX per clip (Mixamo: mixamorig:* armature, 30 fps, no skin); every object it brings is removed afterwards
         bset = set(bpy.data.objects)
-        bpy.ops.import_scene.fbx(filepath=P(os.path.join(cfg["fbx_dir"], clip["file"])))
+        # fbx_auto_orient: skeletons exported without bone tails (Meshy prime SMPL-H) get tails aimed at the child joint
+        bpy.ops.import_scene.fbx(filepath=P(os.path.join(cfg["fbx_dir"], clip["file"])), automatic_bone_orientation=bool(cfg.get("fbx_auto_orient", False)))
         fbx_new = [o for o in bpy.data.objects if o not in bset]
         src = [o for o in fbx_new if o.type == "ARMATURE"][0]
         act = src.animation_data.action

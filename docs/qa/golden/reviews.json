@@ -926,5 +926,165 @@
   "verdict": "pass",
   "by": "claude (side-view 8-frame strip after the ClipLift pelvis repair; feet on the grid, no sinking or hovering)",
   "date": "2026-10-27"
+ },
+ "Life_Mz_Tankard_Laugh": {
+  "sheet": "docs/qa/golden/meshy/gallery_c1.jpg",
+  "video": "C:/Users/Jonna/Documents/PA_plans/videos/meshy_c1.mp4",
+  "verdict": "pass",
+  "note": "seated on the stool, mug to the mouth with the head back, laughs, mug back to the knee; feet planted; reads alive",
+  "by": "claude (Meshy prime 2026-10-28: Blender check sheet + Movie Maker clip_gallery on villager_man_a, q34/front, 1280x720)",
+  "date": "2026-10-28"
+ },
+ "Life_Mz_Sleep_Bed": {
+  "sheet": "docs/qa/golden/meshy/gallery_c3.jpg",
+  "video": "C:/Users/Jonna/Documents/PA_plans/videos/meshy_c3.mp4",
+  "verdict": "pass",
+  "note": "on the back, arm across the chest, ankles crossed, slow breathing; no pops; lies on y=0 like Life_Mx_Sleep_Bed (bed slot lifts it)",
+  "by": "claude (Meshy prime 2026-10-28: Blender check sheet + Movie Maker clip_gallery on villager_man_a, q34/front, 1280x720)",
+  "date": "2026-10-28"
+ },
+ "Life_Mz_Wake_Bed": {
+  "sheet": "docs/qa/golden/meshy/gallery_c3.jpg",
+  "video": "C:/Users/Jonna/Documents/PA_plans/videos/meshy_c3.mp4",
+  "verdict": "hold",
+  "note": "starts mid-air at bed height and ends facing ~180 deg away: needs a bed-exit offset check in situ before use",
+  "by": "claude (Meshy prime 2026-10-28: Blender check sheet + Movie Maker clip_gallery on villager_man_a, q34/front, 1280x720)",
+  "date": "2026-10-28"
+ },
+ "Life_Mz_Kneel_Down": {
+  "sheet": "docs/qa/golden/meshy/gallery_c4.jpg",
+  "video": "C:/Users/Jonna/Documents/PA_plans/videos/meshy_c4.mp4",
+  "verdict": "hold",
+  "note": "good kneel, but lift_m 0.065 (toes went 6 cm through the floor) makes the standing start float 6 cm; needs a phase lift",
+  "by": "claude (Meshy prime 2026-10-28: Blender check sheet + Movie Maker clip_gallery on villager_man_a, q34/front, 1280x720)",
+  "date": "2026-10-28"
+ },
+ "Life_Mz_Milk_Stool": {
+  "sheet": "docs/qa/golden/meshy/gallery_c3.jpg",
+  "video": "C:/Users/Jonna/Documents/PA_plans/videos/meshy_c3.mp4",
+  "verdict": "hold",
+  "note": "frog-legged wide squat on the stool, hands reach low between the knees; plausible only next to a cow, awkward alone",
+  "by": "claude (Meshy prime 2026-10-28: Blender check sheet + Movie Maker clip_gallery on villager_man_a, q34/front, 1280x720)",
+  "date": "2026-10-28"
+ },
+ "Life_Mz_Butcher": {
+  "sheet": "docs/qa/golden/meshy/gallery_c2.jpg",
+  "video": "C:/Users/Jonna/Documents/PA_plans/videos/meshy_c2.mp4",
+  "verdict": "hold",
+  "note": "hunched over the table with the knife at thigh height, hands barely move: low energy, the knife never meets a table top",
+  "by": "claude (Meshy prime 2026-10-28: Blender check sheet + Movie Maker clip_gallery on villager_man_a, q34/front, 1280x720)",
+  "date": "2026-10-28"
+ },
+ "Life_Mz_Nail_Bench": {
+  "sheet": "docs/qa/golden/meshy/gallery_c2.jpg",
+  "video": "C:/Users/Jonna/Documents/PA_plans/videos/meshy_c2.mp4",
+  "verdict": "hold",
+  "note": "hunched, small hand movement at hip height; no readable hammer strike",
+  "by": "claude (Meshy prime 2026-10-28: Blender check sheet + Movie Maker clip_gallery on villager_man_a, q34/front, 1280x720)",
+  "date": "2026-10-28"
+ },
+ "Life_Mz_Stir_Cauldron": {
+  "sheet": "docs/qa/golden/meshy/gallery_c2.jpg",
+  "video": "C:/Users/Jonna/Documents/PA_plans/videos/meshy_c2.mp4",
+  "verdict": "hold",
+  "note": "small waist-height hand circles, weak reach into the pot",
+  "by": "claude (Meshy prime 2026-10-28: Blender check sheet + Movie Maker clip_gallery on villager_man_a, q34/front, 1280x720)",
+  "date": "2026-10-28"
+ },
+ "Life_Mz_Laundry_Scrub": {
+  "sheet": "docs/qa/golden/meshy/gallery_p3_front.jpg",
+  "video": "C:/Users/Jonna/Documents/PA_plans/videos/meshy_p3_front.mp4",
+  "verdict": "hold",
+  "note": "stooped standing scrub, small motion; 1.2 cm penetration on the player rig",
+  "by": "claude (Meshy prime 2026-10-28: Blender check sheet + Movie Maker clip_gallery on villager_man_a, q34/front, 1280x720)",
+  "date": "2026-10-28"
+ },
+ "Life_Mz_Eat_Seated": {
+  "sheet": "docs/qa/golden/meshy/gallery_c1.jpg",
+  "video": "C:/Users/Jonna/Documents/PA_plans/videos/meshy_c1.mp4",
+  "verdict": "fail",
+  "note": "seated with bread and bowl in the lap; the food never reaches the mouth in 10 s: does not read as eating (robotic)",
+  "by": "claude (Meshy prime 2026-10-28: Blender check sheet + Movie Maker clip_gallery on villager_man_a, q34/front, 1280x720)",
+  "date": "2026-10-28"
+ },
+ "Life_Mz_Forge_Glowing": {
+  "sheet": "docs/qa/golden/meshy/gallery_c1.jpg",
+  "video": "C:/Users/Jonna/Documents/PA_plans/videos/meshy_c1.mp4",
+  "verdict": "fail",
+  "note": "bent over with limp arms reaching toward the ground at nothing; reads as staring at the floor",
+  "by": "claude (Meshy prime 2026-10-28: Blender check sheet + Movie Maker clip_gallery on villager_man_a, q34/front, 1280x720)",
+  "date": "2026-10-28"
+ },
+ "Life_Mz_Smith_Hammer": {
+  "sheet": "docs/qa/golden/meshy/gallery_c4.jpg",
+  "video": "C:/Users/Jonna/Documents/PA_plans/videos/meshy_c4.mp4",
+  "verdict": "fail",
+  "note": "hammer and tongs held crossed at chest height and waved; no strike at anvil height (hands miss the prop)",
+  "by": "claude (Meshy prime 2026-10-28: Blender check sheet + Movie Maker clip_gallery on villager_man_a, q34/front, 1280x720)",
+  "date": "2026-10-28"
+ },
+ "Life_Mz_Lute": {
+  "sheet": "docs/qa/golden/meshy/gallery_c4.jpg",
+  "video": "C:/Users/Jonna/Documents/PA_plans/videos/meshy_c4.mp4",
+  "verdict": "fail",
+  "note": "lute held upright like a cello, strumming near the face: wrong grip, hands miss the prop",
+  "by": "claude (Meshy prime 2026-10-28: Blender check sheet + Movie Maker clip_gallery on villager_man_a, q34/front, 1280x720)",
+  "date": "2026-10-28"
+ },
+ "Life_Mz_Sweep": {
+  "sheet": "docs/qa/golden/meshy/gallery_p1_front.jpg",
+  "video": "C:/Users/Jonna/Documents/PA_plans/videos/meshy_p1_front.mp4",
+  "verdict": "fail",
+  "note": "lunging golf swings at waist height, broom head in the air; feet step and slide 0.2 m/s",
+  "by": "claude (Meshy prime 2026-10-28: Blender check sheet + Movie Maker clip_gallery on villager_man_a, q34/front, 1280x720)",
+  "date": "2026-10-28"
+ },
+ "Life_Mz_Chop_Wood": {
+  "sheet": "docs/qa/golden/meshy/gallery_p1_front.jpg",
+  "video": "C:/Users/Jonna/Documents/PA_plans/videos/meshy_p1_front.mp4",
+  "verdict": "fail",
+  "note": "overhead swing into a deep crouch, axe into the ground beside the feet; steps (slide 0.08/0.32 m/s)",
+  "by": "claude (Meshy prime 2026-10-28: Blender check sheet + Movie Maker clip_gallery on villager_man_a, q34/front, 1280x720)",
+  "date": "2026-10-28"
+ },
+ "Life_Mz_Mine_Pickaxe": {
+  "sheet": "docs/qa/golden/meshy/gallery_p3_front.jpg",
+  "video": "C:/Users/Jonna/Documents/PA_plans/videos/meshy_p3_front.mp4",
+  "verdict": "fail",
+  "note": "lunging swings with steps (slide 0.09/0.30 m/s)",
+  "by": "claude (Meshy prime 2026-10-28: Blender check sheet + Movie Maker clip_gallery on villager_man_a, q34/front, 1280x720)",
+  "date": "2026-10-28"
+ },
+ "Life_Mz_Scythe": {
+  "sheet": "docs/qa/golden/meshy/gallery_p4_front.jpg",
+  "video": "C:/Users/Jonna/Documents/PA_plans/videos/meshy_p4_front.mp4",
+  "verdict": "fail",
+  "note": "wild lunges with big steps, slide 0.4/1.3 m/s; reads like stretching, not mowing",
+  "by": "claude (Meshy prime 2026-10-28: Blender check sheet + Movie Maker clip_gallery on villager_man_a, q34/front, 1280x720)",
+  "date": "2026-10-28"
+ },
+ "Life_Mz_Plant_Kneel": {
+  "sheet": "docs/qa/golden/meshy/gallery_p4_front.jpg",
+  "video": "C:/Users/Jonna/Documents/PA_plans/videos/meshy_p4_front.mp4",
+  "verdict": "fail",
+  "note": "on all fours, knees 10 cm through the floor",
+  "by": "claude (Meshy prime 2026-10-28: Blender check sheet + Movie Maker clip_gallery on villager_man_a, q34/front, 1280x720)",
+  "date": "2026-10-28"
+ },
+ "Life_Mz_Carry_Sack_Walk": {
+  "sheet": "docs/qa/golden/meshy/gallery_p1_front.jpg",
+  "video": "C:/Users/Jonna/Documents/PA_plans/videos/meshy_p1_front.mp4",
+  "verdict": "fail",
+  "note": "sack on the shoulder reads well, but the stride skates (slide 0.7 m/s vs ground speed)",
+  "by": "claude (Meshy prime 2026-10-28: Blender check sheet + Movie Maker clip_gallery on villager_man_a, q34/front, 1280x720)",
+  "date": "2026-10-28"
+ },
+ "Life_Mz_Wheelbarrow_Walk": {
+  "sheet": "docs/qa/golden/meshy/gallery_p2_front.jpg",
+  "video": "C:/Users/Jonna/Documents/PA_plans/videos/meshy_p2_front.mp4",
+  "verdict": "fail",
+  "note": "hunched walk with the arms hanging: no handle grip; skates (slide 0.67 m/s)",
+  "by": "claude (Meshy prime 2026-10-28: Blender check sheet + Movie Maker clip_gallery on villager_man_a, q34/front, 1280x720)",
+  "date": "2026-10-28"
  }
 }

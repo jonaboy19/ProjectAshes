@@ -1,0 +1,454 @@
+[
+ {
+  "name": "Life_Mz_Chop_Wood",
+  "loop": true,
+  "seconds": 2.53,
+  "frames": 77,
+  "keys": 1177,
+  "source": "m01_chop_wood.fbx",
+  "range_s": [
+   null,
+   null
+  ],
+  "autotrim": null,
+  "loop_pts": [
+   0.23,
+   2.77,
+   4.83
+  ],
+  "floor_fix_m": -0.028,
+  "contact_lift_m": 0.0,
+  "min_foot_m": -0.002,
+  "travel_m": 0.0,
+  "hip_scale": 0.9395
+ },
+ {
+  "name": "Life_Mz_Smith_Hammer",
+  "loop": true,
+  "seconds": 1.13,
+  "frames": 35,
+  "keys": 637,
+  "source": "m02_smith_hammer.fbx",
+  "range_s": [
+   null,
+   null
+  ],
+  "autotrim": null,
+  "loop_pts": [
+   0.7,
+   1.83,
+   2.74
+  ],
+  "floor_fix_m": -0.011,
+  "contact_lift_m": 0.0,
+  "min_foot_m": -0.001,
+  "travel_m": 0.0,
+  "hip_scale": 0.9395
+ },
+ {
+  "name": "Life_Mz_Plant_Kneel",
+  "loop": true,
+  "seconds": 4.1,
+  "frames": 124,
+  "keys": 1125,
+  "source": "m03_plant_kneel.fbx",
+  "range_s": [
+   null,
+   null
+  ],
+  "autotrim": null,
+  "loop_pts": [
+   0.67,
+   4.77,
+   3.22
+  ],
+  "floor_fix_m": 0.0,
+  "contact_lift_m": 0.105,
+  "min_foot_m": 0.046,
+  "travel_m": 0.0,
+  "hip_scale": 0.9395
+ },
+ {
+  "name": "Life_Mz_Laundry_Scrub",
+  "loop": true,
+  "seconds": 1.7,
+  "frames": 52,
+  "keys": 631,
+  "source": "m04_laundry_scrub.fbx",
+  "range_s": [
+   null,
+   null
+  ],
+  "autotrim": null,
+  "loop_pts": [
+   0.8,
+   2.5,
+   1.21
+  ],
+  "floor_fix_m": 0.02,
+  "contact_lift_m": 0.0,
+  "min_foot_m": -0.001,
+  "travel_m": 0.0,
+  "hip_scale": 0.9395
+ },
+ {
+  "name": "Life_Mz_Stir_Cauldron",
+  "loop": true,
+  "seconds": 1.93,
+  "frames": 59,
+  "keys": 612,
+  "source": "m05_stir_cauldron.fbx",
+  "range_s": [
+   null,
+   null
+  ],
+  "autotrim": null,
+  "loop_pts": [
+   0.57,
+   2.5,
+   1.92
+  ],
+  "floor_fix_m": -0.015,
+  "contact_lift_m": 0.0,
+  "min_foot_m": 0.002,
+  "travel_m": 0.0,
+  "hip_scale": 0.9395
+ },
+ {
+  "name": "Life_Mz_Sweep",
+  "loop": true,
+  "seconds": 2.23,
+  "frames": 68,
+  "keys": 998,
+  "source": "m06_sweep.fbx",
+  "range_s": [
+   null,
+   null
+  ],
+  "autotrim": null,
+  "loop_pts": [
+   0.23,
+   2.47,
+   9.89
+  ],
+  "floor_fix_m": -0.021,
+  "contact_lift_m": 0.0,
+  "min_foot_m": -0.002,
+  "travel_m": 0.0,
+  "hip_scale": 0.9395
+ },
+ {
+  "name": "Life_Mz_Mine_Pickaxe",
+  "loop": true,
+  "seconds": 2.1,
+  "frames": 64,
+  "keys": 1116,
+  "source": "m07_mine_pickaxe.fbx",
+  "range_s": [
+   null,
+   null
+  ],
+  "autotrim": null,
+  "loop_pts": [
+   0.23,
+   2.33,
+   7.94
+  ],
+  "floor_fix_m": -0.011,
+  "contact_lift_m": 0.0,
+  "min_foot_m": -0.006,
+  "travel_m": 0.0,
+  "hip_scale": 0.9395
+ },
+ {
+  "name": "Life_Mz_Nail_Bench",
+  "loop": true,
+  "seconds": 1.23,
+  "frames": 38,
+  "keys": 388,
+  "source": "m08_nail_bench.fbx",
+  "range_s": [
+   null,
+   null
+  ],
+  "autotrim": null,
+  "loop_pts": [
+   0.4,
+   1.63,
+   1.08
+  ],
+  "floor_fix_m": -0.021,
+  "contact_lift_m": 0.0,
+  "min_foot_m": 0.001,
+  "travel_m": 0.0,
+  "hip_scale": 0.9395
+ },
+ {
+  "name": "Life_Mz_Sleep_Bed",
+  "loop": true,
+  "seconds": 4.6,
+  "frames": 139,
+  "keys": 331,
+  "source": "m09_sleep_bed.fbx",
+  "range_s": [
+   null,
+   null
+  ],
+  "autotrim": null,
+  "loop_pts": [
+   0.8,
+   5.4,
+   1.69
+  ],
+  "floor_fix_m": -0.2,
+  "contact_lift_m": 0.031,
+  "min_foot_m": 0.061,
+  "travel_m": 0.0,
+  "hip_scale": 0.9395
+ },
+ {
+  "name": "Life_Mz_Wake_Bed",
+  "loop": false,
+  "seconds": 3.97,
+  "frames": 120,
+  "keys": 1396,
+  "source": "m10_wake_bed.fbx",
+  "range_s": [
+   null,
+   null
+  ],
+  "autotrim": null,
+  "loop_pts": null,
+  "floor_fix_m": 0.013,
+  "contact_lift_m": 0.0,
+  "min_foot_m": -0.003,
+  "travel_m": 0.0,
+  "hip_scale": 0.9395
+ },
+ {
+  "name": "Life_Mz_Eat_Seated",
+  "loop": true,
+  "seconds": 3.67,
+  "frames": 111,
+  "keys": 437,
+  "source": "m11_eat_seated.fbx",
+  "range_s": [
+   null,
+   null
+  ],
+  "autotrim": null,
+  "loop_pts": [
+   0.23,
+   3.9,
+   0.89
+  ],
+  "floor_fix_m": -0.063,
+  "contact_lift_m": 0.0,
+  "min_foot_m": -0.0,
+  "travel_m": 0.0,
+  "hip_scale": 0.9395
+ },
+ {
+  "name": "Life_Mz_Milk_Stool",
+  "loop": true,
+  "seconds": 1.8,
+  "frames": 55,
+  "keys": 420,
+  "source": "m12_milk_stool.fbx",
+  "range_s": [
+   null,
+   null
+  ],
+  "autotrim": null,
+  "loop_pts": [
+   0.77,
+   2.57,
+   1.44
+  ],
+  "floor_fix_m": -0.077,
+  "contact_lift_m": 0.0,
+  "min_foot_m": 0.003,
+  "travel_m": 0.0,
+  "hip_scale": 0.9395
+ },
+ {
+  "name": "Life_Mz_Scythe",
+  "loop": true,
+  "seconds": 2.23,
+  "frames": 68,
+  "keys": 1349,
+  "source": "m13_scythe_inplace.fbx",
+  "range_s": [
+   null,
+   null
+  ],
+  "autotrim": null,
+  "loop_pts": [
+   0.23,
+   2.47,
+   10.99
+  ],
+  "floor_fix_m": 0.014,
+  "contact_lift_m": 0.0,
+  "min_foot_m": -0.007,
+  "travel_m": 0.0,
+  "hip_scale": 0.9395
+ },
+ {
+  "name": "Life_Mz_Wheelbarrow_Walk",
+  "loop": true,
+  "seconds": 1.57,
+  "frames": 48,
+  "keys": 759,
+  "source": "m14_wheelbarrow.fbx",
+  "range_s": [
+   null,
+   null
+  ],
+  "autotrim": null,
+  "loop_pts": [
+   0.27,
+   1.83,
+   2.51
+  ],
+  "floor_fix_m": 0.024,
+  "contact_lift_m": 0.0,
+  "min_foot_m": -0.002,
+  "travel_m": 2.11,
+  "hip_scale": 0.9395
+ },
+ {
+  "name": "Life_Mz_Lute",
+  "loop": true,
+  "seconds": 3.3,
+  "frames": 100,
+  "keys": 560,
+  "source": "m15_lute.fbx",
+  "range_s": [
+   null,
+   null
+  ],
+  "autotrim": null,
+  "loop_pts": [
+   0.3,
+   3.6,
+   1.7
+  ],
+  "floor_fix_m": -0.003,
+  "contact_lift_m": 0.0,
+  "min_foot_m": -0.001,
+  "travel_m": 0.0,
+  "hip_scale": 0.9395
+ },
+ {
+  "name": "Life_Mz_Kneel_Down",
+  "loop": false,
+  "seconds": 2.97,
+  "frames": 90,
+  "keys": 733,
+  "source": "m16_kneel_down.fbx",
+  "range_s": [
+   null,
+   null
+  ],
+  "autotrim": null,
+  "loop_pts": null,
+  "floor_fix_m": -0.032,
+  "contact_lift_m": 0.021,
+  "min_foot_m": -0.02,
+  "travel_m": 0.0,
+  "hip_scale": 0.9395
+ },
+ {
+  "name": "Life_Mz_Forge_Glowing",
+  "loop": true,
+  "seconds": 1.77,
+  "frames": 54,
+  "keys": 903,
+  "source": "m17_forge_anvil.fbx",
+  "range_s": [
+   null,
+   null
+  ],
+  "autotrim": null,
+  "loop_pts": [
+   0.8,
+   2.57,
+   2.21
+  ],
+  "floor_fix_m": 0.009,
+  "contact_lift_m": 0.0,
+  "min_foot_m": -0.004,
+  "travel_m": 0.0,
+  "hip_scale": 0.9395
+ },
+ {
+  "name": "Life_Mz_Butcher",
+  "loop": true,
+  "seconds": 2.33,
+  "frames": 71,
+  "keys": 701,
+  "source": "m18_butcher.fbx",
+  "range_s": [
+   null,
+   null
+  ],
+  "autotrim": null,
+  "loop_pts": [
+   0.3,
+   2.63,
+   1.13
+  ],
+  "floor_fix_m": 0.011,
+  "contact_lift_m": 0.0,
+  "min_foot_m": -0.001,
+  "travel_m": 0.0,
+  "hip_scale": 0.9395
+ },
+ {
+  "name": "Life_Mz_Tankard_Laugh",
+  "loop": true,
+  "seconds": 2.6,
+  "frames": 79,
+  "keys": 777,
+  "source": "m19_tankard_seated.fbx",
+  "range_s": [
+   null,
+   null
+  ],
+  "autotrim": null,
+  "loop_pts": [
+   0.8,
+   3.4,
+   10.89
+  ],
+  "floor_fix_m": -0.076,
+  "contact_lift_m": 0.0,
+  "min_foot_m": 0.0,
+  "travel_m": 0.0,
+  "hip_scale": 0.9395
+ },
+ {
+  "name": "Life_Mz_Carry_Sack_Walk",
+  "loop": true,
+  "seconds": 1.0,
+  "frames": 31,
+  "keys": 499,
+  "source": "m20_carry_sack.fbx",
+  "range_s": [
+   null,
+   null
+  ],
+  "autotrim": null,
+  "loop_pts": [
+   0.5,
+   1.5,
+   2.51
+  ],
+  "floor_fix_m": 0.014,
+  "contact_lift_m": 0.0,
+  "min_foot_m": 0.008,
+  "travel_m": 1.43,
+  "hip_scale": 0.9395
+ }
+]

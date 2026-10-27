@@ -8,6 +8,7 @@ extends Node3D
 var look := "villager_man_a"
 var type := "bench"
 var shots := ""
+var loop_clip := ""   # --loop=<clip>: only this loop clip (the variant bag is seeded per person/day)
 
 
 func _ready() -> void:
@@ -18,6 +19,8 @@ func _ready() -> void:
 			type = a.substr(7)
 		elif a.begins_with("--shots="):
 			shots = a.substr(8)
+		elif a.begins_with("--loop="):
+			loop_clip = a.substr(7)
 	_run.call_deferred()
 
 
@@ -39,6 +42,8 @@ func _run() -> void:
 	fl.mesh = pm
 	add_child(fl)
 	var so := SmartObjects.new()
+	if loop_clip != "":
+		so.types[type]["activity"]["loop"] = [loop_clip]
 	var spot := so.add(type, Transform3D(Basis.IDENTITY, Vector3.ZERO))
 	var prop_path := "res://assets/generated/props/bench.glb" if type == "bench" else "res://assets/generated/life_props/table.glb"
 	if ResourceLoader.exists(prop_path):
@@ -93,6 +98,7 @@ func _run() -> void:
 		var c: String = out["clip"]
 		if c != "" and c != clip:
 			ap.play(c, float(LifeLibrary.info(c).get("blend_in", 0.25)))
+			print("SITCLIP t=%.1f phase=%d %s" % [t, int(out["phase"]), c])
 			clip = c
 		elif c == "" and clip != "":
 			ap.play("Idle", 0.25)

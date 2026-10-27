@@ -21,7 +21,9 @@
      "hand": "r"
     }
    ],
-   "replaces": "Life_Wood_Chop (8 pops), Life_Mx_Chop_Wood (steps)"
+   "replaces": "Life_Wood_Chop (8 pops), Life_Mx_Chop_Wood (steps)",
+   "lock_vel": 0.9,
+   "lock_wander": 0.25
   },
   {
    "id": "m02_smith_hammer",
@@ -46,7 +48,9 @@
      "hand": "l"
     }
    ],
-   "replaces": "Life_Smith_Hammer (2 pops)"
+   "replaces": "Life_Smith_Hammer (2 pops)",
+   "lock_vel": 1.2,
+   "lock_wander": 0.35
   },
   {
    "id": "m03_plant_kneel",
@@ -131,7 +135,9 @@
    "category": "work/mine",
    "target": null,
    "replaces": "no mining clip (WP-13 underground post miners)",
-   "prop_needed": "pickaxe"
+   "prop_needed": "pickaxe",
+   "lock_vel": 0.9,
+   "lock_wander": 0.25
   },
   {
    "id": "m08_nail_bench",
@@ -161,7 +167,8 @@
     "type": "bed",
     "key": "loop",
     "enable": false
-   }
+   },
+   "lift_m": 0.04
   },
   {
    "id": "m10_wake_bed",
@@ -200,7 +207,8 @@
      "id": "bowl",
      "hand": "l"
     }
-   ]
+   ],
+   "lift_to_floor": true
   },
   {
    "id": "m12_milk_stool",
@@ -214,7 +222,8 @@
     "type": "milking_stool",
     "key": "loop",
     "enable": false
-   }
+   },
+   "lift_to_floor": true
   },
   {
    "id": "m13_scythe_inplace",
@@ -229,7 +238,9 @@
     "key": "loop",
     "enable": false
    },
-   "prop_needed": "scythe"
+   "prop_needed": "scythe",
+   "lock_vel": 0.9,
+   "lock_wander": 0.25
   },
   {
    "id": "m14_wheelbarrow",
@@ -276,7 +287,8 @@
     "type": "chapel_kneel",
     "key": "enter",
     "enable": false
-   }
+   },
+   "lift_m": 0.065
   },
   {
    "id": "m17_forge_anvil",
@@ -291,7 +303,9 @@
     "key": "between",
     "enable": false
    },
-   "source": "VIDEO_REFERENCE_ANALYSIS"
+   "source": "VIDEO_REFERENCE_ANALYSIS",
+   "lock_vel": 0.9,
+   "lock_wander": 0.25
   },
   {
    "id": "m18_butcher",
@@ -334,7 +348,10 @@
      "id": "mug",
      "hand": "r"
     }
-   ]
+   ],
+   "lift_to_floor": true,
+   "lock_vel": 0.9,
+   "lock_wander": 0.25
   },
   {
    "id": "m20_carry_sack",
