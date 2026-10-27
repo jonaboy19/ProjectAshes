@@ -162,6 +162,10 @@ const PROTEST_COOLDOWN_MS := 25000
 const GREET_RANGE := 3.4
 const BUBBLE_SECONDS := 3.2
 const STEP_RANGE := 11.0
+const NpcFootEvents := preload("res://scripts/living_world/npc_foot_events.gd")
+const SurfaceFeedback := preload("res://scripts/world/surface_feedback.gd")
+## A foot lands (skeleton contact, near the player only): audio / VFX hook; also sent to NpcFootEvents listeners.
+signal foot_contact(foot: StringName, surface: String, pos: Vector3, speed: float)
 const WORK_SOUND_RANGE := 16.0
 ## Activity clip -> [sound, fraction of the clip where the tool lands]. Approximate
 ## impact points until the clips carry contact markers.
@@ -224,6 +228,9 @@ var _clip_cache := {}
 
 # Smart object use (SmartObjects.Session driven at SESSION_HZ; see _so_*).
 var _props: LifeProps.Holder
+var _foot_bones := [-1, -1]          # foot_l / foot_r on the skeleton (per-foot contact events)
+var _foot_min := [1.0, 1.0]         # each foot's resting height above the root (adapts to the body size)
+var _foot_up := [true, true]
 var _carry := CarryErrand.new()     # street life: sack / crate / basket carried from a trip's start to its end
 ## LifeAmbience (docs/anim/patches/P13_villager_life_clips.md section 6): stable personality, idle fidgets, glances, walk style, rain hunch.
 var _amb: LifeAmbience
@@ -386,6 +393,7 @@ func _ready() -> void:
 	if not skeletons.is_empty():
 		_skeleton = skeletons[0] as Skeleton3D
 		_props = LifeProps.Holder.new(_skeleton)
+		_foot_bones = [_skeleton.find_bone("foot_l"), _skeleton.find_bone("foot_r")]
 	_amb = LifeAmbience.new(person, _child, 0.9 if _file.begins_with("elder") else 0.4)
 	_attach_components(model)
 	if WorldSim.job[person] == 3:
@@ -657,6 +665,7 @@ func _tick_body(delta: float) -> void:
 		_update_animation(delta)
 		Probe.add("villager.anim", _pa)
 	_update_head_look(delta)
+	_foot_contacts()
 	if _tag != null:     # AAA pass 5: the focused name is drawn by the HUD world icon; plates only with the dev overlay
 		_tag.visible = show_tag and not Nameplates.suppressed and _dev_overlay
 
@@ -1538,6 +1547,8 @@ func _update_animation(delta: float) -> void:
 
 
 func _footstep() -> void:
+	if int(_foot_bones[0]) >= 0:
+		return      # the skeleton reports real foot contacts (_foot_contacts)
 	if not _contact or _player == null:
 		return
 	if global_position.distance_squared_to(_player.global_position) > STEP_RANGE * STEP_RANGE:
@@ -1636,6 +1647,7 @@ func _update_activity(delta: float) -> void:
 		return
 	if _activity_needs_start:
 		_anim.play(activity, 0.2)
+		_desync(activity)
 		_activity_needs_start = false
 		_cue_done = false
 		_cue_last = 0.0
@@ -1734,6 +1746,45 @@ func _play(anim_name: String) -> void:
 			var length := _anim.current_animation_length
 			if length > 0.0:
 				_anim.seek(fmod(float(person) * 0.381966 + randf() * 0.2, 1.0) * length)
+
+
+## Per-foot contact from the skeleton (near the player only, 2 bone reads): a foot lands when it drops to its own resting
+## height (running minimum + 2.5 cm), lifts again above +6 cm. Plays the surface step + puff and emits foot_contact.
+func _foot_contacts() -> void:
+	if _skeleton == null or int(_foot_bones[0]) < 0 or not _contact or _player == null:
+		return
+	if _resolved_speed < 0.15 and _move_speed < 0.1:
+		return
+	if global_position.distance_squared_to(_player.global_position) > STEP_RANGE * STEP_RANGE:
+		return
+	var root_y := global_position.y
+	for i in 2:
+		var bi := int(_foot_bones[i])
+		if bi < 0:
+			continue
+		var p := _skeleton.global_transform * _skeleton.get_bone_global_pose(bi).origin
+		var h := p.y - root_y
+		_foot_min[i] = minf(float(_foot_min[i]) + 0.0005, h)      # slow leak upward so a new rest height is learnt
+		if bool(_foot_up[i]) and h < float(_foot_min[i]) + 0.025:
+			_foot_up[i] = false
+			var g: Dictionary = SurfaceFeedback.footstep(self, Vector3(p.x, root_y, p.z), -13.0, _resolved_speed)
+			var surf := String(g.get("footstep", "dirt"))
+			var foot: StringName = &"l" if i == 0 else &"r"
+			foot_contact.emit(foot, surf, Vector3(p.x, root_y, p.z), _resolved_speed)
+			NpcFootEvents.emit(self, foot, surf, Vector3(p.x, root_y, p.z), _resolved_speed)
+		elif not bool(_foot_up[i]) and h > float(_foot_min[i]) + 0.06:
+			_foot_up[i] = true
+
+
+## Crowds never loop in lockstep (AAA gap audit 2026-10-28): a looping clip starts at this person's own phase of the cycle
+## (stable per person + clip). One-shots and enter / exit clips keep frame 0.
+func _desync(clip: String) -> void:
+	if _anim == null or not _anim.has_animation(clip):
+		return
+	var a := _anim.get_animation(clip)
+	if a.loop_mode == Animation.LOOP_NONE or a.length <= 0.0:
+		return
+	_anim.seek(fmod(float(person) * 0.618034 + float(absi(hash(clip)) % 997) * 0.001, 1.0) * a.length, true)
 
 
 ## Per-person idle playback rate, 0.9-1.1 (stable for a person).
@@ -1869,6 +1920,8 @@ func _so_play(clip: String, blend: float, restart: bool) -> void:
 		_cik = null
 	if restart and clip == _so_clip:
 		_anim.seek(0.0, true)
+	elif clip != _so_clip:
+		_desync(clip)
 	_so_clip = clip
 	_so_last_pos = 0.0
 	_so_clip_done = false

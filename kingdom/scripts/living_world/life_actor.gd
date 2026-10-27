@@ -394,6 +394,9 @@ func _play(clip: String, blend := 0.25, restart := false) -> void:
 	anim.play(clip, blend)
 	if restart and clip == _clip:
 		anim.seek(0.0, true)
+	elif clip != _clip and anim.get_animation(clip).loop_mode != Animation.LOOP_NONE and anim.get_animation(clip).length > 0.0:
+		# crowds never loop in lockstep: a looping clip starts at this actor's own phase (stable per person + clip)
+		anim.seek(fmod(float(person) * 0.618034 + float(absi(hash(clip)) % 997) * 0.001, 1.0) * anim.get_animation(clip).length, true)
 	_clip = clip
 	# runtime ground contact for kneel / plant clips (ContactIK: near camera only, budgeted, releases itself)
 	if bool(LifeLibrary.info(clip).get("contact_ik", false)) and (_cik == null or not is_instance_valid(_cik)):

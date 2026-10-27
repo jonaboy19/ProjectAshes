@@ -26,6 +26,12 @@ func run(bot: Node) -> void:
 		(hud as CanvasLayer).visible = false
 	_config_dump()
 	b.get_tree().process_frame.connect(_clean_ui)       # gate frames: no HUD, tips, quest popups or subtitles
+	if OS.has_environment("SLICE_FOOTLOG"):            # NPC foot-contact hook check (audio lane)
+		var n := [0]
+		preload("res://scripts/living_world/npc_foot_events.gd").listen(func(body: Node3D, foot: StringName, surf: String, pos: Vector3, sp: float) -> void:
+			n[0] += 1
+			if n[0] % 10 == 1:
+				b.L("FOOT #%d %s %s %s %.2f m/s at %s" % [n[0], body.name, foot, surf, sp, pos]))
 	if OS.get_environment("SLICE_LEANS") != "":
 		await _lean_check(int(OS.get_environment("SLICE_LEANS")))
 		return
