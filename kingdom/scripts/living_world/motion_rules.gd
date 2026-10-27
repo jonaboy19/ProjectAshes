@@ -148,6 +148,7 @@ static func evaluate_into(out: Dictionary, ctx: Dictionary, persona: Dictionary,
 	var r: Registry = reg if reg != null else default_registry()
 	MotionIntent.reset(out)
 	out["tier"] = tier
+	ctx["tier"] = tier       # rules that behave differently per tier (S3 shoulder turn is NEAR only) read it from ctx
 	if tier >= TIER_OUT:
 		return
 	var arch := r.archetype_of(persona)
@@ -304,29 +305,29 @@ static func vat_has(set_name: String, clip: String) -> bool:
 # named in its comment replaces the body and flips "stub" to false in motion_rules.json.
 # ---------------------------------------------------------------------------------------------------------------------
 
-## S1 rvo_avoidance: stub, filled by package M4.
+## S1 rvo_avoidance: no rule body. The avoidance agent is node-side (SteerRules.create_agent / rvo_params); stays a stub row.
 static func rule_s1(_ctx: Dictionary, _arch: Dictionary, _persona: Dictionary, _row: Dictionary, _cand: Dictionary) -> bool:
 	return false
 
 
-## S2 yield_give_way: stub, filled by package M4.
-static func rule_s2(_ctx: Dictionary, _arch: Dictionary, _persona: Dictionary, _row: Dictionary, _cand: Dictionary) -> bool:
-	return false
+## S2 yield_give_way: steering package M4 (scripts/living_world/steer_rules.gd).
+static func rule_s2(ctx: Dictionary, arch: Dictionary, persona: Dictionary, row: Dictionary, cand: Dictionary) -> bool:
+	return SteerRules.rule_s2(ctx, arch, persona, row, cand)
 
 
-## S3 pass_right_shoulder_turn: stub, filled by package M4.
-static func rule_s3(_ctx: Dictionary, _arch: Dictionary, _persona: Dictionary, _row: Dictionary, _cand: Dictionary) -> bool:
-	return false
+## S3 pass_right_shoulder_turn: steering package M4 (scripts/living_world/steer_rules.gd).
+static func rule_s3(ctx: Dictionary, arch: Dictionary, persona: Dictionary, row: Dictionary, cand: Dictionary) -> bool:
+	return SteerRules.rule_s3(ctx, arch, persona, row, cand)
 
 
-## S4 stop_for_carts_horses: stub, filled by package M4.
-static func rule_s4(_ctx: Dictionary, _arch: Dictionary, _persona: Dictionary, _row: Dictionary, _cand: Dictionary) -> bool:
-	return false
+## S4 stop_for_carts_horses: steering package M4 (scripts/living_world/steer_rules.gd).
+static func rule_s4(ctx: Dictionary, arch: Dictionary, persona: Dictionary, row: Dictionary, cand: Dictionary) -> bool:
+	return SteerRules.rule_s4(ctx, arch, persona, row, cand)
 
 
-## S5 avoid_hazards: stub, filled by package M4.
-static func rule_s5(_ctx: Dictionary, _arch: Dictionary, _persona: Dictionary, _row: Dictionary, _cand: Dictionary) -> bool:
-	return false
+## S5 avoid_hazards: steering package M4 (scripts/living_world/steer_rules.gd).
+static func rule_s5(ctx: Dictionary, arch: Dictionary, persona: Dictionary, row: Dictionary, cand: Dictionary) -> bool:
+	return SteerRules.rule_s5(ctx, arch, persona, row, cand)
 
 
 ## S6 walk_in_pairs: stub, filled by package M5.
@@ -339,9 +340,9 @@ static func rule_s7(_ctx: Dictionary, _arch: Dictionary, _persona: Dictionary, _
 	return false
 
 
-## S8 lane_offset: stub, filled by package M4.
-static func rule_s8(_ctx: Dictionary, _arch: Dictionary, _persona: Dictionary, _row: Dictionary, _cand: Dictionary) -> bool:
-	return false
+## S8 lane_offset: steering package M4 (scripts/living_world/steer_rules.gd).
+static func rule_s8(ctx: Dictionary, arch: Dictionary, persona: Dictionary, row: Dictionary, cand: Dictionary) -> bool:
+	return SteerRules.rule_s8(ctx, arch, persona, row, cand)
 
 
 ## A1 head_turn_budget: stub, filled by package M3.

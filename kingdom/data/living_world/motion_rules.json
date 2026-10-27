@@ -154,7 +154,7 @@
 		"S2": {
 			"name": "yield_give_way",
 			"enabled": true,
-			"stub": true,
+			"stub": false,
 			"package": "M4",
 			"channels": [
 				"LOCO"
@@ -172,7 +172,7 @@
 		"S3": {
 			"name": "pass_right_shoulder_turn",
 			"enabled": true,
-			"stub": true,
+			"stub": false,
 			"package": "M4",
 			"channels": [
 				"LOCO",
@@ -181,7 +181,7 @@
 			"priority": 2,
 			"min_hold_s": 0.6,
 			"blend_s": 0.2,
-			"tier": "NEAR",
+			"tier": "MID",
 			"params": {
 				"corridor_max_m": 1.6,
 				"oncoming_m": 3.0,
@@ -196,7 +196,7 @@
 		"S4": {
 			"name": "stop_for_carts_horses",
 			"enabled": true,
-			"stub": true,
+			"stub": false,
 			"package": "M4",
 			"channels": [
 				"LOCO"
@@ -214,7 +214,7 @@
 		"S5": {
 			"name": "avoid_hazards",
 			"enabled": true,
-			"stub": true,
+			"stub": false,
 			"package": "M4",
 			"channels": [
 				"LOCO"
@@ -268,7 +268,7 @@
 		"S8": {
 			"name": "lane_offset",
 			"enabled": true,
-			"stub": true,
+			"stub": false,
 			"package": "M4",
 			"channels": [
 				"LOCO"
