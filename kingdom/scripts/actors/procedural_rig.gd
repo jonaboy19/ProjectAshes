@@ -1252,7 +1252,7 @@ func _socket(e: Dictionary, bb: Dictionary, hand_g: Transform3D) -> Transform3D:
 	var long_dir := up
 	if String(e["kind"]) == "shield":
 		# high on the back, over the left shoulder blade, top leaning toward the right shoulder: the point toward the left hip
-		long_dir = (up * cos(deg_to_rad(SHIELD_TILT_DEG)) - right * sin(deg_to_rad(SHIELD_TILT_DEG))).normalized()
+		long_dir = (up * cos(deg_to_rad(SHIELD_TILT_DEG)) + right * sin(deg_to_rad(SHIELD_TILT_DEG))).normalized()   # sign checked from behind in game
 	var lsign := 1.0
 	if is_long:
 		long_dir = (up * cos(deg_to_rad(BACK_DIAG_DEG)) - right * sin(deg_to_rad(BACK_DIAG_DEG))).normalized()

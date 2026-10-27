@@ -354,3 +354,13 @@ Files: `docs/plans/props_refined/sheet.jpg`, `buildings_sheet.jpg`. The new scan
 | Tudor set and B14 walls | B44/B60 PASS; B43/B52/B53/B14 PASS (borderline; B14's limewash is patchy) |
 | trough_granite | granite_wall rejected (masonry courses on a monolith); stays procedural granite, PASS (borderline) |
 | scabbard_arming (new, player worker's geometry) | PASS (borderline): the leather is mid-brown and the frog is only a tab |
+
+## 2026-10-27 Equipment: scabbard + shield carry (player-animation worker) - PASS (scabbard, shield size and offset), re-check shield tilt sign
+Sheets: `docs/qa/golden/slice/scabbard_side_idle.png` (loco_movie side), `slice_shield_scabbard_back.jpg` (gameplay camera from behind, walk + run).
+| Check | Result | Note |
+|---|---|---|
+| No bare blade at the hip | PASS | Blender scabbard (`tools/blender/props/build_scabbard.py`): near-black leather over the blade's own taper, iron throat and chape, two lacing bands, frog tab, and two hanger straps up to the belt, 1.5k tris. It is built in the sword's own frame and placed every frame by ProceduralRig in the hip socket, so a sheathed blade sits inside it; it stays at the hip when the sword is drawn. The textured refined copy (props_refined/scabbard_arming, Blender worker) is preferred when imported, darkened x0.5 |
+| Angle ~25-30 deg back, hilt forward | PASS | socket tilt 18 deg from the pelvis up axis (about 28 deg in the world with the walk's lean), frog 9 cm forward of the pelvis line |
+| Swings slightly | PASS | damped pendulum about the frog, driven by the pelvis's forward/back acceleration (max 0.3 rad); the sheathed sword shares it |
+| Shield on the back smaller, high, offset to the left shoulder | PASS | 76 cm, raised 4 cm, 9 cm toward the left shoulder; the right arm and half the back read from behind |
+| Shield angled ~20 deg, point toward the left hip | FIX APPLIED, re-check | the first take leaned the wrong way (point toward the right hip); the tilt sign is flipped, to re-check in the next recording |

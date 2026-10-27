@@ -148,6 +148,7 @@ Total downloaded **307 MB** (budget 3 GB); in repo after rejects **240 MB**. Res
 | `rustic_stone_wall` | https://polyhaven.com/a/rustic_stone_wall | CC0 1.0 | 2K texture diff/nor_gl/arm jpg | 11.4 MB | IMPORTED | slice material, see CC0_SLICE_KIT.md |
 | `stacked_stone_wall` | https://polyhaven.com/a/stacked_stone_wall | CC0 1.0 | 2K texture diff/nor_gl/arm jpg | 9.9 MB | IMPORTED | slice material, see CC0_SLICE_KIT.md |
 | `stone_wall_04` | https://polyhaven.com/a/stone_wall_04 | CC0 1.0 | 2K texture diff/nor_gl/arm jpg | 11.7 MB | IMPORTED | slice material, see CC0_SLICE_KIT.md |
+| `bark_brown_02` | https://polyhaven.com/a/bark_brown_02 | CC0 1.0 | 2K texture diff/nor_gl/arm jpg | 6.7 MB | IMPORTED | Sapling slice trees' bark (tools/blender_trees/sapling_trees.py) |
 | `roof_slates_02` | https://polyhaven.com/a/roof_slates_02 | CC0 1.0 | 2K texture diff/nor_gl/arm jpg | 5.5 MB | IMPORTED | slice material, see CC0_SLICE_KIT.md |
 | `reed_roof_03` | https://polyhaven.com/a/reed_roof_03 | CC0 1.0 | 2K texture diff/nor_gl/arm jpg | 8.4 MB | IMPORTED | slice material, see CC0_SLICE_KIT.md |
 | `belfast_open_field` | https://polyhaven.com/a/belfast_open_field | CC0 1.0 | 2K HDRI .hdr | 6.5 MB | IMPORTED | lookdev only (overcast) |
