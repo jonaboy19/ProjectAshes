@@ -329,7 +329,8 @@ func test_seat_sits_and_stands_on_move() -> void:
 	var p := _player()
 	assert_bool(seat.sit(p)).is_true()
 	assert_object(seat.occupant).is_same(p)
-	assert_vector(p.global_position).is_equal_approx(Vector3(2, 0, 0), Vector3(0.01, 0.01, 0.01))
+	# the root stands Seat.SIT_BACK in front of the seat (+Z of a seat turned PI is -Z): the sit clips put the pelvis there
+	assert_vector(p.global_position).is_equal_approx(Vector3(2, 0, -Seat.SIT_BACK), Vector3(0.01, 0.01, 0.01))
 	assert_str(seat.stance_name()).is_equal("sit_bench")
 	assert_str(InteractLabel.resolve(seat)["verb"]).is_equal("Stand")
 	var other := _player(Vector3(5, 0, 0))
