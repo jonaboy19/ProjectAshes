@@ -129,6 +129,7 @@ func _bake(clip: String, anim: Animation) -> Dictionary:
 		print("RETIME %s: no usable stance (cnt %d)" % [clip, cnt])
 		return {}
 	var dir := (mean_v / cnt).normalized()       # the planted feet move this way relative to the body
+	print("RETIME %s planted-feet direction (model xz, +z = facing) %s, heading %.0f deg" % [clip, str(dir.snapped(Vector2(0.01, 0.01))), rad_to_deg(atan2(dir.x, dir.y))])
 	# per-sample planted speed along dir (mean over planted feet), and the stance speed S
 	var v := PackedFloat32Array()
 	v.resize(n + 1)

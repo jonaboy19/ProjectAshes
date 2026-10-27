@@ -49,7 +49,8 @@
    "inplace": "linear",
    "heading": "start",
    "name": "Mx3_Walk_Strafe_L",
-   "file": "walk_strafe_left.fbx"
+   "file": "walk_strafe_left.fbx",
+   "heading_deg": -118.0
   },
   {
    "loop": true,
@@ -57,7 +58,8 @@
    "inplace": "linear",
    "heading": "start",
    "name": "Mx3_Walk_Strafe_R",
-   "file": "../walk_strafe_right_inplace.fbx"
+   "file": "../walk_strafe_right_inplace.fbx",
+   "heading_deg": 158.0
   },
   {
    "loop": true,
@@ -82,7 +84,7 @@
    "heading": "none",
    "name": "Mx3_SnS_Strafe_L",
    "file": "sns_strafe_left_walk.fbx",
-   "heading_deg": -90.0
+   "heading_deg": -180.0
   },
   {
    "loop": true,
@@ -92,7 +94,7 @@
    "name": "Mx3_SnS_Strafe_R",
    "file": "sns_strafe_left_walk.fbx",
    "mirror": true,
-   "heading_deg": -90.0
+   "heading_deg": -182.0
   },
   {
    "loop": true,
@@ -108,7 +110,8 @@
    "inplace": "linear",
    "heading": "start",
    "name": "Mx3_Crouch_Back",
-   "file": "crouch_walk_back.fbx"
+   "file": "crouch_walk_back.fbx",
+   "heading_deg": -43.0
   },
   {
    "loop": true,
@@ -116,7 +119,8 @@
    "inplace": "linear",
    "heading": "start",
    "name": "Mx3_Crouch_L",
-   "file": "crouch_walk_left.fbx"
+   "file": "crouch_walk_left.fbx",
+   "heading_deg": 134.0
   },
   {
    "loop": true,
@@ -132,7 +136,8 @@
    "inplace": "linear",
    "heading": "start",
    "name": "Mx3_Walk_Back",
-   "file": "walk_backwards.fbx"
+   "file": "walk_backwards.fbx",
+   "heading_deg": 43.0
   },
   {
    "name": "Mx3_Crouch_Idle",
