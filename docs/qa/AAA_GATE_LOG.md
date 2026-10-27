@@ -454,3 +454,16 @@ Video: PA_plans/videos/street_alley_after_tposefix.mp4 (towns fly-through, HIGH)
 | Safety net | done | scripts/living_world/anim_watchdog.gd (installed by PopulationLOD): every new AnimationPlayer driving a skeleton is checked 0.5 s later; visible and not playing, no active AnimationTree, no held pose -> the rig's idle starts and the spawner is logged (ANIM_WATCHDOG); hidden rigs are re-checked when they show |
 | Test | 2/2 green | tests/test_no_tpose.gd: road-traffic patrol / wagon / pilgrims at all 4 tiers have a playing clip and arms off the rest pose; 16 looks spawned with no clip are animated by the watchdog at tiers 0 and 3 |
 | Detector | tool | tools_qa/living_world/tpose_watch.gd (ASHES_TPOSE_WATCH=1 in the towns fly-through, SLICE_TPOSE in slice_route): reports any visible humanoid whose arms sit at the rest pose |
+
+## 2026-10-27 MPFB pilot stage 2 + in-game side by side (player-animation worker) - PASS (body, face, clips, budget), FAIL (shadow speckle on one sleeve, flat clothing read)
+Sheets: `docs/qa/golden/slice/mpfb_pilot_vs_crowd_3m.png`, `mpfb_pilot_vs_crowd_10m.png` (Ashford, current crowd villager on the left, pilot on the right; `SLICE_PILOT=1 tools/qa/record_slice_move.sh`), `mpfb_pilot_clip_check.jpg` (`tools_qa/anim_states/mpfb_clip_check.gd`), `mpfb_pilot_sleeves_godot.png`.
+| Check | Result | Note |
+|---|---|---|
+| Clothing: plain worn wool tunic, no mail panel | PASS | undyed brown wool, fibre noise, hem dirt, sweat bands; pants and boots keep their texture plus mud toward the feet. Garments are baked into fresh non-overlapping UVs (MakeHuman mirrors sleeve islands); alpha cards (hair, brows, eyes) keep their own textures |
+| Budget | PASS | 6.9k tris LOD0 (body 1.95k with head and hands protected, tunic 2.1k, pants 0.8k, boots 0.7k, hair 1.0k), 7 x 1K textures; 5.5k hidden body faces culled under the clothes. Godot auto-LOD is off for now (see below) |
+| Rig: 53 vs 65 bones | PASS | the MPFB mesh is bound to the exact UAL armature (pose into the UAL rest, translation-only fit), so the 65-bone UAL skeleton is the skeleton. Root->root, head->Head; the leaf / neutral bones come with UAL |
+| Every clip family plays | PASS | Idle, Walk, Jog_Fwd, Mx_Run_Fast, Sitting_Idle, Sword_Regular_A, Mx_Walk_Standard, Crouch_Fwd play without distortion; hands and fingers follow |
+| Face silhouette after decimation | PASS | two-pass decimation keeps the head and hands (72% of the body budget) |
+| In game at 3 m vs the current crowd | PASS (realism), FAIL (polish) | real proportions and face next to the stylised villager. FAIL: one sleeve shows a dotted dark speckle in game. It is identical across three asset rebuilds and not present in the clip-check renders, so it is shadow acne between the outer short sleeve and the under-sleeve (thin double layer), not texture. Next: cull the under-sleeve faces covered by the outer sleeve (self-cull pass). The wool reads flat and clean at 3 m in the game's light: grime and fibre contrast need to go up, plus a fabric normal map |
+| At 10 m | PASS | both read as villagers; the pilot's silhouette and proportions are more natural |
+| Spring chains (hood, belt ends) | NOT DONE | CHARACTER_PLAN has no spring-chain section yet; to add with the hood layer |

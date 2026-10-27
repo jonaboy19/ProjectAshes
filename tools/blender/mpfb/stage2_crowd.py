@@ -142,6 +142,8 @@ def grime_material(o, base_rgb=None, keep_tex=True, hem=0.62, mud=0.0, sweat=Tru
     bsdf.inputs["Metallic"].default_value = 0.0
     o.data.materials.clear()
     o.data.materials.append(m)
+    for poly in o.data.polygons:
+        poly.material_index = 0      # one material now: faces of the old mail / sleeve slots must not keep a stale index
 
 
 for o in MESHES:
@@ -321,7 +323,7 @@ for o in MESHES:
         bpy.context.view_layer.objects.active = o
         d = o.modifiers.new("Dec", "DECIMATE")
         d.ratio = max(want / t, 0.02)
-        d.use_symmetry = True
+        d.use_symmetry = part(o) == "body"       # garments are not mirror-symmetric: symmetric collapse tore holes in one sleeve
         d.symmetry_axis = "X"
         if part(o) == "body" and "Head" in o.vertex_groups:
             # two passes so the face keeps its silhouette: the body below the neck collapses hard (most of it is hidden
@@ -370,8 +372,59 @@ sc.cycles.device = "CPU"
 for o in MESHES:
     if not o.data.materials or not o.data.uv_layers:
         continue
+    if part(o) in ("hair", "eyebrow", "eyes"):
+        # alpha-card parts keep their own texture (a diffuse bake drops the alpha: the brows became a dark band)
+        src_img = None
+        for nd in o.data.materials[0].node_tree.nodes:
+            if nd.type == "TEX_IMAGE" and nd.image and "normal" not in nd.image.name.lower():
+                src_img = nd.image
+                break
+        if src_img is not None:
+            im2 = src_img.copy()
+            im2.name = o.name + "_tex"
+            if max(im2.size) > 1024:
+                im2.scale(1024, 1024)
+            im2.pack()
+            nm = bpy.data.materials.new(o.name + "_game")
+            nm.use_nodes = True
+            b2 = nm.node_tree.nodes["Principled BSDF"]
+            t2 = nm.node_tree.nodes.new("ShaderNodeTexImage")
+            t2.image = im2
+            nm.node_tree.links.new(t2.outputs["Color"], b2.inputs["Base Color"])
+            nm.node_tree.links.new(t2.outputs["Alpha"], b2.inputs["Alpha"])
+            b2.inputs["Roughness"].default_value = 0.7
+            try:
+                nm.surface_render_method = "DITHERED"
+            except Exception:
+                pass
+            o.data.materials.clear()
+            o.data.materials.append(nm)
+            for poly in o.data.polygons:
+                poly.material_index = 0
+            print("MPFB2 kept texture", o.name)
+            continue
     img = bpy.data.images.new(o.name + "_bc", 1024, 1024)
     m = o.data.materials[0]
+    unique_uv = part(o) in ("tunic", "pants", "boots")
+    if unique_uv:
+        # MakeHuman garments mirror / overlap UV islands (both sleeves on one island, the mail panel shared): bake into a fresh
+        # non-overlapping layout. The source texture keeps reading the original map (render-active), the bake writes the new one.
+        src_uv = o.data.uv_layers.active.name
+        o.data.uv_layers[src_uv].active_render = True
+        nu = o.data.uv_layers.new(name="BakeUV")
+        o.data.uv_layers.active = nu
+        bpy.ops.object.select_all(action="DESELECT")
+        o.select_set(True)
+        bpy.context.view_layer.objects.active = o
+        bpy.ops.object.mode_set(mode="EDIT")
+        bpy.ops.mesh.select_all(action="SELECT")
+        bpy.ops.uv.smart_project(angle_limit=1.15, island_margin=0.01)
+        bpy.ops.object.mode_set(mode="OBJECT")
+        for nd in m.node_tree.nodes:
+            if nd.type == "TEX_IMAGE" and not nd.inputs["Vector"].is_linked:
+                uvn = m.node_tree.nodes.new("ShaderNodeUVMap")
+                uvn.uv_map = src_uv
+                m.node_tree.links.new(uvn.outputs["UV"], nd.inputs["Vector"])
     nt = m.node_tree
     tn = nt.nodes.new("ShaderNodeTexImage")
     tn.image = img
@@ -388,6 +441,9 @@ for o in MESHES:
         print("MPFB2 bake", o.name, e)
         continue
     img.pack()
+    if unique_uv:
+        o.data.uv_layers.remove(o.data.uv_layers[src_uv])
+        o.data.uv_layers["BakeUV"].active_render = True
     nm = bpy.data.materials.new(o.name + "_game")
     nm.use_nodes = True
     b2 = nm.node_tree.nodes["Principled BSDF"]
@@ -401,6 +457,8 @@ for o in MESHES:
         nm.blend_method = "CLIP" if hasattr(nm, "blend_method") else nm.blend_method
     o.data.materials.clear()
     o.data.materials.append(nm)
+    for poly in o.data.polygons:
+        poly.material_index = 0
     print("MPFB2 baked", o.name)
 
 if PREVIEW:

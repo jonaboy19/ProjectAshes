@@ -53,7 +53,7 @@ func _run() -> void:
 	_cam = Camera3D.new()
 	_cam.fov = 38.0
 	r3.add_child(_cam)
-	_cam.global_position = Vector3(3.4, 1.05, 0.9)
+	_cam.global_position = Vector3(float(OS.get_environment("MPFB_CAMX")) if OS.get_environment("MPFB_CAMX") != "" else 3.4, 1.05, 0.9)
 	_cam.look_at(Vector3(0, 0.9, 0))
 	_cam.current = true
 	for c in CLIPS:

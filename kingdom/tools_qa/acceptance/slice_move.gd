@@ -21,6 +21,12 @@ func run(bot: Node) -> void:
 		(hud as CanvasLayer).visible = false
 	var town: Dictionary = Slice.settlement("Ashford")
 	await b.teleport(Vector2(town["pos"]) + Vector2(4, 4), 0.0, 2.0)   # streams the town's colliders in before the clear-ground search
+	if OS.get_environment("SLICE_PILOT") != "":
+		b.L("SLICEFRAME %d" % Engine.get_frames_drawn())
+		await _pilot_compare(_clear_start(Vector2(town["pos"])))
+		_logging = false
+		b.check("slice_move pilot compare finished", true)
+		return
 	var start := _clear_start(Vector2(town["pos"]))
 	await b.teleport(start, 0.0, 1.5)
 	var fwd := Vector2(0, 1)
@@ -159,3 +165,69 @@ func _side_cam_loop() -> void:
 		_cam.look_at(at + Vector3(0, 0.85, 0))
 		_cam.make_current()
 	_cam.queue_free()
+
+
+## SLICE_PILOT=1: the MPFB pilot villager (CHARACTER_PLAN.md pilot) stands in the Ashford street beside a current crowd
+## villager, both idling then walking in place; a fixed camera frames the pair at 3 m, then at 10 m (CHARACTER gate 4).
+func _pilot_compare(spot2: Vector2) -> void:
+	var world: Node = player.get_parent()
+	var near: Node3D = null
+	var best := 1e9
+	for n in world.find_children("*", "CharacterBody3D", true, false):
+		var c := n as Node3D
+		if c == player or not c.is_visible_in_tree() or c.find_children("*", "Skeleton3D", true, false).is_empty():
+			continue
+		var d := c.global_position.distance_to(player.global_position)
+		if d < best and d > 2.0:
+			best = d
+			near = c
+	if near == null:
+		b.L("SLICEPILOT no crowd villager found")
+		return
+	near.set_process(false)
+	near.set_physics_process(false)
+	for at_ in near.find_children("*", "AnimationTree", true, false):
+		(at_ as AnimationTree).active = false          # the crowd villager's own brain and tree stop: it plays the same clips as the pilot
+	var gy := WorldGen.height(spot2.x, spot2.y)
+	near.global_position = Vector3(spot2.x, gy, spot2.y)
+	near.global_rotation = Vector3.ZERO
+	var body: Node3D = Assets.mh_character("res://assets/generated/characters/mpfb/villager_man", 1.78, [])
+	world.add_child(body)
+	for mi in body.find_children("*", "MeshInstance3D", true, false):
+		var m3 := mi as MeshInstance3D
+		for si in m3.mesh.get_surface_count():
+			var mat := m3.get_active_material(si) as BaseMaterial3D
+			if mat and (String(m3.name).contains("eyebrow") or String(m3.name).contains("short")):
+				var c := mat.duplicate() as BaseMaterial3D
+				c.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA_SCISSOR
+				c.alpha_scissor_threshold = 0.5
+				m3.set_surface_override_material(si, c)
+	var side := near.global_basis.x.normalized()
+	body.global_position = near.global_position + side * 1.1
+	body.global_rotation.y = near.global_rotation.y
+	var ap: AnimationPlayer = body.find_children("*", "AnimationPlayer", true, false)[0]
+	ap.play("Idle")
+	var nap: Array = near.find_children("*", "AnimationPlayer", true, false)
+	if not nap.is_empty():
+		(nap[0] as AnimationPlayer).play("Idle")
+	player.global_position = near.global_position - near.global_basis.z * 30.0     # the player out of the shot
+	var cam := Camera3D.new()
+	cam.fov = 50.0
+	world.add_child(cam)
+	var mid := (near.global_position + body.global_position) * 0.5
+	var fwd := near.global_basis.z.normalized()
+	b.L("SLICEPILOT crowd=%s pilot at %s" % [near.name, body.global_position])
+	for dist: float in [3.0, 10.0]:
+		for clip: String in ["Idle", "Walk"]:
+			ap.play(clip)
+			if not nap.is_empty() and (nap[0] as AnimationPlayer).has_animation(clip):
+				(nap[0] as AnimationPlayer).play(clip)
+			var t := 0.0
+			while t < 2.5:
+				await RenderingServer.frame_pre_draw
+				cam.global_position = mid + fwd * dist + Vector3.UP * (1.5 if dist > 5.0 else 1.25)
+				cam.look_at(mid + Vector3.UP * 0.95)
+				cam.make_current()
+				body.global_position = near.global_position + side * 1.1
+				t += 1.0 / 30.0
+	cam.queue_free()
