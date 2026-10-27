@@ -57,3 +57,16 @@ Files: PA_plans/videos/slice_ashford_street_v4.mp4 (14:30), slice_ashford_street
 | NPCs / crowd impostors | FAIL (NPC lane) | faceted bodies; grey-blue distant impostors |
 | UI restraint | FAIL (UI lane) | "ASHFORD RING" world sign board and nameplates: core/nameplates.gd + main.gd:1062 station labels (not towns code) |
 **Verdict: FAIL. Not sent.**
+
+## 2026-10-28 · towns lane · Ashford interior pass 2 + refined interior kit, street v6 — interior closer, street FAIL items unchanged
+Files: PA_plans/videos/slice_ashford_interior_v8.mp4 (13:00), slice_ashford_street_v6.mp4 (14:30), real world, 0 script errors; night bed stills (scenario house 3 sleepers, inn loft 2) on the kit rope beds.
+| Check | Result | Note |
+|---|---|---|
+| Walls (a) | PASS (partial) | plastered_wall_02 limewash with big soft mottling, soot above the hearth, grime at the foot; kit post_3m posts and beam_4m sill/plate/joists. Still reads a little grey at noon |
+| Lighting (b) | PASS (partial) | dim and firelit: hearth omni with soft shadows (MEDIUM+), embers by day, ambient x0.6, room daylight x0.55; VoxelGI bounce; window shaft spot on HIGH |
+| Beds (c) | PASS | kit bed_rope on the floor, undyed bedding; sleepers lie on them (Life_Mz_Sleep_Bed frame) |
+| Windows (d) | PASS (partial) | kit window_open (leaded panes, plank shutters) with warm horn glow; one shutter reads proud of the wall |
+| Floor (e) | PASS (partial) | kit floor_rushes mats along walls, bare path from the door |
+| Street camera | PARTIAL | margin 0.65 m and 1.6 m sideways search: no frames inside walls; the Ashford Ring menhirs have no collision, so the shot still passes close to one |
+| Street ground | FAIL (world lane) | wild plants gone (76e2a588c) but the plaza/streets still read as yellow grass from the eye-level camera |
+**Verdict: interior close to the refs' mood; overall slice still FAIL (street ground, NPCs, UI labels, edge kit houses).**

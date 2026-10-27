@@ -52,6 +52,7 @@ var _hearth_light: OmniLight3D = null
 var _hearth_base := 1.0
 var _night_k := 0.0                    # 0 day .. 1 night: how far the room light has left the ceiling to ride beside the player (dark clothes read black under the ambient alone)
 var _hearth_phase := 0.0
+var _ikit_group: Array = []     # [group, MeshInstance3D]: kit pieces that fade with their wall (joined after kit.build)
 var _shaft: SpotLight3D = null     # HIGH: daylight shaft through the first window (energy by hour)
 var _kit_nodes := {}
 var _clock := 0.0
@@ -199,9 +200,15 @@ func _build_shell() -> void:
 	kit.solid(Vector3(0, -0.1, 0), Vector3(w + 0.44, 0.2, d + 0.44), FLOOR)
 	kit.ceiling_solid(Vector3(0, h + 0.1, 0), Vector3(w + 0.44, 0.2, d + 0.44), DARK, "ceil")
 	var beams := maxi(3, int(d / 1.1))
+	var beam_mesh := _ikit_mesh("beam_4m")
 	for i in beams:
 		var z := -d * 0.5 + d * (float(i) + 0.5) / float(beams)
-		kit.box(Vector3(0, h - 0.11, z), Vector3(w + 0.1, 0.2, 0.16), BEAM, "solid", 0.0, "ceil")
+		if beam_mesh != null:
+			var bb := beam_mesh.get_aabb()
+			_ikit_piece(beam_mesh, Vector3(-(w + 0.1) * 0.5, h - 0.11 - (bb.position.y + bb.size.y * 0.5), z), 0.0,
+				Vector3((w + 0.1) / maxf(bb.size.x, 0.1), 1.0, 1.0), "ceil")
+		else:
+			kit.box(Vector3(0, h - 0.11, z), Vector3(w + 0.1, 0.2, 0.16), BEAM, "solid", 0.0, "ceil")
 	# outer walls with window and door openings
 	var opens := {"N": [], "S": [], "E": [], "W": []}
 	for win: Dictionary in layout["windows"]:
@@ -242,6 +249,32 @@ func _build_shell() -> void:
 				_group_nodes[g] = []
 				_group_fade[g] = 0.0
 			(_group_nodes[g] as Array).append(_kit_nodes[key])
+	for e: Array in _ikit_group:
+		var g2 := String(e[0])
+		if not _group_nodes.has(g2):
+			_group_nodes[g2] = []
+			_group_fade[g2] = 0.0
+		(_group_nodes[g2] as Array).append(e[1])
+
+
+static func _ikit_mesh(name: String) -> Mesh:
+	var path := IKIT % [name, name]
+	if CityPlanner.towns_off() or not ResourceLoader.exists(path):
+		return null
+	return Assets.merged_mesh(path, false)
+
+
+## One kit piece (posts, beams, windows) in room space; `scale` stretches it to the slot; `group` = the wall it fades with.
+func _ikit_piece(mesh: Mesh, pos: Vector3, yaw: float, scale: Vector3, group: String) -> MeshInstance3D:
+	var mi := MeshInstance3D.new()
+	mi.mesh = mesh
+	mi.position = pos
+	mi.rotation.y = yaw
+	mi.scale = scale
+	add_child(mi)
+	if group != "":
+		_ikit_group.append([group, mi])
+	return mi
 
 
 ## Exposed timber frame on the inner face of the four outer walls: sill beam, top plate, posts every ~2 m (none across a
@@ -253,8 +286,19 @@ func _build_frame(w: float, d: float, h: float, opens: Dictionary) -> void:
 		var g := "w" + wall
 		var yaw := 0.0 if wall in ["N", "S"] else PI * 0.5
 		var mid := _frame_point(wall, length * 0.5, 0.0, inset, w, d)
-		kit.box(Vector3(mid.x, 0.11, mid.z), Vector3(length, 0.22, 0.14), BEAM, "solid", yaw, g)          # sill
-		kit.box(Vector3(mid.x, h - 0.32, mid.z), Vector3(length, 0.2, 0.14), BEAM, "solid", yaw, g)       # top plate
+		var beam_mesh := _ikit_mesh("beam_4m")
+		var post_mesh := _ikit_mesh("post_3m")
+		if beam_mesh != null:
+			# kit beams run along +X from their origin end: start at tt = 0, turned so +X follows the wall's tt direction
+			var dir_yaw := {"N": 0.0, "S": PI, "E": -PI * 0.5, "W": PI * 0.5}[wall] as float
+			var bb := beam_mesh.get_aabb()
+			var sx := length / maxf(bb.size.x, 0.1)
+			var cy := bb.position.y + bb.size.y * 0.5
+			for y_at: float in [0.11, h - 0.32]:
+				_ikit_piece(beam_mesh, _frame_point(wall, 0.0, y_at - cy, inset, w, d), dir_yaw, Vector3(sx, 1.0, 1.0), g)
+		else:
+			kit.box(Vector3(mid.x, 0.11, mid.z), Vector3(length, 0.22, 0.14), BEAM, "solid", yaw, g)          # sill
+			kit.box(Vector3(mid.x, h - 0.32, mid.z), Vector3(length, 0.2, 0.14), BEAM, "solid", yaw, g)       # top plate
 		var n := maxi(2, int(round(length / 2.0)))
 		for i in n + 1:
 			var tt := clampf(length * float(i) / float(n), 0.1, length - 0.1)
@@ -264,7 +308,11 @@ func _build_frame(w: float, d: float, h: float, opens: Dictionary) -> void:
 					blocked = true
 			if blocked:
 				continue
-			kit.box(_frame_point(wall, tt, (h - 0.2) * 0.5, inset, w, d), Vector3(0.16, h - 0.2, 0.14), BEAM, "solid", yaw, g)
+			if post_mesh != null:
+				var pb := post_mesh.get_aabb()
+				_ikit_piece(post_mesh, _frame_point(wall, tt, 0.0, inset, w, d), yaw, Vector3(1.0, (h - 0.2) / maxf(pb.size.y, 0.1), 1.0), g)
+			else:
+				kit.box(_frame_point(wall, tt, (h - 0.2) * 0.5, inset, w, d), Vector3(0.16, h - 0.2, 0.14), BEAM, "solid", yaw, g)
 
 
 ## A point on the inner face of an outer wall: `tt` metres along it (same direction as _wall_t), `inn` metres into the room.
@@ -281,6 +329,17 @@ func _frame_point(wall: String, tt: float, y: float, inn: float, w: float, d: fl
 func _build_rushes(w: float, d: float) -> void:
 	var rng := RandomNumberGenerator.new()
 	rng.seed = hash(layout_id) ^ 0x5157
+	var rush_mesh := _ikit_mesh("floor_rushes")
+	if rush_mesh != null:      # the kit's rush mats, sparingly: along the walls and by the hearth, never on the door path
+		for i in maxi(2, int(w * d / 7.0)):
+			var rx := rng.randf_range(-w * 0.5 + 0.6, w * 0.5 - 0.6)
+			var rz := rng.randf_range(-d * 0.5 + 0.6, d * 0.5 - 0.6)
+			if absf(rx - float(layout.get("door_x", 0.0))) < 0.9 and rz > 0.0:
+				continue
+			if absf(rx) < w * 0.25 and absf(rz) < d * 0.25:
+				continue
+			_ikit_piece(rush_mesh, Vector3(rx, 0.0, rz), rng.randf() * TAU, Vector3.ONE * rng.randf_range(0.8, 1.1), "")
+		return
 	var n := int(w * d * 9.0)
 	for i in n:
 		var x := rng.randf_range(-w * 0.5 + 0.15, w * 0.5 - 0.15)
@@ -314,6 +373,17 @@ func _build_window(win: Dictionary, w: float, d: float) -> void:
 	var basis := Basis(Vector3.UP, yaw)
 	var mid := (y0 + y1) * 0.5
 	var gh := y1 - y0
+	var wmesh := _ikit_mesh("window_open")
+	if wmesh != null:
+		# kit window: bottom-centre on the wall face, shutters opening inward; stretched to the opening. The pane stays the
+		# light driver's emissive "glass" (warm horn by day) behind the leaded lattice.
+		var face_yaw := {"N": 0.0, "S": PI, "E": -PI * 0.5, "W": PI * 0.5}[wall] as float
+		var inward := Basis(Vector3.UP, face_yaw) * Vector3(0, 0, 1)
+		var wb := wmesh.get_aabb()
+		kit.box(pos + Vector3(0, mid, 0), Vector3(ww - 0.06, gh - 0.06, 0.04), Color.WHITE, "glass", yaw, "w" + wall)
+		_ikit_piece(wmesh, pos + inward * (Kit.WALL_T * 0.5) + Vector3(0, y0 - wb.position.y * (gh / maxf(wb.size.y, 0.1)), 0), face_yaw,
+			Vector3(ww / maxf(wb.size.x, 0.1), gh / maxf(wb.size.y, 0.1), 1.0), "w" + wall)
+		return
 	# The pane (emissive "glass", tinted by the hour in apply_hour) sits inside a full frame: sill, head, both jambs, a centre
 	# mullion and a transom, so it reads as a window in the wall and never as a floating white card.
 	kit.box(pos + Vector3(0, mid, 0), Vector3(ww - 0.06, gh - 0.06, 0.04), Color.WHITE, "glass", yaw, "w" + wall)
@@ -383,13 +453,26 @@ func _cloth(p: Dictionary, k := 0) -> Color:
 ## box collider), everything else keeps the box build below. `--townsoff` keeps the old boxes for A/B recordings.
 const REAL_PROPS := {"hearth": "ms_hearth", "table": "ms_table", "barrel": "ph_barrel", "crate": "ph_crate"}
 const STOOL_PATH := "res://assets/cc0/props/painted_wooden_stool/painted_wooden_stool_1k.gltf"
+## Refined interior kit (Blender worker, props_refined/interior/<name>/<name>.glb; origins at the feet, beams along +X from
+## one end, windows bottom-centre on the wall face). Layout prop type -> kit piece; a missing file keeps the box build.
+const IKIT := "res://assets/props_refined/interior/%s/%s.glb"
+const IKIT_PROPS := {"bed": "bed_rope", "cot": "bed_rope", "stool": "stool_three_leg", "chair": "chair_woven",
+	"chest": "chest_iron", "cupboard": "shelf_pottery"}
 
 
 func _real_prop(p: Dictionary, t: String) -> bool:
 	if CityPlanner.towns_off():
 		return false
 	var mesh: Mesh = null
-	if REAL_PROPS.has(t):
+	var turn := 0.0
+	if IKIT_PROPS.has(t) and _ikit_mesh(String(IKIT_PROPS[t])) != null:
+		mesh = _ikit_mesh(String(IKIT_PROPS[t]))
+		# the layout footprint is w (x) by dd (z); a kit piece modelled the other way round is turned a quarter
+		var foot: Vector2 = Layouts.FOOT.get(t, Vector2(0.5, 0.5))
+		var mb := mesh.get_aabb()
+		if (foot.y > foot.x * 1.3) != (mb.size.z > mb.size.x * 1.3):
+			turn = PI * 0.5
+	elif REAL_PROPS.has(t):
 		mesh = Assets.building_mesh(REAL_PROPS[t])
 	elif t == "stool" and ResourceLoader.exists(STOOL_PATH):
 		mesh = Assets.merged_mesh(STOOL_PATH, false)
@@ -400,9 +483,12 @@ func _real_prop(p: Dictionary, t: String) -> bool:
 	var mi := MeshInstance3D.new()
 	mi.mesh = mesh
 	add_child(mi)
-	var at := _world_centre(p, Vector3(-(bb.position.x + bb.size.x * 0.5), -bb.position.y, -(bb.position.z + bb.size.z * 0.5)))
+	var off := Basis(Vector3.UP, turn) * Vector3(-(bb.position.x + bb.size.x * 0.5), -bb.position.y, -(bb.position.z + bb.size.z * 0.5))
+	var at := _world_centre(p, off)
 	mi.position = at
-	mi.rotation.y = yaw
+	mi.rotation.y = yaw + turn
+	if turn != 0.0:
+		bb = AABB(Vector3.ZERO, Vector3(bb.size.z, bb.size.y, bb.size.x))
 	if t != "stool":
 		kit.collider(_world_centre(p, Vector3(0, bb.size.y * 0.5, 0)), bb.size, yaw)
 	return true
