@@ -163,18 +163,21 @@ const CAM_MARGIN := 0.65     # clears the Ashford Ring stones; larger pushed the
 
 func _clear_offset(p: Vector3, fwd: Vector2) -> Vector2:
 	var side := Vector2(-fwd.y, fwd.x)
-	for d: float in [0.0, 0.5, -0.5, 1.0, -1.0, 1.6, -1.6]:
-		var o := side * d
-		if _free(p + Vector3(o.x, 0.0, o.y)):
-			return o
+	# wide berth first (props like the Ashford Ring menhirs filled a third of the frame at 0.65 m), the tight margin
+	# only where a lane is too narrow for it
+	for margin: float in [1.2, CAM_MARGIN]:
+		for d: float in [0.0, 0.5, -0.5, 1.0, -1.0, 1.6, -1.6]:
+			var o := side * d
+			if _free(p + Vector3(o.x, 0.0, o.y), margin):
+				return o
 	return _off
 
 
-func _free(at: Vector3) -> bool:
+func _free(at: Vector3, margin := CAM_MARGIN) -> bool:
 	var space := cam.get_world_3d().direct_space_state
 	var q := PhysicsShapeQueryParameters3D.new()
 	var sh := SphereShape3D.new()
-	sh.radius = CAM_MARGIN
+	sh.radius = margin
 	q.shape = sh
 	q.transform = Transform3D(Basis.IDENTITY, at)
 	q.collide_with_areas = false
