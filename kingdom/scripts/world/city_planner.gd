@@ -555,27 +555,40 @@ static func plaza_stalls(s: Dictionary) -> Array:
 		var b: Vector2 = st["b"]
 		var inner := a if a.distance_to(c) < b.distance_to(c) else b
 		var outer := b if inner == a else a
-		if inner.distance_to(c) > pr + 1.5 or outer.distance_to(c) < ring:
-			continue
+		if inner.distance_to(c) > pr + 1.5 or outer.distance_to(c) < ring or outer.distance_to(c) - inner.distance_to(c) < 2.0:
+			continue          # only streets that run out of the plaza (not ring-road segments round it)
 		# where the street crosses the stall ring
 		var hit := Geometry2D.segment_intersects_circle(inner, outer, c, ring)
 		var at := inner.lerp(outer, hit) if hit >= 0.0 else outer
 		var hw := float(st["w"]) * 0.5 + 2.4          # half street + a stall's half width + a walking gap
 		mouths.append([(at - c).angle(), atan(hw / maxf(ring, 1.0))])
+	# Each stall keeps its even-ring angle when that spot is free, else slides (up to half the spacing) to the nearest free
+	# angle: out of a street mouth, off a landmark, a stall's width clear of the stalls already placed. Deterministic.
 	var out: Array = []
+	var placed: Array[float] = []
+	var sep := (3.5 + 0.6) / maxf(ring, 1.0)
+	var step := deg_to_rad(2.5)
 	for i in n:
-		var ang := TAU * i / n + 0.2
-		var blocked := false
-		for m: Array in mouths:
-			if absf(wrapf(ang - float(m[0]), -PI, PI)) < float(m[1]):
-				blocked = true
+		var base := TAU * i / n + 0.2
+		var max_k := int((TAU / n) * 0.5 / step)
+		for k in max_k * 2 + 1:
+			var off := float((k + 1) / 2) * (1.0 if k % 2 == 1 else -1.0) * step
+			var ang := base + off
+			var ok := true
+			for m: Array in mouths:
+				if absf(wrapf(ang - float(m[0]), -PI, PI)) < float(m[1]):
+					ok = false
+					break
+			for pa: float in placed:
+				if ok and absf(wrapf(ang - pa, -PI, PI)) < sep:
+					ok = false
+			var sp := c + Vector2(cos(ang), sin(ang)) * ring
+			if ok and landmark_clearance(plan_data, sp) < 3.0:
+				ok = false
+			if ok:
+				placed.append(ang)
+				out.append({"pos": sp, "yaw": atan2(-cos(ang), -sin(ang))})
 				break
-		if blocked:
-			continue
-		var sp := c + Vector2(cos(ang), sin(ang)) * ring
-		if landmark_clearance(plan_data, sp) < 3.0:
-			continue
-		out.append({"pos": sp, "yaw": atan2(-cos(ang), -sin(ang))})
 	return out
 
 

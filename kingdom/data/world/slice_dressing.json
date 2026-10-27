@@ -91,7 +91,7 @@
   },
   "view_closer": {
     "town": "Ashford",
-    "asset": "chapel",
+    "asset": "pr_chapel",
     "street": 0,
     "min": 10.0,
     "max": 60.0,

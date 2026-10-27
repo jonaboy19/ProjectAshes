@@ -444,6 +444,10 @@ func _ensure_graph() -> void:
 		# inside the stall ring (stall boxes at pr - 3 +- 1.4 m): at pr * 0.6 a small village plaza's ring ran through the
 		# stalls and broke into islands; 16 nodes so a street's spoke meets it nearly radially
 		var ring_r := clampf(minf(pr * 0.6, pr - 3.0 - 1.4 - AGENT_RADIUS - 0.25), 2.6, pr * 0.6)
+		for lm: Dictionary in plan.get("landmarks", []):
+			if String(lm["asset"]) != "well" and (lm["pos"] as Vector2).distance_to(center) < 2.0:
+				ring_r = pr - 0.8      # a temple / bell tower on the well spot (temple_centre towns): walk round it at the plaza edge
+				break
 		for i in 16:
 			var ang := TAU * i / 16.0
 			ring.append(center + Vector2(cos(ang), sin(ang)) * ring_r)

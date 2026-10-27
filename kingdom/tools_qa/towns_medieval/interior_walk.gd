@@ -53,6 +53,11 @@ func run(m: Node) -> void:
 	var cam := Camera3D.new()
 	cam.fov = 75.0
 	room.add_child(cam)
+	# the door hands the room's own Environment (warm ambient, ACES, light by hour) to the PLAYER's camera only: the review camera
+	# needs it too, or the room is filmed with the outdoor grade (cool blue-grey, depth fog)
+	var pc: Camera3D = main.player.get("camera") as Camera3D if "camera" in main.player else null
+	if pc != null and pc.environment != null:
+		cam.environment = pc.environment
 	cam.current = true
 	cam.global_position = eye
 	for cl in get_tree().root.find_children("*", "CanvasLayer", true, false):

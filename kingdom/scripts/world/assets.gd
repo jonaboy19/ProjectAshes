@@ -164,6 +164,8 @@ const BUILDINGS := {
 	"pr_bench": ["res://assets/props_refined/bench_hewn/bench_hewn.glb", 0.0],
 	"pr_tavern_sign": ["res://assets/props_refined/tavern_sign/tavern_sign.glb", 0.0],
 	"pr_barrel_rack": ["res://assets/props_refined/barrel_rack/barrel_rack.glb", 0.0],
+	# refined landmark (props_refined/buildings): the stone chapel (B28) that closes Ashford's main street (slice view closer)
+	"pr_chapel": ["res://assets/props_refined/buildings/chapel_stone_small/chapel_stone_small.glb", 0.0],
 	"pr_fence_rail": ["res://assets/props_refined/fence_post_rail/fence_post_rail.glb", 0.0],
 	"stable": [GEN + "village_barn.glb", 0.0, GEN + "village_barn_lod1.glb", 45.0, GEN + "village_barn_lod2.glb", 100.0],
 	"sawmill": [VILLAGE + "Buildings/FBX/Sawmill.fbx", 12.0],

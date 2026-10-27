@@ -530,6 +530,8 @@ static func _polished(role: String, orig: Material, skin_kind: int, tier: String
 		sm.set_shader_parameter("use_wet", true)
 		sm.set_shader_parameter("wet_tex", wet_texture())
 	if game_mode:
+		_game_mats.append(sm)
+		sm.set_shader_parameter("bounce_day", lerpf(1.0, 0.12, _night_k))
 		sm.set_shader_parameter("local_ao", true)
 		sm.set_shader_parameter("vcol_srgb", bool(p.get("vsrgb", true)) if bool(p.get("vcol", false)) else true)
 	match role:
@@ -565,7 +567,7 @@ static func _polished(role: String, orig: Material, skin_kind: int, tier: String
 			sm.set_shader_parameter("bounce", 0.28)
 		"plaster":                      # warm cream, weathered by the height AO, never white
 			sm.set_shader_parameter("saturation", 0.95)
-			sm.set_shader_parameter("value_gain", 0.94)
+			sm.set_shader_parameter("value_gain", 0.84)     # slice gate 2026-10-27: kit limewash read pale/blown next to the hero houses (was 0.94)
 			sm.set_shader_parameter("warm_tint", Color(1.0, 0.97, 0.9))
 			sm.set_shader_parameter("ao_height", 1.6)
 			sm.set_shader_parameter("ao_strength", 0.5)
@@ -625,7 +627,20 @@ static func _polished(role: String, orig: Material, skin_kind: int, tier: String
 			sm.set_shader_parameter("value_gain", 0.9 if role in ["wood", "goods"] else 1.04)
 			sm.set_shader_parameter("ao_strength", 0.35)
 			sm.set_shader_parameter("bounce", 0.3)
+	# Benchmark slice (coordinator 2026-10-27, refs 06/18/20): one look for town and countryside. The country grade is AgX at
+	# saturation ~0.86 (real_landmarks.gd); the town's timbers, roofs and cloth were still candy-orange next to it, so their
+	# albedo goes ~25% toward a weathered grey-brown in the game.
+	if game_mode and TOWN_DESAT.has(role) and not towns_off:
+		var f: Array = TOWN_DESAT[role]
+		sm.set_shader_parameter("saturation", float(sm.get_shader_parameter("saturation")) * float(f[0]))
+		var wt: Variant = sm.get_shader_parameter("warm_tint")
+		sm.set_shader_parameter("warm_tint", (wt as Color).lerp(Color(1.0, 0.98, 0.95), float(f[1])) if wt is Color else Color(1.0, 0.98, 0.95))
 	return sm
+
+
+## role -> [saturation factor, how far warm_tint moves to a neutral weathered tint]
+const TOWN_DESAT := {"house": [0.75, 0.6], "timber": [0.72, 0.5], "roof": [0.75, 0.5], "awning": [0.68, 0.4], "cloth": [0.68, 0.4],
+	"stall": [0.78, 0.4], "goods": [0.85, 0.3], "wood": [0.78, 0.4], "plaster": [0.85, 0.5]}
 
 
 ## Double-sided variant of a shader (leaf cards, banners, gate walls with hand-built winding).
@@ -889,6 +904,7 @@ static func vertex_color_material(role := "timber", srgb := true, tier := "") ->
 ## Towns medieval pass: night windows. Every "window" role material (kit windows, RA_window) glows after dusk; the settlement
 ## builder calls night_glow(hour) once a second (one uniform per material, no per-house work).
 static var _window_mats: Array[ShaderMaterial] = []
+static var _game_mats: Array[ShaderMaterial] = []     # every game-mode polished material (night bounce_day)
 static var _night_k := 0.0
 
 
@@ -900,6 +916,9 @@ static func night_glow(hour: float) -> void:
 	for m in _window_mats:
 		if is_instance_valid(m):
 			m.set_shader_parameter("glow", k * 2.2)
+	for m in _game_mats:
+		if is_instance_valid(m):
+			m.set_shader_parameter("bounce_day", lerpf(1.0, 0.12, k))
 
 
 const WET_OF_BIOME := [0.5, 0.8, 0.6, 0.5, 1.0, 0.55, 0.22, 0.4]   # grass forest meadow farmland marsh highland rift snow
