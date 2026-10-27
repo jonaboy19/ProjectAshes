@@ -5,7 +5,7 @@ extends RefCounted
 ##        sits outside the walls), spots [{kind, label, r?}], seq (Array of task ids) or
 ##        by_season {season: [ids]}, tasks {id: task}, problems [problem], orders [text templates],
 ##        say {great|ok|poor: [lines with %s = employer]}}
-## task = {id, label, spot (spot kind), widget "timing"|"hold"|"choice", rich? ("copy"|"forgery"|"tax": a
+## task = {id, label, spot (spot kind), heat (fuel the task burns, 0 = cold work), widget "timing"|"hold"|"choice", rich? ("copy"|"forgery"|"tax": a
 ##         scribe.gd mini-task replaces the widget and reports a quality), hours (game hours the
 ##         task takes; routine work speeds time up), diff 0..1, text, options (choice only)}
 ## option = {text, q 0..1, tip (gold), regard (city reputation delta)}
@@ -22,8 +22,9 @@ static func data() -> Dictionary:
 	return _cache
 
 
-static func _t(id: String, label: String, spot: String, widget: String, hours: float, diff: float, text: String, options: Array = []) -> Dictionary:
-	return {"id": id, "label": label, "spot": spot, "widget": widget, "hours": hours, "diff": diff, "text": text, "options": options}
+## `heat` > 0: the task burns that much fuel at the workplace's fire and wears it (crafting.gd workshops).
+static func _t(id: String, label: String, spot: String, widget: String, hours: float, diff: float, text: String, options: Array = [], heat := 0.0) -> Dictionary:
+	return {"id": id, "label": label, "spot": spot, "widget": widget, "hours": hours, "diff": diff, "text": text, "options": options, "heat": heat}
 
 
 static func _o(text: String, q: float, tip := 0, regard := 0.0) -> Dictionary:
@@ -85,7 +86,7 @@ static func _build() -> Dictionary:
 	d["blacksmith"] = _job("Blacksmith", "smithing", 10, [7, 15], false,
 		[_s("forge", "Forge"), _s("quench", "Quench barrel"), _s("grinder", "Grindstone"), _s("ore_pile", "Ore pile")],
 		[_t("sort_ore", "Sort the ore", "ore_pile", "choice", 0.5, 0.3, "A shipment came in. Some of it looks poor.", [_o("Keep only the good lumps", 0.9), _o("Use it all", 0.5), _o("Grab the first ones", 0.3)]),
-		_t("forge", "Work the forge", "forge", "timing", 1.0, 0.5, "Strike while the iron glows cherry red."),
+		_t("forge", "Work the forge", "forge", "timing", 1.0, 0.5, "Strike while the iron glows cherry red.", [], 1.0),
 		_t("quench", "Quench the blade", "quench", "hold", 0.5, 0.55, "Hold it in the water; release at the hiss."),
 		_t("grind", "Grind the edge", "grinder", "timing", 1.0, 0.45, "Steady pressure. Do not burn the temper.")],
 		["forge", "quench", "grind"],

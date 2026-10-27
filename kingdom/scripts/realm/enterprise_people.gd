@@ -20,6 +20,36 @@ var fiefx: Dictionary = {}                 # "sid" -> {governor, built, prosperi
 var works: Array = []                      # building projects and road works in progress
 var _next_work := 1
 var _msgs: Array = []
+var crafting_ref: RefCounted = null        # tests inject one; otherwise Life.crafting
+var station_hands: Dictionary = {}         # station ref -> {name, recipe, level, wage, sid, bin {item: n}, made, last}
+
+const CraftingScript := preload("res://scripts/sim/crafting.gd")
+const HAND_FEE := 30
+const HAND_BATCHES_PER_DAY := 3
+const HAND_NAMES := ["Orin", "Tilda", "Brandt", "Wyn", "Hesk", "Mara", "Dunstan", "Ilse"]
+
+
+## Dictionary-backed stock a hired hand works from (the station's bin): same count/give/take as the inventory.
+class StationBin extends RefCounted:
+	var items: Dictionary
+
+	func _init(d: Dictionary) -> void:
+		items = d
+
+	func count(id: String) -> int:
+		return int(items.get(id, 0))
+
+	func give(id: String, n := 1) -> void:
+		items[id] = count(id) + n
+
+	func take(id: String, n := 1) -> bool:
+		if count(id) < n:
+			return false
+		items[id] = count(id) - n
+		return true
+
+	func give_quality(id: String, n: int, _q: int) -> void:
+		give(id, n)
 
 
 func _say(text: String) -> void:
@@ -409,6 +439,7 @@ func _duty_day() -> void:
 
 
 func _people_day() -> void:
+	_stations_day()
 	# wages: a company that goes unpaid melts away
 	var w := troop_wages()
 	if w > 0:
@@ -452,6 +483,138 @@ func _people_day() -> void:
 	_duty_day()
 	# influence trickles in from land and standing
 	add_influence(0.05 * float(fief_ids().size()) + 0.02 * float(clan_tier()))
+
+
+# ---------------------------------------------------------------- station hands
+
+func _crafting() -> RefCounted:
+	if crafting_ref != null:
+		return crafting_ref
+	var c: Variant = _au_get("Life", "crafting")
+	return c if c is RefCounted else null
+
+
+func hand_wage(level: int) -> int:
+	return 3 + 2 * level
+
+
+## "" when a hand may be hired to run `ref` making `recipe_id`, else why not.
+func can_employ_hand(ref: String, recipe_id: String, level := 2) -> String:
+	var cr := _crafting()
+	if cr == null:
+		return "There is no workshop to run."
+	var r: Dictionary = cr.call("recipe", recipe_id)
+	if r.is_empty():
+		return "No such recipe."
+	if station_hands.has(ref):
+		return "%s already works there." % String(station_hands[ref]["name"])
+	if level < int(r.get("level", 1)):
+		return "A hand that unskilled cannot make that."
+	if gold() < HAND_FEE:
+		return "You need %d gold to hire a hand." % HAND_FEE
+	return ""
+
+
+func employ_hand(ref: String, recipe_id: String, sid: int, level := 2) -> Dictionary:
+	var why := can_employ_hand(ref, recipe_id, level)
+	if why != "":
+		return {"ok": false, "reason": why}
+	var nm: String = HAND_NAMES[(hash(ref) & 0x7fffffff) % HAND_NAMES.size()]
+	_pay(HAND_FEE)
+	station_hands[ref] = {"name": nm, "recipe": recipe_id, "level": level, "wage": hand_wage(level), "sid": sid, "bin": {}, "made": 0, "last": ""}
+	_say("%s takes the post at your workshop in %s." % [nm, _sname(sid)])
+	return {"ok": true, "name": nm, "wage": hand_wage(level)}
+
+
+func dismiss_hand(ref: String) -> bool:
+	if not station_hands.has(ref):
+		return false
+	station_hands.erase(ref)
+	return true
+
+
+func set_hand_recipe(ref: String, recipe_id: String) -> String:
+	var cr := _crafting()
+	if not station_hands.has(ref) or cr == null or (cr.call("recipe", recipe_id) as Dictionary).is_empty():
+		return "No such hand or recipe."
+	station_hands[ref]["recipe"] = recipe_id
+	return ""
+
+
+## Moves `n` of `item` from the player's inventory into the hand's bin (ore, coal for the hand to stoke, planks).
+func stock_hand(ref: String, inv: Object, item: String, n: int) -> int:
+	if not station_hands.has(ref):
+		return 0
+	var bin := StationBin.new(station_hands[ref]["bin"])
+	var k := mini(n, int(inv.call("count", item)))
+	if k > 0 and bool(inv.call("take", item, k)):
+		bin.give(item, k)
+		return k
+	return 0
+
+
+## Hands everything in the bin that is not an input or fuel back to the player; returns {item: n}.
+func collect_hand(ref: String, inv: Object) -> Dictionary:
+	var out := {}
+	var cr := _crafting()
+	if not station_hands.has(ref) or cr == null:
+		return out
+	var h: Dictionary = station_hands[ref]
+	var keep := {}
+	for inp: Dictionary in (cr.call("recipe", String(h["recipe"])) as Dictionary).get("inputs", []):
+		for alt in CraftingScript.alternatives(String(inp["item"])):
+			keep[alt] = true
+	for f: String in CraftingScript.FUEL_ITEMS:
+		keep[f] = true
+	keep[CraftingScript.REPAIR_ITEM] = true
+	var bin: Dictionary = h["bin"]
+	for item: String in bin.keys():
+		var n := int(bin[item])
+		if n > 0 and not keep.has(item):
+			inv.call("give", item, n)
+			out[item] = n
+			bin[item] = 0
+	return out
+
+
+func _hand_stoke(cr: RefCounted, ref: String, bin: StationBin) -> void:
+	for f: String in CraftingScript.FUEL_ITEMS:
+		if bin.count(f) > 0:
+			cr.call("stoke", ref, bin, f, 1)
+			return
+
+
+## One day of work for every hired hand: wage, then up to HAND_BATCHES_PER_DAY crafts from the bin, burning the
+## station's fuel and condition. The reason a hand stopped is kept in "last" for the workshop panel.
+func _stations_day() -> void:
+	var cr := _crafting()
+	if cr == null:
+		return
+	for ref: String in station_hands.keys():
+		var h: Dictionary = station_hands[ref]
+		if gold() < int(h["wage"]):
+			_say("%s walks off the job: unpaid." % String(h["name"]))
+			station_hands.erase(ref)
+			continue
+		_pay(int(h["wage"]))
+		var bin := StationBin.new(h["bin"])
+		var made := 0
+		h["last"] = ""
+		for i in HAND_BATCHES_PER_DAY:
+			var ctx := {"station": ref, "worker_level": int(h["level"]), "no_xp": true}
+			var why: String = cr.call("can_craft", String(h["recipe"]), bin, null, ctx)
+			if why.begins_with("Needs fuel"):
+				_hand_stoke(cr, ref, bin)
+				why = cr.call("can_craft", String(h["recipe"]), bin, null, ctx)
+			if why != "":
+				h["last"] = why
+				break
+			var res: Dictionary = cr.call("craft", String(h["recipe"]), bin, null, ctx)
+			if bool(res.get("ok", false)) and not bool(res.get("failed", false)):
+				made += int(res.get("count", 0))
+		h["made"] = int(h["made"]) + made
+		if made == 0 and String(h["last"]) != "":
+			_say("%s cannot work: %s" % [String(h["name"]), String(h["last"])])
 
 
 # ---------------------------------------------------------------- fiefs

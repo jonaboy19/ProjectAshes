@@ -69,6 +69,16 @@ var _by_id: Dictionary = {}
 ## [{kind, name, pos: Vector3 (y = NAN: any height), radius, owner: instance id or 0}]
 var _stations: Array[Dictionary] = []
 var _sites_added := false
+## station ref -> {fuel (heat units), condition (0..1)}: forges and smelters burn fuel and wear out.
+var workshops: Dictionary = {}
+
+## Heat units one item of fuel gives, how worn a workshop may get before it refuses work, wear per crafted hour.
+const FUEL_ITEMS := {"coal": 4.0, "firewood": 1.0}
+const MAX_FUEL := 40.0
+const MIN_CONDITION := 0.2
+const WEAR_PER_HOUR := 0.012
+const REPAIR_ITEM := "plank"
+const REPAIR_PER_ITEM := 0.2
 
 static var _item_db: Dictionary = {}
 static var _recipe_data: Dictionary = {}
@@ -404,7 +414,12 @@ func can_craft(id: String, inv: Object, kinds: Variant = null, ctx: Dictionary =
 		for k in r.get("stations", []):
 			names.append(station_name(String(k)).to_lower())
 		return "Needs a %s." % " or ".join(names)
-	if level(String(r["skill"])) < int(r.get("level", 1)):
+	if ctx.has("station"):
+		var heat := _heat_problem(r, String(ctx["station"]))
+		if heat != "":
+			return heat
+	var have_level := int(ctx["worker_level"]) if ctx.has("worker_level") else level(String(r["skill"]))
+	if have_level < int(r.get("level", 1)):
 		return "Needs %s %d." % [skill_name(String(r["skill"])), int(r.get("level", 1))]
 	for row in requirements(r, inv):
 		if int(row["have"]) < int(row["need"]):
@@ -425,13 +440,15 @@ func craft(id: String, inv: Object, kinds: Variant = null, ctx: Dictionary = {})
 		return {"ok": false, "text": why}
 	var r := recipe(id)
 	var skill := String(r["skill"])
-	var lvl := level(skill)
+	var lvl := int(ctx["worker_level"]) if ctx.has("worker_level") else level(skill)
 	var rlvl := int(r.get("level", 1))
 	var grade: float = float(ctx["input_quality"]) if ctx.has("input_quality") else input_grade(r, inv)
 	var tension := bool(ctx.get("tension", false))
 	var mult := float(ctx.get("xp_mult", 1.0)) * career_xp_mult(skill, String(ctx.get("org", "")))
 	var tmult := tool_bonus(skill, inv, ctx.get("equipment"))
 	mult *= tmult
+	if ctx.has("station"):
+		_burn(r, String(ctx["station"]))
 	var consumed: Array[Dictionary] = []    # [{item, n}] actually taken, to refund on failure
 	for inp: Dictionary in r.get("inputs", []):
 		var left := int(inp["count"])
@@ -454,7 +471,7 @@ func craft(id: String, inv: Object, kinds: Variant = null, ctx: Dictionary = {})
 					inv.call("give", String(c["item"]), n)
 					back.append("%d %s" % [n, item_name(String(c["item"]))])
 			var gained_f := int(round(float(r.get("xp", 5)) * mult * 0.5))
-			var after_f := add_xp(skill, gained_f)
+			var after_f := lvl if bool(ctx.get("no_xp", false)) else add_xp(skill, gained_f)
 			var fres := {"ok": true, "failed": true, "quality": 0, "item": "", "count": 0, "xp": gained_f,
 				"level": after_f, "level_up": after_f > lvl, "skill": skill,
 				"tag": String(skills.get(skill, {}).get("tag", "crafted")),
@@ -492,7 +509,7 @@ func craft(id: String, inv: Object, kinds: Variant = null, ctx: Dictionary = {})
 		res["text"] = "%s%s%s." % [qtext, item_name(item), (" ×%d" % n) if n > 1 else ""]
 	var gained := int(round(float(r.get("xp", 5)) * mult))
 	var before := lvl
-	var after := add_xp(skill, gained)
+	var after := lvl if bool(ctx.get("no_xp", false)) else add_xp(skill, gained)
 	res["xp"] = gained
 	res["level"] = after
 	res["level_up"] = after > before
@@ -797,14 +814,85 @@ static func station_resource_key(ref: String, generation: int) -> String:
 	return "station:%s:g%d" % [ref, generation]
 
 
+# --- workshop state: fuel and condition ---------------------------------------------------
+
+func workshop(ref: String) -> Dictionary:
+	if not workshops.has(ref):
+		workshops[ref] = {"fuel": 0.0, "condition": 1.0}
+	return workshops[ref]
+
+
+func station_fuel(ref: String) -> float:
+	return float(workshop(ref)["fuel"])
+
+
+func station_condition(ref: String) -> float:
+	return float(workshop(ref)["condition"])
+
+
+## Heat units a recipe burns (0 = cold work). Smelting a bar burns more than forging an item.
+static func fuel_cost(r: Dictionary) -> float:
+	return float(r.get("fuel", 0.0))
+
+
+## "" when the station's fuel and condition allow `r`, else why not.
+func _heat_problem(r: Dictionary, ref: String) -> String:
+	var cost := fuel_cost(r)
+	if cost <= 0.0:
+		return ""
+	if station_condition(ref) < MIN_CONDITION:
+		return "The workshop is too worn to use. Repair it."
+	if station_fuel(ref) < cost:
+		return "Needs fuel (%d heat, the fire holds %d)." % [int(ceil(cost)), int(station_fuel(ref))]
+	return ""
+
+
+func _burn(r: Dictionary, ref: String) -> void:
+	var cost := fuel_cost(r)
+	if cost <= 0.0:
+		return
+	var w := workshop(ref)
+	w["fuel"] = maxf(0.0, float(w["fuel"]) - cost)
+	w["condition"] = maxf(0.0, float(w["condition"]) - WEAR_PER_HOUR * float(r.get("time", 1.5)))
+
+
+## Moves up to `n` of `item` from `inv` into the station's fire. Returns the items actually used.
+func stoke(ref: String, inv: Object, item := "coal", n := 1) -> int:
+	if not FUEL_ITEMS.has(item):
+		return 0
+	var w := workshop(ref)
+	var per := float(FUEL_ITEMS[item])
+	var used := 0
+	while used < n and float(w["fuel"]) + per <= MAX_FUEL and int(inv.call("count", item)) > 0:
+		inv.call("take", item, 1)
+		w["fuel"] = float(w["fuel"]) + per
+		used += 1
+	return used
+
+
+## Spends repair material (planks) to restore condition. Returns the items used.
+func repair_workshop(ref: String, inv: Object, n := 1) -> int:
+	var w := workshop(ref)
+	var used := 0
+	while used < n and float(w["condition"]) < 1.0 and int(inv.call("count", REPAIR_ITEM)) > 0:
+		inv.call("take", REPAIR_ITEM, 1)
+		w["condition"] = minf(1.0, float(w["condition"]) + REPAIR_PER_ITEM)
+		used += 1
+	return used
+
+
 # --- save ---------------------------------------------------------------------------
 
 func serialize() -> Dictionary:
-	return {"xp": xp.duplicate()}
+	return {"xp": xp.duplicate(), "workshops": workshops.duplicate(true)}
 
 
 func deserialize(data: Dictionary) -> void:
 	xp.clear()
+	workshops.clear()
+	var wd: Dictionary = data.get("workshops", {})
+	for k: String in wd:
+		workshops[k] = {"fuel": float(wd[k].get("fuel", 0.0)), "condition": float(wd[k].get("condition", 1.0))}
 	var d: Dictionary = data.get("xp", {})
 	for k: String in d:
 		xp[k] = int(d[k])

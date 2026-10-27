@@ -884,3 +884,100 @@ func test_enterprise_screen_tabs_build() -> void:
 	scr.call("set_tab", "routes")
 	await await_idle_frame()
 	assert_int((scr.get("_box") as Node).get_child_count()).is_greater(3)
+
+
+# ---------------------------------------------------------------- WP-11: station hands
+
+const Crafting := preload("res://scripts/sim/crafting.gd")
+const SMITHY := "kit:test:anvil"
+
+
+class HandInv extends RefCounted:
+	var items := {}
+
+	func count(id: String) -> int:
+		return int(items.get(id, 0))
+
+	func give(id: String, n := 1) -> void:
+		items[id] = count(id) + n
+
+	func take(id: String, n := 1) -> bool:
+		if count(id) < n:
+			return false
+		items[id] = count(id) - n
+		return true
+
+
+func _hand_hub() -> Array:
+	var hub := _hub(3)
+	var e := _e(hub)
+	var c := Crafting.new()
+	e.crafting_ref = c
+	return [e, c]
+
+
+func test_hired_hand_smelts_on_the_day_tick() -> void:
+	var ec := _hand_hub()
+	var e: RefCounted = ec[0]
+	var c: Crafting = ec[1]
+	var r: Dictionary = e.employ_hand(SMITHY, "iron_ingot", 3, 2)
+	assert_bool(r["ok"]).is_true()
+	var inv := HandInv.new()
+	inv.give("iron_ore", 12)
+	inv.give("coal", 6)
+	assert_int(e.stock_hand(SMITHY, inv, "iron_ore", 12)).is_equal(12)
+	e.stock_hand(SMITHY, inv, "coal", 6)                               # fuel for the hand to stoke
+	var g0: int = e.gold()
+	e._stations_day()
+	assert_int(e.gold()).is_equal(g0 - e.hand_wage(2))
+	assert_int(int(e.station_hands[SMITHY]["made"])).is_equal(3)       # three batches a day
+	assert_float(c.station_condition(SMITHY)).is_less(1.0)
+	var got: Dictionary = e.collect_hand(SMITHY, inv)
+	assert_int(int(got.get("iron_ingot", 0))).is_equal(3)
+	assert_int(inv.count("iron_ingot")).is_equal(3)
+	assert_int(int(e.station_hands[SMITHY]["bin"].get("coal", 0))).is_greater(0)   # fuel stays behind
+
+
+func test_hand_stops_without_fuel_or_with_a_wrecked_workshop() -> void:
+	var ec := _hand_hub()
+	var e: RefCounted = ec[0]
+	var c: Crafting = ec[1]
+	e.employ_hand(SMITHY, "iron_ingot", 3, 2)
+	var inv := HandInv.new()
+	inv.give("iron_ore", 10)
+	e.stock_hand(SMITHY, inv, "iron_ore", 10)                          # ore but no coal
+	e._stations_day()
+	assert_int(int(e.station_hands[SMITHY]["made"])).is_equal(0)
+	assert_str(String(e.station_hands[SMITHY]["last"])).contains("fuel")
+	c.stoke(SMITHY, _fuel_inv(10), "coal", 10)
+	c.workshop(SMITHY)["condition"] = 0.05
+	e._stations_day()
+	assert_str(String(e.station_hands[SMITHY]["last"])).contains("worn")
+	assert_int(int(e.station_hands[SMITHY]["made"])).is_equal(0)
+
+
+func _fuel_inv(n: int) -> HandInv:
+	var i := HandInv.new()
+	i.give("coal", n)
+	return i
+
+
+func test_hand_rules_wage_and_save() -> void:
+	var ec := _hand_hub()
+	var e: RefCounted = ec[0]
+	assert_str(e.can_employ_hand(SMITHY, "no_such_recipe")).is_not_empty()
+	assert_str(e.can_employ_hand(SMITHY, "iron_sword", 2)).is_not_empty()      # level 4 recipe
+	e.employ_hand(SMITHY, "iron_ingot", 3, 2)
+	assert_str(e.can_employ_hand(SMITHY, "iron_ingot")).is_not_empty()         # one hand per station
+	var e2: RefCounted = _hand_hub()[0]
+	e2.deserialize(_norm_dict(e.serialize()))
+	assert_str(String(e2.station_hands[SMITHY]["recipe"])).is_equal("iron_ingot")
+	# unpaid hands walk off
+	e.purse_override = 0
+	e.pending_gold = 0
+	e._stations_day()
+	assert_bool(e.station_hands.has(SMITHY)).is_false()
+
+
+func _norm_dict(d: Dictionary) -> Dictionary:
+	return JSON.parse_string(JSON.stringify(d))

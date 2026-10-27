@@ -20,6 +20,7 @@ extends "res://scripts/realm/realm_module.gd"
 ## Money rule: never touches the purse, the presenter calls take_pending_gold().
 
 const Jobs := preload("res://scripts/realm/work_jobs.gd")
+const CraftingScript := preload("res://scripts/sim/crafting.gd")
 const RAMastery := preload("res://scripts/sim/mastery.gd")
 
 const XP_PER_TASK := 0.25
@@ -29,6 +30,9 @@ const WORK_RADIUS := 15.0
 const SPOT_REACH := 3.4
 const STANDING_START := 50.0
 const LOG_MAX := 20
+const EMPLOYER_FUEL := 8.0
+const EMPLOYER_REPAIR := 0.05
+const COLD_FIRE_Q := 0.4
 
 ## city_life job template -> work job id (job jobs outside the list are not shift-modelled).
 const TPL_TO_WORK := {
@@ -42,6 +46,7 @@ const FIRST := ["Aldric", "Brenna", "Corin", "Dessa", "Edmar", "Fenna", "Gorm", 
 const LAST := ["Ashby", "Brook", "Crane", "Dunn", "Ember", "Fallow", "Gray", "Hale", "Ironside", "Marsh", "Nettle", "Oakes", "Pike", "Reed", "Stone", "Thorne"]
 
 var mastery_ref: RefCounted = null     # tests inject one; otherwise Life.mastery
+var crafting_ref: RefCounted = null    # tests inject one; otherwise Life.crafting (workshop fuel and condition)
 var pending_gold: int = 0
 var shift: Dictionary = {}             # the running shift ({} when off duty)
 var standing: Dictionary = {}          # employer -> 0..100 regard for the player's work
@@ -69,6 +74,43 @@ func _mastery() -> RefCounted:
 	if mastery_ref != null:
 		return mastery_ref
 	return Life.mastery
+
+
+func _crafting() -> RefCounted:
+	if crafting_ref != null:
+		return crafting_ref
+	var c: Variant = Life.get("crafting")
+	return c if c is RefCounted else null
+
+
+## Workshop ref of the fire a heat task burns at: one per town and trade.
+static func workshop_ref(sid: int, job: String) -> String:
+	return "work:%d:%s" % [sid, job]
+
+
+## An employer lays the fire before the shift (fuel up to EMPLOYER_FUEL, a little repair); a freelancer
+## works with whatever fuel and condition the forge has.
+func _lay_fire(job: String, sid: int) -> void:
+	var cr := _crafting()
+	if cr == null:
+		return
+	var w: Dictionary = cr.call("workshop", workshop_ref(sid, job))
+	w["fuel"] = maxf(float(w["fuel"]), EMPLOYER_FUEL)
+	w["condition"] = minf(1.0, float(w["condition"]) + EMPLOYER_REPAIR)
+
+
+## Burns a heat task's fuel. Returns the quality multiplier: 1 with a good fire, COLD_FIRE_Q with none or a wrecked forge.
+func _burn_task_fire(job: String, sid: int, heat: float) -> float:
+	var cr := _crafting()
+	if cr == null or heat <= 0.0:
+		return 1.0
+	var w: Dictionary = cr.call("workshop", workshop_ref(sid, job))
+	if float(w["fuel"]) < heat or float(w["condition"]) < CraftingScript.MIN_CONDITION:
+		_say("The fire is too low or the forge too worn to work properly.")
+		return COLD_FIRE_Q
+	w["fuel"] = float(w["fuel"]) - heat
+	w["condition"] = maxf(0.0, float(w["condition"]) - CraftingScript.WEAR_PER_HOUR)
+	return 1.0
 
 
 func _sname(sid: int) -> String:
@@ -257,6 +299,8 @@ func begin(job: String, sid: int, day: int, season: String, hour: float) -> Dict
 		"hours": 0.0, "problems": 0, "employed": employed, "employer": employer, "via": String(pw["via"]) if employed else "",
 		"pending": {}, "events": []}
 	_day = day
+	if employed:
+		_lay_fire(job, sid)
 	return {"ok": true, "reason": "", "shift": shift.duplicate(true)}
 
 
@@ -314,6 +358,7 @@ func resolve_task(quality: float, choice := -1) -> Dictionary:
 		q = float(o["q"])
 		tip = int(o.get("tip", 0))
 		regard = float(o.get("regard", 0.0))
+	q *= _burn_task_fire(job, int(shift["sid"]), float(t.get("heat", 0.0)))
 	(shift["results"] as Array).append({"task": String(t["id"]), "q": q})
 	shift["step"] = int(shift["step"]) + 1
 	shift["hours"] = float(shift["hours"]) + float(t["hours"])

@@ -980,10 +980,12 @@ func serialize() -> Dictionary:
 		"informants": informants.duplicate(), "rep": rep_delta.duplicate(), "stats": stats.duplicate(), "log": log_lines.duplicate(),
 		"clan": clan.duplicate(), "troops": troops.duplicate(), "recruit": recruit_state.duplicate(true), "merc": merc.duplicate(true), "liege": liege,
 		"vassal_day": vassal_day, "duty": duty.duplicate(true), "duties_done": duties_done, "fiefx": fiefx.duplicate(true), "works": works.duplicate(true),
-		"next_work": _next_work, "caravans": cs, "next_car": _next_car, "workshops": workshops.duplicate(true), "next_ws": _next_ws, "day": _day}
+		"next_work": _next_work, "caravans": cs, "next_car": _next_car, "workshops": workshops.duplicate(true), "next_ws": _next_ws, "day": _day,
+		"hands": station_hands.duplicate(true)}
 
 
 func deserialize(d: Dictionary) -> void:
+	station_hands = (d.get("hands", {}) as Dictionary).duplicate(true)
 	_inited = bool(d.get("inited", false))
 	pending_gold = int(d.get("pending_gold", 0))
 	license_owned = bool(d.get("license", false))

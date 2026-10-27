@@ -242,3 +242,83 @@ func test_ore_yield_and_layout() -> void:
 	assert_int(spots.size()).is_equal(OreVein.LAYOUT.size())
 	for e: Array in spots:
 		assert_float((e[0] as Vector2).distance_to(site["pos"])).is_between(8.0, 30.0)
+
+
+# --- WP-11: fuel and workshop condition -------------------------------------------------------
+
+const FORGE := "kit:test:anvil"
+
+
+func _smelter(c: Object, inv: FakeInv) -> void:
+	inv.give("iron_ore", 20)
+	inv.give("coal", 20)
+	c.add_station("anvil", Vector3.ZERO, "Forge", -1.0, null, FORGE, 0)
+
+
+func test_smelting_needs_fuel_in_the_fire() -> void:
+	var c := Crafting.new()
+	var inv := FakeInv.new()
+	_smelter(c, inv)
+	var ctx := {"station": FORGE}
+	assert_str(c.can_craft("iron_ingot", inv, ["anvil"], ctx)).contains("fuel")
+	assert_bool(c.craft("iron_ingot", inv, ["anvil"], ctx)["ok"]).is_false()
+	assert_int(inv.count("iron_ore")).is_equal(20)                     # nothing was taken
+	assert_int(c.stoke(FORGE, inv, "coal", 2)).is_equal(2)
+	assert_float(c.station_fuel(FORGE)).is_equal(8.0)
+	assert_str(c.can_craft("iron_ingot", inv, ["anvil"], ctx)).is_empty()
+
+
+func test_crafting_burns_fuel_and_wears_the_workshop() -> void:
+	var c := Crafting.new()
+	var inv := FakeInv.new()
+	_smelter(c, inv)
+	c.stoke(FORGE, inv, "coal", 3)
+	var f0 := c.station_fuel(FORGE)
+	var r := c.craft("iron_ingot", inv, ["anvil"], {"station": FORGE, "roll": 0.5})
+	assert_bool(r["ok"]).is_true()
+	assert_float(c.station_fuel(FORGE)).is_equal(f0 - 2.0)
+	assert_float(c.station_condition(FORGE)).is_less(1.0)
+	# cold work (cooking, carpentry...) never touches the fire
+	var cold: Dictionary = c.recipe("repair_gear")
+	assert_float(Crafting.fuel_cost(cold)).is_equal(0.0)
+
+
+func test_worn_workshop_refuses_until_repaired() -> void:
+	var c := Crafting.new()
+	var inv := FakeInv.new()
+	_smelter(c, inv)
+	c.stoke(FORGE, inv, "coal", 5)
+	c.workshop(FORGE)["condition"] = 0.1
+	assert_str(c.can_craft("iron_ingot", inv, ["anvil"], {"station": FORGE})).contains("worn")
+	inv.give("plank", 2)
+	assert_int(c.repair_workshop(FORGE, inv, 2)).is_equal(2)
+	assert_float(c.station_condition(FORGE)).is_greater(0.4)
+	assert_str(c.can_craft("iron_ingot", inv, ["anvil"], {"station": FORGE})).is_empty()
+
+
+func test_no_station_context_keeps_the_old_behaviour() -> void:
+	var c := Crafting.new()
+	var inv := FakeInv.new()
+	_smelter(c, inv)
+	assert_str(c.can_craft("iron_ingot", inv, ["anvil"])).is_empty()
+
+
+func test_fuel_and_condition_survive_save() -> void:
+	var c := Crafting.new()
+	var inv := FakeInv.new()
+	_smelter(c, inv)
+	c.stoke(FORGE, inv, "coal", 4)
+	c.workshop(FORGE)["condition"] = 0.65
+	var c2 := Crafting.new()
+	c2.deserialize(_roundtrip(c.serialize()))
+	assert_float(c2.station_fuel(FORGE)).is_equal(16.0)
+	assert_float(c2.station_condition(FORGE)).is_equal(0.65)
+
+
+func test_stoke_respects_the_fire_capacity_and_fuel_kind() -> void:
+	var c := Crafting.new()
+	var inv := FakeInv.new()
+	inv.give("coal", 30)
+	inv.give("iron_ore", 5)
+	assert_int(c.stoke(FORGE, inv, "iron_ore", 1)).is_equal(0)
+	assert_int(c.stoke(FORGE, inv, "coal", 30)).is_equal(int(Crafting.MAX_FUEL / 4.0))

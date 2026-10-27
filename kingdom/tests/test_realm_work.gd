@@ -352,3 +352,26 @@ func test_perf_layout_and_task_resolution() -> void:
 		_run(w, 0.7)
 	assert_float(float(Time.get_ticks_usec() - t0) / 1000.0).is_less(300.0)
 	assert_int(pa.size()).is_equal(15)
+
+
+func test_forge_task_burns_fuel_and_a_cold_forge_ruins_the_work() -> void:
+	var Craft := preload("res://scripts/sim/crafting.gd")
+	var w := _w(true)
+	var c := Craft.new()
+	w.crafting_ref = c
+	var ref: String = w.workshop_ref(0, "blacksmith")
+	var b: Dictionary = w.begin("blacksmith", 0, 5, "spring", 9.0)
+	assert_bool(b["ok"]).is_true()
+	assert_float(c.station_fuel(ref)).is_greater_equal(w.EMPLOYER_FUEL)   # the employer laid the fire
+	var f0 := c.station_fuel(ref)
+	var r: Dictionary = w.resolve_task(0.9, 0)                             # forge (first in the round)
+	assert_float(c.station_fuel(ref)).is_less(f0)
+	assert_float(float(r["quality"])).is_equal_approx(0.9, 0.001)
+	w.abandon()
+	# a freelancer with a dead fire: the forge task is spoiled
+	var w2 := _w(false)
+	var c2 := Craft.new()
+	w2.crafting_ref = c2
+	w2.begin("blacksmith", 0, 5, "spring", 9.0)
+	var r2: Dictionary = w2.resolve_task(0.9, 0)
+	assert_float(float(r2["quality"])).is_less(0.5)
