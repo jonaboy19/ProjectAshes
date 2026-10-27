@@ -166,51 +166,77 @@ func find(pos: Vector3, filter: Dictionary, radius := 60.0, person := -1, avoid 
 	var best := []
 	var best_s := INF
 	var want_needs: Dictionary = filter.get("needs", {})
-	var candidate_ids: Array = []
+	var use_needs := not want_needs.is_empty()
+	var slot_filtered := filter.has("role") or filter.has("job")
+	var recent_spot := int(filter.get("recent_spot", -1))
+	var recent_penalty := clampf(float(filter.get("recent_penalty", 0.0)), 0.0, 10.0)
+	var r2 := radius * radius * 1.0001      # cheap squared pre-check; the exact radius test follows
+	var check_avoid := avoid_r > 0.0
+	# type name -> [passes the filter (and serves the wanted needs), need score, occupancy max]; filter-only, so once per call
+	var per_type := {}
+	# Walk the grid cells (or the settlement list) in place: same visit order as before, no merged candidate array.
+	var lists: Array = []
 	if filter.has("settlement"):
-		candidate_ids = _settlement_spots.get(int(filter["settlement"]), [])
+		lists.append(_settlement_spots.get(int(filter["settlement"]), []))
 	else:
 		var r := int(ceil(radius / CELL))
 		var c0 := _cell(pos)
 		for dx in range(-r, r + 1):
 			for dz in range(-r, r + 1):
-				candidate_ids.append_array(_grid.get(c0 + Vector2i(dx, dz), []))
-	for id: int in candidate_ids:
-		var sp: Dictionary = spots[id]
-		var t: Dictionary = types[sp["type"]]
-		if not _matches(sp["type"], t, filter):
-			continue
-		var origin: Vector3 = (sp["xform"] as Transform3D).origin
-		var d := origin.distance_to(pos)
-		if d > radius:
-			continue
-		if avoid_r > 0.0 and _near_any(origin, avoid, avoid_r):
-			continue
-		var need_score := 1.0
-		if not want_needs.is_empty():
-			need_score = need_match(t, want_needs)
-			if need_score <= NEED_EPS:
+				var cell: Variant = _grid.get(c0 + Vector2i(dx, dz))
+				if cell != null:
+					lists.append(cell)
+	for list: Array in lists:
+		for id: int in list:
+			var sp: Dictionary = spots[id]
+			var origin: Vector3 = (sp["xform"] as Transform3D).origin
+			var d2 := origin.distance_squared_to(pos)
+			if d2 > r2:
 				continue
-		var slots: Array = t["slots"]
-		for k in slots.size():
-			# A data-tier resident often asks for its schedule target again on
-			# every coarse simulation step. Keep its existing slot eligible so
-			# refreshing the same goal does not make it churn through the queue.
-			if sp["holders"][k] != -1 and sp["holders"][k] != person:
+			var tname: String = sp["type"]
+			var info: Variant = per_type.get(tname)
+			if info == null:
+				var tt: Dictionary = types[tname]
+				var ok := _matches(tname, tt, filter)
+				var ns := 1.0
+				if ok and use_needs:
+					ns = need_match(tt, want_needs)
+					ok = ns > NEED_EPS
+				info = [ok, ns, occupancy_max(tt)]
+				per_type[tname] = info
+			if not info[0]:
 				continue
-			if not _slot_matches(slots[k], filter):
+			var d := sqrt(d2)
+			if d > radius:
 				continue
-			var score := d + float(absi(hash(person * 7 + id * 131 + k)) % 100) * 0.03
-			if not want_needs.is_empty():
-				score = (score + 1.0) * (1.0 + 0.5 * float(occupancy(id)) / float(maxi(1, occupancy_max(t)))) / need_score
-			if sp["holders"][k] != person and id == int(filter.get("recent_spot", -1)):
-				# Soft preference only: a sole station remains eligible; owned refreshes stay stable.
-				score += clampf(float(filter.get("recent_penalty", 0.0)), 0.0, 10.0)
-			if sp["holders"][k] == person:
-				score = score * 0.9 if not want_needs.is_empty() else score - 1.0  # small hysteresis keeps a valid activity stable
-			if score < best_s:
-				best_s = score
-				best = [id, k]
+			if check_avoid and _near_any(origin, avoid, avoid_r):
+				continue
+			var need_score: float = info[1]
+			var slots: Array = types[tname]["slots"]
+			var holders: Array = sp["holders"]
+			var crowd := 1.0
+			if use_needs:
+				crowd = 1.0 + 0.5 * float(occupancy(id)) / float(info[2])
+			for k in slots.size():
+				# A data-tier resident often asks for its schedule target again on
+				# every coarse simulation step. Keep its existing slot eligible so
+				# refreshing the same goal does not make it churn through the queue.
+				var holder: int = holders[k]
+				if holder != -1 and holder != person:
+					continue
+				if slot_filtered and not _slot_matches(slots[k], filter):
+					continue
+				var score := d + float(absi(hash(person * 7 + id * 131 + k)) % 100) * 0.03
+				if use_needs:
+					score = (score + 1.0) * crowd / need_score
+				if holder != person and id == recent_spot:
+					# Soft preference only: a sole station remains eligible; owned refreshes stay stable.
+					score += recent_penalty
+				if holder == person:
+					score = score * 0.9 if use_needs else score - 1.0  # small hysteresis keeps a valid activity stable
+				if score < best_s:
+					best_s = score
+					best = [id, k]
 	return best
 
 

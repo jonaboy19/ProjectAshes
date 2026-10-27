@@ -257,12 +257,14 @@ static func _degrade(out: Dictionary, tier: int, arch: Dictionary, persona: Dict
 	if tier <= TIER_NEAR:
 		return
 	MotionIntent.clear_channel_out(out, MotionIntent.Channel.HEAD)
+	out["head_rule"] = ""
 	out["look_limit"] = 0.0
 	(out["ik"] as Array).clear()
 	if tier == TIER_MID:
 		return
 	# FAR: steer and the base clip only
 	out["upper_clip"] = ""
+	out["upper_rule"] = ""
 	out["u_oneshot"] = ""
 	out["oneshot_clip"] = ""
 	out["oneshot_channel"] = MotionIntent.NO_CHANNEL
