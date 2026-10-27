@@ -1,0 +1,59 @@
+[
+ {
+  "name": "Mx4d_DodgeBack",
+  "loop": false,
+  "seconds": 1.53,
+  "frames": 47,
+  "keys": 1538,
+  "source": "dodge_jump_back_root.fbx",
+  "range_s": [
+   0.43,
+   1.97
+  ],
+  "autotrim": null,
+  "loop_pts": null,
+  "floor_fix_m": 0.063,
+  "contact_lift_m": 0.0,
+  "min_foot_m": -0.006,
+  "travel_m": 1.76,
+  "hip_scale": 0.8509
+ },
+ {
+  "name": "Mx4d_RollForward",
+  "loop": false,
+  "seconds": 1.23,
+  "frames": 38,
+  "keys": 1676,
+  "source": "roll_quick_to_run_root.fbx",
+  "range_s": [
+   0.1,
+   1.33
+  ],
+  "autotrim": null,
+  "loop_pts": null,
+  "floor_fix_m": 0.0,
+  "contact_lift_m": 0.2,
+  "min_foot_m": -0.011,
+  "travel_m": 4.16,
+  "hip_scale": 0.8509
+ },
+ {
+  "name": "Mx4d_RollDive",
+  "loop": false,
+  "seconds": 1.33,
+  "frames": 41,
+  "keys": 1415,
+  "source": "roll_stand_to_roll_root.fbx",
+  "range_s": [
+   0.4,
+   1.75
+  ],
+  "autotrim": null,
+  "loop_pts": null,
+  "floor_fix_m": 0.122,
+  "contact_lift_m": 0.044,
+  "min_foot_m": 0.005,
+  "travel_m": 3.33,
+  "hip_scale": 0.8509
+ }
+]

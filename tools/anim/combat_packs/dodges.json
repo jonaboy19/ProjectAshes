@@ -1,0 +1,5 @@
+{"clips": [
+ {"name": "Mx4d_DodgeBack", "file": "dodge_jump_back_root.fbx", "start": 0.43, "end": 1.97, "inplace": "smooth", "inplace_sigma": 0.08},
+ {"name": "Mx4d_RollForward", "file": "roll_quick_to_run_root.fbx", "start": 0.1, "end": 1.33, "inplace": "smooth", "inplace_sigma": 0.08},
+ {"name": "Mx4d_RollDive", "file": "roll_stand_to_roll_root.fbx", "start": 0.4, "end": 1.75, "inplace": "smooth", "inplace_sigma": 0.08}
+]}

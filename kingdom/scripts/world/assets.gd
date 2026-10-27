@@ -75,7 +75,9 @@ const UAL_FILES := [
 	UAL_ANIM_DIR + "mixamo_combat/UAL_Mx_longbow.glb",
 	UAL_ANIM_DIR + "mixamo_combat/UAL_Mx_male_injured.glb",
 	# combat set 4 (directional reacts, staggers, deaths, dodges, combos, footwork steps): Mx4_*
-	UAL_ANIM_DIR + "mixamo_combat/UAL_Mx_combat_set4.glb"]
+	UAL_ANIM_DIR + "mixamo_combat/UAL_Mx_combat_set4.glb",
+	# set-4 dodges trimmed to their travel (tools/anim/combat_packs/dodges.json): Mx4d_DodgeBack, Mx4d_RollForward, Mx4d_RollDive
+	UAL_ANIM_DIR + "mixamo_combat/UAL_Mx_dodges.glb"]
 const WEAPONS := Q + "fantasy-props-megakit/Exports/glTF/"
 const HELMET := Q + "lowpoly-animated-knight/FBX/Helmet1.fbx"
 ## Old KayKit clip names -> UAL clips, so gameplay code keeps using one vocabulary.

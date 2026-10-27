@@ -562,6 +562,7 @@ func _c12_dodge() -> void:
 
 var _rcam: Camera3D
 var _rcam_side := 1.0
+const CAM_AVOID := 3.0          ## m: no fighter closer than this to the review camera
 
 
 ## Wait n frames: the player's own camera sits behind the player looking at `target` (so W walks at the foe), while a
@@ -584,6 +585,19 @@ func _hold(target: Node3D, n: int, _off := 0.0) -> void:
 			var side := Vector3(-line.z, 0, line.x).normalized() * _rcam_side
 			var wide := _off > 1.0          # group fights: higher and further back so circling fighters do not block the lens
 			var want := mid + side * maxf(7.5 if wide else 4.2, line.length() * 1.3) - line.normalized() * (2.5 if wide else 0.0) + Vector3.UP * (3.2 if wide else 2.0)     # above roadside grass
+			# camera-avoid radius: circling fighters never pass through the near lens (push the camera up and away)
+			for e in _enemies:
+				if is_instance_valid(e):
+					var off: Vector3 = want - (e as Node3D).global_position
+					off.y = 0.0
+					if off.length() < CAM_AVOID:
+						want += off.normalized() * (CAM_AVOID - off.length()) + Vector3.UP * (CAM_AVOID - off.length()) * 0.6
+					# a fighter standing on the sight line (between lens and fight) lifts the camera over him
+					var seg := (mid - want)
+					var along := clampf((e as Node3D).global_position.dot(seg) - want.dot(seg), 0.0, seg.length_squared()) / maxf(seg.length_squared(), 0.001)
+					var closest := want + seg * along
+					if along < 0.7 and Vector2(closest.x - (e as Node3D).global_position.x, closest.z - (e as Node3D).global_position.z).length() < 1.1:
+						want += Vector3.UP * 1.6
 			_rcam.global_position = want if not _rcam.current else _rcam.global_position.lerp(want, 0.08)
 			_rcam.current = true
 			_rcam.look_at(mid + Vector3.UP * 0.9)
@@ -629,6 +643,13 @@ func _fm01_duel() -> void:
 	await _attack_dir(b, KEY_A, 18)        # directional cuts
 	await _attack_dir(b, KEY_D, 18)
 	await _attack_dir(b, KEY_S, 24)
+	await tap(KEY_SPACE)                   # root-motion back dodge
+	await _hold(b, 22)
+	key(KEY_A, true)                       # side roll
+	await frames(2)
+	await tap(KEY_SPACE)
+	key(KEY_A, false)
+	await _hold(b, 24)
 	key(KEY_S, true)                       # back off, then lunge back in
 	await _hold(b, 25)
 	key(KEY_S, false)

@@ -221,7 +221,7 @@ func _physics_process(delta: float) -> void:
 		var rm: Dictionary = _cmotion.step(delta, rotation.y, tv)
 		rotation.y = float(rm["yaw"])
 		step_velocity = rm["vel"] + _impulse     # the swing owns the feet
-		if _cmotion.crossed_hit and _cmotion.warped_m > 0.25 and _model.visible:
+		if _cmotion.crossed_hit and _cmotion.warped_m > 0.5 and _model.visible:
 			var foot := global_position + global_transform.basis.z * 0.35
 			VFXSpells._dust(get_parent(), Vector3(foot.x, WorldGen.height(foot.x, foot.z), foot.z), 0.3)
 	var p := global_position + step_velocity * delta

@@ -252,3 +252,12 @@ Files (Movie Maker 1280x720 30 fps, HIGH, 0 script errors): PA_plans/videos/slic
 | Interior (scenario-A house) | FAIL | CC0 detail now on walls/floor, but walls read grey stone instead of limewashed plaster, flat blue-grey daylight, windows flat white panes |
 | Beds (for the NPC lane) | PASS | interior kit beds now use the smart-object bed frame: Life_Mz_Sleep_Bed lies on the mattress (scenario house: 4 sleepers at 23:30, inn loft: 2), headboard lowered to 0.55 m |
 **Verdict: FAIL. Not sent to the owner.** Remaining, in order: (1) edge kit-house plaster/limewash + night exposure, (2) interior plaster tone + warm window light, (3) camera path clearance (NPC + wall avoidance), (4) landmark swap when the refined tower/gate lands, (5) night sky cloud tiling (sky owner), (6) NPC bodies (NPC lane).
+
+## 2026-10-27 Combat pass 9 (combat-motion worker) - root-motion dodge, lunge foot IK, 1v3 camera - FAIL (improved, WIP)
+Files: `PA_plans/videos/WIP_combat_full_motion_slice_road_sword4_v9.mp4` (1v1 incl. back dodge + side roll), `..._three4_v9.mp4` (1v3); sheets `docs/qa/golden/combat/fm_v9_road_*.jpg`, lunge feet close-up `fm_v9_lunge_feet.jpg`.
+- Root-motion dodge: set-4 rolls trimmed to their travel (`tools/anim/combat_packs/dodges.json` -> `UAL_Mx_dodges.glb`). The forward/side roll (Mx4d_RollForward, 1.23 s of root travel) plays in 0.55 s and the capsule follows the clip's own speed curve, scaled to 2.7 m. The back dodge stays on the old back-step: Mx4d_DodgeBack is a 0.5 m high hop and read as floating (seen in the first take).
+- Foot IK on lunges: the rig keeps foot IK during root-motion swings (`is_stand_attack() and not _cmotion.active`). On the side-on close-up the front foot plants and holds at contact, with no ski-slide or snap visible at 8 fps.
+- 1v3 camera: a camera-avoid radius (3 m) plus a sight-line lift (any fighter between the lens and the fight raises the camera 1.6 m). On the 1v3 sheet no bandit fills the near lens any more.
+- Contact dust only after a real step (> 0.5 m warped): fewer puffs.
+- Lock-on pivots: NOT done. The Mx_SnS turn clips turn in the pelvis, not the root, so rotating the capsule as well would double-turn. They need root-rotation extraction first (Blender RootMaker, or a converter pass that moves pelvis yaw into the root).
+- Timing (hit-stop 40/90/100/120 ms by weight, camera shake/roll by tier) is unchanged from pass 5; it holds on these takes.

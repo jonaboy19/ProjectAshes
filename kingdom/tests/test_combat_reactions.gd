@@ -38,3 +38,19 @@ func test_player_react_falls_back_without_animator() -> void:
 	var PCM := preload("res://scripts/combat/player_combat_motion.gd")
 	var n: Node = auto_free(Node.new())
 	assert_bool(PCM.react(n, "Front", Vector3.ZERO, false)).is_false()
+
+
+func test_dodge_speed_follows_the_clip_curve_and_distance() -> void:
+	var PCM := preload("res://scripts/combat/player_combat_motion.gd")
+	var prof := PackedVector3Array()
+	for i in 31:
+		var t := i / 30.0
+		prof.append(Vector3(0, 0, -2.0 * smoothstep(0.0, 1.0, t)))     # 2 m back over 1 s, ease in/out
+	var total := 0.0
+	var dt := 1.0 / 120.0
+	var e := 0.0
+	while e < PCM.DODGE_PLAY_S:
+		total += PCM.speed_from_profile(prof, 1.0, 1.5, e) * dt
+		e += dt
+	assert_float(total).is_equal_approx(1.5, 0.12)        # scaled to the dodge distance
+	assert_float(PCM.speed_from_profile(prof, 1.0, 1.5, PCM.DODGE_PLAY_S * 0.5)).is_greater(PCM.speed_from_profile(prof, 1.0, 1.5, 0.0))

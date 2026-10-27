@@ -1,0 +1,186 @@
+{
+ "map": {
+  "pelvis": "Hips",
+  "spine_01": "Spine",
+  "spine_02": "Spine1",
+  "spine_03": "Spine2",
+  "neck_01": "Neck",
+  "Head": "Head",
+  "clavicle_l": "LeftShoulder",
+  "upperarm_l": "LeftArm",
+  "lowerarm_l": "LeftForeArm",
+  "hand_l": "LeftHand",
+  "thigh_l": "LeftUpLeg",
+  "calf_l": "LeftLeg",
+  "foot_l": "LeftFoot",
+  "ball_l": "LeftToeBase",
+  "thumb_01_l": "LeftHandThumb1",
+  "thumb_02_l": "LeftHandThumb2",
+  "thumb_03_l": "LeftHandThumb3",
+  "index_01_l": "LeftHandIndex1",
+  "index_02_l": "LeftHandIndex2",
+  "index_03_l": "LeftHandIndex3",
+  "middle_01_l": "LeftHandMiddle1",
+  "middle_02_l": "LeftHandMiddle2",
+  "middle_03_l": "LeftHandMiddle3",
+  "ring_01_l": "LeftHandRing1",
+  "ring_02_l": "LeftHandRing2",
+  "ring_03_l": "LeftHandRing3",
+  "pinky_01_l": "LeftHandPinky1",
+  "pinky_02_l": "LeftHandPinky2",
+  "pinky_03_l": "LeftHandPinky3",
+  "clavicle_r": "RightShoulder",
+  "upperarm_r": "RightArm",
+  "lowerarm_r": "RightForeArm",
+  "hand_r": "RightHand",
+  "thigh_r": "RightUpLeg",
+  "calf_r": "RightLeg",
+  "foot_r": "RightFoot",
+  "ball_r": "RightToeBase",
+  "thumb_01_r": "RightHandThumb1",
+  "thumb_02_r": "RightHandThumb2",
+  "thumb_03_r": "RightHandThumb3",
+  "index_01_r": "RightHandIndex1",
+  "index_02_r": "RightHandIndex2",
+  "index_03_r": "RightHandIndex3",
+  "middle_01_r": "RightHandMiddle1",
+  "middle_02_r": "RightHandMiddle2",
+  "middle_03_r": "RightHandMiddle3",
+  "ring_01_r": "RightHandRing1",
+  "ring_02_r": "RightHandRing2",
+  "ring_03_r": "RightHandRing3",
+  "pinky_01_r": "RightHandPinky1",
+  "pinky_02_r": "RightHandPinky2",
+  "pinky_03_r": "RightHandPinky3"
+ },
+ "clips": {
+  "Mx4d_DodgeBack": {
+   "before": [
+    0.193,
+    1.091
+   ],
+   "lowest_joints": [
+    [
+     "ball_r",
+     0.005
+    ],
+    [
+     "foot_r",
+     0.009
+    ],
+    [
+     "foot_l",
+     0.019
+    ],
+    [
+     "ball_l",
+     0.019
+    ]
+   ],
+   "after": [
+    0.157,
+    1.091
+   ],
+   "stance_frames": 27,
+   "locked_frames": 29,
+   "hand_seam_cm": 27.9,
+   "frames": 47,
+   "source": "dodge_jump_back_root.fbx",
+   "seconds": 1.53,
+   "floor_fix_m": 0.063,
+   "contact_lift_m": 0.0,
+   "min_foot_m": -0.006,
+   "travel_m": 1.76,
+   "hip_scale": 0.8509,
+   "loop": false
+  },
+  "Mx4d_RollForward": {
+   "before": [
+    0.31,
+    0.498
+   ],
+   "hand_ik_l": [
+    26,
+    0.008
+   ],
+   "lowest_joints": [
+    [
+     "ball_r",
+     0.003
+    ],
+    [
+     "foot_r",
+     0.004
+    ],
+    [
+     "thumb_02_l",
+     0.012
+    ],
+    [
+     "thumb_03_l",
+     0.012
+    ]
+   ],
+   "after": [
+    0.31,
+    0.498
+   ],
+   "stance_frames": 7,
+   "locked_frames": 0,
+   "hand_seam_cm": 94.3,
+   "frames": 38,
+   "source": "roll_quick_to_run_root.fbx",
+   "seconds": 1.23,
+   "floor_fix_m": 0.0,
+   "contact_lift_m": 0.2,
+   "min_foot_m": -0.011,
+   "travel_m": 4.16,
+   "hip_scale": 0.8509,
+   "loop": false
+  },
+  "Mx4d_RollDive": {
+   "before": [
+    0.418,
+    0.599
+   ],
+   "hand_ik_r": [
+    14,
+    0.026
+   ],
+   "lowest_joints": [
+    [
+     "ball_r",
+     0.001
+    ],
+    [
+     "ball_l",
+     0.016
+    ],
+    [
+     "foot_r",
+     0.02
+    ],
+    [
+     "pinky_02_l",
+     0.021
+    ]
+   ],
+   "after": [
+    0.418,
+    0.599
+   ],
+   "stance_frames": 12,
+   "locked_frames": 0,
+   "hand_seam_cm": 38.3,
+   "frames": 41,
+   "source": "roll_stand_to_roll_root.fbx",
+   "seconds": 1.33,
+   "floor_fix_m": 0.122,
+   "contact_lift_m": 0.044,
+   "min_foot_m": 0.005,
+   "travel_m": 3.33,
+   "hip_scale": 0.8509,
+   "loop": false
+  }
+ }
+}

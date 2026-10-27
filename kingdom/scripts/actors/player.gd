@@ -840,6 +840,8 @@ func _physics_process(delta: float) -> void:
 		var speed_lo := DASH_SPEED_MIN if _dodging_ability else DODGE_SPEED_MIN
 		var speed_hi := DASH_SPEED_MAX if _dodging_ability else DODGE_SPEED_MAX
 		var roll_speed := lerpf(speed_lo, speed_hi, clampf(_dodge / DODGE_TIME, 0.0, 1.0))
+		if _dodge_clip != "":
+			roll_speed = PlayerCombatMotion.dodge_speed(self, _dodge_clip, DODGE_TIME - _dodge, roll_speed)     # the clip's own travel curve
 		_move_dir = _dodge_dir
 		_move_speed = roll_speed
 	elif _land_roll:
@@ -893,7 +895,7 @@ func _physics_process(delta: float) -> void:
 	if _rig:
 		# Feet off the ground: airborne, swimming, rolling, dead. Big hits ease the IK off.
 		_rig.call("set_state", travel.length(), is_on_floor(), swimming or dead or _dodge > 0.0,
-				_animator.is_full_busy() or _animator.is_stand_attack())
+				_animator.is_full_busy() or (_animator.is_stand_attack() and not _cmotion.active))     # root-motion swings keep foot IK: the capsule follows the clip's steps
 		_rig.set("weapon_carry", (_swing <= 0.0 or _swing_elapsed > _swing_hit + ACTIVE_AFTER) and _dodge <= 0.0 and not blocking)       # recovery included: the blade drops back at once
 		# Shield on the arm while fighting (blocking, swinging, hurt, locked on: lingers SHIELD_READY_S), on the back otherwise and
 		# through rolls and jumps; two-handed weapons go on the back for the roll. Nothing is hidden.
@@ -2348,6 +2350,7 @@ func _start_swing() -> void:
 
 
 var _cmotion_target: Node3D
+var _dodge_clip := ""
 var _guard_check := 0.0
 var _guard_foe: Node3D
 var _guard_legs: SkeletonModifier3D
@@ -2418,7 +2421,7 @@ func _cmotion_step(delta: float) -> Vector3:
 		to = _cmotion_target.global_position - global_position
 	var r: Dictionary = _cmotion.step(delta, _model.rotation.y, to)
 	_model.rotation.y = float(r["yaw"])
-	if _cmotion.crossed_hit and _cmotion.warped_m > 0.25:
+	if _cmotion.crossed_hit and _cmotion.warped_m > 0.5:
 		# the lead foot plants on contact after a travelling swing: a puff of dust (ref 03)
 		var foot := global_position + facing() * 0.35
 		VFXSpells._dust(get_parent(), Vector3(foot.x, WorldGen.height(foot.x, foot.z), foot.z), 0.3)
@@ -2516,7 +2519,11 @@ func _start_dodge(is_ability: bool) -> void:
 	_attack_buffer = 0.0
 	_impulse = Vector3.ZERO
 	_dodge_roll = not (backward and _animator.has_clip("Dodge_back"))
-	if backward and _animator.has_clip("Dodge_back"):
+	_dodge_clip = PlayerCombatMotion.dodge_clip(self, backward) if not is_ability else ""      # root-motion dodge (set 4, trimmed)
+	if _dodge_clip != "":
+		_dodge_roll = not backward
+		_animator.play_full(_dodge_clip, PlayerCombatMotion.dodge_rate(self, _dodge_clip))
+	elif backward and _animator.has_clip("Dodge_back"):
 		_animator.play_full("Dodge_back", DODGE_ANIM_RATE * 0.85)      # a back-step, not a forward somersault played while moving backwards
 	else:
 		_animator.play_full(DODGE_ROLL_CLIP if _animator.has_clip(DODGE_ROLL_CLIP) else ("Dodge_Backward" if backward else "Dodge_Forward"), DODGE_ANIM_RATE * (DODGE_ROLL_RATE if _animator.has_clip(DODGE_ROLL_CLIP) else 1.0))
