@@ -64,6 +64,12 @@ var _events: Array[Dictionary] = []
 var _pending_hunts: Array[Dictionary] = []
 var _rng := RandomNumberGenerator.new()
 var _day := 0
+## Deer scarcity 0..1 at a position (Callable(Vector2) -> float; invalid = 0). Wolves short of prey
+## grow hungrier and bolder and press toward farms (WP-17, sim/ecology_bounty.gd wires it to realm/ecology.gd).
+var prey_scarcity: Callable = Callable()
+const SCARCITY_AGGRESSION := 0.3
+const SCARCITY_PRESSURE := 0.4
+const SCARCITY_LIVESTOCK := 2.0
 
 
 func _init(seed_value := 4242) -> void:
@@ -173,9 +179,12 @@ func tick_day(coverage: Callable, rift_instability: float, winter: bool) -> void
 				if push > apex_push:
 					apex_push = push
 					apex_source = apex
+		var scarcity := scarcity_at(den["pos"]) if den["species"] == "wolf" else 0.0
+		den["aggression"] = clampf(den["aggression"] + scarcity * SCARCITY_AGGRESSION, 0.0, 1.0)
+		den["pressure"] = clampf(den["pressure"] + scarcity * SCARCITY_PRESSURE, 0.0, 1.0)
 		var winter_push := WINTER_PRESSURE_ADD if (winter and den["species"] == "wolf") else 0.0
 		den["pressure"] = clampf(den["pressure"] + apex_push * APEX_PRESSURE_ADD + winter_push, 0.0, 1.0)
-		var displaced := apex_push > 0.0 or winter_push > 0.0
+		var displaced := apex_push > 0.0 or winter_push > 0.0 or scarcity > 0.5
 		var threshold := DISPLACED_MIGRATE_PRESSURE if displaced else MIGRATE_PRESSURE
 		if den["pressure"] > threshold and den["population"] >= sp["pack"] * 2 and alive_count() < MAX_ALIVE_DENS:
 			_migrate(den, coverage, displaced, apex_source)
@@ -222,6 +231,10 @@ func _migrate(den: Dictionary, coverage: Callable, toward_settlement := false, a
 				"pos": apex["pos"], "species": String(apex["species"])})
 
 
+func scarcity_at(p: Vector2) -> float:
+	return clampf(float(prey_scarcity.call(p)), 0.0, 1.0) if prey_scarcity.is_valid() else 0.0
+
+
 ## Wolves that ended up near a settlement (chased there by an apex, or by
 ## winter) sometimes take livestock. Lordship/homestead can read the event
 ## (see events_since()) and dock loyalty or stock without this file knowing
@@ -232,7 +245,7 @@ func _maybe_take_livestock(den: Dictionary) -> void:
 	var near := WorldGen.nearest_settlement(den["pos"])
 	if near.is_empty() or den["pos"].distance_to(near["pos"]) > LIVESTOCK_RANGE:
 		return
-	if _rng.randf() < LIVESTOCK_CHANCE * (0.5 + den["aggression"]):
+	if _rng.randf() < LIVESTOCK_CHANCE * (0.5 + den["aggression"]) * (1.0 + scarcity_at(den["pos"]) * SCARCITY_LIVESTOCK):
 		_log_event({"day": _day, "type": "livestock_taken", "den_id": int(den["id"]), "pos": den["pos"],
 			"settlement": int(near.get("id", -1)), "settlement_name": String(near.get("name", ""))})
 

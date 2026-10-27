@@ -213,6 +213,21 @@ static func _stage(type: String, text: String, pos: Vector2, radius: float, extr
 	return s
 
 
+## A settlement's own wolf bounty (WP-17, sim/ecology_bounty.gd): a clear_wolves offer on a chosen den that
+## outlives the usual board rotation (tick_day keeps `data.bounty_sid` offers until the settlement acts).
+static func make_bounty(id: String, den: Dictionary, home: Vector2, sid: int, gold: int, day: int) -> Dictionary:
+	var p: Vector2 = den["pos"]
+	var kills := clampi(int(ceil(float(den["population"]) * 0.5)), 1, int(den["population"]))
+	return {"id": id, "kind": "clear_wolves", "giver_role": KIND_ROLE["clear_wolves"], "giver": "", "giver_name": "",
+		"giver_pos": home, "stage": 0, "state": "offered", "progress": 0, "baseline": -1, "deadline": -1,
+		"data": {"bounty_sid": sid}, "offered_day": day, "days": 10,
+		"title": "Bounty: wolves raiding the farms",
+		"desc": "Starving wolves %d m %s are taking livestock. The village pays %d gold to whoever thins the pack." % [int(p.distance_to(home)), _compass(p - home), gold],
+		"stages": [_stage("kill_den", "Kill %d wolves near the den" % kills, p, 40.0, {"den_id": int(den["id"]), "kills": kills}),
+			_stage("return", "Report to the village", home, 6.0)],
+		"reward": {"gold": gold, "rep": {"ashford": 4, "adventurer_guild": 4}, "opinion": 8}}
+
+
 static func _make(kind: String, world: Dictionary, rng: RandomNumberGenerator) -> Dictionary:
 	var home: Vector2 = world.get("home", Vector2.ZERO)
 	var q := {"kind": kind, "giver_role": KIND_ROLE[kind], "giver": "", "giver_name": "", "giver_pos": home,
@@ -416,6 +431,8 @@ func tick_day(day: int, world: Dictionary, seed_value: int) -> Array:
 	var fresh_offers: Array[Dictionary] = []
 	for q: Dictionary in offers:
 		var fresh := day - int(q["offered_day"]) < OFFER_DAYS
+		if (q.get("data", {}) as Dictionary).has("bounty_sid"):
+			fresh = true     # a settlement bounty stays posted until its owner (ecology_bounty.gd) hires a hunter or it is claimed
 		if String(q.get("kind", "")) == "farmer_deliver_grain":
 			fresh = fresh and day <= _farmer_offer_deadline(q)
 		if fresh:
