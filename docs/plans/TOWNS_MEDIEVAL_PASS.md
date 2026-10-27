@@ -196,3 +196,41 @@ range, gallows, quay warehouse with crane, market cross with steps.
 | Marsh town | Westfen, Brackenmoor, Stonehollow | Houses on stone plinths / stilts, heavy reed thatch, boardwalks, moss (the regional damp map makes roofs green) |
 | Upland village | Dunhallow, Marrowick | Drystone, turf and shingle, longhouses, sheep folds |
 | Heartvale village | Ashford, Oakvale (Greenhollow) | Thatch, limewash, green, runestone ring, mills |
+
+---
+
+## 7. Owner reference sets per city (docs/plans/ref_towns/ref_N.jpg, numbers as on disk; contact sheet work/towns_medieval/refs_sheet.jpg)
+
+| City / type | Reference set | What to match |
+|---|---|---|
+| Ashford (ground level, first priority) | 28, 41, 31 | KCD village path: dirt lane, timber and log houses, wattle fences, gardens, dovecote, NPCs walking |
+| Ashford / villages (aerial) | 3, 35, 25 | small palisade ring, thatch cottages packed inside, fields beyond, manor |
+| Dense town streets (Millbrook, Eastmere, Silverford, Wolfsend) | 1, 39, 21, 9 / 30, 5, 45 | jettied half-timber canyon, laundry across the street, carts, stairs to doors, signs, church spire as focal point |
+| Dense town from above (all towns) | 6, 33, 4 / 38 | tight clusters, mixed slate / shingle / thatch / tile roofs, clock towers, dirt streets between plots, many small huts inside the palisade |
+| Kingsreach (capital) | 43, 27, 11, 13, 19 | Carcassonne double wall + round towers, suburb outside, heraldic banners, gate with statues, cathedral at golden hour |
+| Highwatch / Highcliff, Ravenscar (hill fortress) | 18, 10 | stone hill town packed under the keep, grey stone, arcades |
+| Saltwick, Blackwater, Duskwater (ports) | 2 / 40, 7 | Dubrovnik: sea wall, terracotta packed solid, harbour, suburbs outside; lakeside castle with docks and ships |
+| Harrowgate, Thistledown (steppe / caravan, foreign quarter) | 22, 26 | bazaar with rugs, pottery, awnings; red stalls, bunting, clock tower |
+| Stone alleys, poor quarter, night mood | 8 / 44, 16, 14, 15, 17, 20 | cobbled stone alley with hanging signs and plants; wet cobbles and decayed plaster; lantern-lit night alleys with warm windows |
+| Northern towns (Frostmere, Coldharbor, Highwatch winter) | 12, 32 | snow on roofs and streets, A-frame timber, open market stalls |
+| Landscape around towns | 37, 42, 46, 47, 48 | rolling meadows with wildflowers, castle on a hill as a skyline landmark (battle content is for the war system) |
+| Lakeside village under cliffs | 23, 24 | church on the shore, cliffs behind (Hollowmere / Eastmere) |
+
+---
+
+## 8. Status (2026-10-27, passes 3-6)
+
+Done: small / poor house kit + LOD1 (tools/blender_towns/small_house_kit.py), alley network + quarter-aware frontage (rich / burgher / poor),
+lane links (dangling lane ends joined to the street graph), poverty dressing, night windows (kit), cloth sway, boats bob, drawn wagons
+(tools/blender_towns/draught_wagon.py: 4 spinning wheels, harnessed horse walk, seated driver, unload halt, right-hand lane, ground pitch),
+scenario A dressing + Kingsreach road bandit camp (data/world/slice_dressing.json, relative to the town), ivy leaves smaller, LOW/iGPU trims.
+Tests: test_town_frontage (save prefix), test_town_identity, test_town_kit, test_town_slice, test_town_alley_routes, test_market_dressing.
+
+Known gaps:
+- Ashford's south radial lane is boxed in by planned houses at the plaza (pre-existing street-graph island: 11 of 20 planned houses could not
+  route before this pass). Fix needs a planned-lot move (save migration) or a StreetGraph-side link through the plaza: owner / NPC owner decision.
+- Carts follow the road network as it is: straight settlement-to-settlement segments. Curves come with the real-terrain roads (world worker).
+- Watermill wheels: the mill models are single meshes (no separable wheel); windmill sails already turn (region_dressing).
+- Night windows only on the small house kit (RA_window) and its LOD0; the Blender / Meshy houses have no window material of their own.
+- Owner sheets: Ashford, Kingsreach, Millbrook, Stonehollow done; vertical-slice towns (Greenhollow = Oakvale, Redwater, Thornfield) in
+  progress; the remaining 24 towns in later batches.

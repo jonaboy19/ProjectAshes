@@ -46,14 +46,18 @@ static func setup() -> void:
 		if not ResourceLoader.exists(path):
 			continue
 		# "mode": the stamp was baked against one macro mode (noise / valencious); the other mode never sees it.
-		if st.has("mode") and String(st["mode"]) != WorldMacro.mode():
+		# W6 real world: re-use the valencious deltas (relative metres) moved to the re-anchored spot (RealWorld.remap of the stamp centre).
+		var want_mode := "valencious" if WorldMacro.is_real() else WorldMacro.mode()
+		if st.has("mode") and String(st["mode"]) != want_mode:
 			continue
 		var img := load(path) as Image
 		if img == null or img.get_format() != Image.FORMAT_RGBAF:
 			continue
 		var o: Array = st["origin"]
 		var cell := float(st["cell"])
-		var e := {"x0": float(o[0]), "z0": float(o[1]), "cell": cell, "nx": img.get_width(), "nz": img.get_height(),
+		var ox := float(o[0])
+		var oz := float(o[1])
+		var e := {"x0": ox, "z0": oz, "cell": cell, "nx": img.get_width(), "nz": img.get_height(),
 			"d": img.get_data().to_float32_array()}
 		e["x1"] = e["x0"] + cell * (e["nx"] - 1)
 		e["z1"] = e["z0"] + cell * (e["nz"] - 1)
@@ -75,6 +79,30 @@ static func setup() -> void:
 		box = box.grow(half + 3.0)
 		_trails.append({"pts": pts, "half": half, "box": box, "soft": float(tr.get("soft", 1.4))})
 		_box = box if _box.size == Vector2.ZERO else _box.merge(box)
+
+
+## W6 real world: WorldGen._relocate_real calls this once positions are final. Stamps (valencious deltas, relative metres) and
+## trails move to the re-anchored spot; planning before it saw them at the old spots, exactly as the valencious mode does.
+static func relocate_real() -> void:
+	for arr: Array in [_stamps, _late]:
+		for e: Dictionary in arr:
+			var c0 := Vector2((float(e["x0"]) + float(e["x1"])) * 0.5, (float(e["z0"]) + float(e["z1"])) * 0.5)
+			var sh := RealWorld.remap(c0) - c0
+			for k: String in ["x0", "x1"]:
+				e[k] = float(e[k]) + sh.x
+			for k: String in ["z0", "z1"]:
+				e[k] = float(e[k]) + sh.y
+	_box = Rect2()
+	for tr: Dictionary in _trails:
+		var pts: PackedVector2Array = tr["pts"]
+		for i in pts.size():
+			pts[i] = RealWorld.remap(pts[i])
+		tr["pts"] = pts
+		var box := Rect2(pts[0], Vector2.ZERO)
+		for p in pts:
+			box = box.expand(p)
+		tr["box"] = box.grow(float(tr["half"]) + 3.0)
+		_box = tr["box"] if _box.size == Vector2.ZERO else _box.merge(tr["box"])
 
 
 ## Switches the late (W4) stamps on. RegionSites.plan() calls it as its last step; a no-op when stamps are disabled or already on.

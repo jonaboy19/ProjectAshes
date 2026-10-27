@@ -77,7 +77,7 @@ func _index(file: String, key: String) -> Dictionary:
 
 static func _vec(a: Variant) -> Vector2:
 	if typeof(a) == TYPE_ARRAY and (a as Array).size() >= 2:
-		return Vector2(float(a[0]), float(a[1]))
+		return RealWorld.remap(Vector2(float(a[0]), float(a[1])))   # W6: re-anchored on the real world (identity otherwise)
 	return Vector2.ZERO
 
 

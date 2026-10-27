@@ -20,11 +20,21 @@ const LOADOUTS := {
 	"spear": ["bronze_spear"],
 	"shortbow": ["ash_shortbow"],
 	"staff": ["ash_staff"],
+	"torch": ["bronze_sword", "torch"],
+	"pickaxe": ["bronze_pickaxe"],
+	"felling_axe": ["bronze_felling_axe"],
+	"smith_hammer": ["bronze_smithing_hammer"],
+	"sickle": ["bronze_sickle"],
+	"shovel": ["bronze_shovel"],
+	"fishing_rod": ["yew_rod"],
+	"carry_crate": ["bronze_sword", "@carry:crate"],
+	"carry_sack": ["@carry:sack"],
+	"carry_log": ["iron_greatsword", "@carry:log"],
 }
 const STATES := [
 	["idle", 1.0], ["dodge_fwd", 1.4], ["walk", 1.4], ["sprint", 1.4], ["strafe_l", 1.0], ["crouch", 1.0], ["jump", 1.4], ["dodge", 1.4],
 	["attack", 1.6], ["block", 1.2], ["hit", 1.0], ["death", 1.6],
-	["block_hit", 1.8], ["hit_front", 1.4], ["hit_back", 1.4], ["hit_left", 1.4], ["hit_heavy", 2.0],
+	["block_hit", 1.8], ["sit", 2.0], ["combo", 2.6], ["hit_front", 1.4], ["hit_back", 1.4], ["hit_left", 1.4], ["hit_heavy", 2.0],
 ]
 var _p: CharacterBody3D
 var _sk: Skeleton3D
@@ -32,6 +42,7 @@ var _cam: Camera3D
 var _out := "user://equip"
 var _prev := {}
 var _rows: PackedStringArray = []
+var _foe: Node3D = null
 var _strip := ""          # --strip=dodge_fwd: 8 frames of that state per loadout -> strip_<loadout>_<state>.png
 var _strip_imgs: Array[Image] = []
 var _skin_check := false   # --skin: body_cm against the real skinned body (CPU-skinned vertices) instead of the capsule
@@ -121,6 +132,7 @@ func _run() -> void:
 		if not only.is_empty() and not only.has(lo):
 			continue
 		await _dress(life, LOADOUTS[lo])
+		_p.call("set_sheathed", lo == "unarmed" or OS.has_environment("MATRIX_SHEATHE"), true)   # unarmed = the sheathed stance (owner: no fists item)
 		var tiles: Array[Image] = []
 		for st: Array in STATES:
 			if not states.is_empty() and not states.has(String(st[0])):
@@ -141,11 +153,25 @@ func _dress(life: Node, items: Array) -> void:
 	for slot: String in ["main_hand", "off_hand"]:
 		if eq.has_method("unequip"):
 			eq.call("unequip", slot)
+	var carry := ""
 	for id in items:
-		eq.call("equip", String(id))
+		if String(id).begins_with("@carry:"):
+			carry = String(id).substr(7)
+		else:
+			eq.call("equip", String(id))
+	var held: Variant = _p.call("carrying") if _p.has_method("carrying") else null
+	if held != null:
+		_p.call("carry_drop")
+		(held as Node).queue_free()
 	_reset_player()
 	for i in 40:
 		await physics_frame
+	if carry != "":
+		var c: Node3D = (load("res://scripts/interaction/kinds/carryable.gd") as GDScript).call("spawn", root, _p.global_position + (_p.call("facing") as Vector3) * 0.7, carry)
+		await physics_frame
+		_p.call("carry_pick", c)
+		for i in 90:
+			await physics_frame
 
 
 func _reset_player() -> void:
@@ -162,6 +188,8 @@ func _reset_player() -> void:
 
 func _props() -> Array:
 	var out: Array = []
+	if _p.has_method("carrying") and _p.call("carrying") != null:
+		out.append([_p.call("carrying"), "spine_03"])
 	for att in _sk.find_children("*", "BoneAttachment3D", false, false):
 		var b := att as BoneAttachment3D
 		if not ["hand_r", "hand_l", "lowerarm_l", "spine_03", "pelvis"].has(b.bone_name):
@@ -278,6 +306,11 @@ func _state(lo: String, st: String, secs: float) -> Image:
 					_p.call("attack")
 				"hit":
 					_p.call("take_damage", 3, null, Vector3(0, 0, 3.0), true)
+				"sit":
+					# a bench like the SmartObjects ones (Seat with its own visual), the player sits through the real Seat.sit
+					var seat: Node3D = (load("res://scripts/interaction/kinds/seat.gd") as GDScript).call("spawn", root,
+							_p.global_position, _p.rotation.y, "bench", true)
+					seat.call("sit", _p)
 				"block_hit", "hit_front", "hit_back", "hit_left", "hit_heavy":
 					# an attacker 1.5 m away on that side (front for the block), real (non-forced) blow
 					var side := {"block_hit": 0.0, "hit_front": 0.0, "hit_heavy": 0.0, "hit_back": PI, "hit_left": PI * 0.5}
@@ -289,6 +322,16 @@ func _state(lo: String, st: String, secs: float) -> Image:
 					foe.queue_free()
 				"death":
 					_p.call("take_damage", 9999, null, Vector3.ZERO, true)
+		if st == "combo" and fired:
+			# a bandit 1.6 m ahead takes a 4-hit chain: press attack every 0.12 s so the next swing buffers into each cancel window
+			if _foe == null:
+				_foe = (load("res://scripts/army/soldier.gd") as GDScript).call("create", 1, "Bandit", "Bandit", ["1H_Sword", "Round_Shield"] as Array[String])
+				root.add_child(_foe)
+				var fd: Vector3 = _p.call("facing")
+				_foe.global_position = _p.global_position + fd * 1.6
+				_foe.look_at(_p.global_position, Vector3.UP, true)
+			if fmod(t, 0.12) < 1.0 / 60.0 and t < 2.0:
+				_p.call("attack")
 		if st == "attack" and t > 0.9 and t < 0.92:
 			_p.call("attack")
 		if t > 0.3:
@@ -321,6 +364,9 @@ func _state(lo: String, st: String, secs: float) -> Image:
 			sh.blit_rect(_strip_imgs[i], Rect2i(0, 0, 480, 270), Vector2i((i % 4) * 480, (i / 4) * 270))
 		sh.save_png(_out.path_join("strip_%s_%s.png" % [lo, st]))
 		_strip_imgs.clear()
+	if _foe != null:
+		_foe.queue_free()
+		_foe = null
 	if st == "death":
 		_p.call("revive", false) if _p.has_method("revive") else null
 	if img != null:

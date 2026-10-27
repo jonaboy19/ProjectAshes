@@ -291,7 +291,7 @@ static func _fixed_area(id: String) -> Vector3:
 
 
 static func _free(p: Vector2, taken: Array[Dictionary], kind: String) -> bool:
-	if absf(p.x) > WorldGen.WORLD_HALF - 350.0 or absf(p.y) > WorldGen.WORLD_HALF - 350.0:
+	if not WorldGen.in_bounds(p, 350.0):
 		return false
 	if HV.protected_ground(p) or p.distance_to(HV.CENTER) < 720.0:
 		return false

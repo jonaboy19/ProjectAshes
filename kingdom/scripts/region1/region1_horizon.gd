@@ -9,8 +9,10 @@ extends Node3D
 ## Built on a WorkerThreadPool task (pure WorldGen maths, no resource loading) and turned into meshes on the
 ## main thread in one go. Per frame: two shader parameters.
 
-const HALF := 6144.0
-const CELL := 72.0              # 48 m on the 8 km world: same ~58k triangles over a 2.25x larger map
+## W6: the real world draws its whole 32 km at a 160 m grid (same ~42k vertices); canopy blobs stay within +-6144 m.
+static var HALF := 6144.0
+static var CELL := 72.0
+const BLOB_HALF := 6144.0              # 48 m on the 8 km world: same ~58k triangles over a 2.25x larger map
 const BLOB_STEP := 42.0          # 34 m before the 12 km world (canopy domes are culled by range, so frame cost is unchanged)
 const BLOB_CELL := 512.0
 const GRASS := Color(0.42, 0.6, 0.22)
@@ -146,7 +148,7 @@ func _update_ground_mask(focus: Vector3) -> void:
 	if sig == _ground_mask_sig:
 		return
 	_ground_mask_sig = sig
-	var cells_per_region := int(Terrain3DBridge.REGION_M / 64.0)
+	var cells_per_region := int(Terrain3DBridge.region_m() / 64.0)
 	var count := (radius * 2 + 1) * cells_per_region
 	var origin_region := center - Vector2i(radius, radius)
 	_ground_mask_img = Image.create(count, count, false, Image.FORMAT_R8)
@@ -160,7 +162,7 @@ func _update_ground_mask(focus: Vector3) -> void:
 		_ground_mask_tex.update(_ground_mask_img)
 	_ground_mat.set_shader_parameter("built_mask", _ground_mask_tex)
 	_ground_mat.set_shader_parameter("mask_cells", float(count))
-	_ground_mat.set_shader_parameter("mask_origin", Vector2(origin_region) * Terrain3DBridge.REGION_M)
+	_ground_mat.set_shader_parameter("mask_origin", Vector2(origin_region) * Terrain3DBridge.region_m())
 
 
 func _find_terrain() -> Node:
@@ -176,6 +178,8 @@ func _find_terrain() -> Node:
 # --- Worker ---------------------------------------------------------------------------
 
 func _work() -> void:
+	HALF = 16384.0 if WorldMacro.is_real() else 6144.0
+	CELL = 160.0 if WorldMacro.is_real() else 72.0
 	var n := int(HALF * 2.0 / CELL) + 1
 	var verts := PackedVector3Array()
 	var cols := PackedColorArray()
@@ -188,6 +192,13 @@ func _work() -> void:
 			var x := -HALF + i * CELL
 			var z := -HALF + j * CELL
 			hs[j * n + i] = WorldGen.height(x, z)
+			if CELL > 100.0:
+				# W6: the 160 m grid would cut straight across the real valleys and poke through the streamed Terrain3D ground:
+				# sit each vertex on the lowest ground of its cell (and 5 m under it) so the far mesh always stays beneath.
+				var lo := hs[j * n + i]
+				for o: Vector2 in [Vector2(-0.5, 0), Vector2(0.5, 0), Vector2(0, -0.5), Vector2(0, 0.5), Vector2(-0.5, -0.5), Vector2(0.5, 0.5), Vector2(-0.5, 0.5), Vector2(0.5, -0.5)]:
+					lo = minf(lo, WorldGen.height(x + o.x * CELL, z + o.y * CELL))
+				hs[j * n + i] = lo - 5.0
 	var lvs := PackedFloat32Array()
 	lvs.resize(n * n)
 	for j in n:
@@ -216,6 +227,16 @@ func _work() -> void:
 					bc += (BIOME_COL[bi] as Color) * sw[bi]
 				var open := clampf(1.0 - (w.r + w.g + w.b), 0.0, 1.0)
 				col = col.lerp(PATH, 0.0).lerp(bc, open * 0.9)
+				if WorldMacro.is_real():
+					# W6: the same layering as the streamed ground (Terrain3DBridge.real_layers) so far fells match near ones.
+					var sw2 := WorldBiomes.soft_weights(x, z)
+					var mm := WorldBiomes.ground_mix(sw2, 0.5)
+					var ly := Terrain3DBridge.real_layers(x, z, h, 1.0 - nrm.y, mm, 1.0, Terrain3DBridge.snow_line(z))
+					col = col.lerp(BIOME_COL[2], clampf(float(ly[0]), 0.0, 1.0) * 0.5)
+					col = col.lerp(BIOME_COL[1], clampf(float(ly[6]), 0.0, 1.0) * 0.6)
+					col = col.lerp(BIOME_COL[5], clampf(float(ly[5]), 0.0, 1.0))
+					col = col.lerp(ROCK, clampf(float(ly[7]), 0.0, 1.0))
+					col = col.lerp(BIOME_COL[7], clampf(float(ly[4]), 0.0, 1.0))
 			var lv := lvs[j * n + i]
 			if not is_nan(lv) and lv > h + 0.1:
 				# Water only where the whole neighbourhood is water or higher ground (see _water_interior): a river is far
@@ -245,10 +266,10 @@ func _work() -> void:
 	var rng := RandomNumberGenerator.new()
 	rng.seed = 90210
 	var blobs: Dictionary = {}          # Vector2i cell -> PackedFloat32Array [x, y, z, sx, sy, tint] * n
-	var bz := -HALF + BLOB_STEP * 0.5
-	while bz < HALF:
-		var bx := -HALF + BLOB_STEP * 0.5
-		while bx < HALF:
+	var bz := -BLOB_HALF + BLOB_STEP * 0.5
+	while bz < BLOB_HALF:
+		var bx := -BLOB_HALF + BLOB_STEP * 0.5
+		while bx < BLOB_HALF:
 			var px := bx + rng.randf_range(-0.4, 0.4) * BLOB_STEP
 			var pz := bz + rng.randf_range(-0.4, 0.4) * BLOB_STEP
 			var f := WorldGen.forest_density(px, pz)

@@ -508,6 +508,14 @@ static func _polished(role: String, orig: Material, skin_kind: int, tier: String
 	var towns_off := OS.get_cmdline_user_args().has("--townsoff")    # A/B (CityPlanner.towns_off)
 	sm.set_shader_parameter("moss", 0.0 if towns_off else AGE_MOSS.get(role, 0.0))
 	sm.set_shader_parameter("sun_fade", 0.0 if towns_off else AGE_FADE.get(role, 0.0))
+	if role == "boat" and not towns_off:
+		sm.set_shader_parameter("bob", 0.06)
+	if role == "window" and not towns_off:
+		_window_mats.append(sm)
+		sm.set_shader_parameter("glow", _night_k * 2.2)
+	if role in ["cloth", "awning", "banner", "flag"] and not towns_off:
+		sm.set_shader_parameter("sway", 0.035)     # cloth moves in the wind
+
 	if p["tex"] == null and DETAIL.has(role) and not is_char(role) and not towns_off:
 		_detail(sm, role, orig)
 	if game_mode and AGE_MOSS.has(role) and wet_texture() != null:
@@ -730,7 +738,7 @@ static func lion_texture() -> Texture2D:
 
 ## Ordered [token, role] checks on an asset key or GLB file name (first match wins; lower case, ":lodN" and "_lodN" ignored).
 const ASSET_ROLE_TOKENS := [
-	["stall", "stall"], ["stand", "stall"], ["lamp", "lamp"], ["banner", "cloth"], ["bunting", "cloth"], ["sign", "cloth"],
+	["rowboat", "boat"], ["boat", "boat"], ["stall", "stall"], ["stand", "stall"], ["lamp", "lamp"], ["banner", "cloth"], ["bunting", "cloth"], ["sign", "cloth"],
 	["flower", "flowers"], ["wall", "stone"], ["gate", "stone"], ["well", "stone"], ["bridge", "stone"], ["milestone", "stone"],
 	["house", "house"], ["barn", "house"], ["granary", "house"], ["mill", "house"], ["chapel", "house"], ["temple", "house"],
 	["castle", "house"], ["keep", "house"], ["tower", "house"], ["inn", "house"], ["guild", "house"], ["blacksmith", "house"],
@@ -751,6 +759,8 @@ static func role_for_asset(key: String) -> String:
 ## Material resource names of the Blender sets (RG_* region kit, RA_* village kit) -> role; "" = use the asset's default role.
 static func role_for_material(name: String) -> String:
 	var n := name.to_lower()
+	if n.contains("ra_window"):
+		return "window"
 	if n.contains("roof") or n.contains("shingle") or n.contains("slate") or n.contains("thatch") or n.contains("hay"):
 		return "roof"
 	if n.contains("plaster"):
@@ -798,13 +808,13 @@ static func restyle_mesh(mesh: ArrayMesh, key: String, tier := "", role := "") -
 		var b := orig as BaseMaterial3D
 		var src: Material = orig
 		var fmt_col := (mesh.surface_get_format(i) & Mesh.ARRAY_FORMAT_COLOR) != 0
-		if not b.vertex_color_use_as_albedo and not fmt_col:
+		if (not b.vertex_color_use_as_albedo and not fmt_col) or (fmt_col and b.resource_name.to_lower().contains("ra_kit")):   # small house kit: part colours live in the vertex colours
 			var _pv := Probe.t()
-			src = _vcol_copy(b)                     # no baked colours: let instance colours tint it (town identity)
+			src = _vcol_copy(b, not b.resource_name.to_lower().contains("ra_kit"))   # glTF vertex colours are linear                     # no baked colours: let instance colours tint it (town identity)
 			Probe.add("styleg.vcol_copy", _pv)
 		var r := role
 		var by_name := role_for_material(b.resource_name)
-		if by_name != "":
+		if by_name != "" and role != "boat":
 			r = by_name
 		if r == "iron_polished":
 			r = "timber"
@@ -834,12 +844,12 @@ static func restyle_mesh(mesh: ArrayMesh, key: String, tier := "", role := "") -
 	return mesh
 
 
-static func _vcol_copy(b: BaseMaterial3D) -> BaseMaterial3D:
-	var k := "vcc%d" % b.get_instance_id()
+static func _vcol_copy(b: BaseMaterial3D, srgb := true) -> BaseMaterial3D:
+	var k := "vcc%d%s" % [b.get_instance_id(), "" if srgb else "L"]
 	if not _cache.has(k):
 		var c := b.duplicate() as BaseMaterial3D
 		c.vertex_color_use_as_albedo = true
-		c.vertex_color_is_srgb = true
+		c.vertex_color_is_srgb = srgb
 		_cache[k] = c
 	return _cache[k]
 
@@ -867,6 +877,22 @@ static func vertex_color_material(role := "timber", srgb := true, tier := "") ->
 
 ## Towns medieval pass: regional damp for the moss (128 x 128 over the 12.3 km world, from the macro biome map; the dry steppe
 ## edge in the far south). Built once; null before the macro map is loaded (the shader then uses a neutral 0.5).
+## Towns medieval pass: night windows. Every "window" role material (kit windows, RA_window) glows after dusk; the settlement
+## builder calls night_glow(hour) once a second (one uniform per material, no per-house work).
+static var _window_mats: Array[ShaderMaterial] = []
+static var _night_k := 0.0
+
+
+static func night_glow(hour: float) -> void:
+	var k := 1.0 - smoothstep(5.5, 7.0, hour) if hour < 12.0 else smoothstep(18.5, 20.0, hour)
+	if absf(k - _night_k) < 0.01:
+		return
+	_night_k = k
+	for m in _window_mats:
+		if is_instance_valid(m):
+			m.set_shader_parameter("glow", k * 2.2)
+
+
 const WET_OF_BIOME := [0.5, 0.8, 0.6, 0.5, 1.0, 0.55, 0.22, 0.4]   # grass forest meadow farmland marsh highland rift snow
 static var _wet_tex: Texture2D
 

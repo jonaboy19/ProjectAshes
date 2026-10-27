@@ -161,14 +161,21 @@ func _set_slot(slot: String, id: String) -> void:
 			var fa := fit_for(String(v.get("model", "")))
 			prop.set_meta(&"axis", Vector3(0, 1, 0) if fa.size() < 3 else (Vector3(1, 0, 0) if int(fa[2]) == 0 else Vector3(0, 0, 1)))
 			prop.set_meta(&"grip2", 0.5 if wc == "polearm" else -0.22)
+		if fit_key(String(v.get("model", ""))) == "" and String(v.get("model", "")).get_file().get_basename() == "torch":
+			_add_flame(prop)
+			prop.set_meta(&"wclass", "torch")       # held upright by the rig (ProceduralRig._two_hand_rest), whatever the hand does
+			prop.set_meta(&"axis", Vector3(0, 1, 0))
 		att.add_child(prop)
 		list.append(att)
 	if list.is_empty():
 		return
 	_nodes[slot] = list
-	# Starter gear on the same bones makes way for the real item.
+	# Starter gear on the same bones makes way for the real item (a held off-hand item also takes the starter shield off the arm).
 	var hide: Array = []
-	for b: String in bones:
+	var make_way: Array = bones.duplicate()
+	if slot == "off_hand" and bones.has("hand_l"):
+		make_way.append("lowerarm_l")
+	for b: String in make_way:
 		for d: BoneAttachment3D in _defaults.get(b.to_lower(), []):
 			if is_instance_valid(d) and d.visible:
 				d.visible = false
@@ -183,7 +190,7 @@ static func _weapon_class(id: String, model: String) -> String:
 	var base := model.get_file().get_basename().to_lower()
 	if id.contains("greatsword") or id.contains("battleaxe") or id.contains("warhammer"):
 		return "great"
-	if base.begins_with("spear") or base.begins_with("halberd") or base.begins_with("staff"):
+	if base.begins_with("spear") or base.begins_with("halberd") or base.begins_with("staff") 			or base in ["shovel", "fishing_rod", "pitchfork", "hoe", "rake"]:      # long tools: carried upright, both hands in use
 		return "polearm"
 	if base.begins_with("bow") or base.begins_with("crossbow"):
 		return "bow"
@@ -278,3 +285,58 @@ static func style_weapon(inst: Node) -> void:
 					mi.set_surface_override_material(i, m)
 	for ch in inst.get_children():
 		style_weapon(ch)
+
+
+## A lit torch: a flickering warm light and a small flame sprite at the rag wrap (model space, +Y up the stick, 0.38 m).
+static func _add_flame(prop: Node3D) -> void:
+	var top := Node3D.new()
+	top.name = "Flame"
+	top.position = Vector3(0, 0.47, 0)
+	prop.add_child(top)
+	var light := OmniLight3D.new()
+	light.light_color = Color(1.0, 0.66, 0.32)
+	light.light_energy = 1.6
+	light.omni_range = 7.0
+	light.shadow_enabled = false
+	top.add_child(light)
+	var fire := GPUParticles3D.new()
+	fire.amount = 36
+	fire.lifetime = 0.45
+	fire.local_coords = false
+	var pm := ParticleProcessMaterial.new()
+	pm.direction = Vector3(0, 1, 0)
+	pm.spread = 12.0
+	pm.initial_velocity_min = 0.4
+	pm.initial_velocity_max = 0.8
+	pm.gravity = Vector3(0, 0.6, 0)
+	pm.scale_min = 0.6
+	pm.scale_max = 1.0
+	var grad := Gradient.new()
+	grad.set_color(0, Color(1.0, 0.85, 0.4, 1.0))
+	grad.set_color(1, Color(0.9, 0.25, 0.05, 0.0))
+	var gt := GradientTexture1D.new()
+	gt.gradient = grad
+	pm.color_ramp = gt
+	fire.process_material = pm
+	var q := QuadMesh.new()
+	q.size = Vector2(0.13, 0.17)
+	var qm := StandardMaterial3D.new()
+	qm.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
+	qm.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
+	qm.blend_mode = BaseMaterial3D.BLEND_MODE_ADD
+	qm.vertex_color_use_as_albedo = true
+	var soft := GradientTexture2D.new()          # a soft round flame puff, not a square
+	soft.fill = GradientTexture2D.FILL_RADIAL
+	soft.fill_from = Vector2(0.5, 0.5)
+	soft.fill_to = Vector2(0.5, 0.0)
+	var sg := Gradient.new()
+	sg.set_color(0, Color(1, 1, 1, 1))
+	sg.set_color(1, Color(1, 1, 1, 0))
+	soft.gradient = sg
+	qm.albedo_texture = soft
+	qm.billboard_mode = BaseMaterial3D.BILLBOARD_ENABLED
+	qm.billboard_keep_scale = true
+	q.material = qm
+	fire.draw_pass_1 = q
+	top.add_child(fire)
+	light.set_meta(&"flicker", true)

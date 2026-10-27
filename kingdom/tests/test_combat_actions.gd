@@ -8,7 +8,7 @@ const OLD := [
 	["Sword_Light_1_Upper", 14, 0.42, 0.25, 1.2, 10.0, 1.5],
 	["Sword_Light_2_Upper", 14, 0.39, 0.19, 1.2, 10.0, 1.5],
 	["Sword_Light_3_Upper", 18, 0.42, 0.25, 1.2, 12.0, 1.5],
-	["Sword_Light_4_Upper", 30, 0.64, 0.44, 1.2, 16.0, 7.0],
+	["Sword_Riposte", 30, 0.64, 0.44, 1.2, 16.0, 7.0],
 ]
 const OLD_SWING_CANCEL := 0.22
 const OLD_ACTIVE_BEFORE := 0.03

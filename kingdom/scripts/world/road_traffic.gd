@@ -8,6 +8,12 @@ extends Node3D
 const Assets := preload("res://scripts/world/assets.gd")
 const WAGON := "res://assets/generated/props/covered_wagon.glb"
 const CARAVAN_WAGON := "res://assets/generated/region/road/caravan_wagon.glb"
+## Towns medieval pass: a drawn wagon with separate wheels (tools/blender_towns/draught_wagon.py), a horse walking between the
+## shafts and a seated driver; it halts to unload when it reaches the town at the end of its road.
+const DRAUGHT := "res://assets/generated/town_small/draught_wagon.glb"
+const WHEEL_R := 0.6
+const UNLOAD_AT := 34.0      # metres from the destination town's centre
+const UNLOAD_SECS := 25.0
 const SPAWN := 130.0
 const DESPAWN := 220.0
 const MAX_GROUPS := 6
@@ -44,7 +50,21 @@ func _advance(g: Dictionary, delta: float, focus_p: Vector2) -> void:
 	var a: Vector2 = g["a"]
 	var b: Vector2 = g["b"]
 	var length := maxf(a.distance_to(b), 1.0)
+	var node0: Node3D = g["node"]
+	var halted := float(g.get("halt", 0.0)) > 0.0
+	if halted:
+		g["halt"] = float(g["halt"]) - delta
+		if float(g["halt"]) <= 0.0:
+			g["halt"] = -1.0           # unloaded: drive on (and out of town on the next road)
+			_drive(node0, float(g["speed"]))
+		return
 	g["t"] = float(g["t"]) + float(g["speed"]) * delta / length
+	if is_instance_valid(node0) and node0.has_meta("wheels"):
+		for w: Node3D in node0.get_meta("wheels"):
+			w.rotate_x(float(g["speed"]) * delta / WHEEL_R)
+		if float(g.get("halt", 0.0)) == 0.0 and a.lerp(b, float(g["t"])).distance_to(b) < UNLOAD_AT:
+			g["halt"] = UNLOAD_SECS
+			_drive(node0, 0.0)
 	if float(g["t"]) >= 1.0:
 		_free_group(g)
 		return
@@ -54,8 +74,17 @@ func _advance(g: Dictionary, delta: float, focus_p: Vector2) -> void:
 		return
 	var node: Node3D = g["node"]
 	if is_instance_valid(node):
-		node.global_position = Vector3(pos.x, WorldGen.height(pos.x, pos.y), pos.y)
 		var dir := (b - a).normalized()
+		if node.has_meta("wheels"):
+			# drawn wagon: keeps to the right of the road, eases its heading and pitches with the ground
+			pos += Vector2(-dir.y, dir.x) * -1.3
+			var ahead := pos + dir * 2.2
+			var h0 := WorldGen.height(pos.x, pos.y)
+			node.global_position = Vector3(pos.x, h0, pos.y)
+			node.rotation.y = lerp_angle(node.rotation.y, atan2(dir.x, dir.y), minf(1.0, delta * 2.0))
+			node.rotation.x = -atan2(WorldGen.height(ahead.x, ahead.y) - h0, 2.2)
+			return
+		node.global_position = Vector3(pos.x, WorldGen.height(pos.x, pos.y), pos.y)
 		node.rotation.y = atan2(dir.x, dir.y)
 
 
@@ -223,6 +252,8 @@ func _pick_kind(tier: String) -> String:
 func _build_visual(kind: String) -> Node3D:
 	match kind:
 		"wagon":
+			if ResourceLoader.exists(DRAUGHT):
+				return _draught()
 			var path := WAGON if ResourceLoader.exists(WAGON) else CARAVAN_WAGON
 			if not ResourceLoader.exists(path):
 				return null
@@ -239,3 +270,47 @@ func _build_visual(kind: String) -> Node3D:
 				root.add_child(guard)
 			return root
 	return null
+
+
+func _draught() -> Node3D:
+	var root := Node3D.new()
+	var w: Node3D = Assets.scene(DRAUGHT).instantiate()
+	root.add_child(w)
+	var wheels: Array[Node3D] = []
+	for n in ["wheel_fl", "wheel_fr", "wheel_rl", "wheel_rr"]:
+		var wn := w.find_child(n, true, false) as Node3D
+		if wn:
+			wheels.append(wn)
+	root.set_meta("wheels", wheels)
+	var horse := Critter.new()
+	horse.kind = "horse"
+	horse.claimed = true          # no wandering, no mounting: it is in harness
+	horse.position = Vector3(0.0, 0.0, 3.0)
+	root.add_child(horse)
+	horse.remove_from_group.call_deferred("interactable")
+	root.set_meta("horse", horse)
+	var driver := Assets.character("Trader", 1.75, [])
+	if driver:
+		driver.position = Vector3(0.0, 0.88, 1.2)
+		root.add_child(driver)
+		var ap := Assets.animation_player(driver)
+		if ap:
+			for clip in ["Sitting_Idle", "Sit_Chair_Idle", "Life_Mx_Sit_Floor"]:
+				if ap.has_animation(clip):
+					ap.play(clip)
+					break
+	_drive.call_deferred(root, SPEED["wagon"])
+	return root
+
+
+## Walk cycle at the wagon's speed (Critter._play scales the clip to its measured ground speed), idle when halted.
+func _drive(root: Node3D, speed: float) -> void:
+	if not is_instance_valid(root) or not root.has_meta("horse"):
+		return
+	var h: Critter = root.get_meta("horse")
+	if not is_instance_valid(h):
+		return
+	if speed > 0.05:
+		h._play("Walk", speed / float(Critter.ANIM_GROUND_SPEEDS["horse"]["Walk"]))
+	else:
+		h._play("Idle")

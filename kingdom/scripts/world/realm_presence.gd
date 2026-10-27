@@ -225,7 +225,7 @@ func _road_at(p: Vector2) -> Dictionary:
 
 ## Dry, level ground clear of settlements, camps and other sites (and, if asked, of the road).
 func _spot_ok(c: Vector2, r: float, road_w: float, avoid_road: bool, loose := false) -> bool:
-	if absf(c.x) > WorldGen.WORLD_HALF - 120.0 or absf(c.y) > WorldGen.WORLD_HALF - 120.0:
+	if not WorldGen.in_bounds(c, 120.0):
 		return false
 	if WorldGen.near_water(c.x, c.y, r + 3.0):
 		return false

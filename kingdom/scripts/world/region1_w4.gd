@@ -127,7 +127,7 @@ static func _ok(q: Vector2, r: float, out: Array[Dictionary], bank: bool) -> boo
 	if not bank:
 		return RegionSites._free(q, r, out, 4.0)
 	# A river/lake marker: dry, off the road, clear of settlements and other sites, but within 40 m of the water.
-	if absf(q.x) > WorldGen.WORLD_HALF - 300.0 or absf(q.y) > WorldGen.WORLD_HALF - 300.0:
+	if not WorldGen.in_bounds(q, 300.0):
 		return false
 	if WorldGen.is_water(q.x, q.y) or WorldGen.near_water(q.x, q.y, 9.0) or not WorldGen.near_water(q.x, q.y, 45.0):
 		return false

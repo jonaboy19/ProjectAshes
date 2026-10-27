@@ -44,7 +44,7 @@ const DEFS := {
 	"bench": {"slots": ["door_a", "door_b"], "mesh": "bench", "rich": 0.1, "d": {"inn": 1.5, "admin": 1.2, "market": 0.9, "poor": 0.7, "craft": 0.6, "military": 0.6}, "r": 0.9},
 	"hand_cart": {"slots": ["yard", "door_a", "door_b"], "mesh": "hand_cart", "rich": -0.3, "d": {"market": 1.3, "craft": 1.1, "poor": 1.0, "inn": 0.9, "military": 0.3, "admin": 0.1}, "r": 1.1},
 	"market_cart": {"slots": ["yard"], "mesh": "cart", "rich": 0.0, "d": {"market": 1.2, "inn": 1.4, "craft": 0.6, "poor": 0.3, "military": 0.2, "admin": 0.1}, "r": 2.0},
-	"lamp_post": {"slots": ["post"], "mesh": "lamp_post", "rich": 0.8, "d": {"admin": 1.5, "market": 1.2, "inn": 1.2, "military": 0.9, "craft": 0.4, "poor": 0.1}, "r": 0.5},
+	"lamp_post": {"slots": ["post"], "mesh": "mf_lamp_post_timber_cross", "rich": 0.8, "d": {"admin": 1.5, "market": 1.2, "inn": 1.2, "military": 0.9, "craft": 0.4, "poor": 0.1}, "r": 0.5},
 	"crate_stack": {"slots": ["door_a", "door_b", "side"], "mesh": "crate_stack", "rich": -0.1, "d": {"market": 1.5, "inn": 1.1, "craft": 1.2, "military": 0.9, "poor": 0.7, "admin": 0.3}, "r": 0.9},
 	"sack_pile": {"slots": ["door_a", "door_b", "side"], "mesh": "sack_pile", "scale": 0.8, "rich": -0.2, "d": {"market": 1.3, "inn": 0.9, "craft": 1.0, "poor": 0.8, "military": 0.6, "admin": 0.2}, "r": 0.9},
 	"hay_bale": {"slots": ["yard", "side"], "mesh": "hay", "scale": 0.8, "rich": -0.5, "d": {"inn": 1.8, "poor": 1.0, "craft": 0.6, "military": 0.8, "market": 0.2, "admin": 0.0}, "r": 1.0},

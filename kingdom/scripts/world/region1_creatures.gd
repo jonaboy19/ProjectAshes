@@ -98,7 +98,7 @@ static func seed_ecology(eco: RAMonsterEcology) -> int:
 
 static func _center(near: Variant) -> Vector2:
 	if near is Array:
-		return Vector2(float(near[0]), float(near[1]))
+		return RealWorld.remap(Vector2(float(near[0]), float(near[1])))
 	var t := String(near)
 	if t == "lake":
 		return WorldGen.lake_center
@@ -125,7 +125,7 @@ static func den_position(spec: Dictionary) -> Vector2:
 	var best := Vector2.INF
 	for i in 90:
 		var q := c + Vector2.from_angle(rng.randf() * TAU) * rng.randf_range(float(d[0]), float(d[1]))
-		if absf(q.x) > WorldGen.WORLD_HALF - 200.0 or absf(q.y) > WorldGen.WORLD_HALF - 200.0 or WorldGen.is_water(q.x, q.y):
+		if not WorldGen.in_bounds(q, 200.0) or WorldGen.is_water(q.x, q.y):
 			continue
 		if WorldGen.road_distance(q.x, q.y) < 18.0 or _in_settlement(q):
 			continue

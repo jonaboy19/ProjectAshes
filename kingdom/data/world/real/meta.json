@@ -195,9 +195,9 @@
  "height_stats_m": {
   "land_min": -3.2733010366903574,
   "max": 1251.9994063214922,
-  "land_mean": 293.558524129481,
-  "sea_pct": 17.693360942232626,
+  "land_mean": 293.6054567959354,
+  "sea_pct": 17.706515224025818,
   "lake_pct": 1.0504003804733029
  },
- "sha256_height": "b19fbf3e32aed13013331a9f070b928eff80b7689137943261ecba7d77f3593d"
+ "sha256_height": "298c18ab8f2dfe177c6bdee0d8ff1a0c4b60a6f8b1eebe002baaee21426fcf49"
 }

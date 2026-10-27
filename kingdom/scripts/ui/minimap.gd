@@ -119,7 +119,7 @@ func _draw_terrain() -> void:
 	if tex == null or _pos == Vector2.INF:
 		_terrain.draw_circle(Vector2(r, r), r - 3.0, Color("6f7f54"))
 		return
-	var half := WorldGen.WORLD_HALF
+	var half := WorldGen.map_half()
 	var w := tex.get_size()
 	var uv_c := (_pos + Vector2(half, half)) / (half * 2.0)
 	var span_uv := RANGE_M / (half * 2.0)

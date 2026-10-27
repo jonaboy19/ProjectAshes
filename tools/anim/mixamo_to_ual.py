@@ -11,6 +11,8 @@ Shared batch tool (owner Mixamo downloads: locomotion set S3.1c and the owner_se
           [--foot-lock on|off]         default on: pins planted feet (see FOOT LOCK)
           [--only <substring>]         retarget a subset
           [--report <file.json>]       per-clip QA numbers (default <out>.mixamo.json)
+          [--rig mixamo|meshy|meshy_bvh]  source skeleton: Mixamo FBX (default), Meshy rigged GLB (clip spec gives
+                                       "file" = the .glb and "action"), Meshy text-to-motion BVH
 
 Raw Mixamo FBX never go into the repo (licence: no raw redistribution); only the retargeted GLB does.
 
@@ -61,6 +63,24 @@ for _s, _S in (("l", "Left"), ("r", "Right")):
             BODY["%s_0%d_%s" % (_f, _i, _s)] = "%sHand%s%d" % (_S, _F, _i)
 MAP = {k: MX + v for k, v in BODY.items()}
 
+# Meshy rigs (2026-10-28 run): the rigged-character GLB export (24 bones, no fingers) and the text-to-motion BVH
+# (78 bones, fingers with a metacarpal: Index1 = metacarpal, so UAL index_01..03 <- Index2..4).
+MESHY_GLB = {"pelvis": "Hips", "spine_01": "Spine02", "spine_02": "Spine01", "spine_03": "Spine", "neck_01": "neck",
+             "Head": "Head"}
+MESHY_BVH = {"pelvis": "Hips", "spine_01": "Spine1", "spine_02": "Spine2", "spine_03": "Chest", "neck_01": "Neck1",
+             "Head": "Head"}
+for _s, _S in (("l", "Left"), ("r", "Right")):
+    for _m in (MESHY_GLB, MESHY_BVH):
+        _m.update({"clavicle_" + _s: _S + "Shoulder", "upperarm_" + _s: _S + "Arm", "lowerarm_" + _s: _S + "ForeArm",
+                   "hand_" + _s: _S + "Hand", "foot_" + _s: _S + "Foot", "ball_" + _s: _S + "ToeBase"})
+    MESHY_GLB.update({"thigh_" + _s: _S + "UpLeg", "calf_" + _s: _S + "Leg"})
+    MESHY_BVH.update({"thigh_" + _s: _S + "Leg", "calf_" + _s: _S + "Shin"})
+    for _i in (1, 2, 3):
+        MESHY_BVH["thumb_0%d_%s" % (_i, _s)] = "%sHandThumb%d" % (_S, _i)
+        for _f, _F in (("index", "Index"), ("middle", "Middle"), ("ring", "Ring"), ("pinky", "Pinky")):
+            MESHY_BVH["%s_0%d_%s" % (_f, _i, _s)] = "%sHand%s%d" % (_S, _F, _i + 1)
+RIGS = {"mixamo": ("fbx", MAP), "meshy": ("gltf", MESHY_GLB), "meshy_bvh": ("bvh", MESHY_BVH)}
+
 REPO = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", ".."))
 HAND_MARGIN = 0.035      # hand joint centre above the floor (palm thickness)
 TIP_MARGIN = 0.012       # finger joints above the floor
@@ -74,7 +94,7 @@ UAL = os.path.join(REPO, "kingdom", "assets", "incoming", "quaternius", "univers
 
 def parse_args():
     argv = sys.argv[sys.argv.index("--") + 1:] if "--" in sys.argv else []
-    a = {"root-motion": "keep", "foot-lock": "on", "only": "", "clips": "", "report": ""}
+    a = {"root-motion": "keep", "foot-lock": "on", "only": "", "clips": "", "report": "", "rig": "mixamo"}
     i = 0
     while i < len(argv):
         k = argv[i].lstrip("-")
@@ -111,6 +131,8 @@ def build_cfg(a):
         c = dict(c)
         c.setdefault("heading", "start")
         c.setdefault("inplace", "smooth")
+        if c.get("loop") and RIGS[a["rig"]][0] != "fbx":
+            c.setdefault("loop_native", False)         # Meshy cycles are not frame-exact: find loop points + crossfade
         if c.get("loop") and c.get("loop_native", True) and "end" not in c:
             # Mixamo cycles repeat frame 1 as the last frame: drop it so the seam is exact
             n = fbx_frames(os.path.join(src, c["file"]))
@@ -118,9 +140,23 @@ def build_cfg(a):
             c["start"] = c.get("start", 0.0)
             c["end"] = (n - 2) / 30.0
         out_clips.append(c)
+    st, bmap = RIGS[a["rig"]]
+    if st == "gltf":
+        import bpy
+        for c in out_clips:
+            c.setdefault("glb", os.path.join(src, c.get("file", "")))
+            if not c.get("action"):
+                # Meshy rigged export: one clip per file, take its (first) action name
+                bpy.ops.wm.read_factory_settings(use_empty=True)
+                before = set(bpy.data.actions)
+                bpy.ops.import_scene.gltf(filepath=c["glb"])
+                new = [x.name for x in bpy.data.actions if x not in before]
+                c["action"] = new[0] if new else ""
+    has_fingers = any(k.startswith("index_") for k in bmap)
     cfg = {
-        "source_type": "fbx", "fbx_dir": src, "source_fps": 30, "ual": UAL, "out": os.path.abspath(a["out"]),
-        "map": MAP, "no_match": ["pelvis"], "heading": "start", "smooth": 0.0, "fingers": None,
+        "source_type": st, "fbx_dir": src, "bvh_dir": src, "source_fps": 30, "ual": UAL, "out": os.path.abspath(a["out"]),
+        "map": bmap, "no_match": ["pelvis"], "heading": "start", "smooth": 0.0 if st == "fbx" else 0.04,
+        "fingers": None if has_fingers else "relaxed", "finger_poses": {} if has_fingers else {"relaxed": ["Idle_Loop", 0.0]},
         "check_directions": True, "root_motion_track": a["root-motion"] == "keep", "contact": True,
         "clips": out_clips,
     }

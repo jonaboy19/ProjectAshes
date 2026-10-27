@@ -1,0 +1,55 @@
+{
+	"_doc": "In-game planted-foot slip of the player's locomotion clips (tools_qa/anim_states/loco_slide.gd --all): the real Player at its game speed, foot lock on; m/s. golden_gate.py scores these clips' slide from here.",
+	"clips": {
+		"Crouch_Fwd": {
+			"body_speed": 1.3,
+			"case": "crouch",
+			"samples": 463,
+			"slide_max": 1.343,
+			"slide_mean": 0.734
+		},
+		"Jog_Fwd": {
+			"body_speed": 2.4,
+			"case": "walk",
+			"samples": 356,
+			"slide_max": 0.436,
+			"slide_mean": 0.155
+		},
+		"Sprint": {
+			"body_speed": 6.5,
+			"case": "sprint",
+			"samples": 30,
+			"slide_max": 0.073,
+			"slide_mean": 0.043
+		},
+		"Strafe_left": {
+			"body_speed": 1.2,
+			"case": "strafe_l",
+			"samples": 582,
+			"slide_max": 1.764,
+			"slide_mean": 0.551
+		},
+		"Strafe_right": {
+			"body_speed": 1.2,
+			"case": "strafe_r",
+			"samples": 652,
+			"slide_max": 1.756,
+			"slide_mean": 0.451
+		},
+		"Walk": {
+			"body_speed": 0.6,
+			"case": "slow",
+			"samples": 730,
+			"slide_max": 0.454,
+			"slide_mean": 0.066
+		},
+		"Walk_Backwards": {
+			"body_speed": 2.4,
+			"case": "back",
+			"samples": 336,
+			"slide_max": 0.556,
+			"slide_mean": 0.165
+		}
+	},
+	"lock": true
+}

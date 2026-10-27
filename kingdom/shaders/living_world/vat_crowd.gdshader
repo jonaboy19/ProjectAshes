@@ -15,6 +15,10 @@ uniform sampler2D vat_nrm : filter_nearest, repeat_disable;
 uniform float vat_fps = 10.0;
 uniform vec4 debug_tint = vec4(0.0);   // QA: LOD visualisation (a = strength)
 global uniform float vat_time;
+// Distance dither fade-out at the VAT band edge (PopulationLOD: VatCrowd.set_fade). 0 = off.
+uniform float fade_far = 0.0;
+uniform float fade_len = 18.0;
+varying float v_cam_d;
 
 varying vec3 v_albedo;
 
@@ -41,9 +45,19 @@ void vertex() {
 	float tp = INSTANCE_CUSTOM.w;
 	vec3 tint = vec3(floor(tp / 65536.0), mod(floor(tp / 256.0), 256.0), mod(tp, 256.0)) / 128.0;
 	v_albedo = COLOR.rgb * mix(vec3(1.0), tint, COLOR.a);
+	v_cam_d = length(INV_VIEW_MATRIX[3].xyz - MODEL_MATRIX[3].xyz);
 }
 
 void fragment() {
+	if (fade_far > 0.0) {
+		float k = clamp((fade_far - v_cam_d) / fade_len, 0.0, 1.0);
+		int x = int(FRAGCOORD.x) % 4;
+		int y = int(FRAGCOORD.y) % 4;
+		float bayer[16] = float[](0.0, 8.0, 2.0, 10.0, 12.0, 4.0, 14.0, 6.0, 3.0, 11.0, 1.0, 9.0, 15.0, 7.0, 13.0, 5.0);
+		if (k < (bayer[y * 4 + x] + 0.5) / 16.0) {
+			discard;
+		}
+	}
 	ALBEDO = mix(v_albedo, debug_tint.rgb, debug_tint.a);
 	ROUGHNESS = 0.9;
 }

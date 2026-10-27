@@ -359,7 +359,7 @@ func to_world(s: Vector2) -> Vector2:
 
 func _fit_zoom() -> float:
 	var cs := canvas_size()
-	return minf(cs.x, cs.y) / (WorldGen.WORLD_HALF * 2.0) * 0.98
+	return minf(cs.x, cs.y) / (WorldGen.map_half() * 2.0) * 0.98
 
 
 func _min_zoom() -> float:
@@ -449,7 +449,7 @@ func _apply_zoom_change() -> void:
 
 
 func _clamp_center() -> void:
-	var h := WorldGen.WORLD_HALF + 300.0
+	var h := WorldGen.map_half() + 300.0
 	center = center.clamp(Vector2(-h, -h), Vector2(h, h))
 
 
@@ -1438,7 +1438,7 @@ func _draw_fog(ci: Control, pal: Dictionary) -> void:
 		return
 	if _fog_tex == null or _fog_sig != "%s" % [cm.call("now_hours") / 6]:
 		_build_fog(pal)
-	var half := WorldGen.WORLD_HALF
+	var half := WorldGen.map_half()
 	var a := to_screen(Vector2(-half, -half))
 	var b := to_screen(Vector2(half, half))
 	if _fog_tex != null:
@@ -1447,7 +1447,7 @@ func _draw_fog(ci: Control, pal: Dictionary) -> void:
 
 func _build_fog(pal: Dictionary) -> void:
 	var n := 128
-	var cell := WorldGen.WORLD_HALF * 2.0 / float(n)
+	var cell := WorldGen.map_half() * 2.0 / float(n)
 	var base: Color = pal["fog"]
 	var alpha := PackedByteArray()
 	alpha.resize(n * n)
@@ -1457,14 +1457,14 @@ func _build_fog(pal: Dictionary) -> void:
 		var p: Vector2 = ar["pos"]
 		var r := float(ar["radius"])
 		var soft := r * 1.35
-		var x0 := maxi(0, int((p.x - soft + WorldGen.WORLD_HALF) / cell))
-		var x1 := mini(n - 1, int((p.x + soft + WorldGen.WORLD_HALF) / cell))
-		var y0 := maxi(0, int((p.y - soft + WorldGen.WORLD_HALF) / cell))
-		var y1 := mini(n - 1, int((p.y + soft + WorldGen.WORLD_HALF) / cell))
+		var x0 := maxi(0, int((p.x - soft + WorldGen.map_half()) / cell))
+		var x1 := mini(n - 1, int((p.x + soft + WorldGen.map_half()) / cell))
+		var y0 := maxi(0, int((p.y - soft + WorldGen.map_half()) / cell))
+		var y1 := mini(n - 1, int((p.y + soft + WorldGen.map_half()) / cell))
 		var stale := clampf(float(ar["age_days"]) / 30.0, 0.0, 0.55)
 		for y in range(y0, y1 + 1):
 			for x in range(x0, x1 + 1):
-				var c := Vector2((float(x) + 0.5) * cell - WorldGen.WORLD_HALF, (float(y) + 0.5) * cell - WorldGen.WORLD_HALF)
+				var c := Vector2((float(x) + 0.5) * cell - WorldGen.map_half(), (float(y) + 0.5) * cell - WorldGen.map_half())
 				var d := c.distance_to(p)
 				if d < soft:
 					var k := 0.0 if d < r * 0.75 else (d - r * 0.75) / (soft - r * 0.75)

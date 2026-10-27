@@ -29,14 +29,18 @@ const LOWER_KEYS := ["root", "hips", "pelvis", "upperleg", "lowerleg", "thigh", 
 ## covered by the clip, not a gameplay stat. These are the values for a rig whose
 ## thigh joint rests REF_LEG_HEIGHT above the soles; other rigs scale them by leg
 ## length (the armored guard measures 0.85 m/s walk, 0.87× the player).
-const WALK_CLIP_SPEED := 1.0
-const RUN_CLIP_SPEED := 6.0
+const WALK_CLIP_SPEED := 1.01
+const RUN_CLIP_SPEED := 6.15
 const BACK_CLIP_SPEED := 1.0
 ## Extra gait loops between Walk and the run (UAL_Loco_Mixamo.glb, make_cfg_mixamo.py; planted-foot paths cleaned to a constant-speed line by
 ## tools/anim/loco/treadmill_ual.py): [clip, ground speed
 ## in m/s on the 1.8 m rig (gait_phase.gd stance-core speed of the ball of the foot), loop fraction at which the LEFT foot is furthest forward (tools/anim/loco/
 ## gait_phase.gd: used as start_offset so every cycle plants the left foot at t = 0, like Walk and Jog_Fwd)].
-const GAIT_EXTRA := [["Mx_Walk_Standard", 1.46, 0.176], ["Mx_Run_Slow", 2.99, 0.238], ["Mx_Run_Standard", 4.04, 0.238]]
+## [clip, stance speed m/s, phase offset]: speed = the planted foot's backwards speed in the (retimed) clip and phase = its left-foot-down
+## phase minus Walk's, both measured by tools_qa/anim_states/clip_retime_bake.gd (data/anim/clip_retime.json lplant_phase): with
+## gait.sync every point puts its left foot down together, so the blend never mixes a planted foot with a swinging one.
+const GAIT_EXTRA := [["Mx_Walk_Standard", 1.57, 0.720], ["Jog_Mid", 2.44, 0.003], ["Mx_Run_Slow", 3.33, 0.720], ["Mx_Run_Standard", 4.43, 0.482]]
+const RUN_PHASE := 0.982
 ## Above the run clip: [clip, speed, phase] for the sprint end of the blend space (the player's sprint drives the rig at ~11 m/s).
 const GAIT_TOP := []
 ## Measured body travel of the UAL strafe clips in rig space: Strafe_left moves
@@ -70,13 +74,21 @@ const MAX_STRAFE_CADENCE := 1.7
 ## static pose)]. The first clip the library has wins. Crouch_Fwd and Swim_Fwd
 ## speeds are estimates from their stride (not in the anim QA report yet).
 const STANCES := {
-	"crouch": [["Crouch_Idle"], ["Crouch_Fwd", "Walk_Stealth"], 1.1],
+	"crouch": [["Mx3_Crouch_Idle", "Crouch_Idle"], ["Mx3_Crouch_Fwd", "Crouch_Fwd", "Walk_Stealth"], 0.76],   # speed: STANCE_SPEEDS of the clip picked
 	"swim": [["Swim_Idle"], ["Swim_Fwd"], 2.2],
 	"ride": [["Driving", "Sitting_Idle", "Sit_Floor_Idle"], ["Driving", "Sitting_Idle", "Sit_Floor_Idle"], 0.0],
 	"sit_chair": [["Life_Rest_Sit_Chair", "Sitting_Idle", "Sit_Floor_Idle"], ["Life_Rest_Sit_Chair", "Sitting_Idle", "Sit_Floor_Idle"], 0.0],
 	"sit_bench": [["Life_Rest_Sit_Bench", "Life_Rest_Sit_Chair", "Sitting_Idle"], ["Life_Rest_Sit_Bench", "Life_Rest_Sit_Chair", "Sitting_Idle"], 0.0],
+	"sit_mx": [["Life_Mx_Sit_Chair", "Life_Rest_Sit_Chair", "Sitting_Idle"], ["Life_Mx_Sit_Chair", "Life_Rest_Sit_Chair", "Sitting_Idle"], 0.0],   # pelvis 0.05 m behind the root, pairs with Life_Mx_Stand_To_Sit / Sit_To_Stand
 	"slide": [["Slide", "Slide_Loop", "Crouch_Idle"], ["Slide", "Slide_Loop", "Crouch_Idle"], 0.0],         # steep-slope slide (ground_realism.gd)
 }
+## Ground speed (m/s at rate 1) of stance moving clips, by the clip actually picked (the first the library has).
+const STANCE_SPEEDS := {"Mx3_Crouch_Fwd": 1.81, "Crouch_Fwd": 0.76, "Walk_Stealth": 1.09}
+## Guard-stance footwork clips, best first: [left, right, back, left speed, right speed, back speed] (m/s at rate 1;
+## treadmill-cleaned Mixamo set 3 first: tools/anim/loco/cfg_loco_mixamo3.json).
+## The Mixamo set 3 strafes measured worse in game (1.5-2.3 m/s slip: the guard-stance take is bladed and its heading needs
+## sorting out) and stay out of the list until they beat the UAL pair.
+const STRAFE_SETS := [["Strafe_left", "Strafe_right", "Walk_Backwards", 0.8, 0.7, 1.0]]
 const STANCE_BLEND := 5.0        # 1/s cross-fade into and out of a stance
 
 var tree: AnimationTree
@@ -118,6 +130,7 @@ var _pt_natural: Array[float] = []      # ... natural cycles per second
 var _has_strafe := false
 var _strafe_fw := WALK_CLIP_SPEED
 var _strafe_bw := BACK_CLIP_SPEED
+var _strafe_names: Array = ["Strafe_left", "Strafe_right", "Walk_Backwards"]
 var _strafe_l := STRAFE_LEFT_CLIP
 var _strafe_r := STRAFE_RIGHT_CLIP
 var _strafe_cadence := Vector2.ONE   # (side, back) natural cycles per second
@@ -158,12 +171,12 @@ func _init(model: Node3D, run_speed: float, _walk_speed := -1.0, walk_anim := "W
 	gait.max_space = maxf(maxf(run_speed, 7.5), _run_pt + 0.5)
 	gait.sync = true   # both cycles keep advancing, so their shared phase never drifts
 	var pts: Array = [[walk_anim, _walk_pt, 0.0]]
-	if walk_anim == "Walking_A" and run_anim == "Running_A":
+	if (walk_anim == "Walking_A" or walk_anim == "Walk") and (run_anim == "Running_A" or run_anim == "Jog_Fwd"):
 		for e: Array in GAIT_EXTRA:
 			if player.has_animation(String(e[0])):
 				pts.append([String(e[0]), float(e[1]) * leg, float(e[2])])
-	pts.append([run_anim, _run_pt, 0.0])
-	if walk_anim == "Walking_A" and run_anim == "Running_A":
+	pts.append([run_anim, _run_pt, RUN_PHASE if run_anim == "Jog_Fwd" or run_anim == "Running_A" else 0.0])
+	if (walk_anim == "Walking_A" or walk_anim == "Walk") and (run_anim == "Running_A" or run_anim == "Jog_Fwd"):
 		for e: Array in GAIT_TOP:
 			if player.has_animation(String(e[0])):
 				pts.append([String(e[0]), float(e[1]) * leg, float(e[2])])
@@ -184,23 +197,28 @@ func _init(model: Node3D, run_speed: float, _walk_speed := -1.0, walk_anim := "W
 	_root.connect_node("loco", 1, "gait_rate")
 	var loco_out := "loco"
 
-	_has_strafe = player.has_animation("Walk_Backwards") and player.has_animation("Strafe_left") \
-			and player.has_animation("Strafe_right") and player.has_animation(walk_anim)
+	var sset: Array = []
+	for cand: Array in STRAFE_SETS:
+		if player.has_animation(String(cand[0])) and player.has_animation(String(cand[1])) and player.has_animation(String(cand[2])):
+			sset = cand
+			break
+	_has_strafe = not sset.is_empty() and player.has_animation(walk_anim)
 	if _has_strafe:
+		_strafe_names = [String(sset[0]), String(sset[1]), String(sset[2])]
 		_strafe_fw = WALK_CLIP_SPEED * leg
-		_strafe_bw = BACK_CLIP_SPEED * leg
-		_strafe_l = STRAFE_LEFT_CLIP * leg
-		_strafe_r = STRAFE_RIGHT_CLIP * leg
-		_strafe_cadence = Vector2(1.0 / _clip_length("Strafe_left"), 1.0 / _clip_length("Walk_Backwards"))
+		_strafe_bw = float(sset[5]) * BACK_CLIP_SPEED * leg
+		_strafe_l = Vector2(-float(sset[3]), 0.0) * leg
+		_strafe_r = Vector2(float(sset[4]), 0.0) * leg
+		_strafe_cadence = Vector2(1.0 / _clip_length(_strafe_names[0]), 1.0 / _clip_length(_strafe_names[2]))
 		var strafe := AnimationNodeBlendSpace2D.new()
 		strafe.min_space = Vector2(-2.0, -2.0) * maxf(leg, 1.0)
 		strafe.max_space = Vector2(2.0, 2.0) * maxf(leg, 1.0)
 		strafe.sync = true
 		strafe.add_blend_point(_anim(idle_anim), Vector2.ZERO)
 		strafe.add_blend_point(_cycle(walk_anim), Vector2(0.0, _strafe_fw))
-		strafe.add_blend_point(_cycle("Walk_Backwards"), Vector2(0.0, -_strafe_bw))
-		strafe.add_blend_point(_cycle("Strafe_left"), _strafe_l)
-		strafe.add_blend_point(_cycle("Strafe_right"), _strafe_r)
+		strafe.add_blend_point(_cycle(_strafe_names[2]), Vector2(0.0, -_strafe_bw))
+		strafe.add_blend_point(_cycle(_strafe_names[0]), _strafe_l)
+		strafe.add_blend_point(_cycle(_strafe_names[1]), _strafe_r)
 		_root.add_node("strafe", strafe, Vector2(-400, 400))
 		_root.add_node("strafe_rate", AnimationNodeTimeScale.new(), Vector2(-250, 400))
 		_root.add_node("guard_feet", AnimationNodeBlend2.new(), Vector2(50, 200))
@@ -757,7 +775,7 @@ func set_stance(stance_name: String) -> void:
 	(_root.get_node("st_idle") as AnimationNodeAnimation).animation = idle
 	(_root.get_node("st_move") as AnimationNodeAnimation).animation = move
 	_stance_lens = Vector2(_clip_length(idle), _clip_length(move))
-	_stance_clip_speed = float(cfg[2])
+	_stance_clip_speed = float(STANCE_SPEEDS.get(move, cfg[2])) if float(cfg[2]) > 0.0 else 0.0
 	_stance = stance_name
 
 

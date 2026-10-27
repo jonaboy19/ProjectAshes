@@ -428,6 +428,22 @@ static func build_v2(look: Dictionary, height: float, keep: Array[String]) -> No
 	return body
 
 
+const HOOD_GLB := "res://assets/generated/characters/hood/hood_up.glb"
+static var _hood_mesh: Mesh = null
+
+
+## The Blender cowl (tools/blender/hero_tier_a/build_hood.py: skull-hugging crown, liripipe point, rolled hem, gugel cape with
+## drape folds), authored in the same Head-bone space as the procedural shell below, which stays as the fallback.
+static func _authored_hood() -> Mesh:
+	if _hood_mesh == null and ResourceLoader.exists(HOOD_GLB):
+		var sc: Node = (load(HOOD_GLB) as PackedScene).instantiate()
+		for n in sc.find_children("*", "MeshInstance3D", true, false):
+			_hood_mesh = (n as MeshInstance3D).mesh
+			break
+		sc.free()
+	return _hood_mesh
+
+
 ## Hood-up variant: a rigid cowl on the Head bone (ellipsoid shell with a face opening and a flared collar), wool material.
 static func add_hood_up(sk: Skeleton3D, noise: Texture2D) -> MeshInstance3D:
 	var head := sk.find_bone("Head")
@@ -487,6 +503,9 @@ static func add_hood_up(sk: Skeleton3D, noise: Texture2D) -> MeshInstance3D:
 	var mi := MeshInstance3D.new()
 	mi.name = "HoodUp"
 	mi.mesh = mesh
+	var authored := _authored_hood()
+	if authored != null:
+		mi.mesh = authored
 	var hm := ShaderMaterial.new()
 	hm.shader = load(SH + "hero_garment.gdshader")
 	hm.set_shader_parameter("noise_tex", noise)

@@ -195,7 +195,7 @@ static func load_regions() -> Dictionary:
 				reg["bounds"] = Rect2(Vector2(float(lo[0]), float(lo[1])), Vector2(float(hi[0]) - float(lo[0]), float(hi[1]) - float(lo[1])))
 				out["regions"].append(reg)
 	if (out["regions"] as Array).is_empty():         # data missing: fall back to the whole streamed world
-		var h := WorldGen.WORLD_HALF
+		var h := WorldGen.map_half()
 		out["current"] = "first_region"
 		out["regions"].append({"id": "first_region", "name": "The Ashford Vale", "status": "current",
 			"bounds": Rect2(Vector2(-h, -h), Vector2(h, h) * 2.0)})
@@ -377,7 +377,7 @@ static func _ramp(h: float) -> Color:
 ## picture is upscaled, then trees and peaks are stamped on at full size.
 ## `progress` receives 0..100.
 static func paint_terrain(n: int, progress := Callable()) -> Image:
-	var half := WorldGen.WORLD_HALF
+	var half := WorldGen.map_half()
 	var m := clampi(n / 2, 16, n)
 	var cell := half * 2.0 / m
 	var count := m * m
@@ -1052,7 +1052,7 @@ func _draw() -> void:
 	else:
 		draw_rect(full, PAPER_LIGHT)
 	_draw_neighbours()
-	var h := WorldGen.WORLD_HALF
+	var h := WorldGen.map_half()
 	var world_rect := Rect2(to_screen(Vector2(-h, -h)), Vector2(h, h) * 2.0 * _zoom)
 	_layered = _paint_layers()   # Region1 hook H6
 	if _layered:

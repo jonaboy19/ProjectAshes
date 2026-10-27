@@ -147,20 +147,31 @@ func _owner_shots(town: Dictionary, out_dir: String, park: Vector2) -> void:
 		if float(st["w"]) >= 8.0:
 			continue
 		var m: Vector2 = ((st["a"] as Vector2) + (st["b"] as Vector2)) * 0.5
-		var sc := absf(m.distance_to(c) - float(town["radius"]) * 0.5)
+		var lined := 0
+		for lot: Dictionary in plan["lots"]:
+			var lp: Vector2 = lot["pos"]
+			if lp.distance_to(Geometry2D.get_closest_point_to_segment(lp, st["a"], st["b"])) < 9.0:
+				lined += 1
+		var sc := -float(lined) * 10.0 + absf(m.distance_to(c) - float(town["radius"]) * 0.5) * 0.1     # the most built-up side street
 		if sc < bs and _clear_of_lots(plan, m) and _clear_of_lots(plan, st["a"]):
 			bs = sc
 			best = i
 	var shots := []
 	if best >= 0:
 		shots.append(["lane", streets[best]])
-	# alley: the longest one
+	# alley: the one with the most new houses along it (then the longest): a lined alley, not a path across a yard
 	var al := -1
-	var al_len := 0.0
+	var al_score := -1.0
 	for i in range(int(plan["alleys_from"]), streets.size()):
-		var L := (streets[i]["a"] as Vector2).distance_to(streets[i]["b"])
-		if L > al_len:
-			al_len = L
+		var sa: Vector2 = streets[i]["a"]
+		var sb: Vector2 = streets[i]["b"]
+		var n := 0
+		for lot: Dictionary in plan["lots"]:
+			if bool(lot.get("infill", false)) and (lot["pos"] as Vector2).distance_to(Geometry2D.get_closest_point_to_segment(lot["pos"], sa, sb)) < 6.5:
+				n += 1
+		var sc := float(n) * 100.0 + sa.distance_to(sb)
+		if sc > al_score:
+			al_score = sc
 			al = i
 	if al >= 0:
 		shots.append(["alley", streets[al]])

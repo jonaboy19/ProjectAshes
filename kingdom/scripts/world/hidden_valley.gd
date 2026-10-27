@@ -122,6 +122,20 @@ static func _pick_center() -> Vector2:
 	return best
 
 
+## W6 real world: re-measure the natural ground at the relocated centre (macro active). No 12-70 m clamp: real valleys sit higher.
+static func rebase() -> void:
+	if not _on:
+		return
+	_on = false
+	var sum := 0.0
+	for o: Vector2 in [Vector2.ZERO, Vector2(50, 0), Vector2(-50, 0), Vector2(0, 50), Vector2(0, -50)]:
+		sum += WorldGen._raw_height(CENTER.x + o.x, CENTER.y + o.y)
+	floor_h = roundf(sum / 5.0)
+	var m := gorge_world(GORGE_MOUTH)
+	mouth_h = WorldGen._raw_height(m.x, m.y)
+	_on = true
+
+
 static func enabled() -> bool:
 	return _on
 

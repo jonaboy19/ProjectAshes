@@ -1,0 +1,138 @@
+extends RefCounted
+## Vertical slice dressing (data/world/slice_dressing.json): the scenario A pieces in Ashford (a hayloft with a climbable ladder,
+## a vaultable field fence; the enterable house is a town-kit home) and the bandit camp on the Ashford -> Kingsreach road.
+## Positions are relative to the town (first-gate axis), ground sampled at build time: relocatable with the town.
+## Colliders carry SurfaceQuery tags (wood; the fence is vaultable). No class_name; preload it.
+
+const PATH := "res://data/world/slice_dressing.json"
+const SQ := preload("res://scripts/world/surface_query.gd")
+
+static var _data: Dictionary = {}
+
+
+static func data() -> Dictionary:
+	if _data.is_empty() and FileAccess.file_exists(PATH):
+		var d: Variant = JSON.parse_string(FileAccess.get_file_as_string(PATH))
+		if d is Dictionary:
+			_data = d
+	return _data
+
+
+## Town-relative [x along the first gate, z to its left] -> world XZ.
+static func to_world(s: Dictionary, rel: Array) -> Vector2:
+	var g0 := float((s["plan"]["gates"] as Array)[0])
+	var fwd := Vector2(cos(g0), sin(g0))
+	var left := Vector2(-fwd.y, fwd.x)
+	return (s["pos"] as Vector2) + fwd * float(rel[0]) + left * float(rel[1])
+
+
+static func settlement(name: String) -> Dictionary:
+	for s in WorldGen.settlements:
+		if String(s["name"]) == name:
+			return s
+	return {}
+
+
+## Builds the scenario A pieces under `root` when `s` is the scenario town. Returns {ladder, fence} nodes (tests, the bot).
+static func build_scenario_a(root: Node3D, s: Dictionary) -> Dictionary:
+	var sa: Dictionary = data().get("scenario_a", {})
+	if sa.is_empty() or String(s["name"]) != String(sa.get("town", "")):
+		return {}
+	var out := {}
+	var g0 := float((s["plan"]["gates"] as Array)[0])
+	# hayloft: a timber platform on posts, hay on top, a ladder to it
+	var hl: Dictionary = sa["hayloft"]
+	var hp := _clear_spot(s, to_world(s, hl["at"]), 6.0)
+	var gy := WorldGen.height(hp.x, hp.y)
+	var fh := float(hl["floor_h"])
+	var sz := Vector2(float(hl["size"][0]), float(hl["size"][1]))
+	var loft := Node3D.new()
+	loft.name = "ScenarioHayloft"
+	root.add_child(loft)
+	loft.global_position = Vector3(hp.x, gy, hp.y)
+	loft.rotation.y = g0
+	var wood := _mat(Color(0.36, 0.26, 0.17))
+	_solid(loft, Vector3(0, fh - 0.1, 0), Vector3(sz.x, 0.2, sz.y), wood, {})
+	for cx: float in [-1.0, 1.0]:
+		for cz: float in [-1.0, 1.0]:
+			_solid(loft, Vector3(cx * (sz.x * 0.5 - 0.15), fh * 0.5, cz * (sz.y * 0.5 - 0.15)), Vector3(0.22, fh, 0.22), wood, {climbable = false})
+	_solid(loft, Vector3(0, fh + 0.5, -sz.y * 0.25), Vector3(sz.x * 0.8, 0.8, sz.y * 0.4), _mat(Color(0.72, 0.6, 0.3)), {})   # hay
+	var b := loft.to_global(Vector3(0.0, 0.0, sz.y * 0.5 + 0.6))
+	var t := loft.to_global(Vector3(0.0, fh + 0.05, sz.y * 0.5 - 0.9))
+	out["ladder"] = Ladder.spawn(root, b, t, "Hayloft Ladder")
+	# fence across the path to the field: 1.05 m, vaultable
+	var fe: Dictionary = sa["fence"]
+	var fp := _clear_spot(s, to_world(s, fe["at"]), 5.0)
+	var fence := Node3D.new()
+	fence.name = "ScenarioFence"
+	root.add_child(fence)
+	fence.global_position = Vector3(fp.x, WorldGen.height(fp.x, fp.y), fp.y)
+	fence.rotation.y = g0 + PI * 0.5
+	var L := float(fe["length"])
+	var H := float(fe["height"])
+	for k in int(L / 2.0) + 1:
+		_solid(fence, Vector3(-L * 0.5 + k * 2.0, H * 0.5, 0), Vector3(0.14, H, 0.14), wood, {vaultable = true})
+	for y: float in [H * 0.45, H * 0.9]:
+		_solid(fence, Vector3(0, y, 0), Vector3(L, 0.1, 0.08), wood, {vaultable = true})
+	out["fence"] = fence
+	return out
+
+
+## The road camp's world position (an offset to the side of the road at `frac` from `from` to `to`), Vector2.INF if not configured.
+static func road_camp_pos() -> Vector2:
+	var rc: Dictionary = data().get("road_bandit_camp", {})
+	if rc.is_empty():
+		return Vector2.INF
+	var a := settlement(String(rc["from"]))
+	var b := settlement(String(rc["to"]))
+	if a.is_empty() or b.is_empty():
+		return Vector2.INF
+	var pa: Vector2 = a["pos"]
+	var pb: Vector2 = b["pos"]
+	var d := (pb - pa).normalized()
+	return pa.lerp(pb, float(rc["frac"])) + Vector2(-d.y, d.x) * float(rc["offset"])
+
+
+## The spot itself if nothing planned (lot, street, landmark) is within `rad`, else the nearest clear spot further out along the gate axis.
+static func _clear_spot(s: Dictionary, p: Vector2, rad: float) -> Vector2:
+	var plan: Dictionary = s["plan"]
+	var g0 := float((plan["gates"] as Array)[0])
+	var fwd := Vector2(cos(g0), sin(g0))
+	for k in 16:
+		var q := p + fwd * 3.0 * k
+		var ok := CityPlanner.street_distance(plan, q) > rad and CityPlanner.landmark_clearance(plan, q) > rad
+		if ok:
+			for lot: Dictionary in plan["lots"]:
+				if (lot["pos"] as Vector2).distance_to(q) < rad + 6.0:
+					ok = false
+					break
+		if ok:
+			return q
+	return p
+
+
+static func _mat(c: Color) -> StandardMaterial3D:
+	var m := StandardMaterial3D.new()
+	m.albedo_color = c
+	m.roughness = 0.95
+	m.resource_name = "slice_timber"
+	return m
+
+
+static func _solid(parent: Node3D, at: Vector3, size: Vector3, mat: Material, tags: Dictionary) -> void:
+	var mi := MeshInstance3D.new()
+	var bm := BoxMesh.new()
+	bm.size = size
+	bm.material = mat
+	mi.mesh = bm
+	mi.position = at
+	parent.add_child(mi)
+	var body := StaticBody3D.new()
+	var cs := CollisionShape3D.new()
+	var sh := BoxShape3D.new()
+	sh.size = size
+	cs.shape = sh
+	body.add_child(cs)
+	body.position = at
+	parent.add_child(body)
+	SQ.tag(body, &"wood", tags)

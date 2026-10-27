@@ -57,6 +57,8 @@ const TORSO_DAMP := 0.45       # damping ratio: a little overshoot reads as weig
 const LOCK_ON_LIFT := 0.045       # animated ball of the foot this high (m, at leg height 0.98) or lower: the stance starts
 const LOCK_OFF_LIFT := 0.065     # ... and ends above this (hysteresis)
 const LOCK_MAX := 0.25           # m of lag between the pinned and the animated foot before the pin is dragged along
+const REACH_MAX := 0.97          # a pinned foot is kept within this fraction of the leg length (pelvis drop)
+const REACH_DROP_MAX := 0.08     # ... dropping the pelvis at most this fraction of the leg (8 cm at 0.98 m)
 const LOCK_BLEND := 0.05         # s: 3 frames at 60 Hz
 const LOCK_MIN_SPEED := 0.35     # m/s: below this the clip is a standing idle, nothing to pin
 const WEAPON_CARRY_DEG := 45.0
@@ -140,6 +142,10 @@ var _carry_w := 0.0
 ## prop is also kept above ground_guard_y (the floor under the body, set by the owner while grounded): no blade through the floor.
 var shield_slung := false
 var long_holster := false
+## Sheathed (unarmed stance): one-handed weapons ride the left hip, blade down and back, grip forward; shields and long weapons go on
+## the back (owner also sets shield_slung / long_holster).
+var sheathed := false
+var seated := 0.0             ## 0..1 sitting down: the hip blade lays back toward level, over the seat instead of through it
 var ground_guard_y := NAN
 var foot_lock := true                         # QA switch (tools_qa/anim_states/loco_slide.gd --no-lock)
 var _ball: Array[int] = []
@@ -151,7 +157,15 @@ var _ball_off: Array[Vector2] = [Vector2.ZERO, Vector2.ZERO]   # animated ankle 
 var _lock_on: Array[bool] = [false, false]
 var _lock_xz: Array[Vector2] = [Vector2.ZERO, Vector2.ZERO]
 var _lock_w: Array[float] = [0.0, 0.0]
+## Heel-toe lock: a stance that starts on the heel pins the ANKLE until the ball comes down, then hands the pin to the ball (where the
+## pinned ankle puts it), so neither the heel at strike nor the ball at toe-off slides.
+var _lock_heel: Array[bool] = [false, false]
+var _ball_h: Array[float] = [1.0, 1.0]
+const HEEL_BALL_UP := 0.02      # m: ball this high above its rest at plant -> heel strike
+const HEEL_BALL_DOWN := 0.012   # m: ball down -> pin moves to the ball
+const HEEL_LOCK_MAX_SPEED := 1.8   # m/s: above this the heel phase is too short to pin (measured: it doubled jog slip)
 var _pelvis_off := 0.0
+var _reach_drop := 0.0
 var _weight := 0.0
 
 # Secondary motion state.
@@ -233,6 +247,20 @@ func set_hand_assist(side: int, point: Vector3, weight: float) -> void:
 	_assist_pt[side] = point
 	_assist_w[side] = clampf(weight, 0.0, 1.0)
 	if _assist_w[side] > 0.001 and _arms_state == 0 and always_near and _use_ik:
+		_build_arms()
+
+
+## Carrying a load in both arms (player.gd _update_carry): its own channel, above wall braces and weapon assists.
+var _load_pt: Array[Vector3] = [Vector3.ZERO, Vector3.ZERO]
+var _load_w: Array[float] = [0.0, 0.0]
+
+
+func set_hand_carry(side: int, point: Vector3, weight: float) -> void:
+	if side < 0 or side > 1:
+		return
+	_load_pt[side] = point
+	_load_w[side] = clampf(weight, 0.0, 1.0)
+	if _load_w[side] > 0.001 and _arms_state == 0 and always_near and _use_ik:
 		_build_arms()
 
 
@@ -639,6 +667,7 @@ func _pre_modify(delta: float) -> void:
 			if i < _leaf.size() and _leaf[i] >= 0:
 				lo = minf(lo, (xf * _skeleton.get_bone_global_pose(_leaf[i]).origin).y - by - _sole_rest[0].z)
 			_ball_lift[i] = lo
+			_ball_h[i] = bp.y - by - _sole_rest[0].y
 		else:
 			_ball_off[i] = Vector2.ZERO
 			_ball_lift[i] = _foot_anim[i].y - _model.global_position.y - _ankle_rest
@@ -677,12 +706,27 @@ func _pre_modify(delta: float) -> void:
 		_update_lock(i, delta)
 		lowest = minf(lowest, _ground[i])
 	_pelvis_off = lerpf(_pelvis_off, lowest * _weight, 1.0 - exp(-PELVIS_RATE * delta))
+	# Reach: a pinned foot the stretched mocap leg cannot reach any more (half the walk frames were at > 98 % of the leg, the foot
+	# then slid 4-5 cm per stance) pulls the pelvis down just enough, capped, eased: the planted foot stays planted.
+	var want_drop := 0.0
+	for i in 2:
+		if _lock_w[i] > 0.001:
+			var tgt := _foot_anim[i] + Vector3(0.0, _ground[i], 0.0)
+			var lk := Vector2(tgt.x, tgt.z).lerp(_lock_xz[i] + (Vector2.ZERO if _lock_heel[i] else _ball_off[i]), _lock_w[i])
+			var r := Vector2(hips[i].x - lk.x, hips[i].z - lk.y).length()
+			var h := hips[i].y + _pelvis_off - tgt.y
+			var reach := _leg_len * REACH_MAX
+			if r < reach and h > 0.0:
+				var h_ok := sqrt(reach * reach - r * r)
+				want_drop = maxf(want_drop, (h - h_ok) * _lock_w[i])
+	want_drop = minf(want_drop, _leg_len * REACH_DROP_MAX)
+	_reach_drop = want_drop if want_drop > _reach_drop else lerpf(_reach_drop, want_drop, 1.0 - exp(-12.0 * delta))
 	var pinned := maxf(_lock_w[0], _lock_w[1])
 	_ik.influence = maxf(_weight, pinned)       # a pinned foot needs the IK even where the ground blend is off (sprint)
-	if _weight <= 0.001 and absf(_pelvis_off) < 0.001 and pinned <= 0.001:
+	if _weight <= 0.001 and absf(_pelvis_off) < 0.001 and pinned <= 0.001 and _reach_drop < 0.0005:
 		return
 	# Pelvis: a world-space drop, converted into its parent bone's space.
-	var drop := _skeleton.global_basis.inverse() * Vector3(0.0, _pelvis_off, 0.0)
+	var drop := _skeleton.global_basis.inverse() * Vector3(0.0, _pelvis_off - _reach_drop, 0.0)
 	var parent := _skeleton.get_bone_parent(_pelvis)
 	if parent >= 0:
 		drop = _skeleton.get_bone_global_pose(parent).basis.inverse() * drop
@@ -690,14 +734,14 @@ func _pre_modify(delta: float) -> void:
 	for i in 2:
 		var target := _foot_anim[i] + Vector3(0.0, _ground[i], 0.0)
 		if _lock_w[i] > 0.001:
-			var lk := Vector2(target.x, target.z).lerp(_lock_xz[i] + _ball_off[i], _lock_w[i])
+			var lk := Vector2(target.x, target.z).lerp(_lock_xz[i] + (Vector2.ZERO if _lock_heel[i] else _ball_off[i]), _lock_w[i])
 			target.x = lk.x
 			target.z = lk.y
 		_markers[i].global_position = target
 		var mid := (hips[i] + _foot_anim[i]) * 0.5
 		var bend := knees[i] - mid
 		bend = bend.normalized() if bend.length() > 0.02 * _leg_len else fwd
-		_markers[i + 2].global_position = knees[i] + Vector3(0.0, _pelvis_off, 0.0) + (bend + fwd * 0.3).normalized() * _leg_len * 0.6
+		_markers[i + 2].global_position = knees[i] + Vector3(0.0, _pelvis_off - _reach_drop, 0.0) + (bend + fwd * 0.3).normalized() * _leg_len * 0.6
 
 
 ## Pins foot `i` while its animated sole is planted (see LOCK_*). Player-only (always_near), never while airborne,
@@ -712,14 +756,20 @@ func _update_lock(i: int, delta: float) -> void:
 	if planted:
 		if not _lock_on[i]:
 			_lock_on[i] = true
-			_lock_xz[i] = anim_xz
+			_lock_heel[i] = _ball_h[i] / k > HEEL_BALL_UP and speed < HEEL_LOCK_MAX_SPEED * k   # walking heel strikes; jogs land on the forefoot
+			_lock_xz[i] = Vector2(_foot_anim[i].x, _foot_anim[i].z) if _lock_heel[i] else anim_xz
+		elif _lock_heel[i] and _ball_h[i] / k < HEEL_BALL_DOWN:
+			_lock_heel[i] = false
+			_lock_xz[i] = _lock_xz[i] - _ball_off[i]       # the ball where the pinned ankle puts it
 		else:
-			var lag := _lock_xz[i] - anim_xz
+			var lag := _lock_xz[i] - (Vector2(_foot_anim[i].x, _foot_anim[i].z) if _lock_heel[i] else anim_xz)
 			if lag.length() > LOCK_MAX * k:
-				_lock_xz[i] = anim_xz + lag.normalized() * LOCK_MAX * k
+				_lock_xz[i] = (Vector2(_foot_anim[i].x, _foot_anim[i].z) if _lock_heel[i] else anim_xz) + lag.normalized() * LOCK_MAX * k
 	else:
 		_lock_on[i] = false
-	_lock_w[i] = move_toward(_lock_w[i], 1.0 if _lock_on[i] else 0.0, delta / LOCK_BLEND)
+	# a sprint stance lasts ~6 frames: the 3-frame blend would eat half of it, so the blend shortens with speed (1 frame at 7.5 m/s)
+	var blend := LOCK_BLEND * clampf(2.5 / maxf(speed, 0.1), 0.33, 1.0)
+	_lock_w[i] = move_toward(_lock_w[i], 1.0 if _lock_on[i] else 0.0, delta / blend)
 
 
 ## Two-handed weapons: between swings the weapon stands upright beside the body (shortest-arc rotation of its blade axis onto world
@@ -758,7 +808,7 @@ func _update_two_handed(_delta: float) -> void:
 
 func _two_hand_rest(node: Node3D, rest: Transform3D) -> Transform3D:
 	var wc := String(node.get_meta(&"wclass"))
-	if wc != "polearm" and wc != "great":
+	if wc != "polearm" and wc != "great" and wc != "torch":
 		return rest
 	var parent := node.get_parent_node_3d()
 	if parent == null:
@@ -799,6 +849,8 @@ func _two_hand_rest(node: Node3D, rest: Transform3D) -> Transform3D:
 		var q := cur.get_rotation_quaternion().slerp(target.get_rotation_quaternion(), _carry_w)
 		rest.basis = pb.inverse() * Basis(q).scaled(cur.get_scale())
 		axis_w = (pb * rest.basis * ax).normalized()
+	if wc == "torch":
+		return rest                  # upright only: the off hand holds it, nothing to assist
 	var assist := 1.0 - _carry_w
 	_set_assist_now((pxf * rest).origin + axis_w * float(node.get_meta(&"grip2", 0.4)), assist if assist > 0.01 else 0.0)
 	return rest
@@ -835,6 +887,9 @@ func _arms_pre(xf: Transform3D, fwd: Vector3) -> void:
 		if _assist_w[s] > w:
 			w = _assist_w[s]
 			bp = _assist_pt[s]
+		if _load_w[s] > 0.001:
+			w = _load_w[s]
+			bp = _load_pt[s]
 		var ik := _arm_ik[s]
 		var shoulder := xf * _skeleton.get_bone_global_pose(_arm[s][0]).origin
 		var hand_pose := _skeleton.get_bone_global_pose(_arm[s][2])
@@ -871,7 +926,7 @@ func _post_modify(delta: float) -> void:
 			_skeleton.set_bone_pose_rotation(foot, (parent_q.inverse() * foot_q.slerp(desired, ik_w)).normalized())
 	if _arms_state == 1:
 		for s in 2:
-			if maxf(_brace_w[s], _assist_w[s]) > 0.001:
+			if maxf(maxf(_brace_w[s], _assist_w[s]), _load_w[s]) > 0.001:
 				# keep the animated hand orientation (the solved forearm would twist it)
 				var hand := _arm[s][2]
 				var fa_q := _skeleton.get_bone_global_pose(_arm[s][1]).basis.get_rotation_quaternion()
@@ -1032,8 +1087,11 @@ func _holster_refresh() -> void:
 				lng = 0 if absf(ax.x) > 0.5 else (2 if absf(ax.z) > 0.5 else 1)
 				if thin == lng:
 					thin = (lng + 1) % 3
+			# the grip (the hand bone) in the prop's own space, and which end of the long axis it is on
+			var grip_l := node.transform.affine_inverse() * Vector3.ZERO
+			var gsign := 1.0 if grip_l[lng] >= box.get_center()[lng] else -1.0
 			_hprops.append({"node": node, "att": att, "kind": kind, "h": 0.0, "rest": node.transform, "managed": managed,
-					"corners": corners, "box": box, "thin": thin, "long": lng, "out_sign": 0.0})
+					"corners": corners, "box": box, "thin": thin, "long": lng, "out_sign": 0.0, "grip": grip_l, "gsign": gsign})
 
 
 ## AABB of the prop's meshes in the prop node's own space.
@@ -1085,7 +1143,8 @@ func _back_basis() -> Dictionary:
 	var up := (b * (_back_frame["up"] as Vector3)).normalized()
 	var fwd := (b * (_back_frame["fwd"] as Vector3)).normalized()
 	fwd = (fwd - up * fwd.dot(up)).normalized()
-	return {"ok": true, "o": spx.origin, "up": up, "back": -fwd, "right": up.cross(fwd).normalized(), "line": spx * (_back_frame["line"] as Vector3)}
+	var pel_w := xf * _skeleton.get_bone_global_pose(_skeleton.find_bone("pelvis")).origin
+	return {"ok": true, "o": spx.origin, "up": up, "back": -fwd, "right": up.cross(fwd).normalized(), "line": spx * (_back_frame["line"] as Vector3), "pel": pel_w}
 
 
 func _holster_pass(delta: float) -> void:
@@ -1110,7 +1169,9 @@ func _holster_pass(delta: float) -> void:
 		var want := 0.0
 		if kind == "shield" and shield_slung:
 			want = 1.0
-		elif kind == "long" and long_holster:
+		elif kind == "long" and (long_holster or sheathed):
+			want = 1.0
+		elif kind == "hand" and sheathed and String((e["att"] as BoneAttachment3D).bone_name).to_lower() == "hand_r":
 			want = 1.0
 		var h: float = move_toward(float(e["h"]), want, HOLSTER_RATE * delta)
 		_roll_gap = move_toward(_roll_gap, ROLL_GAP if long_holster else 0.0, 0.4 * delta)
@@ -1135,8 +1196,10 @@ func _holster_pass(delta: float) -> void:
 			var c_hand := hand_g * box.get_center()
 			var c_sock := sock * box.get_center()
 			var side: Vector3 = -(bb["right"] as Vector3) if kind == "shield" else (bb["right"] as Vector3)
-			# the path swings out past the shoulder and behind, never through the chest
+			# the path swings out past the shoulder and behind, never through the chest (to the hip: in front of the body)
 			var arc := (side * 0.28 + (bb["back"] as Vector3) * 0.12 + (bb["up"] as Vector3) * 0.08) * sin(PI * k)
+			if kind == "hand":
+				arc = (-(bb["back"] as Vector3) * 0.22 + (bb["up"] as Vector3) * 0.05) * sin(PI * k)
 			var basis := Basis(q).scaled(hand_g.basis.get_scale())
 			node.transform = att_g.affine_inverse() * Transform3D(basis, c_hand.lerp(c_sock, k) + arc - basis * box.get_center())
 		_ground_guard(e, node)
@@ -1162,13 +1225,15 @@ func _socket(e: Dictionary, bb: Dictionary, hand_g: Transform3D) -> Transform3D:
 	var ti := int(e["thin"])
 	var li := int(e["long"])
 	var oi := 3 - ti - li
+	if String(e["kind"]) == "hand":
+		return _hip_socket(e, bb, hand_g)
 	var is_long := String(e["kind"]) == "long"
 	var long_dir := up
 	var lsign := 1.0
 	if is_long:
 		long_dir = (up * cos(deg_to_rad(BACK_DIAG_DEG)) - right * sin(deg_to_rad(BACK_DIAG_DEG))).normalized()
-		# the grip end (the side of the box nearer the prop origin) goes up
-		lsign = 1.0 if box.get_center()[li] < 0.0 else -1.0
+		# the grip end goes up (over the shoulder)
+		lsign = float(e["gsign"])
 	var cols: Array[Vector3] = [Vector3.ZERO, Vector3.ZERO, Vector3.ZERO]
 	cols[ti] = back * float(e["out_sign"])
 	cols[li] = long_dir * lsign
@@ -1178,6 +1243,31 @@ func _socket(e: Dictionary, bb: Dictionary, hand_g: Transform3D) -> Transform3D:
 	var centre := (bb["line"] as Vector3) + back * (BACK_GAP + half_thin + _roll_gap) + up * (0.04 if not is_long else 0.0)
 	var b_scaled := basis.scaled(scl)
 	return Transform3D(b_scaled, centre - b_scaled * box.get_center())
+
+
+const HIP_OUT := 0.2       # m from the pelvis to the scabbard, sideways
+const HIP_TILT_DEG := 25.0
+const HIP_TILT_SEATED_DEG := 78.0
+
+
+func _hip_socket(e: Dictionary, bb: Dictionary, hand_g: Transform3D) -> Transform3D:
+	var up: Vector3 = bb["up"]
+	var back: Vector3 = bb["back"]
+	var side: Vector3 = bb["right"]      # the left hip ("right" = up x forward points to the character's left; verified in sheet_unarmed)
+	var box: AABB = e["box"]
+	var scl := hand_g.basis.get_scale()
+	var ti := int(e["thin"])
+	var li := int(e["long"])
+	var oi := 3 - ti - li
+	var tilt := deg_to_rad(lerpf(HIP_TILT_DEG, HIP_TILT_SEATED_DEG, seated))
+	var grip_dir := (up * cos(tilt) - back * sin(tilt)).normalized()   # grip up and forward
+	var cols: Array[Vector3] = [Vector3.ZERO, Vector3.ZERO, Vector3.ZERO]
+	cols[li] = grip_dir * float(e["gsign"])      # the grip end up and forward: the blade points down and back
+	cols[ti] = side
+	cols[oi] = cols[(oi + 1) % 3].cross(cols[(oi + 2) % 3])
+	var basis := Basis(cols[0], cols[1], cols[2]).orthonormalized().scaled(scl)
+	var grip := (bb["pel"] as Vector3) + side * HIP_OUT + up * lerpf(0.04, 0.12, seated) - back * 0.04
+	return Transform3D(basis, grip - basis * (e["grip"] as Vector3))
 
 
 ## A hand prop whose lowest corner goes below the floor is turned about its grip (the bone) just enough to clear it.

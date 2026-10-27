@@ -161,6 +161,8 @@ var _ground_cache := 0.0
 ## W5: depth fog thins with the camera height above the ground (1 near the ground, 0.12 floor): at 400 m the flat density swallowed a
 ## 3 km view in one colour (beige dust aerials); aerial perspective should only tint the far hills.
 var _alt_fog := 1.0
+## Per-region fog multiplier (W6 real world: kilometre-scale views + per-biome profiles, scripts/world/real_landmarks.gd). 1 = unchanged.
+static var region_fog_mul := 1.0
 
 var _materials_wind: Array[ShaderMaterial] = []
 var _materials_wet: Array[ShaderMaterial] = []
@@ -425,8 +427,8 @@ func _season() -> String:
 func _apply_environment() -> void:
 	if env:
 		var p := params
-		_mul(env, "fog_density", float(p["fog"]) * _alt_fog)
-		_mul(env, "volumetric_fog_density", p["vfog"])
+		_mul(env, "fog_density", float(p["fog"]) * _alt_fog * region_fog_mul)
+		_mul(env, "volumetric_fog_density", float(p["vfog"]) * region_fog_mul)
 		_add(env, "fog_height_density", p["hfog"])
 		if float(p["hfog"]) > 0.0:
 			env.fog_height = _ground_cache + 5.0

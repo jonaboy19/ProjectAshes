@@ -11,6 +11,9 @@ uniform float light = 1.0;
 // out over fade_len metres instead of popping. 0 = off (other users of the shader).
 uniform float fade_far = 0.0;
 uniform float fade_len = 18.0;
+// Fade-in band where the VAT tier hands residents over to sprites: sprites in [fade_near - fade_len, fade_near] dither in
+// as the VAT instance dithers out (complementary pattern). 0 = off.
+uniform float fade_near = 0.0;
 varying flat float v_frame;
 varying float v_cam_d;
 
@@ -42,6 +45,15 @@ void fragment() {
 		int y = int(FRAGCOORD.y) % 4;
 		float bayer[16] = float[](0.0, 8.0, 2.0, 10.0, 12.0, 4.0, 14.0, 6.0, 3.0, 11.0, 1.0, 9.0, 15.0, 7.0, 13.0, 5.0);
 		if (k < (bayer[y * 4 + x] + 0.5) / 16.0) {
+			discard;
+		}
+	}
+	if (fade_near > 0.0 && v_cam_d < fade_near && v_cam_d > fade_near - fade_len) {
+		float kn = (v_cam_d - (fade_near - fade_len)) / fade_len;
+		int xn = int(FRAGCOORD.x) % 4;
+		int yn = int(FRAGCOORD.y) % 4;
+		float bn[16] = float[](0.0, 8.0, 2.0, 10.0, 12.0, 4.0, 14.0, 6.0, 3.0, 11.0, 1.0, 9.0, 15.0, 7.0, 13.0, 5.0);
+		if (kn < 1.0 - (bn[yn * 4 + xn] + 0.5) / 16.0) {
 			discard;
 		}
 	}

@@ -251,7 +251,7 @@ func to_world(s: Vector2) -> Vector2:
 
 func _min_zoom() -> float:
 	var cs := canvas_size()
-	return minf(cs.x, cs.y) / (WorldGen.WORLD_HALF * 2.0) * 0.85
+	return minf(cs.x, cs.y) / (WorldGen.map_half() * 2.0) * 0.85
 
 
 func fit_start() -> void:
@@ -292,7 +292,7 @@ func _zoom_at(screen_pos: Vector2, factor: float) -> void:
 
 
 func _clamp_center() -> void:
-	var h := WorldGen.WORLD_HALF
+	var h := WorldGen.map_half()
 	center = Vector2(clampf(center.x, -h, h), clampf(center.y, -h, h))
 
 
@@ -907,7 +907,7 @@ func _build_political() -> void:
 		return
 	_pol_sig = sig
 	var n := 112
-	var half := WorldGen.WORLD_HALF
+	var half := WorldGen.map_half()
 	var cell := half * 2.0 / float(n)
 	var owner_idx := PackedInt32Array()
 	owner_idx.resize(n * n)
@@ -958,7 +958,7 @@ func _build_political() -> void:
 
 func _draw_political(ci: Control, pal: Dictionary) -> void:
 	_build_political()
-	var half := WorldGen.WORLD_HALF
+	var half := WorldGen.map_half()
 	var a := to_screen(Vector2(-half, -half))
 	var b := to_screen(Vector2(half, half))
 	ci.draw_texture_rect(_pol_tex, Rect2(a, b - a), false)
@@ -1174,7 +1174,7 @@ func _anchor_of(faction: Dictionary) -> Vector2:
 				dir += DIR_VEC[k]
 		if dir == Vector2.ZERO:
 			dir = Vector2(0.7, -0.7)
-		pos = dir.normalized() * WorldGen.WORLD_HALF * 0.86
+		pos = dir.normalized() * WorldGen.map_half() * 0.86
 	else:
 		# a house sits at the first settlement it holds (by name), else somewhere stable
 		for sid: int in _data["sids"]:

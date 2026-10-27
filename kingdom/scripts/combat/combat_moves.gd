@@ -16,7 +16,7 @@ const SWORD_ROWS := [
 	["Sword_Light_1_Upper", 14, 0.42, 0.25, 1.2, 10.0, 1.5],
 	["Sword_Light_2_Upper", 14, 0.39, 0.19, 1.2, 10.0, 1.5],
 	["Sword_Light_3_Upper", 18, 0.42, 0.25, 1.2, 12.0, 1.5],
-	["Sword_Light_4_Upper", 30, 0.64, 0.44, 1.2, 16.0, 7.0],
+	["Sword_Riposte", 30, 0.64, 0.44, 1.2, 16.0, 7.0],      # finisher: Sword_Light_4_Upper is golden-banned (14 pops) and fell back to Idle
 ]
 
 ## F3 weapon tables, same row shape as SWORD_ROWS ([anim, damage, lock, hit, speed, cost, knockback], lock and hit are
@@ -153,7 +153,7 @@ const CREATURE := {
 			"knockback": 1.5, "reach": 2.4, "poise_damage": 10.0, "weight": 3.0, "anim_speed": 1.0},
 		{"id": "bandit_thrust", "anim": "Sword_Light_3_Upper", "windup": 0.3, "active": 0.08, "recovery": 0.5, "damage": 8,
 			"knockback": 1.0, "reach": 2.8, "poise_damage": 6.0, "weight": 2.0, "min_range": 1.6, "lane": 1},
-		{"id": "bandit_cleave", "anim": "Sword_Light_4_Upper", "windup": 0.65, "active": 0.1, "recovery": 0.6, "damage": 18,
+		{"id": "bandit_cleave", "anim": "Sword_Riposte", "windup": 0.65, "active": 0.1, "recovery": 0.6, "damage": 18,
 			"knockback": 4.0, "reach": 2.4, "poise_damage": 24.0, "weight": 1.0, "lane": 0},
 	],
 	"guard": [
@@ -161,7 +161,7 @@ const CREATURE := {
 			"knockback": 1.5, "reach": 2.6, "poise_damage": 12.0, "weight": 3.0},
 		{"id": "guard_thrust", "anim": "Sword_Light_3_Upper", "windup": 0.28, "active": 0.08, "recovery": 0.45, "damage": 10,
 			"knockback": 1.0, "reach": 3.0, "poise_damage": 8.0, "weight": 2.0, "min_range": 1.8, "lane": 1},
-		{"id": "guard_bash", "anim": "Sword_Light_4_Upper", "windup": 0.55, "active": 0.1, "recovery": 0.6, "damage": 14,
+		{"id": "guard_bash", "anim": "Shield_Bash_Step", "windup": 0.55, "active": 0.1, "recovery": 0.6, "damage": 14,
 			"knockback": 5.0, "reach": 2.2, "poise_damage": 30.0, "weight": 1.0, "lane": 0, "parryable": false},
 	],
 }

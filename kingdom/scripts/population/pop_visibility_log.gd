@@ -10,11 +10,11 @@ const NAMES := ["none", "sprite", "vat", "full"]
 static var enabled := OS.get_cmdline_user_args().has("--pop-log")
 static var _state := {}          # id -> Rep
 static var _t_sum := 0.0
-static var counts := {"changes": 0, "on_screen": 0, "on_screen_faded": 0}
+static var counts := {"changes": 0, "on_screen": 0, "on_screen_faded": 0}   # faded = dither fade, in-place hand-off, or decided while out of view
 static var by_kind := {}         # "full>none@on" -> n
 
 
-static func report(cam: Camera3D, focus: Vector3, now_state: Dictionary, pos_of: Callable, faded: Dictionary = {}) -> void:
+static func report(cam: Camera3D, focus: Vector3, now_state: Dictionary, pos_of: Callable, faded: Dictionary = {}, in_fade_band: Callable = Callable(), why: Callable = Callable()) -> void:
 	if not enabled or cam == null:
 		return
 	var ids := {}
@@ -34,12 +34,12 @@ static func report(cam: Camera3D, focus: Vector3, now_state: Dictionary, pos_of:
 		counts["changes"] += 1
 		var k := "%s>%s@%s" % [NAMES[a], NAMES[b], "on" if on else "off"]
 		if on:
-			if faded.has(id):
+			if faded.has(id) or (in_fade_band.is_valid() and a != Rep.FULL and b != Rep.FULL and bool(in_fade_band.call(d))):
 				counts["on_screen_faded"] += 1
 				k += "(faded)"
 			else:
 				counts["on_screen"] += 1
-				print("POPLOG on-screen %s id=%d dist=%.1f" % [k, int(id), d])
+				print("POPLOG on-screen %s id=%d dist=%.1f %s" % [k, int(id), d, String(why.call(id)) if why.is_valid() else ""])
 		by_kind[k] = int(by_kind.get(k, 0)) + 1
 	_state = now_state.duplicate()
 
@@ -54,4 +54,8 @@ static func tick(delta: float) -> void:
 
 
 static func summary() -> void:
+	var reps := [0, 0, 0, 0]
+	for id in _state:
+		reps[int(_state[id])] += 1
+	print("POPLOG_DRAWN sprite=%d vat=%d full=%d" % [reps[1], reps[2], reps[3]])
 	print("POPLOG_SUM changes=%d on_screen=%d on_screen_faded=%d kinds=%s" % [counts["changes"], counts["on_screen"], counts["on_screen_faded"], by_kind])

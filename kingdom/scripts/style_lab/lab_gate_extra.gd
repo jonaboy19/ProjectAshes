@@ -102,9 +102,11 @@ static func ivy_clump(seed_v := 1, leaves := 11) -> ArrayMesh:
 	rng.seed = seed_v
 	var vc := VC.new()
 	var greens := ["3a6a22", "4e8a2a", "2b5a1c", "6f9e30", "447a26"]
+	# towns medieval pass: small dense leaves (the 16-26 cm cards read as paper squares at street level)
+	# (same leaf count: 2.5x the leaves overflowed the per-cell merged ivy mesh and crashed the bake)
 	for i in leaves:
-		var p := Vector3(rng.randf_range(-0.28, 0.28), rng.randf_range(-0.28, 0.28), rng.randf_range(0.0, 0.07))
-		_leaf(vc, p, rng.randf_range(0.16, 0.26), rng.randf() * TAU, Vector2(rng.randf_range(-0.5, 0.5), rng.randf_range(-0.5, 0.5)), lin(greens[rng.randi() % greens.size()]))
+		var p := Vector3(rng.randf_range(-0.22, 0.22), rng.randf_range(-0.22, 0.22), rng.randf_range(0.0, 0.09))
+		_leaf(vc, p, rng.randf_range(0.1, 0.15), rng.randf() * TAU, Vector2(rng.randf_range(-0.5, 0.5), rng.randf_range(-0.5, 0.5)), lin(greens[rng.randi() % greens.size()]))
 	return vc.commit()
 
 

@@ -180,7 +180,7 @@ const SWIM_DRAIN := 3.0          # stamina/s treading water
 const SWIM_DRAIN_MOVING := 4.5   # extra stamina/s while stroking
 const DROWN_DPS := 4.0           # health/s once stamina is gone
 ## Crouch / stealth.
-const CROUCH_SPEED := 1.5
+const CROUCH_SPEED := 1.3       # Mx3_Crouch_Fwd covers 1.51 m/s at rate 1 (Crouch_Fwd 0.76 slid 1.3 m/s at 1.5)
 const NOISE_CROUCH := 4.0
 const NOISE_WALK := 10.0
 const NOISE_RUN := 18.0
@@ -283,6 +283,8 @@ var _shield_ready := 0.0
 ## dodge aliases resolved to (inverted 0.5 m in the air, back on the floor: slung props had nowhere to go).
 const DODGE_ROLL_CLIP := "Souls_Roll"
 const DODGE_ROLL_RATE := 0.75
+var _seat_t := 0.0
+const SEATED_AFTER := 0.8
 var _dodge_roll := false      # the dodge is a roll (Dodge_Forward / Backward), not the Dodge_back step: props go on the back
 const SHIELD_READY_S := 4.0
 var _stamina_delay := 0.0
@@ -370,6 +372,8 @@ var _riposte_mult := PARRY_DAMAGE
 
 
 func _ready() -> void:
+	if not Engine.is_editor_hint():
+		(load("res://scripts/interaction/player_seats.gd") as GDScript).call("attach", self)   # sit on the NPCs' benches and tables (WP-01)
 	add_to_group("team0")
 	add_to_group("player")
 	var shape := CollisionShape3D.new()
@@ -536,6 +540,8 @@ func _unhandled_input(event: InputEvent) -> void:
 		toggle_lock()
 	elif event.is_action_pressed("crouch"):
 		toggle_crouch()
+	elif event is InputEventKey and event.pressed and not event.echo and (event as InputEventKey).physical_keycode == SHEATHE_KEY 			and not _ui_blocking():
+		toggle_sheathe()
 	# "interact" is handled in ONE place: the InteractionController child (scripts/interaction/).
 
 
@@ -593,7 +599,9 @@ func _build_body() -> void:
 			outfit.call("dress", body)
 	_body_node = body
 	_model.add_child(body)
-	_animator = CharacterAnimator.new(body, RUN, WALK, "Walking_A", "Running_A", "Idle", true, true)
+	_animator = CharacterAnimator.new(body, RUN, WALK, "Walk", "Jog_Fwd", "Idle", true, true)   # UAL names (the KayKit aliases Walking_A / Running_A are retired)
+	if _animator.player != null:
+		LifeLibrary.install(_animator.player)   # the life clips: sit enter / loop / exit, pick-up, chores (cached per skeleton)
 	# Root-driven actions need a new graph sample for every capsule physics tick.
 	# Idle processing at 30 rendered fps otherwise alternates travel and zero
 	# velocity across the two 60 Hz physics ticks in each rendered frame.
@@ -757,7 +765,7 @@ func _physics_process(delta: float) -> void:
 	var dir := Vector3.ZERO if dead or _stunned > 0.0 else _input_dir()
 	var wade := WorldGen.water_depth(global_position.x, global_position.z)
 	_update_swim_state(wade)
-	blocking = Input.is_action_pressed("block") and stamina > 0.0 and _dodge <= 0.0 and not dead \
+	blocking = Input.is_action_pressed("block") and _carry == null and stamina > 0.0 and _dodge <= 0.0 and not dead \
 			and _stunned <= 0.0 and not swimming and not _jump_starting and not _jump_active \
 			and _land_time <= 0.0
 	if blocking:
@@ -771,16 +779,20 @@ func _physics_process(delta: float) -> void:
 		_set_crouch(false)            # sprinting stands up
 	var locked := is_instance_valid(_lock)
 	var running := (sprint or (touch_move.length() > 0.92 and not crouching) or view >= View.TOWN) \
-			and not blocking and not crouching and (not locked or sprint) and not _winded
+			and not blocking and not crouching and (not locked or sprint) and not _winded and _carry == null
 	_strafing = (blocking or (locked and not running)) and not swimming
 	_animator.set_strafing(_strafing and not blocking)
-	var speed := (RUN if running else WALK) * Life.needs.speed()
+	var speed := (RUN if running else WALK) * Life.needs.speed() * injury_speed()
 	if crouching:
-		speed = CROUCH_SPEED * Life.needs.speed()
+		speed = CROUCH_SPEED * Life.needs.speed() * injury_speed()
 	if locked and not running:
 		speed = minf(speed, LOCK_STRAFE_SPEED)
 	if blocking:
 		speed = WALK * 0.5
+	if _carry != null:
+		speed *= CarryK.SPEED_MULT
+	if _carry_busy > 0.0:
+		speed = 0.0               # bending down for the load / setting it down
 	if _swing > 0.0:
 		speed *= 0.4
 	if _flinch > 0.0:
@@ -872,8 +884,12 @@ func _physics_process(delta: float) -> void:
 			_shield_ready = SHIELD_READY_S
 		else:
 			_shield_ready = maxf(_shield_ready - delta, 0.0)
+		_update_sheathe(delta)
+		_update_carry(delta)
+		_seat_t = _seat_t + delta if has_meta("seated_on") else maxf(minf(_seat_t, SEATED_AFTER + 0.15) - delta * 1.5, 0.0)
+		_rig.set("seated", clampf((_seat_t - 0.15) / SEATED_AFTER, 0.0, 1.0))   # the hip blade lays back as the body lowers onto the seat
 		var rolling := _dodge > 0.0 and _dodge_roll
-		_rig.set("shield_slung", not blocking and (_shield_ready <= 0.0 or rolling or not is_on_floor()))
+		_rig.set("shield_slung", (not blocking and (_shield_ready <= 0.0 or rolling or not is_on_floor())) or bool(_rig.get("sheathed")))
 		_rig.set("long_holster", rolling)
 		_rig.set("ground_guard_y", global_position.y if is_on_floor() or dead else NAN)
 	_update_lean(delta)
@@ -1660,12 +1676,138 @@ func _update_look_target() -> void:
 func attack() -> void:
 	if dead or swimming or _mount != null or _jump_starting or _jump_active or _land_time > 0.0:
 		return
+	if _carry != null:
+		carry_drop()                   # the arms are full: attacking puts the load down first
+		return
+	if sheathed:
+		set_sheathed(false, true)      # attacking from the unarmed stance: a quick draw straight into the swing
 	if _arms.bow_tap():
 		return
 	if _can_attack():
 		_start_swing()
 	else:
 		_attack_buffer = ATTACK_BUFFER   # early press: fire at the next opening
+
+
+## Sheathe-to-unarmed (owner: no fists item): H puts the weapon away (one-handers on the left hip, shield and long weapons on the
+## back, ProceduralRig sockets) with the sheathe clip; H again, attacking or blocking draws. `quick` skips the clip timing.
+const SHEATHE_KEY := KEY_H
+const SHEATHE_AT := 0.35          # s into the sheathe clip when the blade reaches the scabbard
+const DRAW_AT := 0.2
+var sheathed := false
+var _sheathe_pending := 0.0
+var _sheathe_target := false
+
+
+func toggle_sheathe() -> void:
+	set_sheathed(not sheathed)
+
+
+func set_sheathed(on: bool, quick := false) -> void:
+	if dead or on == sheathed and _sheathe_pending <= 0.0:
+		return
+	if not on and _carry != null:
+		return                        # the arms are full
+	sheathed = on
+	_sheathe_target = on
+	if quick or _animator == null:
+		_sheathe_pending = 0.0
+		if _rig:
+			_rig.set("sheathed", on)
+		return
+	var clip := "Mx_Sword_Sheath" if on else "Mx_Sword_Draw"
+	if _animator.has_clip(clip):
+		_animator.play_upper(clip, 1.4)
+	_sheathe_pending = SHEATHE_AT if on else DRAW_AT
+
+
+func _update_sheathe(delta: float) -> void:
+	if _sheathe_pending > 0.0:
+		_sheathe_pending -= delta
+		if _sheathe_pending <= 0.0 and _rig:
+			_rig.set("sheathed", _sheathe_target)
+	if sheathed and blocking:
+		set_sheathed(false, true)
+
+
+const CarryK := preload("res://scripts/interaction/kinds/carryable.gd")
+## Carrying (WP-01, scripts/interaction/kinds/carryable.gd): the load is lifted with Chore_Pick_Up_Box, held at the chest in
+## model space with both hands braced on its sides (arm IK), weapons sheathed; slower, no sprint / jump / dodge.
+const CARRY_PICK_RATE := 1.6
+const CARRY_LIFT_AT := 0.55       # s into the pick-up clip (at CARRY_PICK_RATE) when the load leaves the ground
+const CARRY_LIFT_TIME := 0.35     # s from the ground to the chest
+const CARRY_BUSY := 0.9
+const CARRY_CHEST := 1.32         # m, chest height of a full-size body
+var _carry: Node3D = null       # a Carryable (CarryK)
+var _carry_busy := 0.0
+var _carry_lift := 0.0            # < 0 waiting for the lift moment, 0..1 ground -> chest
+var _carry_was_sheathed := false
+var _carry_from := Transform3D.IDENTITY
+
+
+func carry_pick(obj: Node) -> bool:
+	if _carry != null or dead or swimming or _mount != null or obj.get_script() != CarryK or obj.get("carrier") != null:
+		return false
+	_carry = obj as Node3D
+	_carry.call("set_carried", self)
+	_carry_from = _carry.global_transform
+	_carry_was_sheathed = sheathed
+	set_sheathed(true, true)
+	_carry_busy = CARRY_BUSY
+	_carry_lift = -CARRY_LIFT_AT / CARRY_LIFT_TIME
+	if _animator.has_clip("Chore_Pick_Up_Box"):
+		_animator.play_full("Chore_Pick_Up_Box", CARRY_PICK_RATE)
+	return true
+
+
+func carry_drop() -> void:
+	if _carry == null:
+		return
+	var obj := _carry
+	_carry = null
+	if _rig:
+		_rig.call("set_hand_carry", 0, Vector3.ZERO, 0.0)
+		_rig.call("set_hand_carry", 1, Vector3.ZERO, 0.0)
+	var ahead := global_position + facing() * (0.45 + (obj.call("size") as Vector3).z * 0.5)
+	obj.global_transform = Transform3D(Basis(Vector3.UP, _model.rotation.y), Vector3(ahead.x, global_position.y, ahead.z))
+	obj.call("set_carried", null)
+	obj.emit_signal("put_down", self)
+	if _animator.has_clip("Chore_Pick_Up_Box"):
+		_animator.play_full("Chore_Pick_Up_Box", CARRY_PICK_RATE * 1.3)
+	_carry_busy = CARRY_BUSY * 0.6
+	if not _carry_was_sheathed:
+		set_sheathed(false, true)
+
+
+func carrying() -> Node3D:
+	return _carry
+
+
+func _update_carry(delta: float) -> void:
+	_carry_busy = maxf(_carry_busy - delta, 0.0)
+	if _carry == null:
+		return
+	if not is_instance_valid(_carry) or dead or swimming or _mount != null:
+		if is_instance_valid(_carry):
+			carry_drop()
+		_carry = null
+		return
+	_carry_lift = minf(_carry_lift + delta / CARRY_LIFT_TIME, 1.0)
+	var off := CarryK.hold_offset(CARRY_CHEST, (_carry.call("size") as Vector3))
+	var mb := _model.global_basis.orthonormalized()
+	var held := Transform3D(mb, _model.global_position + mb * (off * Life.body_scale()))
+	var t := clampf(_carry_lift, 0.0, 1.0)
+	t = t * t * (3.0 - 2.0 * t)
+	var xf := _carry_from.interpolate_with(held, t)
+	_carry.global_transform = xf
+	if _rig and _carry_lift > -0.3:
+		var w := clampf(_carry_lift + 0.3, 0.0, 1.0)
+		var c := xf.origin + xf.basis.y * (_carry.call("size") as Vector3).y * 0.5
+		var half := (_carry.call("size") as Vector3).x * 0.5 + 0.02
+		var side: Vector3 = mb.x
+		# hand 0 = left; the model faces +Z, so its +X is its left side
+		_rig.call("set_hand_carry", 0, c + side * half, w)
+		_rig.call("set_hand_carry", 1, c - side * half, w)
 
 
 ## Input entry points (main.gd): a tap fires attack() on release, a hold past the data hold time charges a heavy
@@ -1681,7 +1823,7 @@ func attack_release() -> void:
 ## Space / the mobile button buffers a jump briefly through an attack lockout or
 ## the last few frames before landing. A second press in the air never relaunches.
 func jump() -> void:
-	if dead or swimming or _mount != null or _menu_open():
+	if dead or swimming or _mount != null or _menu_open() or _carry != null:
 		return
 	if _trav.on_jump_pressed():
 		return
@@ -1955,6 +2097,10 @@ func _land_jump(impact_speed: float, dir: Vector3) -> void:
 		take_damage(roundi((fall_height - 6.0) * 8.0), null, Vector3.ZERO, true)
 		if dead:
 			return
+	var fall_inj := RAInjuries.fall_injury(fall_height, roll)
+	if fall_inj != "" and not swimming and not Life.injuries.has(fall_inj):
+		Life.injuries.add(fall_inj, WorldSim.day)
+		Game.say("You land badly: %s." % String(RAInjuries.info(fall_inj).get("name", fall_inj)).to_lower())
 	var ground := Vector3(global_position.x, WorldGen.height(global_position.x, global_position.z), global_position.z)
 	var water_surface := WorldGen.water_level_at(global_position.x, global_position.z)
 	if is_nan(water_surface):
@@ -2022,7 +2168,7 @@ func _reset_jump() -> void:
 ## Plain dodge-roll: short i-frame step, no VFX, no cooldown beyond stamina.
 ## Bound to the "dodge" action (K) and the HUD dodge button.
 func dodge() -> void:
-	if dead or swimming or _mount != null or _jump_starting or _jump_active or _land_time > 0.0:
+	if dead or swimming or _mount != null or _jump_starting or _jump_active or _land_time > 0.0 or _carry != null:
 		return
 	if _arms.knock_dodge():
 		return                       # floored: the press is a roll-out (player_arms.gd)
@@ -2318,7 +2464,7 @@ func take_damage(amount: int, from: Node = null, knockback := Vector3.ZERO, forc
 				_swing = 0.0
 				_swing_id += 1
 				_kick(-facing() * float(res["push"]) * 2.0)
-				_animator.play_upper("Souls_Guard_Hit" if _animator.has_clip("Souls_Guard_Hit") else "Block_Hit", 1.5)
+				_animator.play_upper("Souls_Guard_Hit", 1.5)
 			clashed.emit(from, not lost)
 			return
 		HitResolver.Outcome.PARRIED:
@@ -2449,6 +2595,11 @@ func revive(teleport := true) -> void:
 
 
 ## Children are smaller; the body and camera height follow Life.body_scale().
+## Movement multiplier from injuries (a sprained ankle, a broken leg: RAInjuries effects["speed"]).
+func injury_speed() -> float:
+	return clampf(1.0 + float(Life.injuries.effects().get("speed", 0.0)), 0.3, 1.0)
+
+
 func apply_age() -> void:
 	var k := Life.body_scale()
 	_model.scale = Vector3.ONE * k

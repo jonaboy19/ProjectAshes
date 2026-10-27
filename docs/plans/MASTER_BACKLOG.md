@@ -171,7 +171,7 @@ Rule 5 of the blueprint ("polish complete loops before adding territory") is the
 ### §15 Visuals, atmosphere, sound
 | Requirement | Status | Evidence | Gap |
 |---|---|---|---|
-| Terrain/rivers/roads | PARTIAL | `world/world_gen.gd`, `terrain3d_bridge.gd`, W6 real-world data (`docs/world/REAL_WORLD.md`) | Real-world engine integration not started (W6) |
+| Terrain/rivers/roads | PARTIAL | `world/world_gen.gd`, `terrain3d_bridge.gd`, W6 real-world data (`docs/world/REAL_WORLD.md`) | Real-world terrain in engine behind --world_macro=real (W6.2/W6.3: re-anchored layout, real lakes/sea/rivers, 768 m Terrain3D regions at 3 m, region lock + warden camps, slice camp/cave pinned); default flip pending look/iGPU sign-off |
 | Vegetation, seasons | PARTIAL | `terrain_streamer.gd`, `sim/seasons.gd`, `test_seasons` | Seasonal foliage colour |
 | Buildings: kits + variation | HAVE | `world/town_kit/*`, `town_identity.gd`, TOWNS_MEDIEVAL_PASS | — |
 | Characters, faces, layered clothing | PARTIAL | `hero_outfit.gd`, `npc_face_card.gd`, MakeHuman | Art direction decision (owner) |

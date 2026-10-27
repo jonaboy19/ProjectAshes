@@ -1,4 +1,4 @@
-﻿"""Rising Ashes real-world macro terrain (owner decision 2026-10-26): a 32 x 32 km window of the English Lake District
+"""Rising Ashes real-world macro terrain (owner decision 2026-10-26): a 32 x 32 km window of the English Lake District
 (AWS Terrain Tiles / terrarium z13, ~11 m/px; see docs/plans/DOWNLOADS.md) reprojected to the game grid, mirrored north-south
 so the high Scafell/Wasdale fells become the snowy game NORTH, with sea, lakes, rivers and a northern highland uplift.
 
@@ -133,7 +133,7 @@ def main():
     wlake = lake[::4, ::4][:1024, :1024]
     import sys; sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
     from real_rivers import rivers
-    acc, river, _ = rivers(c, wsea, wlake, 32.0, 4.0)
+    acc, river, _ = rivers(c, wsea, wlake, 32.0, 20.0)
     water = np.zeros((cs, cs), np.uint8)
     water[wsea] = 1
     water[wlake] = 2

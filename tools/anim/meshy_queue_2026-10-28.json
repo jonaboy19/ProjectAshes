@@ -1,0 +1,409 @@
+{
+ "_doc": "Meshy run 2026-10-28 (owner credits ~1000; nothing else may spend them). The main session submits; save every result as <downloads>/<id>.bvh (text-to-motion) or <id>.glb (text-to-3D) and run: python tools/anim/meshy_pipeline.py all --downloads <dir>. Motions: mode prime, BVH export, 30 fps. Models: append style_suffix to every model prompt (docs/plans/ART_DIRECTION.md). Order = priority; stop when credits run out.",
+ "style_suffix": "medieval, grounded stylised realism, realistic proportions, hand-painted PBR textures, muted natural palette",
+ "motions": [
+  {
+   "id": "m01_chop_wood",
+   "clip": "Life_Mz_Chop_Wood",
+   "prompt": "Medieval woodcutter splitting a log on a chopping block with a two-handed axe: feet planted shoulder width and never moving, raise the axe overhead, swing straight down onto the block, small recoil, lift again. Seamless loop, same pose at start and end.",
+   "mode": "prime",
+   "duration_s": 3,
+   "loop": true,
+   "category": "work/wood",
+   "target": {
+    "type": "chopping_block",
+    "key": "loop",
+    "enable": false
+   },
+   "props": [
+    {
+     "id": "axe",
+     "hand": "r"
+    }
+   ],
+   "replaces": "Life_Wood_Chop (8 pops), Life_Mx_Chop_Wood (steps)"
+  },
+  {
+   "id": "m02_smith_hammer",
+   "clip": "Life_Mz_Smith_Hammer",
+   "prompt": "Blacksmith hammering hot metal on an anvil with a one-handed hammer in the right hand, left hand holding tongs on the anvil, feet planted, two strikes per cycle with a small rest between. Seamless loop.",
+   "mode": "prime",
+   "duration_s": 2,
+   "loop": true,
+   "category": "work/smith",
+   "target": {
+    "type": "anvil",
+    "key": "loop",
+    "enable": false
+   },
+   "props": [
+    {
+     "id": "smith_hammer",
+     "hand": "r"
+    },
+    {
+     "id": "tongs",
+     "hand": "l"
+    }
+   ],
+   "replaces": "Life_Smith_Hammer (2 pops)"
+  },
+  {
+   "id": "m03_plant_kneel",
+   "clip": "Life_Mz_Plant_Kneel",
+   "prompt": "Farmer kneeling on one knee in a field row, digging a small hole in the soil with both hands, dropping seeds, covering them; hands touch the ground surface but never go below it; stays in place. Seamless loop.",
+   "mode": "prime",
+   "duration_s": 5,
+   "loop": true,
+   "category": "work/farm",
+   "contact_ik": true,
+   "hand_contact": true,
+   "target": {
+    "type": "field_sow",
+    "key": "loop",
+    "enable": false
+   },
+   "replaces": "Dig And Plant Seeds / plant_kneeling (IK reach pops)"
+  },
+  {
+   "id": "m04_laundry_scrub",
+   "clip": "Life_Mz_Laundry_Scrub",
+   "prompt": "Woman standing at a wooden wash tub at waist height, bent slightly forward, scrubbing cloth on a washboard with both hands, feet planted. Seamless loop.",
+   "mode": "prime",
+   "duration_s": 3,
+   "loop": true,
+   "category": "work/laundry",
+   "target": {
+    "type": "wash_tub",
+    "key": "loop",
+    "enable": true
+   },
+   "replaces": "wash_tub disabled (5 cm penetration)"
+  },
+  {
+   "id": "m05_stir_cauldron",
+   "clip": "Life_Mz_Stir_Cauldron",
+   "prompt": "Person standing at a cauldron stirring with a long wooden spoon held in both hands, slow circular stirring, feet planted, upright back. Seamless loop.",
+   "mode": "prime",
+   "duration_s": 3,
+   "loop": true,
+   "category": "work/cook",
+   "target": {
+    "type": "cook_pot",
+    "key": "loop",
+    "enable": false
+   },
+   "replaces": "Life_Mocap_Stir (banned)",
+   "props": [
+    {
+     "id": "ladle",
+     "hand": "r"
+    }
+   ]
+  },
+  {
+   "id": "m06_sweep",
+   "clip": "Life_Mz_Sweep",
+   "prompt": "Villager sweeping the floor with a long broom, short sweeps left to right, feet planted, in place. Seamless loop.",
+   "mode": "prime",
+   "duration_s": 3,
+   "loop": true,
+   "category": "work/chore",
+   "target": {
+    "type": "sweep_area",
+    "key": "loop",
+    "enable": false
+   },
+   "props": [
+    {
+     "id": "broom",
+     "hand": "r"
+    }
+   ]
+  },
+  {
+   "id": "m07_mine_pickaxe",
+   "clip": "Life_Mz_Mine_Pickaxe",
+   "prompt": "Miner swinging a pickaxe overhead into a rock wall in front of him, two-handed grip, feet planted wide, strike and pull back. Seamless loop.",
+   "mode": "prime",
+   "duration_s": 2.5,
+   "loop": true,
+   "category": "work/mine",
+   "target": null,
+   "replaces": "no mining clip (WP-13 underground post miners)",
+   "prop_needed": "pickaxe"
+  },
+  {
+   "id": "m08_nail_bench",
+   "clip": "Life_Mz_Nail_Bench",
+   "prompt": "Carpenter standing at a workbench at waist height, holding a nail with the left hand and hammering it with a hammer in the right hand, feet planted. Seamless loop.",
+   "mode": "prime",
+   "duration_s": 2,
+   "loop": true,
+   "category": "work/carpentry",
+   "target": {
+    "type": "nail_plank",
+    "key": "loop",
+    "enable": true
+   },
+   "replaces": "nail_plank disabled (6.5 cm penetration)"
+  },
+  {
+   "id": "m09_sleep_bed",
+   "clip": "Life_Mz_Sleep_Bed",
+   "prompt": "Person lying on their back asleep on a bed, slow breathing, slight shifts, arms relaxed at the sides. Seamless loop.",
+   "mode": "prime",
+   "duration_s": 6,
+   "loop": true,
+   "category": "rest/sleep",
+   "lift_to_floor": true,
+   "target": {
+    "type": "bed",
+    "key": "loop",
+    "enable": false
+   }
+  },
+  {
+   "id": "m10_wake_bed",
+   "clip": "Life_Mz_Wake_Bed",
+   "prompt": "Person waking up lying on a bed, sitting up, swinging the legs over the side and standing up next to the bed.",
+   "mode": "prime",
+   "duration_s": 4,
+   "loop": false,
+   "category": "rest/sleep",
+   "target": {
+    "type": "bed",
+    "key": "exit",
+    "enable": false
+   }
+  },
+  {
+   "id": "m11_eat_seated",
+   "clip": "Life_Mz_Eat_Seated",
+   "prompt": "Person sitting on a bench eating bread with the right hand and holding a bowl in the left hand, small bites, chewing. Seamless loop.",
+   "mode": "prime",
+   "duration_s": 4,
+   "loop": true,
+   "category": "eat",
+   "seat_back": 0.05,
+   "target": {
+    "type": "tavern_table",
+    "key": "loop",
+    "enable": false
+   },
+   "props": [
+    {
+     "id": "bread",
+     "hand": "r"
+    },
+    {
+     "id": "bowl",
+     "hand": "l"
+    }
+   ]
+  },
+  {
+   "id": "m12_milk_stool",
+   "clip": "Life_Mz_Milk_Stool",
+   "prompt": "Farmer sitting on a low three-legged stool milking a cow, both hands squeezing alternately at knee height, back slightly bent. Seamless loop.",
+   "mode": "prime",
+   "duration_s": 3,
+   "loop": true,
+   "category": "work/farm",
+   "target": {
+    "type": "milking_stool",
+    "key": "loop",
+    "enable": false
+   }
+  },
+  {
+   "id": "m13_scythe_inplace",
+   "clip": "Life_Mz_Scythe",
+   "prompt": "Farmer mowing grass with a long scythe, wide horizontal swings from right to left, standing in place with feet planted. Seamless loop.",
+   "mode": "prime",
+   "duration_s": 3,
+   "loop": true,
+   "category": "work/farm",
+   "target": {
+    "type": "field_harvest",
+    "key": "loop",
+    "enable": false
+   },
+   "prop_needed": "scythe"
+  },
+  {
+   "id": "m14_wheelbarrow",
+   "clip": "Life_Mz_Wheelbarrow_Walk",
+   "prompt": "Laborer walking forward pushing a wheelbarrow, both hands gripping the handles low at hip height, steady walking pace.",
+   "mode": "prime",
+   "duration_s": 2,
+   "loop": true,
+   "inplace": "linear",
+   "foot_lock": false,
+   "category": "walk/style",
+   "target": null
+  },
+  {
+   "id": "m15_lute",
+   "clip": "Life_Mz_Lute",
+   "prompt": "Bard standing and playing a lute held across the chest, right hand strumming, left hand on the neck, gentle sway. Seamless loop.",
+   "mode": "prime",
+   "duration_s": 4,
+   "loop": true,
+   "category": "music",
+   "target": {
+    "type": "musician_spot",
+    "key": "loop",
+    "enable": false
+   },
+   "props": [
+    {
+     "id": "lute",
+     "hand": "l"
+    }
+   ]
+  },
+  {
+   "id": "m16_kneel_down",
+   "clip": "Life_Mz_Kneel_Down",
+   "prompt": "Person kneeling down on both knees from standing, joining hands in prayer, holding still.",
+   "mode": "prime",
+   "duration_s": 3,
+   "loop": false,
+   "category": "ritual/pray",
+   "contact_ik": true,
+   "target": {
+    "type": "chapel_kneel",
+    "key": "enter",
+    "enable": false
+   }
+  },
+  {
+   "id": "m17_forge_anvil",
+   "clip": "Life_Mz_Forge_Glowing",
+   "prompt": "blacksmith strikes glowing metal on an anvil with a hammer, loop",
+   "mode": "prime",
+   "duration_s": 3,
+   "loop": true,
+   "category": "work/smith",
+   "target": {
+    "type": "anvil",
+    "key": "between",
+    "enable": false
+   },
+   "source": "VIDEO_REFERENCE_ANALYSIS"
+  },
+  {
+   "id": "m18_butcher",
+   "clip": "Life_Mz_Butcher",
+   "prompt": "butcher cuts meat on a wooden table with a cleaver, loop",
+   "mode": "prime",
+   "duration_s": 3,
+   "loop": true,
+   "category": "work/market",
+   "target": {
+    "type": "kitchen_table",
+    "key": "loop",
+    "enable": false
+   },
+   "source": "VIDEO_REFERENCE_ANALYSIS",
+   "props": [
+    {
+     "id": "knife",
+     "hand": "r"
+    }
+   ]
+  },
+  {
+   "id": "m19_tankard_seated",
+   "clip": "Life_Mz_Tankard_Laugh",
+   "prompt": "seated man drinks from a large tankard, then sets it down and laughs",
+   "mode": "prime",
+   "duration_s": 4,
+   "loop": true,
+   "category": "social/tavern",
+   "seat_back": 0.05,
+   "target": {
+    "type": "tavern_table",
+    "key": "loop",
+    "enable": false
+   },
+   "source": "VIDEO_REFERENCE_ANALYSIS",
+   "props": [
+    {
+     "id": "mug",
+     "hand": "r"
+    }
+   ]
+  },
+  {
+   "id": "m20_carry_sack",
+   "clip": "Life_Mz_Carry_Sack_Walk",
+   "prompt": "medieval peasant carries a heavy sack on his shoulder, slow walk",
+   "mode": "prime",
+   "duration_s": 2,
+   "loop": true,
+   "inplace": "linear",
+   "foot_lock": false,
+   "category": "carry/full",
+   "target": null,
+   "source": "VIDEO_REFERENCE_ANALYSIS",
+   "props": [
+    {
+     "id": "sack",
+     "hand": "r"
+    }
+   ]
+  }
+ ],
+ "models": [
+  {
+   "id": "a01_waterskin",
+   "prompt": "medieval leather waterskin with cork stopper and shoulder strap, game prop, 30 cm",
+   "use": "wells / thirst, held + icon",
+   "est_credits": 20
+  },
+  {
+   "id": "a02_tanning_rack",
+   "prompt": "medieval wooden hide tanning frame with stretched deer hide, game prop, 2 m",
+   "use": "hunting -> leather station",
+   "est_credits": 20
+  },
+  {
+   "id": "a03_war_horn",
+   "prompt": "medieval curved ox-horn war horn with leather strap, game prop",
+   "use": "raid warning (C9), Mz horn-blow clip",
+   "est_credits": 20
+  },
+  {
+   "id": "a04_healer_set",
+   "prompt": "medieval infirmary cot with wool blanket and a herb shelf with jars, game prop set",
+   "use": "healer trade",
+   "est_credits": 20
+  },
+  {
+   "id": "a05_smith_tongs",
+   "prompt": "blacksmith tongs and hammer on a small wooden stand, game prop",
+   "use": "apprentice tools",
+   "est_credits": 20
+  },
+  {
+   "id": "a06_mortar",
+   "prompt": "stone mortar and pestle with herbs, game prop",
+   "use": "apprentice tools",
+   "est_credits": 20
+  },
+  {
+   "id": "a07_scribe_desk",
+   "prompt": "slanted scribe desk with quill and inkpot, game prop",
+   "use": "apprentice tools",
+   "est_credits": 20
+  },
+  {
+   "id": "a08_academy_gate",
+   "prompt": "medieval stone academy entrance with arched gate, two towers, blue slate roofs, game building, 20 m",
+   "use": "adult enrolment",
+   "est_credits": 30
+  }
+ ]
+}

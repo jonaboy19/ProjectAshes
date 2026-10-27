@@ -67,7 +67,7 @@ Dance,ual,combat,loop,1.0,banned,0.052,0.213,0.2,0.0,0,0.0,0.0,0.0,,banned: slid
 Dance_Body_Roll,ual,combat,loop,6.458,banned,0.089,0.476,0.46,0.0,1,0.0,0.0,0.0,,probation: 1 pop(s); banned: slide mean 0.09 m/s; banned: slide max 0.48 m/s
 Dance_Charleston,ual,combat,loop,2.292,banned,0.153,1.276,0.81,0.0,0,0.0,0.0,0.0,,banned: slide mean 0.15 m/s; banned: slide max 1.28 m/s
 Dance_Reach_Hip,ual,combat,loop,2.5,banned,0.155,0.263,0.36,0.0,0,0.0,0.0,0.0,,banned: slide mean 0.15 m/s; banned: slide max 0.26 m/s
-Death01,ual,death,death,2.4,banned,,,3.03,0.0,1,,48.4,0.0,,probation: 1 pop(s); banned: ground penetration 3.0 cm
+Death01,ual,death,death,2.4,probation,,,0.0,0.0,1,,48.4,0.0,,probation: 1 pop(s)
 Death_1H_Back,ual,death,death,1.8,banned,,,25.14,0.0,8,,0.0,0.0,,banned: 8 pop(s); banned: ground penetration 25.1 cm
 Death_1H_Front,ual,death,death,1.6,probation,,,1.41,0.0,1,,0.0,0.0,,probation: 1 pop(s); probation: ground penetration 1.4 cm
 Death_2H_Knees,ual,death,death,2.2,banned,,,13.06,0.0,4,,0.0,0.0,,banned: 4 pop(s); banned: ground penetration 13.1 cm
@@ -163,7 +163,7 @@ Head_Nod,ual,combat,once,0.833,probation,0.0,0.0,0.0,0.27,0,,0.0,0.0,,"metrics g
 Help_One_Arm,ual,combat,once,2.667,probation,0.024,0.067,0.0,0.24,0,,0.0,0.0,,"metrics gold, no passing frame-sheet review yet"
 Help_Two_Arms,ual,combat,once,1.583,probation,0.035,0.112,0.81,0.0,0,,0.0,0.0,,"metrics gold, no passing frame-sheet review yet"
 Hit_A,ual,combat,once,0.333,probation,0.083,0.086,0.0,0.03,0,,2.9,0.0,,"metrics gold, no passing frame-sheet review yet"
-Hit_B,ual,combat,once,0.833,banned,0.326,0.829,3.65,0.0,0,,5.1,0.0,,banned: ground penetration 3.6 cm
+Hit_B,ual,combat,once,0.833,probation,,,0.0,2.3,0,,5.1,0.0,,"metrics gold, no passing frame-sheet review yet"
 Hit_Chest,ual,combat,once,0.333,gold,0.083,0.086,0.0,0.03,0,,2.9,0.0,pass,
 Hit_Head,ual,combat,once,0.433,gold,0.007,0.03,0.0,0.08,0,,0.0,0.0,pass,
 Hit_Head_L,ual,combat,once,1.4,probation,0.325,1.233,1.36,0.0,0,,3.8,0.0,,probation: ground penetration 1.4 cm
@@ -171,7 +171,7 @@ Hit_Heavy_Back,ual,combat,once,0.867,gold,0.066,1.039,0.12,0.0,0,,0.0,0.0,pass,
 Hit_Heavy_Front,ual,combat,once,0.867,gold,0.087,1.149,0.09,0.0,0,,0.0,0.0,pass,
 Hit_Heavy_Left,ual,combat,once,0.867,gold,0.082,0.897,0.07,0.0,0,,0.0,0.0,pass,
 Hit_Heavy_Right,ual,combat,once,0.867,gold,0.08,0.896,0.07,0.0,0,,0.0,0.0,pass,
-Hit_Knockback,ual,combat,once,0.833,banned,0.326,0.829,3.65,0.0,0,,5.1,0.0,,banned: ground penetration 3.6 cm
+Hit_Knockback,ual,combat,once,0.833,gold,,,0.0,2.3,0,,5.1,0.0,pass,
 Hit_Light_Back,ual,combat,once,0.5,gold,0.025,0.07,0.0,0.0,0,,0.0,0.0,pass,
 Hit_Light_Front,ual,combat,once,0.5,gold,0.035,0.11,0.1,0.0,0,,0.0,0.0,pass,
 Hit_Light_Left,ual,combat,once,0.5,gold,0.043,0.095,0.14,0.0,0,,0.0,0.0,pass,
@@ -193,17 +193,17 @@ Idle_Torch,ual,locomotion,loop,1.267,gold,0.011,0.046,0.0,0.06,0,0.0,0.0,0.0,pas
 Insult,ual,combat,once,2.792,probation,0.007,0.027,0.0,0.08,0,,0.0,0.0,,"metrics gold, no passing frame-sheet review yet"
 Interact,ual,interaction,once,2.0,gold,0.011,0.049,0.0,0.04,0,,0.0,0.0,pass,
 Jog_Fwd,ual,locomotion,loco,0.933,banned,0.146,0.207,0.0,0.98,0,0.0,0.0,0.0,,banned: slide mean 0.15 m/s; banned: slide max 0.21 m/s
-Jog_Mid,ual,locomotion,loco,0.7,banned,0.289,0.87,0.19,0.0,0,0.0,0.0,0.0,,banned: slide mean 0.29 m/s; banned: slide max 0.87 m/s
+Jog_Mid,ual,locomotion,loco,0.7,banned,0.417,0.927,0.2,0.0,0,0.0,0.0,0.0,,banned: slide mean 0.42 m/s; banned: slide max 0.93 m/s
 Jump,ual,traversal,jump,2.5,banned,0.012,0.024,13.31,0.0,0,,0.0,0.0,,banned: ground penetration 13.3 cm
 Jump_2,ual,traversal,jump,1.583,probation,0.249,1.506,0.78,0.0,0,,0.0,0.0,,"metrics gold, no passing frame-sheet review yet"
-Jump_Fall,ual,traversal,jump,0.8,banned,0.337,0.861,8.62,0.0,0,,0.0,0.0,,banned: ground penetration 8.6 cm
+Jump_Fall,ual,traversal,jump,0.8,gold,0.289,0.679,0.99,0.0,0,,0.0,0.0,pass,
 Jump_Land,ual,traversal,jump,1.267,probation,0.035,0.065,0.0,0.0,0,,3.2,0.0,,"metrics gold, no passing frame-sheet review yet"
-Jump_Land_Hard,ual,traversal,jump,1.367,banned,0.644,1.329,7.81,0.0,0,,0.0,0.0,,banned: ground penetration 7.8 cm
-Jump_Land_Roll,ual,traversal,jump,1.667,banned,0.178,1.451,11.42,0.0,1,,0.0,0.0,,probation: 1 pop(s); banned: ground penetration 11.4 cm
-Jump_Land_Running,ual,traversal,jump,0.767,banned,4.038,4.304,7.71,0.0,0,,0.0,0.0,,banned: ground penetration 7.7 cm
-Jump_Land_Soft,ual,traversal,jump,0.867,banned,0.352,0.72,2.69,0.0,0,,0.0,0.0,,banned: ground penetration 2.7 cm
-Jump_Rise,ual,traversal,jump,0.8,banned,0.383,1.143,6.58,0.0,0,,0.0,0.0,,banned: ground penetration 6.6 cm
-Jump_Running_Start,ual,traversal,jump,0.4,banned,3.293,3.484,2.33,0.0,0,,0.0,0.0,,banned: ground penetration 2.3 cm
+Jump_Land_Hard,ual,traversal,jump,1.367,gold,1.043,1.329,0.87,0.0,0,,0.0,0.0,pass,
+Jump_Land_Roll,ual,traversal,jump,1.667,probation,0.125,1.451,0.77,0.0,1,,0.0,0.0,,probation: 1 pop(s)
+Jump_Land_Running,ual,traversal,jump,0.767,gold,4.038,4.304,0.0,0.0,0,,0.0,0.0,pass,
+Jump_Land_Soft,ual,traversal,jump,0.867,gold,0.302,0.72,0.0,0.0,0,,0.0,0.0,pass,
+Jump_Rise,ual,traversal,jump,0.8,gold,0.365,1.053,0.0,0.0,0,,0.0,0.0,pass,
+Jump_Running_Start,ual,traversal,jump,0.4,probation,,,0.0,0.0,0,,0.0,0.0,,"metrics gold, no passing frame-sheet review yet"
 Jump_Start,ual,traversal,jump,0.333,probation,,,1.28,0.0,0,,0.0,0.0,,probation: ground penetration 1.3 cm
 Jumping_Jacks,ual,traversal,jump,1.208,probation,0.305,0.79,0.07,0.0,0,,0.1,0.0,,"metrics gold, no passing frame-sheet review yet"
 Karate_Gedan_Barai,ual,combat,once,1.9,probation,0.392,2.266,0.19,0.0,2,,9.6,0.0,,probation: 2 pop(s)
@@ -266,15 +266,15 @@ Life_Mx_Tell_Secret,ual,interaction,once,10.9,gold,0.005,0.036,0.0,1.31,0,,0.0,0
 Life_Mx_Thankful,ual,interaction,once,3.0,gold,0.008,0.036,0.0,0.75,0,,0.0,0.0,pass,
 Life_Mx_Wave,ual,interaction,loop,0.5,gold,0.011,0.028,0.0,0.26,0,0.4,0.0,0.0,pass,
 Life_Mx_Wheelbarrow_Walk,ual,interaction,loco,0.933,banned,1.077,5.946,0.01,0.0,0,0.27,0.0,0.0,fail,banned: slide mean 1.08 m/s; banned: slide max 5.95 m/s
-Loco_Pivot180_Run_L,ual,locomotion,once,1.233,banned,2.57,5.223,8.24,0.0,0,,32.5,0.0,,banned: ground penetration 8.2 cm
-Loco_Pivot180_Run_R,ual,locomotion,once,1.367,banned,2.785,6.22,8.26,0.0,0,,33.6,0.0,,banned: ground penetration 8.3 cm
-Loco_RunStart_F,ual,locomotion,once,0.633,banned,2.905,4.051,4.14,0.0,0,,0.0,0.0,,banned: ground penetration 4.1 cm
+Loco_Pivot180_Run_L,ual,locomotion,once,1.233,gold,2.91,4.829,0.0,0.22,0,,32.5,0.0,pass,
+Loco_Pivot180_Run_R,ual,locomotion,once,1.367,gold,2.839,4.81,0.0,0.18,0,,33.6,0.0,pass,
+Loco_RunStart_F,ual,locomotion,once,0.633,gold,2.831,4.051,0.0,0.42,0,,0.0,0.0,pass,
 Loco_RunStop_L,ual,locomotion,once,0.867,gold,1.282,3.386,0.64,0.0,0,,0.0,0.0,pass,
 Loco_RunStop_R,ual,locomotion,once,0.8,probation,1.87,4.281,1.0,0.0,0,,0.0,0.0,,probation: ground penetration 1.0 cm
 Loco_Sprint_Stop_Skid,ual,locomotion,once,0.9,probation,3.089,5.124,0.56,0.0,0,,0.0,0.0,hold,"metrics gold, no passing frame-sheet review yet"
-Loco_TurnInPlace_180,ual,locomotion,once,1.1,banned,0.774,1.388,8.28,0.0,0,,14.1,0.0,,banned: ground penetration 8.3 cm
-Loco_TurnInPlace_180_R,ual,locomotion,once,0.867,banned,0.445,0.976,3.5,0.0,0,,10.8,0.0,,banned: ground penetration 3.5 cm
-Loco_TurnInPlace_90_L,ual,locomotion,once,0.733,banned,0.289,0.612,6.89,0.0,0,,6.8,0.0,,banned: ground penetration 6.9 cm
+Loco_TurnInPlace_180,ual,locomotion,once,1.1,gold,0.803,1.18,0.0,0.22,0,,14.1,0.0,pass,
+Loco_TurnInPlace_180_R,ual,locomotion,once,0.867,gold,0.368,0.774,0.0,0.41,0,,10.8,0.0,pass,
+Loco_TurnInPlace_90_L,ual,locomotion,once,0.733,gold,0.269,0.403,0.0,0.17,0,,6.8,0.0,pass,
 Loco_TurnInPlace_90_R,ual,locomotion,once,0.7,gold,0.235,0.532,0.65,0.0,0,,6.3,0.0,pass,
 Loco_WalkStart_F,ual,locomotion,once,1.267,probation,1.281,2.597,1.72,0.0,0,,0.0,0.0,,probation: ground penetration 1.7 cm
 Loco_WalkStop,ual,locomotion,once,1.367,gold,0.587,1.318,0.81,0.0,0,,0.0,0.0,pass,
@@ -320,24 +320,24 @@ Mx_GreatSword_Draw,ual,combat,once,0.8,probation,0.168,0.654,0.0,0.4,0,,11.6,0.0
 Mx_GreatSword_Strafe,ual,combat,loco,1.133,banned,0.213,2.411,0.0,0.62,0,4.66,0.0,0.0,fail,banned: slide mean 0.21 m/s; banned: slide max 2.41 m/s; probation: loop seam 4.7 deg
 Mx_Headbutt,ual,combat,once,2.1,probation,0.492,3.508,0.0,0.39,0,,0.0,0.0,hold,"metrics gold, no passing frame-sheet review yet"
 Mx_Hit_Uppercut,ual,combat,once,1.667,probation,0.864,2.834,0.0,0.41,0,,101.3,0.0,hold,"metrics gold, no passing frame-sheet review yet"
-Mx_Jog,ual,combat,loco,2.533,banned,0.962,6.141,0.0,0.21,0,0.0,0.0,0.0,,banned: slide mean 0.96 m/s; banned: slide max 6.14 m/s
+Mx_Jog,ual,combat,loco,2.533,banned,0.99,7.066,0.0,0.5,0,0.0,0.0,0.0,,banned: slide mean 0.99 m/s; banned: slide max 7.07 m/s
 Mx_Ladder_Climb,ual,combat,loop,0.733,banned,,,0.0,75.34,0,0.94,2.8,0.0,fail,banned: float 75.3 cm; note: slide unscored (no usable ground-speed reference)
 Mx_Punch_Combo,ual,combat,once,1.267,probation,0.22,0.742,0.0,1.12,0,,0.0,0.0,hold,"metrics gold, no passing frame-sheet review yet"
 Mx_RunStop,ual,combat,once,0.9,probation,0.761,1.117,0.0,1.06,0,,23.0,0.0,,"metrics gold, no passing frame-sheet review yet"
 Mx_RunTurn_L,ual,combat,once,0.767,probation,,,0.52,0.0,0,,84.5,0.0,,"metrics gold, no passing frame-sheet review yet"
 Mx_RunTurn_R,ual,combat,once,0.767,probation,4.095,4.412,0.0,0.1,0,,84.5,0.0,,"metrics gold, no passing frame-sheet review yet"
-Mx_Run_Fast,ual,combat,loco,0.5,banned,0.21,0.471,0.0,0.85,0,11.62,0.0,0.0,,banned: slide mean 0.21 m/s; banned: slide max 0.47 m/s; banned: loop seam 11.6 deg
-Mx_Run_Medium,ual,combat,loco,0.533,banned,0.228,0.495,0.0,0.31,0,0.0,0.0,0.0,,banned: slide mean 0.23 m/s; banned: slide max 0.49 m/s
-Mx_Run_Slow,ual,combat,loco,0.7,banned,1.163,7.537,0.0,0.57,0,4.71,0.0,0.0,,banned: slide mean 1.16 m/s; banned: slide max 7.54 m/s; probation: loop seam 4.7 deg
-Mx_Run_Standard,ual,combat,loco,0.7,banned,0.26,0.73,0.0,0.31,0,2.49,0.0,0.0,,banned: slide mean 0.26 m/s; banned: slide max 0.73 m/s
+Mx_Run_Fast,ual,combat,loco,0.5,banned,0.386,0.602,0.0,0.85,0,11.62,0.0,0.0,,banned: slide mean 0.39 m/s; banned: slide max 0.60 m/s; banned: loop seam 11.6 deg
+Mx_Run_Medium,ual,combat,loco,0.533,probation,,,0.0,0.31,0,0.0,0.0,0.0,,note: slide unscored (no usable ground-speed reference)
+Mx_Run_Slow,ual,combat,loco,0.7,banned,1.447,8.941,0.0,0.65,0,4.71,0.0,0.0,,banned: slide mean 1.45 m/s; banned: slide max 8.94 m/s; probation: loop seam 4.7 deg
+Mx_Run_Standard,ual,combat,loco,0.7,banned,0.446,1.155,0.0,0.31,0,2.69,0.0,0.0,,banned: slide mean 0.45 m/s; banned: slide max 1.15 m/s
 Mx_Run_Turn_180,ual,combat,once,2.267,probation,0.706,4.236,0.09,0.0,0,,45.6,0.0,hold,"metrics gold, no passing frame-sheet review yet"
 Mx_SnS_Block_Crouch_Idle,ual,combat,loop,0.467,gold,0.0,0.001,0.0,1.3,0,0.16,0.0,0.0,pass,
-Mx_SnS_Run,ual,combat,loco,0.667,banned,0.134,0.273,1.25,0.0,0,8.4,0.0,0.0,,probation: ground penetration 1.2 cm; banned: slide mean 0.13 m/s; banned: slide max 0.27 m/s; banned: loop seam 8.4 deg
+Mx_SnS_Run,ual,combat,loco,0.667,banned,0.344,0.903,0.0,0.48,0,8.4,0.0,0.0,,banned: slide mean 0.34 m/s; banned: slide max 0.90 m/s; banned: loop seam 8.4 deg
 Mx_SnS_Run_Owner,ual,combat,loco,0.667,banned,0.134,0.273,1.25,0.0,0,8.4,0.0,0.0,fail,probation: ground penetration 1.2 cm; banned: slide mean 0.13 m/s; banned: slide max 0.27 m/s; banned: loop seam 8.4 deg
-Mx_SnS_Walk,ual,combat,loco,1.067,banned,0.128,1.362,0.0,0.0,0,0.85,0.0,0.0,,banned: slide mean 0.13 m/s; banned: slide max 1.36 m/s
-Mx_SnS_WalkBack,ual,combat,loco,1.233,banned,0.299,3.139,0.12,0.0,0,0.31,0.0,0.0,,banned: planted feet move forward (moonwalk); banned: slide mean 0.30 m/s; banned: slide max 3.14 m/s
-Mx_Strafe_L,ual,combat,loco,1.433,banned,0.238,2.982,0.0,0.11,0,0.31,0.0,0.0,,banned: slide mean 0.24 m/s; banned: slide max 2.98 m/s
-Mx_Strafe_R,ual,combat,loco,1.433,banned,0.268,3.272,0.0,0.3,0,0.31,0.0,0.0,,banned: slide mean 0.27 m/s; banned: slide max 3.27 m/s
+Mx_SnS_Walk,ual,combat,loco,1.067,banned,0.142,1.338,0.0,0.0,0,0.99,0.0,0.0,,banned: slide mean 0.14 m/s; banned: slide max 1.34 m/s
+Mx_SnS_WalkBack,ual,combat,loco,1.233,banned,0.325,2.95,0.12,0.0,0,0.44,0.0,0.0,,banned: planted feet move forward (moonwalk); banned: slide mean 0.32 m/s; banned: slide max 2.95 m/s
+Mx_Strafe_L,ual,combat,loco,1.433,banned,0.181,2.98,0.0,0.12,0,0.31,0.0,0.0,,banned: slide mean 0.18 m/s; banned: slide max 2.98 m/s
+Mx_Strafe_R,ual,combat,loco,1.433,banned,0.22,3.067,0.0,0.31,0,3.43,0.0,0.0,,banned: slide mean 0.22 m/s; banned: slide max 3.07 m/s; probation: loop seam 3.4 deg
 Mx_Sword_Combat_To_Sheath,ual,combat,once,1.267,probation,0.107,0.781,0.0,0.84,0,,7.3,0.0,hold,"metrics gold, no passing frame-sheet review yet"
 Mx_Sword_Draw,ual,combat,once,0.5,probation,0.171,0.217,0.0,0.33,0,,7.3,0.0,hold,"metrics gold, no passing frame-sheet review yet"
 Mx_Sword_Sheath,ual,combat,once,1.667,gold,0.036,0.197,0.0,0.58,0,,3.8,0.0,pass,
@@ -348,9 +348,9 @@ Mx_Trav_Ladder_Top_Exit,ual,combat,once,4.0,probation,,,0.0,9.94,0,,122.4,0.0,ho
 Mx_Trav_Ledge_Pull_Up,ual,combat,once,3.833,probation,,,0.0,6.54,0,,34.2,0.0,hold,"metrics gold, no passing frame-sheet review yet"
 Mx_WalkStart,ual,combat,once,2.933,probation,0.657,2.497,0.1,0.0,0,,11.1,0.0,,"metrics gold, no passing frame-sheet review yet"
 Mx_WalkStop,ual,combat,once,3.0,probation,0.331,0.967,0.0,0.3,0,,9.5,0.0,,"metrics gold, no passing frame-sheet review yet"
-Mx_Walk_Careful,ual,combat,loco,4.567,banned,0.074,0.478,0.0,0.3,0,0.56,0.0,0.0,,banned: slide mean 0.07 m/s; banned: slide max 0.48 m/s
-Mx_Walk_Standard,ual,combat,loco,1.133,banned,0.818,5.376,0.0,0.81,0,0.61,0.0,0.0,,banned: slide mean 0.82 m/s; banned: slide max 5.38 m/s
-Mx_Walk_Unarmed,ual,combat,loco,1.333,banned,0.245,4.52,0.68,0.0,0,2.57,0.0,0.0,,banned: slide mean 0.25 m/s; banned: slide max 4.52 m/s
+Mx_Walk_Careful,ual,combat,loco,4.567,banned,0.075,0.646,0.0,0.3,0,1.92,0.0,0.0,,banned: slide mean 0.07 m/s; banned: slide max 0.65 m/s
+Mx_Walk_Standard,ual,combat,loco,1.133,banned,0.929,5.342,0.0,0.95,0,0.61,0.0,0.0,,banned: slide mean 0.93 m/s; banned: slide max 5.34 m/s
+Mx_Walk_Unarmed,ual,combat,loco,1.333,banned,0.274,4.513,0.68,0.0,0,2.57,0.0,0.0,,banned: slide mean 0.27 m/s; banned: slide max 4.51 m/s
 NinjaJump_Idle,ual,combat,jump,2.0,probation,,,0.0,0.0,0,,0.0,0.0,,"metrics gold, no passing frame-sheet review yet"
 NinjaJump_Land,ual,combat,jump,1.267,probation,0.039,0.142,0.0,0.0,0,,6.6,0.0,,"metrics gold, no passing frame-sheet review yet"
 NinjaJump_Start,ual,combat,jump,0.967,banned,,,3.04,0.0,5,,14.0,0.0,,banned: 5 pop(s); banned: ground penetration 3.0 cm
@@ -381,6 +381,7 @@ Ride_Walk,ual,combat,loco,1.2,banned,,,0.0,64.68,0,0.0,0.0,0.0,,banned: float 64
 Roll,ual,traversal,once,1.467,probation,0.537,8.464,1.26,0.0,3,,10.5,0.0,,probation: 3 pop(s); probation: ground penetration 1.3 cm
 Run_Female,ual,locomotion,loco,0.792,banned,1.085,2.132,0.61,0.0,0,3.42,0.6,0.0,,banned: slide mean 1.09 m/s; banned: slide max 2.13 m/s; probation: loop seam 3.4 deg
 Run_Jump,ual,locomotion,jump,1.208,banned,0.057,0.077,4.26,0.0,0,,0.0,0.0,,banned: ground penetration 4.3 cm
+Run_Mid,ual,locomotion,loco,0.6,banned,1.318,10.324,0.65,0.0,0,0.0,0.0,0.0,,banned: slide mean 1.32 m/s; banned: slide max 10.32 m/s
 Run_Stealth,ual,locomotion,loco,0.5,banned,1.692,2.547,1.77,0.0,0,2.93,0.3,0.0,,probation: ground penetration 1.8 cm; banned: slide mean 1.69 m/s; banned: slide max 2.55 m/s
 Running_A,ual,locomotion,loco,0.933,banned,0.146,0.207,0.0,0.98,0,0.0,0.0,0.0,,banned: slide mean 0.15 m/s; banned: slide max 0.21 m/s
 Salute,ual,combat,once,4.417,gold,0.004,0.025,0.16,0.0,0,,0.0,0.0,pass,
@@ -415,7 +416,7 @@ Souls_Light_Attack_2,ual,combat,once,0.6,probation,1.082,2.725,0.0,0.99,0,,12.9,
 Souls_Light_Idle,ual,combat,loop,1.333,probation,0.015,0.038,0.0,1.13,0,0.0,0.0,0.0,,"metrics gold, no passing frame-sheet review yet"
 Souls_Light_Special_1,ual,combat,once,1.5,probation,0.75,2.326,0.99,0.0,0,,18.0,0.0,,"metrics gold, no passing frame-sheet review yet"
 Souls_Light_Special_2,ual,combat,once,1.667,probation,1.105,10.687,0.0,1.89,0,,3.0,0.0,,"metrics gold, no passing frame-sheet review yet"
-Souls_Roll,ual,combat,once,0.767,banned,,,4.68,2.94,0,,6.6,0.0,,banned: ground penetration 4.7 cm
+Souls_Roll,ual,combat,once,0.767,gold,,,0.0,2.94,0,,6.6,0.0,pass,
 Souls_Shield_Idle,ual,combat,loop,1.333,probation,0.0,0.0,0.0,1.13,0,0.0,0.0,0.0,,"metrics gold, no passing frame-sheet review yet"
 Souls_Strafe_L,ual,combat,loco,0.5,banned,,,6.77,0.0,0,0.75,0.0,0.0,,banned: ground penetration 6.8 cm; note: slide unscored (no usable ground-speed reference)
 Souls_Strafe_R,ual,combat,loco,0.5,banned,,,6.76,0.0,0,2.7,0.0,0.0,,banned: ground penetration 6.8 cm; note: slide unscored (no usable ground-speed reference)
@@ -439,11 +440,11 @@ Stagger_Forward,ual,combat,once,1.333,probation,0.368,1.64,0.09,0.0,1,,0.0,0.0,,
 Stand_From_Floor,ual,combat,once,2.0,banned,0.807,4.804,13.87,0.07,0,,4.7,0.0,,banned: ground penetration 13.9 cm
 Strafe_left,ual,locomotion,loco,0.958,banned,0.464,1.581,0.1,0.0,0,4.01,0.1,0.0,,banned: slide mean 0.46 m/s; banned: slide max 1.58 m/s; probation: loop seam 4.0 deg
 Strafe_right,ual,locomotion,loco,0.958,banned,0.59,1.451,1.29,0.0,0,4.01,0.1,0.0,,probation: ground penetration 1.3 cm; banned: slide mean 0.59 m/s; banned: slide max 1.45 m/s; probation: loop seam 4.0 deg
-Swim_Backstroke,ual,locomotion,loco,5.233,banned,,,7.12,0.0,0,0.0,0.0,0.0,,banned: ground penetration 7.1 cm; note: slide unscored (no usable ground-speed reference)
-Swim_Breaststroke,ual,locomotion,loco,4.767,banned,,,0.37,14.97,0,0.0,0.0,0.0,,banned: float 15.0 cm; note: slide unscored (no usable ground-speed reference)
-Swim_Freestyle,ual,locomotion,loco,5.0,banned,,,2.71,20.51,0,0.0,0.0,0.0,,banned: ground penetration 2.7 cm; banned: float 20.5 cm; note: slide unscored (no usable ground-speed reference)
-Swim_Fwd,ual,locomotion,loco,1.333,banned,,,65.94,0.0,0,0.0,0.0,0.0,,banned: ground penetration 65.9 cm; note: slide unscored (no usable ground-speed reference)
-Swim_Idle,ual,locomotion,loco,3.333,banned,0.719,1.016,145.94,0.0,0,0.0,0.0,0.0,,banned: ground penetration 145.9 cm; banned: slide mean 0.72 m/s; banned: slide max 1.02 m/s
+Swim_Backstroke,ual,locomotion,loco,5.233,probation,,,7.12,0.0,0,0.0,0.0,0.0,,"note: water clip, ground metrics not graded; metrics gold, no passing frame-sheet review yet"
+Swim_Breaststroke,ual,locomotion,loco,4.767,probation,,,0.37,14.97,0,0.0,0.0,0.0,,"note: water clip, ground metrics not graded; metrics gold, no passing frame-sheet review yet"
+Swim_Freestyle,ual,locomotion,loco,5.0,probation,,,2.71,20.51,0,0.0,0.0,0.0,,"note: water clip, ground metrics not graded; metrics gold, no passing frame-sheet review yet"
+Swim_Fwd,ual,locomotion,loco,1.333,probation,,,65.94,0.0,0,0.0,0.0,0.0,,"note: water clip, ground metrics not graded; metrics gold, no passing frame-sheet review yet"
+Swim_Idle,ual,locomotion,loco,3.333,probation,0.719,1.016,145.94,0.0,0,0.0,0.0,0.0,,"note: water clip, ground metrics not graded; metrics gold, no passing frame-sheet review yet"
 Sword_Attack,ual,combat,once,1.533,probation,0.715,7.289,0.12,0.0,2,,0.0,0.0,,probation: 2 pop(s)
 Sword_Attack_Air_Vertical,ual,combat,once,4.792,banned,,,0.0,9.72,11,,3.7,0.0,,banned: 11 pop(s)
 Sword_Block,ual,combat,once,1.233,banned,0.053,0.262,0.19,0.0,9,,0.0,0.0,,banned: 9 pop(s)
@@ -492,7 +493,7 @@ Victory_Fist_Pump,ual,combat,once,2.208,probation,0.011,0.274,0.0,0.18,0,,0.4,0.
 Villager_Hit_Chest,ual,combat,once,1.2,banned,0.89,2.936,4.49,0.0,0,,8.0,0.0,,banned: ground penetration 4.5 cm
 Walk,ual,locomotion,loco,1.333,banned,0.134,0.787,1.34,0.0,0,0.0,0.0,0.0,,probation: ground penetration 1.3 cm; banned: slide mean 0.13 m/s; banned: slide max 0.79 m/s
 Walk_Backwards,ual,locomotion,loco,0.958,banned,0.536,1.859,0.0,0.15,0,0.0,0.0,0.0,,banned: planted feet move forward (moonwalk); banned: slide mean 0.54 m/s; banned: slide max 1.86 m/s
-Walk_Brisk,ual,locomotion,loco,0.533,banned,0.528,2.108,0.64,0.0,0,0.0,0.0,0.0,,banned: slide mean 0.53 m/s; banned: slide max 2.11 m/s
+Walk_Brisk,ual,locomotion,loco,0.533,banned,0.354,1.912,0.64,0.0,0,20.38,0.0,0.0,,banned: slide mean 0.35 m/s; banned: slide max 1.91 m/s; banned: loop seam 20.4 deg
 Walk_Carry,ual,locomotion,loco,2.0,banned,0.083,0.676,0.95,0.0,0,0.0,0.0,0.0,,banned: slide mean 0.08 m/s; banned: slide max 0.68 m/s
 Walk_Female,ual,locomotion,loco,1.333,banned,0.261,1.007,0.0,0.18,0,2.68,0.1,0.0,,banned: slide mean 0.26 m/s; banned: slide max 1.01 m/s
 Walk_Formal,ual,locomotion,loco,1.333,banned,0.128,0.778,1.3,0.0,0,0.68,0.0,0.0,,probation: ground penetration 1.3 cm; banned: slide mean 0.13 m/s; banned: slide max 0.78 m/s
