@@ -1,0 +1,6 @@
+SITCHECK bench villager_man_a | max pelvis speed per phase: APPROACH 1.20 m/s  ALIGN 1.20 m/s  ENTER 0.68 m/s  LOOP 0.10 m/s  EXIT 0.93 m/s  DONE 0.01 m/s  | seated pelvis-to-seat max 0.8 cm | ended t=11.5s
+SITCHECK bench villager_woman_a | max pelvis speed per phase: APPROACH 1.20 m/s  ALIGN 1.20 m/s  ENTER 1.17 m/s  LOOP 0.10 m/s  EXIT 1.19 m/s  DONE 0.01 m/s  | seated pelvis-to-seat max 1.0 cm | ended t=11.7s
+SITCHECK bench villager_man_b | max pelvis speed per phase: APPROACH 1.20 m/s  ALIGN 1.20 m/s  ENTER 0.62 m/s  LOOP 0.92 m/s  EXIT 0.68 m/s  DONE 0.03 m/s  | seated pelvis-to-seat max 5.4 cm | ended t=14.7s
+SITCHECK tavern_table villager_woman_b | max pelvis speed per phase: APPROACH 1.20 m/s  ALIGN 4.00 m/s  ENTER 1.09 m/s  LOOP 0.08 m/s  EXIT 1.07 m/s  DONE 0.03 m/s  | seated pelvis-to-seat max 1.0 cm | ended t=14.5s
+
+[exited with code 0]

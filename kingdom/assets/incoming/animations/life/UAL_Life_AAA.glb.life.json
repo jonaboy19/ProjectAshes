@@ -35,7 +35,8 @@
    ],
    "source": "CMU 13_04 2.5-7.0 s",
    "frames": 112,
-   "seconds": 3.7
+   "seconds": 3.7,
+   "seat_back": 0.057
   },
   "Life_AAA_Sit_LegSwing": {
    "category": "rest/sit",
@@ -97,7 +98,8 @@
    ],
    "source": "CMU 13_05 2.0-6.5 s",
    "frames": 108,
-   "seconds": 3.57
+   "seconds": 3.57,
+   "seat_back": 0.053
   }
  }
 }

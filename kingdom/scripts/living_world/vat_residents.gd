@@ -177,6 +177,25 @@ func look_for(id: int, job: int) -> String:
 	return _look_for(id, job)
 
 
+## The look a resident wears: the same for its VAT instance and its full body (PopulationLOD / Villager), so a
+## promotion or demotion never changes who someone is.
+static func person_look(id: int, job: int) -> String:
+	var l: Array = LOOKS_BY_JOB[clampi(job, 0, LOOKS_BY_JOB.size() - 1)]
+	return String(l[posmod(id, l.size())])
+
+
+## VAT -> full body hand-off: the instance's clip, clip time, smoothed position and yaw; the instance is removed now
+## (the body takes its place in the same frame). {} when `id` is not drawn as VAT.
+func handoff(id: int) -> Dictionary:
+	if not _live.has(id):
+		return {}
+	var e: Dictionary = _live[id]
+	var out := {"clip": crowd.clip_of(id), "time": crowd.clip_time(id), "pos": e["pos"], "yaw": float(e.get("yaw", 0.0))}
+	crowd.remove(id)
+	_live.erase(id)
+	return out
+
+
 func _look_for(id: int, job: int) -> String:
 	var l: Array = LOOKS_BY_JOB[clampi(job, 0, LOOKS_BY_JOB.size() - 1)]
 	for k in l.size():

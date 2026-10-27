@@ -329,19 +329,19 @@
  {
   "name": "Life_Mx_Sit_To_Stand",
   "loop": false,
-  "seconds": 4.83,
-  "frames": 146,
-  "keys": 1075,
-  "source": "sit_to_stand_chair.fbx",
+  "seconds": 2.23,
+  "frames": 68,
+  "keys": 1718,
+  "source": "stand_to_sit_chair.fbx",
   "range_s": [
    null,
    null
   ],
   "autotrim": null,
   "loop_pts": null,
-  "floor_fix_m": 0.054,
+  "floor_fix_m": 0.062,
   "contact_lift_m": 0.0,
-  "min_foot_m": -0.002,
+  "min_foot_m": -0.001,
   "travel_m": 0.0,
   "hip_scale": 0.8509
  },

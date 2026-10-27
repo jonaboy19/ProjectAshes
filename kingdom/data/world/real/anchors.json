@@ -1,0 +1,41 @@
+{
+ "_doc": "Hand-picked re-anchoring of the old 12 km Valencious layout onto the real-terrain world (tools/world/real_layout.py). old = old WorldGen metres, new = new world metres (x east, z south). valencious_box = [x0, z0, x1, z1] playable 16 x 16 km; outside it is region-locked.",
+ "valencious_box": [-12000, -7000, 4000, 9000],
+ "spread": 1.3,
+ "snap_radius_m": 750,
+ "anchors": {
+  "ashford": {"old": [0, 0], "new": [0, 0]},
+  "heartvale": {"old": [250, -250], "new": [200, 900]},
+  "heartvale_w": {"old": [-1000, -450], "new": [-1900, 300]},
+  "heartvale_e": {"old": [1450, -250], "new": [2000, 1600]},
+  "ridge_s": {"old": [0, -1900], "new": [-600, -3000]},
+  "ridge_n": {"old": [600, -3400], "new": [300, -5200]},
+  "ironmarch": {"old": [2250, -2250], "new": [2800, -3800]},
+  "silverrun": {"old": [2650, -1500], "new": [3200, 300]},
+  "duskbriar": {"old": [430, 560], "new": [700, 2600]},
+  "rift": {"old": [1150, 1000], "new": [2200, 4300]},
+  "scar": {"old": [2500, 2500], "new": [2900, 7200]},
+  "greywood": {"old": [-1500, 1750], "new": [-5000, 5600]},
+  "westfen": {"old": [0, 1500], "new": [-2600, 3600]},
+  "mistwood": {"old": [-3250, -300], "new": [-7200, -600]},
+  "dunhallow": {"old": [-2300, -2300], "new": [-5200, -4600]},
+  "harrowgate": {"old": [-100, 3300], "new": [-2600, 7600]},
+  "c_nw": {"old": [-6144, -6144], "new": [-11300, -6600]},
+  "c_ne": {"old": [6144, -6144], "new": [3700, -6700]},
+  "c_sw": {"old": [-6144, 6144], "new": [-10500, 8700]},
+  "c_se": {"old": [6144, 6144], "new": [3700, 8700]}
+ },
+ "pinned": {"Ashford": [0, 0]},
+ "settlement_kind": {"Kingsreach": "castle", "Saltwick": "port", "Blackwater": "port", "Highcliff": "keep", "Ravenscar": "keep", "Eastmere": "lakeside", "Stonehollow": "lakeside"},
+ "outer_labels": {
+  "FROSTCROWN HOLDS": [1500, -12500],
+  "AURELIS (EAST)": [10500, 1500],
+  "SOLKAR MARCHES": [-1500, 13500],
+  "TIDECLAD SEA": [-14800, 2000]
+ },
+ "region_labels": {
+  "Heartvale": [600, 1300], "Northern Ridge": [-300, -4300], "Ironmarch Highlands": [2700, -5300], "Silverrun": [3000, 0],
+  "Duskbriar": [900, 3000], "Rift Marches": [2300, 4800], "Ashen Scar": [2600, 7800], "Greywood & Emberfall": [-5300, 6200],
+  "Westfen Marsh": [-2800, 4100], "Mistwood": [-7600, -1200], "Dunhallow Uplands": [-5400, -5200], "Harrowgate Steppe": [-3000, 8300]
+ }
+}

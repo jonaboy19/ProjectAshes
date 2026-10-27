@@ -349,6 +349,21 @@
 				"camera": "low angle up at the throne; the player small in a long hall", "time": "afternoon"}
 		},
 		{
+			"id": "a3_found_camp", "act": 3, "title": "A Place of Your Own",
+			"objective": "Found a camp on good ground (press X)",
+			"journal": "The Ring cannot hold every refugee. Wren says a camp of our own, off the road, with water. I have to choose the ground.",
+			"giver": "wren_coldbrook", "place": "greenhollow_road",
+			"requires": {"steps": ["a3_council"]},
+			"dialogue": [{"node": "wren_camp"}, {"node": "wren_camp_after", "after": "found"}],
+			"objectives": [
+				{"id": "found", "type": "flag", "flag": "r1.a3.camp_founded"},
+				{"id": "told", "type": "flag", "flag": "r1.a3.camp_told"}
+			],
+			"tutorial": ["found_camp"],
+			"mechanics": {},
+			"staging": {"intensity": 2, "emotion": "hope after the council, a first thing that is yours", "music": "r1_village_day", "time": "afternoon"}
+		},
+		{
 			"id": "a3_scar_front", "act": 3, "title": "The Violet Line",
 			"objective": "Stop the Scar at Greenhollow's fields",
 			"journal": "The ground is moving. Burn it back, or fill a pack with crystal: the valley is watching which.",
@@ -477,7 +492,7 @@
 			"objective": "Keep vigil at the ring",
 			"journal": "Wren walked away in the rain. I knelt at the heart-stone, and Maren told me to block with the wood, not my face.",
 			"giver": "idra_vell", "place": "ashford_ring",
-			"requires": {"steps": ["a3_the_ledger"]},
+			"requires": {"steps": ["a3_the_ledger", "a3_found_camp"]},
 			"dialogue": [{"node": "wren_blame"}, {"node": "vigil", "after": "wren"}],
 			"objectives": [
 				{"id": "wren", "type": "flag", "flag": "r1.a4.wren_left"},

@@ -36,6 +36,8 @@ const BUDGET := 4               # concurrent NPCs with contact IK
 const REFRESH := 0.25           # s between ground / range checks
 
 static var _live := 0
+## Off with the command-line flag --no-contact-ik (A/B perf runs).
+static var enabled := not OS.get_cmdline_user_args().has("--no-contact-ik")
 static var cost_usec := 0      # diagnostics: summed modifier time (probe reads it)
 static var cost_calls := 0
 
@@ -43,6 +45,10 @@ var _b := {}
 var _t := 0.0
 var _body: Node3D               # the character root (ground probe origin, distance to the camera)
 var _anim: AnimationPlayer      # released as soon as the playing clip is no longer a contact clip
+var _clamped: Array = []        # [[MeshInstance3D, previous material_override]] while the floor-clamp body material is on
+
+const FLOOR_CLAMP := preload("res://shaders/npc/npc_floor_clamp.gdshader")
+static var _clamp_cache := {}   # source material id -> ShaderMaterial
 var _tips := {"l": PackedInt32Array(), "r": PackedInt32Array()}
 var _ok := false
 var _spine := -1
@@ -50,12 +56,14 @@ var _spine := -1
 
 ## Adds contact IK to `skeleton` if the NPC is near the camera and the budget allows. Returns the node or null.
 static func request(skeleton: Skeleton3D, body: Node3D, anim: AnimationPlayer = null) -> ContactIK:
-	if skeleton == null or body == null or _live >= BUDGET:
+	if not enabled or skeleton == null or body == null or _live >= BUDGET:
 		return null
 	var cam := body.get_viewport().get_camera_3d() if body.is_inside_tree() else null
 	if cam == null or cam.global_position.distance_to(body.global_position) > RANGE:
 		return null
 	var c := ContactIK.new()
+	if OS.has_environment("CIK_STATS"):
+		print("CIK_STATS request live=%d" % (_live + 1))
 	c.name = "ContactIK"
 	c._body = body
 	c._anim = anim
@@ -78,6 +86,9 @@ func _enter_tree() -> void:
 
 func _exit_tree() -> void:
 	_live -= 1
+	_unclamp()
+	if OS.has_environment("CIK_STATS"):
+		print("CIK_STATS live=%d calls=%d avg_ms=%.4f" % [_live, cost_calls, float(cost_usec) / maxf(cost_calls, 1) / 1000.0])
 
 
 func _ready() -> void:
@@ -112,6 +123,62 @@ func _refresh() -> void:
 		excl.append((_body as CollisionObject3D).get_rid())
 	var hit: Dictionary = SurfaceQuery.ground(space, _body.global_position, excl)
 	ground_y = float((hit.get("position", _body.global_position) as Vector3).y) if bool(hit.get("hit", false)) else _body.global_position.y
+	if _clamped.is_empty():
+		_clamp()
+	for e: Array in _clamped:
+		if is_instance_valid(e[0]):
+			(e[0] as GeometryInstance3D).set_instance_shader_parameter(&"floor_y", ground_y)
+
+
+## Body meshes get the floor-clamp material (cloth hems lie on the ground instead of sinking through it).
+func _clamp() -> void:
+	var sk := get_skeleton()
+	if sk == null:
+		return
+	for mi: MeshInstance3D in sk.find_children("*", "MeshInstance3D", true, false):
+		if mi.mesh == null or mi.mesh.get_surface_count() != 1 or mi.material_override is ShaderMaterial:
+			continue
+		var src := (mi.material_override if mi.material_override != null else mi.mesh.surface_get_material(0)) as BaseMaterial3D
+		if src == null:
+			continue
+		var key := src.get_instance_id()
+		var sm: ShaderMaterial = _clamp_cache.get(key)
+		if sm == null:
+			sm = _clamp_material(src)
+			_clamp_cache[key] = sm
+		_clamped.append([mi, mi.material_override])
+		mi.material_override = sm
+		mi.set_instance_shader_parameter(&"floor_y", ground_y)
+
+
+## The body's own StandardMaterial3D converted to its generated shader (exact same look), with the floor clamp
+## injected at the top of vertex(): skinned vertices below `floor_y + 6 mm` are laid onto the ground.
+static func _clamp_material(src: BaseMaterial3D) -> ShaderMaterial:
+	var sm := ShaderMaterial.new()
+	sm.shader = FLOOR_CLAMP
+	sm.set_shader_parameter("albedo_tex", src.albedo_texture)
+	sm.set_shader_parameter("has_tex", src.albedo_texture != null)
+	sm.set_shader_parameter("albedo_color", src.albedo_color)
+	sm.set_shader_parameter("roughness", src.roughness)
+	sm.set_shader_parameter("metallic", src.metallic)
+	sm.set_shader_parameter("specular", src.metallic_specular)
+	sm.set_shader_parameter("use_vertex_color", src.vertex_color_use_as_albedo)
+	sm.set_shader_parameter("vertex_color_srgb", src.vertex_color_is_srgb)
+	sm.set_shader_parameter("vc_to_srgb", not src.vertex_color_is_srgb)   # matches the StandardMaterial3D look (A/B shots)
+	sm.set_shader_parameter("has_normal", src.normal_enabled and src.normal_texture != null)
+	sm.set_shader_parameter("normal_tex", src.normal_texture)
+	sm.set_shader_parameter("normal_scale", src.normal_scale)
+	sm.set_shader_parameter("has_ao", src.ao_enabled and src.ao_texture != null)
+	sm.set_shader_parameter("ao_tex", src.ao_texture)
+	sm.set_shader_parameter("ao_light_affect", src.ao_light_affect)
+	return sm
+
+
+func _unclamp() -> void:
+	for e: Array in _clamped:
+		if is_instance_valid(e[0]):
+			(e[0] as MeshInstance3D).material_override = e[1]
+	_clamped.clear()
 
 
 func _resolve() -> void:

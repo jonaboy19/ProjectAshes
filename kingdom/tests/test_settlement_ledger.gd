@@ -54,3 +54,34 @@ func test_petition_verdict() -> void:
 	assert_bool(Founding.petition_verdict(1, 3, 0)).is_false()
 	assert_bool(Founding.petition_verdict(3, 1, 0)).is_false()
 	assert_bool(Founding.petition_verdict(3, 3, 5)).is_false()
+
+
+func test_touched_ui_scripts_compile() -> void:
+	for p: String in ["res://scripts/ui/world_map.gd", "res://scripts/actors/camera_occluders.gd"]:
+		var s: GDScript = load(p)
+		assert_bool(s != null and s.can_instantiate()).override_failure_message(p).is_true()
+
+
+func test_occluders_never_fade_the_talk_partner() -> void:
+	var Occ := preload("res://scripts/actors/camera_occluders.gd")
+	var o: Node = auto_free(Occ.new())
+	var hero := Node3D.new()
+	hero.set_script(null)
+	var partner := Node3D.new()
+	var mi := MeshInstance3D.new()
+	mi.mesh = BoxMesh.new()
+	partner.add_child(mi)
+	add_child(partner)
+	auto_free(partner)
+	auto_free(hero)
+	var host := _Host.new()
+	auto_free(host)
+	host._talk_partner = partner
+	o.ignore_root = host
+	assert_bool(o._fadeable(mi, Vector3(100, 0, 0))).is_false()
+	host._talk_partner = null
+	assert_bool(o._fadeable(mi, Vector3(100, 0, 0))).is_true()
+
+
+class _Host extends Node3D:
+	var _talk_partner: Node = null

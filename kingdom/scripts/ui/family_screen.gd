@@ -169,7 +169,21 @@ func _refresh() -> void:
 	if not heirs.is_empty():
 		content.add_child(_heading("Possible heirs"))
 		for h: Dictionary in heirs:
-			content.add_child(_body("%s, age %d." % [String(h["name"]), int(h["age"])]))
+			var named := int(h["id"]) == fam.designated_heir
+			var row := HBoxContainer.new()
+			var l := _body("%s, age %d.%s" % [String(h["name"]), int(h["age"]), "  (your named heir)" if named else ""])
+			l.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+			row.add_child(l)
+			if String(h.get("kind", "")) == "child" and not named:
+				var b := Button.new()
+				b.text = "Name as heir"
+				var hid := int(h["id"])
+				b.pressed.connect(func() -> void:
+					fam.designated_heir = hid
+					Game.say("%s is named your heir." % String(h["name"]))
+					_refresh())
+				row.add_child(b)
+			content.add_child(row)
 	var chron: Array = fam.chronicles_list()
 	if not chron.is_empty():
 		content.add_child(_heading("Chronicles of your family"))

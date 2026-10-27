@@ -75,6 +75,7 @@ const STANCES := {
 	"ride": [["Driving", "Sitting_Idle", "Sit_Floor_Idle"], ["Driving", "Sitting_Idle", "Sit_Floor_Idle"], 0.0],
 	"sit_chair": [["Life_Rest_Sit_Chair", "Sitting_Idle", "Sit_Floor_Idle"], ["Life_Rest_Sit_Chair", "Sitting_Idle", "Sit_Floor_Idle"], 0.0],
 	"sit_bench": [["Life_Rest_Sit_Bench", "Life_Rest_Sit_Chair", "Sitting_Idle"], ["Life_Rest_Sit_Bench", "Life_Rest_Sit_Chair", "Sitting_Idle"], 0.0],
+	"sit_mx": [["Life_Mx_Sit_Chair", "Life_Rest_Sit_Chair", "Sitting_Idle"], ["Life_Mx_Sit_Chair", "Life_Rest_Sit_Chair", "Sitting_Idle"], 0.0],   # pelvis 0.05 m behind the root, pairs with Life_Mx_Stand_To_Sit / Sit_To_Stand
 	"slide": [["Slide", "Slide_Loop", "Crouch_Idle"], ["Slide", "Slide_Loop", "Crouch_Idle"], 0.0],         # steep-slope slide (ground_realism.gd)
 }
 const STANCE_BLEND := 5.0        # 1/s cross-fade into and out of a stance

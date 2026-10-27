@@ -506,7 +506,8 @@
    ],
    "source": "authored (Blender key poses, tools/anim/life)",
    "frames": 161,
-   "seconds": 5.333
+   "seconds": 5.333,
+   "seat_back": 0.05
   },
   "Life_Write_Desk": {
    "category": "ambient/write",
@@ -587,7 +588,8 @@
    ],
    "source": "authored (Blender key poses, tools/anim/life)",
    "frames": 157,
-   "seconds": 5.2
+   "seconds": 5.2,
+   "seat_back": 0.05
   },
   "Life_Market_Arrange": {
    "category": "work/market",
@@ -947,7 +949,8 @@
    ],
    "source": "authored (Blender key poses, tools/anim/life)",
    "frames": 181,
-   "seconds": 6.0
+   "seconds": 6.0,
+   "seat_back": 0.05
   },
   "Life_Music_Lute": {
    "category": "social/music",
@@ -1058,7 +1061,8 @@
    ],
    "source": "authored (Blender key poses, tools/anim/life)",
    "frames": 97,
-   "seconds": 3.2
+   "seconds": 3.2,
+   "seat_back": 0.07
   },
   "Life_Music_Flute": {
    "category": "social/music",
@@ -1201,7 +1205,8 @@
    ],
    "source": "authored (Blender key poses, tools/anim/life)",
    "frames": 145,
-   "seconds": 4.8
+   "seconds": 4.8,
+   "seat_back": 0.05
   },
   "Life_Rest_Sit_Bench": {
    "category": "rest/sit",
@@ -1253,7 +1258,8 @@
    ],
    "source": "authored (Blender key poses, tools/anim/life)",
    "frames": 193,
-   "seconds": 6.4
+   "seconds": 6.4,
+   "seat_back": 0.35
   },
   "Life_Rest_Sit_Bench_Enter": {
    "category": "rest/sit",
@@ -1298,7 +1304,8 @@
    ],
    "source": "authored (Blender key poses, tools/anim/life)",
    "frames": 67,
-   "seconds": 2.2
+   "seconds": 2.2,
+   "seat_back": 0.35
   },
   "Life_Rest_Sit_Bench_Exit": {
    "category": "rest/sit",
@@ -1343,7 +1350,8 @@
    ],
    "source": "authored (Blender key poses, tools/anim/life)",
    "frames": 55,
-   "seconds": 1.8
+   "seconds": 1.8,
+   "seat_back": 0.35
   },
   "Life_Rest_Sit_Ground": {
    "category": "rest/sit",
@@ -1544,7 +1552,8 @@
    ],
    "source": "authored (Blender key poses, tools/anim/life)",
    "frames": 193,
-   "seconds": 6.4
+   "seconds": 6.4,
+   "seat_back": 0.02
   },
   "Life_Rest_Doze_Bench": {
    "category": "rest/sit",
@@ -1593,7 +1602,8 @@
    ],
    "source": "authored (Blender key poses, tools/anim/life)",
    "frames": 181,
-   "seconds": 6.0
+   "seconds": 6.0,
+   "seat_back": 0.35
   },
   "Life_Pray_Stand": {
    "category": "ritual/pray",

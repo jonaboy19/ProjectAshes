@@ -328,6 +328,22 @@ func _new_record(id: int, pos: Vector2, fname: String, who: String, founder: Str
 
 
 ## Starts a founding at `pos`: scouting begins. who "player" (capped at BuildKit.MAX_GRIDS) or "npc". Returns {ok, fid, reason, site}.
+## READY_V1 C3: what begin() would say for a player claim at `pos`, without starting anything. {ok, reason, site}.
+func check_site(pos: Vector2) -> Dictionary:
+	var ev := evaluate_site(pos)
+	if active_count("player") >= BuildKit.MAX_GRIDS:
+		return {"ok": false, "reason": "You can found at most %d settlements." % BuildKit.MAX_GRIDS, "site": ev}
+	for f2: Dictionary in _f.values():
+		if int(f2["end"]) < 0 and _pos(f2).distance_to(pos) < 120.0:
+			return {"ok": false, "reason": "Another founding is already here.", "site": ev}
+	if String(ev["blocked"]) != "":
+		return {"ok": false, "reason": String(ev["blocked"]), "site": ev}
+	var cmod := _mod("camps")
+	if float(ev["overall"]) < 0.2 or (cmod != null and float(ev["camp"]) < float(cmod.get("MIN_CAMP_SCORE"))):
+		return {"ok": false, "reason": "The ground is too poor to settle (little water, timber, high ground or road): " + String(ev["verdict"]), "site": ev}
+	return {"ok": true, "reason": "", "site": ev}
+
+
 func begin(pos: Vector2, fname := "", who := "player", founder := "") -> Dictionary:
 	if who == "player" and active_count("player") >= BuildKit.MAX_GRIDS:
 		return {"ok": false, "fid": 0, "reason": "You can found at most %d settlements." % BuildKit.MAX_GRIDS}
@@ -1275,6 +1291,20 @@ func _problems_step(f: Dictionary, day: int, n: float, msgs: Array) -> void:
 	# ongoing effects of what is unresolved
 	if has_problem(int(f["id"]), "food_shortage"):
 		(_civ()).call("add_pressure", String(f["node"]), "famine", 0.01 * n)
+
+
+## The player beat a raid on this settlement in person: the open "raid" problem is solved and raid pressure drops. True if one was open.
+func defend_raid(fid: int) -> bool:
+	var f: Dictionary = _f.get(fid, {})
+	if f.is_empty():
+		return false
+	for pr: Array in f["probs"]:
+		if String(pr[0]) == "raid" and int(pr[2]) < 0:
+			pr[2] = _day
+			(f["stress"] as Dictionary)["raid"] = 0.0
+			_hist(f, "a raid beaten off by its lord")
+			return true
+	return false
 
 
 func _bump(s: Dictionary, k: String, d: float) -> void:

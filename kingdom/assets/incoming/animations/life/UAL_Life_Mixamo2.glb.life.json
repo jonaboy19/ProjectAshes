@@ -23,8 +23,8 @@
    ],
    "note": "axe overhead onto a block, ~2.3 s; also the stand-in for mining/smithing until authored clips exist",
    "loop": true,
-   "frames": 68,
-   "seconds": 2.233
+   "frames": 60,
+   "seconds": 1.967
   },
   "Life_Mx_Plant_Kneel": {
    "layer": "full",
@@ -342,7 +342,8 @@
    "note": "seated idle, hands on knees (seat 0.45 m)",
    "loop": true,
    "frames": 89,
-   "seconds": 2.933
+   "seconds": 2.933,
+   "seat_back": 0.05
   },
   "Life_Mx_Sit_Chair_Talk": {
    "layer": "full",
@@ -366,7 +367,8 @@
    "note": "seated legs crossed, talking",
    "loop": true,
    "frames": 1349,
-   "seconds": 44.933
+   "seconds": 44.933,
+   "seat_back": 0.05
   },
   "Life_Mx_Sit_Floor": {
    "layer": "full",
@@ -397,7 +399,7 @@
    "props": [],
    "enter": null,
    "exit": null,
-   "blend_in": 0.3,
+   "blend_in": 0.0,
    "blend_out": 0.3,
    "events": {},
    "anchor": null,
@@ -410,17 +412,23 @@
    "tags": [
     "sit"
    ],
-   "note": "stand -> sit on a chair",
+   "note": "stand -> sit; END-aligned on Life_Mx_Sit_Chair (pelvis 5 cm behind the root); starts 0.36 m in front of its root (entry_offset: SmartObjects stands the NPC there and jumps the root under the body)",
    "loop": false,
    "frames": 68,
-   "seconds": 2.233
+   "seconds": 2.233,
+   "seat_back": 0.05,
+   "entry_offset": [
+    -0.022,
+    0.0,
+    0.362
+   ]
   },
   "Life_Mx_Sit_To_Stand": {
    "layer": "full",
    "props": [],
    "enter": null,
    "exit": null,
-   "blend_in": 0.3,
+   "blend_in": 0.0,
    "blend_out": 0.3,
    "events": {},
    "anchor": null,
@@ -433,10 +441,11 @@
    "tags": [
     "sit"
    ],
-   "note": "chair -> stand",
+   "note": "reverse of Life_Mx_Stand_To_Sit, shifted so it ENDS standing over its root: starts with the pelvis 0.46 m behind the root (seat_back), SmartObjects jumps the root with the cut (blend_in 0)",
    "loop": false,
-   "frames": 146,
-   "seconds": 4.833
+   "frames": 68,
+   "seconds": 2.233,
+   "seat_back": 0.463
   },
   "Life_Mx_Sleep_Bed": {
    "layer": "full",
@@ -558,8 +567,8 @@
    ],
    "note": "standing chat with gestures, 44 s",
    "loop": true,
-   "frames": 1337,
-   "seconds": 44.533
+   "frames": 432,
+   "seconds": 14.367
   },
   "Life_Mx_Pray_Kneel": {
    "layer": "full",
@@ -607,8 +616,8 @@
    ],
    "note": "bard lute",
    "loop": true,
-   "frames": 143,
-   "seconds": 4.733
+   "frames": 126,
+   "seconds": 4.167
   },
   "Life_Mx_Fiddle": {
    "layer": "full",

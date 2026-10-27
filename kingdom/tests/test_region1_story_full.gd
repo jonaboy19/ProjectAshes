@@ -110,6 +110,10 @@ func _perform(o: Dictionary, st: Dictionary) -> bool:
 			dir.parley(String(o["target"]))
 		"item":
 			Life.give(String(o["item"]), int(o.get("count", 1)))
+		"flag":
+			if String(o.get("flag", "")) != "r1.a3.camp_founded":
+				return false
+			Life.realm.mod("build_kit").founded.emit(1, 1)     # READY_V1 C3: a claim, as BuildKit.claim reports it
 		"any":
 			return _perform((o["of"] as Array)[0], st)
 		_:

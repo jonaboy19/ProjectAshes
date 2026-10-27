@@ -75,6 +75,8 @@ func test_kingsreach_keeps_the_reference_look() -> void:
 func _count_roof(plan: Dictionary, group: String) -> int:
 	var n := 0
 	for lot: Dictionary in plan["lots"]:
+		if bool(lot.get("infill", false)):
+			continue
 		if TownIdentity.roof_of(String(lot["asset"])) == group:
 			n += 1
 	return n
@@ -83,10 +85,13 @@ func _count_roof(plan: Dictionary, group: String) -> int:
 func test_roof_mix_follows_the_profile() -> void:
 	var ash: Dictionary = _town("Ashford")["plan"]
 	var ironmarch: Dictionary = _town("Ironmarch")["plan"]
-	var thatch_ash := float(_count_roof(ash, "thatch")) / float((ash["lots"] as Array).size())
-	var thatch_iron := float(_count_roof(ironmarch, "thatch")) / float((ironmarch["lots"] as Array).size())
-	var tall_ash := float(_count_roof(ash, "tall")) / float((ash["lots"] as Array).size())
-	var tall_iron := float(_count_roof(ironmarch, "tall")) / float((ironmarch["lots"] as Array).size())
+	# planned lots only (the towns medieval frontage infill is appended after them, see CityPlanner._frontage)
+	var na := float(ash.get("infill_from", (ash["lots"] as Array).size()))
+	var ni := float(ironmarch.get("infill_from", (ironmarch["lots"] as Array).size()))
+	var thatch_ash := float(_count_roof(ash, "thatch")) / na
+	var thatch_iron := float(_count_roof(ironmarch, "thatch")) / ni
+	var tall_ash := float(_count_roof(ash, "tall")) / na
+	var tall_iron := float(_count_roof(ironmarch, "tall")) / ni
 	assert_float(thatch_ash).is_greater(thatch_iron + 0.2)
 	assert_float(tall_iron).is_greater(tall_ash + 0.15)
 
@@ -98,6 +103,8 @@ func _extent(plan: Dictionary, axis: Vector2) -> Vector2:
 	var along := 0.0
 	var across := 0.0
 	for lot: Dictionary in plan["lots"]:
+		if bool(lot.get("infill", false)):
+			continue      # the planned layout shape (frontage infill stays inside it)
 		var v: Vector2 = (lot["pos"] as Vector2) - c
 		along = maxf(along, absf(v.dot(axis)))
 		across = maxf(across, absf(v.dot(n)))
@@ -115,8 +122,8 @@ func test_layout_shapes_differ() -> void:
 	var e2 := _extent(iron, TownIdentity.main_axis(iron["gates"]))
 	assert_float(e2.y).is_greater(e2.x * 0.6)
 	# Farming villages are loose: well under the 31-34 homes the same village had when every town used one layout.
-	assert_int((_town("Millbrook")["plan"]["lots"] as Array).size()).is_less(31)
-	assert_int((_town("Ironmarch")["plan"]["lots"] as Array).size()).is_greater(100)
+	assert_int(int(_town("Millbrook")["plan"].get("infill_from", 0))).is_less(31)
+	assert_int(int(_town("Ironmarch")["plan"].get("infill_from", 0))).is_greater(100)
 	# Religious towns put the temple (a bell tower in a village) at the heart of a big close.
 	for name: String in ["Westfen", "Amberley"]:
 		var s := _town(name)

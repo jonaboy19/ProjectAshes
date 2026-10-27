@@ -20,6 +20,9 @@ const Flow := preload("res://scripts/ui/frontend/flow.gd")
 const GameMenu := preload("res://scripts/ui/gamemenu/game_menu.gd")
 const NpcWorld := preload("res://scripts/population/npc_world.gd")
 const TravelRules := preload("res://scripts/world/travel_rules.gd")
+const FoundFlow := preload("res://scripts/realm/found_flow.gd")
+const SettlementSim := preload("res://tools_qa/v1/settlement_sim.gd")
+const FLAT_TOL := 1.2      # metres of fall within 14 m the bot accepts for a camp site (the live terrain is rougher than the sim's)
 const STUCK_SECS := 25.0
 var SHOT_DIR := "/tmp/claude-0/shots/playtest"
 
@@ -333,18 +336,34 @@ func walk_to(target: Vector2, tol := 2.5, timeout := 90.0, sprint := true, stuck
 	hold("sprint", sprint)
 	hold("move_forward", true)
 	var ok := false
+	var detour_until := -1.0
+	var detour_side := 1.0
+	var last_detour := now()
 	while now() - t_start < timeout:
+		if get_tree().paused:
+			# a modal card (life-event popup: the age-12 Blessing, childhood moments) pauses the game; a player answers it
+			await dismiss_popups()
+			best_t = now()
 		var d := p2().distance_to(target)
 		if d <= tol:
 			ok = true
 			break
-		face(target, -0.15)
+		# no progress for 1.5 s: walk around the obstacle (65 deg off the line, alternating sides) before declaring stuck
+		if now() - maxf(best_t, last_detour) > 1.5 and now() > detour_until:
+			detour_until = now() + 1.6
+			detour_side = -detour_side
+			last_detour = now()
+		if now() < detour_until:
+			face(p2() + (target - p2()).rotated(deg_to_rad(65.0) * detour_side), -0.15)
+		else:
+			face(target, -0.15)
 		if d < best - 0.4:
 			best = d
 			best_t = now()
 			beat("walk %d" % roundi(d))
 		elif now() - best_t > stuck_s:
 			L("walk_to stuck at %s, %.1f m from %s" % [_pos2s(), d, str(target)])
+			L("  player state: %s" % _player_state())
 			break
 		await get_tree().process_frame
 		if _cancelled(g):
@@ -574,6 +593,10 @@ func _run_all() -> void:
 		["st_a4", _s_st_a4], ["st_a5", _s_st_a5], ["st_save", _s_st_save], ["st_probe", _s_st_probe],
 		["v1_recruit", _s_v1_recruit],
 		["v1_hunt", _s_v1_hunt],
+		["v1_found", _s_v1_found],
+		["v1_settle", _s_v1_settle],
+		["v1_lord", _s_v1_lord],
+		["scen_a", _s_scen_a],
 	]
 	for e: Array in list:
 		if not _want(String(e[0])) and (String(e[0]) != "adult" or only.contains("st_")):
@@ -611,6 +634,10 @@ func _stage_limit(name: String) -> float:
 		"st_load", "st_probe": return 400.0
 		"v1_recruit": return 600.0
 		"v1_hunt": return 240.0
+		"v1_found": return 400.0
+		"v1_settle": return 700.0
+		"v1_lord": return 900.0
+		"scen_a": return 600.0
 		"st_save": return 200.0
 		"st_birth", "st_a1", "st_a2", "st_a3", "st_a4", "st_a5": return 1500.0
 	return 150.0
@@ -1725,6 +1752,12 @@ func _fight(e: Node3D, label: String, limit: float) -> bool:
 	var healed := false
 	var shots_taken := 0
 	var close_since := -1.0
+	# Obstacle steering: when holding forward stops closing the distance (a wall, a fence, a rock between us), walk around it:
+	# steer DETOUR_DEG off the straight line for DETOUR_S, alternating sides, then try straight again.
+	var best_d := INF
+	var best_t := now()
+	var detour_until := -1.0
+	var detour_side := 1.0
 	while now() - t_start < limit:
 		if not is_instance_valid(e) or bool(e.get("dead")):
 			break
@@ -1733,7 +1766,20 @@ func _fight(e: Node3D, label: String, limit: float) -> bool:
 			break
 		var ep := Vector2(e.global_position.x, e.global_position.z)
 		var d := p2().distance_to(ep)
-		face(ep, -0.2)
+		if d < best_d - 0.3:
+			best_d = d
+			best_t = now()
+		if d > 2.0 and now() - best_t > 1.5 and now() > detour_until:
+			detour_until = now() + 1.4
+			detour_side = -detour_side
+			best_t = now()
+			best_d = d
+			L("fight %s: no progress at %.1f m, walking around (%s)" % [label, d, "left" if detour_side > 0.0 else "right"])
+		if now() < detour_until:
+			var to := (ep - p2()).rotated(deg_to_rad(65.0) * detour_side)
+			face(p2() + to, -0.2)
+		else:
+			face(ep, -0.2)
 		# a small (child) body is held off by the foe's collider at ~2.3-2.6 m: after 3 s that close, swing from there (the swing's own lunge closes the gap)
 		if d <= 3.2:
 			if close_since < 0.0:
@@ -4672,16 +4718,19 @@ func _st_objective(sid: String, o: Dictionary) -> bool:
 			var fell := await st_fight_group(t, int(o.get("count", 1)), 260.0, tag)
 			return fell > 0
 		"festival":
-			st_hook("Kindling Night: the festival signal (the calendar date is %d days away)" % 0)
-			WorldSim.seasons.festival_started.emit({"id": "kindling_night", "name": "Kindling Night"})
+			# READY_V1 C3: the player sleeps and takes the "seasons pass" card (no [HOOK]); the festival then starts through the calendar
+			if not await st_seasons_pass("festival"):
+				st_hook("Kindling Night: the festival signal (the seasons-pass card did not offer it)")
+				WorldSim.seasons.festival_started.emit({"id": "kindling_night", "name": "Kindling Night"})
 			await wait(0.5)
 			return true
 		"age":
 			var want := int(o["min"])
-			st_hook("age %d -> %d (the years pass)" % [Life.age(), want])
-			WorldSim.time_of_day = 7.4
-			Life.life_path.set_age(want, WorldSim.day, WorldSim.time_of_day)
-			player.apply_age()
+			if not await st_seasons_pass("age"):
+				st_hook("age %d -> %d (the years pass: the seasons-pass card did not offer it)" % [Life.age(), want])
+				WorldSim.time_of_day = 7.4
+				Life.life_path.set_age(want, WorldSim.day, WorldSim.time_of_day)
+				player.apply_age()
 			await wait(1.0)
 			if is_headless():
 				# the older, taller body can end up inside the doorway collider it was standing in: step out to the plaza
@@ -4712,6 +4761,10 @@ func _st_objective(sid: String, o: Dictionary) -> bool:
 			return await st_do_scar(o, st)
 		"defeat":
 			return await st_do_defeat(o, st)
+		"flag":
+			if String(o.get("flag", "")) == "r1.a3.camp_founded":
+				return await st_found_camp()
+			return false     # the other flags are set by the talk sheet
 		"ember_choice":
 			return false     # offered through the talk sheet (Rowan's extra options)
 		"any":
@@ -5366,6 +5419,178 @@ func _s_st_save() -> void:
 		L("  hook: " + h)
 
 
+## Sleeps (what the bed's "Sleep" option calls) and, when the story waits on the years or a festival, takes the seasons-pass
+## card's first choice like a player. false when no card came.
+func st_seasons_pass(kind: String) -> bool:
+	Life.sleep(1.0)
+	await wait(0.6)
+	var pop: Control = hud.get_node_or_null("LifeEventPopup")
+	if pop == null or not pop.visible:
+		note("sleeping did not offer the seasons-pass card (%s)" % kind)
+		return false
+	check("sleeping at a %s gate offers the seasons-pass card" % kind, String(pop._title_label.text).to_lower().contains("seasons"), pop._body_label.text.left(70))
+	(pop._choices.get_child(0) as Button).pressed.emit()
+	await wait(0.6)
+	return true
+
+
+## A free spot the Found-a-camp card accepts, searched in rings around `from` (a player walks until the card says yes).
+func st_camp_spot(from: Vector2) -> Vector2:
+	for r in [160.0, 260.0, 380.0, 520.0, 700.0, 900.0, 1200.0, 1600.0, 2200.0]:
+		for k in 32:
+			var a := TAU * float(k) / 32.0
+			var p: Vector2 = from + Vector2(cos(a), sin(a)) * float(r)
+			if FoundFlow.site_card(Life.realm, p)["ok"] and SettlementSim._flat(p, FLAT_TOL):
+				return p
+	return Vector2.INF
+
+
+## READY_V1 C3: walk to open ground, press X, read the card, name the camp, confirm; the story flag follows.
+func st_found_camp() -> bool:
+	var before: int = Life.realm.player_settlements().size()
+	var spot := st_camp_spot(p2())
+	if spot == Vector2.INF:
+		spot = st_camp_spot(ashford()["pos"])
+	if spot == Vector2.INF:
+		st_blocker("no flat ground within 2.2 km accepts a camp")
+		return false
+	await st_travel(spot, "a camp site", 3.0)
+	if not FoundFlow.site_card(Life.realm, p2())["ok"]:
+		await teleport(spot, 0.0, 1.0)      # walked to a near spot the card refuses (a road): the exact one is checked
+	close_everything()
+	await key(KEY_X)
+	await wait(0.4)
+	var card: Control = hud.get_node_or_null("FoundCampCard")
+	if not check("X opens the Found a camp card", card != null and card.visible):
+		return false
+	check("the card lists the water, slope, danger and land law", (card.card["rows"] as Array).size() >= 4, str((card.card["rows"] as Array).map(func(r: Array) -> String: return String(r[0]))))
+	check("the card accepts this ground", bool(card.card["ok"]), String(card.card["reason"]))
+	card.name_edit.text = "Embergate"
+	card.confirm_button.pressed.emit()
+	await wait(0.6)
+	var rows: Array = Life.realm.player_settlements()
+	check("a camp is founded: one settlement row more", rows.size() == before + 1, "%d -> %d" % [before, rows.size()])
+	if rows.size() > before:
+		check("the camp has the chosen name and a founding record", String(rows[rows.size() - 1]["name"]) == "Embergate" and int(rows[rows.size() - 1]["fid"]) > 0, str(rows[rows.size() - 1]))
+	check("the story learned of the camp", st_q().has_flag("r1.a3.camp_founded"))
+	return rows.size() > before
+
+
+## READY_V1 C3: the Found-a-camp flow on its own (needs no story progress): found a camp, then place three kit pieces on it.
+func _s_v1_found() -> void:
+	await _st_ready()
+	if Life.age() < 15:
+		set_age(16)
+	var ok := await st_found_camp()
+	if not ok:
+		return
+	var rows: Array = Life.realm.player_settlements()
+	var row: Dictionary = rows[rows.size() - 1]
+	var bk: RefCounted = Life.realm.mod("build_kit")
+	var gid := int(row["gid"])
+	var o: Array = bk.grids[gid]["origin"]
+	for k in 3:
+		var snap: Dictionary = bk.snap_world(gid, "foundation_timber", Vector3(float(o[0]) + 2.0 * float(k), float(o[1]), float(o[2])), 0, 0)
+		var pr: Dictionary = bk.place(gid, snap, true)
+		check("kit piece %d placed on the new camp" % (k + 1), bool(pr["ok"]), str(pr.get("reason", "")))
+	check("the camp holds 3 pieces", (bk.grids[gid]["pieces"] as Dictionary).size() == 3)
+	check("claiming the same ground again founds nothing new", not bool(FoundFlow.found(Life.realm, p2(), "Again")["ok"]))
+	await shot("v1_found")
+
+
+## READY_V1 C4: the camp grows. Found a camp, hire three followers, stock the pack, lay the player's plans day by day while the
+## clock runs (the game's own hourly hub ticks), and read the Settlement page of the Affairs desk. Reaches a Hamlet; the full run to a
+## Village is the 120-day sim (tools_qa/v1/settlement_sim.gd, tests/test_v1_settlement_growth.gd).
+func _s_v1_settle() -> void:
+	await _st_ready()
+	if Life.age() < 15:
+		set_age(16)
+	if not await st_found_camp():
+		return
+	var rows: Array = Life.realm.player_settlements()
+	var gid := int(rows[rows.size() - 1]["gid"])
+	var kit: RefCounted = Life.realm.mod("build_kit")
+	var growth: RefCounted = Life.realm.mod("growth")
+	var fm: RefCounted = Life.realm.mod("followers")
+	for i in 3:
+		fm.hire("guard", "s0", true, "bot%d" % i)
+	for item: String in SettlementSim.BAG:
+		Life.give(item, int(SettlementSim.BAG[item]))
+	L("[HOOK] pack stocked with building materials; three followers hired directly; WorldSim.advance_hours(24) per day (game time crawls at 1-2 fps)")
+	var tiers_seen: Array = []
+	growth.tier_reached.connect(func(_g: int, t: int, _n: String) -> void: tiers_seen.append(t))
+	for day in range(1, 41):
+		SettlementSim._player_turn(kit, gid, day)
+		WorldSim.advance_hours(24.0)
+		var guard := 0
+		while not Life.realm._queue.is_empty() and guard < 40000:      # the hub works its queue off a little each frame: drain the day
+			Life.realm.pump()
+			guard += 1
+		await frames(1)
+	var l: Dictionary = growth.ledger(gid)
+	note("after 40 days: %s, %d people, %.1f days of food, contentment %.2f" % [l["tier_name"], l["pop"], l["food_days"], l["content"]])
+	check("the camp's people grew past the first two", int(l["pop"]) > 2, str(l["pop"]))
+	check("the camp became a hamlet", int(l["tier"]) >= 1 and tiers_seen.has(1), "tier %s, seen %s" % [l["tier_name"], str(tiers_seen)])
+	check("houses stand", int(l["houses"]) >= 2, "%d houses" % int(l["houses"]))
+	GameMenu.open(hud, "affairs")
+	var page: Variant = hud.get_node("GameMenu").call("_page", "affairs")
+	page.call("set_view", "settlement")
+	await frames(2)
+	var texts: Array = (page.panels["settlement"] as Control).call("texts")
+	check("the Settlement page shows the ledger", "\n".join(texts).contains("%d people, room for %d" % [int(l["pop"]), int(l["capacity"])]), str(texts.slice(0, 4)))
+	close_everything()
+
+
+## READY_V1 C5: the camp grows to a Village (days fast-forwarded with WorldSim.advance_hours, the hub's own ticks) and the realm makes
+## you its lord: the title, the Steward's Post at the camp, the notification card, the Lord's Council on the founded index.
+func _s_v1_lord() -> void:
+	await _st_ready()
+	if Life.age() < 15:
+		set_age(16)
+	if not await st_found_camp():
+		return
+	var rows: Array = Life.realm.player_settlements()
+	var gid := int(rows[rows.size() - 1]["gid"])
+	var kit: RefCounted = Life.realm.mod("build_kit")
+	var growth: RefCounted = Life.realm.mod("growth")
+	var fm: RefCounted = Life.realm.mod("followers")
+	for i in 3:
+		fm.hire("guard", "s0", true, "bot%d" % i)
+	for item: String in SettlementSim.BAG:
+		Life.give(item, int(SettlementSim.BAG[item]))
+	L("[HOOK] pack stocked with building materials; three followers hired directly; WorldSim.advance_hours(24) per day (game time crawls at 1-2 fps)")
+	var idx: int = Life.lordship.founded_idx(gid)
+	for day in range(1, 91):
+		SettlementSim._player_turn(kit, gid, day)
+		WorldSim.advance_hours(24.0)
+		var guard := 0
+		while not Life.realm._queue.is_empty() and guard < 40000:
+			Life.realm.pump()
+			guard += 1
+		await frames(1)
+		if Life.lordship.is_lord_of(idx):
+			note("lord of the camp on bot day %d (%s, %d people)" % [day, growth.tier_name(gid), int(growth.state_of(gid)["pop"])])
+			break
+	check("the Village tier was reached", int(growth.state_of(gid)["tier"]) >= 2, growth.tier_name(gid))
+	check("the realm made the player lord of the camp, once", Life.lordship.is_lord_of(idx) and Life.lordship.held_settlements().filter(func(i: int) -> bool: return Life.lordship.is_founded_idx(i)).size() == 1)
+	var tid: String = preload("res://scripts/sim/founded_lord.gd").title_id(gid)
+	check("the title \"Lord of <camp>\" is earned", Life.titles.has(tid), String(Life.titles.get_def(tid).get("name", "")))
+	await frames(2)
+	var pop: Control = hud.get_node_or_null("LifeEventPopup")
+	check("a notification card announces the lordship", pop != null and pop.visible and String(pop._title_label.text).to_lower().contains("lord of"))
+	dismiss_popups()
+	var posts := 0
+	for c in main.lord_hall.get_children():
+		if c is Station and String(c.get("title")) == "Steward":
+			posts += 1
+	check("the Steward's Post stands at the camp", main.lord_hall._spawned.has(idx), "%d posts" % posts)
+	var council: Control = preload("res://scripts/ui/lord_council.gd").open_for(hud, idx)
+	await frames(2)
+	check("the Lord's Council opens for the camp", council.visible and String(council._box.get_node("Head").text).contains(growth.settlement_name(gid)), String(council._box.get_node("Head").text))
+	council.call("close_screen")
+	close_everything()
+
+
 func _s_st_load() -> void:
 	var path := out_dir.path_join("st_digest.json")
 	var before: Dictionary = {}
@@ -5408,3 +5633,34 @@ func _s_st_load() -> void:
 				diffs.append("%s: %s -> %s" % [k, JSON.stringify(a).left(100), JSON.stringify(b).left(100)])
 		check("chain load: the story (steps, flags, age, name) is what the last run saved", diffs.is_empty(), "; ".join(diffs))
 	await shot("chain_loaded")
+
+
+## Why the player might not move (stuck diagnostics).
+func _player_state() -> String:
+	var trav: Variant = player.get("_trav")
+	var ts := ""
+	if trav is Object:
+		for k in ["state", "_state", "mode", "_mode", "active"]:
+			var v: Variant = (trav as Object).get(k)
+			if v != null:
+				ts += "%s=%s " % [k, str(v)]
+	var fr := "pm %d can_process %s phys %s paused %s input %s" % [player.process_mode, str(player.can_process()), str(player.is_physics_processing()),
+			str(get_tree().paused), str(Input.get_vector("move_left", "move_right", "move_forward", "move_back"))]
+	var anc := ""
+	var n: Node = player.get_parent()
+	while n != null:
+		if n.process_mode == Node.PROCESS_MODE_DISABLED:
+			anc += n.name + "(disabled) "
+		n = n.get_parent()
+	return fr + " " + anc + " | " + "vel %s floor %s dead %s stunned %.2f mount %s seated %s carry %s dodge %.2f land %.2f lock %.2f swim %s trav[%s] menu %s ui %s anim_full %s" % [
+		str((player as CharacterBody3D).velocity.snapped(Vector3(0.01, 0.01, 0.01))), str((player as CharacterBody3D).is_on_floor()), str(player.dead),
+		float(player.get("_stunned")), str(player.get("_mount")), str(player.has_meta("seated_on")), str(player.get("_carry")),
+		float(player.get("_dodge")), float(player.get("_land_time")), float(player.get("_land_lock")), str(player.get("swimming")), ts,
+		str(hud != null and is_instance_valid(hud) and hud.is_menu_open()), str(player.call("_ui_blocking")),
+		str(player.get("_animator").call("is_full_busy") if player.get("_animator") else "-")]
+
+
+## Acceptance scenario A (WP-01): tools_qa/acceptance/movement_chain.gd.
+func _s_scen_a() -> void:
+	var chain: RefCounted = (load("res://tools_qa/acceptance/movement_chain.gd") as GDScript).new()
+	await chain.call("run", self)

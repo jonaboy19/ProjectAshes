@@ -11,6 +11,8 @@ extends "res://scripts/realm/realm_module.gd"
 ##   edge ez(i,k) -> along Z at (2i+1, *, 2k): between cells (i,k) and (i+1,k)        (rot 1 / 3)
 ##   storey L     -> floor height 0.5 + 3 L (foundation top = 0.5)
 
+signal founded(gid: int, fid: int)         # READY_V1 C3: a claim made a new settlement (the story step a3_found_camp listens)
+
 const CATALOG_PATH := "res://data/build_kit/pieces.json"
 const CELL := 2.0
 const STOREY := 3.0
@@ -221,6 +223,8 @@ func claim(world: Vector3, claim_kind := "squat", name := "", fid := 0) -> Dicti
 		if fd != null and fid > 0:
 			_link(int(r["gid"]), fid)
 	r["founded"] = bool(r["ok"])
+	if bool(r["ok"]):
+		founded.emit(int(r["gid"]), fid)
 	return r
 
 

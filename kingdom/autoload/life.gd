@@ -1,4 +1,4 @@
-extends Node
+﻿extends Node
 ## The player's life in the world: employment (RACareers), hunger and sleep
 ## (RANeeds), possessions (a GLoot Inventory), the village market (RAMarket),
 ## merit, and save/load of the whole simulation.
@@ -11,6 +11,7 @@ signal inventory_changed
 signal region1_kill(species: String, where: Vector3)
 signal employment_changed
 signal grown(age: int)
+signal slept(hours: float)              # READY_V1 C3: after sleep() / sleep_until() (the seasons-pass card listens)
 
 const PROTOSET := "res://data/items.json"
 const SAVE_PATH := "user://save_%d.json"
@@ -96,6 +97,7 @@ const RECORD_TO_MASTERY := {
 	"helped_farmer": "farming", "farmed": "farming", "hunted": "hunting", "fished": "fishing",
 	"trained_sword": "swordsmanship", "trained_bow": "archery", "traded": "trading",
 	"adventured": "soldiering", "studied": "scholarship", "meditated": "faith", "worked": "farming",
+	"mined": "mining", "chopped_wood": "carpentry", "foraged": "herbalism",
 }
 const ORG_TO_CAREER := {"guard": "soldier", "smithy": "blacksmith", "inn": "innkeeper"}
 var homestead := preload("res://scripts/sim/homestead.gd").new()
@@ -141,7 +143,7 @@ func _ready() -> void:
 const STATE := ["life_path", "titles", "triggers", "careers", "guild", "magicules", "naming", "injuries", "scouts",
 	"discovery", "relationships", "npc_social_graph", "radiant", "crafting", "equipment", "skills", "mastery", "biography", "property",
 	"nobility", "lordship", "family", "soul", "skill_evolution", "echoes", "life_courses", "war", "realm",
-	"homestead", "tendencies", "element_places", "childhood_events", "awakening", "needs", "market", "economy"]
+	"homestead", "tendencies", "element_places", "trade_ranks", "childhood_events", "awakening", "needs", "market", "economy"]
 
 
 ## A brand-new run: Game, WorldSim, Frontier, Region 1 and every object Life owns go back to their
@@ -262,6 +264,7 @@ func _new_life() -> void:
 			biography.start_chapter("lord", "", "lord", place, WorldSim.day)
 			biography.add_highlight("Granted the village of %s" % place, WorldSim.day)
 			Game.say("You are now lord of %s." % place))
+	preload("res://scripts/sim/founded_lord.gd").bind(realm, lordship, titles)   # READY_V1 C5: a camp that grows into a village makes you its lord
 	_last_abs = _abs_hours()
 	give("bread", 2)
 	_begin_life()
@@ -509,6 +512,8 @@ func commit_craft_action(token: String, recipe_id: String, requested_kinds: Arra
 		return crafting.call("craft", recipe_id, self, allowed_kinds, ctx)
 	var result: Dictionary = action_runtime.commit(token, now_s, check, apply)
 	_craft_station_actions.erase(token)
+	if bool(result.get("ok", false)) and String(crafting.call("recipe", recipe_id).get("skill", "")) == "cooking":
+		record("cooked")   # the cook trade rank (trade_ranks.gd)
 	return result
 
 
@@ -571,6 +576,8 @@ func _life_tick(hour: int) -> void:
 		"age": age(), "flags": life_path.flags, "day": WorldSim.day})
 	if hour == 0:
 		_career_daily()
+		for line: String in trade_ranks.update(mastery, life_path.actions):
+			Game.say(line)
 		for msg: String in homestead.daily_tick(WorldSim.day):
 			Game.say(msg)
 	for msg: String in skills.sync_progress(skills.ctx_from_life(self)):
@@ -646,7 +653,7 @@ func _present_childhood_event(ev: Dictionary) -> void:
 		return
 	var opts: Array = []
 	for c: Dictionary in ev.get("choices", []):
-		opts.append([String(c.get("text", "…")), _childhood_choice.bind(c)])
+		opts.append([String(c.get("text", "â€¦")), _childhood_choice.bind(c)])
 	LifeEventPopup.present(hud, {"title": "Growing Up", "body": String(ev.get("text", "")), "choices": opts})
 
 
@@ -693,7 +700,7 @@ func _awakening_text(r: Dictionary) -> String:
 	var text := "The temple bell tolls, and %s leaning toward %s answers your call." % [
 		tier_words.get(String(r["tier"]), "a"), el]
 	if String(r.get("dual", "")) != "":
-		text += " A second element, %s, answers too — rare enough that the whole village will talk about it." % String(r["dual"])
+		text += " A second element, %s, answers too â€” rare enough that the whole village will talk about it." % String(r["dual"])
 	return text
 
 
@@ -811,7 +818,7 @@ func _offer(e: Dictionary) -> void:
 	pending_offers.append(e)
 	var sc: Dictionary = e.get("scout", {})
 	var org: Dictionary = e.get("org", {})
-	Game.say("%s of %s has been watching you. Open Pack → Journal → Scouting Offers to answer." % [
+	Game.say("%s of %s has been watching you. Open Pack â†’ Journal â†’ Scouting Offers to answer." % [
 		sc.get("name", "A stranger"), org.get("name", "somewhere")])
 
 
@@ -1264,6 +1271,7 @@ func sleep(quality := 1.0) -> String:
 	_last_abs = _abs_hours()
 	if player and player.get("health") != null:
 		player.heal(int(20 * hours * quality))
+	slept.emit(hours)
 	return "You sleep %d hours and wake %s." % [int(hours), needs.rest_label().to_lower()]
 
 
@@ -1279,6 +1287,7 @@ func sleep_until(hour: float, quality := 1.0) -> String:
 	_last_abs = _abs_hours()
 	if player and player.get("health") != null:
 		player.heal(int(20 * hours * quality))
+	slept.emit(hours)
 	return "You rest %d hours and wake at %02d:00, %s." % [int(roundf(hours)), int(hour), needs.rest_label().to_lower()]
 
 
@@ -1640,7 +1649,7 @@ func _snapshot_steps_raw() -> Array:
 	for key: String in ["life_path", "titles", "triggers", "guild", "magicules", "naming", "injuries", "scouts", "discovery",
 			"relationships", "npc_social_graph", "mastery", "biography", "property", "nobility", "lordship", "family",
 			"life_courses", "war", "soul", "skill_evolution", "echoes", "radiant", "crafting", "world_events",
-			"equipment", "skills", "homestead", "tendencies", "element_places", "childhood_events", "awakening"]:
+			"equipment", "skills", "homestead", "tendencies", "element_places", "trade_ranks", "childhood_events", "awakening"]:
 		steps.append([key, func() -> Variant: return get(key).serialize()])
 	# The realm (532 KB, 9-13 ms in one go) is collected a module per step.
 	for rk: String in realm.ORDER:
@@ -1656,6 +1665,7 @@ func _snapshot_steps_raw() -> Array:
 		interactives["takedown"] = preload("res://scripts/combat/takedown.gd").serialize(now_ms)
 		interactives["guard_alert"] = preload("res://scripts/population/alert_net.gd").serialize(now_ms)
 		return interactives])
+	steps.append(["world_version", func() -> Variant: return RealWorld.WORLD_VERSION if RealWorld.active() else 2])   # W6
 	steps.append(["player", func() -> Variant:
 		if player and is_instance_valid(player):
 			return {"x": player.global_position.x, "y": player.global_position.y,
@@ -1705,17 +1715,23 @@ func restore(d: Dictionary) -> void:
 		life_path.deserialize(d["life_path"])
 		titles.deserialize(d.get("titles", {}))
 		triggers.deserialize(d.get("triggers", {}))
-	for key: String in ["guild", "magicules", "naming", "injuries", "scouts", "discovery", "relationships", "npc_social_graph", "radiant", "crafting", "equipment", "skills", "homestead", "tendencies", "element_places", "childhood_events", "awakening", "mastery", "biography", "property", "nobility", "lordship", "family", "life_courses", "war", "soul", "skill_evolution", "echoes", "realm"]:
+	for key: String in ["guild", "magicules", "naming", "injuries", "scouts", "discovery", "relationships", "npc_social_graph", "radiant", "crafting", "equipment", "skills", "homestead", "tendencies", "element_places", "trade_ranks", "childhood_events", "awakening", "mastery", "biography", "property", "nobility", "lordship", "family", "life_courses", "war", "soul", "skill_evolution", "echoes", "realm"]:
 		if d.has(key):
 			get(key).deserialize(d[key])
 	appearance = d.get("appearance", {})
 	if player and is_instance_valid(player) and player.has_method("apply_appearance"):
 		player.apply_appearance()
+	preload("res://scripts/sim/founded_lord.gd").sync_titles(lordship, titles)   # READY_V1 C5: the title definitions are not saved
 	realm.warm_up()
 	_last_abs = _abs_hours()
 	if d.has("player") and player and is_instance_valid(player):
 		var p: Dictionary = d["player"]
 		player.global_position = Vector3(p["x"], p["y"], p["z"])
+		if RealWorld.active() and int(d.get("world_version", 2)) < RealWorld.WORLD_VERSION:
+			# W6: a save from the old 12 km world. Positions move with the real-world layout; the player lands on the new ground.
+			var np := RealWorld.remap(Vector2(float(p["x"]), float(p["z"])))
+			player.global_position = Vector3(np.x, WorldGen.height(np.x, np.y) + 1.0, np.y)
+			Game.toast.emit("The land has changed: Valencious was remade. Your journey continues near the same place on the new map.")
 		if bool(player.get("dead")) and player.has_method("revive"):
 			player.revive(false)     # a save loaded from the death screen
 		if player.has_method("set_health"):
@@ -1849,7 +1865,7 @@ func _on_old_age_death() -> void:
 		preload("res://scripts/region1/ember_legacy.gd").emit_life_ended(biography, echoes, life_path.full_name(), age(),
 			life_path.family_name, WorldSim.day, {"place": String(WorldGen.settlements[life_path.home_settlement]["name"]) if life_path.home_settlement >= 0 and life_path.home_settlement < WorldGen.settlements.size() else "", "mastery": mastery.xp, "tendencies": tendencies.values})
 		return
-	var heir: Dictionary = heirs[0]
+	var heir: Dictionary = family.heirs_in_order()[0] if not family.heirs_in_order().is_empty() else heirs[0]   # the named heir first
 	Game.say("%s dies in old age. %s carries on the family.\n%s" % [life_path.full_name(), String(heir.get("name", "Your heir")), story])
 	family.succeed_to(heir["id"])
 
@@ -1857,6 +1873,7 @@ func _on_old_age_death() -> void:
 var _exposure_ms := -100000
 var _exposure_dh := 0.0
 var element_places := preload("res://scripts/sim/element_places.gd").new()
+var trade_ranks := preload("res://scripts/sim/trade_ranks.gd").new()
 
 
 func _update_exposure(dh := 0.0) -> void:

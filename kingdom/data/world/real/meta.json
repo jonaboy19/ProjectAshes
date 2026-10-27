@@ -1,0 +1,203 @@
+{
+ "generator": "kingdom/tools/world/gen_real_world.py",
+ "source": "AWS Terrain Tiles terrarium z13 (Mapzen/AWS Open Data; SRTM, EU-DEM/Copernicus, OS Terrain 50 via Mapzen). See docs/plans/DOWNLOADS.md",
+ "real_area": "English Lake District, Cumbria UK: Lorton Vale / Loweswater / Crummock / Ennerdale / Wasdale / Scafell, coast Whitehaven-Workington",
+ "ashford_latlon": [
+  54.5773,
+  -3.3407
+ ],
+ "mirror": "north-south mirrored: game north (-z) = real south (Scafell massif), game south (+z) = real north (Cockermouth / Derwent plain / Skiddaw)",
+ "size": 4097,
+ "m_per_px": 8.0,
+ "world_half_m": 16384.0,
+ "registration": "corner: px i <-> x = -16384 + 8 i, row j <-> z = -16384 + 8 j",
+ "h_min_m": -40.0,
+ "h_range_m": 1540.0,
+ "height_formula": "h = -40 + v/65535*1540",
+ "sea_level_m": 0.0,
+ "north_uplift": 1.6,
+ "hscale": 1.3,
+ "vscale": 1.15,
+ "water_png": "1024x1024 L8 32 m/px: 0 land 1 sea 2 lake 3 river",
+ "lakes": [
+  {
+   "level": 103.27,
+   "area_km2": 1.25,
+   "centre": [
+    2427,
+    -11547
+   ],
+   "centre_real_note": ""
+  },
+  {
+   "level": 327.97,
+   "area_km2": 0.096,
+   "centre": [
+    4047,
+    -12723
+   ],
+   "centre_real_note": ""
+  },
+  {
+   "level": 102.13,
+   "area_km2": 0.249,
+   "centre": [
+    15805,
+    -10903
+   ],
+   "centre_real_note": ""
+  },
+  {
+   "level": 216.41,
+   "area_km2": 0.688,
+   "centre": [
+    14103,
+    -4350
+   ],
+   "centre_real_note": ""
+  },
+  {
+   "level": 141.68,
+   "area_km2": 0.692,
+   "centre": [
+    -1498,
+    -4974
+   ],
+   "centre_real_note": ""
+  },
+  {
+   "level": 139.8,
+   "area_km2": 0.674,
+   "centre": [
+    -2753,
+    -4236
+   ],
+   "centre_real_note": ""
+  },
+  {
+   "level": 127.36,
+   "area_km2": 0.181,
+   "centre": [
+    4075,
+    -4259
+   ],
+   "centre_real_note": ""
+  },
+  {
+   "level": 125.09,
+   "area_km2": 0.167,
+   "centre": [
+    3504,
+    -3736
+   ],
+   "centre_real_note": ""
+  },
+  {
+   "level": 212.67,
+   "area_km2": 0.144,
+   "centre": [
+    13483,
+    -2742
+   ],
+   "centre_real_note": ""
+  },
+  {
+   "level": 117.14,
+   "area_km2": 1.095,
+   "centre": [
+    1823,
+    -1561
+   ],
+   "centre_real_note": ""
+  },
+  {
+   "level": 211.45,
+   "area_km2": 0.108,
+   "centre": [
+    13293,
+    -2420
+   ],
+   "centre_real_note": ""
+  },
+  {
+   "level": 90.47,
+   "area_km2": 0.14,
+   "centre": [
+    9746,
+    -1477
+   ],
+   "centre_real_note": ""
+  },
+  {
+   "level": 87.24,
+   "area_km2": 2.244,
+   "centre": [
+    9612,
+    28
+   ],
+   "centre_real_note": ""
+  },
+  {
+   "level": 89.57,
+   "area_km2": 0.101,
+   "centre": [
+    9991,
+    -965
+   ],
+   "centre_real_note": ""
+  },
+  {
+   "level": 140.27,
+   "area_km2": 0.236,
+   "centre": [
+    -757,
+    485
+   ],
+   "centre_real_note": ""
+  },
+  {
+   "level": 82.29,
+   "area_km2": 0.275,
+   "centre": [
+    8229,
+    3217
+   ],
+   "centre_real_note": ""
+  },
+  {
+   "level": 79.92,
+   "area_km2": 0.358,
+   "centre": [
+    7478,
+    4082
+   ],
+   "centre_real_note": ""
+  },
+  {
+   "level": 79.13,
+   "area_km2": 2.422,
+   "centre": [
+    6173,
+    6500
+   ],
+   "centre_real_note": ""
+  },
+  {
+   "level": 8.51,
+   "area_km2": 0.165,
+   "centre": [
+    -4039,
+    16055
+   ],
+   "centre_real_note": ""
+  }
+ ],
+ "height_stats_m": {
+  "land_min": -3.2733010366903574,
+  "max": 1251.9994063214922,
+  "land_mean": 293.558524129481,
+  "sea_pct": 17.693360942232626,
+  "lake_pct": 1.0504003804733029
+ },
+ "sha256_height": "b19fbf3e32aed13013331a9f070b928eff80b7689137943261ecba7d77f3593d"
+}

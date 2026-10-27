@@ -203,6 +203,20 @@ func _house_card(nob: RANobility, h: Dictionary) -> PanelContainer:
 	col.add_child(_body("Your standing: %s (%d)" % [standing, int(round(op))]))
 	if nob.is_struggling(hid):
 		col.add_child(_body("Struggling — might sell a holding."))
+	# Earning land: a captain (or higher) on the soldier ladder in good standing can ask the house for a fief.
+	var rank := String(Life.get("career_rank")) if String(Life.get("career_id")) == "soldier" else ""
+	if not settlements.is_empty() and rank in RANobility.SOLDIER_RANKS_FOR_LAND:
+		var ask := Button.new()
+		ask.text = "Ask for land for your service"
+		ask.disabled = op < RANobility.SPONSOR_OPINION
+		ask.tooltip_text = "" if not ask.disabled else "%s must think well of you first." % String(h["name"])
+		ask.pressed.connect(func() -> void:
+			var r: Dictionary = nob.grant_land_for_service(hid, rank)
+			Game.say(String(r.get("text", "")))
+			_refresh())
+		col.add_child(ask)
+	elif not settlements.is_empty() and String(Life.get("career_id")) == "soldier":
+		col.add_child(_body("Land is granted for service from the rank of Captain."))
 	return card
 
 
