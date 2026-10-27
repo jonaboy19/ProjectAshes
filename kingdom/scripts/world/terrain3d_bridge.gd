@@ -77,6 +77,10 @@ var _awaiting_camera := true
 
 func _ready() -> void:
 	configure_spacing()
+	if WorldMacro.is_real():
+		RealInstancer.kinds()          # W6.4: mesh id table built on the main thread before any worker plans instances
+		var q: Node = get_tree().root.get_node_or_null("Quality") if is_inside_tree() else null
+		_inst_mul = clampf(float(q.call("value", "scatter")) if q and q.has_method("value") else 1.0, 0.25, 1.0)
 	terrain = Terrain3D.new()
 	terrain.name = "Terrain3D"
 	terrain.vertex_spacing = spacing_rt
@@ -105,6 +109,27 @@ func _configure_material() -> void:
 	var look := Terrain3DLook.apply(terrain)     # W3: weather / season / snow / scar-tide on the Terrain3D ground
 	if look:
 		add_child(look)
+	if mat and WorldMacro.is_real():
+		# W6.4: Terrain3D's own macro variation + softer blending (owner: big contrasty blotches, 6 m steps). Built-in params of the
+		# Terrain3D shader that our override keeps: two low-frequency tint fields break tiling and large flat areas.
+		var nt := NoiseTexture2D.new()
+		nt.width = 512
+		nt.height = 512
+		nt.seamless = true
+		var fn := FastNoiseLite.new()
+		fn.seed = 1066
+		fn.frequency = 0.02
+		fn.fractal_octaves = 4
+		nt.noise = fn
+		mat.set_shader_param("noise_texture", nt)
+		mat.set_shader_param("enable_macro_variation", true)
+		mat.set_shader_param("macro_variation1", Color(0.9, 0.97, 0.86))
+		mat.set_shader_param("macro_variation2", Color(1.0, 0.95, 0.88))
+		mat.set_shader_param("noise1_scale", 0.02)
+		mat.set_shader_param("noise2_scale", 0.05)
+		mat.set_shader_param("blend_sharpness", 0.22)
+		mat.set_shader_param("enable_projection", true)          # steep-face projection for the crags
+		mat.set_shader_param("projection_threshold", 0.7)
 
 
 func _exit_tree() -> void:
@@ -134,6 +159,10 @@ static func _make_assets() -> Terrain3DAssets:
 		elif name == "snow" and WorldMacro.is_real():
 			ta.albedo_color = Color(1.15, 1.35, 1.75)   # W6: the scree-grey snow read as sand on the real fells; lift it to snow white
 		assets.set_texture(i, ta)
+	if WorldMacro.is_real():
+		var ml: Array = RealInstancer.mesh_assets(_inst_mul < 0.5)
+		for i in ml.size():
+			assets.set_mesh_asset(i, ml[i])
 	return assets
 
 
@@ -216,12 +245,30 @@ static func real_layers(x: float, z: float, h: float, slope: float, m: PackedFlo
 	var valley := 1.0 - fell
 	# Fell sides stay green (grass + bracken-brown litter); the pale highland ground only in the alpine band below the snow.
 	var alpine := smoothstep(sl - 170.0, sl - 40.0, h + n2 * 30.0)
-	var meadow := (m[1] + 0.25 * valley * (0.5 + 0.5 * n2)) * valley
+	var n3 := _patch_noise().get_noise_2d(x * 9.0 + 77.0, z * 9.0)       # ~18 m low-contrast detail
+	var meadow := (m[1] + valley * (0.15 + 0.1 * n2 + 0.08 * n3)) * valley
 	var high := maxf(m[6] * 0.4, alpine * 0.8) * (1.0 - snow) * (0.4 + 0.6 * fell)
 	var marsh := m[3] * valley
 	var farm := m[2] * valley
-	var forest := maxf(m[0], fell * (0.3 + 0.25 * n1)) * (1.0 - crag) * (1.0 - snow) * (1.0 - alpine)
+	var forest := maxf(m[0] * 0.7, fell * (0.18 + 0.08 * n3)) * (1.0 - crag) * (1.0 - snow) * (1.0 - alpine)   # softer, smaller-scale litter
 	return [meadow * free, farm * free, marsh * free, m[4] * free, snow * free, high * free, forest * free, crag]
+
+
+## W6.4 instancer: per-region transforms planned on the workers, added once the mesh assets are live (they go in two frames after
+## the first region on a GPU). Terrain3D stores instances per region, so removing a region frees its trees too.
+static var _inst_mul := 1.0
+var _inst: Dictionary = {}          # Vector2i -> {mesh id: Array[Transform3D]} (guarded by _mutex)
+var _inst_ready: Array = []
+
+
+func _flush_instances() -> void:
+	if _inst_ready.is_empty() or terrain == null or terrain.assets == null or terrain.assets.get_mesh_count() == 0:
+		return
+	var plan: Dictionary = _inst_ready.pop_front()
+	for id: int in plan:
+		var ts: Array[Transform3D] = []
+		ts.assign(plan[id])
+		terrain.instancer.add_transforms(id, ts)
 
 
 static var _patch: FastNoiseLite
@@ -249,7 +296,8 @@ static func build_maps(loc: Vector2i) -> Array[Image]:
 	hbytes.resize(n * n * 4)
 	var cbytes := PackedByteArray()
 	cbytes.resize(n * n * 4)
-	var half_ctl := WorldMacro.is_real()   # W6: control words on every second pixel (soft biome field, 150 m blur): ~3x faster bake
+	# W6 note: control words on every second pixel baked ~3x faster but stepped visibly (6 m blocks) from the air: full 3 m lattice now.
+	var half_ctl := false
 	for j in n:
 		for i in n:
 			var c := (j + 1) * stride + i + 1
@@ -301,6 +349,7 @@ func _wanted(center: Vector2i) -> Array:
 
 
 func _process(_delta: float) -> void:
+	_flush_instances()
 	if _assets_frame >= 0 and Engine.get_process_frames() >= _assets_frame and terrain.data != null and terrain.data.get_region_count() > 0:
 		terrain.assets = _make_assets()
 		_assets_frame = -1
@@ -361,6 +410,11 @@ func update_streaming() -> bool:
 
 func _worker(loc: Vector2i) -> void:
 	var maps := build_maps(loc)
+	if WorldMacro.is_real():
+		var inst := RealInstancer.plan(region_origin(loc), region_m(), _inst_mul)
+		_mutex.lock()
+		_inst[loc] = inst
+		_mutex.unlock()
 	_put(loc, maps)
 
 
@@ -394,6 +448,11 @@ func _add_region(loc: Vector2i, maps: Array) -> void:
 	r.calc_height_range()
 	terrain.data.add_region(r, true)
 	_regions[loc] = r
+	_mutex.lock()
+	if _inst.has(loc):
+		_inst_ready.append(_inst[loc])
+		_inst.erase(loc)
+	_mutex.unlock()
 	var dt := Time.get_ticks_usec() - t0
 	add_stats = [int(add_stats[0]) + 1, int(add_stats[1]) + dt, maxi(int(add_stats[2]), dt)]
 

@@ -507,7 +507,7 @@ func _plan_forest(key: Vector2i, origin: Vector2) -> Dictionary:
 		var z := origin.y + rng.randf() * CHUNK
 		var density := WorldGen.forest_density(x, z)
 		var h := WorldGen.height(x, z)
-		if h > 115.0 or WorldGen.near_water(x, z, 1.5):
+		if h > _tree_line(true) or WorldGen.near_water(x, z, 1.5):
 			continue
 		var kind := ""
 		var roll := rng.randf()
@@ -692,7 +692,7 @@ func _plan_floor(key: Vector2i, origin: Vector2, buckets: Dictionary) -> void:
 		if WorldGen.near_water(x, z, 1.5) or WorldGen.road_distance(x, z) < 4.0 or WorldGen.street_distance(x, z) < 3.0:
 			continue
 		var h := WorldGen.height(x, z)
-		if h > 115.0:
+		if h > _tree_line():
 			continue
 		var pick: Array = FLOOR_KINDS[rng.randi() % FLOOR_KINDS.size()]
 		var kind: String = pick[0]
@@ -829,3 +829,11 @@ static func _multimesh(parent: Node3D, mesh: Mesh, transforms: Array[Transform3D
 		mmi.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
 	parent.add_child(mmi)
 	return mmi
+
+
+## Highest ground for trees and floor dressing: 115 m in the 0-300 m worlds, 420 m on the W6 real terrain (fells to 1 250 m).
+## 	rees: the per-chunk tree/undergrowth extras, which the Terrain3D instancer replaces in the real world (W6.4).
+static func _tree_line(trees := false) -> float:
+	if WorldMacro.is_real():
+		return -1.0e9 if trees else 420.0
+	return 115.0

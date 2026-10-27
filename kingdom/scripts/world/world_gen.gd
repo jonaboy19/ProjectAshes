@@ -891,7 +891,7 @@ static func color_at(x: float, z: float, h: float, slope: float) -> Color:
 		var dc := Vector2(x, z).distance_to(near["pos"])
 		var paved: bool = near["kind"] != "village"
 		var sd := street_distance(x, z)
-		if not paved and not _legacy_plaza and near.has("plan") and dc < near["plan"]["plaza_r"] + 18.0:
+		if not paved and not _legacy_plaza and near.has("plan") and (near["plan"] as Dictionary).has("plaza_r") and dc < near["plan"]["plaza_r"] + 18.0:
 			# Village squares: the same honey cobble (channel B) as the towns' plazas, out to ~3.5 m past
 			# the nominal radius with a ragged, feathered rim (grass and flowers take over beyond it),
 			# and the four street spokes stay paved for the first ~15 m before they turn to packed dirt.

@@ -33,7 +33,58 @@ func _ready() -> void:
 
 
 var _field_queue: Array = []
-var _wall_mesh: BoxMesh
+var _wall_mesh: Mesh
+const STONE_DIR := "res://assets/incoming/polyhaven/textures/mossy_stone_wall/mossy_stone_wall_"
+
+
+## A 4 m Lake District dry-stone wall segment: battered (wider at the foot), ~3 courses of irregular flat stones plus a row of
+## upright cap stones, one ArrayMesh with the Poly Haven CC0 mossy stone wall material. Seamless end to end along x.
+static func _drystone_mesh() -> Mesh:
+	var st := SurfaceTool.new()
+	st.begin(Mesh.PRIMITIVE_TRIANGLES)
+	var rng := RandomNumberGenerator.new()
+	rng.seed = 1883
+	var y := 0.0
+	for course in 3:
+		var hgt := rng.randf_range(0.24, 0.3)
+		var half_d := lerpf(0.36, 0.26, course / 2.0)
+		var x := -2.0
+		while x < 2.0:
+			var w := minf(rng.randf_range(0.35, 0.7), 2.0 - x)
+			_stone(st, Vector3(x + w * 0.5, y + hgt * 0.5, rng.randf_range(-0.03, 0.03)), Vector3(w * 0.96, hgt * 0.94, half_d * 2.0), rng)
+			x += w
+		y += hgt
+	var cx := -2.0
+	while cx < 2.0:
+		var w2 := minf(rng.randf_range(0.18, 0.28), 2.0 - cx)
+		_stone(st, Vector3(cx + w2 * 0.5, y + 0.14, 0.0), Vector3(w2 * 0.9, 0.3, 0.36), rng)
+		cx += w2
+	st.generate_normals()
+	st.generate_tangents()
+	var mesh := st.commit()
+	var mat := StandardMaterial3D.new()
+	mat.albedo_texture = load(STONE_DIR + "diff_2k.jpg")
+	mat.normal_enabled = true
+	mat.normal_texture = load(STONE_DIR + "nor_gl_2k.jpg")
+	mat.roughness = 0.95
+	mat.cull_mode = BaseMaterial3D.CULL_DISABLED
+	mat.uv1_triplanar = true
+	mat.uv1_scale = Vector3(0.9, 0.9, 0.9)
+	mat.albedo_color = Color(0.82, 0.82, 0.8)
+	mesh.surface_set_material(0, mat)
+	return mesh
+
+
+## One roughly box-shaped stone (corners jittered) into `st`.
+static func _stone(st: SurfaceTool, c: Vector3, s: Vector3, rng: RandomNumberGenerator) -> void:
+	var v: Array[Vector3] = []
+	for i in 8:
+		var p := Vector3(-0.5 if i & 1 == 0 else 0.5, -0.5 if i & 2 == 0 else 0.5, -0.5 if i & 4 == 0 else 0.5) * s
+		p += Vector3(rng.randf_range(-0.04, 0.04), rng.randf_range(-0.03, 0.03), rng.randf_range(-0.04, 0.04))
+		v.append(c + p)
+	for f: Array in [[0, 1, 3, 2], [4, 6, 7, 5], [0, 4, 5, 1], [2, 3, 7, 6], [0, 2, 6, 4], [1, 5, 7, 3]]:
+		st.add_vertex(v[f[0]]); st.add_vertex(v[f[1]]); st.add_vertex(v[f[2]])
+		st.add_vertex(v[f[0]]); st.add_vertex(v[f[2]]); st.add_vertex(v[f[3]])
 var _hedge_mesh: BoxMesh
 var _bush_mesh: SphereMesh
 
@@ -42,9 +93,7 @@ var _bush_mesh: SphereMesh
 ## dry-stone wall (grey, 1.1 m) or a hedgerow (green, 1.8 m, with bushes); gaps at roads, water, forest and steep ground.
 func _field_meshes() -> void:
 	if _wall_mesh == null:
-		_wall_mesh = BoxMesh.new()
-		_wall_mesh.size = Vector3(4.0, 1.1, 0.7)
-		_wall_mesh.material = _mat(Color(0.52, 0.52, 0.5))
+		_wall_mesh = _drystone_mesh()
 		_hedge_mesh = BoxMesh.new()
 		_hedge_mesh.size = Vector3(4.0, 1.8, 1.4)
 		_hedge_mesh.material = _mat(Color(0.2, 0.36, 0.15))
@@ -89,7 +138,7 @@ func _fields(st: Dictionary) -> void:
 					if absf(h2 - h) > 2.6:
 						continue
 					var yaw := -atan2(dir.y, dir.x)
-					var t := Transform3D(Basis(Vector3.UP, yaw), Vector3(p.x, h + (0.45 if not hedge else 0.8), p.y))
+					var t := Transform3D(Basis(Vector3.UP, yaw), Vector3(p.x, h + (-0.08 if not hedge else 0.8), p.y))
 					if hedge:
 						hedges.append(t)
 						if rng.randf() < 0.25:
@@ -137,9 +186,10 @@ func _mmi(mesh: Mesh, ts: Array[Transform3D], range_end: float) -> void:
 ## Per-biome colour grade (docs/plans/ART_DIRECTION.md: per-biome fog + grade profiles). Biome under the camera -> Environment adjustment
 ## (saturation, contrast, brightness) and a fog tint, eased over ~3 s. Cheap: one biome lookup twice a second. Weather keeps owning fog density.
 ## [saturation, contrast, brightness, fog tint]
-const GRADE := [[1.08, 1.04, 1.0, Color(0.78, 0.86, 0.95)], [1.12, 1.08, 0.97, Color(0.62, 0.78, 0.7)], [1.1, 1.02, 1.02, Color(0.85, 0.9, 0.9)],
-	[1.06, 1.03, 1.02, Color(0.92, 0.88, 0.78)], [0.88, 1.0, 0.96, Color(0.7, 0.76, 0.7)], [0.98, 1.1, 1.0, Color(0.86, 0.82, 0.76)],
-	[1.0, 1.12, 0.94, Color(0.72, 0.55, 0.9)], [0.85, 1.06, 1.05, Color(0.82, 0.9, 1.0)]]
+## Fog tints kept cool blue-grey (the warm beige fog turned far fells pastel pink); the marsh greener, the rift violet.
+const GRADE := [[1.08, 1.05, 1.0, Color(0.7, 0.8, 0.92)], [1.12, 1.08, 0.97, Color(0.62, 0.76, 0.78)], [1.1, 1.04, 1.0, Color(0.72, 0.82, 0.92)],
+	[1.06, 1.04, 1.0, Color(0.74, 0.8, 0.88)], [0.9, 1.0, 0.96, Color(0.66, 0.76, 0.72)], [1.0, 1.1, 1.0, Color(0.72, 0.78, 0.88)],
+	[1.0, 1.12, 0.94, Color(0.72, 0.55, 0.9)], [0.85, 1.08, 1.02, Color(0.78, 0.86, 1.0)]]
 var _g_t := 0.0
 var _g_target: Array = GRADE[0]
 var _g_cur := Vector3(1.0, 1.0, 1.0)
@@ -206,6 +256,8 @@ static func _mat(col: Color, emit := 0.0, alpha := 1.0) -> StandardMaterial3D:
 		m.emission_enabled = true
 		m.emission = col
 		m.emission_energy_multiplier = emit
+		if emit >= 2.0:
+			m.disable_fog = true      # magic light stays vivid through the aerial fog (the Rift column read grey)
 	return m
 
 
@@ -266,7 +318,7 @@ func _glow(c: Vector2, col: Color, r: float, shards: bool) -> void:
 	col_mesh.top_radius = 3.0
 	col_mesh.bottom_radius = 9.0
 	col_mesh.height = 140.0
-	col_mesh.material = _mat(col, 3.0, 0.18)
+	col_mesh.material = _mat(col, 5.0, 0.35)
 	_put(col_mesh, g + Vector3(0, 70.0, 0))
 	_light(g + Vector3(0, 12.0, 0), col, 6.0, 140.0)
 	if shards:
@@ -315,11 +367,30 @@ func _giants(c: Vector2) -> void:
 		trunk.height = h
 		trunk.material = bark
 		_put(trunk, g + Vector3(0, h * 0.5 - 1.0, 0))
-		var crown := SphereMesh.new()
-		crown.radius = h * 0.42
-		crown.height = h * 0.5
-		crown.material = leaf
-		_put(crown, g + Vector3(0, h, 0))
+		# An old-giant silhouette: a clustered, irregular crown (9 lobes from the trunk top down to mid-height) and branch limbs,
+		# not one flattened dome (owner: "look like mushrooms").
+		for li in 9:
+			var lobe := SphereMesh.new()
+			var lr := h * _rng.randf_range(0.14, 0.24)
+			lobe.radius = lr
+			lobe.height = lr * 1.7
+			lobe.radial_segments = 10
+			lobe.rings = 6
+			lobe.material = leaf
+			var a := TAU * li / 9.0 + _rng.randf() * 0.5
+			var out := h * (0.12 if li == 0 else _rng.randf_range(0.18, 0.32))
+			var up := h * (1.02 if li == 0 else _rng.randf_range(0.62, 0.95))
+			_put(lobe, g + Vector3(cos(a) * out, up, sin(a) * out))
+			if li > 0:
+				var limb := CylinderMesh.new()
+				limb.top_radius = 0.5
+				limb.bottom_radius = 1.1
+				limb.height = out * 1.2
+				limb.material = bark
+				var dir := Vector3(cos(a) * out, up - h * 0.55, sin(a) * out)
+				var mid := g + Vector3(0, h * 0.55, 0) + dir * 0.5
+				var bas := Basis(Quaternion(Vector3.UP, dir.normalized()))
+				_put(limb, mid, bas)
 		for k in 6:
 			var mush := SphereMesh.new()
 			mush.radius = 0.6

@@ -34,6 +34,13 @@ func _initialize() -> void:
 	var b := Time.get_ticks_msec()
 	var maps := Terrain3DBridge.build_maps(Terrain3DBridge.region_of(0.0, 0.0))
 	print("region_bake_ms=", Time.get_ticks_msec() - b, " size=", maps[0].get_width(), " snow_line_N=", Terrain3DBridge.snow_line(-7000.0))
+	RealInstancer.kinds()
+	var ti := Time.get_ticks_msec()
+	var plan := RealInstancer.plan(Terrain3DBridge.region_origin(Terrain3DBridge.region_of(-300.0, 300.0)), Terrain3DBridge.region_m(), 1.0)
+	var tot := 0
+	for id: int in plan:
+		tot += (plan[id] as Array).size()
+	print("instancer kinds=", RealInstancer.kinds().size(), " instances=", tot, " meshes_used=", plan.size(), " plan_ms=", Time.get_ticks_msec() - ti)
 	var cm := Terrain3DBridge.build_maps(Terrain3DBridge.region_of(-114.0, -2275.0))
 	var hist := {}
 	var cimg: Image = cm[1]

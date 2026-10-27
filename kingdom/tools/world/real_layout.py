@@ -280,7 +280,7 @@ def main():
         cx, cz = xs.mean() * GM - HALF + GM / 2, ys.mean() * GM - HALF + GM / 2
         best_l = min(meta["lakes"], key=lambda L: math.hypot(L["centre"][0] - cx, L["centre"][1] - cz))
         lakes_out.append({"id": len(lakes_out) + 1, "level": best_l["level"], "centre": [round(cx), round(cz)], "area_km2": round(float(m.sum()) * GM * GM / 1e6, 3)})
-        lid[ndimage.binary_dilation(m, iterations=1) & (lid == 0)] = len(lakes_out)
+        lid[m & (lid == 0)] = len(lakes_out)   # no dilation: the 32 m cells stepped over the shores
     lid[ndimage.binary_dilation(water == 1, iterations=1) & (lid == 0)] = 255   # sea, level 0
     Image.fromarray(lid).save(os.path.join(RD, "lake_ids.png"))
     # name the lake nearest Ashford "Emberglass Mere"

@@ -135,6 +135,12 @@ static func keep_mult(role: String, biome: int) -> float:
 static func max_height(role: String, biome: int) -> float:
 	if biome < 0:
 		return 115.0
+	if WorldMacro.is_real():
+		# W6: real fells reach 1 250 m; a 115 m cap left the real-terrain aerials almost treeless. Tree line ~150 m under the
+		# northern snow (the scatter's per-instance snow test does the rest).
+		# W6.4: trees, undergrowth and rocks come from the Terrain3D instancer (RealInstancer) in the real world; the chunk scatter keeps
+		# only the meadow role (flowers, tall grass) so nothing is placed twice.
+		return -1.0e9 if role in ["tree", "undergrowth", "rock"] else 420.0
 	return float((MAX_H[role] as Array)[biome])
 
 
@@ -146,7 +152,7 @@ static func items(role: String, biome: int, h: float) -> Array:
 	if not by_biome.has(biome):
 		return []
 	var entry: Dictionary = by_biome[biome]
-	if h >= CONIFER_LINE and entry.has("high"):
+	if h >= (260.0 if WorldMacro.is_real() else CONIFER_LINE) and entry.has("high"):   # W6: broadleaf vales, conifers on the fell sides
 		return entry["high"]
 	return entry["low"]
 

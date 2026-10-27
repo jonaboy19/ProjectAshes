@@ -76,7 +76,8 @@ func _setup() -> void:
 	ward_pressed.clear()
 	# The Ashen Scar itself is the first seed; the story adds outbreaks near Greenhollow and Greyseam.
 	var o: Array = cfg.get("origin", [1380.0, 980.0])
-	seed_at(Vector2(float(o[0]), float(o[1])), float(cfg.get("initial_radius_cells", 2.5)), "ashen_scar")
+	# W6: data origin is in old-world metres; re-anchor it (the un-moved seed painted a violet patch beside Kingsreach on the real terrain)
+	seed_at(RealWorld.remap(Vector2(float(o[0]), float(o[1]))), float(cfg.get("initial_radius_cells", 2.5)), "ashen_scar")
 
 
 static func _read_cfg() -> Dictionary:

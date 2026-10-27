@@ -9,10 +9,10 @@ extends Node3D
 ## Built on a WorkerThreadPool task (pure WorldGen maths, no resource loading) and turned into meshes on the
 ## main thread in one go. Per frame: two shader parameters.
 
-## W6: the real world draws its whole 32 km at a 160 m grid (same ~42k vertices); canopy blobs stay within +-6144 m.
+## W6: the real world draws its whole 32 km at a 160 m grid (same ~42k vertices); canopy blobs cover the Valencious box.
 static var HALF := 6144.0
-static var CELL := 72.0
-const BLOB_HALF := 6144.0              # 48 m on the 8 km world: same ~58k triangles over a 2.25x larger map
+static var CELL := 72.0              # 48 m on the 8 km world: same ~58k triangles over a 2.25x larger map
+const BLOB_HALF := 6144.0
 const BLOB_STEP := 42.0          # 34 m before the 12 km world (canopy domes are culled by range, so frame cost is unchanged)
 const BLOB_CELL := 512.0
 const GRASS := Color(0.42, 0.6, 0.22)
@@ -232,11 +232,13 @@ func _work() -> void:
 					var sw2 := WorldBiomes.soft_weights(x, z)
 					var mm := WorldBiomes.ground_mix(sw2, 0.5)
 					var ly := Terrain3DBridge.real_layers(x, z, h, 1.0 - nrm.y, mm, 1.0, Terrain3DBridge.snow_line(z))
+					# Colours sampled to match the streamed Terrain3D slots under the real-world grade (no pastel far fells).
+					col = col.lerp(Color(0.36, 0.5, 0.2), 0.6)
 					col = col.lerp(BIOME_COL[2], clampf(float(ly[0]), 0.0, 1.0) * 0.5)
-					col = col.lerp(BIOME_COL[1], clampf(float(ly[6]), 0.0, 1.0) * 0.6)
-					col = col.lerp(BIOME_COL[5], clampf(float(ly[5]), 0.0, 1.0))
-					col = col.lerp(ROCK, clampf(float(ly[7]), 0.0, 1.0))
-					col = col.lerp(BIOME_COL[7], clampf(float(ly[4]), 0.0, 1.0))
+					col = col.lerp(Color(0.3, 0.36, 0.18), clampf(float(ly[6]), 0.0, 1.0) * 0.6)
+					col = col.lerp(Color(0.5, 0.47, 0.36), clampf(float(ly[5]), 0.0, 1.0) * 0.7)
+					col = col.lerp(Color(0.45, 0.44, 0.42), clampf(float(ly[7]), 0.0, 1.0))
+					col = col.lerp(Color(0.86, 0.9, 0.96), clampf(float(ly[4]), 0.0, 1.0))
 			var lv := lvs[j * n + i]
 			if not is_nan(lv) and lv > h + 0.1:
 				# Water only where the whole neighbourhood is water or higher ground (see _water_interior): a river is far
@@ -266,13 +268,18 @@ func _work() -> void:
 	var rng := RandomNumberGenerator.new()
 	rng.seed = 90210
 	var blobs: Dictionary = {}          # Vector2i cell -> PackedFloat32Array [x, y, z, sx, sy, tint] * n
-	var bz := -BLOB_HALF + BLOB_STEP * 0.5
-	while bz < BLOB_HALF:
-		var bx := -BLOB_HALF + BLOB_STEP * 0.5
-		while bx < BLOB_HALF:
+	var real := WorldMacro.is_real()
+	var area := RealWorld.box() if real else Rect2(-BLOB_HALF, -BLOB_HALF, BLOB_HALF * 2.0, BLOB_HALF * 2.0)
+	var bz := area.position.y + BLOB_STEP * 0.5
+	while bz < area.end.y:
+		var bx := area.position.x + BLOB_STEP * 0.5
+		while bx < area.end.x:
 			var px := bx + rng.randf_range(-0.4, 0.4) * BLOB_STEP
 			var pz := bz + rng.randf_range(-0.4, 0.4) * BLOB_STEP
 			var f := WorldGen.forest_density(px, pz)
+			if real and f > 0.0:   # W6: the biome mix and the tree line decide the far woods too
+				var hh := WorldGen.height(px, pz)
+				f = WorldBiomes.tree_density(WorldBiomes.at(px, pz), f) * (1.0 - smoothstep(Terrain3DBridge.snow_line(pz) - 220.0, Terrain3DBridge.snow_line(pz) - 120.0, hh))
 			if f > 0.3 and rng.randf() < f:
 				var key := Vector2i(floori(px / BLOB_CELL), floori(pz / BLOB_CELL))
 				if not blobs.has(key):
