@@ -228,7 +228,7 @@ func _build_co(s: Dictionary, sync: bool, spread: bool) -> Node3D:
 		if spread and lot_i % LOTS_PER_FRAME == 0:
 			# A capital has ~300 lots, each a compound collider the physics server inserts on its next step: a slice per frame.
 			Probe.add("settle.lots_slice", _bp)
-			await get_tree().process_frame
+			await (Engine.get_main_loop() as SceneTree).process_frame
 			if not is_instance_valid(root):
 				return root
 			_bp = Probe.t()
@@ -271,7 +271,7 @@ func _build_co(s: Dictionary, sync: bool, spread: bool) -> Node3D:
 	_seal_gaps(root, plinths)
 	Probe.add("settle.lots", _bp)
 	if spread:
-		await get_tree().process_frame      # spread over frames (update_now(true)); the town finishes a few frames later
+		await (Engine.get_main_loop() as SceneTree).process_frame      # spread over frames (update_now(true)); the town finishes a few frames later
 		if not is_instance_valid(root):
 			return root
 	_bp = Probe.t()
@@ -279,7 +279,7 @@ func _build_co(s: Dictionary, sync: bool, spread: bool) -> Node3D:
 		if spread:
 			# One model's batches per frame: each key loads up to four LOD meshes the first time a model is seen (20-40 ms each).
 			Probe.add("settle.batch_slice", _bp)
-			await get_tree().process_frame
+			await (Engine.get_main_loop() as SceneTree).process_frame
 			if not is_instance_valid(root):
 				return root
 			_bp = Probe.t()
@@ -326,7 +326,7 @@ func _build_co(s: Dictionary, sync: bool, spread: bool) -> Node3D:
 
 	Probe.add("settle.batches", _bp)
 	if spread:
-		await get_tree().process_frame      # spread over frames (update_now(true)); the town finishes a few frames later
+		await (Engine.get_main_loop() as SceneTree).process_frame      # spread over frames (update_now(true)); the town finishes a few frames later
 		if not is_instance_valid(root):
 			return root
 	_bp = Probe.t()
@@ -334,7 +334,7 @@ func _build_co(s: Dictionary, sync: bool, spread: bool) -> Node3D:
 	preload("res://scripts/world/town_kit/slice_dressing.gd").build_scenario_a(root, s)   # vertical slice: Ashford hayloft ladder + vaultable fence
 	Probe.add("settle.doors", _bp)
 	if spread:
-		await get_tree().process_frame      # spread over frames (update_now(true)); the town finishes a few frames later
+		await (Engine.get_main_loop() as SceneTree).process_frame      # spread over frames (update_now(true)); the town finishes a few frames later
 		if not is_instance_valid(root):
 			return root
 	_bp = Probe.t()
@@ -381,7 +381,7 @@ func _build_co(s: Dictionary, sync: bool, spread: bool) -> Node3D:
 
 	Probe.add("settle.door_clutter", _bp)
 	if spread:
-		await get_tree().process_frame      # spread over frames (update_now(true)); the town finishes a few frames later
+		await (Engine.get_main_loop() as SceneTree).process_frame      # spread over frames (update_now(true)); the town finishes a few frames later
 		if not is_instance_valid(root):
 			return root
 	_bp = Probe.t()
@@ -402,7 +402,7 @@ func _build_co(s: Dictionary, sync: bool, spread: bool) -> Node3D:
 				_add_camera_blockers(root, well_mesh, well_proxy, fade_target)
 	Probe.add("settle.landmarks", _bp)
 	if spread:
-		await get_tree().process_frame      # spread over frames (update_now(true)); the town finishes a few frames later
+		await (Engine.get_main_loop() as SceneTree).process_frame      # spread over frames (update_now(true)); the town finishes a few frames later
 		if not is_instance_valid(root):
 			return root
 	_bp = Probe.t()
@@ -466,7 +466,7 @@ func _build_co(s: Dictionary, sync: bool, spread: bool) -> Node3D:
 
 	Probe.add("settle.stalls", _bp)
 	if spread:
-		await get_tree().process_frame      # spread over frames (update_now(true)); the town finishes a few frames later
+		await (Engine.get_main_loop() as SceneTree).process_frame      # spread over frames (update_now(true)); the town finishes a few frames later
 		if not is_instance_valid(root):
 			return root
 	_bp = Probe.t()
@@ -500,7 +500,7 @@ func _build_co(s: Dictionary, sync: bool, spread: bool) -> Node3D:
 		_piece(root, "mill", p, _ground_snap(p, mill_yaw, _footprint("mill")), mill_yaw)   # lint: corner snap, not centre height
 	Probe.add("settle.mills", _bp)
 	if spread:
-		await get_tree().process_frame      # spread over frames (update_now(true)); the town finishes a few frames later
+		await (Engine.get_main_loop() as SceneTree).process_frame      # spread over frames (update_now(true)); the town finishes a few frames later
 		if not is_instance_valid(root):
 			return root
 	_bp = Probe.t()
@@ -509,21 +509,21 @@ func _build_co(s: Dictionary, sync: bool, spread: bool) -> Node3D:
 	_fields(root, s, plan, rng, gates, mill_spots)
 	Probe.add("settle.fields", _bp)
 	if spread:
-		await get_tree().process_frame      # spread over frames (update_now(true)); the town finishes a few frames later
+		await (Engine.get_main_loop() as SceneTree).process_frame      # spread over frames (update_now(true)); the town finishes a few frames later
 		if not is_instance_valid(root):
 			return root
 	_bp = Probe.t()
 	TownView.walls(self, root, s, plan, _prof)     # stone / low / palisade / hedge / runestones / none (after mills and fields: it keeps off them)
 	Probe.add("settle.walls", _bp)
 	if spread:
-		await get_tree().process_frame      # spread over frames (update_now(true)); the town finishes a few frames later
+		await (Engine.get_main_loop() as SceneTree).process_frame      # spread over frames (update_now(true)); the town finishes a few frames later
 		if not is_instance_valid(root):
 			return root
 	_bp = Probe.t()
 	_homesteads(root, s, plan, rng)
 	Probe.add("settle.homesteads", _bp)
 	if spread:
-		await get_tree().process_frame      # spread over frames (update_now(true)); the town finishes a few frames later
+		await (Engine.get_main_loop() as SceneTree).process_frame      # spread over frames (update_now(true)); the town finishes a few frames later
 		if not is_instance_valid(root):
 			return root
 	_bp = Probe.t()
@@ -531,7 +531,7 @@ func _build_co(s: Dictionary, sync: bool, spread: bool) -> Node3D:
 	_medieval_gates(root, s, plan, gates)      # Medieval pass (local): mud, cobble apron, hay cart, barrels, banners at the gates and market
 	Probe.add("settle.gates", _bp)
 	if spread:
-		await get_tree().process_frame      # spread over frames (update_now(true)); the town finishes a few frames later
+		await (Engine.get_main_loop() as SceneTree).process_frame      # spread over frames (update_now(true)); the town finishes a few frames later
 		if not is_instance_valid(root):
 			return root
 	_bp = Probe.t()
@@ -541,7 +541,7 @@ func _build_co(s: Dictionary, sync: bool, spread: bool) -> Node3D:
 		preload("res://scripts/world/street_benchmark.gd").build(self, root, s, plan, true)     # gate market (AAA pass 10)     # AAA benchmark street (local, 2026-10-06)
 	Probe.add("settle.benchmark", _bp)
 	if spread:
-		await get_tree().process_frame      # spread over frames (update_now(true)); the town finishes a few frames later
+		await (Engine.get_main_loop() as SceneTree).process_frame      # spread over frames (update_now(true)); the town finishes a few frames later
 		if not is_instance_valid(root):
 			return root
 	_bp = Probe.t()
@@ -550,7 +550,7 @@ func _build_co(s: Dictionary, sync: bool, spread: bool) -> Node3D:
 	VillageFeatures.build(self, root, s, plan, _prof)     # villages and hamlets: their own set of green / chapel / mill / smithy / pond / orchard ...
 	Probe.add("settle.yards_features", _bp)
 	if spread:
-		await get_tree().process_frame      # spread over frames (update_now(true)); the town finishes a few frames later
+		await (Engine.get_main_loop() as SceneTree).process_frame      # spread over frames (update_now(true)); the town finishes a few frames later
 		if not is_instance_valid(root):
 			return root
 	_bp = Probe.t()
@@ -561,14 +561,14 @@ func _build_co(s: Dictionary, sync: bool, spread: bool) -> Node3D:
 		_village_square(root, s, plan, rng)
 	Probe.add("settle.square_market", _bp)
 	if spread:
-		await get_tree().process_frame      # spread over frames (update_now(true)); the town finishes a few frames later
+		await (Engine.get_main_loop() as SceneTree).process_frame      # spread over frames (update_now(true)); the town finishes a few frames later
 		if not is_instance_valid(root):
 			return root
 	_bp = Probe.t()
 	_greenery(root, s, plan, rng)
 	Probe.add("settle.greenery", _bp)
 	if spread:
-		await get_tree().process_frame      # spread over frames (update_now(true)); the town finishes a few frames later
+		await (Engine.get_main_loop() as SceneTree).process_frame      # spread over frames (update_now(true)); the town finishes a few frames later
 		if not is_instance_valid(root):
 			return root
 	_bp = Probe.t()
@@ -611,7 +611,7 @@ func _build_co(s: Dictionary, sync: bool, spread: bool) -> Node3D:
 			Transform3D(Basis(Vector3.UP, cyaw), Vector3(p.x, WorldGen.height(p.x, p.y) - 0.03, p.y)))
 	Probe.add("settle.street_clutter_plan", _bp)
 	if spread:
-		await get_tree().process_frame      # spread over frames (update_now(true)); the town finishes a few frames later
+		await (Engine.get_main_loop() as SceneTree).process_frame      # spread over frames (update_now(true)); the town finishes a few frames later
 		if not is_instance_valid(root):
 			return root
 	_bp = Probe.t()
@@ -633,7 +633,7 @@ func _build_co(s: Dictionary, sync: bool, spread: bool) -> Node3D:
 	plan["npc_nav_obstacles"] = _cart_nav_obstacles(cart_mesh, sc_carts)
 	Probe.add("settle.street_clutter_mm", _bp)
 	if spread:
-		await get_tree().process_frame      # spread over frames (update_now(true)); the town finishes a few frames later
+		await (Engine.get_main_loop() as SceneTree).process_frame      # spread over frames (update_now(true)); the town finishes a few frames later
 		if not is_instance_valid(root):
 			return root
 	_bp = Probe.t()
@@ -645,7 +645,7 @@ func _build_co(s: Dictionary, sync: bool, spread: bool) -> Node3D:
 	_flush_contact_shadows(root)
 	Probe.add("settle.props_dressing", _bp)
 	if spread:
-		await get_tree().process_frame      # spread over frames (update_now(true)); the town finishes a few frames later
+		await (Engine.get_main_loop() as SceneTree).process_frame      # spread over frames (update_now(true)); the town finishes a few frames later
 		if not is_instance_valid(root):
 			return root
 	_bp = Probe.t()

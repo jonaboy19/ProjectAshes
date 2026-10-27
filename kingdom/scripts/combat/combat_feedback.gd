@@ -112,7 +112,8 @@ func _flash_one_frame(alpha: float) -> void:
 		p.add_child(_flash_layer)
 	_flash_rect.color = Color(1.0, 0.82, 0.5, alpha * strength)
 	_flash_rect.visible = true
-	RenderingServer.frame_post_draw.connect(_end_flash, CONNECT_ONE_SHOT)
+	if not RenderingServer.frame_post_draw.is_connected(_end_flash):
+		RenderingServer.frame_post_draw.connect(_end_flash, CONNECT_ONE_SHOT)
 
 
 func _end_flash() -> void:

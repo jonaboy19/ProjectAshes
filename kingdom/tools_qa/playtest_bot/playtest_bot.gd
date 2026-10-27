@@ -4233,6 +4233,9 @@ func st_travel(dest: Vector2, label: String, tol := 4.0) -> void:
 		if Game.gold < fare:
 			st_hook("gold %d -> %d for the coach fare" % [Game.gold, fare + 20])
 			Game.gold = fare + 20
+		close_everything()
+		await ensure_alive()
+		L("coach: tree paused %s, hud fade visible %s" % [str(get_tree().paused), str(hud._fade.visible)])
 		var g0 := Game.gold
 		var h0: float = WorldSim.time_of_day
 		L("[HOOK-lite] coach ride through hud._on_travel_requested (the world-map click is skipped): %s, %.1f km, fare %d" % [String(to_ws["name"]), dist / 1000.0, fare])
@@ -4242,6 +4245,9 @@ func st_travel(dest: Vector2, label: String, tol := 4.0) -> void:
 		await wait(1.5)
 		check("coach ride to %s took the fare and moved the player" % String(to_ws["name"]), Game.gold < g0 and p2().distance_to(to_ws["pos"]) < 60.0,
 			"gold %d -> %d, hour %.1f -> %.1f, %.0f m from the stop" % [g0, Game.gold, h0, WorldSim.time_of_day, p2().distance_to(to_ws["pos"])])
+		if p2().distance_to(to_ws["pos"]) >= 60.0:
+			st_hook("teleport onto the waystation %s (the coach ride did not arrive: tree paused %s)" % [String(to_ws["name"]), str(get_tree().paused)])
+			await teleport((to_ws["pos"] as Vector2) + Vector2(3, 3), 0.0, 0.6)
 		await st_travel(dest, label, tol)     # the rest of the way (walk, or the next hop)
 		return
 	st_hook("teleport to %s, %.0f m (no coach stop near both ends: from-stop %.0f m away, goal-stop %.0f m)" % [label, d0,
@@ -4306,6 +4312,24 @@ func st_reach(npc: Node3D, label: String) -> bool:
 
 
 ## Real conversation: go to the place, wait for the character, walk up, E, then click the option the bot's picker chooses, to the end.
+## Act IV: the talk sheet offers "Lay Rowan's ember to rest" beside the dialogue options; the card asks where it rests (a runestone).
+func st_rowan_ember() -> bool:
+	var q := st_q()
+	var wanted := false
+	for sid: String in q.active_steps():
+		var o := q.current_objective(sid)
+		if String(o.get("type", "")) == "ember_choice" and String(o.get("who", "")) == "rowan":
+			wanted = true
+	if not wanted or not await click_option("Lay Rowan"):
+		return false
+	var ok := await click_option("Rest in a runestone")
+	if ok:
+		ok = await click_option(" m)")
+	L("Rowan's ember: laid to rest in a runestone through the cards: %s" % str(ok))
+	close_everything()
+	return ok
+
+
 func st_talk(npc_id: String, place: String) -> bool:
 	var dir := st_dir()
 	if npc_id in ["mother", "father"] and place in ["ashford", "ashford_ring"]:
@@ -4338,6 +4362,9 @@ func st_talk(npc_id: String, place: String) -> bool:
 	var lines: Array[String] = []
 	while hud.is_menu_open() and dir.in_conversation() and turns < 32:
 		turns += 1
+		if npc_id == "rowan_ashby" and await st_rowan_ember():
+			lines.append("(Rowan's ember laid to rest)")
+			break
 		var conv: Dictionary = dir._conv
 		var opts: Array = conv["options"]
 		lines.append(String(conv["line"]).left(60))
@@ -4361,7 +4388,14 @@ func st_stand_at(world_pos: Vector2, label: String, tol := 2.2) -> void:
 	await st_travel(world_pos, label, tol)
 
 
+var st_died_on_way := false    ## the player died before the E press (the road is dangerous): not the stone's blame, the loop retries
+
+
 func st_press_e_menu(label: String) -> bool:
+	st_died_on_way = await ensure_alive()
+	if st_died_on_way:
+		L("died on the way to %s: respawned at home, the story loop travels again" % label)
+		return false
 	close_everything()
 	var cand: Dictionary = Interaction.best(player)
 	L("E at %s: best candidate %s" % [label, str(Interaction.node_of(cand))])
@@ -4428,6 +4462,21 @@ func st_glue_node() -> Node:
 	return main.region1
 
 
+## E at a runestone: when something else wins the prompt (warm ashes beside the stone), step onto the stone and press again.
+func st_press_e_stone(label: String, sp: Vector3) -> bool:
+	if await st_press_e_menu(label):
+		return true
+	if st_died_on_way:
+		return false
+	L("E at %s opened no stone menu (best %s): stepping onto the stone" % [label, str(Interaction.node_of(Interaction.best(player)))])
+	for off: Vector2 in [Vector2(0.5, 0.0), Vector2(-0.5, 0.0), Vector2(0.0, 0.7)]:
+		await st_walk(Vector2(sp.x, sp.z) + off, 0.35, 15.0)
+		var final_ok := await st_press_e_menu(label)
+		if final_ok:
+			return true
+	return false
+
+
 ## Stone menu -> "Carve a glyph" -> the canvas -> the glyph drawn -> the stone takes it. True when the glyph took.
 func st_carve_at_stone(net_id: int, glyph: String, label: String, via_in := "Carve a glyph") -> bool:
 	var via := "Bless the heart-stone" if glyph == "bless" else via_in      # an Elder Stone's menu offers the blessing, not a plain carve
@@ -4436,8 +4485,9 @@ func st_carve_at_stone(net_id: int, glyph: String, label: String, via_in := "Car
 	await st_stand_at(Vector2(sp.x, sp.z) + Vector2(0.9, 0.5), label, _st_stone_tol(net_id))
 	face(Vector2(sp.x, sp.z), -0.1)
 	await st_find_stone_prompt(Vector2(sp.x, sp.z))
-	if not await st_press_e_menu(label):
-		st_blocker("E at %s opened no stone menu (best %s, %.1f m from the stone)" % [label, str(Interaction.node_of(Interaction.best(player))), p2().distance_to(Vector2(sp.x, sp.z))])
+	if not await st_press_e_stone(label, sp):
+		if not st_died_on_way:
+			st_blocker("E at %s opened no stone menu (best %s, %.1f m from the stone)" % [label, str(Interaction.node_of(Interaction.best(player))), p2().distance_to(Vector2(sp.x, sp.z))])
 		return false
 	if not await click_option(via):
 		st_blocker("the stone menu at %s has no '%s' (%s)" % [label, via, str(menu_texts()).left(160)])
@@ -4522,8 +4572,9 @@ func st_stone_menu_option(net_id: int, needle: String, label: String) -> bool:
 	await st_stand_at(Vector2(sp.x, sp.z) + Vector2(0.9, 0.5), label, _st_stone_tol(net_id))
 	face(Vector2(sp.x, sp.z), -0.1)
 	await st_find_stone_prompt(Vector2(sp.x, sp.z))
-	if not await st_press_e_menu(label):
-		st_blocker("E at %s opened no stone menu" % label)
+	if not await st_press_e_stone(label, sp):
+		if not st_died_on_way:
+			st_blocker("E at %s opened no stone menu" % label)
 		return false
 	var ok := await click_option(needle)
 	if not ok:
@@ -4540,8 +4591,13 @@ func st_do_kneel(site: String) -> bool:
 		st_blocker("no 'Kneel at the ashes' prompt at %s (best %s)" % [site, str(Interaction.node_of(Interaction.best(player)))])
 		return false
 	if not await click_option("Kneel"):
-		st_blocker("the ashes menu at %s has no Kneel option (%s)" % [site, str(menu_texts()).left(120)])
-		return false
+		# a runestone beside the ashes opened its own menu: a player steps onto the ashes (warm ashes outrank a stone more than 1.6 m away)
+		L("the ashes menu at %s opened the stone menu (%s): stepping onto the ashes" % [site, str(menu_texts()).left(80)])
+		close_everything()
+		await st_walk(p, 0.6, 20.0)
+		if not await st_press_e_menu("the ashes at " + site) or not await click_option("Kneel"):
+			st_blocker("the ashes menu at %s has no Kneel option (%s)" % [site, str(menu_texts()).left(120)])
+			return false
 	await wait(1.0)
 	var ash: AshsightController = main.region1.ash
 	await wait_until(func() -> bool: return ash.active, 6.0)
@@ -4844,6 +4900,15 @@ func st_do_defeat(o: Dictionary, st: Dictionary) -> bool:
 	if Life.count("venison_roast") < 1 and Life.count("bread") < 3:
 		st_hook("give bread x3 (the parley gift; a player carries bread)")
 		Life.give("bread", 3)
+	# a companion standing beside the player (Idra at the glade) wins the E prompt over the parley: a player steps away from them first
+	for _step in 3:
+		var who: Node3D = Interaction.node_of(Interaction.best(player))
+		if who == null or who.name == "R1ParleyStation":
+			break
+		var away := (p2() - Vector2(who.global_position.x, who.global_position.z))
+		away = away.normalized() if away.length() > 0.1 else Vector2(1, 0)
+		L("step away from %s so the parley is the nearest prompt" % who.name)
+		await st_walk(p2() + away * 7.0, 2.0, 20.0)
 	if not await st_press_e_menu("the parley with %s" % target):
 		st_blocker("no 'Parley' prompt at %s for %s (best %s)" % [place, target, str(Interaction.node_of(Interaction.best(player)))])
 		return false

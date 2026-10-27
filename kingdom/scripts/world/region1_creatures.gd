@@ -253,7 +253,9 @@ func _spawn_roster(site: Dictionary, n: int) -> Squad:
 
 
 ## Story hook (r1_story_director.gd): a camp the player has emptied fills again at once when the quest needs its band.
-func wake_camp(at: Vector2) -> void:
+func wake_camp(at: Vector2, count := 0) -> void:
 	for c: Dictionary in _camps:
 		if (c["site"]["pos"] as Vector2).distance_to(at) < 90.0 and c["squad"] == null:
 			c["dead_day"] = -999
+			if count > 0:
+				c["n"] = mini(int(c["n"]), count)      # the quest asks for `count` kills: a young player meets exactly that many, not the camp's whole roster

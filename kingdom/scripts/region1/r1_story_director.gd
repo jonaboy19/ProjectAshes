@@ -552,7 +552,7 @@ func _spawn(target: String, at: Vector2, n: int, place: String) -> void:
 		"ashen_hand_saboteur":
 			var cr2: Node = get_tree().get_first_node_in_group("r1_creatures") if is_inside_tree() else null
 			if cr2 != null and cr2.has_method("wake_camp"):
-				cr2.call("wake_camp", at)   # the camp's own Ashen Hand roster fills again; its deaths are the quest's kills
+				cr2.call("wake_camp", at, n)   # the camp's own Ashen Hand roster fills again; its deaths are the quest's kills
 		"scarbound_troll":
 			_spawn_troll(at)
 		_:
