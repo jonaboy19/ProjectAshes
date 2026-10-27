@@ -1,0 +1,275 @@
+{
+ "clips": [
+  {
+   "name": "Mx4_BlockEnd",
+   "file": "block_end.fbx",
+   "inplace": "smooth",
+   "inplace_sigma": 0.08
+  },
+  {
+   "name": "Mx4_BlockReactLarge",
+   "file": "block_react_large.fbx",
+   "inplace": "smooth",
+   "inplace_sigma": 0.08
+  },
+  {
+   "name": "Mx4_BlockStart",
+   "file": "block_start.fbx",
+   "inplace": "smooth",
+   "inplace_sigma": 0.08
+  },
+  {
+   "name": "Mx4_CombatWalkBack",
+   "file": "combat_walk_back_inplace.fbx",
+   "loop": true,
+   "inplace": "linear"
+  },
+  {
+   "name": "Mx4_DeathFallingBack",
+   "file": "death_falling_back.fbx",
+   "inplace": "smooth",
+   "inplace_sigma": 0.08,
+   "floor": "min"
+  },
+  {
+   "name": "Mx4_DeathFallingForward",
+   "file": "death_falling_forward.fbx",
+   "inplace": "smooth",
+   "inplace_sigma": 0.08,
+   "floor": "min"
+  },
+  {
+   "name": "Mx4_DeathFromBackOneKnee",
+   "file": "death_from_back_one_knee.fbx",
+   "inplace": "smooth",
+   "inplace_sigma": 0.08,
+   "floor": "min"
+  },
+  {
+   "name": "Mx4_DeathReactBackward",
+   "file": "death_react_backward.fbx",
+   "inplace": "smooth",
+   "inplace_sigma": 0.08,
+   "floor": "min"
+  },
+  {
+   "name": "Mx4_DeathReactForward",
+   "file": "death_react_forward.fbx",
+   "inplace": "smooth",
+   "inplace_sigma": 0.08,
+   "floor": "min"
+  },
+  {
+   "name": "Mx4_DeathReactLeft",
+   "file": "death_react_left.fbx",
+   "inplace": "smooth",
+   "inplace_sigma": 0.08,
+   "floor": "min"
+  },
+  {
+   "name": "Mx4_DeathReactRight",
+   "file": "death_react_right.fbx",
+   "inplace": "smooth",
+   "inplace_sigma": 0.08,
+   "floor": "min"
+  },
+  {
+   "name": "Mx4_DodgeJumpBack",
+   "file": "dodge_jump_back_root.fbx",
+   "inplace": "smooth",
+   "inplace_sigma": 0.08
+  },
+  {
+   "name": "Mx4_DodgeRight",
+   "file": "dodge_right_inplace.fbx",
+   "inplace": "smooth",
+   "inplace_sigma": 0.08
+  },
+  {
+   "name": "Mx4_GetUpFromStomach",
+   "file": "get_up_from_stomach.fbx",
+   "inplace": "smooth",
+   "inplace_sigma": 0.08,
+   "floor": "min"
+  },
+  {
+   "name": "Mx4_KnockedDownStomach",
+   "file": "knocked_down_stomach.fbx",
+   "inplace": "smooth",
+   "inplace_sigma": 0.08,
+   "floor": "min"
+  },
+  {
+   "name": "Mx4_KnockedOutFallBack",
+   "file": "knocked_out_fall_back.fbx",
+   "inplace": "smooth",
+   "inplace_sigma": 0.08,
+   "floor": "min"
+  },
+  {
+   "name": "Mx4_OneHandClubCombo",
+   "file": "one_hand_club_combo.fbx",
+   "inplace": "smooth",
+   "inplace_sigma": 0.08
+  },
+  {
+   "name": "Mx4_OneHandSwordCombo",
+   "file": "one_hand_sword_combo.fbx",
+   "inplace": "smooth",
+   "inplace_sigma": 0.08
+  },
+  {
+   "name": "Mx4_ReactLargeBack",
+   "file": "react_large_back.fbx",
+   "inplace": "smooth",
+   "inplace_sigma": 0.08
+  },
+  {
+   "name": "Mx4_ReactLargeFront",
+   "file": "react_large_front.fbx",
+   "inplace": "smooth",
+   "inplace_sigma": 0.08
+  },
+  {
+   "name": "Mx4_ReactLargeLeft",
+   "file": "react_large_left.fbx",
+   "inplace": "smooth",
+   "inplace_sigma": 0.08
+  },
+  {
+   "name": "Mx4_ReactLargeRight",
+   "file": "react_large_right.fbx",
+   "inplace": "smooth",
+   "inplace_sigma": 0.08
+  },
+  {
+   "name": "Mx4_ReactSmallBack",
+   "file": "react_small_back.fbx",
+   "inplace": "smooth",
+   "inplace_sigma": 0.08
+  },
+  {
+   "name": "Mx4_ReactSmallFront",
+   "file": "react_small_front.fbx",
+   "inplace": "smooth",
+   "inplace_sigma": 0.08
+  },
+  {
+   "name": "Mx4_ReactSmallLeft",
+   "file": "react_small_left.fbx",
+   "inplace": "smooth",
+   "inplace_sigma": 0.08
+  },
+  {
+   "name": "Mx4_ReactSmallRight",
+   "file": "react_small_right.fbx",
+   "inplace": "smooth",
+   "inplace_sigma": 0.08
+  },
+  {
+   "name": "Mx4_ReadyToDefensiveIdle",
+   "file": "ready_to_defensive_idle.fbx",
+   "inplace": "smooth",
+   "inplace_sigma": 0.08
+  },
+  {
+   "name": "Mx4_RollQuickToRun",
+   "file": "roll_quick_to_run_root.fbx",
+   "inplace": "smooth",
+   "inplace_sigma": 0.08
+  },
+  {
+   "name": "Mx4_RollStandToRoll",
+   "file": "roll_stand_to_roll_root.fbx",
+   "inplace": "smooth",
+   "inplace_sigma": 0.08
+  },
+  {
+   "name": "Mx4_ShoveReactionStanding",
+   "file": "shove_reaction_standing.fbx",
+   "inplace": "smooth",
+   "inplace_sigma": 0.08
+  },
+  {
+   "name": "Mx4_SideStepLeftMedium",
+   "file": "side_step_left_medium_root.fbx",
+   "inplace": "smooth",
+   "inplace_sigma": 0.08
+  },
+  {
+   "name": "Mx4_SideStepRightMedium",
+   "file": "side_step_right_medium_root.fbx",
+   "inplace": "smooth",
+   "inplace_sigma": 0.08
+  },
+  {
+   "name": "Mx4_StableSwordOutwardSlash",
+   "file": "stable_sword_outward_slash.fbx",
+   "inplace": "smooth",
+   "inplace_sigma": 0.08
+  },
+  {
+   "name": "Mx4_StaggerBigUppercut",
+   "file": "stagger_big_uppercut.fbx",
+   "inplace": "smooth",
+   "inplace_sigma": 0.08
+  },
+  {
+   "name": "Mx4_StepBackMedium",
+   "file": "step_back_medium_root.fbx",
+   "inplace": "smooth",
+   "inplace_sigma": 0.08
+  },
+  {
+   "name": "Mx4_StepForwardMedium",
+   "file": "step_forward_medium_root.fbx",
+   "inplace": "smooth",
+   "inplace_sigma": 0.08
+  },
+  {
+   "name": "Mx4_StumbleBackwardsFall",
+   "file": "stumble_backwards_fall.fbx",
+   "inplace": "smooth",
+   "inplace_sigma": 0.08,
+   "floor": "min"
+  },
+  {
+   "name": "Mx4_SwordFightDuelAWinner",
+   "file": "sword_fight_duel_a_winner.fbx",
+   "inplace": "smooth",
+   "inplace_sigma": 0.08,
+   "floor": "min"
+  },
+  {
+   "name": "Mx4_SwordFightDuelBLoser",
+   "file": "sword_fight_duel_b_loser.fbx",
+   "inplace": "smooth",
+   "inplace_sigma": 0.08,
+   "floor": "min"
+  },
+  {
+   "name": "Mx4_ThrustSlash",
+   "file": "thrust_slash_root.fbx",
+   "inplace": "smooth",
+   "inplace_sigma": 0.08
+  },
+  {
+   "name": "Mx4_TwoHandClubCombo",
+   "file": "two_hand_club_combo.fbx",
+   "inplace": "smooth",
+   "inplace_sigma": 0.08
+  },
+  {
+   "name": "Mx4_TwoHandSwordCombo",
+   "file": "two_hand_sword_combo.fbx",
+   "inplace": "smooth",
+   "inplace_sigma": 0.08
+  },
+  {
+   "name": "Mx4_UpwardThrust",
+   "file": "upward_thrust.fbx",
+   "inplace": "smooth",
+   "inplace_sigma": 0.08
+  }
+ ]
+}

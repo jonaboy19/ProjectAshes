@@ -180,3 +180,9 @@ Files: PA_plans/videos/slice_route_v11.mp4, side by side PA_plans/videos/slice_r
 | Sky | FAIL | Sky3D clouds read flat; HDRI/cumulus pass not done |
 | HUD | PASS | hidden |
 Verdict: WIP. Big step from v3 (no toy greens, no lollipops), not yet ref-01 level. Next: rebuild the tree set with the installed Blender tree add-ons (sapling/modular_tree + leaf_gen) for rounder dense crowns + impostors; beige dirt albedo + curving road + puddle decal; meadow flowers (dandelion/wildflower scans); sky pass.
+
+## 2026-10-27 Combat pass 6 (combat-motion worker) - set 4 converted, layer 2 reactions - FAIL (improved, WIP)
+File: `PA_plans/videos/WIP_combat_full_motion_slice_clearing_sword_v6.mp4`; sheet `docs/qa/golden/combat/fm_v6_reactions_sheet.jpg`.
+- Combat set 4: 43 clips retargeted to UAL (`UAL_Mx_combat_set4.glb`, root kept) and measured. The root axes check out: ReactLargeFront travels -0.74 m (backwards), ReactLargeBack +0.73 m.
+- Layer 2: `combat_reactions.gd` picks the clip by direction (F/B/L/R) x strength (small < 2.5 m/s knockback <= large < 4.5 <= stagger) x guarding (block react). Bandits play it whole-body, and the clip's root travel moves the capsule (they give ground away from the blow). Partial ragdoll and lean kick stay on top. Death fall clips by killing-blow direction are mapped but not wired yet (the ragdoll death already falls with the hit).
+- Verdict: bandit hits now read as hits (doubling over, stepping back, recoiling behind the shield). FAILs left: finisher impact sparks still a little spiky (spark share reduced again), the player's own reactions/footwork/dodges use the old clips (player lane), the player's shield shows as a pale flat square from some angles (equipment lane), 1v3 not re-recorded.

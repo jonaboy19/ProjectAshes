@@ -1,0 +1,819 @@
+[
+ {
+  "name": "Mx4_BlockEnd",
+  "loop": false,
+  "seconds": 1.3,
+  "frames": 40,
+  "keys": 915,
+  "source": "block_end.fbx",
+  "range_s": [
+   null,
+   null
+  ],
+  "autotrim": null,
+  "loop_pts": null,
+  "floor_fix_m": 0.044,
+  "contact_lift_m": 0.0,
+  "min_foot_m": -0.0,
+  "travel_m": 0.1,
+  "hip_scale": 0.8509
+ },
+ {
+  "name": "Mx4_BlockReactLarge",
+  "loop": false,
+  "seconds": 1.33,
+  "frames": 41,
+  "keys": 1104,
+  "source": "block_react_large.fbx",
+  "range_s": [
+   null,
+   null
+  ],
+  "autotrim": null,
+  "loop_pts": null,
+  "floor_fix_m": 0.027,
+  "contact_lift_m": 0.0,
+  "min_foot_m": -0.0,
+  "travel_m": 0.01,
+  "hip_scale": 0.8509
+ },
+ {
+  "name": "Mx4_BlockStart",
+  "loop": false,
+  "seconds": 0.5,
+  "frames": 16,
+  "keys": 641,
+  "source": "block_start.fbx",
+  "range_s": [
+   null,
+   null
+  ],
+  "autotrim": null,
+  "loop_pts": null,
+  "floor_fix_m": 0.045,
+  "contact_lift_m": 0.0,
+  "min_foot_m": -0.0,
+  "travel_m": 0.09,
+  "hip_scale": 0.8509
+ },
+ {
+  "name": "Mx4_CombatWalkBack",
+  "loop": true,
+  "seconds": 0.83,
+  "frames": 26,
+  "keys": 401,
+  "source": "combat_walk_back_inplace.fbx",
+  "range_s": [
+   0.0,
+   0.8333333333333334
+  ],
+  "autotrim": null,
+  "loop_pts": null,
+  "floor_fix_m": 0.057,
+  "contact_lift_m": 0.0,
+  "min_foot_m": -0.0,
+  "travel_m": 0.0,
+  "hip_scale": 0.8509
+ },
+ {
+  "name": "Mx4_DeathFallingBack",
+  "loop": false,
+  "seconds": 2.6,
+  "frames": 79,
+  "keys": 1462,
+  "source": "death_falling_back.fbx",
+  "range_s": [
+   null,
+   null
+  ],
+  "autotrim": null,
+  "loop_pts": null,
+  "floor_fix_m": 0.048,
+  "contact_lift_m": 0.0,
+  "min_foot_m": -0.006,
+  "travel_m": 0.84,
+  "hip_scale": 0.8509
+ },
+ {
+  "name": "Mx4_DeathFallingForward",
+  "loop": false,
+  "seconds": 2.57,
+  "frames": 78,
+  "keys": 1482,
+  "source": "death_falling_forward.fbx",
+  "range_s": [
+   null,
+   null
+  ],
+  "autotrim": null,
+  "loop_pts": null,
+  "floor_fix_m": 0.102,
+  "contact_lift_m": 0.0,
+  "min_foot_m": -0.0,
+  "travel_m": 0.75,
+  "hip_scale": 0.8509
+ },
+ {
+  "name": "Mx4_DeathFromBackOneKnee",
+  "loop": false,
+  "seconds": 4.33,
+  "frames": 131,
+  "keys": 1518,
+  "source": "death_from_back_one_knee.fbx",
+  "range_s": [
+   null,
+   null
+  ],
+  "autotrim": null,
+  "loop_pts": null,
+  "floor_fix_m": 0.07,
+  "contact_lift_m": 0.006,
+  "min_foot_m": -0.007,
+  "travel_m": 1.29,
+  "hip_scale": 0.8509
+ },
+ {
+  "name": "Mx4_DeathReactBackward",
+  "loop": false,
+  "seconds": 3.63,
+  "frames": 110,
+  "keys": 3286,
+  "source": "death_react_backward.fbx",
+  "range_s": [
+   null,
+   null
+  ],
+  "autotrim": null,
+  "loop_pts": null,
+  "floor_fix_m": 0.034,
+  "contact_lift_m": 0.0,
+  "min_foot_m": -0.01,
+  "travel_m": 0.77,
+  "hip_scale": 0.8509
+ },
+ {
+  "name": "Mx4_DeathReactForward",
+  "loop": false,
+  "seconds": 3.67,
+  "frames": 111,
+  "keys": 3293,
+  "source": "death_react_forward.fbx",
+  "range_s": [
+   null,
+   null
+  ],
+  "autotrim": null,
+  "loop_pts": null,
+  "floor_fix_m": 0.135,
+  "contact_lift_m": 0.025,
+  "min_foot_m": -0.015,
+  "travel_m": 1.16,
+  "hip_scale": 0.8509
+ },
+ {
+  "name": "Mx4_DeathReactLeft",
+  "loop": false,
+  "seconds": 3.6,
+  "frames": 109,
+  "keys": 2988,
+  "source": "death_react_left.fbx",
+  "range_s": [
+   null,
+   null
+  ],
+  "autotrim": null,
+  "loop_pts": null,
+  "floor_fix_m": 0.034,
+  "contact_lift_m": 0.0,
+  "min_foot_m": -0.014,
+  "travel_m": 0.84,
+  "hip_scale": 0.8509
+ },
+ {
+  "name": "Mx4_DeathReactRight",
+  "loop": false,
+  "seconds": 3.5,
+  "frames": 106,
+  "keys": 3385,
+  "source": "death_react_right.fbx",
+  "range_s": [
+   null,
+   null
+  ],
+  "autotrim": null,
+  "loop_pts": null,
+  "floor_fix_m": 0.146,
+  "contact_lift_m": 0.007,
+  "min_foot_m": -0.008,
+  "travel_m": 1.18,
+  "hip_scale": 0.8509
+ },
+ {
+  "name": "Mx4_DodgeJumpBack",
+  "loop": false,
+  "seconds": 2.67,
+  "frames": 81,
+  "keys": 2104,
+  "source": "dodge_jump_back_root.fbx",
+  "range_s": [
+   null,
+   null
+  ],
+  "autotrim": null,
+  "loop_pts": null,
+  "floor_fix_m": 0.057,
+  "contact_lift_m": 0.0,
+  "min_foot_m": -0.013,
+  "travel_m": 1.99,
+  "hip_scale": 0.8509
+ },
+ {
+  "name": "Mx4_DodgeRight",
+  "loop": false,
+  "seconds": 1.43,
+  "frames": 44,
+  "keys": 725,
+  "source": "dodge_right_inplace.fbx",
+  "range_s": [
+   null,
+   null
+  ],
+  "autotrim": null,
+  "loop_pts": null,
+  "floor_fix_m": 0.048,
+  "contact_lift_m": 0.0,
+  "min_foot_m": -0.001,
+  "travel_m": 0.0,
+  "hip_scale": 0.8509
+ },
+ {
+  "name": "Mx4_GetUpFromStomach",
+  "loop": false,
+  "seconds": 8.6,
+  "frames": 259,
+  "keys": 2619,
+  "source": "get_up_from_stomach.fbx",
+  "range_s": [
+   null,
+   null
+  ],
+  "autotrim": null,
+  "loop_pts": null,
+  "floor_fix_m": 0.11,
+  "contact_lift_m": 0.065,
+  "min_foot_m": 0.022,
+  "travel_m": 0.27,
+  "hip_scale": 0.8509
+ },
+ {
+  "name": "Mx4_KnockedDownStomach",
+  "loop": false,
+  "seconds": 2.8,
+  "frames": 85,
+  "keys": 2160,
+  "source": "knocked_down_stomach.fbx",
+  "range_s": [
+   null,
+   null
+  ],
+  "autotrim": null,
+  "loop_pts": null,
+  "floor_fix_m": 0.044,
+  "contact_lift_m": 0.058,
+  "min_foot_m": -0.002,
+  "travel_m": 1.53,
+  "hip_scale": 0.8509
+ },
+ {
+  "name": "Mx4_KnockedOutFallBack",
+  "loop": false,
+  "seconds": 4.93,
+  "frames": 149,
+  "keys": 2521,
+  "source": "knocked_out_fall_back.fbx",
+  "range_s": [
+   null,
+   null
+  ],
+  "autotrim": null,
+  "loop_pts": null,
+  "floor_fix_m": 0.051,
+  "contact_lift_m": 0.0,
+  "min_foot_m": -0.008,
+  "travel_m": 1.26,
+  "hip_scale": 0.8509
+ },
+ {
+  "name": "Mx4_OneHandClubCombo",
+  "loop": false,
+  "seconds": 3.63,
+  "frames": 110,
+  "keys": 2709,
+  "source": "one_hand_club_combo.fbx",
+  "range_s": [
+   null,
+   null
+  ],
+  "autotrim": null,
+  "loop_pts": null,
+  "floor_fix_m": 0.063,
+  "contact_lift_m": 0.0,
+  "min_foot_m": -0.003,
+  "travel_m": 1.23,
+  "hip_scale": 0.8509
+ },
+ {
+  "name": "Mx4_OneHandSwordCombo",
+  "loop": false,
+  "seconds": 4.53,
+  "frames": 137,
+  "keys": 2534,
+  "source": "one_hand_sword_combo.fbx",
+  "range_s": [
+   null,
+   null
+  ],
+  "autotrim": null,
+  "loop_pts": null,
+  "floor_fix_m": 0.069,
+  "contact_lift_m": 0.0,
+  "min_foot_m": -0.002,
+  "travel_m": 0.99,
+  "hip_scale": 0.8509
+ },
+ {
+  "name": "Mx4_ReactLargeBack",
+  "loop": false,
+  "seconds": 1.67,
+  "frames": 51,
+  "keys": 1600,
+  "source": "react_large_back.fbx",
+  "range_s": [
+   null,
+   null
+  ],
+  "autotrim": null,
+  "loop_pts": null,
+  "floor_fix_m": 0.065,
+  "contact_lift_m": 0.0,
+  "min_foot_m": -0.001,
+  "travel_m": 1.35,
+  "hip_scale": 0.8509
+ },
+ {
+  "name": "Mx4_ReactLargeFront",
+  "loop": false,
+  "seconds": 1.37,
+  "frames": 42,
+  "keys": 1201,
+  "source": "react_large_front.fbx",
+  "range_s": [
+   null,
+   null
+  ],
+  "autotrim": null,
+  "loop_pts": null,
+  "floor_fix_m": 0.048,
+  "contact_lift_m": 0.0,
+  "min_foot_m": -0.003,
+  "travel_m": 0.95,
+  "hip_scale": 0.8509
+ },
+ {
+  "name": "Mx4_ReactLargeLeft",
+  "loop": false,
+  "seconds": 1.57,
+  "frames": 48,
+  "keys": 1395,
+  "source": "react_large_left.fbx",
+  "range_s": [
+   null,
+   null
+  ],
+  "autotrim": null,
+  "loop_pts": null,
+  "floor_fix_m": 0.06,
+  "contact_lift_m": 0.0,
+  "min_foot_m": -0.002,
+  "travel_m": 1.05,
+  "hip_scale": 0.8509
+ },
+ {
+  "name": "Mx4_ReactLargeRight",
+  "loop": false,
+  "seconds": 1.63,
+  "frames": 50,
+  "keys": 1329,
+  "source": "react_large_right.fbx",
+  "range_s": [
+   null,
+   null
+  ],
+  "autotrim": null,
+  "loop_pts": null,
+  "floor_fix_m": 0.05,
+  "contact_lift_m": 0.0,
+  "min_foot_m": -0.001,
+  "travel_m": 0.95,
+  "hip_scale": 0.8509
+ },
+ {
+  "name": "Mx4_ReactSmallBack",
+  "loop": false,
+  "seconds": 1.27,
+  "frames": 39,
+  "keys": 869,
+  "source": "react_small_back.fbx",
+  "range_s": [
+   null,
+   null
+  ],
+  "autotrim": null,
+  "loop_pts": null,
+  "floor_fix_m": 0.057,
+  "contact_lift_m": 0.0,
+  "min_foot_m": -0.0,
+  "travel_m": 0.0,
+  "hip_scale": 0.8509
+ },
+ {
+  "name": "Mx4_ReactSmallFront",
+  "loop": false,
+  "seconds": 1.2,
+  "frames": 37,
+  "keys": 752,
+  "source": "react_small_front.fbx",
+  "range_s": [
+   null,
+   null
+  ],
+  "autotrim": null,
+  "loop_pts": null,
+  "floor_fix_m": 0.045,
+  "contact_lift_m": 0.0,
+  "min_foot_m": -0.0,
+  "travel_m": 0.0,
+  "hip_scale": 0.8509
+ },
+ {
+  "name": "Mx4_ReactSmallLeft",
+  "loop": false,
+  "seconds": 1.2,
+  "frames": 37,
+  "keys": 656,
+  "source": "react_small_left.fbx",
+  "range_s": [
+   null,
+   null
+  ],
+  "autotrim": null,
+  "loop_pts": null,
+  "floor_fix_m": 0.054,
+  "contact_lift_m": 0.0,
+  "min_foot_m": -0.0,
+  "travel_m": 0.0,
+  "hip_scale": 0.8509
+ },
+ {
+  "name": "Mx4_ReactSmallRight",
+  "loop": false,
+  "seconds": 1.0,
+  "frames": 31,
+  "keys": 649,
+  "source": "react_small_right.fbx",
+  "range_s": [
+   null,
+   null
+  ],
+  "autotrim": null,
+  "loop_pts": null,
+  "floor_fix_m": 0.046,
+  "contact_lift_m": 0.0,
+  "min_foot_m": -0.0,
+  "travel_m": 0.0,
+  "hip_scale": 0.8509
+ },
+ {
+  "name": "Mx4_ReadyToDefensiveIdle",
+  "loop": false,
+  "seconds": 2.5,
+  "frames": 76,
+  "keys": 237,
+  "source": "ready_to_defensive_idle.fbx",
+  "range_s": [
+   null,
+   null
+  ],
+  "autotrim": null,
+  "loop_pts": null,
+  "floor_fix_m": 0.049,
+  "contact_lift_m": 0.0,
+  "min_foot_m": -0.0,
+  "travel_m": 0.0,
+  "hip_scale": 0.8509
+ },
+ {
+  "name": "Mx4_RollQuickToRun",
+  "loop": false,
+  "seconds": 1.4,
+  "frames": 43,
+  "keys": 1870,
+  "source": "roll_quick_to_run_root.fbx",
+  "range_s": [
+   null,
+   null
+  ],
+  "autotrim": null,
+  "loop_pts": null,
+  "floor_fix_m": 0.081,
+  "contact_lift_m": 0.119,
+  "min_foot_m": -0.002,
+  "travel_m": 4.73,
+  "hip_scale": 0.8509
+ },
+ {
+  "name": "Mx4_RollStandToRoll",
+  "loop": false,
+  "seconds": 2.37,
+  "frames": 72,
+  "keys": 2145,
+  "source": "roll_stand_to_roll_root.fbx",
+  "range_s": [
+   null,
+   null
+  ],
+  "autotrim": null,
+  "loop_pts": null,
+  "floor_fix_m": 0.113,
+  "contact_lift_m": 0.052,
+  "min_foot_m": -0.001,
+  "travel_m": 3.83,
+  "hip_scale": 0.8509
+ },
+ {
+  "name": "Mx4_ShoveReactionStanding",
+  "loop": false,
+  "seconds": 3.0,
+  "frames": 91,
+  "keys": 1057,
+  "source": "shove_reaction_standing.fbx",
+  "range_s": [
+   null,
+   null
+  ],
+  "autotrim": null,
+  "loop_pts": null,
+  "floor_fix_m": 0.041,
+  "contact_lift_m": 0.0,
+  "min_foot_m": -0.0,
+  "travel_m": 0.0,
+  "hip_scale": 0.8509
+ },
+ {
+  "name": "Mx4_SideStepLeftMedium",
+  "loop": false,
+  "seconds": 0.83,
+  "frames": 26,
+  "keys": 470,
+  "source": "side_step_left_medium_root.fbx",
+  "range_s": [
+   null,
+   null
+  ],
+  "autotrim": null,
+  "loop_pts": null,
+  "floor_fix_m": 0.041,
+  "contact_lift_m": 0.0,
+  "min_foot_m": -0.001,
+  "travel_m": 0.31,
+  "hip_scale": 0.8509
+ },
+ {
+  "name": "Mx4_SideStepRightMedium",
+  "loop": false,
+  "seconds": 0.83,
+  "frames": 26,
+  "keys": 467,
+  "source": "side_step_right_medium_root.fbx",
+  "range_s": [
+   null,
+   null
+  ],
+  "autotrim": null,
+  "loop_pts": null,
+  "floor_fix_m": 0.04,
+  "contact_lift_m": 0.0,
+  "min_foot_m": -0.0,
+  "travel_m": 0.38,
+  "hip_scale": 0.8509
+ },
+ {
+  "name": "Mx4_StableSwordOutwardSlash",
+  "loop": false,
+  "seconds": 2.03,
+  "frames": 62,
+  "keys": 926,
+  "source": "stable_sword_outward_slash.fbx",
+  "range_s": [
+   null,
+   null
+  ],
+  "autotrim": null,
+  "loop_pts": null,
+  "floor_fix_m": 0.053,
+  "contact_lift_m": 0.0,
+  "min_foot_m": -0.001,
+  "travel_m": 0.0,
+  "hip_scale": 0.8509
+ },
+ {
+  "name": "Mx4_StaggerBigUppercut",
+  "loop": false,
+  "seconds": 2.43,
+  "frames": 74,
+  "keys": 1289,
+  "source": "stagger_big_uppercut.fbx",
+  "range_s": [
+   null,
+   null
+  ],
+  "autotrim": null,
+  "loop_pts": null,
+  "floor_fix_m": 0.059,
+  "contact_lift_m": 0.0,
+  "min_foot_m": -0.004,
+  "travel_m": 1.29,
+  "hip_scale": 0.8509
+ },
+ {
+  "name": "Mx4_StepBackMedium",
+  "loop": false,
+  "seconds": 0.8,
+  "frames": 25,
+  "keys": 454,
+  "source": "step_back_medium_root.fbx",
+  "range_s": [
+   null,
+   null
+  ],
+  "autotrim": null,
+  "loop_pts": null,
+  "floor_fix_m": 0.038,
+  "contact_lift_m": 0.0,
+  "min_foot_m": -0.0,
+  "travel_m": 0.5,
+  "hip_scale": 0.8509
+ },
+ {
+  "name": "Mx4_StepForwardMedium",
+  "loop": false,
+  "seconds": 0.93,
+  "frames": 29,
+  "keys": 512,
+  "source": "step_forward_medium_root.fbx",
+  "range_s": [
+   null,
+   null
+  ],
+  "autotrim": null,
+  "loop_pts": null,
+  "floor_fix_m": 0.036,
+  "contact_lift_m": 0.0,
+  "min_foot_m": -0.0,
+  "travel_m": 0.78,
+  "hip_scale": 0.8509
+ },
+ {
+  "name": "Mx4_StumbleBackwardsFall",
+  "loop": false,
+  "seconds": 3.33,
+  "frames": 101,
+  "keys": 2789,
+  "source": "stumble_backwards_fall.fbx",
+  "range_s": [
+   null,
+   null
+  ],
+  "autotrim": null,
+  "loop_pts": null,
+  "floor_fix_m": 0.045,
+  "contact_lift_m": 0.013,
+  "min_foot_m": -0.001,
+  "travel_m": 1.63,
+  "hip_scale": 0.8509
+ },
+ {
+  "name": "Mx4_SwordFightDuelAWinner",
+  "loop": false,
+  "seconds": 8.2,
+  "frames": 247,
+  "keys": 2668,
+  "source": "sword_fight_duel_a_winner.fbx",
+  "range_s": [
+   null,
+   null
+  ],
+  "autotrim": null,
+  "loop_pts": null,
+  "floor_fix_m": 0.054,
+  "contact_lift_m": 0.0,
+  "min_foot_m": -0.003,
+  "travel_m": 0.1,
+  "hip_scale": 0.8509
+ },
+ {
+  "name": "Mx4_SwordFightDuelBLoser",
+  "loop": false,
+  "seconds": 8.17,
+  "frames": 246,
+  "keys": 3426,
+  "source": "sword_fight_duel_b_loser.fbx",
+  "range_s": [
+   null,
+   null
+  ],
+  "autotrim": null,
+  "loop_pts": null,
+  "floor_fix_m": 0.09,
+  "contact_lift_m": 0.0,
+  "min_foot_m": -0.007,
+  "travel_m": 0.96,
+  "hip_scale": 0.8509
+ },
+ {
+  "name": "Mx4_ThrustSlash",
+  "loop": false,
+  "seconds": 3.0,
+  "frames": 91,
+  "keys": 1964,
+  "source": "thrust_slash_root.fbx",
+  "range_s": [
+   null,
+   null
+  ],
+  "autotrim": null,
+  "loop_pts": null,
+  "floor_fix_m": 0.05,
+  "contact_lift_m": 0.0,
+  "min_foot_m": -0.003,
+  "travel_m": 0.0,
+  "hip_scale": 0.8509
+ },
+ {
+  "name": "Mx4_TwoHandClubCombo",
+  "loop": false,
+  "seconds": 5.43,
+  "frames": 164,
+  "keys": 2639,
+  "source": "two_hand_club_combo.fbx",
+  "range_s": [
+   null,
+   null
+  ],
+  "autotrim": null,
+  "loop_pts": null,
+  "floor_fix_m": 0.053,
+  "contact_lift_m": 0.0,
+  "min_foot_m": -0.004,
+  "travel_m": 1.3,
+  "hip_scale": 0.8509
+ },
+ {
+  "name": "Mx4_TwoHandSwordCombo",
+  "loop": false,
+  "seconds": 3.27,
+  "frames": 99,
+  "keys": 1906,
+  "source": "two_hand_sword_combo.fbx",
+  "range_s": [
+   null,
+   null
+  ],
+  "autotrim": null,
+  "loop_pts": null,
+  "floor_fix_m": 0.055,
+  "contact_lift_m": 0.0,
+  "min_foot_m": -0.001,
+  "travel_m": 1.6,
+  "hip_scale": 0.8509
+ },
+ {
+  "name": "Mx4_UpwardThrust",
+  "loop": false,
+  "seconds": 2.33,
+  "frames": 71,
+  "keys": 1402,
+  "source": "upward_thrust.fbx",
+  "range_s": [
+   null,
+   null
+  ],
+  "autotrim": null,
+  "loop_pts": null,
+  "floor_fix_m": 0.052,
+  "contact_lift_m": 0.0,
+  "min_foot_m": -0.001,
+  "travel_m": 0.02,
+  "hip_scale": 0.8509
+ }
+]

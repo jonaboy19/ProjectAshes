@@ -17,7 +17,7 @@ const SPARK_MAX := 28
 const DUST_MAX := 8
 ## Per tier (light, heavy, finisher): overall size, spark share, slash count, seconds the slot is busy.
 const TIER_SIZE := [0.45, 0.65, 0.95]      ## smaller: contact reads from the bodies, not a flare (AAA gate ref 03)
-const TIER_SPARKS := [0.4, 0.7, 1.0]
+const TIER_SPARKS := [0.25, 0.4, 0.55]     ## fewer streaks: a finisher burst read as white spikes in review
 const TIER_SLASHES := [0, 0, 0]          ## no slash starbursts (coordinator review: cartoonish next to ref 03)
 const BUSY := [0.45, 0.5, 0.55]
 ## Ground ring diameter in metres (a body is ~0.7 m wide: a finisher ring is ~2.5 body widths) and its start alpha.

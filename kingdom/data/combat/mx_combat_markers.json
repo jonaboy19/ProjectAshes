@@ -1,4 +1,692 @@
 {
+ "Mx4_BlockEnd": {
+  "active": [
+   0.1,
+   0.433
+  ],
+  "dir": "right",
+  "drop": 0.0,
+  "fwd_end": 0.019,
+  "fwd_hit": 0.017,
+  "hand": "r",
+  "hit": 0.267,
+  "len": 1.3,
+  "loop": false,
+  "peak_ms": 1.96,
+  "side_end": 0.1
+ },
+ "Mx4_BlockReactLarge": {
+  "active": [
+   0.033,
+   0.2
+  ],
+  "dir": "thrust",
+  "drop": 0.0,
+  "fwd_end": -0.006,
+  "fwd_hit": 0.01,
+  "hand": "r",
+  "hit": 0.133,
+  "len": 1.333,
+  "loop": false,
+  "peak_ms": 2.14,
+  "side_end": -0.001
+ },
+ "Mx4_BlockStart": {
+  "active": [
+   0.067,
+   0.267
+  ],
+  "dir": "left",
+  "drop": 0.06,
+  "fwd_end": 0.01,
+  "fwd_hit": 0.034,
+  "hand": "r",
+  "hit": 0.233,
+  "len": 0.5,
+  "loop": false,
+  "peak_ms": 3.52,
+  "side_end": -0.09
+ },
+ "Mx4_CombatWalkBack": {
+  "active": [
+   0.3,
+   0.533
+  ],
+  "dir": "right",
+  "drop": 0.066,
+  "fwd_end": 0.0,
+  "fwd_hit": 0.0,
+  "hand": "l",
+  "hit": 0.467,
+  "len": 0.833,
+  "loop": true,
+  "peak_ms": 0.8,
+  "side_end": 0.0
+ },
+ "Mx4_DeathFallingBack": {
+  "active": [
+   0.8,
+   0.9
+  ],
+  "dir": "overhead",
+  "drop": 0.629,
+  "fwd_end": -0.428,
+  "fwd_hit": -0.274,
+  "hand": "l",
+  "hit": 0.867,
+  "len": 2.6,
+  "loop": false,
+  "peak_ms": 7.97,
+  "side_end": -0.727
+ },
+ "Mx4_DeathFallingForward": {
+  "active": [
+   0.767,
+   0.867
+  ],
+  "dir": "overhead",
+  "drop": 0.601,
+  "fwd_end": 0.524,
+  "fwd_hit": 0.253,
+  "hand": "l",
+  "hit": 0.833,
+  "len": 2.567,
+  "loop": false,
+  "peak_ms": 4.53,
+  "side_end": 0.535
+ },
+ "Mx4_DeathFromBackOneKnee": {
+  "active": [
+   3.0,
+   3.233
+  ],
+  "dir": "overhead",
+  "drop": 0.748,
+  "fwd_end": 1.274,
+  "fwd_hit": 1.106,
+  "hand": "l",
+  "hit": 3.167,
+  "len": 4.333,
+  "loop": false,
+  "peak_ms": 3.97,
+  "side_end": -0.224
+ },
+ "Mx4_DeathReactBackward": {
+  "active": [
+   2.167,
+   2.5
+  ],
+  "dir": "right",
+  "drop": 0.675,
+  "fwd_end": -0.396,
+  "fwd_hit": -0.451,
+  "hand": "r",
+  "hit": 2.367,
+  "len": 3.633,
+  "loop": false,
+  "peak_ms": 4.94,
+  "side_end": -0.66
+ },
+ "Mx4_DeathReactForward": {
+  "active": [
+   0.067,
+   0.267
+  ],
+  "dir": "rising",
+  "drop": 0.674,
+  "fwd_end": 0.831,
+  "fwd_hit": 0.067,
+  "hand": "l",
+  "hit": 0.167,
+  "len": 3.667,
+  "loop": false,
+  "peak_ms": 3.34,
+  "side_end": 0.81
+ },
+ "Mx4_DeathReactLeft": {
+  "active": [
+   1.633,
+   1.767
+  ],
+  "dir": "thrust",
+  "drop": 0.681,
+  "fwd_end": -0.741,
+  "fwd_hit": -0.569,
+  "hand": "r",
+  "hit": 1.667,
+  "len": 3.6,
+  "loop": false,
+  "peak_ms": 5.43,
+  "side_end": 0.401
+ },
+ "Mx4_DeathReactRight": {
+  "active": [
+   0.3,
+   0.533
+  ],
+  "dir": "overhead",
+  "drop": 0.684,
+  "fwd_end": 1.049,
+  "fwd_hit": 0.177,
+  "hand": "r",
+  "hit": 0.367,
+  "len": 3.5,
+  "loop": false,
+  "peak_ms": 4.73,
+  "side_end": -0.541
+ },
+ "Mx4_DodgeJumpBack": {
+  "active": [
+   1.1,
+   1.467
+  ],
+  "dir": "overhead",
+  "drop": 0.143,
+  "fwd_end": -1.977,
+  "fwd_hit": -1.416,
+  "hand": "r",
+  "hit": 1.367,
+  "len": 2.667,
+  "loop": false,
+  "peak_ms": 5.65,
+  "side_end": 0.193
+ },
+ "Mx4_DodgeRight": {
+  "active": [
+   0.233,
+   0.333
+  ],
+  "dir": "thrust",
+  "drop": 0.121,
+  "fwd_end": 0.002,
+  "fwd_hit": 0.011,
+  "hand": "r",
+  "hit": 0.267,
+  "len": 1.433,
+  "loop": false,
+  "peak_ms": 3.4,
+  "side_end": 0.004
+ },
+ "Mx4_GetUpFromStomach": {
+  "active": [
+   5.2,
+   5.867
+  ],
+  "dir": "rising",
+  "drop": 0.0,
+  "fwd_end": -0.258,
+  "fwd_hit": -0.229,
+  "hand": "r",
+  "hit": 5.6,
+  "len": 8.6,
+  "loop": false,
+  "peak_ms": 1.27,
+  "side_end": 0.062
+ },
+ "Mx4_KnockedDownStomach": {
+  "active": [
+   0.7,
+   1.0
+  ],
+  "dir": "thrust",
+  "drop": 0.722,
+  "fwd_end": -0.772,
+  "fwd_hit": -0.102,
+  "hand": "l",
+  "hit": 0.7,
+  "len": 2.8,
+  "loop": false,
+  "peak_ms": 6.17,
+  "side_end": -1.326
+ },
+ "Mx4_KnockedOutFallBack": {
+  "active": [
+   2.033,
+   2.2
+  ],
+  "dir": "overhead",
+  "drop": 0.729,
+  "fwd_end": -0.232,
+  "fwd_hit": -0.166,
+  "hand": "r",
+  "hit": 2.167,
+  "len": 4.933,
+  "loop": false,
+  "peak_ms": 3.55,
+  "side_end": -1.242
+ },
+ "Mx4_OneHandClubCombo": {
+  "active": [
+   2.033,
+   2.333
+  ],
+  "dir": "thrust",
+  "drop": 0.056,
+  "fwd_end": 0.617,
+  "fwd_hit": 0.885,
+  "hand": "r",
+  "hit": 2.2,
+  "len": 3.633,
+  "loop": false,
+  "peak_ms": 9.59,
+  "side_end": 1.059
+ },
+ "Mx4_OneHandSwordCombo": {
+  "active": [
+   2.867,
+   3.067
+  ],
+  "dir": "left",
+  "drop": 0.007,
+  "fwd_end": 0.456,
+  "fwd_hit": 0.497,
+  "hand": "r",
+  "hit": 2.967,
+  "len": 4.533,
+  "loop": false,
+  "peak_ms": 9.49,
+  "side_end": 0.88
+ },
+ "Mx4_ReactLargeBack": {
+  "active": [
+   0.433,
+   0.667
+  ],
+  "dir": "overhead",
+  "drop": 0.116,
+  "fwd_end": 0.729,
+  "fwd_hit": 0.509,
+  "hand": "l",
+  "hit": 0.6,
+  "len": 1.667,
+  "loop": false,
+  "peak_ms": 4.53,
+  "side_end": 1.139
+ },
+ "Mx4_ReactLargeFront": {
+  "active": [
+   0.333,
+   0.533
+  ],
+  "dir": "overhead",
+  "drop": 0.037,
+  "fwd_end": -0.74,
+  "fwd_hit": -0.344,
+  "hand": "r",
+  "hit": 0.433,
+  "len": 1.367,
+  "loop": false,
+  "peak_ms": 3.12,
+  "side_end": -0.595
+ },
+ "Mx4_ReactLargeLeft": {
+  "active": [
+   0.3,
+   0.567
+  ],
+  "dir": "overhead",
+  "drop": 0.065,
+  "fwd_end": 0.819,
+  "fwd_hit": 0.329,
+  "hand": "r",
+  "hit": 0.4,
+  "len": 1.567,
+  "loop": false,
+  "peak_ms": 3.88,
+  "side_end": -0.659
+ },
+ "Mx4_ReactLargeRight": {
+  "active": [
+   0.467,
+   0.767
+  ],
+  "dir": "thrust",
+  "drop": 0.009,
+  "fwd_end": -0.774,
+  "fwd_hit": -0.541,
+  "hand": "l",
+  "hit": 0.6,
+  "len": 1.633,
+  "loop": false,
+  "peak_ms": 3.52,
+  "side_end": 0.551
+ },
+ "Mx4_ReactSmallBack": {
+  "active": [
+   0.033,
+   0.233
+  ],
+  "dir": "thrust",
+  "drop": 0.001,
+  "fwd_end": -0.002,
+  "fwd_hit": 0.02,
+  "hand": "r",
+  "hit": 0.167,
+  "len": 1.267,
+  "loop": false,
+  "peak_ms": 1.53,
+  "side_end": -0.002
+ },
+ "Mx4_ReactSmallFront": {
+  "active": [
+   0.2,
+   0.3
+  ],
+  "dir": "rising",
+  "drop": 0.002,
+  "fwd_end": 0.0,
+  "fwd_hit": 0.0,
+  "hand": "l",
+  "hit": 0.267,
+  "len": 1.2,
+  "loop": false,
+  "peak_ms": 1.32,
+  "side_end": 0.0
+ },
+ "Mx4_ReactSmallLeft": {
+  "active": [
+   0.267,
+   0.467
+  ],
+  "dir": "overhead",
+  "drop": 0.023,
+  "fwd_end": -0.003,
+  "fwd_hit": 0.026,
+  "hand": "r",
+  "hit": 0.4,
+  "len": 1.2,
+  "loop": false,
+  "peak_ms": 1.53,
+  "side_end": -0.002
+ },
+ "Mx4_ReactSmallRight": {
+  "active": [
+   0.033,
+   0.333
+  ],
+  "dir": "rising",
+  "drop": 0.0,
+  "fwd_end": 0.0,
+  "fwd_hit": 0.0,
+  "hand": "l",
+  "hit": 0.267,
+  "len": 1.0,
+  "loop": false,
+  "peak_ms": 0.59,
+  "side_end": 0.0
+ },
+ "Mx4_ReadyToDefensiveIdle": {
+  "active": [
+   0.4,
+   0.433
+  ],
+  "dir": "right",
+  "drop": 0.0,
+  "fwd_end": 0.0,
+  "fwd_hit": 0.0,
+  "hand": "l",
+  "hit": 0.4,
+  "len": 2.5,
+  "loop": false,
+  "peak_ms": 0.06,
+  "side_end": 0.0
+ },
+ "Mx4_RollQuickToRun": {
+  "active": [
+   0.5,
+   1.1
+  ],
+  "dir": "thrust",
+  "drop": 0.533,
+  "fwd_end": 4.69,
+  "fwd_hit": 2.667,
+  "hand": "r",
+  "hit": 0.633,
+  "len": 1.4,
+  "loop": false,
+  "peak_ms": 6.5,
+  "side_end": -0.608
+ },
+ "Mx4_RollStandToRoll": {
+  "active": [
+   1.167,
+   1.4
+  ],
+  "dir": "left",
+  "drop": 0.681,
+  "fwd_end": 3.371,
+  "fwd_hit": 2.621,
+  "hand": "l",
+  "hit": 1.267,
+  "len": 2.367,
+  "loop": false,
+  "peak_ms": 6.44,
+  "side_end": 1.817
+ },
+ "Mx4_ShoveReactionStanding": {
+  "active": [
+   0.367,
+   0.767
+  ],
+  "dir": "thrust",
+  "drop": 0.055,
+  "fwd_end": 0.002,
+  "fwd_hit": -0.025,
+  "hand": "r",
+  "hit": 0.467,
+  "len": 3.0,
+  "loop": false,
+  "peak_ms": 2.23,
+  "side_end": -0.003
+ },
+ "Mx4_SideStepLeftMedium": {
+  "active": [
+   0.333,
+   0.6
+  ],
+  "dir": "overhead",
+  "drop": 0.035,
+  "fwd_end": -0.212,
+  "fwd_hit": -0.15,
+  "hand": "r",
+  "hit": 0.367,
+  "len": 0.833,
+  "loop": false,
+  "peak_ms": 1.47,
+  "side_end": 0.221
+ },
+ "Mx4_SideStepRightMedium": {
+  "active": [
+   0.033,
+   0.067
+  ],
+  "dir": "overhead",
+  "drop": 0.029,
+  "fwd_end": 0.22,
+  "fwd_hit": 0.006,
+  "hand": "r",
+  "hit": 0.033,
+  "len": 0.833,
+  "loop": false,
+  "peak_ms": 1.07,
+  "side_end": -0.311
+ },
+ "Mx4_StableSwordOutwardSlash": {
+  "active": [
+   0.767,
+   0.967
+  ],
+  "dir": "thrust",
+  "drop": 0.008,
+  "fwd_end": 0.001,
+  "fwd_hit": 0.025,
+  "hand": "r",
+  "hit": 0.833,
+  "len": 2.033,
+  "loop": false,
+  "peak_ms": 10.48,
+  "side_end": 0.0
+ },
+ "Mx4_StaggerBigUppercut": {
+  "active": [
+   0.467,
+   0.767
+  ],
+  "dir": "overhead",
+  "drop": 0.084,
+  "fwd_end": -1.154,
+  "fwd_hit": -0.212,
+  "hand": "r",
+  "hit": 0.567,
+  "len": 2.433,
+  "loop": false,
+  "peak_ms": 5.39,
+  "side_end": -0.57
+ },
+ "Mx4_StepBackMedium": {
+  "active": [
+   0.267,
+   0.733
+  ],
+  "dir": "overhead",
+  "drop": 0.062,
+  "fwd_end": -0.359,
+  "fwd_hit": -0.142,
+  "hand": "l",
+  "hit": 0.333,
+  "len": 0.8,
+  "loop": false,
+  "peak_ms": 0.88,
+  "side_end": -0.343
+ },
+ "Mx4_StepForwardMedium": {
+  "active": [
+   0.667,
+   0.833
+  ],
+  "dir": "rising",
+  "drop": 0.114,
+  "fwd_end": 0.68,
+  "fwd_hit": 0.593,
+  "hand": "r",
+  "hit": 0.767,
+  "len": 0.933,
+  "loop": false,
+  "peak_ms": 0.74,
+  "side_end": 0.372
+ },
+ "Mx4_StumbleBackwardsFall": {
+  "active": [
+   0.533,
+   0.7
+  ],
+  "dir": "thrust",
+  "drop": 0.762,
+  "fwd_end": -1.62,
+  "fwd_hit": -0.199,
+  "hand": "r",
+  "hit": 0.6,
+  "len": 3.333,
+  "loop": false,
+  "peak_ms": 6.33,
+  "side_end": 0.134
+ },
+ "Mx4_SwordFightDuelAWinner": {
+  "active": [
+   5.667,
+   5.867
+  ],
+  "dir": "right",
+  "drop": 0.203,
+  "fwd_end": -0.019,
+  "fwd_hit": -0.005,
+  "hand": "r",
+  "hit": 5.767,
+  "len": 8.2,
+  "loop": false,
+  "peak_ms": 4.98,
+  "side_end": -0.096
+ },
+ "Mx4_SwordFightDuelBLoser": {
+  "active": [
+   1.433,
+   1.767
+  ],
+  "dir": "left",
+  "drop": 0.628,
+  "fwd_end": -0.018,
+  "fwd_hit": 0.083,
+  "hand": "r",
+  "hit": 1.533,
+  "len": 8.167,
+  "loop": false,
+  "peak_ms": 7.0,
+  "side_end": 0.957
+ },
+ "Mx4_ThrustSlash": {
+  "active": [
+   0.667,
+   0.767
+  ],
+  "dir": "left",
+  "drop": 0.048,
+  "fwd_end": -0.003,
+  "fwd_hit": 0.367,
+  "hand": "r",
+  "hit": 0.733,
+  "len": 3.0,
+  "loop": false,
+  "peak_ms": 8.88,
+  "side_end": 0.003
+ },
+ "Mx4_TwoHandClubCombo": {
+  "active": [
+   2.633,
+   3.2
+  ],
+  "dir": "overhead",
+  "drop": 0.077,
+  "fwd_end": 0.541,
+  "fwd_hit": 0.474,
+  "hand": "r",
+  "hit": 2.8,
+  "len": 5.433,
+  "loop": false,
+  "peak_ms": 5.45,
+  "side_end": 1.18
+ },
+ "Mx4_TwoHandSwordCombo": {
+  "active": [
+   0.467,
+   0.767
+  ],
+  "dir": "thrust",
+  "drop": 0.05,
+  "fwd_end": 0.159,
+  "fwd_hit": -0.006,
+  "hand": "r",
+  "hit": 0.6,
+  "len": 3.267,
+  "loop": false,
+  "peak_ms": 7.32,
+  "side_end": 1.596
+ },
+ "Mx4_UpwardThrust": {
+  "active": [
+   0.6,
+   0.767
+  ],
+  "dir": "left",
+  "drop": 0.103,
+  "fwd_end": -0.012,
+  "fwd_hit": 0.476,
+  "hand": "r",
+  "hit": 0.7,
+  "len": 2.333,
+  "loop": false,
+  "peak_ms": 5.09,
+  "side_end": -0.009
+ },
  "Mx_Axe_Attack_360_High": {
   "active": [
    0.867,

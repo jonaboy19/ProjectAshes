@@ -409,7 +409,8 @@ func take_damage(amount: int, from: Node = null, knockback := Vector3.ZERO) -> v
 		_guard = 0.6
 		_impulse = knockback * 0.4
 		_last_block_ms = Time.get_ticks_msec()
-		_animator.play_upper(SoldierAaaScript.block_clip(self, _keep), 1.5)
+		var guard_clip := Reactions.react(_hit_side(from), knockback.length(), true)
+		_animator.play_upper(guard_clip if _animator.has_clip(guard_clip) else SoldierAaaScript.block_clip(self, _keep), 1.5)   # block react: arms recoil, no flesh hit
 		return
 	if squad:
 		amount = roundi(amount * squad.incoming_mult(self, from))
@@ -431,7 +432,16 @@ func take_damage(amount: int, from: Node = null, knockback := Vector3.ZERO) -> v
 		_busy = Ragdoll.KNOCK_TIME + 0.4
 	else:
 		_busy = 0.35
-		if knockback.length() > 4.0:
+		# a reaction that matches the blow: direction x strength (combat_reactions.gd, Mixamo set 4), its root travel played
+		# through combat_motion so large reacts give ground away from the hit
+		var react := Reactions.react(_hit_side(from), knockback.length(), false, randi())
+		if _animator.has_clip(react):
+			_animator.play_full(react, REACT_RATE)
+			_busy = maxf(_busy, minf(_animator.clip_length(react) / REACT_RATE, 0.95))
+			var rm: Animation = CombatMotion.anim_of(_animator, react)
+			if rm != null:
+				_cmotion.begin(rm, REACT_RATE, 0.0, _model.scale.x, 1.25)
+		elif knockback.length() > 4.0:
 			_animator.play_full("Hit_Heavy_" + _hit_side(from), 1.0)
 		else:
 			_animator.play_upper(SoldierAaaScript.light_hit(self, _hit_side(from), randf()), 1.0)
@@ -658,6 +668,8 @@ var _foot_t := 0.0
 var _foot_side := 1.0
 var _foot_range := 2.0
 const LeanAim := preload("res://scripts/combat/lean_aim.gd")
+const Reactions := preload("res://scripts/combat/combat_reactions.gd")
+const REACT_RATE := 1.15
 var _lean: SkeletonModifier3D
 
 
