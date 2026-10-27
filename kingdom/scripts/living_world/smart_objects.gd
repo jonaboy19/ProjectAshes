@@ -23,6 +23,21 @@ const CELL := 16.0
 ## Pelvis distance behind the root that seated slots are laid out for (Life_Rest_Sit_Bench).
 const SEAT_REF := 0.35
 const JOBS := ["Farmer", "Blacksmith", "Merchant", "Guard", "Laborer", "Woodcutter"]
+## Schema v2 (NPC_MOTION_RULES O1-O5). Every key below is optional; the defaults reproduce the v1 behaviour.
+## Need names are the ones utility_brain restores (RESTORE table).
+const NEEDS := ["water", "food", "rest", "social", "faith", "breath"]
+const IK_LIMBS := ["hand_l", "hand_r", "foot_l", "foot_r"]
+const ENTER_SIDES := ["front", "side", "back"]
+const DEFAULT_ARC := 180.0          # approach_arc is a half-angle in degrees; 180 = any direction (v1)
+const DEFAULT_WATCH_RING := 2.0
+const WATCH_SPREAD := 0.6           # radians between neighbouring watcher points on the ring
+const FRONT_HALF := 45.0            # side classification: |bearing| <= 45 front, <= 135 side, else back
+const SIDE_HALF := 135.0
+const SLOW_DIST := 1.2              # O2: slow down over the last metres of the approach
+const SLOW_MIN := 0.35
+const ARC_MARGIN := 12.0            # arrival waypoints stay this far inside the arc edge (reach slack)
+const ARC_REACH := 0.15             # reach radius of an arc waypoint (v1: 0.35)
+const NEED_EPS := 0.001
 
 var types: Dictionary = {}
 var building_spots: Dictionary = {}
@@ -30,6 +45,7 @@ var spots: Array = []               # Array[Dictionary]: {id, identity, has_stab
 var _grid: Dictionary = {}          # Vector2i -> Array[int]
 var _settlement_spots: Dictionary = {} # settlement id -> Array[int], for bounded local schedule queries
 var _held: Dictionary = {}          # person -> [spot, slot, claim_token]
+var _watching: Dictionary = {}      # person -> [spot, watcher index] (O5)
 var _spot_by_identity: Dictionary = {} # stable identity -> transient spot index
 var _claim_serial := 0
 var _rng := RandomNumberGenerator.new()
@@ -58,9 +74,12 @@ func add(type: String, xform: Transform3D, settlement := -1, stable_identity := 
 	var holders := []
 	holders.resize(cap)
 	holders.fill(-1)
+	var watchers := []
+	watchers.resize(watchers_max(types[type]))
+	watchers.fill(-1)
 	spots.append({"id": id, "identity": stable_identity if not stable_identity.is_empty() else "runtime/%d" % id,
 		"has_stable_identity": not stable_identity.is_empty(), "type": type, "xform": xform,
-		"settlement": settlement, "holders": holders, "drift": 0.0})
+		"settlement": settlement, "holders": holders, "watchers": watchers, "drift": 0.0})
 	if not stable_identity.is_empty():
 		_spot_by_identity[stable_identity] = id
 	if settlement >= 0:
@@ -140,9 +159,13 @@ func populate_settlement(s: Dictionary, height_fn: Callable = Callable()) -> int
 
 ## Best free [spot, slot] near pos for a filter {act, job (name or index), hour, kid, tags: [...], type, role},
 ## optionally limited to one `settlement` candidate list; [] when nothing fits. `avoid` points are danger memory.
+## O1: a `needs` filter {need: urgency 0..1} switches to need-weighted ranking: a type scores
+## sum(urgency * type.needs[need]) and the cost is distance * crowding / score (types that serve none of the needs
+## are skipped). Without that key the ranking is the v1 distance ranking, unchanged.
 func find(pos: Vector3, filter: Dictionary, radius := 60.0, person := -1, avoid := PackedVector2Array(), avoid_r := 0.0) -> Array:
 	var best := []
 	var best_s := INF
+	var want_needs: Dictionary = filter.get("needs", {})
 	var candidate_ids: Array = []
 	if filter.has("settlement"):
 		candidate_ids = _settlement_spots.get(int(filter["settlement"]), [])
@@ -163,6 +186,11 @@ func find(pos: Vector3, filter: Dictionary, radius := 60.0, person := -1, avoid 
 			continue
 		if avoid_r > 0.0 and _near_any(origin, avoid, avoid_r):
 			continue
+		var need_score := 1.0
+		if not want_needs.is_empty():
+			need_score = need_match(t, want_needs)
+			if need_score <= NEED_EPS:
+				continue
 		var slots: Array = t["slots"]
 		for k in slots.size():
 			# A data-tier resident often asks for its schedule target again on
@@ -173,11 +201,13 @@ func find(pos: Vector3, filter: Dictionary, radius := 60.0, person := -1, avoid 
 			if not _slot_matches(slots[k], filter):
 				continue
 			var score := d + float(absi(hash(person * 7 + id * 131 + k)) % 100) * 0.03
+			if not want_needs.is_empty():
+				score = (score + 1.0) * (1.0 + 0.5 * float(occupancy(id)) / float(maxi(1, occupancy_max(t)))) / need_score
 			if sp["holders"][k] != person and id == int(filter.get("recent_spot", -1)):
 				# Soft preference only: a sole station remains eligible; owned refreshes stay stable.
 				score += clampf(float(filter.get("recent_penalty", 0.0)), 0.0, 10.0)
 			if sp["holders"][k] == person:
-				score -= 1.0  # small hysteresis keeps a valid activity stable
+				score = score * 0.9 if not want_needs.is_empty() else score - 1.0  # small hysteresis keeps a valid activity stable
 			if score < best_s:
 				best_s = score
 				best = [id, k]
@@ -241,10 +271,13 @@ func claim(spot: int, slot: int, person: int) -> bool:
 	var h: Array = spots[spot]["holders"]
 	if slot < 0 or slot >= h.size() or (h[slot] != -1 and h[slot] != person):
 		return false
+	if h[slot] != person and occupancy(spot) >= occupancy_max(types[spots[spot]["type"]]):
+		return false  # schema v2 occupancy.max (default = slot count, so v1 data is unaffected)
 	var current: Array = _held.get(person, [])
 	if current.size() >= 3 and int(current[0]) == spot and int(current[1]) == slot and h[slot] == person:
 		return true  # idempotent refresh: preserve the Session's lease token
 	release(person)
+	release_watch(person)
 	_claim_serial += 1
 	h[slot] = person
 	_held[person] = [spot, slot, _claim_serial]
@@ -330,6 +363,8 @@ func _auto_stand(t: Dictionary, fb: Basis) -> Vector3:
 func approach_point(spot: int, slot: int) -> Vector3:
 	var sx := stand_xform(spot, slot)
 	var t: Dictionary = types[spots[spot]["type"]]
+	if _slot_or_type(t, slot, "approach_dir", null) != null:
+		return sx.origin + approach_dir_world(spot, slot) * float(t.get("approach", 1.0))
 	return sx.origin - sx.basis.z * float(t.get("approach", 1.0))
 
 
@@ -381,6 +416,347 @@ func target_for(person: int, center: Vector3, act: String, job: int, hour: float
 	return Vector2(p.x, p.z)
 
 
+# ================================================================ schema v2: defaults and accessors (all optional keys)
+
+## Slot value with a type-level fallback: a key in the slot wins, then the type, then `default`.
+static func _slot_or_type(t: Dictionary, slot: int, key: String, default: Variant) -> Variant:
+	var slots: Array = t.get("slots", [])
+	if slot >= 0 and slot < slots.size() and (slots[slot] as Dictionary).has(key):
+		return slots[slot][key]
+	return t.get(key, default)
+
+
+static func occupancy_max(t: Dictionary) -> int:
+	var o: Dictionary = t.get("occupancy", {})
+	return maxi(1, int(o.get("max", (t.get("slots", []) as Array).size())))
+
+
+static func watchers_max(t: Dictionary) -> int:
+	return maxi(0, int((t.get("occupancy", {}) as Dictionary).get("watchers", 0)))
+
+
+static func watch_ring(t: Dictionary) -> float:
+	return float((t.get("occupancy", {}) as Dictionary).get("watch_ring", DEFAULT_WATCH_RING))
+
+
+static func needs_of(t: Dictionary) -> Dictionary:
+	return t.get("needs", {})
+
+
+static func clip_tags_of(t: Dictionary) -> Dictionary:
+	return t.get("clip_tags", {})
+
+
+static func ik_targets_of(t: Dictionary) -> Dictionary:
+	return t.get("ik_targets", {})
+
+
+static func ik_of(t: Dictionary, slot: int) -> Array:
+	return _slot_or_type(t, slot, "ik", [])
+
+
+## O1: how well a type serves the wanted needs {need: urgency}: sum(urgency * type weight). 0 = serves none.
+static func need_match(t: Dictionary, wanted: Dictionary) -> float:
+	var have: Dictionary = t.get("needs", {})
+	if have.is_empty():
+		return 0.0
+	var sum := 0.0
+	for n in wanted:
+		if have.has(n):
+			sum += float(wanted[n]) * float(have[n])
+	return sum
+
+
+## O2: half-angle (degrees) of the arrival arc around approach_dir. Default 180 = from anywhere (v1).
+static func arc_of(t: Dictionary, slot: int) -> float:
+	return clampf(float(_slot_or_type(t, slot, "approach_arc", DEFAULT_ARC)), 1.0, 180.0)
+
+
+## Enter clip for a side ("front"/"side"/"back"): `spec` is a string (one clip for every side) or
+## {front, side, back}. O3: the side's clip, else the front clip, else `fallback` (the type's single enter clip).
+static func resolve_enter(spec: Variant, side: String, fallback := "") -> String:
+	if spec is Dictionary:
+		var d: Dictionary = spec
+		if String(d.get(side, "")) != "":
+			return String(d[side])
+		if String(d.get("front", "")) != "":
+			return String(d["front"])
+		return fallback
+	if spec is String and spec != "":
+		return spec
+	return fallback
+
+
+## O3: which side of the slot someone arrives from. `bearing` = angle in degrees between the arrival direction
+## (slot -> body, XZ) and the approach direction.
+static func classify_side(bearing_deg: float) -> String:
+	var a := absf(bearing_deg)
+	if a <= FRONT_HALF:
+		return "front"
+	return "side" if a <= SIDE_HALF else "back"
+
+
+## Signed angle in degrees from XZ direction `a` to XZ direction `b`, in the sense of Vector3.rotated(Vector3.UP, +angle):
+## a.rotated(UP, deg_to_rad(yaw_between(a, b))) points along b.
+static func yaw_between(a: Vector3, b: Vector3) -> float:
+	return rad_to_deg(atan2(a.z * b.x - a.x * b.z, a.x * b.x + a.z * b.z))
+
+
+## O2: where to aim the last leg so the arrival bearing lies inside the arc. `from` is the body, `centre` the
+## stand point, `dir` the world approach direction (XZ unit), `half_arc` degrees, `dist` the approach distance.
+## Bearing already inside the arc: arrive along it (no sideways shuffle); outside: clamp onto the arc edge.
+static func arrival_point(from: Vector3, centre: Vector3, dir: Vector3, half_arc: float, dist: float) -> Vector3:
+	var to_body := Vector3(from.x - centre.x, 0.0, from.z - centre.z)
+	if to_body.length_squared() < 0.0001:
+		to_body = dir
+	var ang := yaw_between(dir, to_body)
+	var lim := maxf(half_arc - ARC_MARGIN, half_arc * 0.5)
+	var clamped := clampf(ang, -lim, lim)
+	var d := dir.rotated(Vector3.UP, deg_to_rad(clamped))
+	return centre + d * dist
+
+
+## O2: walk speed multiplier over the last SLOW_DIST metres.
+static func arrival_speed(dist_left: float) -> float:
+	return clampf(dist_left / SLOW_DIST, SLOW_MIN, 1.0)
+
+
+## World approach direction (XZ unit) of a slot: the declared object-frame approach_dir, else straight back out
+## from the stand point (the v1 approach line).
+func approach_dir_world(spot: int, slot: int) -> Vector3:
+	var sp: Dictionary = spots[spot]
+	var t: Dictionary = types[sp["type"]]
+	var declared: Variant = _slot_or_type(t, slot, "approach_dir", null)
+	var v: Vector3
+	if declared is Array and (declared as Array).size() == 3:
+		var a: Array = declared
+		v = (sp["xform"] as Transform3D).basis * Vector3(float(a[0]), 0.0, float(a[2]))
+	else:
+		v = -stand_xform(spot, slot).basis.z
+	v.y = 0.0
+	return v.normalized() if v.length_squared() > 0.0001 else Vector3.BACK
+
+
+# ================================================================ O5 watchers
+
+## Occupied to the type's limit: nobody else can use it, so extra people may stand and watch instead.
+func is_full(spot: int) -> bool:
+	return occupancy(spot) >= occupancy_max(types[spots[spot]["type"]])
+
+
+## Nearest full spot matching `filter` (same keys as find) with a free watcher slot: [spot, watcher_index], or [].
+func find_watch(pos: Vector3, filter: Dictionary, radius := 30.0, person := -1) -> Array:
+	var best := []
+	var best_d := INF
+	var r := int(ceil(radius / CELL))
+	var c0 := _cell(pos)
+	for dx in range(-r, r + 1):
+		for dz in range(-r, r + 1):
+			for id: int in _grid.get(c0 + Vector2i(dx, dz), []):
+				var sp: Dictionary = spots[id]
+				var t: Dictionary = types[sp["type"]]
+				if watchers_max(t) == 0 or not _matches(sp["type"], t, filter) or not is_full(id):
+					continue
+				var d := (sp["xform"] as Transform3D).origin.distance_to(pos)
+				if d > radius or d >= best_d:
+					continue
+				var w: Array = sp["watchers"]
+				var mine := w.find(person)
+				var free := mine if mine >= 0 else w.find(-1)
+				if free >= 0:
+					best_d = d
+					best = [id, free]
+	return best
+
+
+## Take watcher slot `idx` of `spot`. False when the spot is not full, the slot is out of range or taken by someone else.
+func claim_watch(spot: int, idx: int, person: int) -> bool:
+	if spot < 0 or spot >= spots.size() or not is_full(spot):
+		return false
+	var w: Array = spots[spot]["watchers"]
+	if idx < 0 or idx >= w.size() or (w[idx] != -1 and w[idx] != person):
+		return false
+	if w[idx] == person:
+		return true
+	release_watch(person)
+	w[idx] = person
+	_watching[person] = [spot, idx]
+	return true
+
+
+func release_watch(person: int) -> void:
+	var cur: Array = _watching.get(person, [])
+	if cur.is_empty():
+		return
+	var w: Array = spots[cur[0]]["watchers"]
+	if cur[1] < w.size() and w[cur[1]] == person:
+		w[cur[1]] = -1
+	_watching.erase(person)
+
+
+func watching(person: int) -> Array:
+	return _watching.get(person, [])
+
+
+## Watcher points are spread on the ring (metres from the object) around the front slot's approach direction.
+func watch_point(spot: int, idx: int) -> Vector3:
+	var sp: Dictionary = spots[spot]
+	var t: Dictionary = types[sp["type"]]
+	var n := watchers_max(t)
+	var centre: Vector3 = (sp["xform"] as Transform3D).origin
+	var dir := approach_dir_world(spot, 0)
+	var off := (float(idx) - float(n - 1) * 0.5) * WATCH_SPREAD
+	return centre + dir.rotated(Vector3.UP, off) * watch_ring(t)
+
+
+## Yaw (radians, Godot +Z forward) that makes a watcher at watch_point look at the object.
+func watch_face(spot: int, idx: int) -> float:
+	var to := (spots[spot]["xform"] as Transform3D).origin - watch_point(spot, idx)
+	return atan2(to.x, to.z)
+
+
+# ================================================================ validation
+
+## Check a `types` dictionary against the schema (v1 keys and the optional v2 keys). Returns one message per problem;
+## empty = valid. Pure data, no nodes.
+static func validate(types: Dictionary) -> Array[String]:
+	var errs: Array[String] = []
+	for name in types:
+		var t: Variant = types[name]
+		if not (t is Dictionary):
+			errs.append("%s: type must be an object" % name)
+			continue
+		_validate_type(String(name), t, errs)
+	return errs
+
+
+static func _is_num(v: Variant) -> bool:
+	return v is float or v is int
+
+
+static func _is_vec3(v: Variant) -> bool:
+	if not (v is Array) or (v as Array).size() != 3:
+		return false
+	for x in v:
+		if not _is_num(x):
+			return false
+	return true
+
+
+static func _validate_enter(name: String, where: String, e: Variant, errs: Array[String]) -> void:
+	if e is String:
+		return
+	if not (e is Dictionary):
+		errs.append("%s: %s enter must be a string or {front, side, back}" % [name, where])
+		return
+	for k in e:
+		if not ENTER_SIDES.has(k):
+			errs.append("%s: %s enter has unknown side '%s'" % [name, where, k])
+		elif not (e[k] is String):
+			errs.append("%s: %s enter.%s must be a clip name" % [name, where, k])
+
+
+static func _validate_type(name: String, t: Dictionary, errs: Array[String]) -> void:
+	var slots: Variant = t.get("slots")
+	if not (slots is Array) or (slots as Array).is_empty():
+		errs.append("%s: slots must be a non-empty array" % name)
+		slots = []
+	var targets: Variant = t.get("ik_targets", {})
+	if not (targets is Dictionary):
+		errs.append("%s: ik_targets must be an object" % name)
+		targets = {}
+	else:
+		for k in targets:
+			if not _is_vec3(targets[k]):
+				errs.append("%s: ik_targets.%s must be [x, y, z]" % [name, k])
+	if t.has("enter"):
+		_validate_enter(name, "type", t["enter"], errs)
+	var act: Variant = t.get("activity", {})
+	if act is Dictionary and (act as Dictionary).has("enter"):
+		_validate_enter(name, "activity", act["enter"], errs)
+	for i in (slots as Array).size():
+		var sl: Variant = slots[i]
+		var w := "slot %d" % i
+		if not (sl is Dictionary):
+			errs.append("%s: %s must be an object" % [name, w])
+			continue
+		var st: Variant = sl.get("stand")
+		if not ((st is String and st == "auto") or _is_vec3(st)):
+			errs.append("%s: %s stand must be \"auto\" or [x, y, z]" % [name, w])
+		if not _is_num(sl.get("face", 0.0)):
+			errs.append("%s: %s face must be a number" % [name, w])
+		if sl.has("enter"):
+			_validate_enter(name, w, sl["enter"], errs)
+		_validate_approach(name, w, sl, errs)
+		_validate_ik(name, w, sl.get("ik", []), targets, errs)
+	_validate_approach(name, "type", t, errs)
+	_validate_ik(name, "type", t.get("ik", []), targets, errs)
+	if t.has("occupancy"):
+		var o: Variant = t["occupancy"]
+		if not (o is Dictionary):
+			errs.append("%s: occupancy must be an object" % name)
+		else:
+			for k in o:
+				if not ["max", "watchers", "watch_ring"].has(k):
+					errs.append("%s: occupancy has unknown key '%s'" % [name, k])
+			if o.has("max") and not (_is_num(o["max"]) and int(o["max"]) >= 1 and int(o["max"]) <= (slots as Array).size()):
+				errs.append("%s: occupancy.max must be 1..slot count (%d)" % [name, (slots as Array).size()])
+			if o.has("watchers") and not (_is_num(o["watchers"]) and int(o["watchers"]) >= 0 and int(o["watchers"]) <= 8):
+				errs.append("%s: occupancy.watchers must be 0..8" % name)
+			if o.has("watch_ring") and not (_is_num(o["watch_ring"]) and float(o["watch_ring"]) > 0.5):
+				errs.append("%s: occupancy.watch_ring must be > 0.5 m" % name)
+	if t.has("needs"):
+		var nd: Variant = t["needs"]
+		if not (nd is Dictionary):
+			errs.append("%s: needs must be an object" % name)
+		else:
+			for k in nd:
+				if not NEEDS.has(k):
+					errs.append("%s: unknown need '%s'" % [name, k])
+				elif not (_is_num(nd[k]) and float(nd[k]) > 0.0 and float(nd[k]) <= 2.0):
+					errs.append("%s: needs.%s must be a weight in (0, 2]" % [name, k])
+	if t.has("clip_tags"):
+		var ct: Variant = t["clip_tags"]
+		if not (ct is Dictionary):
+			errs.append("%s: clip_tags must be an object" % name)
+		else:
+			for k in ct:
+				if not (ct[k] is String):
+					errs.append("%s: clip_tags.%s must be a tag string" % [name, k])
+
+
+static func _validate_approach(name: String, where: String, d: Dictionary, errs: Array[String]) -> void:
+	if d.has("approach_dir"):
+		var v: Variant = d["approach_dir"]
+		if not _is_vec3(v) or (absf(float(v[0])) + absf(float(v[2]))) < 0.001:
+			errs.append("%s: %s approach_dir must be [x, y, z] with a horizontal part" % [name, where])
+	if d.has("approach_arc"):
+		var a: Variant = d["approach_arc"]
+		if not (_is_num(a) and float(a) > 0.0 and float(a) <= 180.0):
+			errs.append("%s: %s approach_arc must be a half-angle in (0, 180] degrees" % [name, where])
+
+
+static func _validate_ik(name: String, where: String, ik: Variant, targets: Dictionary, errs: Array[String]) -> void:
+	if not (ik is Array):
+		errs.append("%s: %s ik must be an array" % [name, where])
+		return
+	for j in (ik as Array).size():
+		var e: Variant = ik[j]
+		if not (e is Dictionary):
+			errs.append("%s: %s ik[%d] must be an object" % [name, where, j])
+			continue
+		if not IK_LIMBS.has(e.get("limb", "")):
+			errs.append("%s: %s ik[%d] limb must be one of %s" % [name, where, j, IK_LIMBS])
+		if not targets.has(e.get("target", "")):
+			errs.append("%s: %s ik[%d] target '%s' is not in ik_targets" % [name, where, j, e.get("target", "")])
+		if not (_is_num(e.get("weight", 1.0)) and float(e.get("weight", 1.0)) >= 0.0 and float(e.get("weight", 1.0)) <= 1.0):
+			errs.append("%s: %s ik[%d] weight must be 0..1" % [name, where, j])
+		var ph: Variant = e.get("phase", "loop")
+		var ok: bool = (ph is String and ph == "loop") or (ph is Array and (ph as Array).size() == 2 and _is_num(ph[0]) and _is_num(ph[1]) and float(ph[0]) >= 0.0 and float(ph[1]) <= 1.0 and float(ph[0]) < float(ph[1]))
+		if not ok:
+			errs.append("%s: %s ik[%d] phase must be \"loop\" or [from, to] within 0..1" % [name, where, j])
+
+
 func session(person: int, spot: int, slot: int, seed_i := -1) -> Session:
 	return Session.new(self, person, spot, slot, seed_i if seed_i >= 0 else person)
 
@@ -412,6 +788,10 @@ class Session:
 	var _t := 0.0
 	var _event_sent := false
 	var _claim_token := -1
+	## O3: the side ("front" / "side" / "back") the person arrived from, set when the approach ends.
+	var side := "front"
+	var _arrive := Vector3.ZERO     # O2: latched arrival waypoint when the slot declares an approach_arc
+	var _arrive_set := false
 	# Keep activity timing on the original stable RNG. Visual clip variation gets
 	# its own day/time-scoped bags so later visits get an independent take order,
 	# while same-time reloads stay stable. A random permutation may still recur.
@@ -464,6 +844,18 @@ class Session:
 	func stand() -> Transform3D:
 		return so.stand_xform(spot, slot)
 
+	## O3: the enter clip for the arrival side. The slot's `enter` (string or {front, side, back}) overrides the
+	## activity's; the type's single enter clip is the fallback.
+	func enter_clip() -> String:
+		var single: Variant = act.get("enter", "")
+		var sl: Dictionary = so.types[so.spots[spot]["type"]]["slots"][slot]
+		return SmartObjects.resolve_enter(sl.get("enter", single), side, single if single is String else "")
+
+	func _arrive_side(body: Vector3, sx: Transform3D) -> void:
+		var to_body := Vector3(body.x - sx.origin.x, 0.0, body.z - sx.origin.z)
+		if to_body.length_squared() > 0.0001:
+			side = SmartObjects.classify_side(SmartObjects.yaw_between(so.approach_dir_world(spot, slot), to_body))
+
 	## Seated slots ("seat" in the slot) are laid out for a pelvis SEAT_REF behind the root (Life_Rest_Sit_Bench).
 	## Sit clips carry their own `seat_back` (sidecar); the root moves along the character's forward so every clip's
 	## pelvis lands on the same seat point instead of floating in front of / behind the bench.
@@ -483,7 +875,7 @@ class Session:
 		_restart = true
 		match p:
 			ENTER:
-				clip = act.get("enter", "")
+				clip = enter_clip()
 				if clip == "":
 					_go(LOOP)
 			LOOP:
@@ -558,20 +950,31 @@ class Session:
 		var sx := stand()
 		# seated clips: align the pelvis on the seat (ENTER aligns on the clip it ends in: the first loop clip)
 		if phase in [ENTER, LOOP, BETWEEN, EXIT] or phase == ALIGN:
-			var ref_clip: String = clip if phase in [LOOP, BETWEEN] else String(act.get("enter" if phase in [ALIGN, ENTER] else "exit", clip))
+			var ref_clip: String = clip if phase in [LOOP, BETWEEN] else (enter_clip() if phase in [ALIGN, ENTER] else String(act.get("exit", clip)))
 			sx = seated(sx, ref_clip)
 		match phase:
 			APPROACH:
 				var ap := so.approach_point(spot, slot)
-				if Vector2(body.x - ap.x, body.z - ap.z).length() < 0.35 or Vector2(body.x - sx.origin.x, body.z - sx.origin.z).length() < 0.5:
+				var tt: Dictionary = so.types[so.spots[spot]["type"]]
+				var arc := SmartObjects.arc_of(tt, slot)
+				if arc < SmartObjects.DEFAULT_ARC:
+					# O2: arrive inside the declared arc, latched on the first step so the leg does not wander.
+					if not _arrive_set:
+						_arrive_set = true
+						_arrive = SmartObjects.arrival_point(body, sx.origin, so.approach_dir_world(spot, slot), arc, float(tt.get("approach", 1.0)))
+					ap = _arrive
+				var left := Vector2(body.x - ap.x, body.z - ap.z).length()
+				if left < (SmartObjects.ARC_REACH if arc < SmartObjects.DEFAULT_ARC else 0.35) or Vector2(body.x - sx.origin.x, body.z - sx.origin.z).length() < 0.5:
+					_arrive_side(body, sx)
 					_go(ALIGN)
 				else:
 					out["move_to"] = ap
+					out["speed_scale"] = SmartObjects.arrival_speed(left)
 					out["clip"] = ""
 			ALIGN:
 				# Root-motion enters (sidecar "entry_offset", character frame: +Z forward): the clip starts with the body
 				# that far from its root, so stand there; the root jumps onto the slot when the enter starts (no visible move).
-				var entry := sx.origin + sx.basis * _offset(String(act.get("enter", "")), "entry_offset")
+				var entry := sx.origin + sx.basis * _offset(enter_clip(), "entry_offset")
 				out["move_to"] = entry
 				out["face"] = atan2(sx.basis.z.x, sx.basis.z.z)
 				out["clip"] = ""
