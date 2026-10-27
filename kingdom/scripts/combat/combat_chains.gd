@@ -4,7 +4,7 @@ extends RefCounted
 ## measures the weapon hand and the root track of each clip), so nothing here is a guessed number except the feel targets.
 ##
 ## Per style: a light chain (each step's clip played at a rate that puts its contact at LIGHT_HIT s), a finisher, a heavy
-## (hold) row, a kick, (no leaping clips: Mx_SnS_Attack jumps ~0.5 m and read as floating in review), and a directional pool: attack input + a direction picks the swing whose measured cut matches
+## (hold) row, a kick, (no leaping clips: Mx_SnS_Attack and Mx_SnS_Slash_4 leave the ground (pelvis drop 0.47 / 0.37 m) and read as floating), and a directional pool: attack input + a direction picks the swing whose measured cut matches
 ## (left / right / overhead / thrust), For Honor style. Cancel windows: the next light from contact + CHAIN_CANCEL, a dodge
 ## any time outside the active frames (player.gd rule), a block from the end of the active window.
 ##
@@ -26,19 +26,19 @@ const ACTIVE_MIN := 0.06
 
 ## style -> rows. light: chain order; dir: cut -> clip; extras: reach, arc_dot, damage scale.
 const CHAINS := {
-	"sword": {"light": ["Mx_SnS_Slash_5", "Mx_SnS_Slash", "Mx_SnS_Slash_3"], "finisher": "Mx_SnS_Slash_4",
+	"sword": {"light": ["Mx_SnS_Slash_5", "Mx_SnS_Slash", "Mx_SnS_Attack_4"], "finisher": "Mx_SnS_Slash_3",
 		"heavy": "Mx_SnS_Attack_3", "kick": "Mx_SnS_Kick",
 		"dir": {"left": "Mx_SnS_Slash_5", "right": "Mx_SnS_Attack_4", "overhead": "Mx_SnS_Attack_3", "thrust": "Mx_SnS_Slash_3"},
-		"reach": 2.6, "arc_dot": 0.2, "dmg": [14, 14, 18, 30], "heavy_dmg": 34, "cost": 10.0},
+		"reach": 2.6, "arc_dot": 0.2, "dmg": [14, 14, 18, 30], "heavy_dmg": 34, "cost": 10.0, "guard": "Mx_SnS_Block_Idle"},
 	"greatsword": {"light": ["Mx_GS_Slash", "Mx_GS_Slash_5", "Mx_GS_Slash_3"], "finisher": "Mx_GS_High_Spin_Attack",
 		"heavy": "Mx_GS_Slash_3", "kick": "Mx_GS_Kick",
 		"dir": {"left": "Mx_GS_Slash", "right": "Mx_GS_Slash_5", "overhead": "Mx_GS_Slash_3", "thrust": "Mx_GS_Attack"},
-		"reach": 3.0, "arc_dot": 0.0, "dmg": [20, 20, 26, 40], "heavy_dmg": 46, "cost": 15.0, "slow": 1.2},
+		"reach": 3.0, "arc_dot": 0.0, "dmg": [20, 20, 26, 40], "heavy_dmg": 46, "cost": 15.0, "slow": 1.2, "guard": "Mx_GS_Blocking_2"},
 	"axe": {"light": ["Mx_Axe_Attack_Horizontal", "Mx_Axe_Attack_Backhand", "Mx_Axe_Attack_Downward"],
 		"finisher": "Mx_Axe_Attack_360_High", "heavy": "Mx_Axe_Combo_Attack_V_2", "kick": "Mx_Axe_Attack_Kick_V_2",
 		"dir": {"left": "Mx_Axe_Attack_Horizontal", "right": "Mx_Axe_Attack_Backhand", "overhead": "Mx_Axe_Attack_Downward",
 			"thrust": "Mx_Axe_Combo_Attack_V_3"},
-		"reach": 2.5, "arc_dot": 0.1, "dmg": [16, 16, 20, 32], "heavy_dmg": 38, "cost": 12.0, "slow": 1.1},
+		"reach": 2.5, "arc_dot": 0.1, "dmg": [16, 16, 20, 32], "heavy_dmg": 38, "cost": 12.0, "slow": 1.1, "guard": "Mx_Axe_Block_Idle"},
 }
 
 static var _markers := {}
@@ -175,6 +175,11 @@ static func pick(style: String, steps: Array, step: int, local_input: Vector2) -
 		var r := row(style, "%s_fm_%s" % [style, cut], clip, LIGHT_HIT, base.damage, {"lane": base.lane})
 		_cache[key] = r if r != null else base
 	return _cache[key]
+
+
+## The style's guard pose clip (wide bent-knee base for GuardLegs), or "".
+static func guard_clip(style: String) -> String:
+	return String((CHAINS.get(style, {}) as Dictionary).get("guard", "")) if enabled else ""
 
 
 static func clear_cache() -> void:

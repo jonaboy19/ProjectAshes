@@ -1,4 +1,5 @@
 extends RefCounted
+const ParryContact := preload("res://scripts/combat/parry_contact.gd")
 ## Subscriber for the player's combat signals: every VFX, audio, camera-shake, hit-stop and animation-cue
 ## call that used to sit inline in player.gd's _start_swing / _resolve_hit / _parry / take_damage lives
 ## here. Combat code only emits (swing_started, hit_confirmed, parried, blocked, clashed); add another
@@ -128,13 +129,18 @@ func _element_of(action: Resource) -> String:
 	return "physical"
 
 
-func _on_parried(_attacker: Node, at: Vector3, grade: String) -> void:
+func _on_parried(attacker: Node, at: Vector3, grade: String) -> void:
 	var p := _p
 	p._animator.play_upper("Block_Hit", 1.8)
-	# Grounded medieval read (AAA gate ref 03): steel sparks at the blades, no manga speed lines or big flare.
+	# Blade contact: the sword hand is pulled onto the attacker's blade (TwoBoneIK3D window, parry_contact.gd) and the
+	# sparks fly from that point. Grounded medieval read (AAA gate ref 03): no manga speed lines or big flare.
+	var model: Node3D = p.get("_model")
+	if model != null:
+		at = ParryContact.contact_point(attacker, model)
+		ParryContact.play(model, at)
 	Audio.sfx("clash")
 	VFX.sparks(p.get_parent(), at, Color(1.0, 0.85, 0.55), 22 if grade == "perfect" else 14)
-	ImpactPool.at(p.get_parent()).play(at, "physical", Feel.Tier.HEAVY, -p.facing())
+	ImpactPool.at(p.get_parent()).play(at, "physical", Feel.Tier.LIGHT, -p.facing())     # light tier: dust + sparks, no glow star
 	p._add_camera_shake(0.3)
 	p._fov_punch(4.0)
 	p._hit_stop(p.PARRY_HIT_STOP * (1.4 if grade == "perfect" else 1.0))
@@ -155,6 +161,12 @@ func _on_blocked(_attacker: Node, guard_broken: bool) -> void:
 		# which swung the sword out and dropped the shield for half a second
 		p._animator.play_upper("Souls_Guard_Hit", 1.3)
 		Audio.sfx("clash")
+		# the blow meets the shield: a few sparks where it lands and a short hit-stop so the contact registers
+		var model: Node3D = p.get("_model")
+		if model != null:
+			var at := ParryContact.contact_point(_attacker, model)
+			VFX.sparks(p.get_parent(), at, Color(1.0, 0.85, 0.55), 8)
+		p._hit_stop(0.05)
 
 
 func _on_clashed(_attacker: Node, won: bool) -> void:

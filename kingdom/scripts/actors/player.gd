@@ -782,6 +782,7 @@ func _physics_process(delta: float) -> void:
 	_animator.set_blocking(blocking)
 	_consume_buffers()
 	_update_guard_stance(delta)
+	_update_guard_legs()
 
 	var sprint := Input.is_action_pressed("sprint")
 	if sprint and crouching and dir.length() > 0.1:
@@ -2344,6 +2345,28 @@ func _start_swing() -> void:
 var _cmotion_target: Node3D
 var _guard_check := 0.0
 var _guard_foe: Node3D
+var _guard_legs: SkeletonModifier3D
+var _guard_legs_style := ""
+const GuardLegs := preload("res://scripts/combat/guard_legs.gd")
+
+
+## Recovery of a full-motion swing: the legs settle into the weapon's wide guard base while the arms finish the
+## follow-through (GuardLegs additive crouch). Built lazily, rebuilt when the weapon style changes.
+func _update_guard_legs() -> void:
+	if _guard_legs_style != combat_style:
+		if is_instance_valid(_guard_legs):
+			_guard_legs.queue_free()
+		_guard_legs = null
+		_guard_legs_style = combat_style
+		var clip := CombatChains.guard_clip(combat_style)
+		if clip != "" and _animator != null and _model != null:
+			var sks := _model.find_children("*", "Skeleton3D", true, false)
+			if not sks.is_empty():
+				_guard_legs = GuardLegs.attach(sks[0] as Skeleton3D, _animator.player, clip)
+	if _guard_legs == null:
+		return
+	var recovering := _swing > 0.0 and _swing_elapsed > _swing_hit + 0.08 and _action != null and String(_action.anim).begins_with("Mx_")
+	_guard_legs.set("target", 1.0 if recovering else 0.0)
 
 
 ## Combat guard stance: blade drawn and a living foe within GUARD_RANGE -> the weapon's bent-knee guard idle / armed walk

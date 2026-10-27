@@ -119,3 +119,12 @@ File: `PA_plans/videos/WIP_combat_full_motion_slice_clearing_sword_v3.mp4` (same
 | 1 Bodies interpenetrate in the opening exchange | PASS | Both fighters now fade their closing speed to zero at BODY_GAP 0.85 m (capsule radii + 0.15 m) via `CombatMotion.limit_approach`, with a soft overlap push (`body_push`). The warp stops at 1.1 m. Telemetry: the closest centre distance was 0.69 m before and is 0.86 m now; 0 frames under 0.85 m. On the sheet the bodies no longer merge. |
 | 2 Spiky starburst impact | PASS | impact_pool has no slash quads; light hits have no glow core (sparks + dust only); heavy cores are about half the size. |
 | 3 Player tall between swings | FAIL (improved) | Recovery now ends at 70 % (stop_attack fades into the Block_Idle guard; soldiers do the same when _busy ends), so the guard shows sooner. The additive crouch layer during recovery is not done, and the player still reads tall in the Mixamo follow-through frames. |
+
+## 2026-10-27 Combat full motion pass 4 (combat-motion worker) - steps 3-4, FAIL (improved, WIP)
+File: `PA_plans/videos/WIP_combat_full_motion_slice_clearing_sword_v4.mp4` (copse clearing, now with 6 guard presses for parries). Parry close-up sheet: `docs/qa/golden/combat/fm_v4_parry_sheet.jpg`.
+| Step | Result | Note |
+|---|---|---|
+| 3 Additive crouch during recovery | PASS (improved) | `guard_legs.gd` (SkeletonModifier3D) blends only the legs and the pelvis height toward the weapon's measured guard pose (Block_Idle), up to 75 % and 0.25 s in/out, from 0.08 s after contact to the end of the recovery. The arms keep the follow-through. Player and bandit now read wide and low between blows. The leaping sword finisher (Mx_SnS_Slash_4, pelvis drop 0.37 m) is out of the chain. |
+| 4 Parry blade contact | PASS (partial) | `parry_contact.gd`: TwoBoneIK3D on the right arm pulls the sword hand to the attacker's blade (0.55 m along its sword arm toward the defender) for 0.32 s. Sparks fly from that point, plus the existing parry hit-stop. Blocks on the shield get 8 sparks and a 0.05 s hit-stop. On the sheet the blades cross on several parries. Contact is approximate (it uses the hand, not the measured blade tip), and the bandit's arm has no IK. |
+| VFX | fixed | the parry glow star (heavy impact core) is now a light-tier dust and spark puff |
+Still FAIL overall vs ref 03: lock-on strafing and pivots, foot IK during lunges (step 5) are not done; the spark sprites still read slightly star-shaped up close.

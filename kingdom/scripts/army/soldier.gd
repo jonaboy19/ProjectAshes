@@ -234,6 +234,12 @@ func _physics_process(delta: float) -> void:
 			_face(squad.facing_for(self) if squad else Vector3.FORWARD)
 	if _model.visible:
 		_animator.set_stance(_guard_stance() if engaging and dist < 6.0 and not casting else "")
+		if engaging and _guard_legs == null and CombatChains.guard_clip(_fm_style()) != "":
+			var sks := _model.find_children("*", "Skeleton3D", true, false)
+			if not sks.is_empty():
+				_guard_legs = GuardLegs.attach(sks[0] as Skeleton3D, _animator.player, CombatChains.guard_clip(_fm_style()))
+		if _guard_legs != null:
+			_guard_legs.set("target", 1.0 if _cmotion.active and _cmotion.t > _cmotion.hit_t + 0.08 else 0.0)
 		_animator.update(delta, planar)
 		_animator.set_blocking(_guard > 0.0)
 		if planar > 0.5:
@@ -624,6 +630,8 @@ func _get_up() -> void:
 
 
 var _cmotion := CombatMotion.new()
+const GuardLegs := preload("res://scripts/combat/guard_legs.gd")
+var _guard_legs: SkeletonModifier3D
 var _fm_pick := 0
 
 

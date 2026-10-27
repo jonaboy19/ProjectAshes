@@ -61,3 +61,22 @@ func test_moves_table_uses_full_motion_and_classic_switch_falls_back() -> void:
 	Chains.enabled = false
 	assert_str(String(Moves.combo("axe")[0].anim)).is_equal("Sword_Light_1_Upper")
 	Chains.enabled = true
+
+
+func test_guard_legs_weight_eases_in_and_out_capped() -> void:
+	var GL := preload("res://scripts/combat/guard_legs.gd")
+	var w := 0.0
+	for i in 60:
+		w = GL.step_weight(w, 1.0, 1.0 / 60.0)
+	assert_float(w).is_equal_approx(GL.MAX_WEIGHT, 0.001)
+	w = GL.step_weight(w, 0.0, 0.05)
+	assert_float(w).is_less(GL.MAX_WEIGHT)
+	for style in ["sword", "greatsword", "axe"]:
+		assert_bool(Chains.markers().has(Chains.guard_clip(style))).is_true()
+
+
+func test_parry_contact_point_lies_between_hand_and_chest() -> void:
+	var PC := preload("res://scripts/combat/parry_contact.gd")
+	var at: Vector3 = PC.contact_point_from(Vector3(0, 1.4, 2.0), Vector3(0, 1.25, 0))
+	assert_float(at.z).is_between(0.6, 2.0)
+	assert_float(Vector3(0, 1.4, 2.0).distance_to(at)).is_equal_approx(PC.BLADE_REACH, 0.001)

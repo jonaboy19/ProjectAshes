@@ -621,6 +621,11 @@ func _fm01_duel() -> void:
 	key(KEY_L, true)                       # guard the reply
 	await _hold(b, 45)
 	key(KEY_L, false)
+	for i in 6:                            # parry attempts: fresh guard presses land some blows in the parry window
+		key(KEY_L, true)
+		await _hold(b, 7)
+		key(KEY_L, false)
+		await _hold(b, 9)
 	await _attack_dir(b, KEY_A, 18)        # directional cuts
 	await _attack_dir(b, KEY_D, 18)
 	await _attack_dir(b, KEY_S, 24)
