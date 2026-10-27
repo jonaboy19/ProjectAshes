@@ -156,12 +156,12 @@ func run(m: Node) -> void:
 ## SpringArm3D margin, a 0.5 m sphere at the eye is tested against the world's static collision; when it touches, the
 ## sideways offset (perpendicular to the walk) that clears it is used instead, eased so the camera slides, never jumps.
 var _off := Vector2.ZERO
-const CAM_MARGIN := 0.5
+const CAM_MARGIN := 0.8     # 0.5 still grazed the Ashford Ring standing stones
 
 
 func _clear_offset(p: Vector3, fwd: Vector2) -> Vector2:
 	var side := Vector2(-fwd.y, fwd.x)
-	for d: float in [0.0, 0.6, -0.6, 1.2, -1.2, 1.8, -1.8, 2.6, -2.6]:
+	for d: float in [0.0, 0.6, -0.6, 1.2, -1.2, 1.8, -1.8, 2.6, -2.6, 3.4, -3.4]:
 		var o := side * d
 		if _free(p + Vector3(o.x, 0.0, o.y)):
 			return o

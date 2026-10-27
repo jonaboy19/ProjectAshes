@@ -198,14 +198,14 @@ func test_night_has_a_floor_but_stays_darker_than_day() -> void:
 	assert_float(float(Light.state(23.0)["hearth_light"])).is_greater(0.0)           # lit hearth: a warm pool
 
 
-func test_window_glass_is_dark_at_night_and_sky_by_day_and_never_white() -> void:
+func test_window_glass_is_dark_at_night_and_horn_by_day_and_never_white() -> void:
 	var room := _room("cottage")
 	var gm: StandardMaterial3D = (room.get("kit").materials as Dictionary)["glass"]
 	room.call("apply_hour", 12.0)
 	var day := gm.albedo_color
 	room.call("apply_hour", 23.0)
 	var night := gm.albedo_color
-	assert_float(day.b).is_greater(day.r)                                            # pale sky, not a white card
+	assert_float(day.r).is_greater(day.b)                                            # warm horn panes (interior pass 2), not a white card
 	assert_float(day.get_luminance()).is_less(0.85)
 	assert_float(night.get_luminance()).is_less(day.get_luminance() * 0.4)
 

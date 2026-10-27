@@ -28,6 +28,12 @@ const WOOD := Color(0.42, 0.28, 0.16)
 const DARK := Color(0.26, 0.17, 0.10)
 const FLOOR := Color(0.36, 0.26, 0.17)
 const STONE := Color(0.46, 0.44, 0.41)
+## Interior pass 2 (coordinator gate 2026-10-28, KCD-like rooms): dark oak frame timbers (posts, sill, plate, joists; the
+## solid shader gives them beam_wall_01 grain), undyed bedding, straw rushes on the floor.
+const BEAM := Color(0.2, 0.14, 0.09)
+const LINEN := Color(0.8, 0.74, 0.6)
+const WOOL := Color(0.5, 0.41, 0.31)
+const RUSH := Color(0.6, 0.5, 0.3)
 const CLOTHS := [Color(0.62, 0.22, 0.18), Color(0.2, 0.32, 0.55), Color(0.55, 0.45, 0.2), Color(0.3, 0.45, 0.28)]
 
 @export var layout_id := "cottage"
@@ -46,6 +52,7 @@ var _hearth_light: OmniLight3D = null
 var _hearth_base := 1.0
 var _night_k := 0.0                    # 0 day .. 1 night: how far the room light has left the ceiling to ride beside the player (dark clothes read black under the ambient alone)
 var _hearth_phase := 0.0
+var _shaft: SpotLight3D = null     # HIGH: daylight shaft through the first window (energy by hour)
 var _kit_nodes := {}
 var _clock := 0.0
 var _last_hour := -1.0
@@ -89,6 +96,11 @@ func _late_setup() -> void:
 	var owner := String(get_meta("building_owner")) if has_meta("building_owner") else ""
 	build_furniture(building_id, owner)
 	sync_roster(WorldSim.time_of_day, true)
+	var sm := Kit._solid_detail()
+	if sm is ShaderMaterial:      # soot round this room's fire, grime from this room's floor (one room is entered at a time)
+		var hs: Array = furniture["hearths"]
+		(sm as ShaderMaterial).set_shader_parameter("hearth_pos", to_global(hs[0]) if not hs.is_empty() else Vector3(0, -1000, 0))
+		(sm as ShaderMaterial).set_shader_parameter("floor_y", global_position.y)
 	_add_room_gi()
 
 
@@ -125,6 +137,35 @@ func _add_room_gi() -> void:
 	gi.bake()
 	# light shafts: a thin volumetric haze in the room's own Environment (HIGH+), so the window daylight and the
 	# hearth read as beams through dust (audit P0 "FogVolume / interior light shafts"; LOW and MEDIUM off)
+	if tier >= 2 and not (layout["windows"] as Array).is_empty():
+		# one daylight shaft through the first window: a soft spot from outside the pane, angled down into the room;
+		# its volumetric energy draws the beam in the haze (by day only, apply_hour scales it)
+		var win: Dictionary = layout["windows"][0]
+		var wpos := Vector3(float(win["at"]), (float(win["y0"]) + float(win["y1"])) * 0.5, 0.0)
+		var inward := Vector3(0, 0, 1)
+		match String(win["wall"]):
+			"N": wpos.z = -d * 0.5
+			"S":
+				wpos.z = d * 0.5
+				inward = Vector3(0, 0, -1)
+			"E":
+				wpos = Vector3(w * 0.5, wpos.y, float(win["at"]))
+				inward = Vector3(-1, 0, 0)
+			"W":
+				wpos = Vector3(-w * 0.5, wpos.y, float(win["at"]))
+				inward = Vector3(1, 0, 0)
+		_shaft = SpotLight3D.new()
+		_shaft.name = "WindowShaft"
+		_shaft.light_color = Color(1.0, 0.93, 0.8)
+		_shaft.spot_range = maxf(w, d) + 2.0
+		_shaft.spot_angle = 16.0
+		_shaft.spot_angle_attenuation = 1.6
+		_shaft.shadow_enabled = true
+		_shaft.light_volumetric_fog_energy = 6.0
+		add_child(_shaft)
+		_shaft.position = wpos - inward * 1.2 + Vector3(0, 1.0, 0)
+		_shaft.look_at(to_global(wpos + inward * 2.5 + Vector3(0, -1.3, 0)), Vector3.UP)
+		apply_hour(_last_hour)
 	if tier >= 2 and _env != null:
 		_env.volumetric_fog_enabled = true
 		_env.volumetric_fog_density = 0.035
@@ -157,10 +198,10 @@ func _build_shell() -> void:
 	# floor, ceiling, beams
 	kit.solid(Vector3(0, -0.1, 0), Vector3(w + 0.44, 0.2, d + 0.44), FLOOR)
 	kit.ceiling_solid(Vector3(0, h + 0.1, 0), Vector3(w + 0.44, 0.2, d + 0.44), DARK, "ceil")
-	var beams := 3
+	var beams := maxi(3, int(d / 1.1))
 	for i in beams:
 		var z := -d * 0.5 + d * (float(i) + 0.5) / float(beams)
-		kit.box(Vector3(0, h - 0.1, z), Vector3(w - 0.2, 0.18, 0.2), WOOD, "solid", 0.0, "ceil")
+		kit.box(Vector3(0, h - 0.11, z), Vector3(w + 0.1, 0.2, 0.16), BEAM, "solid", 0.0, "ceil")
 	# outer walls with window and door openings
 	var opens := {"N": [], "S": [], "E": [], "W": []}
 	for win: Dictionary in layout["windows"]:
@@ -173,6 +214,8 @@ func _build_shell() -> void:
 	kit.wall(Vector2(hw, -hd), Vector2(hw, hd), h, PLASTER, opens["E"], Kit.WALL_T, 0.0, "wE")
 	kit.wall(Vector2(hw, hd), Vector2(-hw, hd), h, PLASTER, opens["S"], Kit.WALL_T, 0.0, "wS")
 	kit.wall(Vector2(-hw, hd), Vector2(-hw, -hd), h, PLASTER, opens["W"], Kit.WALL_T, 0.0, "wW")
+	_build_frame(w, d, h, opens)
+	_build_rushes(w, d)
 	# window panes + frames (the pane is the emissive "glass" the light driver colours)
 	for win: Dictionary in layout["windows"]:
 		_build_window(win, w, d)
@@ -199,6 +242,56 @@ func _build_shell() -> void:
 				_group_nodes[g] = []
 				_group_fade[g] = 0.0
 			(_group_nodes[g] as Array).append(_kit_nodes[key])
+
+
+## Exposed timber frame on the inner face of the four outer walls: sill beam, top plate, posts every ~2 m (none across a
+## door or window), a brace in every other bay. Each piece joins its wall's fade group.
+func _build_frame(w: float, d: float, h: float, opens: Dictionary) -> void:
+	var inset := 0.07
+	for wall: String in ["N", "E", "S", "W"]:
+		var length := w if wall in ["N", "S"] else d
+		var g := "w" + wall
+		var yaw := 0.0 if wall in ["N", "S"] else PI * 0.5
+		var mid := _frame_point(wall, length * 0.5, 0.0, inset, w, d)
+		kit.box(Vector3(mid.x, 0.11, mid.z), Vector3(length, 0.22, 0.14), BEAM, "solid", yaw, g)          # sill
+		kit.box(Vector3(mid.x, h - 0.32, mid.z), Vector3(length, 0.2, 0.14), BEAM, "solid", yaw, g)       # top plate
+		var n := maxi(2, int(round(length / 2.0)))
+		for i in n + 1:
+			var tt := clampf(length * float(i) / float(n), 0.1, length - 0.1)
+			var blocked := false
+			for o: Dictionary in opens[wall]:
+				if absf(tt - float(o["at"])) < float(o["w"]) * 0.5 + 0.16:
+					blocked = true
+			if blocked:
+				continue
+			kit.box(_frame_point(wall, tt, (h - 0.2) * 0.5, inset, w, d), Vector3(0.16, h - 0.2, 0.14), BEAM, "solid", yaw, g)
+
+
+## A point on the inner face of an outer wall: `tt` metres along it (same direction as _wall_t), `inn` metres into the room.
+func _frame_point(wall: String, tt: float, y: float, inn: float, w: float, d: float) -> Vector3:
+	match wall:
+		"N": return Vector3(tt - w * 0.5, y, -d * 0.5 + inn)
+		"S": return Vector3(w * 0.5 - tt, y, d * 0.5 - inn)
+		"E": return Vector3(w * 0.5 - inn, y, tt - d * 0.5)
+	return Vector3(-w * 0.5 + inn, y, d * 0.5 - tt)
+
+
+## Strewn rushes and straw on the floor (a medieval floor was never bare boards): thin flat strands, thicker along the
+## walls, a trodden path from the door stays bare. Deterministic per layout.
+func _build_rushes(w: float, d: float) -> void:
+	var rng := RandomNumberGenerator.new()
+	rng.seed = hash(layout_id) ^ 0x5157
+	var n := int(w * d * 9.0)
+	for i in n:
+		var x := rng.randf_range(-w * 0.5 + 0.15, w * 0.5 - 0.15)
+		var z := rng.randf_range(-d * 0.5 + 0.15, d * 0.5 - 0.15)
+		var edge := minf(minf(w * 0.5 - absf(x), d * 0.5 - absf(z)), 2.0) / 2.0
+		if absf(x - float(layout.get("door_x", 0.0))) < 0.6 and rng.randf() < 0.85:
+			continue       # the worn path from the door
+		if rng.randf() < edge * 0.75:
+			continue       # thinner toward the middle of the room
+		var c := RUSH.lerp(Color(0.42, 0.34, 0.2), rng.randf())
+		kit.box(Vector3(x, 0.006 + rng.randf() * 0.01, z), Vector3(rng.randf_range(0.3, 0.7), 0.014, rng.randf_range(0.03, 0.07)), c, "solid", rng.randf() * TAU)
 
 
 func _build_window(win: Dictionary, w: float, d: float) -> void:
@@ -230,6 +323,22 @@ func _build_window(win: Dictionary, w: float, d: float) -> void:
 		kit.box(pos + basis * Vector3(sx * (ww * 0.5 + 0.01), 0, 0) + Vector3(0, mid, 0), Vector3(0.07, gh, 0.30), WOOD, "solid", yaw, "w" + wall)
 	kit.box(pos + Vector3(0, mid, 0), Vector3(0.05, gh, 0.1), WOOD, "solid", yaw, "w" + wall)
 	kit.box(pos + Vector3(0, mid + gh * 0.12, 0), Vector3(ww, 0.04, 0.1), WOOD, "solid", yaw, "w" + wall)
+	# small horn panes in a lead lattice (the glass material is tinted warm horn in apply_hour)
+	for k in 3:
+		var fx := (float(k) + 1.0) / 4.0 - 0.5
+		kit.box(pos + basis * Vector3(fx * ww, 0, 0) + Vector3(0, mid, 0), Vector3(0.018, gh - 0.06, 0.06), DARK, "solid", yaw, "w" + wall)
+		kit.box(pos + Vector3(0, mid + fx * gh, 0), Vector3(ww - 0.06, 0.018, 0.06), DARK, "solid", yaw, "w" + wall)
+	# board shutters folded open against the inner wall either side
+	var inward := Vector3(0, 0, 1)
+	match wall:
+		"S": inward = Vector3(0, 0, -1)
+		"E": inward = Vector3(-1, 0, 0)
+		"W": inward = Vector3(1, 0, 0)
+	for sx: float in [-1.0, 1.0]:
+		var sp := pos + inward * (Kit.WALL_T * 0.5 + 0.03) + basis * Vector3(sx * (ww * 0.75 + 0.08), 0, 0) + Vector3(0, mid, 0)
+		kit.box(sp, Vector3(ww * 0.5, gh, 0.04), WOOD, "solid", yaw, "w" + wall)
+		for by: float in [0.3, -0.3]:
+			kit.box(sp + inward * 0.025 + Vector3(0, gh * by, 0), Vector3(ww * 0.5, 0.08, 0.02), BEAM, "solid", yaw, "w" + wall)
 
 
 func _build_loft(loft: Dictionary) -> void:
@@ -310,11 +419,15 @@ func _build_prop(p: Dictionary) -> void:
 		return
 	match t:
 		"bed", "cot":
-			_pb(p, Vector3(0, 0.15, 0), Vector3(w, 0.3, dd), WOOD, "solid", true)
-			_pb(p, Vector3(0, 0.37, 0.05), Vector3(w - 0.1, 0.14, dd - 0.1), Color(0.78, 0.72, 0.58))
-			_pb(p, Vector3(0, 0.49, -dd * 0.5 + 0.35), Vector3(w * 0.6, 0.1, 0.35), Color(0.9, 0.88, 0.8))
-			_pb(p, Vector3(0, 0.46, dd * 0.12), Vector3(w - 0.1, 0.07, dd * 0.55), _cloth(p))
-			_pb(p, Vector3(0, 0.275, -dd * 0.5 + 0.03), Vector3(w, 0.55, 0.06), DARK)     # low headboard: the bed clips lie across it
+			# a plain box bed on four stout legs, straw tick, linen bolster, undyed wool blanket (no dyed sheets)
+			_pb(p, Vector3(0, 0.24, 0), Vector3(w, 0.12, dd), WOOD, "solid", true)
+			for lx: float in [-1.0, 1.0]:
+				for lz: float in [-1.0, 1.0]:
+					_pb(p, Vector3(lx * (w * 0.5 - 0.05), 0.12, lz * (dd * 0.5 - 0.05)), Vector3(0.09, 0.24, 0.09), BEAM)
+			_pb(p, Vector3(0, 0.37, 0.05), Vector3(w - 0.1, 0.14, dd - 0.1), LINEN.darkened(0.12))
+			_pb(p, Vector3(0, 0.49, -dd * 0.5 + 0.35), Vector3(w * 0.6, 0.1, 0.35), LINEN)
+			_pb(p, Vector3(0, 0.46, dd * 0.12), Vector3(w - 0.1, 0.07, dd * 0.55), WOOL.lerp(Color(0.38, 0.33, 0.27), float(absi(hash(p["p"])) % 100) / 100.0))
+			_pb(p, Vector3(0, 0.3, -dd * 0.5 + 0.03), Vector3(w, 0.6, 0.06), BEAM)     # low headboard: the bed clips lie across it
 		"table":
 			_pb(p, Vector3(0, 0.75, 0), Vector3(w, 0.06, dd), WOOD, "solid", false)
 			for sx in [-1.0, 1.0]:
@@ -492,9 +605,11 @@ func _build_lights() -> void:
 			break
 	_hearth_light = OmniLight3D.new()
 	_hearth_light.name = "HearthLight"
-	_hearth_light.shadow_enabled = false
+	_hearth_light.shadow_enabled = int(Quality.tier) >= 1        # soft firelight shadows (MEDIUM+)
+	_hearth_light.shadow_blur = 2.5
+	_hearth_light.shadow_bias = 0.06
 	_hearth_light.light_color = Color(1.0, 0.58, 0.28)
-	_hearth_light.omni_range = 7.5
+	_hearth_light.omni_range = 9.0
 	_hearth_light.omni_attenuation = 1.35        # warm pool round the fire that falls off instead of a hard disc
 	_hearth_light.position = hp
 	add_child(_hearth_light)
@@ -535,6 +650,10 @@ func apply_hour(hour: float) -> void:
 		gm.emission_energy_multiplier = float(s["window_energy"])
 		# Unshaded glass shows its albedo too: dark navy at night, pale sky by day (it used to be white either way).
 		gm.albedo_color = Light.NIGHT_GLASS.lerp(Light.DAY_GLASS, float(s["daylight"]))
+		if not CityPlanner.towns_off():      # horn panes: warm translucent amber by day, near black by night
+			gm.albedo_color = Color(0.07, 0.05, 0.035).lerp(Color(0.86, 0.72, 0.5), float(s["daylight"]))
+			gm.emission = wc * Color(1.0, 0.86, 0.62)
+			gm.emission_energy_multiplier = float(s["window_energy"]) * 0.35     # horn glows, it does not blaze
 	if mats.has("fire"):
 		(mats["fire"] as StandardMaterial3D).emission_energy_multiplier = float(s["fire_glow"])
 	if mats.has("lamp"):
@@ -548,11 +667,18 @@ func apply_hour(hour: float) -> void:
 		_room_light.light_color = (s["window_color"] as Color).lerp(Color(1.0, 0.82, 0.55), lamp_e / tot)
 	_night_k = 1.0 - float(s["daylight"])
 	_hearth_base = Light.HEARTH_LIGHT * float(s["hearth_energy"])
+	var dim := not CityPlanner.towns_off()      # interior pass 2: dim, firelit rooms (KCD), darker and warmer than outside
+	if dim:
+		_hearth_base = maxf(_hearth_base * 1.6, Light.HEARTH_LIGHT * 0.45)     # embers glow even when the fire is banked
+		_room_light.light_energy = tot * 0.55
 	_hearth_light.light_energy = _hearth_base
 	_hearth_light.visible = _hearth_base > 0.02
+	if _shaft != null:
+		_shaft.light_energy = 3.0 * float(s["daylight"])
+		_shaft.visible = float(s["daylight"]) > 0.05
 	if _env != null:
 		_env.ambient_light_color = s["ambient_color"]
-		_env.ambient_light_energy = float(s["ambient_energy"])
+		_env.ambient_light_energy = maxf(Light.NIGHT_FLOOR, float(s["ambient_energy"]) * 0.6) if dim else float(s["ambient_energy"])
 		_env.background_color = Light.BACKDROP_NIGHT.lerp(Light.BACKDROP_DAY, float(s["daylight"]))
 
 
