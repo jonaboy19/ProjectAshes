@@ -196,3 +196,9 @@ File: `docs/plans/props_refined/sheet.jpg`.
 | fence_wattle | PASS | 42 dense courses of thin irregular rods; nothing shows through at 3 m. 4.6k tris (within 5k). |
 | market_stall | PASS (borderline) | The canopy is faded ochre-linen (-35 % saturation). |
 Tools: DeepBump normals from Meshy albedo (cart, stall, table; not the pouch, where they made it worse); blender.sh now loads the user_default extensions through a junction. The Poly Haven downloads were not done: they need the owner's OK.
+
+## 2026-10-27 Combat pass 7 (combat-motion worker) - slice road, no glow, player reactions + variety - FAIL (improved, WIP)
+File: `PA_plans/videos/WIP_combat_full_motion_slice_road_sword_v7.mp4` (real terrain, on the dressed slice footpath near the Kingsreach road, 492,176); sheet `docs/qa/golden/combat/fm_v7_road_sheet.jpg`.
+- VFX: impact glow core and ground ring removed for every tier; hits show small sparks + dust only. No orb on the sheet.
+- Player side (split with the player worker: logic in `scripts/combat/player_combat_motion.gd`, one-line hooks in player.gd): flesh hits play the set-4 reaction by direction x strength (light = upper-body flinch over the guard legs, heavy = whole-body); the attack chain opens with its own step and then varies (never the same clip twice, a held direction still picks the cut).
+- Verdict: the duel now sits in the real route and both sides react, vary and keep spacing. Still FAIL: the review camera dips into roadside grass (raised to 2.0 m for the next run); some stylised orange/golden trees remain in the background (world lane); dodges still use the old roll; lock-on footwork, deaths by direction, shield-arm tracking, feints and 1v3 still open.

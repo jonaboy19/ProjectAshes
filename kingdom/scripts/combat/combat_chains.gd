@@ -182,5 +182,24 @@ static func guard_clip(style: String) -> String:
 	return String((CHAINS.get(style, {}) as Dictionary).get("guard", "")) if enabled else ""
 
 
+## Variety (owner AAA bar, layer 1): a held direction picks that cut; with no direction the step is drawn at random from the
+## chain step and the style's directional cuts, never repeating `last_anim`. Finishers are kept. `roll` in [0, 1).
+static func vary(style: String, steps: Array, step: int, local_input: Vector2, last_anim: String, roll: float) -> Resource:
+	var base: Resource = steps[step]
+	if not has_style(style) or base.finisher or cut_for(local_input) != "":
+		return pick(style, steps, step, local_input)
+	if last_anim == "" or step == 0:
+		return base          # a chain opens with its own first step (readable, and table-exact for the tests)
+	var pool: Array = [base]
+	for v: Vector2 in [Vector2(-1, 0), Vector2(1, 0), Vector2(0, -1), Vector2(0, 1)]:
+		var r: Resource = pick(style, steps, step, v)
+		if not pool.has(r):
+			pool.append(r)
+	pool = pool.filter(func(r: Resource) -> bool: return String(r.anim) != last_anim)
+	if pool.is_empty():
+		return base
+	return pool[mini(int(roll * pool.size()), pool.size() - 1)]
+
+
 static func clear_cache() -> void:
 	_cache.clear()

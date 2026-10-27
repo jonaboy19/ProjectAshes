@@ -32,3 +32,9 @@ func test_every_clip_exists_in_the_measured_library() -> void:
 		for c in R.DEATH[k]:
 			assert_bool(m.has(String(c))).override_failure_message(String(c)).is_true()
 	assert_bool(m.has(R.BLOCK_LARGE) and m.has(R.BLOCK_SMALL)).is_true()
+
+
+func test_player_react_falls_back_without_animator() -> void:
+	var PCM := preload("res://scripts/combat/player_combat_motion.gd")
+	var n: Node = auto_free(Node.new())
+	assert_bool(PCM.react(n, "Front", Vector3.ZERO, false)).is_false()

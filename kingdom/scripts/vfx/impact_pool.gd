@@ -22,7 +22,7 @@ const TIER_SLASHES := [0, 0, 0]          ## no slash starbursts (coordinator rev
 const BUSY := [0.45, 0.5, 0.55]
 ## Ground ring diameter in metres (a body is ~0.7 m wide: a finisher ring is ~2.5 body widths) and its start alpha.
 const RING_SIZE := [1.2, 1.5, 1.8]
-const RING_ALPHA := [0.0, 0.12, 0.25]      ## no glowing ground ring on ordinary hits; dust carries the footwork
+const RING_ALPHA := [0.0, 0.0, 0.0]      ## no glowing ground ring on ordinary hits; dust carries the footwork
 
 ## Warm Style G palettes. pal: tint/hot/edge; rise: spark gravity y; v: spark speed; life: spark life;
 ## dust: dust colour (or null); splat: ground splat colour; ring: ring speed scale.
@@ -191,7 +191,7 @@ func play(pos: Vector3, element := "physical", tier := 0, dir := Vector3.ZERO, l
 	var flash: MeshInstance3D = slot["flash"]
 	var fm: ShaderMaterial = slot["flash_mat"]
 	_tint(fm, warm)
-	flash.visible = not landing and tier >= 1      # light hits: sparks + dust only, no glow core
+	flash.visible = false      # no glow core at all (coordinator review: an orb on hits); sparks + dust carry the contact
 	fm.set_shader_parameter("bb_scale", size * 0.5)
 	fm.set_shader_parameter("fade", 1.0)
 	tw.tween_property(fm, "shader_parameter/bb_scale", size * 0.9, 0.08).set_ease(Tween.EASE_OUT)

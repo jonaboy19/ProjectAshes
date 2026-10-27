@@ -80,3 +80,12 @@ func test_parry_contact_point_lies_between_hand_and_chest() -> void:
 	var at: Vector3 = PC.contact_point_from(Vector3(0, 1.4, 2.0), Vector3(0, 1.25, 0))
 	assert_float(at.z).is_between(0.6, 2.0)
 	assert_float(Vector3(0, 1.4, 2.0).distance_to(at)).is_equal_approx(PC.BLADE_REACH, 0.001)
+
+
+func test_vary_never_repeats_and_keeps_opener_and_finisher() -> void:
+	var steps := Chains.combo("sword")
+	assert_object(Chains.vary("sword", steps, 0, Vector2.ZERO, "", 0.5)).is_same(steps[0])
+	for i in 20:
+		var r: Resource = Chains.vary("sword", steps, 1, Vector2.ZERO, String(steps[1].anim), i / 20.0)
+		assert_str(String(r.anim)).is_not_equal(String(steps[1].anim))
+	assert_object(Chains.vary("sword", steps, 3, Vector2.ZERO, "x", 0.3)).is_same(steps[3])

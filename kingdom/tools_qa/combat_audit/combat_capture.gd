@@ -583,7 +583,7 @@ func _hold(target: Node3D, n: int, _off := 0.0) -> void:
 			line.y = 0.0
 			var side := Vector3(-line.z, 0, line.x).normalized() * _rcam_side
 			var wide := _off > 1.0          # group fights: higher and further back so circling fighters do not block the lens
-			var want := mid + side * maxf(7.5 if wide else 4.2, line.length() * 1.3) - line.normalized() * (2.5 if wide else 0.0) + Vector3.UP * (3.2 if wide else 1.5)
+			var want := mid + side * maxf(7.5 if wide else 4.2, line.length() * 1.3) - line.normalized() * (2.5 if wide else 0.0) + Vector3.UP * (3.2 if wide else 2.0)     # above roadside grass
 			_rcam.global_position = want if not _rcam.current else _rcam.global_position.lerp(want, 0.08)
 			_rcam.current = true
 			_rcam.look_at(mid + Vector3.UP * 0.9)

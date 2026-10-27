@@ -208,6 +208,7 @@ const CombatFeel := preload("res://scripts/combat/combat_feel.gd")
 ## Full-motion combat: root-motion attacks warped onto the target (combat-motion worker; scripts/combat/combat_motion.gd).
 const CombatMotion := preload("res://scripts/combat/combat_motion.gd")
 const CombatChains := preload("res://scripts/combat/combat_chains.gd")
+const PlayerCombatMotion := preload("res://scripts/combat/player_combat_motion.gd")
 var _cmotion := CombatMotion.new()
 const EnemyHighlight := preload("res://scripts/combat/enemy_highlight.gd")
 const ChaseCamera := preload("res://scripts/actors/chase_camera.gd")
@@ -2284,7 +2285,7 @@ func _start_swing() -> void:
 		_animator.stop_full()
 	var steps := CombatMoves.combo(combat_style)
 	_combo = (_combo + 1) % steps.size() if _combo_window > 0.0 else 0
-	var action: Resource = _arms.take_forced(CombatChains.pick(combat_style, steps, _combo, _local_input()))    # a held direction picks the cut    # a released heavy replaces the combo step
+	var action: Resource = _arms.take_forced(CombatChains.vary(combat_style, steps, _combo, _local_input(), String(_action.anim) if _action else "", randf()))    # a held direction picks the cut    # a released heavy replaces the combo step
 	_action = action
 	var weak: bool = stamina < action.cost
 	# A tired swing plays at 0.7x, so its blade (and hit) arrives later too.
@@ -2646,10 +2647,11 @@ func take_damage(amount: int, from: Node = null, knockback := Vector3.ZERO, forc
 		var heavy := amount >= max_health * 0.12 or knockback.length() >= 4.0
 		var clip := "Hit_%s_%s" % ["Heavy" if heavy else "Light", _hit_side(from)]
 		_jolt(from, 7.0 if heavy else 4.5)      # directional flinch on top of the clip: the chest is thrown away from the blow
-		if heavy and not _mount and not swimming:
-			_animator.play_full(clip, 1.0)
-		else:
-			_animator.play_upper(clip, 1.0)
+		if _mount or swimming or not PlayerCombatMotion.react(self, _hit_side(from), knockback, heavy):      # set-4 reaction by direction x strength
+			if heavy and not _mount and not swimming:
+				_animator.play_full(clip, 1.0)
+			else:
+				_animator.play_upper(clip, 1.0)
 	if health > 0:
 		_arms.on_hit_taken(int(res["result"]), float(atk["poise_damage"]), knockback.length(), from)
 	if health > 0 and amount > 0 and _impact_pause:
