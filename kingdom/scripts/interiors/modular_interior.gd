@@ -414,7 +414,7 @@ func _build_clutter(w: float, d: float, h: float, opens: Dictionary) -> void:
 	if hearth != Vector3.INF:
 		var hb := Basis(Vector3.UP, hearth_yaw)
 		for e: Array in [["@woodpile", Vector3(1.35, 0, 0.1)], ["@hay", Vector3(-1.4, 0, 0.25)], ["ceramic_pot", Vector3(0.45, 0, 0.75)],
-				["jug_01", Vector3(-0.5, 0, 0.8)], ["wooden_bucket_01", Vector3(1.0, 0, 0.9)], ["wooden_bowl_01", Vector3(-0.15, 0, 0.95)]]:
+				["ceramic_pot", Vector3(-0.5, 0, 0.8)], ["wooden_bucket_01", Vector3(1.0, 0, 0.9)], ["wooden_bowl_01", Vector3(-0.15, 0, 0.95)]]:
 			var at := hearth + hb * (e[1] as Vector3)
 			if _clutter_put(String(e[0]), Vector2(at.x, at.z), rng.randf() * TAU, taken, w, d, rng):
 				placed += 1
@@ -690,7 +690,7 @@ const PH := "res://assets/incoming/polyhaven/models/%s/%s_1k.gltf"
 const CLUTTER := [
 	["wicker_basket_01", 3, "floor"], ["wicker_basket_02", 2, "floor"], ["wooden_bucket_01", 2, "floor"], ["wooden_bucket_02", 1, "floor"],
 	["wooden_crate_01", 2, "floor"], ["wooden_crate_02", 1, "floor"], ["ceramic_pot", 2, "floor"],
-	["jug_01", 2, "floor"], ["wooden_bowl_01", 1, "floor"], ["wicker_basket_01", 2, "floor"], ["@hay", 1, "floor"],
+	["ceramic_pot", 1, "floor"], ["wooden_bowl_01", 1, "floor"], ["wicker_basket_01", 2, "floor"], ["@hay", 1, "floor"],
 	["@crate_stack", 1, "floor"], ["@pr_barrel_rack", 1, "floor"], ["@woodpile", 1, "floor"], ["wooden_barrels_01", 1, "floor"],
 	["wooden_broom", 1, "lean"], ["rusted_spade_01", 1, "lean"], ["hatchet", 1, "floor"], ["wooden_axe", 1, "lean"],
 ]

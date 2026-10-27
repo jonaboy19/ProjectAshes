@@ -21,8 +21,8 @@ const TAVERN := ["tavern_inn", "alehouse"]
 const VARIANTS := {"house": HOUSE, "shop": SHOP, "tavern": TAVERN}
 
 const SCENE_DIR := "res://scenes/interiors/modular/"
-const CEIL := 2.8              # ground-floor ceiling / loft floor height
-const LOFT_HEAD := 2.3         # headroom above a loft floor
+const CEIL := 2.45             # ground-floor ceiling / loft floor height (cottage scale, coordinator gate 2026-10-28: was 2.8, rooms read as halls)
+const LOFT_HEAD := 2.0         # headroom above a loft floor (was 2.3)
 const SPAWN_BACK := 1.1        # the player appears this far inside the door
 
 ## Footprints (x, z in the prop's own frame) used for placement checks and colliders.
@@ -225,6 +225,7 @@ static func _cottage() -> Dictionary:
 	_add(l, "hearth", 1.2, -1.8, 0)
 	_add(l, "chair", 2.0, -0.7, 200, {"use": "hearth"})
 	_add(l, "chair", 0.4, -0.6, 160, {"use": "hearth"})
+	_add(l, "stool", 1.2, -0.95, 180, {"use": "hearth"})
 	_add(l, "bed", -1.8, -1.05, 0)
 	_add(l, "cot", -0.6, -1.2, 0)
 	_add(l, "table", -1.3, 0.8, 0, {"w": 1.2, "dd": 0.8})
@@ -268,33 +269,36 @@ static func _two_room() -> Dictionary:
 
 
 static func _family_loft() -> Dictionary:
-	var l := _base("family_loft", "house", "Family house with loft", 7.0, 6.0, -1.5)
-	_loft(l, -3.4, 3.4, -2.9, -0.9, Vector3(-3.25, 0.0, -0.3), Vector3(-3.0, CEIL + 0.12, -1.2))
-	_win(l, "N", 2.0, 1.1, 3.4, 4.3)
-	_win(l, "N", -2.0, 1.1, 3.4, 4.3)
-	_win(l, "E", 0.8)
-	_win(l, "W", 1.6)
-	_win(l, "S", 2.2)
-	_add(l, "hearth", 2.2, -2.6, 0)
-	_add(l, "chair", 1.2, -1.4, 160, {"use": "hearth"})
-	_add(l, "chair", 3.1, -1.4, 200, {"use": "hearth"})
-	_add(l, "table", 1.0, 0.6, 0, {"w": 1.8, "dd": 0.9})
-	_add(l, "chair", 0.4, 1.35, 180, {"use": "table"})
-	_add(l, "chair", 1.6, 1.35, 180, {"use": "table"})
-	_add(l, "chair", 0.4, -0.15, 0, {"use": "table"})
-	_add(l, "chair", 1.6, -0.15, 0, {"use": "table"})
-	_add(l, "bench", 2.9, 0.6, 270, {"use": "table"})
-	_add(l, "bed", -2.9, -1.9, 0)                        # parents, under the loft
-	_add(l, "cupboard", 3.28, 1.8, 270, {"slot": "cupboard"})
-	_add(l, "chest", 2.9, 2.5, 180, {"slot": "chest"})
-	_add(l, "shelf", -0.5, -2.85, 0)
-	_add(l, "rug", 1.0, 0.7, 0)
-	_add(l, "lamp", 1.0, 0.6, 0)
+	# Interior pass 4 (coordinator gate 2026-10-28): cottage scale 6.2 x 5.4 m (was 7 x 6), the loft over the back 2.3 m so
+	# the room is not a tall open hall, the table out in the room with a bench pulled up, a stool at the hearth.
+	var l := _base("family_loft", "house", "Family house with loft", 6.2, 5.4, -1.3)
+	_loft(l, -3.0, 3.0, -2.6, -0.3, Vector3(-2.85, 0.0, 0.3), Vector3(-2.65, CEIL + 0.12, -0.6))
+	_win(l, "N", 1.8, 1.0, CEIL + 0.55, CEIL + 1.4)
+	_win(l, "N", -1.8, 1.0, CEIL + 0.55, CEIL + 1.4)
+	_win(l, "E", 0.9)
+	_win(l, "W", 1.4)
+	_win(l, "S", 2.0)
+	_add(l, "hearth", 1.9, -2.35, 0)
+	_add(l, "chair", 0.95, -1.25, 160, {"use": "hearth"})
+	_add(l, "chair", 2.7, -1.25, 200, {"use": "hearth"})
+	_add(l, "stool", 1.9, -1.05, 180, {"use": "hearth"})
+	_add(l, "table", 0.5, 0.75, 0, {"w": 1.6, "dd": 0.9})
+	_add(l, "chair", 0.0, 1.45, 180, {"use": "table"})
+	_add(l, "chair", 1.0, 1.45, 180, {"use": "table"})
+	_add(l, "chair", 0.0, 0.05, 0, {"use": "table"})
+	_add(l, "chair", 1.0, 0.05, 0, {"use": "table"})
+	_add(l, "bench", 2.05, 0.85, 262, {"use": "table"})
+	_add(l, "bed", -2.5, -1.7, 0)                        # parents, under the loft
+	_add(l, "cupboard", 2.85, 1.6, 270, {"slot": "cupboard"})
+	_add(l, "chest", 2.15, 2.35, 180, {"slot": "chest"})
+	_add(l, "shelf", -0.4, -2.55, 0)
+	_add(l, "rug", 0.5, 0.8, 0)
+	_add(l, "lamp", 0.5, 0.75, 0)
 	# loft: the children, and a trunk
-	_add(l, "bed", -2.4, -1.9, 0, {"level": 1})
-	_add(l, "bed", -1.2, -1.9, 0, {"level": 1})
-	_add(l, "cot", 0.0, -1.9, 0, {"level": 1})
-	_add(l, "chest", 2.8, -2.4, 270, {"level": 1, "slot": "loft_chest"})
+	_add(l, "bed", -2.1, -1.6, 0, {"level": 1})
+	_add(l, "bed", -0.9, -1.6, 0, {"level": 1})
+	_add(l, "cot", 0.3, -1.6, 0, {"level": 1})
+	_add(l, "chest", 2.5, -2.2, 270, {"level": 1, "slot": "loft_chest"})
 	return l
 
 
@@ -418,7 +422,7 @@ static func _tavern_inn() -> Dictionary:
 	_win(l, "W", -2.0)
 	_win(l, "S", -3.0)
 	_win(l, "S", 3.2)
-	_win(l, "E", 2.2, 1.0, 3.4, 4.3)
+	_win(l, "E", 2.2, 1.0, CEIL + 0.55, CEIL + 1.4)
 	_add(l, "bar", -0.6, -2.8, 0, {"w": 3.6})
 	l["npcs"].append({"role": "innkeeper", "look": "Innkeeper", "p": Vector2(0.1, -3.55), "y": 0.0})
 	_add(l, "barrel", -2.9, -3.55, 0, {"slot": "ale_a"})
