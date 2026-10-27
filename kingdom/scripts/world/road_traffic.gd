@@ -27,6 +27,7 @@ const PILGRIM_LOOKS := ["Monk", "Elder_Woman", "Elder_Man", "Monk"]
 const PILGRIM_HOURS := Vector2(7.0, 17.0)
 const PILGRIM_CHANCE := 0.5               ## per 5 s check with the player near the road and no band out
 const PILGRIM_CLIPS := ["Life_Walk_Careful", "Walking_A", "Walk"]
+const PATROL_CLIPS := ["Life_Guard_Patrol_Walk", "Walking_A", "Walk"]
 
 var focus := Vector3.ZERO
 var _groups: Array[Dictionary] = []   # {a, b, t, speed, node}
@@ -182,6 +183,21 @@ func _take_pilgrims() -> Node3D:
 	return _build_pilgrims()
 
 
+## First clip of `names` the rig has, looping, each walker at its own phase; falls back to Idle (never the rest pose).
+static func _walk_clip(ap: AnimationPlayer, names: Array, i: int) -> void:
+	if ap == null:
+		return
+	for clip: String in names + ["Idle"]:
+		if ap.has_animation(clip):
+			var anim := ap.get_animation(clip)
+			if anim != null:
+				anim.loop_mode = Animation.LOOP_LINEAR
+			ap.play(clip)
+			if anim != null and anim.length > 0.0:
+				ap.seek(fmod(float(i) * 0.37, 1.0) * anim.length, true)
+			return
+
+
 func _park_pilgrims(node: Node3D) -> void:
 	node.visible = false
 	node.process_mode = Node.PROCESS_MODE_DISABLED
@@ -199,13 +215,7 @@ func _build_pilgrims() -> Node3D:
 		root.add_child(body)
 		var ap := Assets.animation_player(body)
 		if ap != null:
-			for clip: String in PILGRIM_CLIPS:
-				if ap.has_animation(clip):
-					var anim := ap.get_animation(clip)
-					if anim != null:
-						anim.loop_mode = Animation.LOOP_LINEAR
-					ap.play(clip)
-					break
+			_walk_clip(ap, PILGRIM_CLIPS, i)
 	if root.get_child_count() == 0:
 		root.free()
 		return null
@@ -268,6 +278,7 @@ func _build_visual(kind: String) -> Node3D:
 				var guard := Assets.character("Guard", 1.8, [])
 				guard.position = Vector3(0.6 * (i - 1.5), 0.0, -0.6 * i)
 				root.add_child(guard)
+				_walk_clip(Assets.animation_player(guard), PATROL_CLIPS, i)     # was never animated: a T-posed trio in town
 			return root
 	return null
 

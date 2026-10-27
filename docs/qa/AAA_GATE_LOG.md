@@ -444,3 +444,13 @@ Files: PA_plans/videos/slice_ashford_interior_v8.mp4 (13:00), slice_ashford_stre
 | Street camera | PARTIAL | margin 0.65 m and 1.6 m sideways search: no frames inside walls; the Ashford Ring menhirs have no collision, so the shot still passes close to one |
 | Street ground | FAIL (world lane) | wild plants gone (76e2a588c) but the plaza/streets still read as yellow grass from the eye-level camera |
 **Verdict: interior close to the refs' mood; overall slice still FAIL (street ground, NPCs, UI labels, edge kit houses).**
+
+## 2026-10-28 · NPC anim lane · T-pose ship-blocker (three guards in the street fly-through) — FIXED
+Video: PA_plans/videos/street_alley_after_tposefix.mp4 (towns fly-through, HIGH) with the T-pose watcher on: 0 rest-pose rigs.
+| Item | Result | Note |
+|---|---|---|
+| Cause | found | RoadTraffic "patrol" built 3-4 Guard characters and never played a clip (pilgrims and drivers only had no fallback) |
+| Fix at the source | done | road_traffic.gd: _walk_clip() for patrol guards (Life_Guard_Patrol_Walk / Walking_A / Walk, desynced) and pilgrims, Idle fallback |
+| Safety net | done | scripts/living_world/anim_watchdog.gd (installed by PopulationLOD): every new AnimationPlayer driving a skeleton is checked 0.5 s later; visible and not playing, no active AnimationTree, no held pose -> the rig's idle starts and the spawner is logged (ANIM_WATCHDOG); hidden rigs are re-checked when they show |
+| Test | 2/2 green | tests/test_no_tpose.gd: road-traffic patrol / wagon / pilgrims at all 4 tiers have a playing clip and arms off the rest pose; 16 looks spawned with no clip are animated by the watchdog at tiers 0 and 3 |
+| Detector | tool | tools_qa/living_world/tpose_watch.gd (ASHES_TPOSE_WATCH=1 in the towns fly-through, SLICE_TPOSE in slice_route): reports any visible humanoid whose arms sit at the rest pose |

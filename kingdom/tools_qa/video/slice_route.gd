@@ -26,6 +26,8 @@ func run(bot: Node) -> void:
 		(hud as CanvasLayer).visible = false
 	_config_dump()
 	b.get_tree().process_frame.connect(_clean_ui)       # gate frames: no HUD, tips, quest popups or subtitles
+	if OS.has_environment("SLICE_TPOSE"):
+		_tpose_watch()
 	if OS.has_environment("SLICE_FOOTLOG"):            # NPC foot-contact hook check (audio lane)
 		var n := [0]
 		preload("res://scripts/living_world/npc_foot_events.gd").listen(func(body: Node3D, foot: StringName, surf: String, pos: Vector3, sp: float) -> void:
@@ -344,3 +346,35 @@ func _lean_check(n: int) -> void:
 		cam.queue_free()
 	_seg("end")
 	b.check("lean check finished", true)
+
+
+## T-pose detector (QA): every second, every VISIBLE humanoid skeleton whose upper arms sit exactly at their rest pose
+## (nothing animates them: no clip, an inactive tree, or clips missing from the rig) is reported once with its owner.
+func _tpose_watch() -> void:
+	var seen := {}
+	while is_instance_valid(b):
+		for skn: Node in b.get_tree().root.find_children("*", "Skeleton3D", true, false):
+			var sk := skn as Skeleton3D
+			if sk == null or not sk.is_visible_in_tree() or seen.has(sk.get_instance_id()):
+				continue
+			var ul := sk.find_bone("upperarm_l")
+			var ur := sk.find_bone("upperarm_r")
+			if ul < 0 or ur < 0:
+				continue
+			var rest_l := sk.get_bone_rest(ul).basis.get_rotation_quaternion()
+			var rest_r := sk.get_bone_rest(ur).basis.get_rotation_quaternion()
+			if sk.get_bone_pose_rotation(ul).angle_to(rest_l) > 0.02 or sk.get_bone_pose_rotation(ur).angle_to(rest_r) > 0.02:
+				continue
+			var actor: Node = sk
+			while actor != null and actor.get_script() == null:
+				actor = actor.get_parent()
+			var aps := (actor if actor else sk).find_children("*", "AnimationPlayer", true, false)
+			var ap: AnimationPlayer = aps[0] if not aps.is_empty() else null
+			var trees := (actor if actor else sk).find_children("*", "AnimationTree", true, false)
+			seen[sk.get_instance_id()] = true
+			b.L("TPOSE %s script=%s pos=%s ap_cur='%s' ap_playing=%s tree=%s look=%s" % [actor.name if actor else "?",
+				(actor.get_script() as Script).resource_path if actor and actor.get_script() else "?", sk.global_position,
+				ap.current_animation if ap else "-", ap.is_playing() if ap else false,
+				("active" if (trees[0] as AnimationTree).active else "INACTIVE") if not trees.is_empty() else "none",
+				sk.get_parent().name])
+		await b.wait(1.0)

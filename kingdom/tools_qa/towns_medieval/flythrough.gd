@@ -48,6 +48,8 @@ func run(m: Node) -> void:
 	main.terrain.focus = centre3
 	main.terrain.build_all_now()
 	WorldSim.time_of_day = hour
+	if OS.has_environment("ASHES_TPOSE_WATCH"):      # QA: T-pose detector (NPC lane)
+		get_tree().root.add_child(preload("res://tools_qa/living_world/tpose_watch.gd").new())
 	cam = Camera3D.new()
 	cam.fov = 68.0
 	cam.far = 1200.0

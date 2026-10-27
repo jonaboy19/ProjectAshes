@@ -132,6 +132,7 @@ var _player_node: Node3D
 
 
 func setup(baker: ImpostorBaker) -> void:
+	preload("res://scripts/living_world/anim_watchdog.gd").install(get_tree())    # no actor ever renders without a clip
 	for look: String in LOOK_MODEL:
 		var mm := MultiMesh.new()
 		mm.transform_format = MultiMesh.TRANSFORM_3D
