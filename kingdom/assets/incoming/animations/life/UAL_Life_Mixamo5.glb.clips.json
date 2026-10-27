@@ -1,0 +1,588 @@
+[
+ {
+  "name": "Life_Mx5_Talk_General",
+  "loop": true,
+  "seconds": 9.93,
+  "frames": 299,
+  "keys": 4521,
+  "source": "talk_general_conversation.fbx",
+  "range_s": [
+   null,
+   null
+  ],
+  "autotrim": null,
+  "loop_pts": [
+   0.3,
+   10.23,
+   0.43
+  ],
+  "floor_fix_m": 0.046,
+  "contact_lift_m": 0.0,
+  "min_foot_m": -0.0,
+  "travel_m": 0.0,
+  "hip_scale": 0.8509
+ },
+ {
+  "name": "Life_Mx5_Talk_Explain",
+  "loop": true,
+  "seconds": 3.57,
+  "frames": 108,
+  "keys": 1590,
+  "source": "talk_explaining_two_hands.fbx",
+  "range_s": [
+   null,
+   null
+  ],
+  "autotrim": null,
+  "loop_pts": [
+   0.3,
+   3.87,
+   1.67
+  ],
+  "floor_fix_m": 0.046,
+  "contact_lift_m": 0.0,
+  "min_foot_m": 0.0,
+  "travel_m": 0.0,
+  "hip_scale": 0.8509
+ },
+ {
+  "name": "Life_Mx5_Talk_Funny",
+  "loop": true,
+  "seconds": 5.6,
+  "frames": 169,
+  "keys": 2508,
+  "source": "talk_funny.fbx",
+  "range_s": [
+   null,
+   null
+  ],
+  "autotrim": null,
+  "loop_pts": [
+   0.3,
+   5.9,
+   0.35
+  ],
+  "floor_fix_m": 0.053,
+  "contact_lift_m": 0.0,
+  "min_foot_m": -0.003,
+  "travel_m": 0.0,
+  "hip_scale": 0.8509
+ },
+ {
+  "name": "Life_Mx5_Argue_A",
+  "loop": true,
+  "seconds": 20.33,
+  "frames": 611,
+  "keys": 9341,
+  "source": "arguing_standing_a.fbx",
+  "range_s": [
+   null,
+   null
+  ],
+  "autotrim": null,
+  "loop_pts": [
+   0.3,
+   20.63,
+   0.91
+  ],
+  "floor_fix_m": 0.049,
+  "contact_lift_m": 0.0,
+  "min_foot_m": -0.002,
+  "travel_m": 0.0,
+  "hip_scale": 0.8509
+ },
+ {
+  "name": "Life_Mx5_Argue_B",
+  "loop": true,
+  "seconds": 20.37,
+  "frames": 612,
+  "keys": 8723,
+  "source": "arguing_standing_b.fbx",
+  "range_s": [
+   null,
+   null
+  ],
+  "autotrim": null,
+  "loop_pts": [
+   0.3,
+   20.67,
+   1.6
+  ],
+  "floor_fix_m": 0.063,
+  "contact_lift_m": 0.0,
+  "min_foot_m": -0.002,
+  "travel_m": 0.0,
+  "hip_scale": 0.8509
+ },
+ {
+  "name": "Life_Mx5_Agree_Nod",
+  "loop": true,
+  "seconds": 1.0,
+  "frames": 31,
+  "keys": 357,
+  "source": "agreeing_nod_yes.fbx",
+  "range_s": [
+   null,
+   null
+  ],
+  "autotrim": null,
+  "loop_pts": [
+   0.3,
+   1.3,
+   1.92
+  ],
+  "floor_fix_m": 0.048,
+  "contact_lift_m": 0.0,
+  "min_foot_m": -0.0,
+  "travel_m": 0.0,
+  "hip_scale": 0.8509
+ },
+ {
+  "name": "Life_Mx5_Lean_Wall_Leg_Up",
+  "loop": true,
+  "seconds": 2.6,
+  "frames": 79,
+  "keys": 201,
+  "source": "lean_wall_leg_up.fbx",
+  "range_s": [
+   null,
+   null
+  ],
+  "autotrim": null,
+  "loop_pts": [
+   0.7,
+   3.3,
+   0.16
+  ],
+  "floor_fix_m": 0.024,
+  "contact_lift_m": 0.0,
+  "min_foot_m": 0.0,
+  "travel_m": 0.0,
+  "hip_scale": 0.8509
+ },
+ {
+  "name": "Life_Mx5_Lean_Wall_Shoulder",
+  "loop": true,
+  "seconds": 1.7,
+  "frames": 52,
+  "keys": 190,
+  "source": "lean_wall_shoulder.fbx",
+  "range_s": [
+   null,
+   null
+  ],
+  "autotrim": null,
+  "loop_pts": [
+   0.3,
+   2.0,
+   0.15
+  ],
+  "floor_fix_m": 0.056,
+  "contact_lift_m": 0.0,
+  "min_foot_m": -0.0,
+  "travel_m": 0.0,
+  "hip_scale": 0.8509
+ },
+ {
+  "name": "Life_Mx5_Sit_Cross_Legged",
+  "loop": true,
+  "seconds": 9.2,
+  "frames": 277,
+  "keys": 780,
+  "source": "sit_ground_cross_legged.fbx",
+  "range_s": [
+   null,
+   null
+  ],
+  "autotrim": null,
+  "loop_pts": [
+   0.3,
+   9.5,
+   0.49
+  ],
+  "floor_fix_m": 0.002,
+  "contact_lift_m": 0.0,
+  "min_foot_m": -0.0,
+  "travel_m": 0.0,
+  "hip_scale": 0.8509
+ },
+ {
+  "name": "Life_Mx5_Sit_Reclined",
+  "loop": true,
+  "seconds": 9.97,
+  "frames": 300,
+  "keys": 658,
+  "source": "sit_ground_reclined.fbx",
+  "range_s": [
+   null,
+   null
+  ],
+  "autotrim": null,
+  "loop_pts": [
+   0.3,
+   10.27,
+   0.22
+  ],
+  "floor_fix_m": -0.042,
+  "contact_lift_m": 0.0,
+  "min_foot_m": -0.0,
+  "travel_m": 0.0,
+  "hip_scale": 0.8509
+ },
+ {
+  "name": "Life_Mx5_Sit_Laughing",
+  "loop": true,
+  "seconds": 7.83,
+  "frames": 236,
+  "keys": 2344,
+  "source": "sit_chair_laughing.fbx",
+  "range_s": [
+   null,
+   null
+  ],
+  "autotrim": null,
+  "loop_pts": [
+   0.3,
+   8.13,
+   0.3
+  ],
+  "floor_fix_m": 0.049,
+  "contact_lift_m": 0.0,
+  "min_foot_m": -0.001,
+  "travel_m": 0.0,
+  "hip_scale": 0.8509
+ },
+ {
+  "name": "Life_Mx5_Sit_Cheer_Talk",
+  "loop": true,
+  "seconds": 3.57,
+  "frames": 108,
+  "keys": 2330,
+  "source": "sit_cheer_talk_neighbor.fbx",
+  "range_s": [
+   null,
+   null
+  ],
+  "autotrim": null,
+  "loop_pts": [
+   0.3,
+   3.87,
+   7.05
+  ],
+  "floor_fix_m": 0.036,
+  "contact_lift_m": 0.0,
+  "min_foot_m": -0.0,
+  "travel_m": 0.0,
+  "hip_scale": 0.8509
+ },
+ {
+  "name": "Life_Mx5_Sit_Down_Drink",
+  "loop": false,
+  "seconds": 15.2,
+  "frames": 457,
+  "keys": 4377,
+  "source": "sit_down_drinking.fbx",
+  "range_s": [
+   null,
+   null
+  ],
+  "autotrim": null,
+  "loop_pts": null,
+  "floor_fix_m": 0.08,
+  "contact_lift_m": 0.0,
+  "min_foot_m": -0.002,
+  "travel_m": 0.0,
+  "hip_scale": 0.8509
+ },
+ {
+  "name": "Life_Mx5_Look_Around_A",
+  "loop": true,
+  "seconds": 5.53,
+  "frames": 167,
+  "keys": 3158,
+  "source": "idle_looking_around_a.fbx",
+  "range_s": [
+   null,
+   null
+  ],
+  "autotrim": null,
+  "loop_pts": [
+   0.3,
+   5.83,
+   2.98
+  ],
+  "floor_fix_m": 0.05,
+  "contact_lift_m": 0.0,
+  "min_foot_m": -0.001,
+  "travel_m": 0.0,
+  "hip_scale": 0.8509
+ },
+ {
+  "name": "Life_Mx5_Look_Around_B",
+  "loop": true,
+  "seconds": 4.8,
+  "frames": 145,
+  "keys": 2460,
+  "source": "idle_looking_around_b.fbx",
+  "range_s": [
+   null,
+   null
+  ],
+  "autotrim": null,
+  "loop_pts": [
+   0.3,
+   5.1,
+   9.94
+  ],
+  "floor_fix_m": 0.049,
+  "contact_lift_m": 0.0,
+  "min_foot_m": -0.0,
+  "travel_m": 0.0,
+  "hip_scale": 0.8509
+ },
+ {
+  "name": "Life_Mx5_Dig",
+  "loop": true,
+  "seconds": 3.93,
+  "frames": 119,
+  "keys": 1327,
+  "source": "digging_shovel.fbx",
+  "range_s": [
+   null,
+   null
+  ],
+  "autotrim": null,
+  "loop_pts": [
+   0.3,
+   4.23,
+   3.98
+  ],
+  "floor_fix_m": 0.109,
+  "contact_lift_m": 0.0,
+  "min_foot_m": -0.005,
+  "travel_m": 0.0,
+  "hip_scale": 0.8509
+ },
+ {
+  "name": "Life_Mx5_Bench_Work",
+  "loop": true,
+  "seconds": 6.07,
+  "frames": 183,
+  "keys": 4382,
+  "source": "working_on_device_bench.fbx",
+  "range_s": [
+   null,
+   null
+  ],
+  "autotrim": null,
+  "loop_pts": [
+   0.3,
+   6.37,
+   1.67
+  ],
+  "floor_fix_m": 0.0,
+  "contact_lift_m": 0.028,
+  "min_foot_m": -0.02,
+  "travel_m": 0.0,
+  "hip_scale": 0.8509
+ },
+ {
+  "name": "Life_Mx5_Overhead_Strike",
+  "loop": true,
+  "seconds": 3.7,
+  "frames": 112,
+  "keys": 1683,
+  "source": "overhead_bash_swing.fbx",
+  "range_s": [
+   null,
+   null
+  ],
+  "autotrim": null,
+  "loop_pts": [
+   0.3,
+   4.0,
+   1.19
+  ],
+  "floor_fix_m": 0.058,
+  "contact_lift_m": 0.0,
+  "min_foot_m": -0.001,
+  "travel_m": 0.0,
+  "hip_scale": 0.8509
+ },
+ {
+  "name": "Life_Mx5_Bartend_Pour",
+  "loop": true,
+  "seconds": 13.27,
+  "frames": 399,
+  "keys": 10649,
+  "source": "bartending_pour_serve.fbx",
+  "range_s": [
+   null,
+   null
+  ],
+  "autotrim": null,
+  "loop_pts": [
+   0.3,
+   13.57,
+   0.49
+  ],
+  "floor_fix_m": 0.1,
+  "contact_lift_m": 0.0,
+  "min_foot_m": -0.013,
+  "travel_m": 0.0,
+  "hip_scale": 0.8509
+ },
+ {
+  "name": "Life_Mx5_Shoulder_Carry_Idle",
+  "loop": true,
+  "seconds": 9.7,
+  "frames": 292,
+  "keys": 878,
+  "source": "shoulder_carry_idle.fbx",
+  "range_s": [
+   null,
+   null
+  ],
+  "autotrim": null,
+  "loop_pts": [
+   0.3,
+   10.0,
+   0.25
+  ],
+  "floor_fix_m": 0.042,
+  "contact_lift_m": 0.0,
+  "min_foot_m": -0.0,
+  "travel_m": 0.0,
+  "hip_scale": 0.8509
+ },
+ {
+  "name": "Life_Mx5_Shoulder_Carry_Walk",
+  "loop": true,
+  "seconds": 1.5,
+  "frames": 46,
+  "keys": 561,
+  "source": "shoulder_carry_walk_inplace.fbx",
+  "range_s": [
+   null,
+   null
+  ],
+  "autotrim": null,
+  "loop_pts": [
+   0.47,
+   1.97,
+   1.85
+  ],
+  "floor_fix_m": 0.043,
+  "contact_lift_m": 0.0,
+  "min_foot_m": -0.0,
+  "travel_m": 0.0,
+  "hip_scale": 0.8509
+ },
+ {
+  "name": "Life_Mx5_Kneel_Down",
+  "loop": false,
+  "seconds": 2.77,
+  "frames": 84,
+  "keys": 893,
+  "source": "kneel_down_from_standing.fbx",
+  "range_s": [
+   null,
+   null
+  ],
+  "autotrim": null,
+  "loop_pts": null,
+  "floor_fix_m": 0.057,
+  "contact_lift_m": 0.0,
+  "min_foot_m": -0.0,
+  "travel_m": 0.0,
+  "hip_scale": 0.8509
+ },
+ {
+  "name": "Life_Mx5_Kneel_To_Stand",
+  "loop": false,
+  "seconds": 2.77,
+  "frames": 84,
+  "keys": 937,
+  "source": "kneel_to_stand.fbx",
+  "range_s": [
+   null,
+   null
+  ],
+  "autotrim": null,
+  "loop_pts": null,
+  "floor_fix_m": 0.043,
+  "contact_lift_m": 0.0,
+  "min_foot_m": -0.0,
+  "travel_m": 0.0,
+  "hip_scale": 0.8509
+ },
+ {
+  "name": "Life_Mx5_Kneel_Inspect",
+  "loop": true,
+  "seconds": 4.6,
+  "frames": 139,
+  "keys": 1500,
+  "source": "kneel_inspecting.fbx",
+  "range_s": [
+   null,
+   null
+  ],
+  "autotrim": null,
+  "loop_pts": [
+   0.3,
+   4.9,
+   1.17
+  ],
+  "floor_fix_m": -0.007,
+  "contact_lift_m": 0.0,
+  "min_foot_m": -0.0,
+  "travel_m": 0.0,
+  "hip_scale": 0.8509
+ },
+ {
+  "name": "Life_Mx5_Kneel_Warm_Hands",
+  "loop": true,
+  "seconds": 10.5,
+  "frames": 316,
+  "keys": 2458,
+  "source": "kneel_warming_hands_fire.fbx",
+  "range_s": [
+   null,
+   null
+  ],
+  "autotrim": null,
+  "loop_pts": [
+   0.3,
+   10.8,
+   0.28
+  ],
+  "floor_fix_m": 0.059,
+  "contact_lift_m": 0.0,
+  "min_foot_m": -0.01,
+  "travel_m": 0.0,
+  "hip_scale": 0.8509
+ },
+ {
+  "name": "Life_Mx5_Bass_Guitar",
+  "loop": true,
+  "seconds": 5.83,
+  "frames": 176,
+  "keys": 4227,
+  "source": "guitar_bass_standing.fbx",
+  "range_s": [
+   null,
+   null
+  ],
+  "autotrim": null,
+  "loop_pts": [
+   0.3,
+   6.13,
+   4.38
+  ],
+  "floor_fix_m": 0.036,
+  "contact_lift_m": 0.0,
+  "min_foot_m": -0.002,
+  "travel_m": 0.0,
+  "hip_scale": 0.8509
+ }
+]

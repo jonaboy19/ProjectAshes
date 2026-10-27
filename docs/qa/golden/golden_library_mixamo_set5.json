@@ -1,0 +1,1523 @@
+{
+ "player_young": {
+  "Life_Mx5_Agree_Nod": {
+   "airborne_s": 0.0,
+   "checks": {
+    "airborne": "PASS",
+    "drift": "PASS",
+    "hover": "PASS",
+    "penetration": "PASS",
+    "pops": "PASS",
+    "scale": "PASS",
+    "seam": "PASS",
+    "slide": "PASS",
+    "stretch": "PASS"
+   },
+   "contacts": {
+    "foot_l": [
+     [
+      0,
+      30
+     ]
+    ],
+    "foot_r": [
+     [
+      0,
+      30
+     ]
+    ]
+   },
+   "contacts_fps": 30.0,
+   "drift_cm": 0.0,
+   "ground_speed": 0.0,
+   "hover_cm": 0.454935878515244,
+   "kind": "loop",
+   "length": 1.0,
+   "looping": true,
+   "notes": [],
+   "pen_cm": 0.0,
+   "pops": 0,
+   "scale_pct": 1.19209289550781e-05,
+   "seam_cm": 0.0,
+   "seam_deg": 0.0,
+   "slide_max": 1.66222882270813,
+   "slide_mean": 0.494605671742867,
+   "slide_p75": 0.748755395412445,
+   "status": "PASS",
+   "stretch_pct": 0.000377635608717064,
+   "subject": "player_young",
+   "tpose_frames": 0,
+   "upper": false
+  },
+  "Life_Mx5_Argue_A": {
+   "airborne_s": 0.0,
+   "checks": {
+    "airborne": "PASS",
+    "drift": "PASS",
+    "hover": "PASS",
+    "penetration": "PASS",
+    "pops": "PASS",
+    "scale": "PASS",
+    "seam": "PASS",
+    "slide": "PASS",
+    "stretch": "PASS"
+   },
+   "contacts": {
+    "foot_l": [
+     [
+      0,
+      137
+     ],
+     [
+      209,
+      225
+     ],
+     [
+      232,
+      242
+     ],
+     [
+      291,
+      298
+     ],
+     [
+      300,
+      324
+     ],
+     [
+      505,
+      583
+     ],
+     [
+      588,
+      610
+     ]
+    ],
+    "foot_r": [
+     [
+      0,
+      76
+     ],
+     [
+      94,
+      142
+     ],
+     [
+      180,
+      226
+     ],
+     [
+      233,
+      247
+     ],
+     [
+      286,
+      336
+     ],
+     [
+      415,
+      428
+     ],
+     [
+      506,
+      568
+     ],
+     [
+      584,
+      610
+     ]
+    ]
+   },
+   "contacts_fps": 30.0,
+   "drift_cm": 0.0,
+   "ground_speed": 0.0,
+   "hover_cm": 0.501480281352997,
+   "kind": "loop",
+   "length": 20.3333339691162,
+   "looping": true,
+   "notes": [],
+   "pen_cm": 0.0,
+   "pops": 0,
+   "scale_pct": 1.19209289550781e-05,
+   "seam_cm": 0.0,
+   "seam_deg": 0.0,
+   "slide_max": 107.492828369141,
+   "slide_mean": 1.80647036800984,
+   "slide_p75": 1.41777050495148,
+   "status": "PASS",
+   "stretch_pct": 0.000782903091245402,
+   "subject": "player_young",
+   "tpose_frames": 0,
+   "upper": false
+  },
+  "Life_Mx5_Argue_B": {
+   "airborne_s": 0.0,
+   "checks": {
+    "airborne": "PASS",
+    "drift": "PASS",
+    "hover": "PASS",
+    "penetration": "PASS",
+    "pops": "PASS",
+    "scale": "PASS",
+    "seam": "PASS",
+    "slide": "PASS",
+    "stretch": "PASS"
+   },
+   "contacts": {
+    "foot_l": [
+     [
+      0,
+      458
+     ],
+     [
+      476,
+      486
+     ],
+     [
+      492,
+      515
+     ],
+     [
+      522,
+      531
+     ],
+     [
+      582,
+      611
+     ]
+    ],
+    "foot_r": [
+     [
+      356,
+      389
+     ],
+     [
+      438,
+      453
+     ]
+    ]
+   },
+   "contacts_fps": 30.0,
+   "drift_cm": 0.0,
+   "ground_speed": 0.0,
+   "hover_cm": 0.515153884887695,
+   "kind": "loop",
+   "length": 20.3666667938232,
+   "looping": true,
+   "notes": [],
+   "pen_cm": 0.0,
+   "pops": 0,
+   "scale_pct": 1.19209289550781e-05,
+   "seam_cm": 0.0,
+   "seam_deg": 0.0,
+   "slide_max": 9.95404720306396,
+   "slide_mean": 1.46356901341143,
+   "slide_p75": 1.9468697309494,
+   "status": "PASS",
+   "stretch_pct": 0.00082895621426049,
+   "subject": "player_young",
+   "tpose_frames": 0,
+   "upper": false
+  },
+  "Life_Mx5_Bartend_Pour": {
+   "airborne_s": 0.133333333333333,
+   "checks": {
+    "airborne": "PASS",
+    "drift": "PASS",
+    "hover": "PASS",
+    "penetration": "PASS",
+    "pops": "PASS",
+    "scale": "PASS",
+    "seam": "PASS",
+    "slide": "WARN",
+    "stretch": "PASS"
+   },
+   "contacts": {
+    "foot_l": [
+     [
+      60,
+      63
+     ],
+     [
+      161,
+      165
+     ],
+     [
+      180,
+      206
+     ],
+     [
+      287,
+      327
+     ],
+     [
+      339,
+      354
+     ]
+    ],
+    "foot_r": [
+     [
+      30,
+      38
+     ],
+     [
+      72,
+      76
+     ],
+     [
+      89,
+      109
+     ],
+     [
+      200,
+      203
+     ],
+     [
+      313,
+      320
+     ],
+     [
+      324,
+      327
+     ],
+     [
+      333,
+      359
+     ]
+    ]
+   },
+   "contacts_fps": 30.0,
+   "drift_cm": 0.0,
+   "ground_speed": 0.0,
+   "hover_cm": 1.09350299835205,
+   "kind": "loop",
+   "length": 13.2666664123535,
+   "looping": true,
+   "notes": [
+    "planted foot slips 10 cm/s (p75)"
+   ],
+   "pen_cm": 0.0,
+   "pops": 0,
+   "scale_pct": 1.19209289550781e-05,
+   "seam_cm": 0.0,
+   "seam_deg": 0.0,
+   "slide_max": 80.9396286010742,
+   "slide_mean": 8.62287950829676,
+   "slide_p75": 9.84338569641113,
+   "status": "WARN",
+   "stretch_pct": 0.000718428719026498,
+   "subject": "player_young",
+   "tpose_frames": 0,
+   "upper": false
+  },
+  "Life_Mx5_Bass_Guitar": {
+   "airborne_s": 0.0,
+   "checks": {
+    "airborne": "PASS",
+    "drift": "PASS",
+    "hover": "PASS",
+    "penetration": "PASS",
+    "pops": "PASS",
+    "scale": "PASS",
+    "seam": "PASS",
+    "slide": "PASS",
+    "stretch": "PASS"
+   },
+   "contacts": {
+    "foot_l": [
+     [
+      20,
+      53
+     ],
+     [
+      101,
+      146
+     ]
+    ],
+    "foot_r": [
+     [
+      0,
+      41
+     ],
+     [
+      103,
+      132
+     ],
+     [
+      172,
+      175
+     ]
+    ]
+   },
+   "contacts_fps": 30.0,
+   "drift_cm": 0.0,
+   "ground_speed": 0.0,
+   "hover_cm": 1.42584335803986,
+   "kind": "loop",
+   "length": 5.83333349227905,
+   "looping": true,
+   "notes": [],
+   "pen_cm": 0.0,
+   "pops": 0,
+   "scale_pct": 1.19209289550781e-05,
+   "seam_cm": 0.0,
+   "seam_deg": 0.0,
+   "slide_max": 47.5352554321289,
+   "slide_mean": 6.4751929721007,
+   "slide_p75": 6.52020263671875,
+   "status": "PASS",
+   "stretch_pct": 0.000782903091245402,
+   "subject": "player_young",
+   "tpose_frames": 0,
+   "upper": false
+  },
+  "Life_Mx5_Bench_Work": {
+   "airborne_s": 0.0,
+   "checks": {
+    "airborne": "PASS",
+    "drift": "PASS",
+    "hover": "PASS",
+    "penetration": "PASS",
+    "pops": "PASS",
+    "scale": "PASS",
+    "seam": "PASS",
+    "slide": "PASS",
+    "stretch": "PASS"
+   },
+   "contacts": {
+    "foot_l": [
+     [
+      8,
+      165
+     ]
+    ],
+    "foot_r": [
+     [
+      0,
+      12
+     ],
+     [
+      19,
+      56
+     ],
+     [
+      58,
+      150
+     ],
+     [
+      158,
+      160
+     ],
+     [
+      162,
+      182
+     ]
+    ]
+   },
+   "contacts_fps": 30.0,
+   "drift_cm": 0.0,
+   "ground_speed": 0.0,
+   "hover_cm": 0.0,
+   "kind": "loop",
+   "length": 6.06666660308838,
+   "looping": true,
+   "notes": [],
+   "pen_cm": 0.423322379589081,
+   "pops": 0,
+   "scale_pct": 1.19209289550781e-05,
+   "seam_cm": 0.0,
+   "seam_deg": 0.0,
+   "slide_max": 10.5041847229004,
+   "slide_mean": 1.68099397722345,
+   "slide_p75": 2.19596409797668,
+   "status": "PASS",
+   "stretch_pct": 0.000469741854747241,
+   "subject": "player_young",
+   "tpose_frames": 0,
+   "upper": false
+  },
+  "Life_Mx5_Dig": {
+   "airborne_s": 0.0,
+   "checks": {
+    "airborne": "PASS",
+    "drift": "PASS",
+    "hover": "PASS",
+    "penetration": "PASS",
+    "pops": "PASS",
+    "scale": "PASS",
+    "seam": "PASS",
+    "slide": "PASS",
+    "stretch": "PASS"
+   },
+   "contacts": {
+    "foot_l": [
+     [
+      14,
+      64
+     ]
+    ],
+    "foot_r": [
+     [
+      38,
+      52
+     ]
+    ]
+   },
+   "contacts_fps": 30.0,
+   "drift_cm": 0.0,
+   "ground_speed": 0.0,
+   "hover_cm": 0.914991319179535,
+   "kind": "loop",
+   "length": 3.93333339691162,
+   "looping": true,
+   "notes": [],
+   "pen_cm": 0.0,
+   "pops": 0,
+   "scale_pct": 1.19209289550781e-05,
+   "seam_cm": 0.0,
+   "seam_deg": 0.0,
+   "slide_max": 14.7472410202026,
+   "slide_mean": 2.937407398797,
+   "slide_p75": 2.80418181419373,
+   "status": "PASS",
+   "stretch_pct": 0.000580648051151655,
+   "subject": "player_young",
+   "tpose_frames": 0,
+   "upper": false
+  },
+  "Life_Mx5_Kneel_Down": {
+   "airborne_s": 1.2,
+   "checks": {
+    "airborne": "FAIL",
+    "hover": "PASS",
+    "penetration": "PASS",
+    "pops": "PASS",
+    "scale": "PASS",
+    "slide": "PASS",
+    "stretch": "PASS"
+   },
+   "contacts": {
+    "foot_l": [
+     [
+      0,
+      15
+     ],
+     [
+      26,
+      40
+     ]
+    ],
+    "foot_r": [
+     [
+      0,
+      38
+     ]
+    ]
+   },
+   "contacts_fps": 30.0,
+   "drift_cm": 1.31643274798989,
+   "ground_speed": 0.0,
+   "hover_cm": 0.361436247825623,
+   "kind": "once",
+   "length": 2.76666665077209,
+   "looping": false,
+   "notes": [
+    "all feet off the ground for 1.20 s"
+   ],
+   "pen_cm": 0.0,
+   "pops": 0,
+   "scale_pct": 1.19209289550781e-05,
+   "seam_cm": 0.0,
+   "seam_deg": 0.0,
+   "slide_max": 136.375610351563,
+   "slide_mean": 9.90150057480616,
+   "slide_p75": 3.84652495384216,
+   "status": "FAIL",
+   "stretch_pct": 0.000414478107124694,
+   "subject": "player_young",
+   "tpose_frames": 0,
+   "upper": false
+  },
+  "Life_Mx5_Kneel_Inspect": {
+   "airborne_s": 0.0,
+   "checks": {
+    "airborne": "PASS",
+    "drift": "PASS",
+    "hover": "WARN",
+    "penetration": "PASS",
+    "pops": "PASS",
+    "scale": "PASS",
+    "seam": "PASS",
+    "slide": "PASS",
+    "stretch": "PASS"
+   },
+   "contacts": {
+    "foot_l": [
+     [
+      0,
+      35
+     ],
+     [
+      45,
+      138
+     ]
+    ],
+    "foot_r": [
+     [
+      63,
+      67
+     ],
+     [
+      69,
+      86
+     ],
+     [
+      102,
+      132
+     ]
+    ]
+   },
+   "contacts_fps": 30.0,
+   "drift_cm": 0.0,
+   "ground_speed": 0.0,
+   "hover_cm": 3.20355248451233,
+   "kind": "loop",
+   "length": 4.59999990463257,
+   "looping": true,
+   "notes": [
+    "feet never touch the floor (lowest 3.2 cm above)"
+   ],
+   "pen_cm": 0.0,
+   "pops": 0,
+   "scale_pct": 1.19209289550781e-05,
+   "seam_cm": 0.0,
+   "seam_deg": 0.0,
+   "slide_max": 3.59148979187012,
+   "slide_mean": 0.809400937519968,
+   "slide_p75": 1.04709589481354,
+   "status": "WARN",
+   "stretch_pct": 0.000465235947111342,
+   "subject": "player_young",
+   "tpose_frames": 0,
+   "upper": false
+  },
+  "Life_Mx5_Kneel_To_Stand": {
+   "airborne_s": 0.533333333333333,
+   "checks": {
+    "airborne": "FAIL",
+    "hover": "PASS",
+    "penetration": "PASS",
+    "pops": "PASS",
+    "scale": "PASS",
+    "slide": "PASS",
+    "stretch": "PASS"
+   },
+   "contacts": {
+    "foot_l": [
+     [
+      52,
+      83
+     ]
+    ],
+    "foot_r": [
+     [
+      23,
+      83
+     ]
+    ]
+   },
+   "contacts_fps": 30.0,
+   "drift_cm": 1.26019679009914,
+   "ground_speed": 0.0,
+   "hover_cm": 1.26279246807098,
+   "kind": "once",
+   "length": 2.76666665077209,
+   "looping": false,
+   "notes": [
+    "all feet off the ground for 0.53 s"
+   ],
+   "pen_cm": 0.0,
+   "pops": 0,
+   "scale_pct": 1.19209289550781e-05,
+   "seam_cm": 0.0,
+   "seam_deg": 0.0,
+   "slide_max": 85.4744415283203,
+   "slide_mean": 8.55143990417321,
+   "slide_p75": 6.43766069412231,
+   "status": "FAIL",
+   "stretch_pct": 0.000382256870046227,
+   "subject": "player_young",
+   "tpose_frames": 0,
+   "upper": false
+  },
+  "Life_Mx5_Kneel_Warm_Hands": {
+   "airborne_s": 0.2,
+   "checks": {
+    "airborne": "WARN",
+    "drift": "PASS",
+    "hover": "PASS",
+    "penetration": "PASS",
+    "pops": "PASS",
+    "scale": "PASS",
+    "seam": "PASS",
+    "slide": "PASS",
+    "stretch": "PASS"
+   },
+   "contacts": {
+    "foot_l": [
+     [
+      0,
+      25
+     ],
+     [
+      30,
+      41
+     ],
+     [
+      47,
+      61
+     ],
+     [
+      195,
+      200
+     ],
+     [
+      205,
+      214
+     ],
+     [
+      217,
+      223
+     ],
+     [
+      312,
+      315
+     ]
+    ],
+    "foot_r": [
+     [
+      0,
+      62
+     ],
+     [
+      197,
+      315
+     ]
+    ]
+   },
+   "contacts_fps": 30.0,
+   "drift_cm": 0.0,
+   "ground_speed": 0.0,
+   "hover_cm": 0.093225434422493,
+   "kind": "loop",
+   "length": 10.5,
+   "looping": true,
+   "notes": [
+    "all feet off the ground for 0.20 s"
+   ],
+   "pen_cm": 0.0,
+   "pops": 0,
+   "scale_pct": 1.19209289550781e-05,
+   "seam_cm": 0.0,
+   "seam_deg": 0.0,
+   "slide_max": 183.038482666016,
+   "slide_mean": 15.5722885800662,
+   "slide_p75": 4.01369142532349,
+   "status": "WARN",
+   "stretch_pct": 0.000451320605543426,
+   "subject": "player_young",
+   "tpose_frames": 0,
+   "upper": false
+  },
+  "Life_Mx5_Lean_Wall_Leg_Up": {
+   "airborne_s": 0.0,
+   "checks": {
+    "airborne": "PASS",
+    "drift": "PASS",
+    "hover": "PASS",
+    "penetration": "PASS",
+    "pops": "PASS",
+    "scale": "PASS",
+    "seam": "PASS",
+    "slide": "PASS",
+    "stretch": "PASS"
+   },
+   "contacts": {
+    "foot_l": [
+     [
+      0,
+      78
+     ]
+    ],
+    "foot_r": []
+   },
+   "contacts_fps": 30.0,
+   "drift_cm": 0.0,
+   "ground_speed": 0.0,
+   "hover_cm": 0.785803735256195,
+   "kind": "loop",
+   "length": 2.59999990463257,
+   "looping": true,
+   "notes": [],
+   "pen_cm": 0.0,
+   "pops": 0,
+   "scale_pct": 1.19209289550781e-05,
+   "seam_cm": 0.0,
+   "seam_deg": 0.0163882284954923,
+   "slide_max": 1.61571359634399,
+   "slide_mean": 0.51318186753756,
+   "slide_p75": 0.571734666824341,
+   "status": "PASS",
+   "stretch_pct": 0.000488163103951056,
+   "subject": "player_young",
+   "tpose_frames": 0,
+   "upper": false
+  },
+  "Life_Mx5_Lean_Wall_Shoulder": {
+   "airborne_s": 0.0,
+   "checks": {
+    "airborne": "PASS",
+    "drift": "PASS",
+    "hover": "PASS",
+    "penetration": "PASS",
+    "pops": "PASS",
+    "scale": "PASS",
+    "seam": "PASS",
+    "slide": "PASS",
+    "stretch": "PASS"
+   },
+   "contacts": {
+    "foot_l": [
+     [
+      0,
+      51
+     ]
+    ],
+    "foot_r": [
+     [
+      0,
+      51
+     ]
+    ]
+   },
+   "contacts_fps": 30.0,
+   "drift_cm": 0.0,
+   "ground_speed": 0.0,
+   "hover_cm": 0.228983864188194,
+   "kind": "loop",
+   "length": 1.70000004768372,
+   "looping": true,
+   "notes": [],
+   "pen_cm": 0.0,
+   "pops": 0,
+   "scale_pct": 1.19209289550781e-05,
+   "seam_cm": 0.0,
+   "seam_deg": 0.0,
+   "slide_max": 2.41714978218079,
+   "slide_mean": 0.494104879405349,
+   "slide_p75": 0.630026340484619,
+   "status": "PASS",
+   "stretch_pct": 0.000451320605543426,
+   "subject": "player_young",
+   "tpose_frames": 0,
+   "upper": false
+  },
+  "Life_Mx5_Look_Around_A": {
+   "airborne_s": 0.0,
+   "checks": {
+    "airborne": "PASS",
+    "drift": "PASS",
+    "hover": "PASS",
+    "penetration": "PASS",
+    "pops": "PASS",
+    "scale": "PASS",
+    "seam": "PASS",
+    "slide": "FAIL",
+    "stretch": "PASS"
+   },
+   "contacts": {
+    "foot_l": [
+     [
+      0,
+      6
+     ],
+     [
+      30,
+      53
+     ],
+     [
+      127,
+      139
+     ]
+    ],
+    "foot_r": [
+     [
+      0,
+      3
+     ],
+     [
+      51,
+      64
+     ],
+     [
+      134,
+      166
+     ]
+    ]
+   },
+   "contacts_fps": 30.0,
+   "drift_cm": 0.0,
+   "ground_speed": 0.0,
+   "hover_cm": 0.404754728078842,
+   "kind": "loop",
+   "length": 5.53333330154419,
+   "looping": true,
+   "notes": [
+    "planted foot slips 23 cm/s (p75)"
+   ],
+   "pen_cm": 0.0,
+   "pops": 0,
+   "scale_pct": 1.19209289550781e-05,
+   "seam_cm": 0.0,
+   "seam_deg": 0.0,
+   "slide_max": 91.9261093139648,
+   "slide_mean": 14.0030153585543,
+   "slide_p75": 23.4407138824463,
+   "status": "FAIL",
+   "stretch_pct": 0.000405267482528338,
+   "subject": "player_young",
+   "tpose_frames": 0,
+   "upper": false
+  },
+  "Life_Mx5_Look_Around_B": {
+   "airborne_s": 0.0,
+   "checks": {
+    "airborne": "PASS",
+    "drift": "PASS",
+    "hover": "PASS",
+    "penetration": "PASS",
+    "pops": "PASS",
+    "scale": "PASS",
+    "seam": "PASS",
+    "slide": "PASS",
+    "stretch": "PASS"
+   },
+   "contacts": {
+    "foot_l": [
+     [
+      14,
+      111
+     ],
+     [
+      113,
+      125
+     ]
+    ],
+    "foot_r": [
+     [
+      61,
+      134
+     ],
+     [
+      136,
+      138
+     ]
+    ]
+   },
+   "contacts_fps": 30.0,
+   "drift_cm": 0.0,
+   "ground_speed": 0.0,
+   "hover_cm": 0.443190842866898,
+   "kind": "loop",
+   "length": 4.80000019073486,
+   "looping": true,
+   "notes": [],
+   "pen_cm": 0.0,
+   "pops": 0,
+   "scale_pct": 1.19209289550781e-05,
+   "seam_cm": 0.0,
+   "seam_deg": 0.0,
+   "slide_max": 5.46398401260376,
+   "slide_mean": 1.40662910877048,
+   "slide_p75": 1.89694690704346,
+   "status": "PASS",
+   "stretch_pct": 0.00042195818459323,
+   "subject": "player_young",
+   "tpose_frames": 0,
+   "upper": false
+  },
+  "Life_Mx5_Overhead_Strike": {
+   "airborne_s": 0.0,
+   "checks": {
+    "airborne": "PASS",
+    "drift": "PASS",
+    "hover": "PASS",
+    "penetration": "PASS",
+    "pops": "PASS",
+    "scale": "PASS",
+    "seam": "PASS",
+    "slide": "WARN",
+    "stretch": "PASS"
+   },
+   "contacts": {
+    "foot_l": [
+     [
+      26,
+      39
+     ]
+    ],
+    "foot_r": [
+     [
+      30,
+      33
+     ],
+     [
+      44,
+      62
+     ]
+    ]
+   },
+   "contacts_fps": 30.0,
+   "drift_cm": 0.0,
+   "ground_speed": 0.0,
+   "hover_cm": 1.16839110851288,
+   "kind": "loop",
+   "length": 3.70000004768372,
+   "looping": true,
+   "notes": [
+    "planted foot slips 10 cm/s (p75)"
+   ],
+   "pen_cm": 0.0,
+   "pops": 0,
+   "scale_pct": 1.19209289550781e-05,
+   "seam_cm": 0.0,
+   "seam_deg": 0.0,
+   "slide_max": 25.3868198394775,
+   "slide_mean": 7.27869471762238,
+   "slide_p75": 9.57519912719727,
+   "status": "WARN",
+   "stretch_pct": 0.000630388522526726,
+   "subject": "player_young",
+   "tpose_frames": 0,
+   "upper": false
+  },
+  "Life_Mx5_Shoulder_Carry_Idle": {
+   "airborne_s": 0.0,
+   "checks": {
+    "airborne": "PASS",
+    "drift": "PASS",
+    "hover": "PASS",
+    "penetration": "PASS",
+    "pops": "PASS",
+    "scale": "PASS",
+    "seam": "PASS",
+    "slide": "PASS",
+    "stretch": "PASS"
+   },
+   "contacts": {
+    "foot_l": [
+     [
+      0,
+      291
+     ]
+    ],
+    "foot_r": [
+     [
+      0,
+      291
+     ]
+    ]
+   },
+   "contacts_fps": 30.0,
+   "drift_cm": 0.0,
+   "ground_speed": 0.0,
+   "hover_cm": 0.440993309020996,
+   "kind": "loop",
+   "length": 9.69999980926514,
+   "looping": true,
+   "notes": [],
+   "pen_cm": 0.0,
+   "pops": 0,
+   "scale_pct": 1.19209289550781e-05,
+   "seam_cm": 0.0,
+   "seam_deg": 0.0,
+   "slide_max": 2.82305574417114,
+   "slide_mean": 0.4876151121366,
+   "slide_p75": 0.704103827476501,
+   "status": "PASS",
+   "stretch_pct": 0.000653954346807595,
+   "subject": "player_young",
+   "tpose_frames": 0,
+   "upper": false
+  },
+  "Life_Mx5_Shoulder_Carry_Walk": {
+   "airborne_s": 0.0,
+   "checks": {
+    "airborne": "PASS",
+    "drift": "PASS",
+    "hover": "PASS",
+    "penetration": "PASS",
+    "pops": "PASS",
+    "scale": "PASS",
+    "seam": "PASS",
+    "slide": "WARN",
+    "stretch": "PASS"
+   },
+   "contacts": {
+    "foot_l": [
+     [
+      1,
+      24
+     ],
+     [
+      31,
+      35
+     ]
+    ],
+    "foot_r": [
+     [
+      11,
+      13
+     ],
+     [
+      21,
+      45
+     ]
+    ]
+   },
+   "contacts_fps": 30.0,
+   "drift_cm": 0.0,
+   "ground_speed": 0.981292963027954,
+   "hover_cm": 0.674804627895355,
+   "kind": "loco",
+   "length": 1.5,
+   "looping": true,
+   "notes": [
+    "planted foot slips 12 cm/s (p75)"
+   ],
+   "pen_cm": 0.0,
+   "pops": 0,
+   "scale_pct": 1.19209289550781e-05,
+   "seam_cm": 0.0,
+   "seam_deg": 0.0,
+   "slide_max": 424.895324707031,
+   "slide_mean": 53.3748763349821,
+   "slide_p75": 11.9737300872803,
+   "status": "WARN",
+   "stretch_pct": 0.000543781508222096,
+   "subject": "player_young",
+   "tpose_frames": 0,
+   "upper": false
+  },
+  "Life_Mx5_Sit_Cheer_Talk": {
+   "airborne_s": 0.0,
+   "checks": {
+    "penetration": "PASS",
+    "pops": "PASS",
+    "scale": "PASS",
+    "slide": "PASS",
+    "stretch": "PASS"
+   },
+   "contacts": {
+    "foot_l": [
+     [
+      0,
+      10
+     ],
+     [
+      15,
+      93
+     ],
+     [
+      96,
+      107
+     ]
+    ],
+    "foot_r": [
+     [
+      0,
+      52
+     ],
+     [
+      54,
+      107
+     ]
+    ]
+   },
+   "contacts_fps": 30.0,
+   "drift_cm": 0.0,
+   "ground_speed": 0.0,
+   "hover_cm": 0.0,
+   "kind": "sit",
+   "length": 3.56666660308838,
+   "looping": true,
+   "notes": [],
+   "pen_cm": 0.0,
+   "pops": 0,
+   "scale_pct": 1.19209289550781e-05,
+   "seam_cm": 0.0,
+   "seam_deg": 0.0,
+   "slide_max": 6.45458459854126,
+   "slide_mean": 1.11089825586996,
+   "slide_p75": 1.4476546049118,
+   "status": "PASS",
+   "stretch_pct": 0.000543426851562501,
+   "subject": "player_young",
+   "tpose_frames": 0,
+   "upper": false
+  },
+  "Life_Mx5_Sit_Cross_Legged": {
+   "airborne_s": 0.0,
+   "checks": {
+    "penetration": "PASS",
+    "pops": "PASS",
+    "scale": "PASS",
+    "slide": "PASS",
+    "stretch": "PASS"
+   },
+   "contacts": {
+    "foot_l": [],
+    "foot_r": [
+     [
+      0,
+      192
+     ],
+     [
+      195,
+      276
+     ]
+    ]
+   },
+   "contacts_fps": 30.0,
+   "drift_cm": 0.0,
+   "ground_speed": 0.0,
+   "hover_cm": 0.0,
+   "kind": "sit",
+   "length": 9.19999980926514,
+   "looping": true,
+   "notes": [],
+   "pen_cm": 0.0,
+   "pops": 0,
+   "scale_pct": 1.19209289550781e-05,
+   "seam_cm": 0.0,
+   "seam_deg": 0.0,
+   "slide_max": 1.90596508979797,
+   "slide_mean": 0.318028595666964,
+   "slide_p75": 0.377197176218033,
+   "status": "PASS",
+   "stretch_pct": 0.000374440559069988,
+   "subject": "player_young",
+   "tpose_frames": 0,
+   "upper": false
+  },
+  "Life_Mx5_Sit_Down_Drink": {
+   "airborne_s": 0.0,
+   "checks": {
+    "drift": "WARN",
+    "penetration": "PASS",
+    "pops": "PASS",
+    "scale": "PASS",
+    "slide": "FAIL",
+    "stretch": "PASS"
+   },
+   "contacts": {
+    "foot_l": [
+     [
+      0,
+      28
+     ],
+     [
+      81,
+      88
+     ],
+     [
+      93,
+      105
+     ]
+    ],
+    "foot_r": [
+     [
+      87,
+      106
+     ]
+    ]
+   },
+   "contacts_fps": 30.0,
+   "drift_cm": 256.740164756775,
+   "ground_speed": 0.0,
+   "hover_cm": 0.0,
+   "kind": "sit",
+   "length": 15.1999998092651,
+   "looping": false,
+   "notes": [
+    "planted foot slips 54 cm/s (p75)",
+    "one-shot moves the body 257 cm (baked root motion; snaps back after)"
+   ],
+   "pen_cm": 0.125779911875725,
+   "pops": 0,
+   "scale_pct": 1.19209289550781e-05,
+   "seam_cm": 0.0,
+   "seam_deg": 0.0,
+   "slide_max": 283.776794433594,
+   "slide_mean": 41.364478560055,
+   "slide_p75": 53.651683807373,
+   "status": "FAIL",
+   "stretch_pct": 0.000760550629963497,
+   "subject": "player_young",
+   "tpose_frames": 0,
+   "upper": false
+  },
+  "Life_Mx5_Sit_Laughing": {
+   "airborne_s": 0.0,
+   "checks": {
+    "penetration": "PASS",
+    "pops": "PASS",
+    "scale": "PASS",
+    "slide": "PASS",
+    "stretch": "PASS"
+   },
+   "contacts": {
+    "foot_l": [
+     [
+      0,
+      17
+     ],
+     [
+      232,
+      235
+     ]
+    ],
+    "foot_r": [
+     [
+      0,
+      13
+     ],
+     [
+      232,
+      235
+     ]
+    ]
+   },
+   "contacts_fps": 30.0,
+   "drift_cm": 0.0,
+   "ground_speed": 0.0,
+   "hover_cm": 0.0,
+   "kind": "sit",
+   "length": 7.83333349227905,
+   "looping": true,
+   "notes": [],
+   "pen_cm": 0.0,
+   "pops": 0,
+   "scale_pct": 1.19209289550781e-05,
+   "seam_cm": 0.0,
+   "seam_deg": 0.0,
+   "slide_max": 3.90813136100769,
+   "slide_mean": 0.961294880343808,
+   "slide_p75": 1.14522838592529,
+   "status": "PASS",
+   "stretch_pct": 0.000377635608717064,
+   "subject": "player_young",
+   "tpose_frames": 0,
+   "upper": false
+  },
+  "Life_Mx5_Sit_Reclined": {
+   "airborne_s": 0.0,
+   "checks": {
+    "penetration": "PASS",
+    "pops": "PASS",
+    "scale": "PASS",
+    "slide": "PASS",
+    "stretch": "PASS"
+   },
+   "contacts": {
+    "foot_l": [],
+    "foot_r": [
+     [
+      0,
+      299
+     ]
+    ]
+   },
+   "contacts_fps": 30.0,
+   "drift_cm": 0.0,
+   "ground_speed": 0.0,
+   "hover_cm": 0.0,
+   "kind": "sit",
+   "length": 9.96666622161865,
+   "looping": true,
+   "notes": [],
+   "pen_cm": 0.0,
+   "pops": 0,
+   "scale_pct": 1.19209289550781e-05,
+   "seam_cm": 0.0,
+   "seam_deg": 0.0,
+   "slide_max": 0.0,
+   "slide_mean": 0.0,
+   "slide_p75": 0.0,
+   "status": "PASS",
+   "stretch_pct": 0.000267282436250404,
+   "subject": "player_young",
+   "tpose_frames": 0,
+   "upper": false
+  },
+  "Life_Mx5_Talk_Explain": {
+   "airborne_s": 0.0,
+   "checks": {
+    "airborne": "PASS",
+    "drift": "PASS",
+    "hover": "PASS",
+    "penetration": "PASS",
+    "pops": "PASS",
+    "scale": "PASS",
+    "seam": "PASS",
+    "slide": "PASS",
+    "stretch": "PASS"
+   },
+   "contacts": {
+    "foot_l": [
+     [
+      0,
+      107
+     ]
+    ],
+    "foot_r": [
+     [
+      0,
+      107
+     ]
+    ]
+   },
+   "contacts_fps": 30.0,
+   "drift_cm": 0.0,
+   "ground_speed": 0.0,
+   "hover_cm": 0.382532477378845,
+   "kind": "loop",
+   "length": 3.56666660308838,
+   "looping": true,
+   "notes": [],
+   "pen_cm": 0.0,
+   "pops": 0,
+   "scale_pct": 1.19209289550781e-05,
+   "seam_cm": 0.0,
+   "seam_deg": 0.0,
+   "slide_max": 6.05226469039917,
+   "slide_mean": 1.01375554828852,
+   "slide_p75": 1.21345508098602,
+   "status": "PASS",
+   "stretch_pct": 0.000663164971403951,
+   "subject": "player_young",
+   "tpose_frames": 0,
+   "upper": false
+  },
+  "Life_Mx5_Talk_Funny": {
+   "airborne_s": 0.0,
+   "checks": {
+    "airborne": "PASS",
+    "drift": "PASS",
+    "hover": "PASS",
+    "penetration": "PASS",
+    "pops": "PASS",
+    "scale": "PASS",
+    "seam": "PASS",
+    "slide": "PASS",
+    "stretch": "PASS"
+   },
+   "contacts": {
+    "foot_l": [
+     [
+      0,
+      109
+     ],
+     [
+      134,
+      168
+     ]
+    ],
+    "foot_r": [
+     [
+      0,
+      110
+     ],
+     [
+      132,
+      155
+     ],
+     [
+      157,
+      168
+     ]
+    ]
+   },
+   "contacts_fps": 30.0,
+   "drift_cm": 0.0,
+   "ground_speed": 0.0,
+   "hover_cm": 1.11213541030884,
+   "kind": "loop",
+   "length": 5.59999990463257,
+   "looping": true,
+   "notes": [],
+   "pen_cm": 0.0,
+   "pops": 0,
+   "scale_pct": 1.19209289550781e-05,
+   "seam_cm": 0.0,
+   "seam_deg": 0.0,
+   "slide_max": 2.98416066169739,
+   "slide_mean": 0.811159732548526,
+   "slide_p75": 1.05728054046631,
+   "status": "PASS",
+   "stretch_pct": 0.000773692466637943,
+   "subject": "player_young",
+   "tpose_frames": 0,
+   "upper": false
+  },
+  "Life_Mx5_Talk_General": {
+   "airborne_s": 0.0,
+   "checks": {
+    "airborne": "PASS",
+    "drift": "PASS",
+    "hover": "PASS",
+    "penetration": "PASS",
+    "pops": "PASS",
+    "scale": "PASS",
+    "seam": "PASS",
+    "slide": "PASS",
+    "stretch": "PASS"
+   },
+   "contacts": {
+    "foot_l": [
+     [
+      0,
+      298
+     ]
+    ],
+    "foot_r": [
+     [
+      0,
+      298
+     ]
+    ]
+   },
+   "contacts_fps": 30.0,
+   "drift_cm": 0.0,
+   "ground_speed": 0.0,
+   "hover_cm": 0.8192258477211,
+   "kind": "loop",
+   "length": 9.93333339691162,
+   "looping": true,
+   "notes": [],
+   "pen_cm": 0.0,
+   "pops": 0,
+   "scale_pct": 1.19209289550781e-05,
+   "seam_cm": 0.0,
+   "seam_deg": 0.0,
+   "slide_max": 5.96438074111938,
+   "slide_mean": 0.758033484922916,
+   "slide_p75": 0.994648814201355,
+   "status": "PASS",
+   "stretch_pct": 0.000736849968230313,
+   "subject": "player_young",
+   "tpose_frames": 0,
+   "upper": false
+  }
+ }
+}

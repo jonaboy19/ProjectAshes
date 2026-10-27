@@ -1214,5 +1214,213 @@
   "note": "steps while picking (slide 0.26 m/s)",
   "by": "claude (Ashford square, game camera ~10-14 m, Movie Maker LOW via slice_route SLICE_CLIPS + Blender check sheet)",
   "date": "2026-10-28"
+ },
+ "Life_Mx5_Talk_General": {
+  "sheet": "docs/qa/video/slice/",
+  "video": "C:/Users/Jonna/Documents/PA_plans/videos/slice_2026-10-27_1246_cc15cdc05_set5gate.mp4",
+  "verdict": "pass",
+  "note": "open-hand talking gestures, feet planted, natural weight shift",
+  "by": "claude (Ashford square, game camera ~10-14 m, Movie Maker LOW via slice_route SLICE_CLIPS)",
+  "date": "2026-10-28"
+ },
+ "Life_Mx5_Talk_Explain": {
+  "sheet": "docs/qa/video/slice/",
+  "video": "C:/Users/Jonna/Documents/PA_plans/videos/slice_2026-10-27_1246_cc15cdc05_set5gate.mp4",
+  "verdict": "pass",
+  "note": "two-hand asking / explaining gestures, feet planted",
+  "by": "claude (Ashford square, game camera ~10-14 m, Movie Maker LOW via slice_route SLICE_CLIPS)",
+  "date": "2026-10-28"
+ },
+ "Life_Mx5_Talk_Funny": {
+  "sheet": "docs/qa/video/slice/",
+  "video": "C:/Users/Jonna/Documents/PA_plans/videos/slice_2026-10-27_1246_cc15cdc05_set5gate.mp4",
+  "verdict": "pass",
+  "note": "talk with a laugh, feet planted",
+  "by": "claude (Ashford square, game camera ~10-14 m, Movie Maker LOW via slice_route SLICE_CLIPS)",
+  "date": "2026-10-28"
+ },
+ "Life_Mx5_Argue_B": {
+  "sheet": "docs/qa/video/slice/",
+  "video": "C:/Users/Jonna/Documents/PA_plans/videos/slice_2026-10-27_1246_cc15cdc05_set5gate.mp4",
+  "verdict": "pass",
+  "note": "arms-out argument, reads clearly at distance, feet planted",
+  "by": "claude (Ashford square, game camera ~10-14 m, Movie Maker LOW via slice_route SLICE_CLIPS)",
+  "date": "2026-10-28"
+ },
+ "Life_Mx5_Agree_Nod": {
+  "sheet": "docs/qa/video/slice/",
+  "video": "C:/Users/Jonna/Documents/PA_plans/videos/slice_2026-10-27_1246_cc15cdc05_set5gate.mp4",
+  "verdict": "pass",
+  "note": "listening nod, feet planted (listener for talk groups)",
+  "by": "claude (Ashford square, game camera ~10-14 m, Movie Maker LOW via slice_route SLICE_CLIPS)",
+  "date": "2026-10-28"
+ },
+ "Life_Mx5_Look_Around_B": {
+  "sheet": "docs/qa/video/slice/",
+  "video": "C:/Users/Jonna/Documents/PA_plans/videos/slice_2026-10-27_1246_cc15cdc05_set5gate.mp4",
+  "verdict": "pass",
+  "note": "standing idle looking around, feet planted",
+  "by": "claude (Ashford square, game camera ~10-14 m, Movie Maker LOW via slice_route SLICE_CLIPS)",
+  "date": "2026-10-28"
+ },
+ "Life_Mx5_Sit_Cross_Legged": {
+  "sheet": "docs/qa/video/slice/",
+  "video": "C:/Users/Jonna/Documents/PA_plans/videos/slice_2026-10-27_1246_cc15cdc05_set5gate.mp4",
+  "verdict": "pass",
+  "note": "cross-legged on the ground, no penetration",
+  "by": "claude (Ashford square, game camera ~10-14 m, Movie Maker LOW via slice_route SLICE_CLIPS)",
+  "date": "2026-10-28"
+ },
+ "Life_Mx5_Sit_Reclined": {
+  "sheet": "docs/qa/video/slice/",
+  "video": "C:/Users/Jonna/Documents/PA_plans/videos/slice_2026-10-27_1246_cc15cdc05_set5gate.mp4",
+  "verdict": "pass",
+  "note": "reclined on the ground on one arm after +3 cm lift; no penetration",
+  "by": "claude (Ashford square, game camera ~10-14 m, Movie Maker LOW via slice_route SLICE_CLIPS)",
+  "date": "2026-10-28"
+ },
+ "Life_Mx5_Lean_Wall_Leg_Up": {
+  "sheet": "docs/qa/video/slice/",
+  "video": "C:/Users/Jonna/Documents/PA_plans/videos/slice_2026-10-27_1246_cc15cdc05_set5gate.mp4",
+  "verdict": "hold",
+  "note": "metrics gold; leans on air in the open plaza: needs a wall check (wall_idle)",
+  "by": "claude (Ashford square, game camera ~10-14 m, Movie Maker LOW via slice_route SLICE_CLIPS)",
+  "date": "2026-10-28"
+ },
+ "Life_Mx5_Lean_Wall_Shoulder": {
+  "sheet": "docs/qa/video/slice/",
+  "video": "C:/Users/Jonna/Documents/PA_plans/videos/slice_2026-10-27_1246_cc15cdc05_set5gate.mp4",
+  "verdict": "hold",
+  "note": "metrics gold; needs a wall check (wall_idle)",
+  "by": "claude (Ashford square, game camera ~10-14 m, Movie Maker LOW via slice_route SLICE_CLIPS)",
+  "date": "2026-10-28"
+ },
+ "Life_Mx5_Sit_Laughing": {
+  "sheet": "docs/qa/video/slice/",
+  "video": "C:/Users/Jonna/Documents/PA_plans/videos/slice_2026-10-27_1246_cc15cdc05_set5gate.mp4",
+  "verdict": "hold",
+  "note": "metrics gold; at a tavern table the pelvis sits 33 cm off the seat and the exit pops (9 m/s): needs seat alignment",
+  "by": "claude (Ashford square, game camera ~10-14 m, Movie Maker LOW via slice_route SLICE_CLIPS)",
+  "date": "2026-10-28"
+ },
+ "Life_Mx5_Sit_Cheer_Talk": {
+  "sheet": "docs/qa/video/slice/",
+  "video": "C:/Users/Jonna/Documents/PA_plans/videos/slice_2026-10-27_1246_cc15cdc05_set5gate.mp4",
+  "verdict": "hold",
+  "note": "metrics gold; pelvis 30 cm off the seat at a tavern table, exit pop: needs seat alignment",
+  "by": "claude (Ashford square, game camera ~10-14 m, Movie Maker LOW via slice_route SLICE_CLIPS)",
+  "date": "2026-10-28"
+ },
+ "Life_Mx5_Sit_Down_Drink": {
+  "sheet": "docs/qa/video/slice/",
+  "video": "C:/Users/Jonna/Documents/PA_plans/videos/slice_2026-10-27_1246_cc15cdc05_set5gate.mp4",
+  "verdict": "hold",
+  "note": "metrics gold; a sit-down transition with a can-drink: needs seat alignment and a mug check",
+  "by": "claude (Ashford square, game camera ~10-14 m, Movie Maker LOW via slice_route SLICE_CLIPS)",
+  "date": "2026-10-28"
+ },
+ "Life_Mx5_Kneel_Down": {
+  "sheet": "docs/qa/video/slice/",
+  "video": "C:/Users/Jonna/Documents/PA_plans/videos/slice_2026-10-27_1246_cc15cdc05_set5gate.mp4",
+  "verdict": "hold",
+  "note": "metrics gold; enter for chapel_kneel needs end-alignment on Life_Mx_Pray_Kneel",
+  "by": "claude (Ashford square, game camera ~10-14 m, Movie Maker LOW via slice_route SLICE_CLIPS)",
+  "date": "2026-10-28"
+ },
+ "Life_Mx5_Kneel_To_Stand": {
+  "sheet": "docs/qa/video/slice/",
+  "video": "C:/Users/Jonna/Documents/PA_plans/videos/slice_2026-10-27_1246_cc15cdc05_set5gate.mp4",
+  "verdict": "hold",
+  "note": "metrics gold; exit for chapel_kneel needs start-alignment",
+  "by": "claude (Ashford square, game camera ~10-14 m, Movie Maker LOW via slice_route SLICE_CLIPS)",
+  "date": "2026-10-28"
+ },
+ "Life_Mx5_Shoulder_Carry_Idle": {
+  "sheet": "docs/qa/video/slice/",
+  "video": "C:/Users/Jonna/Documents/PA_plans/videos/slice_2026-10-27_1246_cc15cdc05_set5gate.mp4",
+  "verdict": "hold",
+  "note": "metrics gold; carries a person over the shoulder (arm wraps the legs): candidate sack-carry upper for the errand",
+  "by": "claude (Ashford square, game camera ~10-14 m, Movie Maker LOW via slice_route SLICE_CLIPS)",
+  "date": "2026-10-28"
+ },
+ "Life_Mx5_Dig": {
+  "sheet": "docs/qa/video/slice/",
+  "video": "C:/Users/Jonna/Documents/PA_plans/videos/slice_2026-10-27_1246_cc15cdc05_set5gate.mp4",
+  "verdict": "hold",
+  "note": "slide max 0.13 m/s (stepping on the shovel)",
+  "by": "claude (Ashford square, game camera ~10-14 m, Movie Maker LOW via slice_route SLICE_CLIPS)",
+  "date": "2026-10-28"
+ },
+ "Life_Mx5_Bench_Work": {
+  "sheet": "docs/qa/video/slice/",
+  "video": "C:/Users/Jonna/Documents/PA_plans/videos/slice_2026-10-27_1246_cc15cdc05_set5gate.mp4",
+  "verdict": "hold",
+  "note": "player rig slide max 0.11 m/s; not yet seen at the bench",
+  "by": "claude (Ashford square, game camera ~10-14 m, Movie Maker LOW via slice_route SLICE_CLIPS)",
+  "date": "2026-10-28"
+ },
+ "Life_Mx5_Argue_A": {
+  "sheet": "docs/qa/video/slice/",
+  "video": "C:/Users/Jonna/Documents/PA_plans/videos/slice_2026-10-27_1246_cc15cdc05_set5gate.mp4",
+  "verdict": "fail",
+  "note": "steps during the argument (slide max 1 m/s)",
+  "by": "claude (Ashford square, game camera ~10-14 m, Movie Maker LOW via slice_route SLICE_CLIPS)",
+  "date": "2026-10-28"
+ },
+ "Life_Mx5_Bartend_Pour": {
+  "sheet": "docs/qa/video/slice/",
+  "video": "C:/Users/Jonna/Documents/PA_plans/videos/slice_2026-10-27_1246_cc15cdc05_set5gate.mp4",
+  "verdict": "fail",
+  "note": "walks along the counter (slide 0.8 m/s)",
+  "by": "claude (Ashford square, game camera ~10-14 m, Movie Maker LOW via slice_route SLICE_CLIPS)",
+  "date": "2026-10-28"
+ },
+ "Life_Mx5_Bass_Guitar": {
+  "sheet": "docs/qa/video/slice/",
+  "video": "C:/Users/Jonna/Documents/PA_plans/videos/slice_2026-10-27_1246_cc15cdc05_set5gate.mp4",
+  "verdict": "fail",
+  "note": "swaying steps (slide 0.06/0.48 m/s)",
+  "by": "claude (Ashford square, game camera ~10-14 m, Movie Maker LOW via slice_route SLICE_CLIPS)",
+  "date": "2026-10-28"
+ },
+ "Life_Mx5_Kneel_Inspect": {
+  "sheet": "docs/qa/video/slice/",
+  "video": "C:/Users/Jonna/Documents/PA_plans/videos/slice_2026-10-27_1246_cc15cdc05_set5gate.mp4",
+  "verdict": "fail",
+  "note": "3.2 cm float on the player rig",
+  "by": "claude (Ashford square, game camera ~10-14 m, Movie Maker LOW via slice_route SLICE_CLIPS)",
+  "date": "2026-10-28"
+ },
+ "Life_Mx5_Kneel_Warm_Hands": {
+  "sheet": "docs/qa/video/slice/",
+  "video": "C:/Users/Jonna/Documents/PA_plans/videos/slice_2026-10-27_1246_cc15cdc05_set5gate.mp4",
+  "verdict": "fail",
+  "note": "shuffles on the knees (slide 1.8 m/s max)",
+  "by": "claude (Ashford square, game camera ~10-14 m, Movie Maker LOW via slice_route SLICE_CLIPS)",
+  "date": "2026-10-28"
+ },
+ "Life_Mx5_Look_Around_A": {
+  "sheet": "docs/qa/video/slice/",
+  "video": "C:/Users/Jonna/Documents/PA_plans/videos/slice_2026-10-27_1246_cc15cdc05_set5gate.mp4",
+  "verdict": "fail",
+  "note": "steps around (slide 0.9 m/s max)",
+  "by": "claude (Ashford square, game camera ~10-14 m, Movie Maker LOW via slice_route SLICE_CLIPS)",
+  "date": "2026-10-28"
+ },
+ "Life_Mx5_Overhead_Strike": {
+  "sheet": "docs/qa/video/slice/",
+  "video": "C:/Users/Jonna/Documents/PA_plans/videos/slice_2026-10-27_1246_cc15cdc05_set5gate.mp4",
+  "verdict": "fail",
+  "note": "steps into the swing (slide 0.07/0.25 m/s)",
+  "by": "claude (Ashford square, game camera ~10-14 m, Movie Maker LOW via slice_route SLICE_CLIPS)",
+  "date": "2026-10-28"
+ },
+ "Life_Mx5_Shoulder_Carry_Walk": {
+  "sheet": "docs/qa/video/slice/",
+  "video": "C:/Users/Jonna/Documents/PA_plans/videos/slice_2026-10-27_1246_cc15cdc05_set5gate.mp4",
+  "verdict": "fail",
+  "note": "stride slides 0.4-0.5 m/s",
+  "by": "claude (Ashford square, game camera ~10-14 m, Movie Maker LOW via slice_route SLICE_CLIPS)",
+  "date": "2026-10-28"
  }
 }

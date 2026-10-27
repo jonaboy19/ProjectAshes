@@ -1,0 +1,319 @@
+{
+ "_doc": "work set 5 targets for meshy_pipeline.py measure/grade/wire (--lib .../UAL_Life_Mixamo5.glb --queue this --out docs/qa/golden/mixamo_set5)",
+ "motions": [
+  {
+   "id": "Life_Mx5_Talk_General",
+   "clip": "Life_Mx5_Talk_General",
+   "prompt": "Mixamo work_set5: talk_general_conversation.fbx",
+   "loop": true,
+   "category": "social/talk",
+   "target": {
+    "type": "conversation",
+    "key": "loop",
+    "enable": false
+   },
+   "props": []
+  },
+  {
+   "id": "Life_Mx5_Talk_Explain",
+   "clip": "Life_Mx5_Talk_Explain",
+   "prompt": "Mixamo work_set5: talk_explaining_two_hands.fbx",
+   "loop": true,
+   "category": "social/talk",
+   "target": {
+    "type": "conversation",
+    "key": "loop",
+    "enable": false
+   },
+   "props": []
+  },
+  {
+   "id": "Life_Mx5_Talk_Funny",
+   "clip": "Life_Mx5_Talk_Funny",
+   "prompt": "Mixamo work_set5: talk_funny.fbx",
+   "loop": true,
+   "category": "social/talk",
+   "target": {
+    "type": "conversation",
+    "key": "loop",
+    "enable": false
+   },
+   "props": []
+  },
+  {
+   "id": "Life_Mx5_Argue_A",
+   "clip": "Life_Mx5_Argue_A",
+   "prompt": "Mixamo work_set5: arguing_standing_a.fbx",
+   "loop": true,
+   "category": "social/argue",
+   "target": {
+    "type": "conversation",
+    "key": "loop",
+    "enable": false
+   },
+   "props": []
+  },
+  {
+   "id": "Life_Mx5_Argue_B",
+   "clip": "Life_Mx5_Argue_B",
+   "prompt": "Mixamo work_set5: arguing_standing_b.fbx",
+   "loop": true,
+   "category": "social/argue",
+   "target": {
+    "type": "conversation",
+    "key": "loop",
+    "enable": false
+   },
+   "props": []
+  },
+  {
+   "id": "Life_Mx5_Agree_Nod",
+   "clip": "Life_Mx5_Agree_Nod",
+   "prompt": "Mixamo work_set5: agreeing_nod_yes.fbx",
+   "loop": true,
+   "category": "social/talk",
+   "target": {
+    "type": "conversation",
+    "key": "loop",
+    "enable": false
+   },
+   "props": []
+  },
+  {
+   "id": "Life_Mx5_Lean_Wall_Leg_Up",
+   "clip": "Life_Mx5_Lean_Wall_Leg_Up",
+   "prompt": "Mixamo work_set5: lean_wall_leg_up.fbx",
+   "loop": true,
+   "category": "rest/lean",
+   "target": null,
+   "props": []
+  },
+  {
+   "id": "Life_Mx5_Lean_Wall_Shoulder",
+   "clip": "Life_Mx5_Lean_Wall_Shoulder",
+   "prompt": "Mixamo work_set5: lean_wall_shoulder.fbx",
+   "loop": true,
+   "category": "rest/lean",
+   "target": null,
+   "props": []
+  },
+  {
+   "id": "Life_Mx5_Sit_Cross_Legged",
+   "clip": "Life_Mx5_Sit_Cross_Legged",
+   "prompt": "Mixamo work_set5: sit_ground_cross_legged.fbx",
+   "loop": true,
+   "category": "rest/sit",
+   "target": {
+    "type": "sit_ground",
+    "key": "loop",
+    "enable": false
+   },
+   "props": []
+  },
+  {
+   "id": "Life_Mx5_Sit_Reclined",
+   "clip": "Life_Mx5_Sit_Reclined",
+   "prompt": "Mixamo work_set5: sit_ground_reclined.fbx",
+   "loop": true,
+   "category": "rest/sit",
+   "target": {
+    "type": "sit_ground",
+    "key": "loop",
+    "enable": false
+   },
+   "props": []
+  },
+  {
+   "id": "Life_Mx5_Sit_Laughing",
+   "clip": "Life_Mx5_Sit_Laughing",
+   "prompt": "Mixamo work_set5: sit_chair_laughing.fbx",
+   "loop": true,
+   "category": "social/tavern",
+   "target": {
+    "type": "tavern_table",
+    "key": "loop",
+    "enable": false
+   },
+   "props": []
+  },
+  {
+   "id": "Life_Mx5_Sit_Cheer_Talk",
+   "clip": "Life_Mx5_Sit_Cheer_Talk",
+   "prompt": "Mixamo work_set5: sit_cheer_talk_neighbor.fbx",
+   "loop": true,
+   "category": "social/tavern",
+   "target": {
+    "type": "tavern_table",
+    "key": "loop",
+    "enable": false
+   },
+   "props": []
+  },
+  {
+   "id": "Life_Mx5_Sit_Down_Drink",
+   "clip": "Life_Mx5_Sit_Down_Drink",
+   "prompt": "Mixamo work_set5: sit_down_drinking.fbx",
+   "loop": false,
+   "category": "social/tavern",
+   "target": null,
+   "props": [
+    {
+     "id": "mug",
+     "hand": "r"
+    }
+   ]
+  },
+  {
+   "id": "Life_Mx5_Look_Around_A",
+   "clip": "Life_Mx5_Look_Around_A",
+   "prompt": "Mixamo work_set5: idle_looking_around_a.fbx",
+   "loop": true,
+   "category": "ambient",
+   "target": null,
+   "props": []
+  },
+  {
+   "id": "Life_Mx5_Look_Around_B",
+   "clip": "Life_Mx5_Look_Around_B",
+   "prompt": "Mixamo work_set5: idle_looking_around_b.fbx",
+   "loop": true,
+   "category": "ambient",
+   "target": null,
+   "props": []
+  },
+  {
+   "id": "Life_Mx5_Dig",
+   "clip": "Life_Mx5_Dig",
+   "prompt": "Mixamo work_set5: digging_shovel.fbx",
+   "loop": true,
+   "category": "work/farm",
+   "target": {
+    "type": "field_row",
+    "key": "loop",
+    "enable": false
+   },
+   "props": [
+    {
+     "id": "shovel",
+     "hand": "r"
+    }
+   ]
+  },
+  {
+   "id": "Life_Mx5_Bench_Work",
+   "clip": "Life_Mx5_Bench_Work",
+   "prompt": "Mixamo work_set5: working_on_device_bench.fbx",
+   "loop": true,
+   "category": "work/carpentry",
+   "target": {
+    "type": "nail_plank",
+    "key": "loop",
+    "enable": true
+   },
+   "props": []
+  },
+  {
+   "id": "Life_Mx5_Overhead_Strike",
+   "clip": "Life_Mx5_Overhead_Strike",
+   "prompt": "Mixamo work_set5: overhead_bash_swing.fbx",
+   "loop": true,
+   "category": "work/wood",
+   "target": {
+    "type": "chopping_block",
+    "key": "loop",
+    "enable": false
+   },
+   "props": [
+    {
+     "id": "axe",
+     "hand": "r"
+    }
+   ]
+  },
+  {
+   "id": "Life_Mx5_Bartend_Pour",
+   "clip": "Life_Mx5_Bartend_Pour",
+   "prompt": "Mixamo work_set5: bartending_pour_serve.fbx",
+   "loop": true,
+   "category": "work/tavern",
+   "target": {
+    "type": "bar_counter",
+    "key": "loop",
+    "enable": false
+   },
+   "props": []
+  },
+  {
+   "id": "Life_Mx5_Shoulder_Carry_Idle",
+   "clip": "Life_Mx5_Shoulder_Carry_Idle",
+   "prompt": "Mixamo work_set5: shoulder_carry_idle.fbx",
+   "loop": true,
+   "category": "carry/full",
+   "target": null,
+   "props": []
+  },
+  {
+   "id": "Life_Mx5_Shoulder_Carry_Walk",
+   "clip": "Life_Mx5_Shoulder_Carry_Walk",
+   "prompt": "Mixamo work_set5: shoulder_carry_walk_inplace.fbx",
+   "loop": true,
+   "category": "carry/full",
+   "target": null,
+   "props": []
+  },
+  {
+   "id": "Life_Mx5_Kneel_Down",
+   "clip": "Life_Mx5_Kneel_Down",
+   "prompt": "Mixamo work_set5: kneel_down_from_standing.fbx",
+   "loop": false,
+   "category": "ritual/kneel",
+   "target": null,
+   "props": []
+  },
+  {
+   "id": "Life_Mx5_Kneel_To_Stand",
+   "clip": "Life_Mx5_Kneel_To_Stand",
+   "prompt": "Mixamo work_set5: kneel_to_stand.fbx",
+   "loop": false,
+   "category": "ritual/kneel",
+   "target": null,
+   "props": []
+  },
+  {
+   "id": "Life_Mx5_Kneel_Inspect",
+   "clip": "Life_Mx5_Kneel_Inspect",
+   "prompt": "Mixamo work_set5: kneel_inspecting.fbx",
+   "loop": true,
+   "category": "work/inspect",
+   "target": null,
+   "props": []
+  },
+  {
+   "id": "Life_Mx5_Kneel_Warm_Hands",
+   "clip": "Life_Mx5_Kneel_Warm_Hands",
+   "prompt": "Mixamo work_set5: kneel_warming_hands_fire.fbx",
+   "loop": true,
+   "category": "rest/fire",
+   "target": null,
+   "props": []
+  },
+  {
+   "id": "Life_Mx5_Bass_Guitar",
+   "clip": "Life_Mx5_Bass_Guitar",
+   "prompt": "Mixamo work_set5: guitar_bass_standing.fbx",
+   "loop": true,
+   "category": "music",
+   "target": {
+    "type": "musician_spot",
+    "key": "loop",
+    "enable": false
+   },
+   "props": [
+    {
+     "id": "lute",
+     "hand": "l"
+    }
+   ]
+  }
+ ]
+}

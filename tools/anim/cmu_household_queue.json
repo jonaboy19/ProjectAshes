@@ -1,0 +1,142 @@
+{
+ "_doc": "re-gate of the CMU household clips already in UAL_Life_Mocap.glb (2026-10-28) with today's anim_qa + golden_gate; targets for wire",
+ "motions": [
+  {
+   "id": "Life_Mocap_Sweep",
+   "clip": "Life_Mocap_Sweep",
+   "prompt": "CMU",
+   "loop": true,
+   "category": "work/chore",
+   "target": {
+    "type": "sweep_area",
+    "key": "loop",
+    "enable": false
+   },
+   "props": [
+    {
+     "id": "broom",
+     "hand": "r"
+    }
+   ]
+  },
+  {
+   "id": "Life_Mocap_Stir",
+   "clip": "Life_Mocap_Stir",
+   "prompt": "CMU",
+   "loop": true,
+   "category": "work/cook",
+   "target": {
+    "type": "cook_pot",
+    "key": "loop",
+    "enable": false
+   },
+   "props": [
+    {
+     "id": "ladle",
+     "hand": "r"
+    }
+   ]
+  },
+  {
+   "id": "Life_Mocap_Slice",
+   "clip": "Life_Mocap_Slice",
+   "prompt": "CMU",
+   "loop": true,
+   "category": "work/cook",
+   "target": {
+    "type": "kitchen_table",
+    "key": "loop",
+    "enable": false
+   },
+   "props": [
+    {
+     "id": "knife",
+     "hand": "r"
+    }
+   ]
+  },
+  {
+   "id": "Life_Mocap_Eat_Table",
+   "clip": "Life_Mocap_Eat_Table",
+   "prompt": "CMU",
+   "loop": true,
+   "category": "eat",
+   "target": null,
+   "props": []
+  },
+  {
+   "id": "Life_Mocap_Eat_Soup",
+   "clip": "Life_Mocap_Eat_Soup",
+   "prompt": "CMU",
+   "loop": true,
+   "category": "eat",
+   "target": null,
+   "props": []
+  },
+  {
+   "id": "Life_Mocap_Saw",
+   "clip": "Life_Mocap_Saw",
+   "prompt": "CMU",
+   "loop": true,
+   "category": "work/carpentry",
+   "target": {
+    "type": "sawhorse",
+    "key": "loop",
+    "enable": false
+   },
+   "props": []
+  },
+  {
+   "id": "Life_Mocap_Hammer_Nail",
+   "clip": "Life_Mocap_Hammer_Nail",
+   "prompt": "CMU",
+   "loop": true,
+   "category": "work/carpentry",
+   "target": {
+    "type": "nail_plank",
+    "key": "loop",
+    "enable": true
+   },
+   "props": []
+  },
+  {
+   "id": "Life_Mocap_Chop_Wood",
+   "clip": "Life_Mocap_Chop_Wood",
+   "prompt": "CMU",
+   "loop": true,
+   "category": "work/wood",
+   "target": {
+    "type": "chopping_block",
+    "key": "loop",
+    "enable": false
+   },
+   "props": []
+  },
+  {
+   "id": "Life_Mocap_Dig",
+   "clip": "Life_Mocap_Dig",
+   "prompt": "CMU",
+   "loop": true,
+   "category": "work/farm",
+   "target": {
+    "type": "field_row",
+    "key": "loop",
+    "enable": false
+   },
+   "props": []
+  },
+  {
+   "id": "Life_Mocap_Rake",
+   "clip": "Life_Mocap_Rake",
+   "prompt": "CMU",
+   "loop": true,
+   "category": "work/farm",
+   "target": {
+    "type": "field_row",
+    "key": "loop",
+    "enable": false
+   },
+   "props": []
+  }
+ ]
+}

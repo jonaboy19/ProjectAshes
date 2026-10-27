@@ -721,7 +721,7 @@ const LOCAL_TYPES := {
 	},
 	"wall_idle": {
 		"slots": [{"stand": [0.0, 0.0, 0.0], "face": 0}], "approach": 0.6,
-		"activity": {"loop": ["Life_Ambient_Shift_Weight", "Life_Ambient_Look_Around"], "between": ["Life_Ambient_Scratch_Head", "Life_Ambient_Check_Sky"],
+		"activity": {"loop": ["Life_Ambient_Shift_Weight", "Life_Ambient_Look_Around", "Life_Mx5_Look_Around_B"], "between": ["Life_Ambient_Scratch_Head", "Life_Ambient_Check_Sky"],
 			"cycles": [1, 2], "duration": [25, 90]},
 		"acts": ["rest", "social"], "hours": [7, 21], "tags": ["lean", "rest"],
 	},

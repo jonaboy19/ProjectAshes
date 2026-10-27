@@ -1,0 +1,160 @@
+{
+ "Life_Mx5_Agree_Nod": {
+  "auto": "gold",
+  "why": []
+ },
+ "Life_Mx5_Argue_A": {
+  "auto": "banned",
+  "why": [
+   "player_young: banned: slide max 1.07 m/s",
+   "villager_man_a: banned: slide max 0.98 m/s",
+   "villager_woman_a: banned: slide max 1.05 m/s"
+  ]
+ },
+ "Life_Mx5_Argue_B": {
+  "auto": "gold",
+  "why": []
+ },
+ "Life_Mx5_Bartend_Pour": {
+  "auto": "banned",
+  "why": [
+   "player_young: banned: slide mean 0.09 m/s",
+   "player_young: banned: slide max 0.81 m/s",
+   "villager_man_a: banned: slide mean 0.08 m/s",
+   "villager_man_a: banned: slide max 0.72 m/s",
+   "villager_woman_a: banned: slide mean 0.07 m/s",
+   "villager_woman_a: banned: slide max 0.78 m/s"
+  ]
+ },
+ "Life_Mx5_Bass_Guitar": {
+  "auto": "banned",
+  "why": [
+   "player_young: banned: slide mean 0.06 m/s",
+   "player_young: banned: slide max 0.48 m/s",
+   "villager_man_a: banned: slide mean 0.06 m/s",
+   "villager_man_a: banned: slide max 0.44 m/s",
+   "villager_woman_a: banned: slide mean 0.05 m/s",
+   "villager_woman_a: banned: slide max 0.42 m/s"
+  ]
+ },
+ "Life_Mx5_Bench_Work": {
+  "auto": "probation",
+  "why": [
+   "player_young: probation: slide max 0.11 m/s"
+  ]
+ },
+ "Life_Mx5_Dig": {
+  "auto": "probation",
+  "why": [
+   "player_young: probation: slide max 0.15 m/s",
+   "villager_man_a: probation: slide max 0.13 m/s",
+   "villager_woman_a: probation: slide max 0.12 m/s"
+  ]
+ },
+ "Life_Mx5_Kneel_Down": {
+  "auto": "gold",
+  "why": []
+ },
+ "Life_Mx5_Kneel_Inspect": {
+  "auto": "banned",
+  "why": [
+   "player_young: banned: float 3.2 cm"
+  ]
+ },
+ "Life_Mx5_Kneel_To_Stand": {
+  "auto": "gold",
+  "why": []
+ },
+ "Life_Mx5_Kneel_Warm_Hands": {
+  "auto": "banned",
+  "why": [
+   "player_young: banned: slide mean 0.16 m/s",
+   "player_young: banned: slide max 1.83 m/s",
+   "villager_man_a: banned: slide mean 0.15 m/s",
+   "villager_man_a: banned: slide max 1.71 m/s",
+   "villager_woman_a: banned: slide mean 0.10 m/s",
+   "villager_woman_a: banned: slide max 1.64 m/s"
+  ]
+ },
+ "Life_Mx5_Lean_Wall_Leg_Up": {
+  "auto": "gold",
+  "why": []
+ },
+ "Life_Mx5_Lean_Wall_Shoulder": {
+  "auto": "gold",
+  "why": []
+ },
+ "Life_Mx5_Look_Around_A": {
+  "auto": "banned",
+  "why": [
+   "player_young: banned: slide mean 0.14 m/s",
+   "player_young: banned: slide max 0.92 m/s",
+   "villager_man_a: banned: slide mean 0.13 m/s",
+   "villager_man_a: banned: slide max 0.85 m/s",
+   "villager_woman_a: banned: slide mean 0.11 m/s",
+   "villager_woman_a: banned: slide max 0.81 m/s"
+  ]
+ },
+ "Life_Mx5_Look_Around_B": {
+  "auto": "gold",
+  "why": []
+ },
+ "Life_Mx5_Overhead_Strike": {
+  "auto": "banned",
+  "why": [
+   "player_young: banned: slide mean 0.07 m/s",
+   "player_young: banned: slide max 0.25 m/s",
+   "villager_man_a: banned: slide mean 0.08 m/s",
+   "villager_man_a: banned: slide max 0.29 m/s",
+   "villager_woman_a: banned: slide mean 0.07 m/s",
+   "villager_woman_a: banned: slide max 0.26 m/s"
+  ]
+ },
+ "Life_Mx5_Shoulder_Carry_Idle": {
+  "auto": "gold",
+  "why": []
+ },
+ "Life_Mx5_Shoulder_Carry_Walk": {
+  "auto": "banned",
+  "why": [
+   "player_young: banned: slide mean 0.53 m/s",
+   "player_young: banned: slide max 4.25 m/s",
+   "villager_man_a: banned: slide mean 0.39 m/s",
+   "villager_man_a: banned: slide max 4.03 m/s",
+   "villager_woman_a: banned: slide mean 0.55 m/s",
+   "villager_woman_a: banned: slide max 3.87 m/s"
+  ]
+ },
+ "Life_Mx5_Sit_Cheer_Talk": {
+  "auto": "gold",
+  "why": []
+ },
+ "Life_Mx5_Sit_Cross_Legged": {
+  "auto": "gold",
+  "why": []
+ },
+ "Life_Mx5_Sit_Down_Drink": {
+  "auto": "gold",
+  "why": []
+ },
+ "Life_Mx5_Sit_Laughing": {
+  "auto": "gold",
+  "why": []
+ },
+ "Life_Mx5_Sit_Reclined": {
+  "auto": "gold",
+  "why": []
+ },
+ "Life_Mx5_Talk_Explain": {
+  "auto": "gold",
+  "why": []
+ },
+ "Life_Mx5_Talk_Funny": {
+  "auto": "gold",
+  "why": []
+ },
+ "Life_Mx5_Talk_General": {
+  "auto": "gold",
+  "why": []
+ }
+}

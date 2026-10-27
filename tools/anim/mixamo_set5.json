@@ -1,0 +1,250 @@
+{
+ "_doc": "Mixamo work set 5 (owner download 2026-10-27, downloads/mixamo/work_set5, INDEX.md) -> UAL_Life_Mixamo5.glb via tools/anim/mixamo_to_ual.py",
+ "clips": [
+  {
+   "name": "Life_Mx5_Talk_General",
+   "file": "talk_general_conversation.fbx",
+   "inplace": "none",
+   "loop": true,
+   "loop_native": false,
+   "loop_blend": 0.3,
+   "loop_search": 1.0
+  },
+  {
+   "name": "Life_Mx5_Talk_Explain",
+   "file": "talk_explaining_two_hands.fbx",
+   "inplace": "none",
+   "loop": true,
+   "loop_native": false,
+   "loop_blend": 0.3,
+   "loop_search": 1.0
+  },
+  {
+   "name": "Life_Mx5_Talk_Funny",
+   "file": "talk_funny.fbx",
+   "inplace": "none",
+   "loop": true,
+   "loop_native": false,
+   "loop_blend": 0.3,
+   "loop_search": 1.0
+  },
+  {
+   "name": "Life_Mx5_Argue_A",
+   "file": "arguing_standing_a.fbx",
+   "inplace": "none",
+   "loop": true,
+   "loop_native": false,
+   "loop_blend": 0.3,
+   "loop_search": 1.0
+  },
+  {
+   "name": "Life_Mx5_Argue_B",
+   "file": "arguing_standing_b.fbx",
+   "inplace": "none",
+   "loop": true,
+   "loop_native": false,
+   "loop_blend": 0.3,
+   "loop_search": 1.0
+  },
+  {
+   "name": "Life_Mx5_Agree_Nod",
+   "file": "agreeing_nod_yes.fbx",
+   "inplace": "none",
+   "loop": true,
+   "loop_native": false,
+   "loop_blend": 0.3,
+   "loop_search": 1.0
+  },
+  {
+   "name": "Life_Mx5_Lean_Wall_Leg_Up",
+   "file": "lean_wall_leg_up.fbx",
+   "inplace": "none",
+   "loop": true,
+   "loop_native": false,
+   "loop_blend": 0.3,
+   "loop_search": 1.0
+  },
+  {
+   "name": "Life_Mx5_Lean_Wall_Shoulder",
+   "file": "lean_wall_shoulder.fbx",
+   "inplace": "none",
+   "loop": true,
+   "loop_native": false,
+   "loop_blend": 0.3,
+   "loop_search": 1.0
+  },
+  {
+   "name": "Life_Mx5_Sit_Cross_Legged",
+   "file": "sit_ground_cross_legged.fbx",
+   "inplace": "none",
+   "loop": true,
+   "loop_native": false,
+   "loop_blend": 0.3,
+   "loop_search": 1.0,
+   "floor": "min",
+   "contact": false,
+   "foot_lock": false
+  },
+  {
+   "name": "Life_Mx5_Sit_Reclined",
+   "file": "sit_ground_reclined.fbx",
+   "inplace": "none",
+   "loop": true,
+   "loop_native": false,
+   "loop_blend": 0.3,
+   "loop_search": 1.0,
+   "floor": "min",
+   "contact": false,
+   "foot_lock": false,
+   "lift_m": 0.03
+  },
+  {
+   "name": "Life_Mx5_Sit_Laughing",
+   "file": "sit_chair_laughing.fbx",
+   "inplace": "none",
+   "loop": true,
+   "loop_native": false,
+   "loop_blend": 0.3,
+   "loop_search": 1.0,
+   "floor": "min",
+   "foot_lock": true
+  },
+  {
+   "name": "Life_Mx5_Sit_Cheer_Talk",
+   "file": "sit_cheer_talk_neighbor.fbx",
+   "inplace": "none",
+   "loop": true,
+   "loop_native": false,
+   "loop_blend": 0.3,
+   "loop_search": 1.0,
+   "floor": "min",
+   "foot_lock": true
+  },
+  {
+   "name": "Life_Mx5_Sit_Down_Drink",
+   "file": "sit_down_drinking.fbx",
+   "inplace": "none",
+   "loop": false
+  },
+  {
+   "name": "Life_Mx5_Look_Around_A",
+   "file": "idle_looking_around_a.fbx",
+   "inplace": "none",
+   "loop": true,
+   "loop_native": false,
+   "loop_blend": 0.3,
+   "loop_search": 1.0
+  },
+  {
+   "name": "Life_Mx5_Look_Around_B",
+   "file": "idle_looking_around_b.fbx",
+   "inplace": "none",
+   "loop": true,
+   "loop_native": false,
+   "loop_blend": 0.3,
+   "loop_search": 1.0
+  },
+  {
+   "name": "Life_Mx5_Dig",
+   "file": "digging_shovel.fbx",
+   "inplace": "none",
+   "loop": true,
+   "loop_native": false,
+   "loop_blend": 0.3,
+   "loop_search": 1.0
+  },
+  {
+   "name": "Life_Mx5_Bench_Work",
+   "file": "working_on_device_bench.fbx",
+   "inplace": "none",
+   "loop": true,
+   "loop_native": false,
+   "loop_blend": 0.3,
+   "loop_search": 1.0
+  },
+  {
+   "name": "Life_Mx5_Overhead_Strike",
+   "file": "overhead_bash_swing.fbx",
+   "inplace": "none",
+   "loop": true,
+   "loop_native": false,
+   "loop_blend": 0.3,
+   "loop_search": 1.0
+  },
+  {
+   "name": "Life_Mx5_Bartend_Pour",
+   "file": "bartending_pour_serve.fbx",
+   "inplace": "none",
+   "loop": true,
+   "loop_native": false,
+   "loop_blend": 0.3,
+   "loop_search": 1.0
+  },
+  {
+   "name": "Life_Mx5_Shoulder_Carry_Idle",
+   "file": "shoulder_carry_idle.fbx",
+   "inplace": "none",
+   "loop": true,
+   "loop_native": false,
+   "loop_blend": 0.3,
+   "loop_search": 1.0
+  },
+  {
+   "name": "Life_Mx5_Shoulder_Carry_Walk",
+   "file": "shoulder_carry_walk_inplace.fbx",
+   "inplace": "linear",
+   "loop": true,
+   "loop_native": false,
+   "loop_blend": 0.3,
+   "loop_search": 1.0,
+   "foot_lock": false
+  },
+  {
+   "name": "Life_Mx5_Kneel_Down",
+   "file": "kneel_down_from_standing.fbx",
+   "inplace": "none",
+   "loop": false,
+   "floor": "min",
+   "knee_lift": true
+  },
+  {
+   "name": "Life_Mx5_Kneel_To_Stand",
+   "file": "kneel_to_stand.fbx",
+   "inplace": "none",
+   "loop": false,
+   "floor": "min",
+   "knee_lift": true
+  },
+  {
+   "name": "Life_Mx5_Kneel_Inspect",
+   "file": "kneel_inspecting.fbx",
+   "inplace": "none",
+   "loop": true,
+   "loop_native": false,
+   "loop_blend": 0.3,
+   "loop_search": 1.0,
+   "floor": "min",
+   "knee_lift": true
+  },
+  {
+   "name": "Life_Mx5_Kneel_Warm_Hands",
+   "file": "kneel_warming_hands_fire.fbx",
+   "inplace": "none",
+   "loop": true,
+   "loop_native": false,
+   "loop_blend": 0.3,
+   "loop_search": 1.0,
+   "floor": "min",
+   "knee_lift": true
+  },
+  {
+   "name": "Life_Mx5_Bass_Guitar",
+   "file": "guitar_bass_standing.fbx",
+   "inplace": "none",
+   "loop": true,
+   "loop_native": false,
+   "loop_blend": 0.3,
+   "loop_search": 1.0
+  }
+ ]
+}
