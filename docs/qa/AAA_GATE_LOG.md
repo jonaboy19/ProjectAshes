@@ -156,3 +156,13 @@ Video: `PA_plans/videos/slice_move_real_terrain_wip.mp4`. Sheets: `docs/qa/golde
 | 180 turns in place | FAIL | FACE_TURN_IDLE 14 -> 9 rad/s, but the back camera does not show the turn-in-place steps well. Needs a side-on review shot |
 | Ladder segment | not graded | this run crashed in the ladder leg on a Vulkan pipeline-creation error (-13) under machine load; the movement legs before it are complete |
 Verdict: blockers cleared (occluder, route, sword, sign, marker). Movement is still FAIL until the 180 and start steps are reviewed side-on and the ladder leg is re-recorded on a quiet machine.
+
+## 2026-10-27 Combat full motion pass 5 (combat-motion worker) - owner AAA bar, layers 1/3/4/5 - FAIL (improved, WIP)
+File: `PA_plans/videos/WIP_combat_full_motion_slice_clearing_sword_v5.mp4`; close sheet `docs/qa/golden/combat/fm_v5_close_sheet.jpg` (before = v4 sheet).
+| Layer | Verdict |
+|---|---|
+| 1 Variety | bandits pick from every light step and directional cut of their style at random, never the same clip twice in a row. PASS for NPCs; the player chain still goes in fixed order unless a direction is held |
+| 3 Procedural layers | `lean_aim.gd` (SkeletonModifier3D) on fighters: upper-body twist toward the foe, a lean into lunges and away from hits (lean spring kick). Visible as torso twist and recoil on the sheet. Head look (LookAtModifier3D) was already on the player. Shield-arm threat IK and the tired breathing additive are not done |
+| 4 Footwork | bandits in range between blows now circle (side flips every 1.2-2.6 s) and step in and out (1.6-2.6 m) with the strafe clips driving the feet, instead of standing frozen. PASS (bandit) |
+| 5 Impact | hit-stop by weight: light 40 ms, heavy 90 ms, finisher 100 ms, parry 120 ms. Steel sparks are small streaks with a 0.08 s light (no STAR glow), dust on footwork contact |
+Not done: set4 clips (directional reacts, deaths, dodges), player-side footwork, foot IK during lunges, lock-on pivots, NPC feints.

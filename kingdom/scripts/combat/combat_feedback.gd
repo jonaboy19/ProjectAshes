@@ -139,7 +139,7 @@ func _on_parried(attacker: Node, at: Vector3, grade: String) -> void:
 		at = ParryContact.contact_point(attacker, model)
 		ParryContact.play(model, at)
 	Audio.sfx("clash")
-	VFX.sparks(p.get_parent(), at, Color(1.0, 0.85, 0.55), 22 if grade == "perfect" else 14)
+	ParryContact.steel_sparks(p.get_parent(), at, 12 if grade == "perfect" else 8)
 	ImpactPool.at(p.get_parent()).play(at, "physical", Feel.Tier.LIGHT, -p.facing())     # light tier: dust + sparks, no glow star
 	p._add_camera_shake(0.3)
 	p._fov_punch(4.0)
@@ -165,13 +165,13 @@ func _on_blocked(_attacker: Node, guard_broken: bool) -> void:
 		var model: Node3D = p.get("_model")
 		if model != null:
 			var at := ParryContact.contact_point(_attacker, model)
-			VFX.sparks(p.get_parent(), at, Color(1.0, 0.85, 0.55), 8)
+			ParryContact.steel_sparks(p.get_parent(), at, 6)
 		p._hit_stop(0.05)
 
 
 func _on_clashed(_attacker: Node, won: bool) -> void:
 	var p := _p
 	Audio.sfx("clash")
-	VFX.sparks(p.get_parent(), p.global_position + p.facing() * 1.0 + Vector3.UP * 1.2, Color(1.0, 0.95, 0.7), 36)
+	ParryContact.steel_sparks(p.get_parent(), p.global_position + p.facing() * 1.0 + Vector3.UP * 1.2, 14)
 	p._add_camera_shake(0.3 if won else 0.4)
 	p._hit_stop(0.08)

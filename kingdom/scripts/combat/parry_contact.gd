@@ -15,6 +15,16 @@ const HOLD_S := 0.10
 const OUT_S := 0.16
 const PEAK := 0.85            ## influence at full contact (the clip's arm still shows a little)
 const NODE := "ParryIK"
+const K := preload("res://scripts/vfx/vfx_kit.gd")
+
+
+## Steel-on-steel sparks for blade and shield contact: a few short hot streaks and a tiny warm light, no glow sprite
+## (VFX.sparks adds a STAR glow that read as a cartoon starburst next to ref 03).
+static func steel_sparks(parent: Node, pos: Vector3, count := 10) -> void:
+	var p := K.pal_from(Color(1.0, 0.8, 0.5))
+	K.emit(parent, pos, {"amount": count, "life": 0.22, "v": Vector2(2.5, 6.0), "spread": 55.0, "gravity": Vector3(0, -16, 0),
+		"damping": Vector2(1, 3), "size": Vector2(0.02, 0.12), "stretch": true, "mat": K.sprite_mat(K.DOT, p, 3.0, {"heat": 1.3})})
+	K.light(parent, pos, Color(1.0, 0.75, 0.45), 0.8, 0.08, 2.5)
 
 
 ## Pure: blade contact between an attacker's sword hand and the defender's chest.

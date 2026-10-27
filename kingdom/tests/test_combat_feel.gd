@@ -36,9 +36,9 @@ func test_tiers_and_hit_stop_frames() -> void:
 	assert_int(Feel.tier_for(false, false, 1.5, 14, 14.0, true)).is_equal(Feel.Tier.HEAVY)   # riposte
 	assert_int(Feel.tier_for(true)).is_equal(Feel.Tier.FINISHER)
 	assert_int(Feel.tier_for(false, true)).is_equal(Feel.Tier.FINISHER)                       # guard break
-	assert_float(Feel.hit_stop_seconds(Feel.Tier.LIGHT)).is_equal(0.0)
-	assert_float(Feel.hit_stop_seconds(Feel.Tier.HEAVY)).is_equal_approx(2.0 / 60.0, 0.0001)
-	assert_float(Feel.hit_stop_seconds(Feel.Tier.FINISHER)).is_equal_approx(3.0 / 60.0, 0.0001)
+	assert_float(Feel.hit_stop_seconds(Feel.Tier.LIGHT)).is_equal_approx(0.04, 0.0001)
+	assert_float(Feel.hit_stop_seconds(Feel.Tier.HEAVY)).is_equal_approx(0.09, 0.0001)
+	assert_float(Feel.hit_stop_seconds(Feel.Tier.FINISHER)).is_equal_approx(0.10, 0.0001)
 
 
 func test_the_real_sword_combo_maps_light_light_light_finisher() -> void:

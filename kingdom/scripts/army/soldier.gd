@@ -184,6 +184,16 @@ func _physics_process(delta: float) -> void:
 		_face(to_goal)
 		if _attack_cooldown <= 0.0 and _busy <= 0.0:
 			_attack()
+		elif _busy <= 0.0 and CombatChains.has_style(_fm_style()):
+			# guard footwork between blows: circle and breathe in and out of range instead of standing frozen
+			_foot_t -= delta
+			if _foot_t <= 0.0:
+				_foot_t = randf_range(1.2, 2.6)
+				_foot_side = -_foot_side if randf() < 0.6 else _foot_side
+				_foot_range = randf_range(1.6, 2.6)
+			var radial := to_goal / maxf(dist, 0.01)
+			var tangent := Vector3(-radial.z, 0, radial.x) * _foot_side
+			desired = tangent * WALK * 0.35 + radial * clampf(dist - _foot_range, -1.0, 1.0) * WALK * 0.5
 	elif engaging and _kite_t > 0.0 and dist > 0.4:
 		desired = -to_goal / dist * WALK * 1.2        # a mage backs off to keep her range
 	elif dist > 0.4:
@@ -238,9 +248,15 @@ func _physics_process(delta: float) -> void:
 			var sks := _model.find_children("*", "Skeleton3D", true, false)
 			if not sks.is_empty():
 				_guard_legs = GuardLegs.attach(sks[0] as Skeleton3D, _animator.player, CombatChains.guard_clip(_fm_style()))
+		if engaging and _lean == null:
+			_lean = LeanAim.attach(_model, self)          # upper-body twist toward the foe + lean into lunges / away from hits
+		if _lean != null:
+			_lean.set("aim_target", combat_target if engaging else null)
 		if _guard_legs != null:
 			_guard_legs.set("target", 1.0 if _cmotion.active and _cmotion.t > _cmotion.hit_t + 0.08 else 0.0)
-		_animator.update(delta, planar)
+		# guard footwork steps: directional strafe clips while circling a foe (feet follow the travel, no forward-walk skate)
+		_animator.set_strafing(engaging and dist < 6.0 and planar > 0.3)
+		_animator.update(delta, planar, Vector3(_velocity.x, 0.0, _velocity.z))
 		_animator.set_blocking(_guard > 0.0)
 		if planar > 0.5:
 			_step_distance += planar * delta
@@ -346,6 +362,8 @@ func _attack() -> void:
 	var rm_anim: Animation = CombatMotion.anim_of(_animator, swing_clip) if fm != null else null
 	if rm_anim != null:
 		_cmotion.begin(rm_anim, swing_rate, hit_delay * swing_rate, _model.scale.x, 1.25)
+		if _lean != null:
+			_lean.call("kick", global_transform.basis.z, 0.6)     # weight goes into the step
 	var move := _cur_move
 	Telegraph.begin(self, move, move.reach if move != null else ATTACK_RANGE, hit_delay)
 	get_tree().create_timer(hit_delay).timeout.connect(func() -> void:
@@ -432,6 +450,8 @@ func _hit_push(from: Node, knockback: Vector3) -> void:
 	if dir.length() < 0.05 and from is Node3D:
 		dir = global_position - (from as Node3D).global_position
 	_ragdoll.call("hit_react", dir, 2.6, 0.3)
+	if _lean != null:
+		_lean.call("kick", dir.normalized(), 1.0 if knockback.length() < 4.0 else 1.8)
 
 
 ## A heavy blow broke the guard (the player's guard-break attacks call this): a stumble instead of the block flinch.
@@ -633,6 +653,12 @@ var _cmotion := CombatMotion.new()
 const GuardLegs := preload("res://scripts/combat/guard_legs.gd")
 var _guard_legs: SkeletonModifier3D
 var _fm_pick := 0
+var _fm_last := ""
+var _foot_t := 0.0
+var _foot_side := 1.0
+var _foot_range := 2.0
+const LeanAim := preload("res://scripts/combat/lean_aim.gd")
+var _lean: SkeletonModifier3D
 
 
 ## True when this fighter may close in on its target (always, unless another fighter holds the slot).
@@ -663,8 +689,17 @@ func _fm_swing() -> Resource:
 		return null
 	if _cur_move != null and (bool(_cur_move.unblockable) or float(_cur_move.poise_damage) >= 20.0):
 		return chain[chain.size() - 1]
-	_fm_pick = (_fm_pick + 1) % (chain.size() - 1)
-	return chain[_fm_pick]
+	# variety: any light step or directional cut of the style, never the same clip twice in a row
+	var pool: Array = chain.slice(0, chain.size() - 1)
+	for cut in ["left", "right", "overhead", "thrust"]:
+		var r: Resource = CombatChains.pick(style, chain, 0, {"left": Vector2(-1, 0), "right": Vector2(1, 0), "overhead": Vector2(0, -1), "thrust": Vector2(0, 1)}[cut])
+		if not pool.has(r):
+			pool.append(r)
+	var choice: Resource = pool[randi() % pool.size()]
+	if String(choice.anim) == _fm_last and pool.size() > 1:
+		choice = pool[(pool.find(choice) + 1 + randi() % (pool.size() - 1)) % pool.size()]
+	_fm_last = String(choice.anim)
+	return choice
 
 
 func _face(dir: Vector3) -> void:

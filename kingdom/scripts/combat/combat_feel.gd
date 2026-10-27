@@ -8,7 +8,9 @@ const TIER_NAMES := ["light", "heavy", "finisher"]
 
 const FRAME := 1.0 / 60.0
 ## Hit-stop in frames per tier: light 0, heavy 2, finisher / guard break 3.
-const HIT_STOP_FRAMES := [0, 2, 3]
+const HIT_STOP_FRAMES := [0, 2, 3]   # legacy (60 Hz frames); hit_stop_seconds uses HIT_STOP_S
+## Owner bar (2026-10-27): hit-stop by weight - light 40 ms, heavy 90 ms, finisher 100 ms (parry 120 ms: player.PARRY_HIT_STOP).
+const HIT_STOP_S := [0.04, 0.09, 0.10]
 const FOV_PUNCH := [0.0, 2.0, 4.0]          # degrees (player._fov_punch also clamps at 6)
 const FOV_MAX := 6.0
 const ROLL := [0.0, 0.012, 0.026]           # radians of camera roll
@@ -45,7 +47,7 @@ static func tier_for(finisher: bool, guard_break := false, knockback := 0.0, dam
 
 
 static func hit_stop_seconds(tier: int) -> float:
-	return float(HIT_STOP_FRAMES[clampi(tier, 0, 2)]) * FRAME
+	return float(HIT_STOP_S[clampi(tier, 0, 2)])
 
 
 static func fov_punch(tier: int) -> float:
