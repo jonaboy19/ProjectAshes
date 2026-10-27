@@ -364,6 +364,9 @@ func _attack() -> void:
 		hit_delay = fm.hit_time()
 		_busy = fm.hit_time() + 0.45
 	_animator.play_attack(swing_clip, swing_rate, fm != null or _velocity.length() < 0.3)
+	CombatEvents.emit("swing", {"attacker": self, "pos": global_position + Vector3.UP * 1.2,
+		"weight": "heavy" if (_cur_move != null and float(_cur_move.poise_damage) >= 20.0) else "light", "speed": 6.0 * swing_rate,
+		"clip": swing_clip, "kind": "slash"})
 	_cmotion.stop()
 	var rm_anim: Animation = CombatMotion.anim_of(_animator, swing_clip) if fm != null else null
 	if rm_anim != null:
@@ -387,6 +390,10 @@ func _attack() -> void:
 		if not dead and is_instance_valid(victim) and not victim.get("dead") \
 				and global_position.distance_to(victim.global_position) < ATTACK_RANGE + 0.6:
 			victim.take_damage(dmg, self)
+			var heavy_blow: bool = move != null and (float(move.poise_damage) >= 20.0 or bool(move.unblockable))
+			CombatEvents.emit("hit", {"attacker": self, "victim": victim, "pos": victim.global_position + Vector3.UP * 1.2,
+				"weight": "heavy" if heavy_blow else "light", "surface": CombatEvents.body_surface([]), "damage": dmg,
+				"killed": bool(victim.get("dead"))})
 			Audio.sfx("clash" if randf() < 0.5 else "hit", global_position, -6.0)
 		if _cur_move == move:
 			_cur_move = null)
@@ -430,6 +437,8 @@ func take_damage(amount: int, from: Node = null, knockback := Vector3.ZERO) -> v
 			# the shield arm rises into the blow (TwoBoneIK3D window): the guard tracks the threat instead of a canned pose
 			var at := ParryContact.contact_point(from, _model)
 			ParryContact.play(_model, at.lerp(global_position + Vector3.UP * 1.3, 0.35), "l")
+		CombatEvents.emit("block", {"attacker": from, "defender": self, "pos": global_position + Vector3.UP * 1.2,
+			"weight": "heavy" if knockback.length() >= 2.5 else "light", "surface": "wood", "broken": false})
 		var guard_clip := Reactions.react(_hit_side(from), knockback.length(), true)
 		_animator.play_upper(guard_clip if _animator.has_clip(guard_clip) else SoldierAaaScript.block_clip(self, _keep), 1.5)   # block react: arms recoil, no flesh hit
 		return
@@ -699,6 +708,7 @@ var _foot_side := 1.0
 var _foot_range := 2.0
 const LeanAim := preload("res://scripts/combat/lean_aim.gd")
 const Reactions := preload("res://scripts/combat/combat_reactions.gd")
+const CombatEvents := preload("res://scripts/combat/combat_events.gd")
 const ParryContact := preload("res://scripts/combat/parry_contact.gd")
 const REACT_RATE := 1.15
 var _lean: SkeletonModifier3D

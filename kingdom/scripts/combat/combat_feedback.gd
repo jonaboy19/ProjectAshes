@@ -1,5 +1,7 @@
 extends RefCounted
 const ParryContact := preload("res://scripts/combat/parry_contact.gd")
+const CombatEvents := preload("res://scripts/combat/combat_events.gd")
+const SurfaceHits := preload("res://scripts/combat/surface_hits.gd")
 ## Subscriber for the player's combat signals: every VFX, audio, camera-shake, hit-stop and animation-cue
 ## call that used to sit inline in player.gd's _start_swing / _resolve_hit / _parry / take_damage lives
 ## here. Combat code only emits (swing_started, hit_confirmed, parried, blocked, clashed); add another
@@ -32,6 +34,9 @@ func _on_swing_started(action: Resource, info: Dictionary) -> void:
 	var p := _p
 	_swing = info
 	Audio.sfx("swing", null, -4.0)
+	CombatEvents.emit("swing", {"attacker": p, "pos": p.global_position + Vector3.UP * 1.2,
+		"weight": "finisher" if action.finisher else ("heavy" if action.guard_break else "light"),
+		"speed": 6.0 * float(info.get("anim_speed", 1.0)), "clip": String(action.anim), "kind": _swing_kind(action)})
 	var vm: Node3D = p._viewmodel
 	if vm.visible:
 		var t := p.create_tween()
@@ -71,7 +76,16 @@ func _on_hit_confirmed(points: Array, finisher: bool, mixers: Array) -> void:
 		var pt: Vector3 = points[i]
 		var dir: Vector3 = pt - p.global_position
 		dir.y = 0.0
-		pool.play(pt, element, tier if i < 2 else Feel.Tier.LIGHT, dir.normalized() if dir.length() > 0.01 else fwd)
+		var t: int = tier if i < 2 else Feel.Tier.LIGHT
+		var d := dir.normalized() if dir.length() > 0.01 else fwd
+		if element == "physical":
+			# a blade into a body: droplets + a ground stain, dust only from the pool (no hot sparks on cloth or flesh)
+			SurfaceHits.play(world, pt, d, "flesh", t)
+			pool.play(pt, element, t, d, true)
+		else:
+			pool.play(pt, element, t, d)
+		CombatEvents.emit("hit", {"attacker": p, "victim": null, "pos": pt, "weight": CombatEvents.weight_name(t),
+			"surface": "flesh" if element == "physical" else element, "damage": dmg, "killed": false})
 	if not points.is_empty():
 		Audio.sfx("hit")
 		var side := 1.0 if int(_swing.get("combo", 0)) % 2 == 0 else -1.0
@@ -140,6 +154,7 @@ func _on_parried(attacker: Node, at: Vector3, grade: String) -> void:
 		ParryContact.play(model, at)
 	Audio.sfx("clash")
 	ParryContact.steel_sparks(p.get_parent(), at, 12 if grade == "perfect" else 8)
+	CombatEvents.emit("parry", {"attacker": attacker, "defender": p, "pos": at, "grade": grade, "surface": "metal"})
 	ImpactPool.at(p.get_parent()).play(at, "physical", Feel.Tier.LIGHT, -p.facing())     # light tier: dust + sparks, no glow star
 	p._add_camera_shake(0.3)
 	p._fov_punch(4.0)
@@ -148,6 +163,8 @@ func _on_parried(attacker: Node, at: Vector3, grade: String) -> void:
 
 func _on_blocked(_attacker: Node, guard_broken: bool) -> void:
 	var p := _p
+	CombatEvents.emit("block", {"attacker": _attacker, "defender": p, "pos": p.global_position + Vector3.UP * 1.2,
+		"weight": "heavy" if guard_broken else "light", "surface": "wood", "broken": guard_broken})
 	p._add_camera_shake(0.15)
 	if guard_broken:
 		# Heavy stagger with both feet planted (CharacterAnimator.PREFERRED_CLIPS).
@@ -175,3 +192,10 @@ func _on_clashed(_attacker: Node, won: bool) -> void:
 	ParryContact.steel_sparks(p.get_parent(), p.global_position + p.facing() * 1.0 + Vector3.UP * 1.2, 14)
 	p._add_camera_shake(0.3 if won else 0.4)
 	p._hit_stop(0.08)
+
+
+## Swing family for foley: thrusts and overheads sound different from horizontal cuts (measured cut direction).
+func _swing_kind(action: Resource) -> String:
+	var m: Dictionary = (load("res://scripts/combat/combat_chains.gd") as GDScript).call("markers").get(String(action.anim), {})
+	var d := String(m.get("dir", "left"))
+	return "thrust" if d == "thrust" else ("overhead" if d == "overhead" else "slash")
