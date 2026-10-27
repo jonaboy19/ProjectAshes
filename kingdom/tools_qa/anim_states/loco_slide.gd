@@ -10,6 +10,9 @@ var _root3: Node3D
 var _ball_w: Array[Vector3] = [Vector3.ZERO, Vector3.ZERO]   # ball bones after every modifier ran (skeleton_updated)
 var _rec: Array = []                                          # [usec, left, right, body_v] per skeleton update while recording
 var _recording := false
+var _by_joint: Array = [[], [], []]
+var _lat: Array[float] = []
+var _lon: Array[float] = []
 var _local_balls: Array = [Vector3.ZERO, Vector3.ZERO]
 var _joint_p: Array[Vector3] = []     # per foot x (ankle, ball, toe tip): world position
 var _joint_h: Array[float] = []       # ... and height above its own rest height
@@ -197,7 +200,13 @@ func _case(name: String, strength: float, sprint: bool, extra := "") -> Dictiona
 							j = jb
 						var pa: Vector3 = (_rec[m - 1][6] as Array)[f * 3 + j]
 						var pb: Vector3 = (_rec[m][6] as Array)[f * 3 + j]
-						slips.append(Vector2(pb.x - pa.x, pb.z - pa.z).length() / dt)
+						var sv := Vector2(pb.x - pa.x, pb.z - pa.z) / dt
+						slips.append(sv.length())
+						_by_joint[j].append(sv.length())
+						var fwd3: Vector3 = (_p.get("_model") as Node3D).global_basis.z
+						var fw := Vector2(fwd3.x, fwd3.z).normalized()
+						_lat.append(absf(sv.x * fw.y - sv.y * fw.x))
+						_lon.append(sv.dot(fw))
 				run_start = -1
 	if OS.get_cmdline_user_args().has("--dump") and name == "walk":
 		for i in range(60, 110):
@@ -236,6 +245,22 @@ func _case(name: String, strength: float, sprint: bool, extra := "") -> Dictiona
 		lkm += v
 		lkx = maxf(lkx, v)
 	print("LOCO %s locked_ball frames=%d mean=%.3f max=%.3f" % [name, lk.size(), lkm / maxf(lk.size(), 1), lkx])
+	var parts := []
+	for jj in 3:
+		var sm := 0.0
+		for v in _by_joint[jj]:
+			sm += v
+		parts.append("%s n=%d mean=%.3f" % [["ankle", "ball", "toe"][jj], _by_joint[jj].size(), sm / maxf(_by_joint[jj].size(), 1)])
+	var lat_m := 0.0
+	for v in _lat:
+		lat_m += v
+	var lon_m := 0.0
+	for v in _lon:
+		lon_m += v
+	print("LOCO %s contact joints: %s | sideways %.3f, along facing %.3f (signed mean)" % [name, ", ".join(parts), lat_m / maxf(_lat.size(), 1), lon_m / maxf(_lon.size(), 1)])
+	_by_joint = [[], [], []]
+	_lat.clear()
+	_lon.clear()
 	var mean := 0.0
 	var mx := 0.0
 	for s in slips:

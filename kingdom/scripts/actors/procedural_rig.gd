@@ -147,7 +147,9 @@ var long_holster := false
 var sheathed := false
 var seated := 0.0             ## 0..1 sitting down: the hip blade lays back toward level, over the seat instead of through it
 var ground_guard_y := NAN
-var foot_lock := true                         # QA switch (tools_qa/anim_states/loco_slide.gd --no-lock)
+var foot_lock := true
+## 0..1 strength of the foot lock, set by the owner from how far the clip falls short of the body speed (player.gd).
+var lock_gain := 1.0                         # QA switch (tools_qa/anim_states/loco_slide.gd --no-lock)
 var _ball: Array[int] = []
 var _leaf: Array[int] = []
 var _sole_rest: Array[Vector3] = [Vector3.ZERO, Vector3.ZERO]   # rest heights (ankle, ball, toe tip) above the soles plane, left foot
@@ -769,7 +771,7 @@ func _update_lock(i: int, delta: float) -> void:
 		_lock_on[i] = false
 	# a sprint stance lasts ~6 frames: the 3-frame blend would eat half of it, so the blend shortens with speed (1 frame at 7.5 m/s)
 	var blend := LOCK_BLEND * clampf(2.5 / maxf(speed, 0.1), 0.33, 1.0)
-	_lock_w[i] = move_toward(_lock_w[i], 1.0 if _lock_on[i] else 0.0, delta / blend)
+	_lock_w[i] = move_toward(_lock_w[i], lock_gain if _lock_on[i] else 0.0, delta / blend)
 
 
 ## Two-handed weapons: between swings the weapon stands upright beside the body (shortest-arc rotation of its blade axis onto world

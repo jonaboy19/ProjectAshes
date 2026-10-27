@@ -285,6 +285,10 @@ const DODGE_ROLL_CLIP := "Souls_Roll"
 const DODGE_ROLL_RATE := 0.75
 var _seat_t := 0.0
 const SEATED_AFTER := 0.8
+const LOCK_FULL_BELOW := 4.0       # m/s: full foot lock
+const LOCK_MIN_ABOVE := 6.0
+const LOCK_BASE := 0.25
+const LOCK_SHORTFALL_GAIN := 4.0   # a 20 % rate shortfall restores the full lock
 var _dodge_roll := false      # the dodge is a roll (Dodge_Forward / Backward), not the Dodge_back step: props go on the back
 const SHIELD_READY_S := 4.0
 var _stamina_delay := 0.0
@@ -886,6 +890,11 @@ func _physics_process(delta: float) -> void:
 			_shield_ready = maxf(_shield_ready - delta, 0.0)
 		_update_sheathe(delta)
 		_update_carry(delta)
+		# Foot-lock policy (WP-02): full lock at walking speeds (it carries the heel-toe roll), and above that only as much as the
+		# gait rate cap leaves the clip short of the body speed (at an adult sprint the clip matches and a hard pin only adds error).
+		var gspeed := Vector2(velocity.x, velocity.z).length()
+		var base := clampf(remap(gspeed, LOCK_FULL_BELOW, LOCK_MIN_ABOVE, 1.0, LOCK_BASE), LOCK_BASE, 1.0)
+		_rig.set("lock_gain", clampf(base + float(_animator.cadence_shortfall) * LOCK_SHORTFALL_GAIN, 0.0, 1.0))
 		_seat_t = _seat_t + delta if has_meta("seated_on") else maxf(minf(_seat_t, SEATED_AFTER + 0.15) - delta * 1.5, 0.0)
 		_rig.set("seated", clampf((_seat_t - 0.15) / SEATED_AFTER, 0.0, 1.0))   # the hip blade lays back as the body lowers onto the seat
 		var rolling := _dodge > 0.0 and _dodge_roll
