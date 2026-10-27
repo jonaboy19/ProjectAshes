@@ -4,6 +4,7 @@ extends "res://scripts/ui/gamemenu/gm_tab.gd"
 ##   Followers  what each follower wants; requests, orders, your actions
 ##   Court      cases, evidence, filing, appeal, influence
 ##   Letters    the weekly digest and urgent word, with envoys at the door
+##   Settlement your camps: tier, food, contentment, jobs (READY_V1 C4)
 ## Opened by rebindable actions (menu_treasury, menu_followers, menu_court, menu_letters; see Game.KEYS) through
 ## TabAffairs.open_view(hud, "treasury"), or from the Pack menu tab bar. The page only reads module getters and calls the player's
 ## own actions; nothing here ticks.
@@ -11,7 +12,8 @@ extends "res://scripts/ui/gamemenu/gm_tab.gd"
 const VIEWS := [["treasury", "Treasury", "res://scripts/ui/affairs/treasury_panel.gd"],
 	["followers", "Followers", "res://scripts/ui/affairs/followers_will_panel.gd"],
 	["court", "Court", "res://scripts/ui/affairs/court_panel.gd"],
-	["letters", "Letters", "res://scripts/ui/affairs/letters_panel.gd"]]
+	["letters", "Letters", "res://scripts/ui/affairs/letters_panel.gd"],
+	["settlement", "Settlement", "res://scripts/ui/settlement_ledger.gd"]]      # READY_V1 C4
 const GM_PATH := "res://scripts/ui/gamemenu/game_menu.gd"
 
 var view := "treasury"

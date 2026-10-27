@@ -606,7 +606,9 @@ func _build_camp(root: Node3D, c: Dictionary) -> void:
 	fire.light_color = Color(1.0, 0.6, 0.3)
 	fire.light_energy = 1.2
 	fire.omni_range = 10.0
-	fire.visibility_range_end = 120.0
+	fire.distance_fade_enabled = true       # (Light3D has no visibility_range_end: a camp's first frame raised a script error)
+	fire.distance_fade_begin = 90.0
+	fire.distance_fade_length = 30.0
 	root.add_child(fire)
 	fire.global_position = Vector3(cp.x, WorldGen.height(cp.x, cp.y) + 1.3, cp.y)
 

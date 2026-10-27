@@ -399,19 +399,19 @@ func _collect(n: Node, out: Array) -> void:
 
 # --- the tab, the keys -------------------------------------------------------------------
 
-func test_affairs_tab_hosts_the_four_panels() -> void:
+func test_affairs_tab_hosts_its_panels() -> void:
 	var h := _hub()
 	var t: Control = TabAffairs.new()
 	t.set("realm_override", h)
 	add_child(auto_free(t))
 	t.call("build")
 	var panels: Dictionary = t.get("panels")
-	assert_int(panels.size()).is_equal(4)
-	for v: String in ["treasury", "followers", "court", "letters"]:
+	assert_int(panels.size()).is_equal(5)      # + READY_V1 C4: settlement
+	for v: String in ["treasury", "followers", "court", "letters", "settlement"]:
 		t.call("set_view", v)
 		assert_bool((panels[v] as Control).visible).is_true()
 		assert_str(_joined(panels[v])).is_not_empty()
-	assert_str(String(t.get("view"))).is_equal("letters")
+	assert_str(String(t.get("view"))).is_equal("settlement")
 
 
 func test_open_keys_are_rebindable_input_actions() -> void:
