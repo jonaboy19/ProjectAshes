@@ -761,7 +761,8 @@ func _update_lock(i: int, delta: float) -> void:
 			_lock_on[i] = true
 			_lock_heel[i] = _ball_h[i] / k > HEEL_BALL_UP and speed < HEEL_LOCK_MAX_SPEED * k   # walking heel strikes; jogs land on the forefoot
 			_lock_xz[i] = Vector2(_foot_anim[i].x, _foot_anim[i].z) if _lock_heel[i] else anim_xz
-			_lock_yaw[i] = _foot_yaw(i)
+			# yaw pin: measured to help the adult (walk 0.39 -> 0.23 m/s) but hurt the child body (walk 0.16 -> 0.45): adult-size only
+			_lock_yaw[i] = _foot_yaw(i) if k > 0.85 and speed > HEEL_LOCK_MAX_SPEED * k else NAN
 		elif _lock_heel[i] and _ball_h[i] / k < HEEL_BALL_DOWN:
 			_lock_heel[i] = false
 			_lock_xz[i] = _lock_xz[i] - _ball_off[i]       # the ball where the pinned ankle puts it
