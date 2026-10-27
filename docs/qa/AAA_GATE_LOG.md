@@ -399,3 +399,18 @@ Videos: PA_plans/videos/slice_2026-10-27_1515_fcbadbbed_l1_before.mp4 (ASHES_MOT
 | micro_actor / follower_body / soldier | done | MotionApply.Body (3.3 Hz, staggered): gait override + lean; soldier lean only (combat motion stays with the combat worker until L-7) |
 | ClipPicker crowd variety | done | talk / listen turns pick by verb with no repeat of the last 3 and never the partner's current clip (personality-weighted); fallback to the old lists |
 | Tests | 47/48 + 39/39 | test_clip_picker + test_smart_objects_v2: one perf budget miss (find(needs) 3.06 ms vs 3.0 on a loaded machine); test_motion_rules does not exist yet (M1 merged as "tests pending"); companions / combat / path suites green |
+
+## 2026-10-27 · towns lane · Ashford slice re-gate 2 (real world, shared grade) — FAIL (closer; list below)
+Files: PA_plans/videos/slice_ashford_street_v4.mp4 (14:30), slice_ashford_street_night_v4.mp4 (21:30), slice_ashford_interior_v5.mp4 (13:00); all `--world_macro=real --terrain_backend=terrain3d` (the slice world), Movie Maker 1280x720 30 fps HIGH, 0 script errors.
+| Check | Result | Note |
+|---|---|---|
+| Grade / sky consistency town vs country | PASS (partial) | town now records under the countryside AgX grade + sky; town timber/roof/cloth albedo -25% saturation toward grey-brown (Style G TOWN_DESAT). Sky HDRI swap is the world worker's (in progress) |
+| Camera path | PASS (partial) | root cause found: in the real world the plaza was an NPC routing island (stalls on street mouths and on the well ring) so the route cut through houses; fixed for every town (plaza->street partial routes 260 -> 7 segments). Remaining: brushes standing stones / a kit-house corner at the lane end; NPCs within 1.6 m hidden for the shot |
+| Night | PASS (partial) | kit houses no longer self-lit (bounce/rim emission x0.12 after dusk); warm lamps vs cool sky; no black frames |
+| Interior | PASS (partial) | review camera now films with the room's own Environment (it used the outdoor grade: that was the blue-grey); VoxelGI baked at entry + ReflectionProbe + thin volumetric haze (HIGH); weathered limewash walls (worn_mossy_plasterwall, soft), plank floor. Still: flat light-wood furniture boxes, plain window panes |
+| Street ground | FAIL (world lane) | streets/plaza read as meadow in the real world: the Terrain3D instancer put grass on them; world worker fix in progress |
+| View closer | FAIL | B28 stone chapel (pr_chapel) wired + occluder, but the slice camera looks at the plaza bell tower; chapel placement on the real-world main-street axis not yet confirmed on screen |
+| Edge kit houses (poor lane) | FAIL | still pale plank/plaster boxes next to the hero houses |
+| NPCs / crowd impostors | FAIL (NPC lane) | faceted bodies; grey-blue distant impostors |
+| UI restraint | FAIL (UI lane) | "ASHFORD RING" world sign board and nameplates: core/nameplates.gd + main.gd:1062 station labels (not towns code) |
+**Verdict: FAIL. Not sent.**

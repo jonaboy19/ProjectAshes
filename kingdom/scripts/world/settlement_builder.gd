@@ -453,6 +453,18 @@ func _build_co(s: Dictionary, sync: bool, spread: bool) -> Node3D:
 		var syaw: float = stall_list[i]["yaw"]
 		var st := Transform3D(Basis(Vector3.UP, syaw), Vector3(sp.x, _ground_snap(sp, syaw, stall_size), sp.y))
 		(stalls if i % 2 == 0 else stalls2).append(st)
+	# market-square reflections (audit P0): one ReflectionProbe over the plaza, captured once, Forward+ MEDIUM and up;
+	# wet setts, glass and metal pick up the square instead of the sky alone
+	if int(Quality.tier) >= 1 and RenderingServer.get_current_rendering_method() == "forward_plus" and not CityPlanner.towns_off():
+		var rp := ReflectionProbe.new()
+		rp.name = "PlazaReflection"
+		var pc: Vector2 = s["pos"]
+		rp.size = Vector3(pr * 2.0 + 8.0, 14.0, pr * 2.0 + 8.0)
+		rp.max_distance = pr * 2.0 + 30.0
+		rp.update_mode = ReflectionProbe.UPDATE_ONCE
+		rp.ambient_mode = ReflectionProbe.AMBIENT_DISABLED
+		rp.position = Vector3(pc.x, WorldGen.height(pc.x, pc.y) + 2.5, pc.y)
+		root.add_child(rp)
 	# Keep the current four-model layout; each visible stall gets a box proxy.
 	# Four stall palettes, alternated around the plaza.
 	var st_a: Array[Transform3D] = []

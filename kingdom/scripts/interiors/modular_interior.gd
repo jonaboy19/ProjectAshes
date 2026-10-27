@@ -89,7 +89,53 @@ func _late_setup() -> void:
 	var owner := String(get_meta("building_owner")) if has_meta("building_owner") else ""
 	build_furniture(building_id, owner)
 	sync_roster(WorldSim.time_of_day, true)
+	_add_room_gi()
 
+
+## AAA gap audit P0 (2026-10-28): interiors had no bounce light and no reflections (flat blue-grey). The rooms are built
+## at runtime from layouts, so a LightmapGI cannot be pre-baked per room; VoxelGI can bake at runtime, so a small room
+## gets one (subdiv 64, ~0.1-0.3 s, once, after the furniture is in) plus a ReflectionProbe (update once, box
+## projection). Forward+ MEDIUM and up only; LOW / Compatibility keep the old lights. --nogi disables both (A/B).
+func _add_room_gi() -> void:
+	if not bool(get_meta("embedded", false)) or OS.get_cmdline_user_args().has("--nogi"):
+		return
+	var tier := int(Quality.tier)
+	if tier < 1 or RenderingServer.get_current_rendering_method() != "forward_plus":
+		return
+	var w := float(layout["w"])
+	var d := float(layout["d"])
+	var h := float(layout["h"])
+	var size := Vector3(w + 0.6, h + 0.4, d + 0.6)
+	var centre := Vector3(0.0, h * 0.5, 0.0)
+	var probe := ReflectionProbe.new()
+	probe.name = "RoomReflection"
+	probe.size = size
+	probe.position = centre
+	probe.box_projection = true
+	probe.interior = true
+	probe.update_mode = ReflectionProbe.UPDATE_ONCE
+	probe.ambient_mode = ReflectionProbe.AMBIENT_DISABLED
+	add_child(probe)
+	var gi := VoxelGI.new()
+	gi.name = "RoomGI"
+	gi.size = size
+	gi.position = centre
+	gi.subdiv = VoxelGI.SUBDIV_64
+	add_child(gi)
+	gi.bake()
+	# light shafts: a thin volumetric haze in the room's own Environment (HIGH+), so the window daylight and the
+	# hearth read as beams through dust (audit P0 "FogVolume / interior light shafts"; LOW and MEDIUM off)
+	if tier >= 2 and _env != null:
+		_env.volumetric_fog_enabled = true
+		_env.volumetric_fog_density = 0.035
+		_env.volumetric_fog_albedo = Color(0.95, 0.88, 0.76)
+		_env.volumetric_fog_length = maxf(w, d) + 4.0
+		_env.volumetric_fog_gi_inject = 0.6
+		_env.volumetric_fog_anisotropy = 0.6
+	if gi.data != null:
+		gi.data.energy = 1.2
+		gi.data.interior = true
+		gi.data.use_two_bounces = true
 
 # ------------------------------------------------------------------ geometry
 func _wall_t(wall: String, at: float, w: float, d: float) -> float:

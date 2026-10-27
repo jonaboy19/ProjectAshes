@@ -211,7 +211,7 @@ static func _solid_detail() -> Material:
 	var sm := ShaderMaterial.new()
 	sm.shader = preload("res://shaders/interior/interior_kit_solid.gdshader")
 	const T := "res://assets/cc0/textures/%s/%s_diff_2k.jpg"
-	sm.set_shader_parameter("plaster_tex", load(T % ["rough_plaster_03", "rough_plaster_03"]))
+	sm.set_shader_parameter("plaster_tex", load(T % ["worn_mossy_plasterwall", "worn_mossy_plasterwall"]))
 	sm.set_shader_parameter("wood_tex", load(T % ["old_wood_floor", "old_wood_floor"]))
 	sm.set_shader_parameter("stone_tex", load(T % ["rustic_stone_wall", "rustic_stone_wall"]))
 	_solid_mat = sm

@@ -258,6 +258,13 @@ static func build_view_closer(root: Node3D, s: Dictionary) -> Node3D:
 			node.rotation.y = yaw
 			for body in node.find_children("*", "StaticBody3D", true, false):
 				SQ.tag(body, &"stone", {climbable = true})
+			# occlusion culling (audit P0): the landmark hides the town behind it; box inset so it never culls what peeks round it
+			var occ := OccluderInstance3D.new()
+			var bo := BoxOccluder3D.new()
+			bo.size = bb.size * Vector3(0.8, 0.85, 0.8)
+			occ.occluder = bo
+			occ.position = bb.get_center() * Vector3(1, 0.925, 1)
+			node.add_child(occ)
 			return node
 		d += 2.0
 	return null

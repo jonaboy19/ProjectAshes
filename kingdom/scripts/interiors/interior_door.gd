@@ -225,8 +225,11 @@ func prompt() -> String:
 	# "Enter your home" instead of the generic prompt. Guarded so a build
 	# without Life.property (or a non-house door with no "lot_pos" meta)
 	# behaves exactly as before.
-	if not is_exit and has_meta("lot_pos") and "property" in Life and Life.property != null \
-			and Life.property.is_yours(get_meta("lot_pos")):
+	# (the Life autoload is looked up at run time: a bare `Life` made this script fail to compile in -s QA runs, which
+	# broke every script preloading it - no interior doors in those recordings)
+	var life: Node = get_node_or_null("/root/Life") if is_inside_tree() else null
+	if not is_exit and has_meta("lot_pos") and life != null and "property" in life and life.get("property") != null \
+			and life.get("property").is_yours(get_meta("lot_pos")):
 		return "Enter your home"
 	if model != null and bool(model.call("is_locked")):
 		return "Locked"
