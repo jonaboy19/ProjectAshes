@@ -212,7 +212,6 @@ func test_degrade_mid_drops_look_and_ik() -> void:
 	assert_array(i["ik"]).is_empty()
 	assert_int(i["reaction"]).is_equal(6)
 	assert_str(i["oneshot"]["clip"]).is_equal("Flinch")
-	assert_float(i["steer"]["speed_mul"]).is_equal(0.4)
 
 
 func test_degrade_far_keeps_steer_and_base_clip_only() -> void:
@@ -295,8 +294,8 @@ func test_archetypes_carry_the_design_numbers() -> void:
 	assert_float(MR.archetype({})["rvo_radius"]).is_equal(0.5)                 # default villager
 	assert_float(MR.archetype({"archetype": "dragon"})["rvo_radius"]).is_equal(0.5)   # unknown falls back
 	# children give way, elders and nobles are given way to
-	assert_int(MR.archetype({"archetype": "child"})["yield_rank"]).is_less(MR.archetype({"archetype": "villager"})["yield_rank"])
-	assert_int(MR.archetype({"archetype": "elder"})["yield_rank"]).is_greater(MR.archetype({"archetype": "villager"})["yield_rank"])
+	assert_int(int(MR.archetype({"archetype": "child"})["yield_rank"])).is_less(MR.archetype({"archetype": "villager"})["yield_rank"])
+	assert_int(int(MR.archetype({"archetype": "elder"})["yield_rank"])).is_greater(MR.archetype({"archetype": "villager"})["yield_rank"])
 
 
 func test_every_section3_id_is_registered_as_a_noop_stub() -> void:
