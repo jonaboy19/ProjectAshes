@@ -82,7 +82,7 @@ func context() -> Dictionary:
 	ctx["touch"] = DisplayServer.is_touchscreen_available()
 	var near: Node = player.nearest_interactable() if player.has_method("nearest_interactable") else null
 	ctx["near_npc"] = near != null and near.is_in_group("villager")
-	ctx["near_bed"] = near != null and String(near.get("verb") if "verb" in near else "") == "Sleep"
+	ctx["near_bed"] = near != null and interact_verb(near) == "Sleep"
 	ctx["near_interactable"] = near != null and not ctx["near_npc"] and not ctx["near_bed"]
 	var life := get_node_or_null("/root/Life")
 	if life != null and life.get("needs") != null:
@@ -101,6 +101,15 @@ func context() -> Dictionary:
 		var cb: Callable = providers[k]
 		ctx[k] = cb.is_valid() and bool(cb.call(here))
 	return ctx
+
+
+## The verb of an interactable as a String. `verb` may be absent or null (some interactables expose it as a Callable-backed
+## or unset property): String(null) is an engine error every context pass, so anything that is not a String reads as "".
+static func interact_verb(n: Object) -> String:
+	if n == null:
+		return ""
+	var v: Variant = n.get("verb")
+	return v if v is String or v is StringName else ""
 
 
 func _detect_actions(delta: float) -> void:

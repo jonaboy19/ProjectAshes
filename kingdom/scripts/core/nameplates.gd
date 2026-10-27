@@ -11,6 +11,8 @@ extends RefCounted
 ##
 ## Reference: pixel_size 0.0022 at font 36 is what army/squad.gd's screen-constant banner uses.
 const PX := 0.0016
+const Rule := preload("res://scripts/core/world_label_rule.gd")
+const SettingsStoreN := preload("res://scripts/ui/frontend/settings_store.gd")
 const MAX_DIST := 12.0      # AAA pass 2026-10-06: names only near the player (was 22)
 
 const FADE_CAP := 14.0          # plates are gone by here (bosses / landmarks that ask for more keep it)
@@ -42,6 +44,71 @@ static func style(tag: Label3D, color: Color, font := 30, max_dist := MAX_DIST) 
 	tag.add_to_group("nameplate")
 	tag.visible = not suppressed
 	return tag
+
+
+## Marks a plate as a street label (resident name, station / building name, work spot): under the default "contextual" world-label
+## setting it shows only near + facing / targeted, max 2 at once (world_label_rule.gd). Monster / boss / squad plates are not marked.
+static func contextual(tag: Label3D) -> Label3D:
+	tag.set_meta("np_ctx", true)
+	return tag
+
+
+## Eases a contextual plate (and its subtitle) to `goal` transparency over Rule.FADE_TIME; layers drop to 0 once fully faded.
+static func _fade_to(t: Label3D, goal: float) -> void:
+	if t.has_meta("np_goal") and absf(float(t.get_meta("np_goal")) - goal) < 0.01:
+		return
+	t.set_meta("np_goal", goal)
+	var old: Variant = t.get_meta("np_tw") if t.has_meta("np_tw") else null
+	if old is Tween and (old as Tween).is_valid():
+		(old as Tween).kill()
+	if goal < 0.98:
+		t.layers = 1
+	var dur := maxf(Rule.FADE_TIME * absf(goal - t.transparency), 0.02)
+	var tw := t.create_tween().set_parallel(true)
+	tw.tween_property(t, "transparency", goal, dur)
+	if t.has_meta("np_sub"):
+		var sub: Variant = t.get_meta("np_sub")
+		if sub is Label3D and is_instance_valid(sub):
+			tw.tween_property(sub, "transparency", goal, dur)
+	if goal >= 0.98:
+		tw.chain().tween_callback(func() -> void: t.layers = 0)
+	t.set_meta("np_tw", tw)
+
+
+## Per-plate target alpha under the contextual rule, id -> alpha (absent = not governed). Only the Rule.MAX_VISIBLE best survive.
+static func _contextual_alphas(tree: SceneTree, cam: Camera3D, plates: Array, mode: int) -> Dictionary:
+	var out := {}
+	if mode == Rule.MODE_ALWAYS:
+		return out
+	var pl := tree.get_first_node_in_group("player") as Node3D
+	var ppos := pl.global_position if pl != null else cam.global_position
+	var view := -cam.global_basis.z
+	var targeted: Node = null
+	if pl != null and pl.has_method("nearest_interactable"):
+		targeted = pl.nearest_interactable()
+	var cands: Array = []
+	var pts: Array = []
+	for n in plates:
+		var t := n as Label3D
+		if t != null and t.is_inside_tree() and t.has_meta("np_ctx"):
+			cands.append(t)
+			pts.append(t.global_position)
+	var rows: Array = []
+	for t: Label3D in cands:
+		var par := t.get_parent()
+		var focus := par != null and (par == focus_node() or par == targeted)
+		var gp := t.global_position
+		var a := Rule.target_alpha(mode, ppos.distance_to(gp), Rule.facing_dot(view, cam.global_position, gp), focus,
+			Rule.crowd_count(gp, pts))
+		rows.append({"id": t.get_instance_id(), "alpha": a, "dist": ppos.distance_to(gp), "focus": focus})
+	var shown := Rule.pick_visible(rows)
+	for r: Dictionary in rows:
+		out[r["id"]] = float(r["alpha"]) if shown.has(r["id"]) else 0.0
+	return out
+
+
+static func focus_node() -> Node:
+	return focus if focus != null and is_instance_valid(focus) else null
 
 
 ## A smaller second line (a title such as "Brewmistress") under a plate `tag`: one plate for the owner, not two stacked
@@ -173,9 +240,11 @@ static func refresh(tree: SceneTree, cam: Camera3D) -> void:
 		if t == null or not t.is_inside_tree():
 			continue
 		rows.append({"id": t.get_instance_id(), "dist": cp.distance_to(t.global_position)})
+	var mode := int(SettingsStoreN.get_value("world_labels"))
+	var ctx := _contextual_alphas(tree, cam, plates, mode)
 	var keep := nearest_ids(rows.filter(func(r: Dictionary) -> bool:
 		var t := instance_from_id(int(r["id"])) as Label3D
-		return t != null and t.visible and float(r["dist"]) < float(t.get_meta("np_max", MAX_DIST)) \
+		return t != null and not ctx.has(r["id"]) and t.visible and float(r["dist"]) < float(t.get_meta("np_max", MAX_DIST)) \
 			and not (t.get_parent() != null and bool(t.get_parent().get_meta("np_hide", false)))), MAX_SHOWN)
 	var rects: Array = []
 	for sgn in tree.get_nodes_in_group("world_sign"):
@@ -203,7 +272,8 @@ static func refresh(tree: SceneTree, cam: Camera3D) -> void:
 		if t == null:
 			continue
 		var d := float(r["dist"])
-		var show := keep.has(r["id"]) and not cam.is_position_behind(t.global_position)
+		var governed := ctx.has(r["id"])
+		var show := (governed and t.visible or keep.has(r["id"])) and not cam.is_position_behind(t.global_position)
 		if show:
 			# De-overlap: a plate whose rectangle meets a nearer plate's is hidden (the farther one loses).
 			var rect := screen_rect(cam.unproject_position(t.global_position), t.text, t.font_size, vh, cam.fov)
@@ -218,8 +288,11 @@ static func refresh(tree: SceneTree, cam: Camera3D) -> void:
 		if show and not rects.is_empty():
 			lift = sign_lift(cam.unproject_position(t.global_position), rects, 84.0 * vh / 720.0, MAX_LIFT * vh / 720.0)
 		var a := fade_alpha(d, float(t.get_meta("np_max", MAX_DIST))) if show else 0.0
-		t.layers = 1 if a > 0.02 else 0
-		t.transparency = 1.0 - a
+		if governed:
+			_fade_to(t, 1.0 - minf(a, float(ctx[r["id"]])))
+		else:
+			t.layers = 1 if a > 0.02 else 0
+			t.transparency = 1.0 - a
 		t.pixel_size = snapped_pixel_size(t.font_size, vh, cam.fov)
 		# Label3D.offset is in label pixels; a fixed_size label shows one label pixel as (pixel_size * px_per_unit) screen pixels.
 		t.offset.y = lift / (t.pixel_size * vh / (2.0 * tan(deg_to_rad(cam.fov) * 0.5))) if lift > 0.0 else 0.0

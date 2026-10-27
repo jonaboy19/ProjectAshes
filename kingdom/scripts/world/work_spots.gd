@@ -542,6 +542,7 @@ func _build_markers() -> void:
 			Nameplates.style(lab, Color("f0e0b0"), 28)
 		else:
 			Nameplates.style(lab, Color("f0e0b0"), 20, MARKER_LABEL_NEAR)
+		Nameplates.contextual(lab)
 		lab.position.y = 1.6
 		root.add_child(lab)
 		_markers.add_child(root)
