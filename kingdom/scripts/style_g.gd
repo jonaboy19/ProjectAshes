@@ -508,6 +508,8 @@ static func _polished(role: String, orig: Material, skin_kind: int, tier: String
 	var towns_off := OS.get_cmdline_user_args().has("--townsoff")    # A/B (CityPlanner.towns_off)
 	sm.set_shader_parameter("moss", 0.0 if towns_off else AGE_MOSS.get(role, 0.0))
 	sm.set_shader_parameter("sun_fade", 0.0 if towns_off else AGE_FADE.get(role, 0.0))
+	if role == "boat" and not towns_off:
+		sm.set_shader_parameter("bob", 0.06)
 	if role == "window" and not towns_off:
 		_window_mats.append(sm)
 		sm.set_shader_parameter("glow", _night_k * 2.2)
@@ -736,7 +738,7 @@ static func lion_texture() -> Texture2D:
 
 ## Ordered [token, role] checks on an asset key or GLB file name (first match wins; lower case, ":lodN" and "_lodN" ignored).
 const ASSET_ROLE_TOKENS := [
-	["stall", "stall"], ["stand", "stall"], ["lamp", "lamp"], ["banner", "cloth"], ["bunting", "cloth"], ["sign", "cloth"],
+	["rowboat", "boat"], ["boat", "boat"], ["stall", "stall"], ["stand", "stall"], ["lamp", "lamp"], ["banner", "cloth"], ["bunting", "cloth"], ["sign", "cloth"],
 	["flower", "flowers"], ["wall", "stone"], ["gate", "stone"], ["well", "stone"], ["bridge", "stone"], ["milestone", "stone"],
 	["house", "house"], ["barn", "house"], ["granary", "house"], ["mill", "house"], ["chapel", "house"], ["temple", "house"],
 	["castle", "house"], ["keep", "house"], ["tower", "house"], ["inn", "house"], ["guild", "house"], ["blacksmith", "house"],
@@ -812,7 +814,7 @@ static func restyle_mesh(mesh: ArrayMesh, key: String, tier := "", role := "") -
 			Probe.add("styleg.vcol_copy", _pv)
 		var r := role
 		var by_name := role_for_material(b.resource_name)
-		if by_name != "":
+		if by_name != "" and role != "boat":
 			r = by_name
 		if r == "iron_polished":
 			r = "timber"

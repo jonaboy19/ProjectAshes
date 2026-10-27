@@ -619,6 +619,7 @@ static func _frontage(plan_data: Dictionary, kind: String, seed_value: int) -> v
 			hull = grown[0]
 	plan_data["_hull"] = hull
 	var thatch := float(plan_data.get("roof_thatch", 0.3))
+	_link_lanes(plan_data, polys)      # dangling lane ends join the network (NPC routes; loose villages had lane islands)
 	var first_street := streets.size()
 	_alleys(plan_data, polys, rng)
 	plan_data["alleys_from"] = first_street
@@ -752,6 +753,64 @@ static func _alleys(plan_data: Dictionary, polys: Array, rng: RandomNumberGenera
 				streets.append({"a": at, "b": end, "w": w, "alley": true})
 				mouths.append(at)
 			t += step * rng.randf_range(0.8, 1.25)
+
+
+## A street end that touches no other street (a radial lane starting in the open) gets a short link lane (3 m, appended, `link`)
+## to the nearest point of another street, if that link crosses no building or landmark. Without it the lane and every house on it
+## were an island in the NPC street graph (11 of Ashford's 20 planned houses could not route to the gate road).
+static func _link_lanes(plan_data: Dictionary, polys: Array) -> void:
+	var streets: Array = plan_data["streets"]
+	var n0 := streets.size()
+	var c0: Vector2 = plan_data["centre"]
+	var pr0: float = plan_data["plaza_r"]
+	for i in n0:
+		for end: String in ["a", "b"]:
+			var p: Vector2 = streets[i][end]
+			if absf(p.distance_to(c0) - pr0) < 1.0:
+				continue          # on the plaza edge: StreetGraph joins it to the well ring
+			var other: Vector2 = streets[i]["b"] if end == "a" else streets[i]["a"]
+			if p.distance_to(c0) > other.distance_to(c0):
+				continue          # only the inner end: an outer dead end stays a dead end
+			var touching := false
+			var cands: Array = []        # [distance, point]: the closest point of every other street, nearest first
+			for j2 in n0:
+				if j2 == i:
+					continue
+				var sib: bool = (streets[j2]["a"] as Vector2).is_equal_approx(other) or (streets[j2]["b"] as Vector2).is_equal_approx(other)
+				var q := Geometry2D.get_closest_point_to_segment(p, streets[j2]["a"], streets[j2]["b"])
+				if sib and not ((streets[j2]["a"] as Vector2).is_equal_approx(p) or (streets[j2]["b"] as Vector2).is_equal_approx(p)):
+					continue
+				var d := p.distance_to(q)
+				if d < float(streets[j2]["w"]) * 0.5 + 1.0:
+					touching = true
+					break
+				if d <= 45.0:
+					cands.append([d, q])
+				# also the street's far points, so a link can go round an obstacle in front of the nearest one
+				for f: float in [0.25, 0.5, 0.75]:
+					var q3: Vector2 = (streets[j2]["a"] as Vector2).lerp(streets[j2]["b"], f)
+					if p.distance_to(q3) <= 45.0:
+						cands.append([p.distance_to(q3), q3])
+			if touching:
+				continue
+			var c: Vector2 = plan_data["centre"]
+			var pr: float = plan_data["plaza_r"]
+			if p.distance_to(c) > pr + 1.0 and p.distance_to(c) - pr <= 45.0:
+				cands.append([p.distance_to(c) - pr, c + (p - c).normalized() * pr])
+			cands.sort_custom(func(x: Array, y: Array) -> bool: return float(x[0]) < float(y[0]))
+			for cd: Array in cands:
+				var tq: Vector2 = cd[1]
+				var rect := _seg_rect(p, tq, 0.9)
+				var clear := true
+				for q2: PackedVector2Array in polys:
+					if q2[0].distance_to((p + tq) * 0.5) > p.distance_to(tq) + 16.0:
+						continue
+					if not Geometry2D.intersect_polygons(rect, q2).is_empty():
+						clear = false
+						break
+				if clear:
+					streets.append({"a": tq, "b": p, "w": 1.8, "link": true})
+					break
 
 
 static func _seg_rect(a: Vector2, b: Vector2, hw: float) -> PackedVector2Array:

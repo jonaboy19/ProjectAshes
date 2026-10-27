@@ -74,8 +74,17 @@ func _advance(g: Dictionary, delta: float, focus_p: Vector2) -> void:
 		return
 	var node: Node3D = g["node"]
 	if is_instance_valid(node):
-		node.global_position = Vector3(pos.x, WorldGen.height(pos.x, pos.y), pos.y)
 		var dir := (b - a).normalized()
+		if node.has_meta("wheels"):
+			# drawn wagon: keeps to the right of the road, eases its heading and pitches with the ground
+			pos += Vector2(-dir.y, dir.x) * -1.3
+			var ahead := pos + dir * 2.2
+			var h0 := WorldGen.height(pos.x, pos.y)
+			node.global_position = Vector3(pos.x, h0, pos.y)
+			node.rotation.y = lerp_angle(node.rotation.y, atan2(dir.x, dir.y), minf(1.0, delta * 2.0))
+			node.rotation.x = -atan2(WorldGen.height(ahead.x, ahead.y) - h0, 2.2)
+			return
+		node.global_position = Vector3(pos.x, WorldGen.height(pos.x, pos.y), pos.y)
 		node.rotation.y = atan2(dir.x, dir.y)
 
 

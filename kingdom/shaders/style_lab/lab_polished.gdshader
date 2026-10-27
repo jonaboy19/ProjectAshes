@@ -60,8 +60,13 @@ varying vec3 wnor;
 
 uniform float glow = 0.0;     // towns medieval pass: night windows (StyleG.night_glow sets it on the window material)
 uniform vec3 glow_color : source_color = vec3(1.0, 0.58, 0.26);
+uniform float bob = 0.0;      // towns medieval pass: moored boats ride the water (metres)
 uniform float sway = 0.0;     // towns medieval pass: cloth in the wind (banners, bunting, awnings, laundry): metres per metre of height
 void vertex() {
+	if (bob > 0.0) {
+		float bp = TIME * 1.1 + MODEL_MATRIX[3].x * 0.7 + MODEL_MATRIX[3].z * 0.3;
+		VERTEX.y += bob * sin(bp) + VERTEX.x * 0.04 * sin(bp * 0.8);
+	}
 	if (sway > 0.0) {
 		vec3 wp0 = (MODEL_MATRIX * vec4(VERTEX, 1.0)).xyz;
 		float hgt = max(VERTEX.y - 0.6, 0.0);
