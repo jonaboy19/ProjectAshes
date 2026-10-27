@@ -136,6 +136,8 @@ func _case(name: String, strength: float, sprint: bool, extra := "") -> Dictiona
 	_recording = true
 	for i in 600:            # 10 s: enough stances at sprint cadence for a stable mean
 		await physics_frame
+		_p.set("stamina", 100.0)       # never winded: the measured speed stays the case speed
+		_p.set("_run_time", 0.0)
 		_p.get_viewport().get_camera_3d().global_position = _p.global_position + Vector3(3.0, 1.3, 0.0)
 	_recording = false
 	for a in ["move_forward", "move_back", "move_left", "move_right", "sprint", "block"]:

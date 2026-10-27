@@ -755,7 +755,9 @@ func _update_lock(i: int, delta: float) -> void:
 				_lock_xz[i] = anim_xz + lag.normalized() * LOCK_MAX * k
 	else:
 		_lock_on[i] = false
-	_lock_w[i] = move_toward(_lock_w[i], 1.0 if _lock_on[i] else 0.0, delta / LOCK_BLEND)
+	# a sprint stance lasts ~6 frames: the 3-frame blend would eat half of it, so the blend shortens with speed (1 frame at 7.5 m/s)
+	var blend := LOCK_BLEND * clampf(2.5 / maxf(speed, 0.1), 0.33, 1.0)
+	_lock_w[i] = move_toward(_lock_w[i], 1.0 if _lock_on[i] else 0.0, delta / blend)
 
 
 ## Two-handed weapons: between swings the weapon stands upright beside the body (shortest-arc rotation of its blade axis onto world
