@@ -60,6 +60,8 @@ func _run() -> void:
 	cam.look_at(sx0.origin + Vector3(0, 0.6, 0))
 	cam.current = true
 	var clip := ""
+	ap.play("Idle")
+	ap.advance(0.0)
 	var last_pel := Vector3.INF
 	var worst := {}
 	var seat_err := 0.0
@@ -95,6 +97,10 @@ func _run() -> void:
 		elif c == "" and clip != "":
 			ap.play("Idle", 0.25)
 			clip = ""
+		elif c == "" and out["move_to"] != null and ap.current_animation != "Walk" and ap.has_animation("Walk"):
+			ap.play("Walk", 0.2)
+		elif c == "" and out["move_to"] == null and ap.current_animation == "Walk":
+			ap.play("Idle", 0.2)
 		ap.advance(dt)
 		if clip != "" and not ap.is_playing():
 			done_clip = true
