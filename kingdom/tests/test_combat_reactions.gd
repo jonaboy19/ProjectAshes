@@ -54,3 +54,30 @@ func test_dodge_speed_follows_the_clip_curve_and_distance() -> void:
 		e += dt
 	assert_float(total).is_equal_approx(1.5, 0.12)        # scaled to the dodge distance
 	assert_float(PCM.speed_from_profile(prof, 1.0, 1.5, PCM.DODGE_PLAY_S * 0.5)).is_greater(PCM.speed_from_profile(prof, 1.0, 1.5, 0.0))
+
+
+func test_masked_back_dodge_keeps_travel_and_holds_arms() -> void:
+	var PCM := preload("res://scripts/combat/player_combat_motion.gd")
+	var src := Animation.new()
+	src.length = 1.5
+	var r := src.add_track(Animation.TYPE_POSITION_3D)
+	src.track_set_path(r, NodePath("Skeleton3D:root"))
+	src.position_track_insert_key(r, 0.0, Vector3.ZERO)
+	src.position_track_insert_key(r, 0.5, Vector3.ZERO)
+	src.position_track_insert_key(r, 1.0, Vector3(0, 0, -1.0))
+	src.position_track_insert_key(r, 1.5, Vector3(0, 0, -1.0))
+	var a := src.add_track(Animation.TYPE_ROTATION_3D)
+	src.track_set_path(a, NodePath("Skeleton3D:upperarm_r"))
+	src.rotation_track_insert_key(a, 0.0, Quaternion(Vector3.UP, 1.0))
+	var g := Animation.new()
+	g.length = 1.0
+	var ga := g.add_track(Animation.TYPE_ROTATION_3D)
+	g.track_set_path(ga, NodePath("Skeleton3D:upperarm_r"))
+	g.rotation_track_insert_key(ga, 0.0, Quaternion(Vector3.RIGHT, 0.5))
+	var out := PCM.build_masked(src, g)
+	assert_float(out.length).is_less(1.2)                         # trimmed to the travel window
+	var t := out.find_track(NodePath("Skeleton3D:upperarm_r"), Animation.TYPE_ROTATION_3D)
+	assert_float(out.rotation_track_interpolate(t, 0.2).angle_to(Quaternion(Vector3.RIGHT, 0.5))).is_less(0.01)
+	var p := out.find_track(NodePath("Skeleton3D:root"), Animation.TYPE_POSITION_3D)
+	var travel := out.position_track_interpolate(p, out.length) - out.position_track_interpolate(p, 0.0)
+	assert_float(travel.length()).is_greater(0.8)

@@ -24,6 +24,7 @@ var _rots: Array[Quaternion] = []
 var _pelvis := -1
 var _pelvis_y := NAN
 var _rest_pelvis_y := 0.0
+var _up_axis := 1             ## the pelvis pose axis that is height (UAL: z, the bone space is not y-up)
 
 
 static func attach(sk: Skeleton3D, ap: AnimationPlayer, guard_clip: String) -> SkeletonModifier3D:
@@ -51,8 +52,10 @@ func bind(sk: Skeleton3D, anim: Animation) -> void:
 	_pelvis = sk.find_bone("pelvis")
 	var pt := _track(anim, "pelvis", Animation.TYPE_POSITION_3D)
 	if _pelvis >= 0 and pt >= 0:
-		_pelvis_y = anim.position_track_interpolate(pt, 0.0).y
-		_rest_pelvis_y = sk.get_bone_rest(_pelvis).origin.y
+		var rest := sk.get_bone_rest(_pelvis).origin
+		_up_axis = rest.abs().max_axis_index()
+		_pelvis_y = anim.position_track_interpolate(pt, 0.0)[_up_axis]
+		_rest_pelvis_y = rest[_up_axis]
 
 
 static func _track(anim: Animation, bone: String, type: int) -> int:
@@ -81,6 +84,6 @@ func _process_modification_with_delta(delta: float) -> void:
 	if _pelvis >= 0 and not is_nan(_pelvis_y):
 		var p := sk.get_bone_pose_position(_pelvis)
 		# lower toward the guard height only (never raise a deeper pose), x/z stay the clip's
-		if _pelvis_y < p.y:
-			p.y = lerpf(p.y, _pelvis_y, maxf(weight, crouch))
+		if _pelvis_y < p[_up_axis]:
+			p[_up_axis] = lerpf(p[_up_axis], _pelvis_y, maxf(weight, crouch))
 			sk.set_bone_pose_position(_pelvis, p)

@@ -643,6 +643,7 @@ func _fm01_duel() -> void:
 	await _attack_dir(b, KEY_A, 18)        # directional cuts
 	await _attack_dir(b, KEY_D, 18)
 	await _attack_dir(b, KEY_S, 24)
+	log_line("BACKDODGE")
 	await tap(KEY_SPACE)                   # root-motion back dodge
 	await _hold(b, 22)
 	key(KEY_A, true)                       # side roll
