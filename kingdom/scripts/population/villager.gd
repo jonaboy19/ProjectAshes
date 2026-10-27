@@ -163,6 +163,7 @@ const GREET_RANGE := 3.4
 const BUBBLE_SECONDS := 3.2
 const STEP_RANGE := 11.0
 const _GM := preload("res://scripts/living_world/group_motion.gd")   # by path: no dependency on the global class cache
+const _GR := preload("res://scripts/living_world/gait_rules.gd")    # M8 gait rules, by path (no class-cache dependency)
 const ConversationGroup := preload("res://scripts/living_world/conversation_group.gd")
 const MotionApply := preload("res://scripts/living_world/motion_apply.gd")
 const NpcFootEvents := preload("res://scripts/living_world/npc_foot_events.gd")
@@ -249,6 +250,8 @@ var _mr_oneshot := ""
 static var _MOTION_OFF := OS.has_environment("ASHES_MOTION_OFF")   # A/B gate recordings: old behaviour
 var _pick_hist := PackedStringArray()   # ClipPicker history (last 3 clips)
 var _pick_verb := ""
+var _gr_lean := _GR.lean_new()       # M8 L2 lean spring (pitch, roll + velocities)
+var _gr_heading := 0.0
 var _conv_key := ""                 # conversation circle: turn|role the clip below was picked for
 var _conv_clip := ""
 var _conv_look := Vector3.INF        # conversation circle gaze target (speaker / listener head)
@@ -689,7 +692,15 @@ func _tick_body(delta: float) -> void:
 		Probe.add("villager.anim", _pa)
 	_update_head_look(delta)
 	_foot_contacts()
-	if _mr_lean != 0.0 or (_model_node != null and _model_node.rotation.z != 0.0):
+	if _model_node != null and not _MOTION_OFF and lod_tier <= 1:
+		# M8 L2: lean into turns (roll) and slightly forward with speed (pitch), critically damped; L5: a load adds its lean
+		var yaw_rate := wrapf(_heading - _gr_heading, -PI, PI) / maxf(delta, 0.0001)
+		_gr_heading = _heading
+		var bias := _GR.carry_lean_bias(_carry.kind) if _carry.carrying() else 0.0
+		var roll := _GR.lean_step(_gr_lean, _resolved_speed, yaw_rate, delta, bias)
+		_model_node.rotation.z = roll + _mr_lean
+		_model_node.rotation.x = _GR.lean_pitch(_gr_lean)
+	elif _mr_lean != 0.0 or (_model_node != null and _model_node.rotation.z != 0.0):
 		MotionApply.lean(_model_node, _mr_lean, delta)
 	if _tag != null:     # AAA pass 5: the focused name is drawn by the HUD world icon; plates only with the dev overlay
 		_tag.visible = show_tag and not Nameplates.suppressed and _dev_overlay
@@ -1548,6 +1559,8 @@ func _steer(here: Vector2, delta: float) -> Vector2:
 				if next.length() > 0.01:
 					var sharp := 1.0 - clampf(dir.dot(next.normalized()), 0.0, 1.0)
 					target_speed *= 1.0 - 0.45 * sharp * (1.0 - d / 2.0)
+	if _carry.carrying() and not _MOTION_OFF:
+		target_speed *= _GR.carry_pace_mul(_carry.kind)     # M8 L5: a load slows the pace
 	if _mr_stop:
 		target_speed = 0.0          # a motion rule holds this body still
 	elif _mr_steer != Vector2.ZERO or _mr_speed_mul != 1.0:

@@ -490,3 +490,11 @@ Files: PA_plans/videos/slice_ashford_interior_v13.mp4 (13:00), slice_ashford_str
 | Camera | PARTIAL | 1.2 m clearance first, 0.65 m where narrow; no frames inside walls; still passes close to one Ashford Ring menhir |
 | NPCs / UI labels | other lanes | |
 **Verdict: interior WIP-good (parked); street still FAIL on the menhir pass, the lane-end sheds and the NPC/UI lanes.**
+
+## 2026-10-28 · NPC anim lane · M8 L2 lean + L5 carry pace wired (villager)
+Videos: PA_plans/videos/slice_2026-10-27_1801_635671851_gait_before.mp4 (ASHES_MOTION_OFF=1) vs slice_2026-10-27_1806_591b78391_gait_after.mp4 (slice route, ASHES_CARRY_SHARE=0.6), 0 script errors in both.
+| Check | Result | Note |
+|---|---|---|
+| L2 lean | PASS | GaitRules.lean_step on NEAR/MID villagers: roll into turns (<= 5 deg) and pitch with speed (<= 3 deg) on the model root, critically damped; no tipping or pops on the route |
+| L5 carry | PASS | carry errand loads slow the pace (carry_pace_mul) and add their lean bias (sack forward, crate back) |
+| L3 / L4 / L6 | NOT YET | gait rungs, start / stop / turn transitions and gait sets change which loco clips play: staged next with their own foot-slide gate |
