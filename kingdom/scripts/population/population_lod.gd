@@ -72,7 +72,13 @@ const LOOK_MODEL := {
 	"guard": ["Knight", ["Knight_Helmet", "1H_Sword"]],
 }
 
-var focus := Vector3.ZERO
+## Bands are measured from here. main.gd sets it to the player every frame; when the active camera is far from that
+## (a scripted / cutscene / fly-through camera while the player stays parked) the camera wins, so the people in shot
+## get bodies and VAT instead of far sprites (towns slice footage 2026-10-28: sprites at 3-10 m from the lens).
+var focus := Vector3.ZERO:
+	set(v):
+		focus = _camera_focus(v)
+const SCRIPTED_CAM_GAP := 20.0
 var _full_range := FULL_RANGE
 var _sprite_range := SPRITE_RANGE
 var _vat_range := VAT_RANGE
@@ -245,6 +251,18 @@ func evict_person(id: int) -> void:
 
 func queued_spawns() -> int:
 	return _spawn_queue.size()
+
+
+func _camera_focus(v: Vector3) -> Vector3:
+	if not is_inside_tree():
+		return v
+	var cam := get_viewport().get_camera_3d()
+	if cam == null:
+		return v
+	var c := cam.global_position
+	if Vector2(c.x - v.x, c.z - v.z).length_squared() < SCRIPTED_CAM_GAP * SCRIPTED_CAM_GAP:
+		return v
+	return Vector3(c.x, WorldGen.height(c.x, c.z), c.z)
 
 
 func refresh(step_delta := 0.25, spread := false) -> void:
