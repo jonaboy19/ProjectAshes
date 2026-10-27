@@ -351,6 +351,18 @@ static func build_maps(loc: Vector2i) -> Array[Image]:
 					for di in 4:
 						if i + di < n and j + dj < n:
 							col.set_pixel(i + di, j + dj, Color(t.r, t.g, t.b, 0.5))
+		# The biome tint multiplies every layer: keep it off streets, plazas and roads (path slot 2, cobble slot 4), or Ashford's setts
+		# and packed earth read as yellow-green meadow (towns worker report).
+		for j in n:
+			for i in n:
+				var wd := cbytes.decode_u32((j * n + i) * 4)
+				var base := (wd >> 27) & 31
+				var over := (wd >> 22) & 31
+				var bl := float((wd >> 14) & 255) / 255.0
+				var s := (bl if (over == 2 or over == 4) else 0.0) + ((1.0 - bl) if (base == 2 or base == 4) else 0.0)
+				if s > 0.0:
+					var c := col.get_pixel(i, j)
+					col.set_pixel(i, j, c.lerp(Color(1.0, 1.0, 1.0, 0.5), clampf(s * 1.3, 0.0, 1.0)))
 	return [himg, cimg, col]
 
 

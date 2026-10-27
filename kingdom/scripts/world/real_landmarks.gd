@@ -162,12 +162,28 @@ func _dress_step() -> void:
 		WorkerThreadPool.wait_for_task_completion(_task)
 		_task = -1
 		if _done.size() == 3:
-			_mmi(_wall_mesh, _done[0], 900.0)
-			_mmi(_hedge_mesh, _done[1], 900.0)
-			_mmi(_bush_mesh, _done[2], 700.0)
+			_mmi_cells(_wall_mesh, _done[0], 650.0)
+			_mmi_cells(_hedge_mesh, _done[1], 650.0)
+			_mmi_cells(_bush_mesh, _done[2], 450.0)
 		_done = []
 	if not _field_queue.is_empty():
 		_task = WorkerThreadPool.add_task(_fields.bind(_field_queue.pop_front()), false, "real fields")
+
+
+## Perf gate: one settlement's fields were a single 1.5 km MultiMesh (3.5k walls, 1.8M tris) drawn whole in every shadow cascade.
+## 128 m cells let frustum / cascade culling and the visibility range drop most of it.
+const FIELD_CELL := 128.0
+func _mmi_cells(mesh: Mesh, ts: Array[Transform3D], range_end: float) -> void:
+	var cells: Dictionary = {}
+	for t in ts:
+		var key := Vector2i(floori(t.origin.x / FIELD_CELL), floori(t.origin.z / FIELD_CELL))
+		if not cells.has(key):
+			cells[key] = [] as Array[Transform3D]
+		(cells[key] as Array).append(t)
+	for key: Vector2i in cells:
+		var list: Array[Transform3D] = []
+		list.assign(cells[key])
+		_mmi(mesh, list, range_end)
 
 
 func _mmi(mesh: Mesh, ts: Array[Transform3D], range_end: float) -> void:

@@ -28,6 +28,29 @@ var _bd: Array = []          # --breakdown: [node, phase, base_prims, base_draws
 var _bd_on := false
 
 
+## --mmi_dump: every MultiMeshInstance3D within 150 m of the player with its mesh, instances, triangles and ranges, heaviest first.
+func _mmi_dump() -> void:
+	var pp: Vector3 = (main.get("player") as Node3D).global_position
+	var rows := []
+	for mmi: MultiMeshInstance3D in root.find_children("*", "MultiMeshInstance3D", true, false):
+		var mm := mmi.multimesh
+		if mm == null or mm.mesh == null or not mmi.is_visible_in_tree():
+			continue
+		var c := mmi.global_transform * mm.get_aabb().get_center()
+		if Vector2(c.x - pp.x, c.z - pp.z).length() > 150.0:
+			continue
+		var t := 0
+		for si in mm.mesh.get_surface_count():
+			var arr := mm.mesh.surface_get_arrays(si)
+			var idx: Variant = arr[Mesh.ARRAY_INDEX]
+			t += (idx as PackedInt32Array).size() / 3 if idx != null else (arr[Mesh.ARRAY_VERTEX] as PackedVector3Array).size() / 3
+		var n := mm.visible_instance_count if mm.visible_instance_count >= 0 else mm.instance_count
+		rows.append([t * n, t, n, mm.mesh.resource_path if mm.mesh.resource_path != "" else String(mm.mesh.resource_name), String(mmi.get_parent().name) + "/" + String(mmi.name), mmi.visibility_range_end, mmi.cast_shadow, mm.get_aabb().size])
+	rows.sort_custom(func(a, b): return a[0] > b[0])
+	for r in rows.slice(0, 40):
+		print("[route] MMI tris=%9d per=%6d n=%6d range=%5.0f shadow=%d aabb=%s mesh=%s at %s" % [r[0], r[1], r[2], r[5], r[6], r[7], r[3], r[4]])
+
+
 func _collect(n: Node, depth: int) -> void:
 	for c in n.get_children():
 		if c is Node3D and (c as Node3D).visible and not (c is Camera3D) and not (c is Light3D):
@@ -134,6 +157,11 @@ func _process(dt: float) -> bool:
 		player.visible = true
 		print("[route] config world_macro=", WorldMacro.mode(), " real=", RealWorld.active(), " t3d_region_m=", Terrain3DBridge.region_m(), " slice=", not OS.get_cmdline_user_args().has("--slice_off"))
 		return false
+	if frame == BOOT + 240 and OS.get_cmdline_user_args().has("--mmi_dump"):
+		_mmi_dump()
+		_perf()
+		quit()
+		return true
 	if frame == BOOT + 240 and OS.get_cmdline_user_args().has("--breakdown"):
 		_bd_on = true
 		Input.action_release("move_forward")
