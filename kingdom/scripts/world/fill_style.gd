@@ -28,9 +28,9 @@ const TREAT := {
 	"buildings/house_cottage_chimney": {"saturation": 0.72, "value_gain": 0.9},
 	"buildings/butcher_house": {"saturation": 0.75, "value_gain": 0.92},
 	"buildings/blacksmith_thatch_stone": {"saturation": 0.8},
-	"farm/shed_plank_low": {"saturation": 0.65, "value_gain": 0.9},
-	"farm/shed_thatch_small": {"saturation": 0.55, "value_gain": 0.85},
-	"farm/shed_wood_shingle": {"saturation": 0.65, "value_gain": 0.9},
+	"farm/shed_plank_low": {"saturation": 0.6, "value_gain": 0.6},     # towns gate: read pale at the Ashford lane end
+	"farm/shed_thatch_small": {"saturation": 0.5, "value_gain": 0.62},
+	"farm/shed_wood_shingle": {"saturation": 0.6, "value_gain": 0.62},
 	"farm/chicken_coop_fenced": {"saturation": 0.7, "value_gain": 0.92},
 	"farm/hay_bale_round": {"role": "goods", "saturation": 0.5, "value_gain": 0.82},
 	"farm/hay_bale_rect_a": {"role": "goods", "saturation": 0.55, "value_gain": 0.88},

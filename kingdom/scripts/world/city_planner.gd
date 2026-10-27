@@ -621,8 +621,11 @@ const FRONT_GAP := 0.35          # rich / burgher: metres between two footprints
 const POOR_GAP := 0.05           # poor rows: eave to eave
 const FRONT_STEP := 1.0
 const FRONT_MAX_FRACTION := 2.5  # at most this many new lots per planned lot
-const RICH := ["house_narrow_c"]
-const BURGHER := ["house_narrow_a", "house_narrow_b", "house_narrow_c"]
+## Pre-release (coordinator 2026-10-28: old saves are not a constraint): the main street and plaza edges are the refined
+## Tudor / timber houses (props_refined/buildings), the burgher streets mix them with the kit, the poor quarter keeps the
+## cottages (B60) and the kit.
+const RICH := ["house_ref_tall", "house_ref_dormer", "house_ref_stone", "house_ref_row", "house_ref_corner", "house_ref_tall"]
+const BURGHER := ["house_ref_tall", "house_ref_dormer", "house_narrow_a", "house_narrow_b", "house_narrow_c"]
 const POOR := ["house_narrow_poor_a", "house_narrow_poor_b", "house_narrow_poor_a", "house_hovel_a", "house_hovel_b"]
 const HOVELS := ["house_hovel_a", "house_hovel_b", "house_narrow_poor_a"]
 const KIT_THATCH := ["house_narrow_b", "house_narrow_poor_a", "house_hovel_a", "house_hovel_b"]
@@ -1019,8 +1022,12 @@ static func _frontage_ok(p: Vector2, yaw: float, asset: String, c: Vector2, r: f
 			return false
 	# no street, lane or gate road may run through it (its own street included: the front stays 0.6 m off the edge)
 	var pts := Array(poly)
-	for i in 4:
-		pts.append((poly[i] + poly[(i + 1) % 4]) * 0.5)
+	for i in 4:      # every metre along each edge: a 20 m row front used to straddle a 1.6 m alley between its corner samples
+		var e0: Vector2 = poly[i]
+		var e1: Vector2 = poly[(i + 1) % 4]
+		var ns := maxi(2, int(e0.distance_to(e1)))
+		for k in range(1, ns):
+			pts.append(e0.lerp(e1, float(k) / ns))
 	pts.append(p)
 	for st: Dictionary in streets:
 		for v: Vector2 in pts:
