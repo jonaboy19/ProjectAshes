@@ -9,6 +9,7 @@ const INTERIORS := [
 	"res://scenes/interiors/inn_interior.tscn",
 	"res://scenes/interiors/blacksmith_interior.tscn",
 ]
+const FRESH := "res://scenes/interiors/chapel_interior.tscn"
 const SOURCES := [
 	"res://scripts/interiors/interior_door.gd",
 	"res://scripts/interiors/dungeon_root.gd",
@@ -30,10 +31,11 @@ func _drain(max_polls := 500) -> void:
 
 
 func test_three_interiors_load_through_queue() -> void:
-	var got := {}
-	Loader.request_many(INTERIORS, func(r: Dictionary) -> void: got = r)
-	assert_dict(got).is_empty()                 # request never blocks the caller
+	var box := {}
+	Loader.request_many(INTERIORS, func(r: Dictionary) -> void: box.merge(r))
+	assert_dict(box).is_empty()                 # request never blocks the caller
 	_drain()
+	var got := box
 	assert_int(got.size()).is_equal(3)
 	for p: String in INTERIORS:
 		assert_object(got[p]).is_instanceof(PackedScene)
@@ -82,12 +84,12 @@ func test_defer_runs_within_budget_queue() -> void:
 
 func test_door_enters_after_async_load() -> void:
 	var door := InteriorDoor.new()
-	door.interior_scene = INTERIORS[2]
+	door.interior_scene = FRESH
 	add_child(door)
 	var player := Node3D.new()
 	player.add_to_group("player")
 	add_child(player)
-	assert_bool(Loader.is_ready(INTERIORS[2])).is_false()
+	assert_bool(Loader.is_ready(FRESH)).is_false()
 	door.enter(player, true)
 	assert_object(door.interior).is_null()       # not built in the pressing frame
 	_drain()
