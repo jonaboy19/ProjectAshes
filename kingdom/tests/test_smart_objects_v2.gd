@@ -440,7 +440,7 @@ func test_budget_find_with_needs_and_session_update() -> void:
 		s.update(0.001, Vector3(30, 0, 30), false)
 	var per_update := float(Time.get_ticks_usec() - t2) / 10000.0
 	print("M7 BUDGET  find(needs, 400 spots) %.1f us   find(old filter) %.1f us   Session.update(APPROACH, arc) %.2f us" % [per_find, per_old, per_update])
-	assert_float(per_find).is_less(3000.0)
+	assert_float(per_find).is_less(1500.0)       # was 3000; measured ~0.5-0.7 ms (1.8-2.2 ms before the per-type cache)
 	assert_float(per_update).is_less(100.0)
 
 
