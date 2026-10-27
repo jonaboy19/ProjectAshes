@@ -140,6 +140,8 @@ const BUILDINGS := {
 	"stable": [GEN + "village_barn.glb", 0.0, GEN + "village_barn_lod1.glb", 45.0, GEN + "village_barn_lod2.glb", 100.0],
 	"sawmill": [VILLAGE + "Buildings/FBX/Sawmill.fbx", 12.0],
 	"mill": [VILLAGE + "Buildings/FBX/Mill.fbx", 11.0],
+	# Towns medieval pass: the same mill split in Blender (tools/blender_towns/split_mill.py): body + sails turning on their hub
+	"mill_body": [GEN + "town_small/mill_body.glb", 11.0],
 	"bell_tower": [GEN + "bell_tower.glb", 0.0],
 	"chapel": [GEN + "chapel.glb", 0.0, GEN + "chapel_lod1.glb", 60.0, GEN + "chapel_lod2.glb", 130.0],
 	"market_stand_1": [MESHY + "stall_produce_lod0.glb", 3.8, MESHY + "stall_produce_lod1.glb", 40.0],
