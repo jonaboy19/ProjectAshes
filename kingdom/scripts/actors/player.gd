@@ -586,7 +586,7 @@ func face_mood(m: String) -> void:
 
 
 func _build_body() -> void:
-	var props: Array[String] = ["1H_Sword", "Round_Shield"]
+	var props: Array[String] = ["1H_Sword", "Kite_Shield"]   # Poly Haven kite shield (falls back to the round one if missing)
 	var look: Variant = Life.get("appearance")
 	var body: Node3D = null
 	if look is Dictionary and not (look as Dictionary).is_empty():

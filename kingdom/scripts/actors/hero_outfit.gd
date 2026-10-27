@@ -174,8 +174,13 @@ static func dress(model: Node3D, parts: Array = []) -> MeshInstance3D:
 			prev_b = bk
 	_part("pouch")
 	# --- pouch on the left front of the belt --------------------------------------------------------------------
-	_piece(M.LEATHER, belt_y, 0.4 * unit, true)
-	_box(st, Vector3(cx + rb.x * 0.62, belt_y - 0.06 * unit, cz + rb.y * 0.92), Vector3(0.09, 0.09, 0.04) * unit, 0.0, [pel, thl], [0.8, 0.2], LEATHER)
+	var pouch_at := Vector3(cx + rb.x * 0.62, belt_y - 0.06 * unit, cz + rb.y * 0.92)
+	if ResourceLoader.exists(POUCH):
+		if _parts.is_empty() or _parts.has("belt"):
+			_attach_pouch(pel, pouch_at, unit)       # the refined leather pouch (props_refined) instead of the box
+	else:
+		_piece(M.LEATHER, belt_y, 0.4 * unit, true)
+		_box(st, pouch_at, Vector3(0.09, 0.09, 0.04) * unit, 0.0, [pel, thl], [0.8, 0.2], LEATHER)
 	_part("jerkin")
 	# --- leather jerkin over the green tunic: open at the front, waist to armpits ------------------------------------
 	if sp3 >= 0 and sp1 >= 0:
@@ -396,6 +401,29 @@ static func _b(names: Array) -> int:
 		if i >= 0:
 			return i
 	return -1
+
+
+## Refined belt pouch (tools/blender/props/refine_lib.py, Meshy geometry + CC0 scan materials): a rigid prop on the pelvis bone,
+## its front along the body's +z, 16 cm tall on a 0.45 m thigh. Kept out of the hand-prop holster pass (pelvis, not a hand bone).
+const POUCH := "res://assets/props_refined/belt_pouch/belt_pouch.glb"
+
+
+static func _attach_pouch(pel: int, at: Vector3, unit: float) -> void:
+	if _sk.has_node("BeltPouch"):
+		return
+	var att := BoneAttachment3D.new()
+	att.name = "BeltPouch"
+	att.bone_name = _sk.get_bone_name(pel)
+	_sk.add_child(att)
+	var prop: Node3D = (load(POUCH) as PackedScene).instantiate()
+	var box := Assets.visual_aabb(prop)
+	var tall := maxf(box.size.y, 0.001)
+	var k := 0.16 * unit / tall
+	var place := Transform3D(Basis.IDENTITY.scaled(Vector3.ONE * k), at - Vector3(0, (box.position.y + box.size.y * 0.5) * k, 0))
+	prop.transform = _sk.get_bone_global_rest(pel).affine_inverse() * place
+	for gi in prop.find_children("*", "GeometryInstance3D", true, false):
+		(gi as GeometryInstance3D).cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_ON
+	att.add_child(prop)
 
 
 static func _pos(i: int) -> Vector3:

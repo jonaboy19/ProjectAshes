@@ -369,6 +369,7 @@ static func mesh_of(asset_name: String) -> Mesh:
 const MH_DIR := "res://assets/generated/characters/"
 ## Guard gear from the armor library (CC-BY 3.0: Lotnik; Jacques Fourie; see CREDITS.md).
 const GUARD_HELM := "res://assets/incoming/armor/opengameart/cc-by/anglo-saxon-helmets/anglo_saxon_helm2.glb"
+const KITE_SHIELD := "res://assets/incoming/polyhaven/models/kite_shield/kite_shield_1k.gltf"
 const ARMING_SWORD := "res://assets/generated/props/weapons/arming_sword.glb"
 const GUARD_SHIELD := "res://assets/incoming/armor/polypizza_sel/shield_round_wood_boss.glb"
 ## Look names -> MakeHuman character GLBs (one is picked at random).
@@ -511,6 +512,9 @@ static func mh_character(file: String, height: float, keep: Array[String] = [], 
 			# arming sword (tools/blender/props/build_arming_sword.py): 95 cm, origin at the grip, blade along +Y like the KayKit set
 			_attach(skeleton, "hand_r", ARMING_SWORD if ResourceLoader.exists(ARMING_SWORD) else WEAPONS + "Sword_Bronze.gltf", 0.95, Vector3(0.05, 0.02, 0), Vector3(0, 0, -90))
 			# Poly Haven kite_shield (CC0 scan): 95 cm, point down, face out from the forearm
+		elif part.contains("Kite_Shield") and ResourceLoader.exists(KITE_SHIELD):
+			# Poly Haven kite_shield (CC0 scan, 10k tris, 1K PBR, double-sided): 95 cm, point down, face out from the forearm
+			_attach(skeleton, "lowerarm_l", KITE_SHIELD, 0.95, Vector3(0.13, 0, 0.06), Vector3(0, 90, 0))
 		elif part.contains("Shield"):
 			_attach(skeleton, "lowerarm_l", GUARD_SHIELD, 0.65, Vector3(0.12, 0, 0.08), Vector3(0, 90, 0))
 	var anim := AnimationPlayer.new()

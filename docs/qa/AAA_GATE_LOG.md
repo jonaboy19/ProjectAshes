@@ -227,3 +227,13 @@ Files: `PA_plans/videos/WIP_combat_full_motion_slice_road_sword2_v8.mp4` (1v1), 
 - NPC rhythm: a hurt bandit (< 40 % HP) backs off 0.8-1.5 s at 45 % chance; 18 % of swings against the player are feints (the wind-up shows, then is pulled at 55 % of the way to the contact, no damage).
 - 1v3: one bandit engages and the other two circle at 3.6 m (tokens). Readable on the wide camera; one circler still passes close to the lens.
 - Verdict: 1v1 on the road reads as a fight (approach, exchanges, knockdown, get-up, recoils). Still FAIL vs ref 03: stylised orange/golden trees in the background (world lane), player dodges/footwork unchanged, no foot IK during lunges, no lock-on pivots.
+
+## 2026-10-27 Player props pass: kite shield + refined belt pouch (player-animation worker) - PASS (lookdev), gameplay distance pending
+Viewed: loco_movie idle, adult, sheathed (shield on the back), front / three-quarter / side ortho frames (scratch, not kept: /tmp was cleared before the copy).
+| Check | Result | Note |
+|---|---|---|
+| Kite shield replaces the round shield on the player | PASS | Poly Haven kite_shield (CC0 scan, 10.3k tris, 1K PBR, double-sided materials), 95 cm. Bandits keep the round shield |
+| No pale flat square from some angles (combat report) | PASS (expected) | the old round-shield GLB is no longer on the player; the kite scan is double-sided with real thickness |
+| Belt pouch | PASS (lookdev) | refined pouch (props_refined, Meshy geometry + CC0 scan materials) on the pelvis, front-left of the belt, 16 cm; replaces the procedural box on the Tier-A hero |
+| Sheathed sword at the hip | WATCH | the 95 cm blade hangs nearly to the ankle and crosses the back of the thigh in side view. Needs a steeper scabbard angle check in motion |
+| Side-on movement review (starts/stops/180) | BLOCKED | the side camera was fixed (it lived in the root viewport, but the game renders in a SubViewport). The re-record is waiting on RAM (517-657 MB free; the recorder now refuses below 3 GB) |

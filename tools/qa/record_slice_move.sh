@@ -9,6 +9,9 @@ FF="${FFMPEG:-/c/Users/Jonna/AppData/Local/Microsoft/WinGet/Packages/Gyan.FFmpeg
 OUT="${OUT:-/tmp/slice_move}"
 mkdir -p "$OUT"
 cd "$REPO/kingdom"
+# RAM gate (coordinator 2026-10-27: the driver crashes at low memory): skip unless at least 3 GB is free
+FREE_MB=$(powershell -NoProfile -Command "[int]((Get-CimInstance Win32_OperatingSystem).FreePhysicalMemory/1024)" | tr -d '')
+if [ "${FREE_MB:-0}" -lt 3072 ]; then echo "SKIP: only ${FREE_MB} MB RAM free (< 3 GB)"; exit 3; fi
 PLAYTEST_MOVIE=1 PLAYTEST_MOVIE_FPS=30 PLAYTEST_STAGES=slice_move PLAYTEST_OUT="$(cygpath -m "$OUT")" PLAYTEST_SHOTS="$(cygpath -m "$OUT")/shots" \
   timeout 1800 "$G" --path . scenes/main.tscn --resolution 1280x720 --fixed-fps 30 --write-movie "$(cygpath -m "$OUT/$TAG.avi")" \
   -- --quality=low --adult ${WORLD_ARGS---terrain_backend=terrain3d --world_macro=real} --qa=res://tools_qa/playtest_bot/playtest_bot.gd > "$OUT/$TAG.out.txt" 2>&1
@@ -28,4 +31,5 @@ sp=[(i,x) for i,x in enumerate(v) if med>0 and x>3*med and x>2.0]
 open(sys.argv[2],'w').write("frames %d median %.2f spikes %d\n"%(len(v),med,len(sp))+"".join("frame %d t=%.2fs diff %.1f\n"%(i,i/30,x) for i,x in sp))
 print(open(sys.argv[2]).read()[:800])
 PY
+rm -f "$OUT/$TAG.avi"      # disk is tight: the raw AVI goes as soon as the MP4 exists
 echo "$OUT/$TAG.mp4"

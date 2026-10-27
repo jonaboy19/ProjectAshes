@@ -26,6 +26,8 @@ func run(bot: Node) -> void:
 	var fwd := Vector2(0, 1)
 	b.L("SLICEFRAME %d" % Engine.get_frames_drawn())   # movie frame of the route start: the recorder cuts the loading screen here
 	_log_loop()
+	if OS.get_environment("SLICE_CAM") == "side":
+		_side_cam_loop()
 	await b.wait(2.0)                                     # idle
 	await _go(start + fwd * 8.0, false, 0.0)              # walk start + walk
 	await _go(start + fwd * 20.0, true, 0.0)              # run
@@ -58,6 +60,9 @@ func run(bot: Node) -> void:
 
 
 func _go(target: Vector2, run_: bool, _yaw: float) -> void:
+	var d := target - Vector2(player.global_position.x, player.global_position.z)
+	if d.length() > 0.5:
+		_side_dir = Vector3(-d.y, 0.0, d.x).normalized()      # left of the leg: the camera sees the body side-on
 	await b.walk_to(target, 1.0, 20.0, run_, 4.0)
 
 
@@ -130,3 +135,24 @@ func _clear_start(centre: Vector2) -> Vector2:
 				return st
 	b.L("SLICEROUTE no clear ground found; falling back to the town square")
 	return centre + Vector2(4, 4)
+
+
+## SLICE_CAM=side: a review camera 4.5 m to the side of the current leg at hip height, so starts, stops and turns in place show
+## the feet (stepping around vs spinning on the spot). It follows the player smoothly and is made current every frame.
+var _side_dir := Vector3(1, 0, 0)
+var _cam: Camera3D
+
+
+func _side_cam_loop() -> void:
+	_cam = Camera3D.new()
+	_cam.fov = 45.0
+	player.get_parent().add_child(_cam)          # the game renders in a SubViewport: the camera must live in the player's world
+	var at := player.global_position
+	while _logging and is_instance_valid(player):
+		await RenderingServer.frame_pre_draw      # after every node's _process: the player camera cannot take the view back
+		at = at.lerp(player.global_position, 0.12)
+		var want := at + _side_dir * 4.5 + Vector3(0, 1.0, 0)
+		_cam.global_position = _cam.global_position.lerp(want, 0.08) if _cam.global_position.distance_to(want) < 6.0 else want
+		_cam.look_at(at + Vector3(0, 0.85, 0))
+		_cam.make_current()
+	_cam.queue_free()
