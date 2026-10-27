@@ -4315,7 +4315,14 @@ func st_stand_at(world_pos: Vector2, label: String, tol := 2.2) -> void:
 	await st_travel(world_pos, label, tol)
 
 
+var st_died_on_way := false    ## the player died before the E press (the road is dangerous): not the stone's blame, the loop retries
+
+
 func st_press_e_menu(label: String) -> bool:
+	st_died_on_way = await ensure_alive()
+	if st_died_on_way:
+		L("died on the way to %s: respawned at home, the story loop travels again" % label)
+		return false
 	close_everything()
 	var cand: Dictionary = Interaction.best(player)
 	L("E at %s: best candidate %s" % [label, str(Interaction.node_of(cand))])
@@ -4391,7 +4398,8 @@ func st_carve_at_stone(net_id: int, glyph: String, label: String, via_in := "Car
 	face(Vector2(sp.x, sp.z), -0.1)
 	await st_find_stone_prompt(Vector2(sp.x, sp.z))
 	if not await st_press_e_menu(label):
-		st_blocker("E at %s opened no stone menu (best %s, %.1f m from the stone)" % [label, str(Interaction.node_of(Interaction.best(player))), p2().distance_to(Vector2(sp.x, sp.z))])
+		if not st_died_on_way:
+			st_blocker("E at %s opened no stone menu (best %s, %.1f m from the stone)" % [label, str(Interaction.node_of(Interaction.best(player))), p2().distance_to(Vector2(sp.x, sp.z))])
 		return false
 	if not await click_option(via):
 		st_blocker("the stone menu at %s has no '%s' (%s)" % [label, via, str(menu_texts()).left(160)])
@@ -4477,7 +4485,8 @@ func st_stone_menu_option(net_id: int, needle: String, label: String) -> bool:
 	face(Vector2(sp.x, sp.z), -0.1)
 	await st_find_stone_prompt(Vector2(sp.x, sp.z))
 	if not await st_press_e_menu(label):
-		st_blocker("E at %s opened no stone menu" % label)
+		if not st_died_on_way:
+			st_blocker("E at %s opened no stone menu" % label)
 		return false
 	var ok := await click_option(needle)
 	if not ok:
