@@ -70,6 +70,10 @@ func add_asset(a: VatAsset) -> void:
 	mat.set_shader_parameter("vat_pos", a.pos_tex)
 	mat.set_shader_parameter("vat_nrm", a.nrm_tex)
 	mat.set_shader_parameter("vat_fps", a.fps)
+	var at: Variant = a.get("albedo_tex")
+	if at is Texture2D:
+		mat.set_shader_parameter("albedo_tex", at)        # same atlas as the skeletal body: far figures match near ones
+		mat.set_shader_parameter("use_atlas", true)
 	for lod in 2:
 		var mesh: ArrayMesh = a.mesh if lod == 0 else a.mesh_far
 		if mesh == null:

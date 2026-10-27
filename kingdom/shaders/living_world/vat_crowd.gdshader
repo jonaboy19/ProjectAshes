@@ -7,12 +7,16 @@ shader_type spatial;
 //       the exact pose)
 //   z = playback speed (0 = frozen)
 //   w = clothing tint packed as r*65536 + g*256 + b (0..255 each, 128 = unchanged); skin/hair (mask 0) untinted
-// Mesh: COLOR.rgb = baked albedo (linear), COLOR.a = tint mask; UV2.x = texture column of the vertex.
+// Mesh: COLOR.rgb = baked albedo (linear; with use_atlas: vertex colour x material colour, the atlas comes from UV1),
+// COLOR.a = tint mask; UV2.x = texture column of the vertex.
 render_mode cull_back, specular_disabled, diffuse_lambert;
 
 uniform sampler2D vat_pos : filter_nearest, repeat_disable;
 uniform sampler2D vat_nrm : filter_nearest, repeat_disable;
 uniform float vat_fps = 10.0;
+// The look's character atlas (VatAsset.albedo_tex, mesh UV1): the same texture the skeletal body samples. Off = baked COLOR.
+uniform sampler2D albedo_tex : source_color, filter_linear_mipmap;
+uniform bool use_atlas = false;
 uniform vec4 debug_tint = vec4(0.0);   // QA: LOD visualisation (a = strength)
 global uniform float vat_time;
 // Distance dither fade-out at the VAT band edge (PopulationLOD: VatCrowd.set_fade). 0 = off.
@@ -21,6 +25,7 @@ uniform float fade_len = 18.0;
 varying float v_cam_d;
 
 varying vec3 v_albedo;
+varying vec3 v_tint;
 
 void vertex() {
 	float packed = INSTANCE_CUSTOM.x;
@@ -44,7 +49,8 @@ void vertex() {
 	NORMAL = normalize(mix(na, nb, w));
 	float tp = INSTANCE_CUSTOM.w;
 	vec3 tint = vec3(floor(tp / 65536.0), mod(floor(tp / 256.0), 256.0), mod(tp, 256.0)) / 128.0;
-	v_albedo = COLOR.rgb * mix(vec3(1.0), tint, COLOR.a);
+	v_tint = mix(vec3(1.0), tint, COLOR.a);
+	v_albedo = COLOR.rgb * v_tint;
 	v_cam_d = length(INV_VIEW_MATRIX[3].xyz - MODEL_MATRIX[3].xyz);
 }
 
@@ -58,6 +64,7 @@ void fragment() {
 			discard;
 		}
 	}
-	ALBEDO = mix(v_albedo, debug_tint.rgb, debug_tint.a);
+	vec3 alb = use_atlas ? texture(albedo_tex, UV).rgb * v_albedo : v_albedo;   // atlas x (vertex colour x material) x tint
+	ALBEDO = mix(alb, debug_tint.rgb, debug_tint.a);
 	ROUGHNESS = 0.9;
 }

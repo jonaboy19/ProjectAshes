@@ -67,8 +67,8 @@ func begin() -> void:
 
 ## Draw resident `id` as VAT. Returns false when the cap is reached or no bake fits (caller draws a sprite).
 ## phase: WorldSim schedule phase (0 home, 1 work, 2 market). ground_y: terrain height at pos.
-func want(id: int, pos: Vector2, target: Vector2, job: int, phase: int, ground_y: float) -> bool:
-	if not _live.has(id) and _live.size() >= cap:
+func want(id: int, pos: Vector2, target: Vector2, job: int, phase: int, ground_y: float, force := false) -> bool:
+	if not _live.has(id) and _live.size() >= cap and not force:      # force: inside the no-sprite radius (PopulationLOD)
 		return false
 	var look := _look_for(id, job)
 	if look == "" or not crowd.assets.has(look):

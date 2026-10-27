@@ -1,10 +1,10 @@
 shader_type spatial;
-render_mode unshaded, cull_disabled;
+render_mode cull_disabled, specular_disabled, diffuse_lambert;   // lit like the VAT / body tiers (was unshaded: flat grey ghosts in the street)
 // Directional sprite impostor. A camera-facing (Y-axis) quad that picks one of
 // four baked views (front, left, back, right) from the angle between the camera
 // and the unit's facing, so a distant soldier turns like an old-school sprite.
 
-uniform sampler2D atlas : source_color, filter_nearest;
+uniform sampler2D atlas : source_color, filter_linear;
 uniform float frames = 4.0;
 uniform float light = 1.0;
 // Distance dither fade (PopulationLOD sets it to its sprite band): residents entering / leaving the band fade in /
@@ -31,6 +31,8 @@ void vertex() {
 	float ang = atan(to_cam.x, to_cam.z) - atan(fwd.x, fwd.z);
 	v_cam_d = length(INV_VIEW_MATRIX[3].xyz - origin);
 	v_frame = mod(floor(mod(ang + PI * 0.25 + TAU * 4.0, TAU) / (PI * 0.5)), frames);
+	// lighting normal: facing the camera, tipped up a little (a standing figure catches sky and sun from above)
+	NORMAL = normalize(inverse(mat3(MODEL_MATRIX)) * normalize(to_cam + vec3(0.0, 0.45, 0.0)));
 }
 
 void fragment() {
@@ -58,4 +60,5 @@ void fragment() {
 		}
 	}
 	ALBEDO = c.rgb * light;
+	ROUGHNESS = 0.9;
 }

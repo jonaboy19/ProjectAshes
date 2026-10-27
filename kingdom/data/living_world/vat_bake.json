@@ -1,7 +1,7 @@
 {
- "_doc": "VAT bake set for the far crowd tier (tools_qa/living_world/vat_bake.gd). fps: rows per second (the shader interpolates between rows). target_tris: reduced mesh size (LOD picked from ImporterMesh.generate_lods on the _lod1 model). A clip missing from the rig is skipped with a warning. Clip sets are kept short: every clip costs vertex_count x frames x 12 bytes of texture per look. Budget: ~2 MB of texture per adult look (~1300 tris, 6 fps interpolated; the next meshoptimizer LOD, ~680 tris, collapses feet and hands into spikes); LOW loads only the looks VatResidents needs near the player.",
+ "_doc": "VAT bake set for the far crowd tier (tools_qa/living_world/vat_bake.gd). fps: rows per second (the shader interpolates between rows). target_tris: reduced mesh size (LOD picked from ImporterMesh.generate_lods on the _lod1 model). A clip missing from the rig is skipped with a warning. Clip sets are kept short: every clip costs vertex_count x frames x 12 bytes of texture per look. Budget: ~2 MB of texture per adult look (~1300 tris, 6 fps interpolated; the next meshoptimizer LOD, ~680 tris, collapses feet and hands into spikes); LOW loads only the looks VatResidents needs near the player. 2026-10-28: near mesh 2200 tris (it is now drawn inside 15 m when the body budget is full, and samples the body atlas), far mesh = the next LOD (~1300).",
  "fps": 6,
- "target_tris": 1300,
+ "target_tris": 2200,
  "clip_sets": {
   "adult": [
    "Idle",

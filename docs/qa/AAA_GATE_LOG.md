@@ -422,3 +422,13 @@ File: `docs/plans/props_refined/interior_sheet.jpg`; verdicts are in `docs/plans
 | PASS | stool_three_leg, chair_woven, chest_iron, shelf_pottery, herbs_rack, window_closed, window_open, beam_2m/3m/4m, post_2m/3m |
 | PASS (borderline) | bed_rope (the blanket reads light, not heavy wool), floor_rushes (opaque mat; a decal would blend better) |
 Not in-game yet: the towns worker places them and re-gates in the actual rooms.
+
+## 2026-10-28 · NPC anim lane · crowd far tier: grey-blue ghosts and a pixel person in the Ashford street (towns v4) — FIXED
+Video: PA_plans/videos/street_alley_after_vatatlas.mp4 (same towns fly-through, HIGH) vs slice_ashford_street_v4.mp4.
+| Problem | Cause | Fix |
+|---|---|---|
+| grey-blue ghost figures at 15-60 m | sprite impostors rendered `unshaded` (flat, ignoring sun, ambient and fog) with nearest filtering | impostor.gdshader lit (lambert, camera-facing normal tipped up, specular off) + linear filtering |
+| pixel person at ~2 m | the pop-QA "keep the sprite while in view" hold let a held sprite ride right up to a moving camera | NO_SPRITE_R 15 m in PopulationLOD: inside it a resident is a body or VAT (VAT cap ignored there), never an impostor; the vanish-hold hands a near sprite to its VAT twin |
+| near VAT figures faceted / flat-coloured | VAT albedo was baked into vertex colours of a 1.3k-tri mesh | VatAsset.albedo_tex + UV1: the VAT shader samples the same character atlas as the body (x vertex colour x tint); near mesh rebaked at the full _lod1 (~2.7k tris), far mesh ~1.4k; VAT texture total ~45 MB on HIGH (LOW loads 4 looks) |
+| more than 8 people inside 9 m drawn as VAT on every tier | NEAR_HARD_CAP 8 clamped the documented 8 / 11 / 12 near-body caps | NEAR_HARD_CAP 12 (near cap = min(12, npc_full + 3)) |
+vat_test side by side: the VAT twin now matches the skeletal body in colour, texture and lighting. The fly-through shows a lit, coloured crowd at every distance, with no impostor inside 15 m.

@@ -27,7 +27,8 @@ const CellStreamer := preload("res://scripts/core/cell_streamer.gd")
 const FULL_RANGE := 45.0       # defaults; the live values come from CellStreamer profile "population"
 const SPRITE_RANGE := 220.0
 const NEAR_ALWAYS := 9.0     # metres: never a sprite this close to the player
-const NEAR_HARD_CAP := 8    # but never more than this many full models in total
+const NO_SPRITE_R := 15.0   # metres: inside this a resident is a body or VAT, never a sprite impostor (AAA gap audit)
+const NEAR_HARD_CAP := 12   # but never more than this many full models in total
 ## Below this, a flat sprite impostor reads as a blocky pixel person right next
 ## to the camera. NEAR_ALWAYS/NEAR_HARD_CAP above are meant to keep everyone this
 ## close in a full model, but when the full-model budget (Quality.npc_full) is
@@ -546,15 +547,18 @@ func _sprite_job_step(slice_us: int) -> bool:
 			_sprite_cache[id] = [ground_raw, ground]
 		Probe.add("sprj.ground", _ps1)
 		_ps1 = Probe.t()
-		if vat_ok and vis_gate and int(_drawn_prev.get(id, 0)) == 1 and _on_view(id, entry[0], false):
+		var no_sprite: bool = entry[0] < NO_SPRITE_R * NO_SPRITE_R     # never a flat impostor this close to the camera focus
+		if vat_ok and vis_gate and int(_drawn_prev.get(id, 0)) == 1 and _on_view(id, entry[0], false) and not no_sprite:
 			vat_ok = false        # keep the sprite while in view; the VAT twin takes over once the view turns
 		if vat_ok and vis_gate and int(_drawn_prev.get(id, 0)) == 1:
 			_changed_off_view[id] = true     # sprite -> VAT happens only out of view (the hold above)
 		if vat_ok:
-			if _vat.want(id, pp, WorldSim.target[id], WorldSim.job[id], WorldSim.phase[id], ground.y):
+			if _vat.want(id, pp, WorldSim.target[id], WorldSim.job[id], WorldSim.phase[id], ground.y, no_sprite):
 				_sprite_hidden.erase(id)
 				(_sj["vat"] as Dictionary)[id] = true
 				continue
+			if no_sprite:
+				continue          # no bake for this look: draw nothing rather than a pixel person at arm's length
 			# VAT cap reached: the old sprite rules apply
 			if sprite_total >= sprite_budget:
 				continue
@@ -588,8 +592,10 @@ func _sprite_job_step(slice_us: int) -> bool:
 		if not _on_view(id, d2h, was_vat):
 			continue
 		var gy := WorldGen.height(p2h.x, p2h.y)
-		if was_vat and _vat:
-			if _vat.want(id, p2h, WorldSim.target[id], WorldSim.job[id], WorldSim.phase[id], gy):
+		var near_h: bool = d2h < NO_SPRITE_R * NO_SPRITE_R
+		if (was_vat or near_h) and _vat:
+			# inside NO_SPRITE_R a held sprite hands over to its lit VAT twin rather than staying a flat impostor
+			if _vat.want(id, p2h, WorldSim.target[id], WorldSim.job[id], WorldSim.phase[id], gy, near_h):
 				active_sprite_ids[id] = true
 				(_sj["vat"] as Dictionary)[id] = true
 				held += 1

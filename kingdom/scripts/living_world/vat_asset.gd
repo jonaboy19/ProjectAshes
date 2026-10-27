@@ -18,6 +18,9 @@ extends Resource
 @export var mesh_far: ArrayMesh
 @export var pos_tex: ImageTexture
 @export var nrm_tex: ImageTexture
+## The look's character atlas (the same texture the skeletal body uses) + UV1 on the mesh: the VAT shader samples it so far
+## figures match near ones (null on old bakes: the shader falls back to the baked vertex colours).
+@export var albedo_tex: Texture2D
 @export var clips: Dictionary = {}
 @export var fps := 10.0
 @export var vertex_count := 0

@@ -122,6 +122,7 @@ func bake_look(look: String, clip_names: Array, fps: float, target_tris: int) ->
 				img.convert(Image.FORMAT_RGBA8)
 	var out_col := PackedColorArray()
 	var out_uv2 := PackedVector2Array()
+	var out_uv := PackedVector2Array()
 	var out_v := PackedVector3Array()
 	var out_n := PackedVector3Array()
 	for j in nv:
@@ -136,6 +137,8 @@ func bake_look(look: String, clip_names: Array, fps: float, target_tris: int) ->
 			var py := clampi(int(fposmod(u.y, 1.0) * img.get_height()), 0, img.get_height() - 1)
 			tex = img.get_pixel(px, py).srgb_to_linear()
 		var alb := Color(c.r * tex.r * mat_col.r, c.g * tex.g * mat_col.g, c.b * tex.b * mat_col.b)
+		if img and not uvs.is_empty():
+			alb = Color(c.r * mat_col.r, c.g * mat_col.g, c.b * mat_col.b)    # the shader multiplies the atlas texel at UV1 itself
 		var best := 0
 		var best_w := -1.0
 		for k in per:
@@ -150,6 +153,7 @@ func bake_look(look: String, clip_names: Array, fps: float, target_tris: int) ->
 		alb.a = mask
 		out_col.append(alb)
 		out_uv2.append(Vector2(float(j), 0.0))
+		out_uv.append(uvs[i] if not uvs.is_empty() else Vector2.ZERO)
 		out_v.append(verts[i])
 		out_n.append(normals[i])
 
@@ -219,6 +223,7 @@ func bake_look(look: String, clip_names: Array, fps: float, target_tris: int) ->
 	ma[Mesh.ARRAY_NORMAL] = out_n
 	ma[Mesh.ARRAY_COLOR] = out_col
 	ma[Mesh.ARRAY_TEX_UV2] = out_uv2
+	ma[Mesh.ARRAY_TEX_UV] = out_uv
 	ma[Mesh.ARRAY_INDEX] = new_idx
 	am.add_surface_from_arrays(Mesh.PRIMITIVE_TRIANGLES, ma)
 	# far mesh: the next meshoptimizer LOD, re-indexed onto the SAME vertex columns (no extra texture memory);
@@ -236,6 +241,7 @@ func bake_look(look: String, clip_names: Array, fps: float, target_tris: int) ->
 		fm.add_surface_from_arrays(Mesh.PRIMITIVE_TRIANGLES, fa)
 		asset.mesh_far = fm
 	asset.look = look
+	asset.albedo_tex = mat.albedo_texture if mat and not uvs.is_empty() else null
 	asset.mesh = am
 	asset.pos_tex = ImageTexture.create_from_image(pimg)
 	asset.nrm_tex = ImageTexture.create_from_image(nimg)
