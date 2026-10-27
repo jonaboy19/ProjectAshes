@@ -1,0 +1,119 @@
+{
+ "clips": [
+  {
+   "name": "Life_Mx2_Box_Idle",
+   "file": "box idle.fbx",
+   "inplace": "none",
+   "loop": true
+  },
+  {
+   "name": "Life_Mx2_Box_Walk_Arc",
+   "file": "box walk arc.fbx",
+   "inplace": "linear",
+   "loop": true,
+   "foot_lock": false
+  },
+  {
+   "name": "Life_Mx2_Milk_Cow",
+   "file": "cow milking.fbx",
+   "inplace": "none",
+   "loop": true,
+   "floor": "min"
+  },
+  {
+   "name": "Life_Mx2_Dig_Plant",
+   "file": "dig and plant seeds.fbx",
+   "inplace": "none",
+   "loop": true,
+   "contact": false,
+   "floor": "min",
+   "knee_lift": true,
+   "hand_margin_extra": 0.09,
+   "ik_smooth": 16
+  },
+  {
+   "name": "Life_Mx2_Holding_Idle",
+   "file": "holding idle.fbx",
+   "inplace": "none",
+   "loop": true
+  },
+  {
+   "name": "Life_Mx2_Holding_Walk",
+   "file": "holding walk.fbx",
+   "inplace": "linear",
+   "loop": true,
+   "foot_lock": false
+  },
+  {
+   "name": "Life_Mx2_Kneel_Idle",
+   "file": "kneeling idle.fbx",
+   "inplace": "none",
+   "loop": true,
+   "floor": "min",
+   "knee_lift": true
+  },
+  {
+   "name": "Life_Mx2_Pick_Fruit_B",
+   "file": "pick fruit (2).fbx",
+   "inplace": "none",
+   "loop": true
+  },
+  {
+   "name": "Life_Mx2_Pick_Fruit_C",
+   "file": "pick fruit (3).fbx",
+   "inplace": "none",
+   "loop": true
+  },
+  {
+   "name": "Life_Mx2_Plant_Plant",
+   "file": "plant a plant.fbx",
+   "inplace": "none",
+   "loop": true,
+   "contact": false,
+   "floor": "min",
+   "knee_lift": true,
+   "hand_margin_extra": 0.09,
+   "ik_smooth": 16
+  },
+  {
+   "name": "Life_Mx2_Plant_Tree",
+   "file": "plant tree.fbx",
+   "inplace": "none"
+  },
+  {
+   "name": "Life_Mx2_Pull_Plant_B",
+   "file": "pull plant (2).fbx",
+   "inplace": "none",
+   "loop": true,
+   "contact": false,
+   "floor": "min",
+   "knee_lift": true,
+   "hand_margin_extra": 0.09,
+   "ik_smooth": 16
+  },
+  {
+   "name": "Life_Mx2_Water",
+   "file": "watering.fbx",
+   "inplace": "none",
+   "loop": true
+  },
+  {
+   "name": "Life_Mx2_Wheelbarrow_Dump",
+   "file": "wheelbarrow dump.fbx",
+   "inplace": "none"
+  },
+  {
+   "name": "Life_Mx2_Wheelbarrow_Idle",
+   "file": "wheelbarrow idle.fbx",
+   "inplace": "none",
+   "loop": true
+  },
+  {
+   "name": "Life_Mx2_Wheelbarrow_Walk",
+   "file": "wheelbarrow walk.fbx",
+   "inplace": "linear",
+   "loop": true,
+   "foot_lock": false
+  }
+ ]
+}

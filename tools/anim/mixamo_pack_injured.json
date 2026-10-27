@@ -1,0 +1,49 @@
+{
+ "clips": [
+  {
+   "name": "Life_Mx2_Injured_Idle",
+   "file": "injured idle.fbx",
+   "inplace": "none",
+   "loop": true
+  },
+  {
+   "name": "Life_Mx2_Injured_Hurting_Idle",
+   "file": "injured hurting idle.fbx",
+   "inplace": "none",
+   "loop": true
+  },
+  {
+   "name": "Life_Mx2_Injured_Stumble_Idle",
+   "file": "injured stumble idle.fbx",
+   "inplace": "none",
+   "loop": true
+  },
+  {
+   "name": "Life_Mx2_Injured_Wave_Idle",
+   "file": "injured wave idle.fbx",
+   "inplace": "none",
+   "loop": true
+  },
+  {
+   "name": "Life_Mx2_Injured_Walk",
+   "file": "injured walk.fbx",
+   "inplace": "linear",
+   "loop": true,
+   "foot_lock": false
+  },
+  {
+   "name": "Life_Mx2_Injured_Walk_Back",
+   "file": "injured walk backwards.fbx",
+   "inplace": "linear",
+   "loop": true,
+   "foot_lock": false
+  },
+  {
+   "name": "Life_Mx2_Injured_Run",
+   "file": "injured run.fbx",
+   "inplace": "linear",
+   "loop": true,
+   "foot_lock": false
+  }
+ ]
+}
