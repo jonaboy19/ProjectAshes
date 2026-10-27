@@ -203,6 +203,11 @@ def main():
     bark, leaves = bark_material(), leaf_material(atlas)
     for sp_name, sp in SPECIES.items():
         for n in range(2):
+            only = os.environ.get("TREE_ONLY", "")
+            if only and only != f"{sp_name}_{n}":
+                rng.random()
+                continue
+            rng.seed(hash((sp_name, n)) & 0xffff if False else (sum(map(ord, sp_name)) * 31 + n))   # per-tree seed: one Blender run per tree
             for o in list(bpy.context.scene.objects):
                 bpy.data.objects.remove(o)
             branches, tips = grow(sp, rng)

@@ -166,8 +166,10 @@ static func _make_assets() -> Terrain3DAssets:
 		assets.set_texture(i, ta)
 	if WorldMacro.is_real():
 		var ml: Array = preload("res://scripts/world/real_instancer.gd").mesh_assets(_inst_mul < 0.5)
-		for i in ml.size():
-			assets.set_mesh_asset(i, ml[i])
+		# set_mesh_asset(i, ..) only appends at the end of the list (v9 log: "Mesh ID out of range: 14, valid: 0 to 0"): hand the whole list over
+		var typed: Array[Terrain3DMeshAsset] = []
+		typed.assign(ml)
+		assets.set_mesh_list(typed)
 	return assets
 
 
@@ -267,7 +269,9 @@ var _inst_ready: Array = []
 
 
 func _flush_instances() -> void:
-	if _inst_ready.is_empty() or terrain == null or terrain.assets == null or terrain.assets.get_mesh_count() == 0:
+	# Wait for OUR asset list: Terrain3D starts with a default one-mesh asset list, and on a GPU ours goes in two frames after the first
+	# region (v10 log: every add_transforms hit "Mesh ID out of range ... valid: 0 to 0").
+	if _inst_ready.is_empty() or terrain == null or terrain.assets == null or _assets_frame >= 0 or terrain.assets.get_mesh_count() < 2:
 		return
 	var plan: Dictionary = _inst_ready.pop_front()
 	for id: int in plan:

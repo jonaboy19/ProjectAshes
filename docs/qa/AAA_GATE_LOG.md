@@ -166,3 +166,17 @@ File: `PA_plans/videos/WIP_combat_full_motion_slice_clearing_sword_v5.mp4`; clos
 | 4 Footwork | bandits in range between blows now circle (side flips every 1.2-2.6 s) and step in and out (1.6-2.6 m) with the strafe clips driving the feet, instead of standing frozen. PASS (bandit) |
 | 5 Impact | hit-stop by weight: light 40 ms, heavy 90 ms, finisher 100 ms, parry 120 ms. Steel sparks are small streaks with a 0.08 s light (no STAR glow), dust on footwork contact |
 Not done: set4 clips (directional reacts, deaths, dodges), player-side footwork, foot IK during lunges, lock-on pivots, NPC feints.
+
+## 2026-10-28 world worker: countryside route v11 (gameplay camera, same route), real world + Terrain3D
+Files: PA_plans/videos/slice_route_v11.mp4, side by side PA_plans/videos/slice_route_v11_vs_ref01.png. Tools: Movie Maker, ffmpeg contact sheets, Blender 5.2 (Python tree generator, Poly Haven CC0 bark), Poly Haven CC0 scans (grass_medium_01/02), Poly Haven dirt + muddy_tracks normal, Terrain3D instancer (LOD0-2 per mesh asset), Environment AgX tonemap.
+| Check | Result | Note |
+|---|---|---|
+| Camera framing like ref 01 | PASS | gameplay camera behind the walking player, ~2.5 m, slight down-look |
+| Grade / exposure natural | PASS-ish | AgX + saturation 0.85: no more cartoon greens; sky still flat grey-blue vs ref 01 contrasty cumulus |
+| Ground worn, ruts, soft edge | FAIL (close) | ruts and trampled verge read; road too reddish-brown and dead straight in places vs ref 01 beige winding track; no visible puddle |
+| Meadow to the road edge | PASS-ish | dense scan grass both sides; lacks flowers and the yellow-green variation of ref 01 |
+| Tree masses | FAIL (close) | realistic broadleaf trees everywhere now (no lollipops); crowns are flat-topped umbrellas and groups too sparse vs ref 01 dense masses |
+| Stylised assets in frame | FAIL | Ashford-edge bushes/props at the route start are town dressing (towns lane); stylised conifers remain in the instancer |
+| Sky | FAIL | Sky3D clouds read flat; HDRI/cumulus pass not done |
+| HUD | PASS | hidden |
+Verdict: WIP. Big step from v3 (no toy greens, no lollipops), not yet ref-01 level. Next: rebuild the tree set with the installed Blender tree add-ons (sapling/modular_tree + leaf_gen) for rounder dense crowns + impostors; beige dirt albedo + curving road + puddle decal; meadow flowers (dandelion/wildflower scans); sky pass.
