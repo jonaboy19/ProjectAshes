@@ -370,6 +370,8 @@ var _riposte_mult := PARRY_DAMAGE
 
 
 func _ready() -> void:
+	if not Engine.is_editor_hint():
+		(load("res://scripts/interaction/player_seats.gd") as GDScript).call("attach", self)   # sit on the NPCs' benches and tables (WP-01)
 	add_to_group("team0")
 	add_to_group("player")
 	var shape := CollisionShape3D.new()
@@ -880,6 +882,7 @@ func _physics_process(delta: float) -> void:
 			_shield_ready = maxf(_shield_ready - delta, 0.0)
 		_update_sheathe(delta)
 		_update_carry(delta)
+		_rig.set("seated", has_meta("seated_on"))
 		var rolling := _dodge > 0.0 and _dodge_roll
 		_rig.set("shield_slung", (not blocking and (_shield_ready <= 0.0 or rolling or not is_on_floor())) or bool(_rig.get("sheathed")))
 		_rig.set("long_holster", rolling)

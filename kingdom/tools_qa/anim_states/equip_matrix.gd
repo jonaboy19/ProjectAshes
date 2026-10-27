@@ -27,7 +27,7 @@ const LOADOUTS := {
 const STATES := [
 	["idle", 1.0], ["dodge_fwd", 1.4], ["walk", 1.4], ["sprint", 1.4], ["strafe_l", 1.0], ["crouch", 1.0], ["jump", 1.4], ["dodge", 1.4],
 	["attack", 1.6], ["block", 1.2], ["hit", 1.0], ["death", 1.6],
-	["block_hit", 1.8], ["hit_front", 1.4], ["hit_back", 1.4], ["hit_left", 1.4], ["hit_heavy", 2.0],
+	["block_hit", 1.8], ["sit", 2.0], ["hit_front", 1.4], ["hit_back", 1.4], ["hit_left", 1.4], ["hit_heavy", 2.0],
 ]
 var _p: CharacterBody3D
 var _sk: Skeleton3D
@@ -298,6 +298,11 @@ func _state(lo: String, st: String, secs: float) -> Image:
 					_p.call("attack")
 				"hit":
 					_p.call("take_damage", 3, null, Vector3(0, 0, 3.0), true)
+				"sit":
+					# a bench like the SmartObjects ones (Seat with its own visual), the player sits through the real Seat.sit
+					var seat: Node3D = (load("res://scripts/interaction/kinds/seat.gd") as GDScript).call("spawn", root,
+							_p.global_position, _p.rotation.y, "bench", true)
+					seat.call("sit", _p)
 				"block_hit", "hit_front", "hit_back", "hit_left", "hit_heavy":
 					# an attacker 1.5 m away on that side (front for the block), real (non-forced) blow
 					var side := {"block_hit": 0.0, "hit_front": 0.0, "hit_heavy": 0.0, "hit_back": PI, "hit_left": PI * 0.5}

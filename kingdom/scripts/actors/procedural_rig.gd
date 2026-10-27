@@ -143,6 +143,7 @@ var long_holster := false
 ## Sheathed (unarmed stance): one-handed weapons ride the left hip, blade down and back, grip forward; shields and long weapons go on
 ## the back (owner also sets shield_slung / long_holster).
 var sheathed := false
+var seated := false           ## sitting: the hip blade is laid back almost level, over the seat instead of through it
 var ground_guard_y := NAN
 var foot_lock := true                         # QA switch (tools_qa/anim_states/loco_slide.gd --no-lock)
 var _ball: Array[int] = []
@@ -1212,6 +1213,7 @@ func _socket(e: Dictionary, bb: Dictionary, hand_g: Transform3D) -> Transform3D:
 
 const HIP_OUT := 0.2       # m from the pelvis to the scabbard, sideways
 const HIP_TILT_DEG := 25.0
+const HIP_TILT_SEATED_DEG := 78.0
 
 
 func _hip_socket(e: Dictionary, bb: Dictionary, hand_g: Transform3D) -> Transform3D:
@@ -1223,13 +1225,14 @@ func _hip_socket(e: Dictionary, bb: Dictionary, hand_g: Transform3D) -> Transfor
 	var ti := int(e["thin"])
 	var li := int(e["long"])
 	var oi := 3 - ti - li
-	var grip_dir := (up * cos(deg_to_rad(HIP_TILT_DEG)) - back * sin(deg_to_rad(HIP_TILT_DEG))).normalized()   # grip up and forward
+	var tilt := deg_to_rad(HIP_TILT_SEATED_DEG if seated else HIP_TILT_DEG)
+	var grip_dir := (up * cos(tilt) - back * sin(tilt)).normalized()   # grip up and forward
 	var cols: Array[Vector3] = [Vector3.ZERO, Vector3.ZERO, Vector3.ZERO]
 	cols[li] = grip_dir * float(e["gsign"])      # the grip end up and forward: the blade points down and back
 	cols[ti] = side
 	cols[oi] = cols[(oi + 1) % 3].cross(cols[(oi + 2) % 3])
 	var basis := Basis(cols[0], cols[1], cols[2]).orthonormalized().scaled(scl)
-	var grip := (bb["pel"] as Vector3) + side * HIP_OUT + up * 0.04 - back * 0.04
+	var grip := (bb["pel"] as Vector3) + side * HIP_OUT + up * (0.12 if seated else 0.04) - back * 0.04
 	return Transform3D(basis, grip - basis * (e["grip"] as Vector3))
 
 
