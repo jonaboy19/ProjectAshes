@@ -397,7 +397,7 @@ func test_json_has_every_archetype_with_the_expected_params() -> void:
 			assert_bool(row.has(k)).is_true()
 		assert_float(float(row["head_turn_deg"])).is_between(30.0, 120.0)
 		assert_bool(row["gait"].has("idle") and row["gait"].has("walk")).is_true()
-	assert_int(reg.archetypes["guard"]["head_turn_deg"]).is_equal(90)
+	assert_float(float(reg.archetypes["guard"]["head_turn_deg"])).is_equal(90.0)
 	assert_float(reg.archetypes["child"]["walk_speed_mps"]).is_equal(1.5)
 	assert_str(reg.archetypes["elder"]["gait"]["walk"]).is_equal("Life_Walk_Elder")
 
