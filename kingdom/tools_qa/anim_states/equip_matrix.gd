@@ -24,6 +24,7 @@ const LOADOUTS := {
 const STATES := [
 	["idle", 1.0], ["dodge_fwd", 1.4], ["walk", 1.4], ["sprint", 1.4], ["strafe_l", 1.0], ["crouch", 1.0], ["jump", 1.4], ["dodge", 1.4],
 	["attack", 1.6], ["block", 1.2], ["hit", 1.0], ["death", 1.6],
+	["block_hit", 1.8], ["hit_front", 1.4], ["hit_back", 1.4], ["hit_left", 1.4], ["hit_heavy", 2.0],
 ]
 var _p: CharacterBody3D
 var _sk: Skeleton3D
@@ -257,7 +258,7 @@ func _state(lo: String, st: String, secs: float) -> Image:
 		"crouch":
 			Input.action_press("crouch")
 			Input.action_press("move_forward", 0.6)
-		"block":
+		"block", "block_hit":
 			Input.action_press("block")
 		"dodge_fwd":
 			Input.action_press("move_forward")
@@ -266,7 +267,7 @@ func _state(lo: String, st: String, secs: float) -> Image:
 		await process_frame
 		t += 1.0 / 60.0
 		_aim_camera()
-		if not fired and t > 0.25:
+		if not fired and t > (0.6 if st == "block_hit" else 0.25):
 			fired = true
 			match st:
 				"jump":
@@ -277,14 +278,23 @@ func _state(lo: String, st: String, secs: float) -> Image:
 					_p.call("attack")
 				"hit":
 					_p.call("take_damage", 3, null, Vector3(0, 0, 3.0), true)
+				"block_hit", "hit_front", "hit_back", "hit_left", "hit_heavy":
+					# an attacker 1.5 m away on that side (front for the block), real (non-forced) blow
+					var side := {"block_hit": 0.0, "hit_front": 0.0, "hit_heavy": 0.0, "hit_back": PI, "hit_left": PI * 0.5}
+					var dir: Vector3 = _p.call("facing")
+					var foe := Node3D.new()
+					root.add_child(foe)
+					foe.global_position = _p.global_position + dir.rotated(Vector3.UP, float(side[st])) * 1.5
+					_p.call("take_damage", 40 if st == "hit_heavy" else 8, foe, Vector3.ZERO, false)
+					foe.queue_free()
 				"death":
 					_p.call("take_damage", 9999, null, Vector3.ZERO, true)
 		if st == "attack" and t > 0.9 and t < 0.92:
 			_p.call("attack")
 		if t > 0.3:
 			_measure(stats)
-			if OS.has_environment("EQ_DEBUG") and Engine.get_process_frames() % 10 == 0:
-				print("POSDBG ", lo, " ", st, " y=", snappedf(_p.global_position.y - BASE, 0.01), " floor=", _p.is_on_floor(), " layer=", _p.collision_layer, " dead=", _p.dead)
+			if OS.has_environment("EQ_DEBUG") and Engine.get_process_frames() % 3 == 0:
+				print("POSDBG ", lo, " ", st, " y=", snappedf(_p.global_position.y - BASE, 0.01), " floor=", _p.is_on_floor(), " layer=", _p.collision_layer, " dead=", _p.dead, " lean=", _p.get("_rig").get("_lean") if _p.get("_rig") else null, " stun=", _p.get("_stunned"))
 			if _skin_check and Engine.get_process_frames() % 4 == 0:
 				_measure_skin(stats)
 		if st == _strip and _strip_imgs.size() < 8 and t >= 0.25 + _strip_imgs.size() * (secs - 0.3) / 8.0:

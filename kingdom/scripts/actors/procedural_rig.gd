@@ -880,6 +880,7 @@ func _torso_spring(delta: float) -> void:
 	var damp := 2.0 * sqrt(TORSO_STIFF) * TORSO_DAMP
 	_lean_v += ((goal - _lean) * TORSO_STIFF - _lean_v * damp) * minf(delta, 0.05)
 	_lean += _lean_v * minf(delta, 0.05)
+	_lean = _lean.limit_length(TORSO_MAX * 4.0)        # jolts may throw the chest further than acceleration lean does
 	if _lean.length() < 0.0005:
 		return
 	var skel_q := _skeleton.global_basis.get_rotation_quaternion()
@@ -1209,3 +1210,12 @@ func guard_props_now(floor_y: float) -> void:
 		e["h"] = 0.0 if float(e["h"]) < 0.5 else e["h"]
 		_ground_guard(e, nv as Node3D)
 	ground_guard_y = keep
+
+
+## Impact on the torso spring (hit reactions, a blow on the shield): the chest is thrown along `world_dir` (away from the attacker)
+## by a velocity kick and springs back. Reads on top of any clip; strength ~ rad/s (3 = a light hit, 6 = a heavy one).
+func jolt(world_dir: Vector3, strength: float) -> void:
+	if _model == null:
+		return
+	var local := _model.global_basis.orthonormalized().inverse() * world_dir
+	_lean_v += Vector2(local.z, local.x).limit_length(1.0) * strength

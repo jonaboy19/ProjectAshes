@@ -2318,7 +2318,7 @@ func take_damage(amount: int, from: Node = null, knockback := Vector3.ZERO, forc
 				_swing = 0.0
 				_swing_id += 1
 				_kick(-facing() * float(res["push"]) * 2.0)
-				_animator.play_upper("Block_Hit", 1.5)
+				_animator.play_upper("Souls_Guard_Hit" if _animator.has_clip("Souls_Guard_Hit") else "Block_Hit", 1.5)
 			clashed.emit(from, not lost)
 			return
 		HitResolver.Outcome.PARRIED:
@@ -2329,6 +2329,8 @@ func take_damage(amount: int, from: Node = null, knockback := Vector3.ZERO, forc
 		HitResolver.Outcome.BLOCKED:
 			_spend(float(res["guard_cost"]))
 			_kick(-facing() * BLOCK_PUSH)
+			_jolt(from, 2.5)      # the guard takes the blow: the chest gives behind the shield and recovers (the block clip stays up)
+			_add_camera_shake(0.12)
 			blocked.emit(from, false)
 			amount = int(res["damage"])
 			if amount == 0:
@@ -2354,6 +2356,7 @@ func take_damage(amount: int, from: Node = null, knockback := Vector3.ZERO, forc
 		_flinch = FLINCH_TIME
 		var heavy := amount >= max_health * 0.12 or knockback.length() >= 4.0
 		var clip := "Hit_%s_%s" % ["Heavy" if heavy else "Light", _hit_side(from)]
+		_jolt(from, 7.0 if heavy else 4.5)      # directional flinch on top of the clip: the chest is thrown away from the blow
 		if heavy and not _mount and not swimming:
 			_animator.play_full(clip, 1.0)
 		else:
@@ -2365,6 +2368,19 @@ func take_damage(amount: int, from: Node = null, knockback := Vector3.ZERO, forc
 		if from is Node3D:
 			attacker_mixers.append_array((from as Node3D).find_children("*", "AnimationMixer", true, false))
 		_hit_stop(0.045, attacker_mixers)
+
+
+## Throws the chest (ProceduralRig torso spring) away from `from` (straight back when there is no attacker).
+func _jolt(from: Node, strength: float) -> void:
+	if _rig == null or not _rig.has_method("jolt"):
+		return
+	var away := -facing()
+	if from is Node3D:
+		var d := global_position - (from as Node3D).global_position
+		d.y = 0.0
+		if d.length_squared() > 0.0001:
+			away = d.normalized()
+	_rig.call("jolt", away, strength)
 
 
 func _hit_side(from: Node) -> String:
