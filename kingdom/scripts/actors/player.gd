@@ -283,6 +283,8 @@ var _shield_ready := 0.0
 ## dodge aliases resolved to (inverted 0.5 m in the air, back on the floor: slung props had nowhere to go).
 const DODGE_ROLL_CLIP := "Souls_Roll"
 const DODGE_ROLL_RATE := 0.75
+var _seat_t := 0.0
+const SEATED_AFTER := 1.1
 var _dodge_roll := false      # the dodge is a roll (Dodge_Forward / Backward), not the Dodge_back step: props go on the back
 const SHIELD_READY_S := 4.0
 var _stamina_delay := 0.0
@@ -598,6 +600,8 @@ func _build_body() -> void:
 	_body_node = body
 	_model.add_child(body)
 	_animator = CharacterAnimator.new(body, RUN, WALK, "Walking_A", "Running_A", "Idle", true, true)
+	if _animator.player != null:
+		LifeLibrary.install(_animator.player)   # the life clips: sit enter / loop / exit, pick-up, chores (cached per skeleton)
 	# Root-driven actions need a new graph sample for every capsule physics tick.
 	# Idle processing at 30 rendered fps otherwise alternates travel and zero
 	# velocity across the two 60 Hz physics ticks in each rendered frame.
@@ -882,7 +886,8 @@ func _physics_process(delta: float) -> void:
 			_shield_ready = maxf(_shield_ready - delta, 0.0)
 		_update_sheathe(delta)
 		_update_carry(delta)
-		_rig.set("seated", has_meta("seated_on"))
+		_seat_t = _seat_t + delta if has_meta("seated_on") else 0.0
+		_rig.set("seated", _seat_t > SEATED_AFTER)        # the hip blade lays back once the body is down, not while turning to sit
 		var rolling := _dodge > 0.0 and _dodge_roll
 		_rig.set("shield_slung", (not blocking and (_shield_ready <= 0.0 or rolling or not is_on_floor())) or bool(_rig.get("sheathed")))
 		_rig.set("long_holster", rolling)
