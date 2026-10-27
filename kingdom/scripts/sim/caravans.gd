@@ -98,24 +98,27 @@ func _resolve(c: Dictionary, economy: Object) -> Dictionary:
 		lost_frac *= pow(1.0 - GUARD_RISK_REDUCTION, mini(int(c["guards"]), MAX_GUARDS_COUNTED))
 	var revenue := 0
 	var kept_cargo: Dictionary = {}
+	var lost_cargo: Dictionary = {}
 	var cargo: Dictionary = c["cargo"]
 	for item: String in cargo:
 		var n := int(cargo[item])
 		var kept := int(round(n * (1.0 - lost_frac)))
 		kept_cargo[item] = kept
+		lost_cargo[item] = n - kept
 		if economy != null and economy.get("markets") != null and (economy.get("markets") as Dictionary).has(int(c["to"])):
 			var to_market: Object = (economy.get("markets") as Dictionary)[int(c["to"])]
 			for _k in kept:
 				revenue += int(to_market.call("sell", item))
 	c["status"] = "arrived"
-	c["result"] = {"ambushed": ambushed, "lost_frac": lost_frac, "kept_cargo": kept_cargo, "revenue": revenue}
+	c["result"] = {"ambushed": ambushed, "lost_frac": lost_frac, "kept_cargo": kept_cargo, "lost_cargo": lost_cargo, "revenue": revenue}
 	var text := ""
 	if ambushed:
 		text = "Your caravan was ambushed on the road to %s! It lost %d%% of its cargo but still turned %d gold." % [
 			_name(int(c["to"])), int(round(lost_frac * 100.0)), revenue]
 	else:
 		text = "Your caravan reached %s safely and sold its cargo for %d gold." % [_name(int(c["to"])), revenue]
-	return {"id": int(c["id"]), "ok": true, "ambushed": ambushed, "revenue": revenue, "text": text}
+	return {"id": int(c["id"]), "ok": true, "ambushed": ambushed, "revenue": revenue, "text": text,
+		"from": int(c["from"]), "to": int(c["to"]), "kept_cargo": kept_cargo, "lost_cargo": lost_cargo}
 
 
 func _name(id: int) -> String:

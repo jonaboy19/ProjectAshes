@@ -36,6 +36,10 @@ const OUTNUMBER_WEIGHT := 12.0
 const OUTNUMBER_CAP := 30.0
 ## Enemy horse against a formation with no anti-cavalry answer.
 const CAVALRY_WEIGHT := 15.0
+## Per day the unit has gone short of rations (capped), so a besieged or cut-off
+## garrison breaks before the enemy arrives.
+const HUNGER_WEIGHT := 7.0
+const HUNGER_CAP_DAYS := 5
 const OFFICER_CAP := 25.0
 const CHARGE_BONUS := 5.0
 ## Each rally lowers the unit's base by this much.
@@ -72,6 +76,7 @@ func _init(start := 70.0) -> void:
 ##   cohesion    formation morale bonus (points)
 ##   charging    true while charging
 ##   rallies     times already rallied
+##   hungry_days consecutive days short of rations
 static func target(inp: Dictionary) -> float:
 	var t := float(inp.get("base", 70.0))
 	t -= float(inp.get("casualties", 0.0)) * CASUALTY_WEIGHT
@@ -85,6 +90,7 @@ static func target(inp: Dictionary) -> float:
 	if inp.get("charging", false):
 		t += CHARGE_BONUS
 	t -= int(inp.get("rallies", 0)) * RALLY_PENALTY
+	t -= float(mini(int(inp.get("hungry_days", 0)), HUNGER_CAP_DAYS)) * HUNGER_WEIGHT
 	return clampf(t, 0.0, 100.0)
 
 

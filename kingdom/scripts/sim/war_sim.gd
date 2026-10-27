@@ -47,6 +47,10 @@ const TENSION_PER_FEUD := 0.05
 const TENSION_RIFT_MULT := 4.0             # only while the Rift is truly unstable (RIFT_CRISIS)
 const RIFT_CRISIS := 0.5
 const TENSION_AFTER_WAR := 10.0
+## Extra tension per day at full opportunity: a hungry, shaky Caldrenn garrison on the march invites attack
+## (fed in by supply_chain.gd from the garrison's food and morale).
+const TENSION_OPPORTUNITY := 0.35
+const OPPORTUNITY_FOOD_DAYS := 7.0         # a garrison with this many days of food in store offers no opening
 const DECLARE_CHANCE := 0.12               # per day once tension and a casus belli are both ready
 
 ## Casus belli kinds: weight (tension impulse), ttl days, who usually holds the grievance, war goal.
@@ -113,6 +117,8 @@ var tribute: Dictionary = {}
 ## {settlement_name, day}: the villages raided on the most recent tick_day().
 var _last_raids: Array[Dictionary] = []
 var _news_log: Array[String] = []
+## Per candidate nation: 0..1 how weak that nation sees Caldrenn's frontier garrison (see note_opportunity).
+var opportunity: Dictionary = {}
 var _rng := RandomNumberGenerator.new()
 var _day := 0
 var _rift_days := 0
@@ -356,6 +362,7 @@ func _tick_tension(day: int, ctx: Dictionary) -> Array[String]:
 		var t := float(tension[id])
 		var delta := _rng.randf_range(TENSION_BORDER_INCIDENT.x, TENSION_BORDER_INCIDENT.y) * w
 		delta += feud_count * TENSION_PER_FEUD
+		delta += float(opportunity.get(id, 0.0)) * TENSION_OPPORTUNITY * w
 		if rift >= RIFT_CRISIS:
 			delta += rift * TENSION_RIFT_MULT
 		# natural casus belli: each needs a real reason, none is tension alone
@@ -382,6 +389,22 @@ func _tick_tension(day: int, ctx: Dictionary) -> Array[String]:
 			t = TENSION_PEACE_CAP
 		tension[id] = t
 	return out
+
+
+## A hostile neighbour's read of Caldrenn's frontier garrison: low morale (0..100) and little food (days in
+## store) make an opening. Returns the 0..1 score, which then pushes tension up every peacetime day.
+func note_opportunity(id: String, garrison_morale: float, food_days: float) -> float:
+	if not tension.has(id):
+		return 0.0
+	var weak := 1.0 - clampf(garrison_morale / 100.0, 0.0, 1.0)
+	var hungry := 1.0 - clampf(food_days / OPPORTUNITY_FOOD_DAYS, 0.0, 1.0)
+	var score := clampf(weak * 0.6 + hungry * 0.4, 0.0, 1.0)
+	opportunity[id] = score
+	return score
+
+
+func opportunity_of(id: String) -> float:
+	return float(opportunity.get(id, 0.0))
 
 
 func has_cb_kind(id: String, kind: String) -> bool:
@@ -830,7 +853,7 @@ func serialize() -> Dictionary:
 		"news": _news_log.duplicate(true), "cbs": cbs.duplicate(true), "truce": truce_until.duplicate(true),
 		"hostages": hostages.duplicate(true), "treaty": last_treaty.duplicate(true), "raid_days": _raid_days.duplicate(true),
 		"acts": act_days.duplicate(true), "act_log": act_log.duplicate(true), "guarded": guarded.duplicate(true),
-		"tribute": tribute.duplicate(true), "rift_days": _rift_days, "wars_total": wars_total, "day": _day}
+		"tribute": tribute.duplicate(true), "opportunity": opportunity.duplicate(true), "rift_days": _rift_days, "wars_total": wars_total, "day": _day}
 
 
 func deserialize(d: Dictionary) -> void:
@@ -868,6 +891,9 @@ func deserialize(d: Dictionary) -> void:
 		guarded[k] = int(d["guarded"][k])
 	tribute = (d.get("tribute", {}) as Dictionary).duplicate(true)
 	_ints(tribute, ["amount", "until"])
+	opportunity = {}
+	for k2: String in (d.get("opportunity", {}) as Dictionary):
+		opportunity[k2] = float(d["opportunity"][k2])
 	_rift_days = int(d.get("rift_days", 0))
 	wars_total = int(d.get("wars_total", 0))
 	_day = int(d.get("day", 0))
