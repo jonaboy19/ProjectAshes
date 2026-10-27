@@ -45,6 +45,9 @@ Rules: no paid tools (Meshy credits only, owner-approved); licences free + comme
 | Videos for the owner | Movie Maker mode (`--write-movie`) |
 | Profiling | Profiler, Visual Profiler, `Performance` monitors |
 
+## Movie Maker for QA (owner rule)
+Check every visual change with a Movie Maker recording, not only screenshots: `godot --write-movie out.avi --fixed-fps 30` with a scripted camera/bot path, windowed, HUD hidden. Movie Maker renders every frame at a fixed timestep, so there are no dropped frames and runs are repeatable. Then analyse it: ffmpeg scene/contact sheets (e.g. one frame per 0.5 s), frame-difference spikes (`select='gt(scene,0.3)'`) to find pops, flicker, LOD swaps and teleports, and side-by-side before/after. Look at the sheets yourself, then send the owner a short MP4 (H.264, under 30 MB, in `Documents\PA_plans\videos\`).
+
 ## Terrain3D (1.0.2) features to use before custom terrain code
 Instancer (trees/bushes/rocks/grass per region, `add_transforms`) · auto-shader (slope/height texturing) · macro variation + detail noise · steep-slope projection · colour map (biome tint/seasons) · wetness/roughness · holes (caves/mine mouths) · dynamic collision · navmesh baking from terrain · `Terrain3DData` height/normal/texture queries (feed SurfaceQuery). FSR2 crashes with Terrain3D 1.0.2 → FSR1 + TAA.
 
