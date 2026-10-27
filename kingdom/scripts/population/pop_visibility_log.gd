@@ -10,11 +10,11 @@ const NAMES := ["none", "sprite", "vat", "full"]
 static var enabled := OS.get_cmdline_user_args().has("--pop-log")
 static var _state := {}          # id -> Rep
 static var _t_sum := 0.0
-static var counts := {"changes": 0, "on_screen": 0, "on_screen_faded": 0}
+static var counts := {"changes": 0, "on_screen": 0, "on_screen_faded": 0}   # faded = dither fade, in-place hand-off, or decided while out of view
 static var by_kind := {}         # "full>none@on" -> n
 
 
-static func report(cam: Camera3D, focus: Vector3, now_state: Dictionary, pos_of: Callable, faded: Dictionary = {}, in_fade_band: Callable = Callable()) -> void:
+static func report(cam: Camera3D, focus: Vector3, now_state: Dictionary, pos_of: Callable, faded: Dictionary = {}, in_fade_band: Callable = Callable(), why: Callable = Callable()) -> void:
 	if not enabled or cam == null:
 		return
 	var ids := {}
@@ -39,7 +39,7 @@ static func report(cam: Camera3D, focus: Vector3, now_state: Dictionary, pos_of:
 				k += "(faded)"
 			else:
 				counts["on_screen"] += 1
-				print("POPLOG on-screen %s id=%d dist=%.1f" % [k, int(id), d])
+				print("POPLOG on-screen %s id=%d dist=%.1f %s" % [k, int(id), d, String(why.call(id)) if why.is_valid() else ""])
 		by_kind[k] = int(by_kind.get(k, 0)) + 1
 	_state = now_state.duplicate()
 

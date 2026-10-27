@@ -1,0 +1,9 @@
+POPLOG_SUM changes=3324 on_screen=2 on_screen_faded=132 kinds={ "none>full@off": 6, "none>vat@off": 222, "none>vat@on(faded)": 14, "vat>full@on(faded)": 52, "vat>none@off": 479, "vat>full@off": 80, "none>sprite@off": 1127, "full>sprite@off": 37, "sprite>none@off": 753, "sprite>vat@off": 361, "full>vat@off": 94, "sprite>full@off": 18, "full>none@off": 13, "none>sprite@on(faded)": 64, "vat>none@on(faded)": 1, "sprite>full@on": 1, "vat>none@on": 1, "sprite>vat@on(faded)": 1 }
+POPLOG_DRAWN sprite=108 vat=78 full=14
+POPLOG_DRAWN sprite=107 vat=80 full=10
+POPLOG_DRAWN sprite=88 vat=78 full=6
+POPLOG_DRAWN sprite=133 vat=72 full=10
+POPLOG_DRAWN sprite=89 vat=79 full=19
+POPLOG_DRAWN sprite=94 vat=79 full=13
+POPLOG on-screen sprite>full@on id=1047 dist=5.2 prev=1 view=true hidden=false queued=false held=false indoors=false home_am=false near=true
+POPLOG on-screen vat>none@on id=909 dist=32.1 prev=2 view=true hidden=false queued=false held=false indoors=true home_am=false near=true
