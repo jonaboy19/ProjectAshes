@@ -180,6 +180,11 @@ func _physics_process(delta: float) -> void:
 		var radial := to_goal / maxf(dist, 0.01)
 		var tangent := Vector3(-radial.z, 0, radial.x) * (1.0 if get_instance_id() % 2 == 0 else -1.0)
 		desired = radial * clampf(dist - RING_R, -1.0, 1.0) * WALK + tangent * WALK * 0.45
+	elif engaging and _back_off > 0.0 and _busy <= 0.0:
+		# hurt: give ground for a moment, guard up, then come back (NPC rhythm, owner AAA bar layer 7)
+		_back_off -= delta
+		_face(to_goal)
+		desired = -to_goal / maxf(dist, 0.01) * WALK * 0.8
 	elif engaging and dist <= _attack_range():
 		_face(to_goal)
 		if _attack_cooldown <= 0.0 and _busy <= 0.0:
@@ -365,6 +370,17 @@ func _attack() -> void:
 		if _lean != null:
 			_lean.call("kick", global_transform.basis.z, 0.6)     # weight goes into the step
 	var move := _cur_move
+	if fm != null and vs_player and randf() < FEINT_CHANCE:
+		# feint: the wind-up shows, then the blade is pulled back before the contact frame; no damage, short reset
+		var feint_at := hit_delay * 0.55
+		get_tree().create_timer(feint_at).timeout.connect(func() -> void:
+			if not dead:
+				_animator.stop_attack()
+				_cmotion.stop())
+		_busy = feint_at + 0.2
+		_attack_cooldown = minf(_attack_cooldown, 0.5)
+		_cur_move = null
+		return
 	Telegraph.begin(self, move, move.reach if move != null else ATTACK_RANGE, hit_delay)
 	get_tree().create_timer(hit_delay).timeout.connect(func() -> void:
 		if not dead and is_instance_valid(victim) and not victim.get("dead") \
@@ -409,6 +425,10 @@ func take_damage(amount: int, from: Node = null, knockback := Vector3.ZERO) -> v
 		_guard = 0.6
 		_impulse = knockback * 0.4
 		_last_block_ms = Time.get_ticks_msec()
+		if from is Node3D and _model.visible:
+			# the shield arm rises into the blow (TwoBoneIK3D window): the guard tracks the threat instead of a canned pose
+			var at := ParryContact.contact_point(from, _model)
+			ParryContact.play(_model, at.lerp(global_position + Vector3.UP * 1.3, 0.35), "l")
 		var guard_clip := Reactions.react(_hit_side(from), knockback.length(), true)
 		_animator.play_upper(guard_clip if _animator.has_clip(guard_clip) else SoldierAaaScript.block_clip(self, _keep), 1.5)   # block react: arms recoil, no flesh hit
 		return
@@ -446,6 +466,8 @@ func take_damage(amount: int, from: Node = null, knockback := Vector3.ZERO) -> v
 		else:
 			_animator.play_upper(SoldierAaaScript.light_hit(self, _hit_side(from), randf()), 1.0)
 		_hit_push(from, knockback)
+		if health < max_health * HURT_FRAC and randf() < BACK_OFF_CHANCE:
+			_back_off = randf_range(0.8, 1.5)
 
 
 ## Directional hit push: the upper body (chest, head, arms) goes physical for ~0.25 s at influence 0.3 and is shoved
@@ -508,7 +530,8 @@ func _die() -> void:
 	remove_from_group("combatant")
 	_actor_shape.set_deferred("disabled", true)
 	if not (_ragdoll and _ragdoll.die(_impulse, _hit_from)):
-		_animator.play_terminal(SoldierAaaScript.death_clip(self, _keep, _death_side()))
+		var dclip := Reactions.death(_death_side(), randi())     # falls away from the killing blow (Mixamo set 4)
+		_animator.play_terminal(dclip if _animator.has_clip(dclip) else SoldierAaaScript.death_clip(self, _keep, _death_side()))
 	died.emit(self)
 	var tween := create_tween()
 	tween.tween_interval(5.0)
@@ -664,11 +687,18 @@ const GuardLegs := preload("res://scripts/combat/guard_legs.gd")
 var _guard_legs: SkeletonModifier3D
 var _fm_pick := 0
 var _fm_last := ""
+var _back_off := 0.0
+## NPC rhythm: a hurt fighter (below HURT_FRAC health) sometimes backs off; any fighter sometimes feints (starts a swing
+## and pulls it before the contact, no damage) so the player cannot block on a fixed beat.
+const HURT_FRAC := 0.4
+const BACK_OFF_CHANCE := 0.45
+const FEINT_CHANCE := 0.18
 var _foot_t := 0.0
 var _foot_side := 1.0
 var _foot_range := 2.0
 const LeanAim := preload("res://scripts/combat/lean_aim.gd")
 const Reactions := preload("res://scripts/combat/combat_reactions.gd")
+const ParryContact := preload("res://scripts/combat/parry_contact.gd")
 const REACT_RATE := 1.15
 var _lean: SkeletonModifier3D
 

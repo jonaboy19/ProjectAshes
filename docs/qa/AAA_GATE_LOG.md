@@ -219,3 +219,11 @@ Videos: PA_plans/videos/slice_2026-10-27_1116_205b95674_clipgate5.mp4 (street ga
 | Life_Mx2_Dig_Plant / Plant_Plant | FAIL | 7 / 13 elbow pops: hands need 15-29 cm of IK (UAL arms longer than the actor) |
 | Life_Mx2_Pull_Plant_B / Kneel_Idle | HOLD | metrics gold except a 3.5 cm float on the dressed woman; hidden by the crowd in the street gate |
 Overall: three new work loops pass in the real street. They read at gameplay distance among the real townsfolk, with no sliding or pops. The bed pair is consistent, but no beds are placed in the world yet.
+
+## 2026-10-27 Combat pass 8 (combat-motion worker) - deaths by direction, shield-arm tracking, NPC rhythm, 1v3 - FAIL (improved, WIP)
+Files: `PA_plans/videos/WIP_combat_full_motion_slice_road_sword2_v8.mp4` (1v1), `..._three2_v8.mp4` (1v3), same road spot; sheets `docs/qa/golden/combat/fm_v8_road_*.jpg`.
+- Deaths: when the ragdoll is unavailable (far, capped), the death clip falls away from the killing blow (set 4).
+- Shield arm: a blocking bandit's left arm is pulled into the incoming blow (TwoBoneIK3D window), so the guard tracks the threat.
+- NPC rhythm: a hurt bandit (< 40 % HP) backs off 0.8-1.5 s at 45 % chance; 18 % of swings against the player are feints (the wind-up shows, then is pulled at 55 % of the way to the contact, no damage).
+- 1v3: one bandit engages and the other two circle at 3.6 m (tokens). Readable on the wide camera; one circler still passes close to the lens.
+- Verdict: 1v1 on the road reads as a fight (approach, exchanges, knockdown, get-up, recoils). Still FAIL vs ref 03: stylised orange/golden trees in the background (world lane), player dodges/footwork unchanged, no foot IK during lunges, no lock-on pivots.

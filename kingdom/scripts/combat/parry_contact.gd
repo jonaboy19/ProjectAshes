@@ -62,21 +62,23 @@ static func _bone_world(n: Node3D, bone: String) -> Vector3:
 
 
 ## Pull the defender's sword hand onto `at` for one contact window.
-static func play(defender: Node3D, at: Vector3) -> bool:
+## `arm` "r" = sword hand onto the blade (parry); "l" = shield arm raised into the blow (block, shield tracks the threat).
+static func play(defender: Node3D, at: Vector3, arm := "r") -> bool:
 	var sks := defender.find_children("*", "Skeleton3D", true, false)
 	if sks.is_empty():
 		return false
 	var sk := sks[0] as Skeleton3D
-	var ik := sk.get_node_or_null(NODE) as TwoBoneIK3D
+	var node_name := NODE + ("" if arm == "r" else "_" + arm)
+	var ik := sk.get_node_or_null(node_name) as TwoBoneIK3D
 	if ik == null:
-		if sk.find_bone("upperarm_r") < 0 or sk.find_bone("hand_r") < 0:
+		if sk.find_bone("upperarm_" + arm) < 0 or sk.find_bone("hand_" + arm) < 0:
 			return false
 		ik = TwoBoneIK3D.new()
-		ik.name = NODE
+		ik.name = node_name
 		ik.setting_count = 1
-		ik.set_root_bone(0, sk.find_bone("upperarm_r"))
-		ik.set_middle_bone(0, sk.find_bone("lowerarm_r"))
-		ik.set_end_bone(0, sk.find_bone("hand_r"))
+		ik.set_root_bone(0, sk.find_bone("upperarm_" + arm))
+		ik.set_middle_bone(0, sk.find_bone("lowerarm_" + arm))
+		ik.set_end_bone(0, sk.find_bone("hand_" + arm))
 		sk.add_child(ik)           # last in the stack: after the clip and the rig, so the contact wins briefly
 		var target := Marker3D.new()
 		target.name = "ParryTarget"
@@ -94,7 +96,7 @@ static func play(defender: Node3D, at: Vector3) -> bool:
 	tgt.global_position = at
 	# elbow out and down, away from the body's centre line
 	var side := defender.global_basis.x.normalized()
-	pole_m.global_position = defender.global_position + Vector3.UP * 0.9 - side * 0.6
+	pole_m.global_position = defender.global_position + Vector3.UP * 0.9 + side * (0.6 if arm == "l" else -0.6)
 	var old: Variant = ik.get_meta("tween", null)
 	if old is Tween and (old as Tween).is_valid():
 		(old as Tween).kill()
