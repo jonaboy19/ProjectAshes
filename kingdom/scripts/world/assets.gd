@@ -37,6 +37,8 @@ const UAL_FILES := [
 	UAL_LOCO_DIR + "UAL_Loco_Gaits.glb",
 	# Mixamo locomotion set retargeted to UAL (tools/anim/loco/make_cfg_mixamo.py): walks, runs 1.x-9 m/s, armed walk/run, strafe, starts/stops/turns.
 	UAL_LOCO_DIR + "UAL_Loco_Mixamo.glb",
+	# Mixamo set 3 (owner, 2026-10-27; tools/anim/loco/cfg_loco_mixamo3.json, treadmill_ual.py): guard strafes, run strafes, crouch 4-way + idle, walk back.
+	UAL_LOCO_DIR + "UAL_Loco_Mixamo3.glb",
 	# Authored traversal (F2): vault, mantle, ledge grab / hang / climb / drop, ladder, rides. Root track disabled;
 	# scripts/actors/traversal.gd moves the capsule. docs/anim/traversal_v2_HANDOFF.md.
 	UAL_TRAV_DIR + "UAL_Authored_Traversal.glb",
@@ -696,6 +698,7 @@ static func _ual_for(skeleton_path: NodePath) -> AnimationLibrary:
 	# Reviewed AAA mocap subset (data/anim/aaa_clips.json), after every other set so existing names win.
 	AaaClipsScript.merge_into(lib, sk)
 	AirArms.soften(lib)     # arms stay down in the air (shield no longer flies overhead)
+	(load("res://scripts/actors/clip_retime.gd") as GDScript).call("apply", lib)    # stance retime: planted feet at one speed (data/anim/clip_retime.json, WP-02)
 	(load("res://scripts/actors/clip_lift.gd") as GDScript).call("apply", lib)    # ground-penetration repair (data/anim/clip_lift.json, WP-02)
 	for alias: String in UAL_ALIASES:
 		var target: String = UAL_ALIASES[alias]

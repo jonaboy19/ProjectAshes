@@ -180,7 +180,7 @@ const SWIM_DRAIN := 3.0          # stamina/s treading water
 const SWIM_DRAIN_MOVING := 4.5   # extra stamina/s while stroking
 const DROWN_DPS := 4.0           # health/s once stamina is gone
 ## Crouch / stealth.
-const CROUCH_SPEED := 1.15     # Crouch_Fwd covers 0.76 m/s at rate 1: 1.15 keeps the cadence at 1.5x, the soles planted (1.5 slid 1.3 m/s)
+const CROUCH_SPEED := 1.3       # Mx3_Crouch_Fwd covers 1.51 m/s at rate 1 (Crouch_Fwd 0.76 slid 1.3 m/s at 1.5)
 const NOISE_CROUCH := 4.0
 const NOISE_WALK := 10.0
 const NOISE_RUN := 18.0

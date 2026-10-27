@@ -1,0 +1,146 @@
+{
+ "source_type": "fbx",
+ "ual": "../../../assets/incoming/quaternius/universal-animation-library/Unreal-Godot/UAL1_Standard.glb",
+ "out": "../../../assets/incoming/animations_free2/loco_transitions/UAL_Loco_Mixamo3.glb",
+ "smooth": 0.0,
+ "fingers": "relaxed",
+ "finger_poses": {
+  "relaxed": [
+   "Idle_Loop",
+   0.0
+  ],
+  "fist": [
+   "Punch_Jab",
+   0.4
+  ]
+ },
+ "map": {
+  "pelvis": "mixamorig:Hips",
+  "spine_01": "mixamorig:Spine",
+  "spine_02": "mixamorig:Spine1",
+  "spine_03": "mixamorig:Spine2",
+  "neck_01": "mixamorig:Neck",
+  "Head": "mixamorig:Head",
+  "clavicle_l": "mixamorig:LeftShoulder",
+  "upperarm_l": "mixamorig:LeftArm",
+  "lowerarm_l": "mixamorig:LeftForeArm",
+  "hand_l": "mixamorig:LeftHand",
+  "thigh_l": "mixamorig:LeftUpLeg",
+  "calf_l": "mixamorig:LeftLeg",
+  "foot_l": "mixamorig:LeftFoot",
+  "ball_l": "mixamorig:LeftToeBase",
+  "clavicle_r": "mixamorig:RightShoulder",
+  "upperarm_r": "mixamorig:RightArm",
+  "lowerarm_r": "mixamorig:RightForeArm",
+  "hand_r": "mixamorig:RightHand",
+  "thigh_r": "mixamorig:RightUpLeg",
+  "calf_r": "mixamorig:RightLeg",
+  "foot_r": "mixamorig:RightFoot",
+  "ball_r": "mixamorig:RightToeBase"
+ },
+ "fbx_dir": "${MIXAMO_SRC}",
+ "source_fps": 30,
+ "heading": "start",
+ "check_directions": false,
+ "clips": [
+  {
+   "loop": true,
+   "loop_native": true,
+   "inplace": "linear",
+   "heading": "start",
+   "name": "Mx3_Walk_Strafe_L",
+   "file": "walk_strafe_left.fbx"
+  },
+  {
+   "loop": true,
+   "loop_native": true,
+   "inplace": "linear",
+   "heading": "start",
+   "name": "Mx3_Walk_Strafe_R",
+   "file": "../walk_strafe_right_inplace.fbx"
+  },
+  {
+   "loop": true,
+   "loop_native": true,
+   "inplace": "linear",
+   "heading": "start",
+   "name": "Mx3_Run_Strafe_L",
+   "file": "run_strafe_left.fbx"
+  },
+  {
+   "loop": true,
+   "loop_native": true,
+   "inplace": "linear",
+   "heading": "start",
+   "name": "Mx3_Run_Strafe_R",
+   "file": "run_strafe_right.fbx"
+  },
+  {
+   "loop": true,
+   "loop_native": true,
+   "inplace": "linear",
+   "heading": "none",
+   "name": "Mx3_SnS_Strafe_L",
+   "file": "sns_strafe_left_walk.fbx",
+   "heading_deg": -90.0
+  },
+  {
+   "loop": true,
+   "loop_native": true,
+   "inplace": "linear",
+   "heading": "none",
+   "name": "Mx3_SnS_Strafe_R",
+   "file": "sns_strafe_left_walk.fbx",
+   "mirror": true,
+   "heading_deg": -90.0
+  },
+  {
+   "loop": true,
+   "loop_native": true,
+   "inplace": "linear",
+   "heading": "start",
+   "name": "Mx3_Crouch_Fwd",
+   "file": "crouch_walk_fwd.fbx"
+  },
+  {
+   "loop": true,
+   "loop_native": true,
+   "inplace": "linear",
+   "heading": "start",
+   "name": "Mx3_Crouch_Back",
+   "file": "crouch_walk_back.fbx"
+  },
+  {
+   "loop": true,
+   "loop_native": true,
+   "inplace": "linear",
+   "heading": "start",
+   "name": "Mx3_Crouch_L",
+   "file": "crouch_walk_left.fbx"
+  },
+  {
+   "loop": true,
+   "loop_native": true,
+   "inplace": "linear",
+   "heading": "start",
+   "name": "Mx3_Crouch_R",
+   "file": "crouch_walk_right.fbx"
+  },
+  {
+   "loop": true,
+   "loop_native": true,
+   "inplace": "linear",
+   "heading": "start",
+   "name": "Mx3_Walk_Back",
+   "file": "walk_backwards.fbx"
+  },
+  {
+   "name": "Mx3_Crouch_Idle",
+   "file": "crouch_idle.fbx",
+   "loop": true,
+   "loop_native": true,
+   "inplace": "linear",
+   "heading": "start"
+  }
+ ]
+}
