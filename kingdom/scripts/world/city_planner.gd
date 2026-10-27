@@ -538,6 +538,47 @@ static func landmark_clearance(plan_data: Dictionary, p: Vector2) -> float:
 	return best
 
 
+## The plaza's market stalls, ONE layout for SettlementBuilder (the models), StreetGraph (NPC obstacles) and NPCWorld (the
+## smart-object spots): [{pos, yaw}]. A ring at plaza_r - 3 m facing the well; the profile's stall multiplier sets the count;
+## no stall on a landmark or in the mouth of a street that opens onto the plaza. Fixed angles used to put stalls across the
+## street mouths (real-world Ashford: the plaza became an NPC routing island).
+static func plaza_stalls(s: Dictionary) -> Array:
+	var plan_data: Dictionary = s.get("plan", {})
+	var c: Vector2 = s["pos"]
+	var pr: float = plan_data.get("plaza_r", 12.0)
+	var n := 6 if String(s.get("kind", "")) == "village" else 12
+	n = clampi(roundi(n * float(TownIdentity.profile(s).get("stalls", 1.0))), 3, 20)
+	var ring := pr - 3.0
+	var mouths: Array = []      # [angle, half angular width]
+	for st: Dictionary in plan_data.get("streets", []):
+		var a: Vector2 = st["a"]
+		var b: Vector2 = st["b"]
+		var inner := a if a.distance_to(c) < b.distance_to(c) else b
+		var outer := b if inner == a else a
+		if inner.distance_to(c) > pr + 1.5 or outer.distance_to(c) < ring:
+			continue
+		# where the street crosses the stall ring
+		var hit := Geometry2D.segment_intersects_circle(inner, outer, c, ring)
+		var at := inner.lerp(outer, hit) if hit >= 0.0 else outer
+		var hw := float(st["w"]) * 0.5 + 2.4          # half street + a stall's half width + a walking gap
+		mouths.append([(at - c).angle(), atan(hw / maxf(ring, 1.0))])
+	var out: Array = []
+	for i in n:
+		var ang := TAU * i / n + 0.2
+		var blocked := false
+		for m: Array in mouths:
+			if absf(wrapf(ang - float(m[0]), -PI, PI)) < float(m[1]):
+				blocked = true
+				break
+		if blocked:
+			continue
+		var sp := c + Vector2(cos(ang), sin(ang)) * ring
+		if landmark_clearance(plan_data, sp) < 3.0:
+			continue
+		out.append({"pos": sp, "yaw": atan2(-cos(ang), -sin(ang))})
+	return out
+
+
 static func _near_angle(ang: float, list: Array[float], width: float) -> bool:
 	for g in list:
 		if absf(wrapf(ang - g, -PI, PI)) < width:

@@ -445,15 +445,12 @@ func _build_co(s: Dictionary, sync: bool, spread: bool) -> Node3D:
 	var stalls: Array[Transform3D] = []
 	var stalls2: Array[Transform3D] = []
 	var pr: float = plan["plaza_r"]
-	var n_stalls := 6 if s["kind"] == "village" else 12
-	n_stalls = clampi(roundi(n_stalls * float(_prof.get("stalls", 1.0))), 3, 20)    # merchant towns pack the square, farm hamlets do not
 	var stall_size := Vector3(3.5, 2.5, 3.5)
-	for i in n_stalls:
-		var ang := TAU * i / n_stalls + 0.2
-		var sp: Vector2 = s["pos"] + Vector2(cos(ang), sin(ang)) * (pr - 3.0)
-		var syaw := atan2(-cos(ang), -sin(ang))
-		if CityPlanner.landmark_clearance(plan, sp) < 3.0:
-			continue   # the keep / temple footprint covers this spot of the ring (stalls clipped into it)
+	# one stall layout with StreetGraph / NPCWorld (CityPlanner.plaza_stalls: profile count, clear of landmarks and street mouths)
+	var stall_list := CityPlanner.plaza_stalls(s)
+	for i in stall_list.size():
+		var sp: Vector2 = stall_list[i]["pos"]
+		var syaw: float = stall_list[i]["yaw"]
 		var st := Transform3D(Basis(Vector3.UP, syaw), Vector3(sp.x, _ground_snap(sp, syaw, stall_size), sp.y))
 		(stalls if i % 2 == 0 else stalls2).append(st)
 	# Keep the current four-model layout; each visible stall gets a box proxy.

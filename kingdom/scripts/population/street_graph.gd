@@ -141,10 +141,8 @@ func _setup(s: Dictionary) -> void:
 		_add_box(lm["pos"], lm["yaw"], Vector2(size.x, size.z) * 0.46)
 	# Market stalls ring the plaza (same layout as SettlementBuilder).
 	var pr: float = plan.get("plaza_r", 12.0)
-	var n_stalls := 6 if s["kind"] == "village" else 12
-	for i in n_stalls:
-		var ang := TAU * i / n_stalls + 0.2
-		_add_box(center + Vector2(cos(ang), sin(ang)) * (pr - 3.0), atan2(-cos(ang), -sin(ang)), Vector2(1.4, 1.1))
+	for stall: Dictionary in CityPlanner.plaza_stalls(s):      # the builder's own list (count, street mouths, landmarks)
+		_add_box(stall["pos"], float(stall["yaw"]), Vector2(1.4, 1.1))
 	if plan.get("walls", false):
 		_walls.append([float(plan["wall_radius"]), plan["gates"]])
 	if float(plan.get("inner_wall", 0.0)) > 0.0:
@@ -443,14 +441,19 @@ func _ensure_graph() -> void:
 	if plan.get("inner_wall", 0.0) <= 0.0:
 		var pr: float = plan.get("plaza_r", 12.0)
 		var ring: Array[Vector2] = []
-		for i in 8:
-			var ang := TAU * i / 8.0
-			ring.append(center + Vector2(cos(ang), sin(ang)) * pr * 0.6)
-		for i in 8:
-			segs.append([ring[i], ring[(i + 1) % 8]])
+		# inside the stall ring (stall boxes at pr - 3 +- 1.4 m): at pr * 0.6 a small village plaza's ring ran through the
+		# stalls and broke into islands; 16 nodes so a street's spoke meets it nearly radially
+		var ring_r := clampf(minf(pr * 0.6, pr - 3.0 - 1.4 - AGENT_RADIUS - 0.25), 2.6, pr * 0.6)
+		for i in 16:
+			var ang := TAU * i / 16.0
+			ring.append(center + Vector2(cos(ang), sin(ang)) * ring_r)
+		for i in 16:
+			segs.append([ring[i], ring[(i + 1) % 16]])
 		for st: Dictionary in streets:
 			var a: Vector2 = st["a"]
-			if absf(a.distance_to(center) - pr) < 1.0:
+			if (st["b"] as Vector2).distance_to(center) < a.distance_to(center):
+				a = st["b"]          # the end toward the well
+			if a.distance_to(center) < pr + 1.0 and a.distance_to(center) > ring_r * 0.5:
 				var near := ring[0]
 				for rp in ring:
 					if rp.distance_to(a) < near.distance_to(a):
