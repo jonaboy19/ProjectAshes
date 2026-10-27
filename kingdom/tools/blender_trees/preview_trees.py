@@ -5,7 +5,7 @@ d, out = args[0], args[1]
 bpy.ops.wm.read_factory_settings(use_empty=True)
 x = -22.0
 for f in sorted(os.listdir(d)):
-    if f.endswith(".glb"):
+    if f.endswith((".glb", ".gltf")):
         bpy.ops.import_scene.gltf(filepath=os.path.join(d, f))
         for o in bpy.context.selected_objects:
             if o.parent is None:

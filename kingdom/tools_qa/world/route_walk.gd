@@ -21,6 +21,8 @@ var _yaw := 0.0
 var _last_p := Vector2.INF
 var _stuck_t := 0.0
 const MAX_S := 200.0
+var _ft: PackedFloat32Array = []
+var _last_us := 0
 
 
 func _initialize() -> void:
@@ -48,12 +50,29 @@ func _hide_overlays() -> void:
 		(n as CanvasLayer).visible = false
 
 
+## Real frame times of the walk (meaningful without --write-movie): avg / p95 / worst ms and fps.
+func _perf() -> void:
+	if _ft.is_empty():
+		return
+	var a := Array(_ft)
+	a.sort()
+	var tot := 0.0
+	for v in a:
+		tot += float(v)
+	var avg := tot / a.size()
+	print("[route] PERF frames=%d avg_ms=%.2f p95_ms=%.2f worst_ms=%.2f fps=%.1f quality=%s" % [a.size(), avg, float(a[int(a.size() * 0.95)]), float(a[a.size() - 1]), 1000.0 / avg, OS.get_cmdline_user_args()])
+
+
 static func _yaw_to(d: Vector2) -> float:
 	return atan2(-d.x, -d.y)
 
 
 func _process(dt: float) -> bool:
 	frame += 1
+	var now := Time.get_ticks_usec()
+	if frame > BOOT + 90 and _last_us > 0:
+		_ft.append((now - _last_us) / 1000.0)
+	_last_us = now
 	if frame < BOOT:
 		return false
 	var player: Node3D = main.get("player")
@@ -97,6 +116,7 @@ func _process(dt: float) -> bool:
 		_seg += 1
 	if _seg >= pts.size() - 2 and p.distance_to(pts[pts.size() - 1]) < 18.0:
 		Input.action_release("move_forward")
+		_perf()
 		quit()
 		return true
 	# the Waymark Stone pause: stop and look north to the fells

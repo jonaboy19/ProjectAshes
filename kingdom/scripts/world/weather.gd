@@ -163,6 +163,8 @@ var _ground_cache := 0.0
 var _alt_fog := 1.0
 ## Per-region fog multiplier (W6 real world: kilometre-scale views + per-biome profiles, scripts/world/real_landmarks.gd). 1 = unchanged.
 static var region_fog_mul := 1.0
+## Volumetric (near-camera) fog multiplier on top (W6 slice gate: the real world keeps its haze beyond ~300 m only). 1 = unchanged.
+static var region_vfog_mul := 1.0
 
 var _materials_wind: Array[ShaderMaterial] = []
 var _materials_wet: Array[ShaderMaterial] = []
@@ -428,7 +430,7 @@ func _apply_environment() -> void:
 	if env:
 		var p := params
 		_mul(env, "fog_density", float(p["fog"]) * _alt_fog * region_fog_mul)
-		_mul(env, "volumetric_fog_density", float(p["vfog"]) * region_fog_mul)
+		_mul(env, "volumetric_fog_density", float(p["vfog"]) * region_fog_mul * region_vfog_mul)
 		_add(env, "fog_height_density", p["hfog"])
 		if float(p["hfog"]) > 0.0:
 			env.fog_height = _ground_cache + 5.0

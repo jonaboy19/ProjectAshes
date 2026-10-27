@@ -52,7 +52,7 @@ static func mesh_assets(low_tier: bool) -> Array:
 		var n: int = lods[1]
 		var k_low := 0.6 if low_tier else 1.0
 		# LOD ranges (m): trees full mesh close, the generated _lod1/_lod2 simplifications out to the far forest; small plants short.
-		var ranges: Array = [110.0, 450.0, 2400.0] if tree else [60.0, 160.0, 260.0]
+		var ranges: Array = [40.0, 160.0, 2400.0] if tree else [60.0, 160.0, 260.0]   # Sapling trees: LOD0 is 25-55k tris
 		for li in n:
 			var ri := 2 if li == n - 1 else li       # the last LOD always reaches the far range
 			a.set("lod%d_range" % li, float(ranges[ri]) * k_low)
@@ -67,7 +67,8 @@ static func mesh_assets(low_tier: bool) -> Array:
 ## Terrain3DMeshAsset reads its LODs from (children in order).
 ## Broadleaf region kinds -> the Blender-generated realistic trees (tools/blender_trees/make_trees.py, LOD0/LOD1/LOD2 children).
 const SLICE_TREES := "res://assets/generated/slice_trees/"
-const REALISTIC := {"oak_a": "oak_0", "oak_b": "oak_1", "dark_oak": "oak_1", "beech_a": "beech_0", "beech_b": "beech_1", "young_oak": "ash_0"}
+const REALISTIC := {"oak_a": "oak_0", "oak_b": "oak_1", "dark_oak": "oak_1", "beech_a": "beech_0", "beech_b": "beech_1", "young_oak": "ash_0",
+	"spruce_a": "spruce_0", "spruce_b": "spruce_1", "pine_scots": "pine_0"}
 
 
 static func _lod_scene_from(path: String) -> Array:
@@ -158,9 +159,11 @@ static func plan(o: Vector2, size: float, density_mul: float) -> Dictionary:
 				var kind := WorldBiomes.pick(role, biome, h, WorldBiomes.pick_u(x, z, 17))
 				if not _ids.has(kind):
 					continue
+				if role == "tree" and not REALISTIC.has(kind.substr(R.length())):
+					continue          # no stylised trees in the real world (dead snags, autumn blobs): only the Sapling set
 				var s := lerpf(0.8, 1.3, WorldBiomes.pick_u(x, z, 23))
 				if REALISTIC.has(kind.substr(R.length())):
-					s *= 0.72          # the generated broadleaves are 14-17 m at scale 1
+					s *= 0.9          # the Sapling broadleaves are 12-16 m at scale 1
 				var yaw := TAU * WorldBiomes.pick_u(x, z, 29)
 				var t := Transform3D(Basis(Vector3.UP, yaw).scaled(Vector3(s, s, s)), Vector3(x, h - 0.15, z))
 				var id: int = _ids[kind]

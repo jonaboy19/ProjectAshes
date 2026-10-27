@@ -197,7 +197,7 @@ func _road() -> void:
 	mat.cull_mode = BaseMaterial3D.CULL_DISABLED
 	mat.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA_DEPTH_PRE_PASS
 	mat.vertex_color_use_as_albedo = true
-	mat.albedo_color = Color(0.92, 0.88, 0.82)     # ruts come from the muddy_tracks normal map; the colour from Poly Haven dirt
+	mat.albedo_color = Color(1.32, 1.2, 1.02)   # dusty beige track (ref 01)     # ruts come from the muddy_tracks normal map; the colour from Poly Haven dirt
 	mat.normal_scale = 1.6
 	mesh.surface_set_material(0, mat)
 	var mi := MeshInstance3D.new()
@@ -219,7 +219,7 @@ func _road() -> void:
 	pm.material = wm
 	var pmi := MeshInstance3D.new()
 	pmi.mesh = pm
-	pmi.transform = Transform3D(Basis.from_scale(Vector3(1.0, 1.0, 0.6)) * Basis(Vector3.UP, 0.4), Vector3(pp.x, WorldGen.height(pp.x, pp.y) + 0.07, pp.y))
+	pmi.transform = Transform3D(Basis.from_scale(Vector3(1.0, 1.0, 0.6)) * Basis(Vector3.UP, 0.4), Vector3(pp.x, WorldGen.height(pp.x, pp.y) + 0.17, pp.y))
 	add_child(pmi)
 
 
@@ -229,7 +229,7 @@ const PH := "res://assets/incoming/polyhaven/models/"
 ## v6 gate: the bermuda set is mostly dead/flattened tufts (read as brown scrub when scaled) and fern/nettle rendered near-black:
 ## the meadow body is the two green medium tufts; ferns/nettles stay rare accents near the walls.
 const MEADOW := [["grass_medium_02/grass_medium_02_1k.gltf", 0.55, 3.2, 4.6, 9.0],
-	["grass_medium_01/grass_medium_01_1k.gltf", 0.43, 3.0, 4.4, 8.0], ["fern_02/fern_02_1k.gltf", 0.025, 0.7, 1.1, 9.0],
+	["grass_medium_01/grass_medium_01_1k.gltf", 0.41, 3.0, 4.4, 8.0], ["dandelion_01/dandelion_01_1k.gltf", 0.02, 1.0, 1.4, 5.0], ["fern_02/fern_02_1k.gltf", 0.025, 0.7, 1.1, 9.0],
 	["nettle_plant/nettle_plant_1k.gltf", 0.015, 0.8, 1.1, 4.0], ["dandelion_01/dandelion_01_1k.gltf", 0.01, 1.0, 1.3, 3.0]]
 const CHUNK_M := 24.0
 
@@ -260,6 +260,9 @@ func _meadow() -> void:
 					var nm := (sm as BaseMaterial3D).duplicate() as BaseMaterial3D
 					nm.albedo_color = Color(0.82, 1.08, 0.62)      # ref 01 meadow: fresh mid-green, not straw
 					nm.cull_mode = BaseMaterial3D.CULL_DISABLED
+					nm.vertex_color_use_as_albedo = true           # per-instance tint (MultiMesh colours)
+					nm.backlight_enabled = true
+					nm.backlight = Color(0.32, 0.4, 0.12)   # sun through the blades
 					mesh.surface_set_material(si, nm)
 			variants.append([mesh, float(m[1]) / mis.size(), m[2], m[3], m[4], tb.basis])
 		inst.free()
@@ -308,7 +311,7 @@ func _meadow() -> void:
 	for key: Vector2i in buckets:
 		var ts: Array[Transform3D] = []
 		ts.assign(buckets[key])
-		_mmi((variants[key.x] as Array)[0], ts, 70.0)
+		_mmi((variants[key.x] as Array)[0], ts, 70.0, true)
 
 
 ## Soft tall-grass verges with flowers on both sides of the road (ref 01): a dense band, densest at the road edge, broken by gaps.
@@ -386,7 +389,7 @@ func _scene(kind: String, p: Vector2, s: float, yaw: float) -> void:
 	var real_tree := TREE_MAP.has(kind) and ResourceLoader.exists(SLICE_TREES + String(TREE_MAP[kind]) + ".gltf")
 	if real_tree:
 		path = SLICE_TREES + String(TREE_MAP[kind]) + ".gltf"
-		s *= 0.75 if kind != "young_oak" else 0.55       # generated trees are 14-17 m at scale 1
+		s *= 0.95 if kind != "young_oak" else 0.7       # Sapling trees are 12-16 m at scale 1
 	if not ResourceLoader.exists(path):
 		return
 	var n := (load(path) as PackedScene).instantiate() as Node3D
@@ -429,15 +432,28 @@ func _stone() -> void:
 		_plant(["grass_tall", "flowers_cool", "fern_b"][i % 3], p + Vector2(cos(a), sin(a)) * _rng.randf_range(1.2, 3.5), _rng.randf_range(0.7, 1.0))
 
 
-func _mmi(mesh: Mesh, ts: Array[Transform3D], range_end: float) -> void:
+## `tint`: per-instance hue variation for the meadow (ref 01: fresh yellow-green with darker clumps, by a ~6 m noise field).
+static var _clumps: FastNoiseLite
+
+
+func _mmi(mesh: Mesh, ts: Array[Transform3D], range_end: float, tint := false) -> void:
 	if ts.is_empty():
 		return
 	var mm := MultiMesh.new()
 	mm.transform_format = MultiMesh.TRANSFORM_3D
+	mm.use_colors = tint
 	mm.mesh = mesh
 	mm.instance_count = ts.size()
+	if tint and _clumps == null:
+		_clumps = FastNoiseLite.new()
+		_clumps.seed = 77
+		_clumps.frequency = 0.16
 	for i in ts.size():
 		mm.set_instance_transform(i, ts[i])
+		if tint:
+			var o := ts[i].origin
+			var k := clampf(0.5 + 0.6 * _clumps.get_noise_2d(o.x, o.z) + _rng.randf_range(-0.15, 0.15), 0.0, 1.0)
+			mm.set_instance_color(i, Color(1.12, 1.1, 0.62).lerp(Color(0.62, 0.8, 0.5), k))
 	var mi := MultiMeshInstance3D.new()
 	mi.multimesh = mm
 	mi.visibility_range_end = range_end

@@ -72,7 +72,7 @@ static func _drystone_mesh() -> Mesh:
 	mat.cull_mode = BaseMaterial3D.CULL_DISABLED
 	mat.uv1_triplanar = true
 	mat.uv1_scale = Vector3(0.9, 0.9, 0.9)
-	mat.albedo_color = Color(0.82, 0.82, 0.8)
+	mat.albedo_color = Color(0.78, 0.86, 0.95)   # the CC0 stacked-stone set is red-brown: pull it to Lake District slate grey
 	mesh.surface_set_material(0, mat)
 	return mesh
 
@@ -231,6 +231,22 @@ func _process(delta: float) -> void:
 	var b2 := clampi(WorldBiomes.at(cam.global_position.x, cam.global_position.z), 0, 7)
 	_fog_mul = lerpf(_fog_mul, 0.2 * float(FOG_BIOME[b2]), k)
 	WEATHER.region_fog_mul = _fog_mul
+	# Slice gate (owner look, ref 01): crisp near field, haze only in the distance. Depth fog starts at 300 m; the volumetric fog
+	# (which hazes the first 64 m) is off outdoors; the sky gets a deep blue top and crisper, contrastier cumulus.
+	WEATHER.region_vfog_mul = 0.0
+	env.fog_mode = Environment.FOG_MODE_DEPTH
+	env.fog_depth_begin = 300.0
+	env.fog_depth_end = 9000.0
+	env.fog_depth_curve = 1.6
+	var sm: Variant = env.sky.sky_material if env.sky else null
+	if sm is ShaderMaterial:
+		var top: Color = (sm as ShaderMaterial).get_shader_parameter("top_color")
+		(sm as ShaderMaterial).set_shader_parameter("top_color", top.lerp(Color(0.12, 0.3, 0.72), 0.85))
+		var hz: Color = (sm as ShaderMaterial).get_shader_parameter("horizon_color")
+		(sm as ShaderMaterial).set_shader_parameter("horizon_color", hz.lerp(Color(0.58, 0.72, 0.9), 0.6))
+		(sm as ShaderMaterial).set_shader_parameter("cloud_soft", 0.07)
+		(sm as ShaderMaterial).set_shader_parameter("cloud_cover", 0.47)
+		(sm as ShaderMaterial).set_shader_parameter("cloud_shade", Color(0.6, 0.66, 0.8))
 
 
 const WEATHER := preload("res://scripts/world/weather.gd")
@@ -241,6 +257,7 @@ var _fog_mul := 0.2
 
 func _exit_tree() -> void:
 	WEATHER.region_fog_mul = 1.0
+	WEATHER.region_vfog_mul = 1.0
 	if _task >= 0:
 		WorkerThreadPool.wait_for_task_completion(_task)
 		_task = -1
