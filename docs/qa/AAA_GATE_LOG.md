@@ -69,3 +69,19 @@ Tools: Meshy prime FBX (SMPL-H 52 bones) -> Blender `tools/anim/mixamo_to_ual.py
 | m20 Carry_Sack_Walk | FAIL | 0.69 (vs ground speed) | sack on the shoulder reads well, but the stride skates |
 | m14 Wheelbarrow_Walk | FAIL | 0.67 (vs ground speed) | hunched walk with the arms hanging, no handle grip; skates |
 Overall: the prime clips read low-energy and generic. Work loops hover hands at hip height instead of at the work surface, and tools are waved rather than struck. Only the two "rest" clips meet the bar. Re-prompt advice is in the coordinator report.
+
+## 2026-10-27 Combat full motion (combat-motion worker) - FAIL (improved, WIP)
+Files: `PA_plans/videos/WIP_combat_full_motion_{before_after_sword,sword,three,greatsword,axe}.mp4` (Movie Maker 1280x720 30 fps, HUD hidden, same flat field near Ashford, `combat_capture.gd --only=fm01|fm02`). Side-by-side with ref 03: `docs/qa/golden/combat/fm_gate_ref03_vs_sword.jpg`, sheet `fm_final_sword_sheet.jpg`.
+Tools used: Mixamo (owner packs) -> Blender 5.2 `mixamo_to_ual.py` (root kept, foot lock), Godot Animation root track as data (`Animation.position_track_interpolate`), AnimationTree one-shots, PhysicalBoneSimulator3D ragdoll knockdowns (existing `ragdoll.gd`), attack tokens, Movie Maker + ffmpeg sheets.
+| Check | Result | Note |
+|---|---|---|
+| Attacker faces and closes on the target | PASS | swings travel 0.3-1.8 m into the foe (warped root motion), turn at <= 9 rad/s in the wind-up; before: swings stood in place |
+| Wind-up -> contact -> follow-through -> recovery | PASS | full-body Mixamo swings, contact on the measured hand-speed peak, recovery capped at 0.8 s |
+| Blades reach the target, target reacts in hit direction | PASS (partial) | blade reaches the body; light hits flinch, finishers knock down into the ragdoll; no directional light flinch clips yet (side clip only on heavy) |
+| NPC turns, spaces, fights back | PASS (1v1) / FAIL (1v3) | bandit closes from 3 m and swings with root motion; in 1v3 the waiting bandits circle at 3.6 m but sometimes pair up shoulder to shoulder, and one walks through the camera |
+| Wide bent-knee stances, shields raised (ref 03) | FAIL | the guard idle is on, but the player still reads upright and narrow between swings; the shield sits low; bandit stance is hunched rather than wide |
+| Blades actually meet (blocks, parries) | FAIL | blocks play the existing upper-body clip; there are no blade-on-blade contact poses |
+| Feet planted, no sliding | FAIL (minor) | warp scale capped at 1.6, but long lunges still skate a little in the stretched frames; no foot IK during attacks yet |
+| UI restraint | PASS (combat lane) | removed the red silhouettes, ground rings on blockable blows, finisher flash and parry speed lines; the orange lock arrow (player lane) remains |
+| Dust on footwork | FAIL | only on hits and dodges, not on steps |
+Verdict: a clear step up from "swinging in place" (the 1v1 now reads as two people fighting), but this is not ref-03 quality yet. Fix list: wider guard stance clips (Meshy request), blade-contact block and parry poses, directional light flinches, foot IK during lunges, step dust, 1v3 ring spacing and camera.
