@@ -729,6 +729,15 @@ func _apply_viewports() -> void:
 
 func _apply_viewport(v: Viewport) -> void:
 	var compat := renderer() == "gl_compatibility"
+	if v is SubViewport and (v as SubViewport).transparent_bg:
+		# Render-to-texture with alpha (impostor atlas bake, portraits): upscalers / TAA / FXAA drop the alpha channel
+		# (LOW on PC used FSR2 at 0.67 scale: every distant villager sprite drew inside a black box). Native, no AA.
+		v.scaling_3d_mode = Viewport.SCALING_3D_MODE_BILINEAR
+		v.scaling_3d_scale = 1.0
+		v.use_taa = false
+		v.msaa_3d = Viewport.MSAA_DISABLED
+		v.screen_space_aa = Viewport.SCREEN_SPACE_AA_DISABLED
+		return
 	if v == get_tree().root and get_tree().root.find_children("*", "SubViewport", true, false).size() > 0:
 		# The world renders in main.gd's SubViewport; the root only draws UI over it.
 		# (No FXAA over the text, no MSAA buffers for an empty 3D pass.)
