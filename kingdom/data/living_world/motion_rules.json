@@ -1,0 +1,905 @@
+{
+	"_doc": "Motion rule registry for MotionRules.evaluate (docs/plans/NPC_MOTION_RULES.md section 3). archetypes: per-persona numbers (space radius, RVO radius+priority, yield rank, curiosity, gesture amplitude, head-turn limit in degrees, walk speed, patience, base gait clips, VAT clip set name from vat_bake.json); persona keys of the same name override the archetype. rules: one row per section-3 ID. channels: BODY|LOCO|UPPER|HEAD (an empty list is a data-tier rule that never arbitrates). priority: higher wins inside a channel (reaction_request scale 0..8). min_hold_s: hysteresis, an incumbent keeps its channel that long against equal or lower priority challengers (and latches its last output when its trigger vanishes). tier: the lowest tier the rule runs at (NEAR, MID, FAR). stub: true = the rule function is a no-op, skipped by the engine until its package (the 'package' field) flips it to false. params: the section-3 numbers. suppresses (optional): channels a BODY winner silences (default LOCO and UPPER).",
+	"version": 1,
+	"archetypes": {
+		"villager": {
+			"space_radius_m": 0.9,
+			"rvo_radius_m": 0.5,
+			"rvo_priority": 0.5,
+			"yield_rank": 2,
+			"curiosity": 0.5,
+			"gesture_amp": 1.0,
+			"head_turn_deg": 70,
+			"walk_speed_mps": 1.35,
+			"patience_s": 45,
+			"gait": {
+				"idle": "Idle",
+				"walk": "Walk"
+			},
+			"vat_set": "adult"
+		},
+		"child": {
+			"space_radius_m": 0.6,
+			"rvo_radius_m": 0.3,
+			"rvo_priority": 0.2,
+			"yield_rank": 1,
+			"curiosity": 0.8,
+			"gesture_amp": 1.15,
+			"head_turn_deg": 80,
+			"walk_speed_mps": 1.5,
+			"patience_s": 20,
+			"gait": {
+				"idle": "Idle",
+				"walk": "Walk"
+			},
+			"vat_set": "child"
+		},
+		"elder": {
+			"space_radius_m": 1.0,
+			"rvo_radius_m": 0.5,
+			"rvo_priority": 0.6,
+			"yield_rank": 4,
+			"curiosity": 0.3,
+			"gesture_amp": 0.8,
+			"head_turn_deg": 55,
+			"walk_speed_mps": 0.95,
+			"patience_s": 90,
+			"gait": {
+				"idle": "Idle",
+				"walk": "Life_Walk_Elder"
+			},
+			"vat_set": "adult"
+		},
+		"guard": {
+			"space_radius_m": 1.1,
+			"rvo_radius_m": 0.9,
+			"rvo_priority": 0.8,
+			"yield_rank": 5,
+			"curiosity": 0.4,
+			"gesture_amp": 0.7,
+			"head_turn_deg": 90,
+			"walk_speed_mps": 1.4,
+			"patience_s": 120,
+			"gait": {
+				"idle": "Life_Guard_Attention",
+				"walk": "Walk"
+			},
+			"vat_set": "guard"
+		},
+		"bandit": {
+			"space_radius_m": 0.8,
+			"rvo_radius_m": 0.6,
+			"rvo_priority": 0.6,
+			"yield_rank": 3,
+			"curiosity": 0.6,
+			"gesture_amp": 1.1,
+			"head_turn_deg": 85,
+			"walk_speed_mps": 1.5,
+			"patience_s": 10,
+			"gait": {
+				"idle": "Idle",
+				"walk": "Walk"
+			},
+			"vat_set": "adult"
+		},
+		"follower": {
+			"space_radius_m": 0.8,
+			"rvo_radius_m": 0.5,
+			"rvo_priority": 0.5,
+			"yield_rank": 3,
+			"curiosity": 0.5,
+			"gesture_amp": 1.0,
+			"head_turn_deg": 75,
+			"walk_speed_mps": 1.5,
+			"patience_s": 60,
+			"gait": {
+				"idle": "Idle",
+				"walk": "Walk"
+			},
+			"vat_set": "adult"
+		},
+		"merchant": {
+			"space_radius_m": 0.9,
+			"rvo_radius_m": 0.55,
+			"rvo_priority": 0.5,
+			"yield_rank": 3,
+			"curiosity": 0.6,
+			"gesture_amp": 1.2,
+			"head_turn_deg": 70,
+			"walk_speed_mps": 1.25,
+			"patience_s": 90,
+			"gait": {
+				"idle": "Idle",
+				"walk": "Walk"
+			},
+			"vat_set": "adult"
+		},
+		"noble": {
+			"space_radius_m": 1.3,
+			"rvo_radius_m": 0.8,
+			"rvo_priority": 0.9,
+			"yield_rank": 6,
+			"curiosity": 0.4,
+			"gesture_amp": 0.9,
+			"head_turn_deg": 60,
+			"walk_speed_mps": 1.2,
+			"patience_s": 30,
+			"gait": {
+				"idle": "Idle",
+				"walk": "Walk"
+			},
+			"vat_set": "adult"
+		}
+	},
+	"rules": {
+		"S1": {
+			"name": "rvo_avoidance",
+			"enabled": true,
+			"stub": true,
+			"package": "M4",
+			"channels": [
+				"LOCO"
+			],
+			"priority": 2,
+			"min_hold_s": 0.0,
+			"blend_s": 0.2,
+			"tier": "MID",
+			"params": {
+				"radius_by_archetype": "rvo_radius",
+				"time_horizon_agents_s": 1.5,
+				"max_neighbors": 6,
+				"loaded_rank_bonus": 1
+			}
+		},
+		"S2": {
+			"name": "yield_give_way",
+			"enabled": true,
+			"stub": true,
+			"package": "M4",
+			"channels": [
+				"LOCO"
+			],
+			"priority": 3,
+			"min_hold_s": 0.6,
+			"blend_s": 0.25,
+			"tier": "MID",
+			"params": {
+				"horizon_s": 2.5,
+				"slow_mul": 0.4,
+				"step_aside_m": 0.6
+			}
+		},
+		"S3": {
+			"name": "pass_right_shoulder_turn",
+			"enabled": true,
+			"stub": true,
+			"package": "M4",
+			"channels": [
+				"LOCO",
+				"UPPER"
+			],
+			"priority": 2,
+			"min_hold_s": 0.6,
+			"blend_s": 0.2,
+			"tier": "NEAR",
+			"params": {
+				"corridor_max_m": 1.6,
+				"oncoming_m": 3.0,
+				"turn_s": 0.6,
+				"torso_yaw_deg": [
+					30,
+					40
+				],
+				"upper_clip": "Life_Pass_Shoulder_Turn_Upper"
+			}
+		},
+		"S4": {
+			"name": "stop_for_carts_horses",
+			"enabled": true,
+			"stub": true,
+			"package": "M4",
+			"channels": [
+				"LOCO"
+			],
+			"priority": 4,
+			"min_hold_s": 0.8,
+			"blend_s": 0.2,
+			"tier": "MID",
+			"params": {
+				"lookahead_s": 3.0,
+				"stop_dist_m": 2.6,
+				"stop_clip": "Loco_WalkStop"
+			}
+		},
+		"S5": {
+			"name": "avoid_hazards",
+			"enabled": true,
+			"stub": true,
+			"package": "M4",
+			"channels": [
+				"LOCO"
+			],
+			"priority": 2,
+			"min_hold_s": 0.4,
+			"blend_s": 0.2,
+			"tier": "MID",
+			"params": {
+				"radius_m": [
+					0.8,
+					2.0
+				],
+				"runners_ignore": true
+			}
+		},
+		"S6": {
+			"name": "walk_in_pairs",
+			"enabled": true,
+			"stub": true,
+			"package": "M5",
+			"channels": [
+				"LOCO"
+			],
+			"priority": 1,
+			"min_hold_s": 0.0,
+			"blend_s": 0.3,
+			"tier": "MID",
+			"params": {
+				"partner_offset_m": 0.7,
+				"slot_tol_m": 0.5
+			}
+		},
+		"S7": {
+			"name": "queue",
+			"enabled": true,
+			"stub": true,
+			"package": "M5",
+			"channels": [
+				"LOCO"
+			],
+			"priority": 3,
+			"min_hold_s": 0.5,
+			"blend_s": 0.3,
+			"tier": "MID",
+			"params": {
+				"gap_m": 0.85,
+				"patience_key": "patience_s"
+			}
+		},
+		"S8": {
+			"name": "lane_offset",
+			"enabled": true,
+			"stub": true,
+			"package": "M4",
+			"channels": [
+				"LOCO"
+			],
+			"priority": 1,
+			"min_hold_s": 0.0,
+			"blend_s": 0.0,
+			"tier": "FAR",
+			"params": {
+				"min_edge_width_m": 3.0,
+				"lateral_frac": [
+					0.3,
+					0.45
+				]
+			}
+		},
+		"A1": {
+			"name": "head_turn_budget",
+			"enabled": true,
+			"stub": true,
+			"package": "M3",
+			"channels": [
+				"HEAD"
+			],
+			"priority": 1,
+			"min_hold_s": 1.2,
+			"blend_s": 0.2,
+			"tier": "NEAR",
+			"params": {
+				"slots_high": 6,
+				"slots_low": 3,
+				"hold_s": [
+					1.2,
+					3.0
+				],
+				"cooldown_s": [
+					4.0,
+					9.0
+				]
+			}
+		},
+		"A2": {
+			"name": "glance_at_player",
+			"enabled": true,
+			"stub": true,
+			"package": "M3",
+			"channels": [
+				"HEAD"
+			],
+			"priority": 3,
+			"min_hold_s": 1.2,
+			"blend_s": 0.2,
+			"tier": "NEAR",
+			"params": {
+				"range_m": 3.0,
+				"notable_range_m": 6.0
+			}
+		},
+		"A3": {
+			"name": "eye_contact",
+			"enabled": true,
+			"stub": true,
+			"package": "M3",
+			"channels": [
+				"HEAD"
+			],
+			"priority": 3,
+			"min_hold_s": 1.5,
+			"blend_s": 0.2,
+			"tier": "NEAR",
+			"params": {
+				"dot": 0.9,
+				"range_m": 5.0,
+				"dwell_s": 1.0
+			}
+		},
+		"A4": {
+			"name": "look_at_speaker",
+			"enabled": true,
+			"stub": true,
+			"package": "M3",
+			"channels": [
+				"HEAD"
+			],
+			"priority": 2,
+			"min_hold_s": 1.2,
+			"blend_s": 0.2,
+			"tier": "NEAR",
+			"params": {
+				"gaze_shift_s": [
+					2.0,
+					4.0
+				]
+			}
+		},
+		"A5": {
+			"name": "look_at_noises",
+			"enabled": true,
+			"stub": true,
+			"package": "M3",
+			"channels": [
+				"HEAD",
+				"LOCO"
+			],
+			"priority": 4,
+			"min_hold_s": 1.5,
+			"blend_s": 0.2,
+			"tier": "NEAR",
+			"params": {
+				"head_prio": 4,
+				"delay_s": [
+					0.15,
+					0.4
+				],
+				"body_yaw_deg": 30,
+				"body_turn_after_s": 1.5
+			}
+		},
+		"R1": {
+			"name": "flinch_loud_sound",
+			"enabled": true,
+			"stub": true,
+			"package": "M6",
+			"channels": [
+				"UPPER"
+			],
+			"priority": 4,
+			"min_hold_s": 0.6,
+			"blend_s": 0.1,
+			"tier": "MID",
+			"params": {
+				"loudness_m": 25,
+				"within_m": 8
+			}
+		},
+		"R2": {
+			"name": "step_back_drawn_sword",
+			"enabled": true,
+			"stub": true,
+			"package": "M6",
+			"channels": [
+				"LOCO",
+				"UPPER"
+			],
+			"priority": 3,
+			"min_hold_s": 0.9,
+			"blend_s": 0.2,
+			"tier": "MID",
+			"params": {
+				"armed_pressure": 0.2,
+				"armed_space_m": 2.8,
+				"keep_within_s": 1.0
+			}
+		},
+		"R3": {
+			"name": "crowd_ripple_fight",
+			"enabled": true,
+			"stub": true,
+			"package": "M6",
+			"channels": [
+				"LOCO",
+				"UPPER"
+			],
+			"priority": 3,
+			"min_hold_s": 1.0,
+			"blend_s": 0.2,
+			"tier": "FAR",
+			"params": {
+				"inner_m": 4,
+				"middle_m": 10,
+				"wave_mps": 6.0
+			}
+		},
+		"R4": {
+			"name": "curiosity_gathering",
+			"enabled": true,
+			"stub": true,
+			"package": "M6",
+			"channels": [
+				"LOCO",
+				"HEAD"
+			],
+			"priority": 2,
+			"min_hold_s": 1.5,
+			"blend_s": 0.3,
+			"tier": "MID",
+			"params": {
+				"curiosity_min": 0.5,
+				"slot_gap_m": 0.9
+			}
+		},
+		"R5": {
+			"name": "flee_with_dropped_load",
+			"enabled": true,
+			"stub": true,
+			"package": "M6",
+			"channels": [
+				"BODY"
+			],
+			"priority": 7,
+			"min_hold_s": 3.0,
+			"blend_s": 0.1,
+			"tier": "MID",
+			"params": {
+				"drop_once": true,
+				"oneshot": "Life_Flee_Start",
+				"run_clip": "Run_Natural"
+			}
+		},
+		"R6": {
+			"name": "weather_hunch_shade",
+			"enabled": true,
+			"stub": true,
+			"package": "M6",
+			"channels": [
+				"UPPER",
+				"LOCO"
+			],
+			"priority": 1,
+			"min_hold_s": 3.0,
+			"blend_s": 0.5,
+			"tier": "MID",
+			"params": {
+				"rain_pace_mul": 1.15,
+				"shade_oneshot_s": 3.0
+			}
+		},
+		"R7": {
+			"name": "cold_snow",
+			"enabled": true,
+			"stub": true,
+			"package": "M6",
+			"channels": [
+				"UPPER",
+				"LOCO"
+			],
+			"priority": 1,
+			"min_hold_s": 3.0,
+			"blend_s": 0.5,
+			"tier": "MID",
+			"params": {
+				"idle_clip": "Life_Mocap_Cold"
+			}
+		},
+		"O1": {
+			"name": "pick_by_need",
+			"enabled": true,
+			"stub": true,
+			"package": "M7",
+			"channels": [],
+			"priority": 0,
+			"min_hold_s": 0.0,
+			"blend_s": 0.0,
+			"tier": "OUT",
+			"params": {}
+		},
+		"O2": {
+			"name": "approach_arc",
+			"enabled": true,
+			"stub": true,
+			"package": "M7",
+			"channels": [
+				"LOCO"
+			],
+			"priority": 3,
+			"min_hold_s": 0.5,
+			"blend_s": 0.2,
+			"tier": "MID",
+			"params": {
+				"slow_last_m": 1.2
+			}
+		},
+		"O3": {
+			"name": "side_aware_entry_exit",
+			"enabled": true,
+			"stub": true,
+			"package": "M7",
+			"channels": [
+				"BODY"
+			],
+			"priority": 3,
+			"min_hold_s": 0.5,
+			"blend_s": 0.2,
+			"tier": "MID",
+			"params": {
+				"sides": [
+					"front",
+					"side",
+					"back"
+				]
+			}
+		},
+		"O4": {
+			"name": "hand_ik_on_props",
+			"enabled": true,
+			"stub": true,
+			"package": "local",
+			"channels": [
+				"UPPER"
+			],
+			"priority": 2,
+			"min_hold_s": 0.5,
+			"blend_s": 0.15,
+			"tier": "NEAR",
+			"params": {
+				"budget": 4,
+				"blend_s": 0.15
+			}
+		},
+		"O5": {
+			"name": "occupancy_watchers",
+			"enabled": true,
+			"stub": true,
+			"package": "M7",
+			"channels": [
+				"UPPER",
+				"HEAD"
+			],
+			"priority": 1,
+			"min_hold_s": 2.0,
+			"blend_s": 0.3,
+			"tier": "MID",
+			"params": {
+				"watch_ring_m": 2.2
+			}
+		},
+		"L1": {
+			"name": "slope_stairs_feet",
+			"enabled": true,
+			"stub": true,
+			"package": "local",
+			"channels": [
+				"UPPER"
+			],
+			"priority": 2,
+			"min_hold_s": 0.5,
+			"blend_s": 0.25,
+			"tier": "NEAR",
+			"params": {
+				"slope_deg": 8,
+				"refresh_s": 0.25,
+				"budget": 4
+			}
+		},
+		"L2": {
+			"name": "lean_into_turns",
+			"enabled": true,
+			"stub": true,
+			"package": "M8",
+			"channels": [
+				"LOCO"
+			],
+			"priority": 1,
+			"min_hold_s": 0.0,
+			"blend_s": 0.0,
+			"tier": "MID",
+			"params": {
+				"k": 0.02,
+				"max_roll_deg": 5,
+				"max_pitch_deg": 3
+			}
+		},
+		"L3": {
+			"name": "speed_matched_stride",
+			"enabled": true,
+			"stub": true,
+			"package": "M8",
+			"channels": [
+				"LOCO"
+			],
+			"priority": 1,
+			"min_hold_s": 0.5,
+			"blend_s": 0.3,
+			"tier": "FAR",
+			"params": {
+				"band": [
+					0.75,
+					1.3
+				],
+				"clamp": [
+					0.3,
+					1.8
+				]
+			}
+		},
+		"L4": {
+			"name": "start_stop_turn",
+			"enabled": true,
+			"stub": true,
+			"package": "M8",
+			"channels": [
+				"LOCO"
+			],
+			"priority": 3,
+			"min_hold_s": 0.4,
+			"blend_s": 0.15,
+			"tier": "NEAR",
+			"params": {
+				"turn_deg": 100,
+				"max_speed_mps": 1.0,
+				"blend_s": [
+					0.15,
+					0.2
+				]
+			}
+		},
+		"L5": {
+			"name": "carry_load_gait",
+			"enabled": true,
+			"stub": true,
+			"package": "M8",
+			"channels": [
+				"LOCO",
+				"UPPER"
+			],
+			"priority": 2,
+			"min_hold_s": 1.0,
+			"blend_s": 0.3,
+			"tier": "MID",
+			"params": {
+				"pace_mul": 0.85,
+				"rate_mul": 1.05
+			}
+		},
+		"L6": {
+			"name": "injured_tired_drunk_gaits",
+			"enabled": true,
+			"stub": true,
+			"package": "M8",
+			"channels": [
+				"LOCO"
+			],
+			"priority": 2,
+			"min_hold_s": 2.0,
+			"blend_s": 0.3,
+			"tier": "FAR",
+			"params": {
+				"weave_m": 0.4,
+				"rest_need": 0.2
+			}
+		},
+		"G1": {
+			"name": "conversation_circles",
+			"enabled": true,
+			"stub": true,
+			"package": "M5",
+			"channels": [
+				"LOCO",
+				"UPPER",
+				"HEAD"
+			],
+			"priority": 2,
+			"min_hold_s": 3.0,
+			"blend_s": 0.3,
+			"tier": "MID",
+			"params": {
+				"radius_base_m": 0.55,
+				"radius_per_person_m": 0.25,
+				"gap_m": 1.3,
+				"token_s": [
+					3,
+					7
+				]
+			}
+		},
+		"G2": {
+			"name": "families_walking",
+			"enabled": true,
+			"stub": true,
+			"package": "M5",
+			"channels": [
+				"LOCO"
+			],
+			"priority": 2,
+			"min_hold_s": 1.0,
+			"blend_s": 0.3,
+			"tier": "MID",
+			"params": {
+				"child_slot_m": 0.6,
+				"leash_m": 3.0
+			}
+		},
+		"G3": {
+			"name": "guard_patrol_in_step",
+			"enabled": true,
+			"stub": true,
+			"package": "M5",
+			"channels": [
+				"LOCO"
+			],
+			"priority": 2,
+			"min_hold_s": 1.0,
+			"blend_s": 0.0,
+			"tier": "FAR",
+			"params": {
+				"side_m": 0.9,
+				"phase_err_s": 0.05
+			}
+		},
+		"G4": {
+			"name": "kids_around_adults",
+			"enabled": true,
+			"stub": true,
+			"package": "M5",
+			"channels": [
+				"LOCO"
+			],
+			"priority": 1,
+			"min_hold_s": 1.0,
+			"blend_s": 0.3,
+			"tier": "MID",
+			"params": {
+				"orbit_m": [
+					2,
+					5
+				]
+			}
+		},
+		"C1": {
+			"name": "tagged_library",
+			"enabled": true,
+			"stub": true,
+			"package": "M2",
+			"channels": [],
+			"priority": 0,
+			"min_hold_s": 0.0,
+			"blend_s": 0.0,
+			"tier": "OUT",
+			"params": {}
+		},
+		"C2": {
+			"name": "variety_pick",
+			"enabled": true,
+			"stub": true,
+			"package": "M2",
+			"channels": [],
+			"priority": 0,
+			"min_hold_s": 0.0,
+			"blend_s": 0.0,
+			"tier": "OUT",
+			"params": {
+				"own_ring": 3,
+				"neighbour_ring": 2
+			}
+		},
+		"C3": {
+			"name": "personality_offsets",
+			"enabled": true,
+			"stub": true,
+			"package": "M2",
+			"channels": [
+				"LOCO"
+			],
+			"priority": 1,
+			"min_hold_s": 0.0,
+			"blend_s": 0.0,
+			"tier": "FAR",
+			"params": {
+				"speed_mul": [
+					0.88,
+					1.12
+				],
+				"loop_rate": [
+					0.93,
+					1.07
+				],
+				"spine_pitch_deg": [
+					-3,
+					4
+				],
+				"talk_rate": [
+					1.0,
+					1.15
+				]
+			}
+		},
+		"B1": {
+			"name": "bystander_ring",
+			"enabled": true,
+			"stub": true,
+			"package": "M6",
+			"channels": [
+				"UPPER",
+				"HEAD",
+				"LOCO"
+			],
+			"priority": 4,
+			"min_hold_s": 1.0,
+			"blend_s": 0.2,
+			"tier": "MID",
+			"params": {
+				"civilian_m": [
+					6,
+					12
+				],
+				"wince_gap_s": 2.0
+			}
+		},
+		"B2": {
+			"name": "bandit_squad_flanks",
+			"enabled": true,
+			"stub": true,
+			"package": "M9",
+			"channels": [
+				"LOCO"
+			],
+			"priority": 3,
+			"min_hold_s": 1.0,
+			"blend_s": 0.3,
+			"tier": "MID",
+			"params": {
+				"flank_spread_deg": 60
+			}
+		},
+		"B3": {
+			"name": "bumped_by_runner",
+			"enabled": true,
+			"stub": true,
+			"package": "M6",
+			"channels": [
+				"BODY"
+			],
+			"priority": 5,
+			"min_hold_s": 0.4,
+			"blend_s": 0.1,
+			"tier": "NEAR",
+			"params": {
+				"bump_m": 0.5,
+				"influence": 0.3,
+				"duration_s": 0.4
+			}
+		}
+	}
+}
