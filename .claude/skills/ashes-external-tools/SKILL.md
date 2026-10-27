@@ -69,3 +69,22 @@ Rules:
 - Debug Draw 3D (`kingdom/addons/debug_draw_3d`, committed) is a GDExtension: `DebugDraw3D.draw_*` / `DebugDraw2D`. Release templates make it a no-op; gate game calls with `OS.is_debug_build()` and a debug flag so nothing draws unless debugging.
 - Android Performance Analyzer is not installed (562 MB, Android SDK licence the owner must accept); use Perfetto + `s22_capture.ps1` as before.
 - No Godot LSP means Serena symbol tools fail; start the editor (headless is fine) before using them.
+
+## Blender 5.2 extensions (installed 2026-10-28, official extensions.blender.org, all GPL; outputs free for commercial use)
+Installed in `%APPDATA%\Blender Foundation\Blender\5.2\extensions\user_default\` and enabled. Use them before writing custom Blender code.
+| Need | Extension |
+|---|---|
+| Realistic trees (oak/ash/beech), leaves | `sapling_tree_gen`, `modular_tree`, `space_colonization_tree_generator`, `leaf_gen` (+ Poly Haven bark; bake impostors/LODs) |
+| Ivy on walls (ref 20), scatter, random arrays, simple architecture | `ivygen`, `Bagapie`, `scatter_objects`, `PlaceHelper` |
+| Terrain noise and displacement | `antlandscape` |
+| Modelling helpers | `looptools`, `bool_tool`, `extra_mesh_objects`, `archimesh`, `copy_attributes_menu`, `animall` |
+| PBR baking (re-material Meshy props, edge wear, atlases) | `thebetterbaker`, `paws_bakery`, `bake_to_single_material` |
+| LODs, decimation, texel density | `lod_gen`, `lodify_optimizer`, `texel_density_checker` |
+| Animation retarget and root motion | `retarget`, `root_maker` (also Expy Kit, Rigify, Wiggle 2) |
+| Realistic humans (CC0 output) | `mpfb` (MakeHuman) — candidate for the hero and NPC body base |
+Built in, no add-on needed: Geometry Nodes (fences, walls, cobbles, scatter), Cloth sim (canopies, laundry, banners, capes → bake), QuadriFlow remesh, Decimate, Cycles bake. Blender's online repo sync is off here: install new extensions with `blender -b --command extension install-file -r user_default -e <zip>` (zip URLs from `https://extensions.blender.org/api/v1/extensions/`).
+
+## AI tools (local, RTX 4070 8 GB)
+- Real-ESRGAN (texture upscale), RTMPose (2D video mocap), Instant Meshes, Piper — see above.
+- DeepBump (GPL-3, `C:\Users\Jonna\Tools\deepbump`): photo/albedo → normal and height maps (ONNX, CPU OK). `C:\Users\Jonna\Tools\deepbump\venv\Scripts\python.exe C:\Users\Jonna\Tools\deepbump\DeepBump-8\cli.py in.png out_normal.png color_to_normals`.
+- Rejected: TRELLIS image→3D (needs ~16 GB VRAM), Hunyuan3D (licence), SMPL-based video mocap (non-commercial body model), local LLMs (owner rule), AudioCraft/XTTS (non-commercial weights).
