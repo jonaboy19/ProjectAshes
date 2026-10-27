@@ -819,6 +819,8 @@ class Driver extends RefCounted:
 
 	## Top-out root motion (RootExtract): the capsule follows the clip's extracted root path, so the body never leaves the capsule
 	## and the clip ends standing over it (no pose pop at the hand-over to idle).
+
+
 	func _exit_root_motion() -> void:
 		var an: Variant = p.get("_animator")
 		var m: Variant = p.get("_model")
@@ -910,7 +912,7 @@ class Driver extends RefCounted:
 				plan[wkey] = move_toward(float(plan.get(wkey, 0.0)), hold, _delta * 8.0)
 				var rb: float = plan.get("rung_base", 0.3)
 				var ry := base_y + rb + roundf((hp.y - base_y - rb) / rung) * rung      # nearest rung to the animated hand
-				var rail := -right * 0.21 if side == 0 else right * 0.21
+				var rail := -right * 0.14 if side == 0 else right * 0.14     # on the rung, a hand-width inside the rail
 				pt = Vector3(lad.x, ry, lad.z) + rail - inw * 0.03
 				w = float(plan[wkey])
 			(rig as Object).call("set_hand_brace", side, pt, -inw, w)

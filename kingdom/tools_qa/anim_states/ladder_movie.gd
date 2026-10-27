@@ -115,6 +115,11 @@ func _film(secs: float, shot: int) -> void:
 		_cam.make_current()
 		if OS.has_environment("LAD_DBG") and Engine.get_process_frames() % 6 == 0:
 			var pc: Camera3D = _p.get("camera")
+			var skl: Skeleton3D = _p.find_children("*", "Skeleton3D", true, false)[0]
+			var hips := skl.global_transform * skl.get_bone_global_pose(skl.find_bone("pelvis")).origin
+			var hl := skl.global_transform * skl.get_bone_global_pose(skl.find_bone("hand_l")).origin
+			var hr := skl.global_transform * skl.get_bone_global_pose(skl.find_bone("hand_r")).origin
+			print("LADPOS cap_x=%.3f hips_x=%.3f hand_l=(%.2f,%.2f) hand_r=(%.2f,%.2f) model_yaw=%.2f" % [_p.global_position.x, hips.x, hl.x, hl.y - BASE, hr.x, hr.y - BASE, (_p.get("_model") as Node3D).rotation.y])
 			print("LADDBG y=%.2f vis=%s pitch=%.2f pcam=%s pivot=%s" % [_p.global_position.y - BASE, str((_p.get("_model") as Node3D).visible), float(_p.get("_pitch")), str(pc.global_position - Vector3(0, BASE, 0)) if pc else "-", str((_p.get("_pivot") as Node3D).global_position - Vector3(0, BASE, 0))])      # the player's own camera rig takes over during traversal otherwise
 		if shot == 0:
 			_cam.global_position = Vector3(3.8, BASE + 1.9, -2.6)    # fixed side / 3/4-behind camera (never inside the deck)
