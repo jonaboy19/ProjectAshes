@@ -1,5 +1,7 @@
 # Player model from MPFB (MakeHuman) - plan (not started)
 
+**Superseded by `CHARACTER_PLAN.md` (hero + crowd).**
+
 Status 2026-10-27: the player (hero_meshy3) reads low-detail next to ref 01 (KCD2): soft Meshy head, painted-on clothing folds, low-res hands.
 
 ## What is installed
