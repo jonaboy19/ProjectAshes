@@ -1,4 +1,4 @@
 Asset: church_parish_grim (Rising Ashes, refined 2026-10-28)
-Geometry: derived from Meshy AI output generated on the project owner's Meshy account (meshy_keep B07, Meshy_AI_Grim_dark_Medieval_Pa_0929060050_texture.glb); rescaled to real size, decimated (10000 -> 10000 tris, detail baked back as a normal map), re-UV'd and re-materialed.
+Geometry: derived from Meshy AI output generated on the project owner's Meshy account (meshy_keep B07, Meshy_AI_Grim_dark_Medieval_Pa_0929060050_texture.glb); rescaled to real size, decimated (10000 -> 10350 tris, detail baked back as a normal map), re-UV'd and re-materialed.
 Materials: CC0 1.0 Poly Haven texture scans (polyhaven.com; rough_wood, bark_brown_02, rock_face, rough_plaster_03, thatch_roof_angled) baked with procedural wear/grime in Blender; no attribution required.
 Pipeline: tools/blender/props/refine_lib.py

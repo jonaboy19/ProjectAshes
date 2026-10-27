@@ -321,3 +321,13 @@ Video: `PA_plans/videos/slice_move_real_terrain_wip.mp4` (gameplay camera). Shee
 | Ladder descent | PASS (fixed) | the route called "climb down" during the 2.9 s top-out, so the ladder fell back to a teleport and the landing code (fall apex still at the deck) played a hard-landing roll at the foot of the ladder. Now: the route waits for the top-out to end; a teleported or carried body resets the fall apex; descent hangs on the approach side facing the rungs and steps off at the stand-off |
 | Shield on the back: no pale blob (ref 01 clean from behind) | PASS | root cause: hero_tier_a.upgrade_meshy put the body shader on EVERY textured mesh under the model, props included, so the kite shield lost its PBR and read pale and flat. Props on bone attachments now keep their own materials; scan albedo x0.55, roughness >= 0.75; 88 cm; sits 7 cm lower between the shoulder blades and the belt |
 | Sheathed sword at the hip | WATCH | a naked 95 cm blade hangs from the belt with no scabbard. Next: a Blender scabbard (leather and chape) shown when sheathed |
+
+## 2026-10-28 Refined buildings round 2 (Blender refine worker): coordinator review fixes
+File: `docs/plans/props_refined/buildings_sheet.jpg`.
+| Fix | Result |
+|---|---|
+| Half-timbered houses were uniformly muddy (B43/B44/B52/B53/B60) | PASS: a per-pixel limewash/oak frame from Meshy's painted framing; dirt only at the base, under the eaves and in streaks. B44 and B60 are now crisp; B43/B52/B53 are borderline (noisy shingle roofs). |
+| Roof courses not following the slope | PASS: slope-aligned roof projection (eave direction snapped to 45° per face, courses on horizontal lines) |
+| B07 church plain | PASS (borderline): buttresses, bell-cote and bell, darker slate |
+| B16 Victorian | DROPPED |
+Downloads: none. The approval was relayed by an agent; it needs the owner's own OK (see README).

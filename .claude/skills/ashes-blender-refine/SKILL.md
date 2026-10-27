@@ -44,6 +44,10 @@ Code: `tools/blender/props/refine_lib.py` (shared: material library, weathering 
   9. everything else becomes stone.
 
   Tune `timber_s` per building: brown stone and brick get misread as timber at 0.22, and a gate door is lost at 0.45.
+- **Half-timbering is per pixel, not per face.** `b_frame` (refine_lib `frame`) blends limewash (rough_plaster_03, off-white) and dark oak (rough_wood) using **Meshy's albedo luminance**. Thresholds are in **linear** space: 0.12–0.22 means sRGB 0.38–0.5. At 0.30–0.45 the light plaster turns to timber. Use `rules_frame(stone, roof, roof_z, base_z)` for half-timbered houses, and pick `base_z` (the stone plinth) from a `--debug` class render.
+- Keep house dirt to the base (`mud_h` 0.9 m), the eaves (AO) and streaks (`drip`). `_H` has grime 0.35 and no Meshy detail overlay; all-over grime made the whole batch muddy grey-brown.
+- **Roof scans use a slope-aligned projection** (`roof=True` in LIB): u runs along the eave (the true-normal azimuth snapped to 45°, so one roof plane shares one direction) and v is height × √2. Box projection made courses run diagonally on hips.
+- Adding architecture to a Meshy building (`church_extras`): measure the wall planes from a mid-height vertex band, then add stepped buttresses with weathered tops (bmesh cubes) and a bell-cote (boolean arch), as separate parts joined before the UV and bake.
 - Building scans in `LIB` (`b_*`) use real tile sizes (2.2–3 m) and Meshy detail overlay at 0.35, so Meshy's painted joints and the scan's joints don't double up.
 
 ## Task B: procedural build (`build_village_props.py`)

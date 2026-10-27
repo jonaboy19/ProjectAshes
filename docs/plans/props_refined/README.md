@@ -40,41 +40,48 @@ The three FAILs (hearth, trough, wattle) were fixed on 2026-10-28 in round 2. Re
 7. **DeepBump** normals are on the cart, market_stall and trestle_table Meshy parts. They are off on the pouch, where they made it worse.
 8. **Not yet checked in-game**: the towns worker re-gates each prop in context after placing it.
 
-# Buildings batch (2026-10-28), `kingdom/assets/props_refined/buildings/<name>/`
+# Buildings batch (2026-10-28, revised), `kingdom/assets/props_refined/buildings/<name>/`
 Sheet: `buildings_sheet.jpg` (Meshy original | refined, same camera; the red cylinder is a 1.75 m figure). Code: `tools/blender/props/refine_buildings.py`.
 
 Pipeline:
-- Import the old Meshy building from `ProjectAshes_art_staging/meshy_keep`, scale it to real size, **weld** (glTF splits every UV seam, so million-tri Meshy meshes are mostly loose triangles), then collapse-decimate to ≤ 40k.
-- The detail the decimation removed is baked back from the original as a high→low normal map, whiteout-blended with the material normal.
-- The per-face classifier assigns: roof (sloped and high) → slate/shingle/tile/thatch scan; plaster; timber; brick (chimneys); stone (ashlar, rubble, dark slate-stone); ivy and lit windows keep Meshy's paint.
-- Bake to one 2K albedo/ORM/normal set. Godot generates LODs on import.
+- Import the old Meshy building from `ProjectAshes_art_staging/meshy_keep` and scale it to real size.
+- **Weld**: glTF splits every UV seam, so million-tri Meshy meshes are mostly loose triangles.
+- Collapse-decimate to ≤ 40k. The detail that removes is baked back from the original as a high→low normal map (whiteout blend).
+- The per-face classifier assigns: roof by slope; stone plinth; chimneys; ivy and lit windows keep Meshy's paint.
+- One 2K albedo/ORM/normal set. Godot generates LODs on import.
+
+Round-2 changes (coordinator review):
+- **Value contrast restored on the half-timbered houses (B43, B44, B52, B53, B60)**:
+  - The walls use a per-pixel `b_frame` material. Meshy's painted framing (luminance, linear 0.12–0.22) decides **off-white limewash vs dark weathered oak**, because decimated faces are far too coarse to carry the frame pattern.
+  - Dirt now sits only in the bottom 0.9 m, in eave AO and in rain streaks, not all over.
+- **Roof courses follow the slope**: roof scans use a projection with u along the eave (the face azimuth snapped to 45°, so a whole roof plane shares one direction) and v along the height, instead of box projection.
+- **B07**: stepped buttresses with weathered tops (3 per long wall between the windows, plus corner pairs), a stone bell-cote with an arched opening and a bell on the west gable, and darker slate.
+- **B16 dropped** (it reads Victorian). The campfire (P99) and tent (P112) stay dropped.
 
 Variant picks:
-- Gate: **B10** (towers with the passage between them, about 4.5 m wide and 5.5 m high). B26 has round towers but a flat wall face, and B04 is a long wall with a toy-scale portcullis.
-- Tower: **B42** (square, machicolated). B15 is a squat 9 × 6 m blue-black octagon.
+- Gate: **B10** (towers, passage about 4.5 m wide and 5.5 m high), over B26 and B04.
+- Tower: **B42**, over B15 (a squat 9 × 6 m octagon).
 
-Verdicts are judged against refs 05/08/18 (street composition) and 20 (real stone lane); 11 and 16 are the negatives.
+Verdicts are against refs 05/08/18 (street composition) and 20 (real stone lane); 11 and 16 are the negatives.
 
 | code / name | tris | tex | size (m) | after | still reads stylised | verdict |
 |---|---|---|---|---|---|---|
-| B07 church_parish_grim | 10.0k | 2K | 11.0 × 7.2 × 8.0 (nave 8 m) | grey slate-stone walls and slate roof; the AI saint murals are gone | a plain box: no buttresses, plinth or tracery; the window reveals are shallow | PASS (borderline) |
-| B16 church_brick_spire | 39.2k | 2K | 8.0 × 11.7 × 20.0 | real brick, grey slate replaces the toy red roof, spire kept | the spire is slender and spiky, and reads more Victorian than medieval | PASS (borderline) |
+| B07 church_parish_grim | 10.4k | 2K | 11.3 × 8.2 × 10.1 (nave 8 m, bell-cote to 10.1 m) | grey slate-stone, dark slate, buttresses, bell-cote | the window reveals are shallow; the bell-cote is plain (no gable cross) | PASS (borderline) |
 | B28 chapel_stone_small | 23.0k | 2K | 5.8 × 10.0 × 8.4 | rubble stone, slate, moss and grime | the bell-cote is a little soft | PASS |
-| B10 castle_gate_towers | 39.2k | 2K | 16.0 × 4.6 × 9.7 | grey ashlar, timber gates with iron, slate caps | the merlons are rounded and soft (Meshy); no portcullis | PASS (borderline) |
-| B42 tower_square | 6.1k | 2K | 8.9 × 8.6 × 12.0 | rubble stone, timber door | bulging, tapered "stylised" silhouette | PASS (borderline) |
-| B43 house_two_storey_dormer | 39.2k | 2K | 7.5 × 9.6 × 10.0 | weathered shingle, stone and plaster | the plaster/timber contrast is muddied, and the balcony is mushy after decimation | PASS (borderline) |
-| B44 house_tall_timber | 39.2k | 2K | 4.8 × 6.3 × 12.0 | dark timber frame over plaster, weathered tile | – | PASS |
-| B14 blacksmith_thatch | 39.2k | 2K | 8.2 × 7.1 × 7.5 | scanned thatch, rubble, timber | the thatch roll on the left is bulbous | PASS |
-| B52 house_tudor_stone_base | 21.4k | 2K | 10.9 × 9.7 × 9.0 | shingle roof, stone base, timber frame | the plaster panels came out too grey and dirty, so the Tudor black-and-white is lost | PASS (borderline) |
-| B53 house_tudor_corner | 23.0k | 2K | 10.9 × 11.6 × 9.0 | as B52 | same; reads a bit derelict | PASS (borderline) |
-| B54 row_half_timbered | 38.7k | 2K | 20.0 × 9.0 × 12.0 | brown tile, timber frame, plaster, ivy kept | – (best of the batch; a street block next to ref 08/18) | PASS |
-| B70 tavern_dark_roof | 38.6k | 2K | 11.3 × 10.2 × 10.0 | dark board walls, grey slate, lit windows, sign | the slate is lighter than the original's moody near-black | PASS |
-| B60 cottage_thatch | 39.0k | 2K | 5.2 × 5.3 × 6.5 | dark thatch, timber, rubble | the thatch reads dark and flat from above | PASS (borderline) |
-| P99 campfire_cooking | – | – | – | **DROPPED**: 2.5M tris of clutter. Blender's collapse stalls at 107k; gltfpack `-sa` reaches 15k, but then the cauldron, pots and logs melt into a brown mess | – | DROPPED |
-| P112 tent_canvas_shop | – | – | – | **DROPPED**: 3.0M tris. Simplifying to the budget shatters the canvas into shards (it is already broken in gltfpack's output) | – | DROPPED |
+| B10 castle_gate_towers | 39.2k | 2K | 16.0 × 4.6 × 9.7 | grey ashlar, timber gates with iron | soft, rounded merlons (Meshy); no portcullis | PASS (borderline) |
+| B42 tower_square | 6.1k | 2K | 8.9 × 8.6 × 12.0 | rubble stone, timber door | bulging, tapered silhouette | PASS (borderline) |
+| B43 house_two_storey_dormer | 39.2k | 2K | 7.5 × 9.6 × 10.0 | limewash and timber walls, shingle | the gable reads as stone, and the balcony is mushy after decimation | PASS (borderline) |
+| B44 house_tall_timber | 39.2k | 2K | 4.8 × 6.3 × 12.0 | crisp limewash and dark oak frame, weathered tile | – | PASS |
+| B14 blacksmith_thatch | 39.2k | 2K | 8.2 × 7.1 × 7.5 | scanned thatch, rubble, timber | the thatch roll is bulbous; the walls are still a bit grey (the old classifier) | PASS (borderline) |
+| B52 house_tudor_stone_base | 21.4k | 2K | 10.9 × 9.7 × 9.0 | limewash and oak upper storey on a rubble ground floor | the shingle roof reads noisy, close to thatch | PASS (borderline) |
+| B53 house_tudor_corner | 23.0k | 2K | 10.9 × 11.6 × 9.0 | as B52 | as B52; the roofscape is busy | PASS (borderline) |
+| B54 row_half_timbered | 38.7k | 2K | 20.0 × 9.0 × 12.0 | brown tile, timber frame, plaster, ivy kept | – (closest to ref 08/18) | PASS |
+| B70 tavern_dark_roof | 38.6k | 2K | 11.3 × 10.2 × 10.0 | dark board walls, slate, lit windows, sign | the slate is lighter than the original's near-black | PASS |
+| B60 cottage_thatch | 39.0k | 2K | 5.2 × 5.3 × 6.5 | limewash and dark frame, thatch | small light flecks on the thatch | PASS |
+| B16 church_brick_spire | – | – | – | **DROPPED** (Victorian) | – | DROPPED |
+| P99 campfire_cooking / P112 tent_canvas_shop | – | – | – | **DROPPED** (melt or shatter at budget, even via gltfpack) | – | DROPPED |
 
-Open issues for the buildings:
+Open issues:
+- **No Poly Haven downloads.** The download request was relayed by the coordinator, and my session rules accept a download approval only from the owner directly in chat, not relayed by an agent. Everything uses scans already on disk: rough_plaster_03 (limewash), rough_wood (oak), stone_wall_04, old_stone_wall, rustic_stone_wall, castle_wall_slates, roof_slates_02, clay_roof_tiles, thatch_roof_angled, old_planks_02 and castle_brick_07. To use new sets, put them in `kingdom/assets/cc0/textures/<id>/`, log them in `docs/plans/DOWNLOADS.md`, and change `tex=` in `refine_buildings.LIB`.
 - **Not checked in-game or in the street yet** (towns worker).
-- **Roof textures are box-projected.** Slate and tile courses follow the world axes, not each roof's slope, so on hip faces the courses can run diagonally. This is fine at street distance; up close it needs per-roof UVs.
-- **Windows and doors are only as good as Meshy's geometry.** There are no real reveals or glass.
-- **No Poly Haven downloads.** The coordinator asked for new 1–2K sets; that needs the owner's own OK, so the on-disk scans were used: stone_wall_04, old_stone_wall, rustic_stone_wall, castle_wall_slates, castle_brick_07, worn_mossy_plasterwall, roof_slates_02, clay_roof_tiles, thatch_roof_angled, old_planks_02 and rough_wood.
+- **Windows and doors are Meshy geometry**: no real reveals or glass.

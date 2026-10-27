@@ -216,14 +216,33 @@ def make_material(cls, meshy_img=None, paint_img=None):
     if spec["kind"] == "scan":
         ts = tex_set(spec["tex"])
         mp = nb.new("ShaderNodeMapping")
-        nb.link(obj, mp.inputs["Vector"])
+        proj = "BOX"
+        if spec.get("roof"):
+            # roof courses follow the slope: u along the eave (face azimuth snapped to 45 deg so a whole roof plane shares
+            # one direction), v = height * sqrt(2) (courses are horizontal lines; ~45 deg pitch)
+            tn = nb.new("ShaderNodeSeparateXYZ")
+            nb.link(geo.outputs["True Normal"], tn.inputs[0])
+            ang = nb.math("ARCTAN2", tn.outputs["Y"], tn.outputs["X"])
+            q = nb.math("MULTIPLY", nb.math("ROUND", nb.math("DIVIDE", ang, math.pi / 4)), math.pi / 4)
+            px = nb.new("ShaderNodeSeparateXYZ")
+            nb.link(obj, px.inputs[0])
+            u = nb.math("ADD", nb.math("MULTIPLY", px.outputs["X"], nb.math("MULTIPLY", nb.math("SINE", q), -1.0)),
+                        nb.math("MULTIPLY", px.outputs["Y"], nb.math("COSINE", q)))
+            v = nb.math("MULTIPLY", px.outputs["Z"], 1.414)
+            cv = nb.new("ShaderNodeCombineXYZ")
+            nb.link(u, cv.inputs["X"])
+            nb.link(v, cv.inputs["Y"])
+            nb.link(cv.outputs[0], mp.inputs["Vector"])
+            proj = "FLAT"
+        else:
+            nb.link(obj, mp.inputs["Vector"])
         s = 1.0 / spec["tile"]
         mp.inputs["Scale"].default_value = (s, s, s)
         # a fixed per-material offset so neighbouring parts don't share the same texture patch
         mp.inputs["Location"].default_value = (sum(map(ord, cls)) % 97 / 97.0, sum(map(ord, cls)) % 53 / 53.0, 0.0)
 
         def img(path, nc):
-            t = nb.new("ShaderNodeTexImage", projection="BOX", projection_blend=0.25)
+            t = nb.new("ShaderNodeTexImage", projection=proj, projection_blend=0.25)
             t.image = load_img(path, nc)
             nb.link(mp.outputs[0], t.inputs["Vector"])
             return t
@@ -251,6 +270,41 @@ def make_material(cls, meshy_img=None, paint_img=None):
         bw = nb.new("ShaderNodeRGBToBW")
         nb.link(dt.outputs["Color"], bw.inputs["Color"])
         height = nb.math("ADD", nb.math("MULTIPLY", sep.outputs["Red"], 0.6), nb.math("MULTIPLY", bw.outputs[0], 0.4))
+        if spec.get("frame") and meshy_img is not None:
+            # half-timbering per PIXEL: Meshy painted the frame onto flat walls, so its albedo luminance decides
+            # limewash (light) vs dark weathered timber (dark); decimated faces are far too coarse for this
+            fr = spec["frame"]
+            ts2 = tex_set(fr["tex"])
+            mp2_ = nb.new("ShaderNodeMapping")
+            nb.link(obj, mp2_.inputs["Vector"])
+            s2 = 1.0 / fr["tile"]
+            mp2_.inputs["Scale"].default_value = (s2, s2, s2)
+            def img2(path, nc):
+                t = nb.new("ShaderNodeTexImage", projection="BOX", projection_blend=0.25)
+                t.image = load_img(path, nc)
+                nb.link(mp2_.outputs[0], t.inputs["Vector"])
+                return t
+            dt2 = img2(ts2["diff"], False)
+            at2 = img2(ts2["arm"], True)
+            hs2 = nb.new("ShaderNodeHueSaturation")
+            hs2.inputs["Saturation"].default_value = fr["sat"]
+            hs2.inputs["Value"].default_value = fr["val"]
+            nb.link(dt2.outputs["Color"], hs2.inputs["Color"])
+            alb2 = nb.mix(1.0, hs2.outputs["Color"], fr["tint"], blend="MULTIPLY")
+            sep2 = nb.new("ShaderNodeSeparateColor")
+            nb.link(at2.outputs["Color"], sep2.inputs["Color"])
+            uvf = nb.new("ShaderNodeUVMap", uv_map="meshy_uv")
+            mtf = nb.new("ShaderNodeTexImage")
+            mtf.image = meshy_img
+            nb.link(uvf.outputs["UV"], mtf.inputs["Vector"])
+            lum = nb.new("ShaderNodeRGBToBW")
+            nb.link(mtf.outputs["Color"], lum.inputs["Color"])
+            wood = nb.maprange(lum.outputs[0], fr["hi"], fr["lo"])          # 1 = timber (dark in Meshy's paint)
+            alb = nb.mix(wood, alb, alb2)
+            rough = nb.mix(wood, rough, sep2.outputs["Green"])
+            # timber stands proud of the infill by a couple of cm
+            height = nb.math("ADD", nb.math("MULTIPLY", height, 0.5), nb.math("MULTIPLY", wood, 0.8))
+            spec = dict(spec, detail=0.0)
         if spec.get("speckle"):
             # granite: black mica / white feldspar speckle over the scan
             v = nb.new("ShaderNodeTexVoronoi")
@@ -413,7 +467,7 @@ def make_material(cls, meshy_img=None, paint_img=None):
     cav = nb.math("SUBTRACT", 1.0, ao.outputs["AO"], clamp=True)
     sep_xyz = nb.new("ShaderNodeSeparateXYZ")
     nb.link(obj, sep_xyz.inputs[0])
-    low = nb.maprange(sep_xyz.outputs["Z"], 0.0, 0.28, 1.0, 0.0)
+    low = nb.maprange(sep_xyz.outputs["Z"], 0.0, spec.get("mud_h", 0.28), 1.0, 0.0)
     low_n = nb.noise(obj, 6.0, 4.0)
     low = nb.math("MULTIPLY", low, nb.maprange(low_n.outputs["Fac"], 0.3, 0.6, 0.4, 1.0), clamp=True)
     var = nb.noise(obj, 1.3, 2.0)
