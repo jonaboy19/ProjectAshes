@@ -77,8 +77,9 @@ var _awaiting_camera := true
 
 func _ready() -> void:
 	configure_spacing()
+	print("[world] terrain_backend=terrain3d world_macro=%s region=%dpx x %.1fm (%.0f m)" % [WorldMacro.mode(), region_size(), spacing_rt, region_m()])
 	if WorldMacro.is_real():
-		RealInstancer.kinds()          # W6.4: mesh id table built on the main thread before any worker plans instances
+		preload("res://scripts/world/real_instancer.gd").kinds()          # W6.4: mesh id table built on the main thread before any worker plans instances
 		var q: Node = get_tree().root.get_node_or_null("Quality") if is_inside_tree() else null
 		_inst_mul = clampf(float(q.call("value", "scatter")) if q and q.has_method("value") else 1.0, 0.25, 1.0)
 	terrain = Terrain3D.new()
@@ -160,7 +161,7 @@ static func _make_assets() -> Terrain3DAssets:
 			ta.albedo_color = Color(1.15, 1.35, 1.75)   # W6: the scree-grey snow read as sand on the real fells; lift it to snow white
 		assets.set_texture(i, ta)
 	if WorldMacro.is_real():
-		var ml: Array = RealInstancer.mesh_assets(_inst_mul < 0.5)
+		var ml: Array = preload("res://scripts/world/real_instancer.gd").mesh_assets(_inst_mul < 0.5)
 		for i in ml.size():
 			assets.set_mesh_asset(i, ml[i])
 	return assets
@@ -421,7 +422,7 @@ func update_streaming() -> bool:
 func _worker(loc: Vector2i) -> void:
 	var maps := build_maps(loc)
 	if WorldMacro.is_real():
-		var inst := RealInstancer.plan(region_origin(loc), region_m(), _inst_mul)
+		var inst := preload("res://scripts/world/real_instancer.gd").plan(region_origin(loc), region_m(), _inst_mul)
 		_mutex.lock()
 		_inst[loc] = inst
 		_mutex.unlock()

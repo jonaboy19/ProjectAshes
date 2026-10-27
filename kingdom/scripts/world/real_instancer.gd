@@ -100,6 +100,8 @@ static func plan(o: Vector2, size: float, density_mul: float) -> Dictionary:
 				# Full-cell jitter (the 0.15..0.85 jitter read as an orchard grid from the air)
 				var x := o.x + (i + WorldBiomes.pick_u(o.x + i * step, o.y + j * step, 7 + role.length())) * step
 				var z := o.y + (j + WorldBiomes.pick_u(z_seed(i, j), o.x + i * step, 3 + role.length())) * step
+				if preload("res://scripts/world/real_slice.gd").in_corridor(x, z):
+					continue          # the slice route is authored (scripts/world/real_slice.gd)
 				var biome := WorldBiomes.at(x, z)
 				if biome < 0:
 					continue

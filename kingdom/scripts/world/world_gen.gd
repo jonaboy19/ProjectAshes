@@ -144,6 +144,7 @@ static func in_bounds(p: Vector2, margin := 0.0) -> bool:
 static func _relocate_real(seed_value: int) -> void:
 	_real_ready = true
 	Region1Terrain.relocate_real()
+	preload("res://scripts/world/real_slice.gd").setup()          # benchmark slice: the authored countryside route's footpath / bare soil
 	for st in settlements:
 		var np: Variant = RealWorld.place("settlement:" + String(st["name"]).to_lower())
 		st["pos"] = np if np != null else RealWorld.remap(st["pos"])

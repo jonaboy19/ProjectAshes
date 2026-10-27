@@ -27,6 +27,7 @@ func _ready() -> void:
 	_crystals()
 	_waterfalls()
 	# Field walls and hedgerows round every settlement, nearest Ashford first, one settlement per frame (never a blocking bake).
+	add_child(preload("res://scripts/world/real_slice.gd").new())   # benchmark slice countryside route (authored)
 	_field_meshes()
 	_field_queue = WorldGen.settlements.duplicate()
 	_field_queue.sort_custom(func(a: Dictionary, b: Dictionary) -> bool: return (a["pos"] as Vector2).length() < (b["pos"] as Vector2).length())
@@ -131,7 +132,7 @@ func _fields(st: Dictionary) -> void:
 					var d := p.distance_to(c)
 					if d < r_in or d > r_out:
 						continue
-					if WorldGen.road_distance(p.x, p.y) < 8.0 or WorldGen.is_water(p.x, p.y) or WorldGen.forest_density(p.x, p.y) > 0.45:
+					if preload("res://scripts/world/real_slice.gd").in_corridor(p.x, p.y, 6.0) or WorldGen.road_distance(p.x, p.y) < 8.0 or WorldGen.is_water(p.x, p.y) or WorldGen.forest_density(p.x, p.y) > 0.45:
 						continue
 					var h := WorldGen.height(p.x, p.y)
 					var h2 := WorldGen.height(p.x + dir.x * 4.0, p.y + dir.y * 4.0)

@@ -81,6 +81,19 @@ static func setup() -> void:
 		_box = box if _box.size == Vector2.ZERO else _box.merge(box)
 
 
+## Adds a packed-dirt trail (authored routes, e.g. the benchmark slice footpath, scripts/world/real_slice.gd). Call before any chunk worker runs.
+static func add_trail(pts: PackedVector2Array, width: float, soft := 1.4) -> void:
+	if pts.size() < 2:
+		return
+	var half := width * 0.5
+	var box := Rect2(pts[0], Vector2.ZERO)
+	for p in pts:
+		box = box.expand(p)
+	box = box.grow(half + 3.0)
+	_trails.append({"pts": pts, "half": half, "box": box, "soft": soft})
+	_box = box if _box.size == Vector2.ZERO else _box.merge(box)
+
+
 ## W6 real world: WorldGen._relocate_real calls this once positions are final. Stamps (valencious deltas, relative metres) and
 ## trails move to the re-anchored spot; planning before it saw them at the old spots, exactly as the valencious mode does.
 static func relocate_real() -> void:

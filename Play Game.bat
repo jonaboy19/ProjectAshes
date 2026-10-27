@@ -10,7 +10,8 @@ if not exist "%GODOT%" (
   exit /b 1
 )
 cd /d "%~dp0kingdom"
-"%GODOT%" --path .
+rem World: Terrain3D ground + the real-elevation world (W6, docs/world/REAL_WORLD.md). The pc profile keeps FSR1+TAA with Terrain3D.
+"%GODOT%" --path . -- --terrain_backend=terrain3d --world_macro=real
 echo.
 echo Game exited with code %ERRORLEVEL%. The log above shows why.
 pause

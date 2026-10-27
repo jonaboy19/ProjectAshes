@@ -1,0 +1,320 @@
+{
+ "_doc": "Benchmark slice countryside route (docs/plans/BENCHMARK_SLICE.md item 5), authored on the real-world terrain (--world_macro=real): Ashford's east edge -> the field wall stile -> the copse and its clearing -> the bandit camp on the Kingsreach road (RealWorld slice anchor). Metres from Ashford, x east, z south. Read by scripts/world/real_slice.gd.",
+ "path": {
+  "width": 2.0,
+  "soft": 1.6,
+  "points": [
+   [
+    66,
+    12
+   ],
+   [
+    112,
+    30
+   ],
+   [
+    160,
+    46
+   ],
+   [
+    204,
+    60
+   ],
+   [
+    228,
+    71
+   ],
+   [
+    262,
+    86
+   ],
+   [
+    300,
+    103
+   ],
+   [
+    338,
+    122
+   ],
+   [
+    372,
+    138
+   ],
+   [
+    412,
+    150
+   ],
+   [
+    452,
+    162
+   ],
+   [
+    492,
+    176
+   ],
+   [
+    526,
+    188
+   ]
+  ],
+  "road_width": 3.2
+ },
+ "bare_soil": [
+  [
+   74,
+   15,
+   7.0
+  ],
+  [
+   228,
+   71,
+   4.0
+  ],
+  [
+   358,
+   150,
+   9.0
+  ],
+  [
+   530,
+   190,
+   12.0
+  ]
+ ],
+ "walls": [
+  {
+   "points": [
+    [
+     176,
+     -60
+    ],
+    [
+     200,
+     0
+    ],
+    [
+     218,
+     46
+    ],
+    [
+     236,
+     98
+    ],
+    [
+     252,
+     150
+    ],
+    [
+     266,
+     206
+    ]
+   ],
+   "gap_at": [
+    228,
+    71
+   ],
+   "gap": 1.4
+  },
+  {
+   "points": [
+    [
+     262,
+     86
+    ],
+    [
+     300,
+     66
+    ],
+    [
+     352,
+     52
+    ],
+    [
+     404,
+     48
+    ],
+    [
+     452,
+     58
+    ]
+   ],
+   "gap_at": [
+    262,
+    86
+   ],
+   "gap": 0.0
+  },
+  {
+   "points": [
+    [
+     300,
+     103
+    ],
+    [
+     326,
+     160
+    ],
+    [
+     344,
+     214
+    ]
+   ],
+   "gap_at": [
+    300,
+    103
+   ],
+   "gap": 0.0
+  }
+ ],
+ "copse": {
+  "centre": [
+   384,
+   176
+  ],
+  "radius": 42,
+  "clearing": [
+   360,
+   152,
+   13
+  ],
+  "trees": [
+   [
+    "oak_a",
+    372,
+    186,
+    1.82
+   ],
+   [
+    "oak_b",
+    392,
+    170,
+    1.69
+   ],
+   [
+    "beech_a",
+    405,
+    192,
+    1.76
+   ],
+   [
+    "oak_a",
+    360,
+    200,
+    1.62
+   ],
+   [
+    "beech_b",
+    384,
+    208,
+    1.55
+   ],
+   [
+    "dark_oak",
+    414,
+    160,
+    1.62
+   ],
+   [
+    "young_oak",
+    346,
+    176,
+    1.35
+   ],
+   [
+    "beech_a",
+    398,
+    140,
+    1.49
+   ],
+   [
+    "oak_b",
+    420,
+    186,
+    1.76
+   ],
+   [
+    "young_oak",
+    376,
+    160,
+    1.22
+   ],
+   [
+    "young_oak",
+    352,
+    128,
+    1.15
+   ],
+   [
+    "oak_a",
+    430,
+    206,
+    1.69
+   ]
+  ]
+ },
+ "clearing_props": [
+  [
+   "log_mossy",
+   362,
+   156,
+   1.0,
+   0.6
+  ],
+  [
+   "stump_mossy",
+   354,
+   146,
+   1.0,
+   0.0
+  ]
+ ],
+ "landmark": {
+  "kind": "standing_stone",
+  "at": [
+   318,
+   58
+  ],
+  "height": 4.2,
+  "note": "the Waymark Stone on the knoll: view north to the snowy fells"
+ },
+ "corridor_m": 14.0,
+ "puddle": [
+  214,
+  64,
+  1.7
+ ],
+ "tree_belts": [
+  {
+   "points": [
+    [
+     356,
+     48
+    ],
+    [
+     404,
+     44
+    ],
+    [
+     452,
+     54
+    ]
+   ],
+   "side": 1.0,
+   "depth": 16.0
+  },
+  {
+   "points": [
+    [
+     180,
+     -58
+    ],
+    [
+     200,
+     -2
+    ]
+   ],
+   "side": -1.0,
+   "depth": 12.0
+  }
+ ]
+}
