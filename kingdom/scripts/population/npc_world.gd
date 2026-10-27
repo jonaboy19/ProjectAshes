@@ -732,6 +732,38 @@ static func fit_wall_lean(so: SmartObjects, id: int, space: PhysicsDirectSpaceSt
 	return true
 
 
+## Group spots (conversation circles) are laid out on the plaza before any colliders exist and can land on a landmark
+## (2026-10-28: the Ashford square's chat corner sat on the runestone circle's menhir). The first claim checks the circle's
+## footprint against world colliders and nudges the spot outward (0.5 m steps, up to 4 m, 8 directions) to clear ground.
+## False = no clear ground near: the spot is not used.
+static func fit_group_spot(so: SmartObjects, id: int, space: PhysicsDirectSpaceState3D) -> bool:
+	var sp: Dictionary = so.spots[id]
+	if sp.get("fitted", false):
+		return true
+	if space == null:
+		return false
+	var x: Transform3D = sp["xform"]
+	var n := (so.types[sp["type"]]["slots"] as Array).size()
+	var shape := CylinderShape3D.new()        # 0.3 m .. 1.5 m above the ground: props and stones, never the ground itself
+	shape.radius = preload("res://scripts/living_world/group_motion.gd").circle_radius(n) + 0.45
+	shape.height = 1.2
+	var q := PhysicsShapeQueryParameters3D.new()
+	q.shape = shape
+	q.collision_mask = 1
+	for step in 9:
+		for k in (1 if step == 0 else 8):
+			var d := Vector3(sin(TAU * k / 8.0), 0, cos(TAU * k / 8.0)) * 0.5 * float(step)
+			var o := x.origin + d
+			o.y = WorldGen.height(o.x, o.z)
+			q.transform = Transform3D(Basis.IDENTITY, o + Vector3(0, 0.9, 0))
+			if space.intersect_shape(q, 1).is_empty():
+				x.origin = o
+				sp["xform"] = x
+				sp["fitted"] = true
+				return true
+	return false
+
+
 ## Types this module adds to the data-driven SmartObjects catalogue (same schema as the JSON).
 const LOCAL_TYPES := {
 	"npc_haul": {

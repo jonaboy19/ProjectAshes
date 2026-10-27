@@ -498,3 +498,10 @@ Videos: PA_plans/videos/slice_2026-10-27_1801_635671851_gait_before.mp4 (ASHES_M
 | L2 lean | PASS | GaitRules.lean_step on NEAR/MID villagers: roll into turns (<= 5 deg) and pitch with speed (<= 3 deg) on the model root, critically damped; no tipping or pops on the route |
 | L5 carry | PASS | carry errand loads slow the pace (carry_pace_mul) and add their lean bias (sack forward, crate back) |
 | L3 / L4 / L6 | NOT YET | gait rungs, start / stop / turn transitions and gait sets change which loco clips play: staged next with their own foot-slide gate |
+
+## 2026-10-28 · NPC anim lane · "glowing ring with a floating 2" on the conversation spot — explained, spot fitted off the landmark
+The marker is not a gizmo: it is the Ashford Ring menhir's carved ward glyph (circle + chevrons) seen through the camera-occlusion fade, because the
+square's conversation spot had been laid out ON the runestone circle's menhir (QA listing: road_stone_b_menhir at the spot centre).
+Fix: NpcWorld.fit_group_spot() (first claim, like the wall leans) checks the circle footprint (cylinder 0.3-1.5 m above the ground)
+against world colliders and nudges the spot out (0.5 m steps, 8 directions, up to 4 m): the Ashford spot moved 4 m clear of the
+stone (PA_plans/videos/slice_2026-10-27_1831_385b5517a_conv_fit.mp4). The runestone glyph remains landmark art (towns / world lane).

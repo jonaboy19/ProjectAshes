@@ -447,6 +447,20 @@ func _conv_gate(secs: float) -> void:
 	cam.make_current()
 	b.L("SLICEFRAME %d" % Engine.get_frames_drawn())
 	_seg("conv spot %d holders %d at %s" % [best, best_n, x.origin])
+	if OS.has_environment("SLICE_NEARBY"):       # QA: what is drawn on this spot (gizmos, markers, labels)
+		for nd: Node in b.get_tree().root.find_children("*", "VisualInstance3D", true, false):
+			var vi := nd as VisualInstance3D
+			if vi == null or not vi.is_visible_in_tree() or vi.global_position.distance_to(x.origin) > 3.0:
+				continue
+			if vi.get_parent() is Skeleton3D or vi.get_parent() is BoneAttachment3D:
+				continue
+			var txt := (vi as Label3D).text if vi is Label3D else ""
+			if vi is MeshInstance3D and (vi as MeshInstance3D).mesh != null:
+				var mi := vi as MeshInstance3D
+				var mat: Material = mi.material_override if mi.material_override else mi.get_active_material(0)
+				txt = "mesh=%s %s aabb=%s mat=%s shader=%s" % [mi.mesh.resource_path.get_file(), mi.mesh.get_class(), mi.mesh.get_aabb().size,
+					mat.resource_path.get_file() if mat else "-", (mat as ShaderMaterial).shader.resource_path.get_file() if mat is ShaderMaterial and (mat as ShaderMaterial).shader else "-"]
+			b.L("NEARBY %s %s txt='%s' at %s" % [vi.get_class(), str(vi.get_path()).right(110), txt, vi.global_position])
 	var t := 0.0
 	while t < secs:
 		var g: Dictionary = preload("res://scripts/living_world/conversation_group.gd").turn(so, best, Time.get_ticks_msec() * 0.001)
