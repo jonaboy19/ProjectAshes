@@ -10,11 +10,13 @@ extends RefCounted
 ## The pieces come from data/world/slice_dressing.json (scripts/world/town_kit/slice_dressing.gd).
 
 const Slice := preload("res://scripts/world/town_kit/slice_dressing.gd")
+const NpcWorld := preload("res://scripts/population/npc_world.gd")
 const CarryK := preload("res://scripts/interaction/kinds/carryable.gd")
 
 var b               # the playtest bot (untyped: its helpers are called dynamically)
 var player: Node3D
 var ok_steps := 0
+var _street := Vector2.ZERO
 
 
 func run(bot: Node) -> void:
@@ -69,6 +71,7 @@ func _trav_state() -> int:
 
 func _step1_run(town: Dictionary) -> void:
 	var start := Vector2(town["pos"]) + Vector2(4, 4)
+	_street = start
 	await b.teleport(start, 0.0, 1.0)
 	var t0 = b.now()
 	var target := start + Vector2(0, 60)
@@ -158,9 +161,12 @@ func _step5_sit() -> void:
 			bd = d
 			seat = n
 	if seat == null or bd > 40.0:
-		# no chair in this interior: use a bench outside the house kit (a SmartObject one if any)
-		await _pass(5, "sit on a chair and stand up", false, "no Seat within 40 m (nearest %.1f)" % bd)
-		return
+		# no chair in this interior: leave and sit on a bench of the living world (SmartObjects seats via PlayerSeats)
+		await _leave_building()
+		seat = await _smart_seat()
+		if seat == null:
+			await _pass(5, "sit on a chair and stand up", false, "no Seat indoors and no SmartObjects seat near the town")
+			return
 	var sp := Vector2(seat.global_position.x, seat.global_position.z)
 	await b.walk_to(sp, 1.6, 12.0, false, 4.0)
 	var sat: bool = seat.call("sit", player)
@@ -172,7 +178,10 @@ func _step5_sit() -> void:
 	b.release_all()
 	await b.wait(1.5)
 	await _pass(5, "sit on a chair and stand up", sat and seated and not player.has_meta("seated_on"), "sat %s seated %s" % [str(sat), str(seated)])
-	# leave the building for the open-air steps
+	await _leave_building()
+
+
+func _leave_building() -> void:
 	if InteriorDoor.active != null:
 		for n in b.get_tree().root.find_children("*", "Area3D", true, false):
 			if n.get("is_exit") == true:
@@ -209,7 +218,8 @@ func _step6_fight() -> void:
 	var killed: bool = await b.call("_fight", bandit, "scenario bandit", 30.0)
 	player.disconnect("blocked", on_block)
 	var hurt: bool = killed or not is_instance_valid(bandit) or int(bandit.get("health")) < hp0
-	await _pass(6, "draw the sword and fight a bandit (block, hit)", drawn and hurt, "drawn %s blocks %d killed %s" % [str(drawn), blocked[0], str(killed)])
+	var survived: bool = not bool(player.get("dead"))
+	await _pass(6, "draw the sword and fight a bandit (block, hit)", drawn and hurt and survived, "drawn %s blocks %d killed %s survived %s" % [str(drawn), blocked[0], str(killed), str(survived)])
 	if is_instance_valid(bandit) and not bool(bandit.get("dead")):
 		bandit.queue_free()
 	await b.ensure_alive()
@@ -217,6 +227,8 @@ func _step6_fight() -> void:
 
 
 func _step7_carry() -> void:
+	# on the street of step 1 (known clear), walking the same way
+	await b.teleport(_street + Vector2(0, 20), b.yaw_to(_street, _street + Vector2(0, 60)), 1.0)
 	var c = b.p2()
 	var f := Vector3(-sin(float(player.get("_yaw"))), 0, -cos(float(player.get("_yaw"))))
 	var sack: Node3D = CarryK.spawn(b.get("main").get("world"), player.global_position + f * 0.9, "sack")
@@ -252,3 +264,36 @@ func _step8_mount() -> void:
 	await b.wait(1.5)
 	await _pass(8, "mount a horse, ride 50 m, dismount", mounted and rode and not bool(player.call("is_mounted")),
 			"mounted %s rode %s" % [str(mounted), str(rode)])
+
+
+## The nearest seated SmartObjects slot to the town centre: walk there and let PlayerSeats put a Seat on it.
+func _smart_seat() -> Node3D:
+	var so: Variant = NpcWorld.smart
+	if so == null:
+		return null
+	var best := -1
+	var bd := 1e9
+	var me: Vector3 = player.global_position
+	var spots: Array = so.get("spots")
+	var types: Dictionary = so.get("types")
+	for i in spots.size():
+		var td: Dictionary = types.get(spots[i]["type"], {})
+		if (load("res://scripts/interaction/player_seats.gd") as GDScript).call("seat_slots", td).is_empty():
+			continue
+		var d: float = (spots[i]["xform"] as Transform3D).origin.distance_to(me)
+		if d < bd:
+			bd = d
+			best = i
+	if best < 0:
+		return null
+	var o: Vector3 = (spots[best]["xform"] as Transform3D).origin
+	await b.teleport(Vector2(o.x, o.z) + Vector2(1.5, 1.5), 0.0, 1.0)
+	await b.wait(1.5)
+	var seat: Node3D = null
+	var sd := 1e9
+	for n in b.get_tree().root.find_children("Seat_*", "Node3D", true, false):
+		var d: float = (n as Node3D).global_position.distance_to(player.global_position)
+		if d < sd:
+			sd = d
+			seat = n
+	return seat

@@ -284,7 +284,7 @@ var _shield_ready := 0.0
 const DODGE_ROLL_CLIP := "Souls_Roll"
 const DODGE_ROLL_RATE := 0.75
 var _seat_t := 0.0
-const SEATED_AFTER := 1.1
+const SEATED_AFTER := 0.8
 var _dodge_roll := false      # the dodge is a roll (Dodge_Forward / Backward), not the Dodge_back step: props go on the back
 const SHIELD_READY_S := 4.0
 var _stamina_delay := 0.0
@@ -886,8 +886,8 @@ func _physics_process(delta: float) -> void:
 			_shield_ready = maxf(_shield_ready - delta, 0.0)
 		_update_sheathe(delta)
 		_update_carry(delta)
-		_seat_t = _seat_t + delta if has_meta("seated_on") else 0.0
-		_rig.set("seated", _seat_t > SEATED_AFTER)        # the hip blade lays back once the body is down, not while turning to sit
+		_seat_t = _seat_t + delta if has_meta("seated_on") else maxf(minf(_seat_t, SEATED_AFTER + 0.15) - delta * 1.5, 0.0)
+		_rig.set("seated", clampf((_seat_t - 0.15) / SEATED_AFTER, 0.0, 1.0))   # the hip blade lays back as the body lowers onto the seat
 		var rolling := _dodge > 0.0 and _dodge_roll
 		_rig.set("shield_slung", (not blocking and (_shield_ready <= 0.0 or rolling or not is_on_floor())) or bool(_rig.get("sheathed")))
 		_rig.set("long_holster", rolling)
