@@ -178,7 +178,19 @@ func _clip_street(spec: String) -> void:
 		var made: Array[Node3D] = []
 		var names := page.split(",", false)
 		for i in names.size():
-			var clip := String(names[i]).strip_edges()
+			# item syntax: <clip>[+<upper>][@<prop>:<hand>][>]  (+: runtime upper-body layer like the villager's carry,
+			# @: a LifeProps item in that hand, >: walk 7 m across the shot at 1.2 m/s instead of standing)
+			var item := String(names[i]).strip_edges()
+			var walk := item.ends_with(">")
+			item = item.trim_suffix(">")
+			var prop_id := ""
+			var prop_hand := ""
+			if item.contains("@"):
+				var pp2 := item.get_slice("@", 1)
+				prop_id = pp2.get_slice(":", 0)
+				prop_hand = pp2.get_slice(":", 1) if pp2.contains(":") else ""
+				item = item.get_slice("@", 0)
+			var clip := item
 			# open cobbles in the foreground, left and right of the hero (the plaza crowd stands further in)
 			var slots := [Vector2(-3.4, 4.0), Vector2(-1.7, 4.6), Vector2(1.7, 4.6), Vector2(3.4, 4.0), Vector2(-2.6, 6.4), Vector2(2.6, 6.4)]
 			var sl: Vector2 = slots[i % slots.size()]
@@ -190,11 +202,26 @@ func _clip_street(spec: String) -> void:
 			var ap := Assets.animation_player(m)
 			LifeLibrary.install(ap)
 			var sk: Skeleton3D = m.find_children("*", "Skeleton3D", true, false)[0]
+			if clip.contains("+"):
+				clip = LifeLibrary.composite(ap, clip.get_slice("+", 0), clip.get_slice("+", 1))
+			if prop_id != "":
+				LifeProps.attach(sk, prop_id, prop_hand)
 			for pp: Dictionary in (LifeLibrary.info(clip).get("props", []) as Array):
 				LifeProps.attach(sk, String(pp.get("id", "")), String(pp.get("hand", "")))
 			if ap.has_animation(clip):
 				ap.get_animation(clip).loop_mode = Animation.LOOP_LINEAR
 				ap.play(clip)
+				if walk:
+					var lo := item.get_slice("+", 0)
+					var cs := 0.98 if lo == "Walking_A" else float(LifeLibrary.info(lo).get("speed_mps", 1.25))     # villager WALK_CLIP_SPEED
+					ap.speed_scale = 1.2 / maxf(cs, 0.3)
+					var from := Vector3(p2.x, m.global_position.y, p2.y) - Vector3(side.x, 0, side.y) * 3.5
+					var to := from + Vector3(side.x, 0, side.y) * 7.0
+					m.global_position = from
+					m.rotation.y = atan2(side.x, side.y)
+					var tw := m.create_tween().set_loops()
+					tw.tween_property(m, "global_position", to, 7.0 / 1.2)
+					tw.tween_callback(func() -> void: m.global_position = from)
 			else:
 				b.L("CLIPSTREET missing %s" % clip)
 			var lb := Label3D.new()

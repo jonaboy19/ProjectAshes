@@ -56,6 +56,7 @@ const TownMood := preload("res://scripts/population/town_mood.gd")
 const Schedule := preload("res://scripts/population/schedule.gd")
 const TownIdentity := preload("res://scripts/world/town_identity.gd")
 const Act := UtilityBrain.Act
+const CarryErrand := preload("res://scripts/living_world/carry_errand.gd")
 
 const WORLD_LAYER := 1
 const LOCAL_ACTOR_LAYER := 2
@@ -223,6 +224,7 @@ var _clip_cache := {}
 
 # Smart object use (SmartObjects.Session driven at SESSION_HZ; see _so_*).
 var _props: LifeProps.Holder
+var _carry := CarryErrand.new()     # street life: sack / crate / basket carried from a trip's start to its end
 ## LifeAmbience (docs/anim/patches/P13_villager_life_clips.md section 6): stable personality, idle fidgets, glances, walk style, rain hunch.
 var _amb: LifeAmbience
 var _amb_look: Variant = null     # world point the head glances at (or null)
@@ -606,6 +608,8 @@ func _tick_body(delta: float) -> void:
 		# Inside a building: nothing to move, draw or animate until the next choice.
 		_perform_time += delta
 		return
+	if _carry.state != CarryErrand.S.NONE:
+		_carry_tick(delta)
 	if _arrived and _yield_time <= 0.0:
 		if _act != Act.WATER or _water_working:
 			_perform_time += delta
@@ -1038,6 +1042,7 @@ func _apply_plan(here: Vector2, hazard: Vector2, look: Vector2) -> void:
 		_goal = goal
 		_needs_route = true
 		_arrived = false
+		_carry_plan(here, goal, not spot.is_empty())
 
 
 func _pace_for(act: int) -> float:
@@ -1106,6 +1111,8 @@ func _act_started(here: Vector2, hazard: Vector2, look: Vector2, now: int) -> vo
 func _set_indoors(on: bool) -> void:
 	if on == _indoors:
 		return
+	if on:
+		_carry.drop(_props)
 	if on:
 		UtilityBrain.clear_sight_for(self)
 	_indoors = on
@@ -1220,6 +1227,8 @@ func _ambience_tick(here: Vector2) -> void:
 		"partner_pos": _partner_node.global_position if _act == Act.SOCIAL and _arrived and _partner_node != null and is_instance_valid(_partner_node) else null})
 	_amb_look = d["look"]
 	_amb_upper = String(d["upper"])
+	if _carry.upper() != "":
+		_amb_upper = _carry.upper()
 	var w := String(d["walk"])
 	_amb_walk = w if w != "Walk" and _anim.has_animation(w) and float(LifeLibrary.info(w).get("speed_mps", 0.0)) > 0.3 else ""
 	if _amb_upper != "" and not _anim.has_animation(_amb_upper):
@@ -1716,6 +1725,8 @@ func _first_clip(names: Array) -> String:
 
 
 func _play(anim_name: String) -> void:
+	if anim_name == "Idle" and _carry.upper() != "" and _anim:
+		anim_name = LifeLibrary.composite(_anim, "Idle", _carry.upper())      # carrying: arms stay on the load
 	if _anim and _anim.current_animation != anim_name:
 		_anim.play(anim_name, 0.2)
 		if anim_name == "Idle":
@@ -1776,6 +1787,8 @@ func _so_frame(delta: float) -> bool:
 	var leaving := _so_phase >= SmartObjects.Session.ALIGN
 	if not _arrived and not leaving:
 		return false          # still walking to the approach point
+	if not leaving and _carry.state != CarryErrand.S.NONE:
+		return false          # carried the load to work: set it down at the approach point before the session aligns
 	_so_acc += delta
 	_so_track_clip()
 	if _so_acc >= 1.0 / SESSION_HZ:
@@ -2403,6 +2416,42 @@ func _bubble_tick(now: int) -> void:
 	if _bubble != null and _bubble.visible and (now >= _bubble_until or _indoors):
 		_bubble.visible = false
 		NpcWorld.bubbles_shown = maxi(NpcWorld.bubbles_shown - 1, 0)
+
+
+## Carry errand (scripts/living_world/carry_errand.gd): roll on a new outdoor trip (to work too: the load goes down at the
+## spot's approach point before the session aligns); set it down first when the new plan goes indoors.
+func _carry_plan(here: Vector2, goal: Vector2, _to_spot: bool) -> void:
+	if _anim == null or _props == null:
+		return
+	if _carry.state != CarryErrand.S.NONE:
+		if _pace > 1.5:
+			_carry.drop(_props)                 # running for it: let go
+		elif _carry.state == CarryErrand.S.CARRY and _plan_indoors:
+			_carry_bend(_carry.finish(_anim))   # going in: set it down first
+		return
+	if _plan_indoors or _pace > 1.2 or _oneshot != "" or _talk.active:
+		return
+	var k := CarryErrand.roll(person, WorldSim.day, DailyRhythm.local_time(person), here.distance_to(goal), _child,
+		person < WorldSim.job.size() and WorldSim.job[person] == 3)
+	if k != "":
+		_carry_bend(_carry.start(k, _anim))
+
+
+func _carry_bend(r: Array) -> void:
+	if String(r[0]) != "":
+		_begin_oneshot([String(r[0])], float(r[1]))
+		_wait = maxf(_wait, float(r[1]))
+
+
+func _carry_tick(delta: float) -> void:
+	if _carry.state == CarryErrand.S.CARRY and _arrived and _yield_time <= 0.0 and _wait <= 0.0:
+		_carry_bend(_carry.finish(_anim))
+	_carry.tick(delta, _props)
+	var cu := _carry.upper()
+	if cu != "" and _amb_upper != cu and _anim != null and _anim.has_animation(cu):
+		_amb_upper = cu
+	elif cu == "" and _amb_upper != "" and _amb_upper.contains("Carry"):
+		_amb_upper = ""
 
 
 func _begin_oneshot(names: Array, seconds: float) -> void:
