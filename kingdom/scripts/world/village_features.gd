@@ -176,6 +176,8 @@ static func _chapel(b, pl: TownView.Placer) -> void:
 
 
 static func _mill(b, pl: TownView.Placer) -> void:
+	if ResourceLoader.exists("res://assets/generated/town_small/waterwheel.glb") and _watermill(b, pl):
+		return          # towns medieval pass: a village by a river or a mere grinds with water, not wind
 	var best := Vector2.INF
 	var bh := -1.0e9
 	for _t in 60:
@@ -189,7 +191,27 @@ static func _mill(b, pl: TownView.Placer) -> void:
 	if best == Vector2.INF:
 		return
 	var yaw: float = pl.rng.randf() * TAU
-	b._piece(pl.root, "mill", best, b._ground_snap(best, yaw, b._footprint("mill")), yaw)
+	if not ResourceLoader.exists("res://assets/generated/town_small/mill_body.glb"):
+		b._piece(pl.root, "mill", best, b._ground_snap(best, yaw, b._footprint("mill")), yaw)
+		return
+	# towns medieval pass: the split mill, sails turning on their hub (same fit as the old "mill": 11 m wide)
+	var body: Node3D = b._piece(pl.root, "mill_body", best, b._ground_snap(best, yaw, b._footprint("mill_body")), yaw)
+	var raw: ArrayMesh = Assets.merged_mesh("res://assets/generated/town_small/mill_body.glb")
+	var sails_mesh: ArrayMesh = Assets.merged_mesh("res://assets/generated/town_small/mill_sails.glb")
+	if raw == null or sails_mesh == null:
+		return
+	var box := raw.get_aabb()
+	var k := 11.0 / maxf(maxf(box.size.x, box.size.z), 0.001)
+	var hub := Vector3(0.0059, 3.1247, 1.1297)          # split_mill.py HUB (Blender x, y, z) -> Godot (x, z, -y)
+	var spin: Node3D = preload("res://scripts/world/spinner.gd").new()
+	spin.set("axis", Vector3.BACK)
+	spin.set("speed", 0.55)
+	spin.position = Vector3(hub.x - (box.position.x + box.size.x * 0.5), hub.y - box.position.y, hub.z - (box.position.z + box.size.z * 0.5)) * k
+	spin.scale = Vector3.ONE * k
+	var mi := MeshInstance3D.new()
+	mi.mesh = sails_mesh
+	spin.add_child(mi)
+	body.add_child(spin)
 	var side := Vector2(cos(yaw), -sin(yaw))
 	_put_free(pl, "sack_pile", best + side * 8.5, yaw, 1.0, false)
 	_put_free(pl, "sack_pile", best + side * 9.8 + Vector2(1.2, 0.4), yaw + 0.6, 0.9, false)
@@ -440,3 +462,56 @@ static func _maypole_mesh(c1: Color, c2: Color) -> ArrayMesh:
 	m.resource_name = "village_maypole"
 	_pole_cache[key] = m
 	return m
+
+
+## Towns medieval pass: a watermill on the nearest bank (6-7 m from the water, 10-70 m outside the village): the split mill body (no sails)
+## with a 3.2 m waterwheel on its water side, turning (spinner.gd). False when the village has no bank in reach.
+static func _watermill(b, pl: TownView.Placer) -> bool:
+	var c: Vector2 = pl.s["pos"]
+	var best := Vector2.INF
+	var bd := Vector2.ZERO
+	for ring in 7:
+		var r: float = pl.wr + 10.0 + ring * 10.0
+		for k in 48:
+			var p := c + Vector2.from_angle(TAU * k / 48.0) * r
+			if WorldGen.is_water(p.x, p.y) or WorldGen.near_water(p.x, p.y, 4.0) or not WorldGen.near_water(p.x, p.y, 8.0):
+				continue
+			if WorldGen.road_distance(p.x, p.y) < 8.0 or b._ground_spread(p, 0.0, b._footprint("mill_body")) > 2.0:
+				continue
+			var near_lot := false
+			for lot: Dictionary in pl.plan["lots"]:
+				if (lot["pos"] as Vector2).distance_to(p) < 14.0:
+					near_lot = true
+					break
+			if near_lot:
+				continue
+			for d in 16:
+				var dir := Vector2.from_angle(TAU * d / 16.0)
+				if WorldGen.is_water(p.x + dir.x * 8.0, p.y + dir.y * 8.0):
+					best = p
+					bd = dir
+					break
+			if best != Vector2.INF:
+				break
+		if best != Vector2.INF:
+			break
+	if best == Vector2.INF:
+		return false
+	var yaw := atan2(-bd.y, bd.x)          # local +X (the wheel side) toward the water
+	var body: Node3D = b._piece(pl.root, "mill_body", best, b._ground_snap(best, yaw, b._footprint("mill_body")), yaw)
+	var raw: ArrayMesh = Assets.merged_mesh("res://assets/generated/town_small/mill_body.glb")
+	var wheel_mesh: ArrayMesh = Assets.merged_mesh("res://assets/generated/town_small/waterwheel.glb")
+	if raw == null or wheel_mesh == null:
+		return true
+	var k := 11.0 / maxf(maxf(raw.get_aabb().size.x, raw.get_aabb().size.z), 0.001)
+	var half_w := raw.get_aabb().size.x * 0.5 * k
+	var wp := best + bd * (half_w + 0.9)
+	var spin: Node3D = preload("res://scripts/world/spinner.gd").new()
+	spin.set("axis", Vector3.RIGHT)
+	spin.set("speed", 0.8)
+	spin.position = body.to_local(Vector3(wp.x, WorldGen.height(wp.x, wp.y) + 1.2, wp.y))
+	var mi := MeshInstance3D.new()
+	mi.mesh = wheel_mesh
+	spin.add_child(mi)
+	body.add_child(spin)
+	return true

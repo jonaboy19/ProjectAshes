@@ -508,6 +508,8 @@ static func _polished(role: String, orig: Material, skin_kind: int, tier: String
 	var towns_off := OS.get_cmdline_user_args().has("--townsoff")    # A/B (CityPlanner.towns_off)
 	sm.set_shader_parameter("moss", 0.0 if towns_off else AGE_MOSS.get(role, 0.0))
 	sm.set_shader_parameter("sun_fade", 0.0 if towns_off else AGE_FADE.get(role, 0.0))
+	if role in ["house", "plaster", "roof"] and not towns_off:
+		sm.set_shader_parameter("facade_var", 1.0)
 	if role == "boat" and not towns_off:
 		sm.set_shader_parameter("bob", 0.06)
 	if role == "window" and not towns_off:

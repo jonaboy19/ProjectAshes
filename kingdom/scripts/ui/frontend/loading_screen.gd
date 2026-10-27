@@ -70,7 +70,7 @@ func _ready() -> void:
 	top.alignment = BoxContainer.ALIGNMENT_BEGIN
 	top.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	var lc := CenterContainer.new()
-	lc.add_child(FE.logo(0.7))
+	lc.add_child(FE.title_label(44))     # the game title, not the studio logo (owner: wrong "Total Showdown" branding on loading)
 	lc.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	top.add_child(lc)
 	add_child(top)

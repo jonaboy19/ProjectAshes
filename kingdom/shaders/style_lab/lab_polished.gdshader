@@ -44,7 +44,8 @@ uniform float bump_amount = 0.3;   // with mip bias + rough weathered surfaces (
 // Medieval pass (TOWNS_MEDIEVAL_PASS.md): age. Moss and lichen on up-facing pitches (roofs, sills, wall caps) and the damp
 // north foot of walls, sun-faded / soot-darkened roofs, and a per-building age so two copies of one house never weather alike.
 uniform float moss = 0.0;          // 0 = none; per role, StyleG.AGE_MOSS
-uniform float sun_fade = 0.0;      // roofs: bleach + grey toward old tile/slate/thatch
+uniform float sun_fade = 0.0;
+uniform float facade_var = 0.0;  // towns medieval pass: per-building limewash (white / ochre / rose / grey) and roof tone, from the age hash      // roofs: bleach + grey toward old tile/slate/thatch
 uniform vec3 moss_color : source_color = vec3(0.34, 0.39, 0.19);
 uniform vec3 lichen_color : source_color = vec3(0.62, 0.6, 0.42);
 // Towns medieval pass: flat-colour kit materials (no albedo texture: region farm kit, fences, ruins) borrow real CC0 surface detail
@@ -152,6 +153,15 @@ void fragment() {
 		float age = 0.35 + fract(sin(dot(o, vec2(12.9898, 78.233))) * 43758.5453);
 		vec4 wn = weather_sample(wpos * 0.37, wnor, weather_scale);
 		float lum = dot(c, vec3(0.299, 0.587, 0.114));
+		if (facade_var > 0.0) {
+			float hv = fract(age * 7.31 + o.x * 0.013);
+			vec3 wash = hv < 0.25 ? vec3(1.1, 1.08, 1.02) : (hv < 0.5 ? vec3(1.06, 0.94, 0.74) : (hv < 0.75 ? vec3(1.06, 0.9, 0.86) : vec3(0.94, 0.97, 1.02)));
+			float wall_m = smoothstep(0.35, 0.6, lum) * (1.0 - smoothstep(0.2, 0.5, wnor.y));
+			c = mix(c, c * wash, wall_m * facade_var);
+			float hr = fract(age * 3.17 + o.y * 0.021);
+			vec3 rt = hr < 0.33 ? vec3(0.82, 0.8, 0.78) : (hr < 0.66 ? vec3(1.04, 0.9, 0.8) : vec3(1.0));
+			c = mix(c, c * rt, smoothstep(0.3, 0.6, wnor.y) * facade_var);
+		}
 		if (sun_fade > 0.0) {
 			float f = clamp(sun_fade * age * smoothstep(0.1, 0.6, wnor.y), 0.0, 0.8);
 			c = mix(c, vec3(lum) * vec3(1.0, 0.95, 0.86), f * 0.55) * (1.0 - 0.18 * f);
@@ -189,7 +199,9 @@ void fragment() {
 	SPECULAR = spec;
 	// hemispheric bounce as emission: blue from above, honey from the ground
 	float h = wnor.y * 0.5 + 0.5;
-	EMISSION = c * mix(ground_bounce, sky_bounce, h) * bounce;
+	// clamp: baked "painterly light" in vertex colours goes above 1 (lantern pools on the inn); as constant bounce emission it
+	// glowed as flat white slabs at night (towns medieval pass night check)
+	EMISSION = min(c, vec3(0.85)) * mix(ground_bounce, sky_bounce, h) * bounce;
 	RIM = rim_amount;
 	RIM_TINT = 0.6;
 	EMISSION += rim_color * pow(1.0 - clamp(dot(NORMAL, VIEW), 0.0, 1.0), 3.0) * rim_amount * 0.35 * h;

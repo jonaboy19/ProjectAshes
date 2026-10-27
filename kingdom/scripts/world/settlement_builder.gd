@@ -70,6 +70,12 @@ var _night_t := 0.0
 var _alley_lamps: Array = []
 
 
+func _ready() -> void:
+	# best tool first: occlusion culling for dense towns (the per-lot BoxOccluder3D above); runtime switch, project.godot untouched
+	if not CityPlanner.towns_off():
+		get_viewport().use_occlusion_culling = true
+
+
 func _process(delta: float) -> void:
 	_night_t -= delta
 	if _night_t <= 0.0:
@@ -267,6 +273,15 @@ func _build_co(s: Dictionary, sync: bool, spread: bool) -> Node3D:
 		body.position = Vector3(p.x, gh, p.y)
 		body.rotation.y = lot["yaw"]
 		root.add_child(body)
+		if size.y > 4.0 and not CityPlanner.towns_off():
+			# towns medieval pass (best tool first): Godot occlusion culling. A box inside the walls (80 % of the footprint, 2/3 of
+			# the height: never bigger than the real walls) hides what stands behind the facades of a dense street.
+			var occ := OccluderInstance3D.new()
+			var bo := BoxOccluder3D.new()
+			bo.size = Vector3(size.x * 0.8, size.y * 0.66, size.z * 0.8)
+			occ.occluder = bo
+			occ.position = Vector3(0.0, size.y * 0.33, 0.0)
+			body.add_child(occ)
 		plinths.append([p, lot["yaw"], size, gh, asset])
 	_plinths(root, plinths)
 	_seal_gaps(root, plinths)
@@ -382,7 +397,7 @@ func _build_co(s: Dictionary, sync: bool, spread: bool) -> Node3D:
 		var tt := 5.0
 		while tt < al.distance_to(ab) - 2.0:
 			if rng.randf() < 0.55:
-				var q2 := al + ad * tt
+				var q2 := al + ad * tt + Vector2(-ad.y, ad.x) * (float(st["w"]) * 0.5 - 0.25) * (1.0 if int(tt) % 2 == 0 else -1.0)   # along a wall, not across the walking line
 				if not door_clutter.has("washing_line"):
 					door_clutter["washing_line"] = []
 				door_clutter["washing_line"].append(Transform3D(Basis(Vector3.UP, atan2(-ad.y, ad.x)), Vector3(q2.x, WorldGen.height(q2.x, q2.y) - 0.03, q2.y)))   # strung along the alley
@@ -743,7 +758,8 @@ func _interior_doors(root: Node3D, lots: Array) -> void:
 			var tp := Vector3(at.x, gh + 0.9, at.y) + Vector3(cos(yaw), 0.0, -sin(yaw)) * 1.5 + Vector3(sin(yaw), 0.0, cos(yaw)) * 0.3
 			tp.y = maxf(tp.y, WorldGen.height(tp.x, tp.z) + 0.9)          # a door cut into a slope: the torch rides the wall above the uphill ground
 			var wt: Dictionary = TorchProps.wall_torch(root, tp, yaw)
-			torch_specs.append({"pos": wt["glow_pos"], "color": Color(1.0, 0.6, 0.25), "range": 6.0, "size": 1.3})
+			# the light 0.9 m off the wall, not 0.3: on HIGH its omni at 0.3 m blew the inn's porch out to flat white at night
+			torch_specs.append({"pos": (wt["glow_pos"] as Vector3) + Vector3(sin(yaw), 0.0, cos(yaw)) * 0.6, "color": Color(1.0, 0.6, 0.25), "range": 6.0, "size": 1.3})
 	LampGlow.build(root, torch_specs)
 
 
