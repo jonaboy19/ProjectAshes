@@ -764,14 +764,43 @@ func _two_hand_rest(node: Node3D, rest: Transform3D) -> Transform3D:
 	if parent == null:
 		return rest
 	var ax: Vector3 = node.get_meta(&"axis", Vector3.UP)
-	var cur := parent.global_basis * rest.basis
+	# the attachment follows its bone only after the modifier stack: take the live bone pose (its global_basis is last frame's)
+	var pxf := parent.global_transform
+	if parent is BoneAttachment3D:
+		var bi := _skeleton.find_bone((parent as BoneAttachment3D).bone_name)
+		if bi >= 0:
+			pxf = _skeleton.global_transform * _skeleton.get_bone_global_pose(bi)
+	var pb := pxf.basis
+	var cur := pb * rest.basis
 	var axis_w := (cur * ax).normalized()
-	if _carry_w > 0.001 and axis_w.dot(Vector3.UP) > -0.98:
-		var q := Quaternion(axis_w, Vector3.UP)
-		rest.basis = parent.global_basis.inverse() * (Basis(Quaternion.IDENTITY.slerp(q, _carry_w)) * cur)
-		axis_w = (parent.global_basis * rest.basis * ax).normalized()
+	if _carry_w > 0.001:
+		# The carried pose is defined by the body, not by the shortest arc from the hand (that arc flipped about the blade axis by
+		# ~90 deg in one frame when the jump arms turned the blade near straight down): blade axis up, its flat along the body's side.
+		if not node.has_meta(&"thin_i"):
+			var bx := _local_box(node)
+			var ai := 0 if absf(ax.x) > 0.5 else (2 if absf(ax.z) > 0.5 else 1)
+			var o1 := (ai + 1) % 3
+			var o2 := (ai + 2) % 3
+			node.set_meta(&"thin_i", o1 if bx.size[o1] <= bx.size[o2] else o2)
+		var ti := int(node.get_meta(&"thin_i"))
+		var right := _model.global_basis.x.normalized()
+		var ai2 := 0 if absf(ax.x) > 0.5 else (2 if absf(ax.z) > 0.5 else 1)
+		var sgn := signf(ax[ai2])
+		var cols: Array[Vector3] = [Vector3.ZERO, Vector3.ZERO, Vector3.ZERO]
+		cols[ai2] = Vector3.UP * sgn
+		# the thin axis keeps the side it currently points to (no half-turn), flat faces the body's side
+		if not node.has_meta(&"thin_sign"):
+			# decided once, in the pose the weapon is first carried in (idle): later flips of the hand must not flip the carry
+			node.set_meta(&"thin_sign", 1.0 if (cur.orthonormalized() * _axis(ti)).dot(right) >= 0.0 else -1.0)
+		cols[ti] = right * float(node.get_meta(&"thin_sign"))
+		var oi := 3 - ai2 - ti
+		cols[oi] = cols[(oi + 1) % 3].cross(cols[(oi + 2) % 3])
+		var target := Basis(cols[0], cols[1], cols[2]).orthonormalized()
+		var q := cur.get_rotation_quaternion().slerp(target.get_rotation_quaternion(), _carry_w)
+		rest.basis = pb.inverse() * Basis(q).scaled(cur.get_scale())
+		axis_w = (pb * rest.basis * ax).normalized()
 	var assist := 1.0 - _carry_w
-	_set_assist_now(node.global_position + axis_w * float(node.get_meta(&"grip2", 0.4)), assist if assist > 0.01 else 0.0)
+	_set_assist_now((pxf * rest).origin + axis_w * float(node.get_meta(&"grip2", 0.4)), assist if assist > 0.01 else 0.0)
 	return rest
 
 
