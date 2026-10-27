@@ -59,7 +59,11 @@ func _ready() -> void:
 	_blob_mat = ShaderMaterial.new()
 	_blob_mat.shader = preload("res://shaders/region1/horizon_canopy.gdshader")
 	var q := get_node_or_null("/root/Quality")
-	if q and int(q.get("view_radius")) <= 2:
+	if WorldMacro.is_real():
+		# W6.5: the real world's woods must read from the air (owner fly-over): far canopy out to 6 km, 2.5 km on LOW / iGPU
+		# (bigger, fewer domes there, see _work).
+		blob_range = 2500.0 if (q and int(q.get("view_radius")) <= 2) else 6000.0
+	elif q and int(q.get("view_radius")) <= 2:
 		blob_range = 0.0          # LOW: ground only (canopy domes cost ~3 ms on the LOW A/B, docs/regions/look/PERF.md)
 	_mask_tex = ImageTexture.create_from_image(_mask_img)
 	for mat: ShaderMaterial in [_ground_mat, _blob_mat]:
@@ -280,15 +284,16 @@ func _work() -> void:
 			if real and f > 0.0:   # W6: the biome mix and the tree line decide the far woods too
 				var hh := WorldGen.height(px, pz)
 				f = WorldBiomes.tree_density(WorldBiomes.at(px, pz), f) * (1.0 - smoothstep(Terrain3DBridge.snow_line(pz) - 220.0, Terrain3DBridge.snow_line(pz) - 120.0, hh))
-			if f > 0.3 and rng.randf() < f:
+			if f > (0.18 if real else 0.3) and rng.randf() < f:
 				var key := Vector2i(floori(px / BLOB_CELL), floori(pz / BLOB_CELL))
 				if not blobs.has(key):
 					blobs[key] = PackedFloat32Array()
 				var arr: PackedFloat32Array = blobs[key]
-				var s := rng.randf_range(8.5, 13.0)
+				var s := rng.randf_range(12.0, 19.0) if real else rng.randf_range(8.5, 13.0)
 				# Seat on the horizon mesh itself (48 m grid), not the exact ground: over bowls and rims the two differ by
-				# tens of metres and the domes hovered ("void" frames in the Hidden Vale cutscene).
-				var gy := _grid_h(hs, n, px, pz)
+				# tens of metres and the domes hovered ("void" frames in the Hidden Vale cutscene). The real world's far mesh sits
+				# on the lowest ground of its cell, so its domes use the true ground (they are the woods seen from the air).
+				var gy := WorldGen.height(px, pz) if real else _grid_h(hs, n, px, pz)
 				arr.append_array(PackedFloat32Array([px, minf(gy, WorldGen.height(px, pz)) + s * 0.3, pz, s, s * rng.randf_range(0.7, 1.05), rng.randf()]))
 				blobs[key] = arr
 			bx += BLOB_STEP

@@ -298,6 +298,14 @@ static func build_maps(loc: Vector2i) -> Array[Image]:
 	cbytes.resize(n * n * 4)
 	# W6 note: control words on every second pixel baked ~3x faster but stepped visibly (6 m blocks) from the air: full 3 m lattice now.
 	var half_ctl := false
+	# W6.5: away from towns the real world only needs color_at for roads (its rock/litter come from real_layers): faster bake.
+	var fast := WorldMacro.is_real()
+	if fast:
+		var rect := Rect2(o, Vector2.ONE * n * spacing_rt)
+		for st in WorldGen.settlements:
+			if rect.grow(float(st["radius"]) * 2.6 + 30.0).has_point(st["pos"]):
+				fast = false
+				break
 	for j in n:
 		for i in n:
 			var c := (j + 1) * stride + i + 1
@@ -309,7 +317,9 @@ static func build_maps(loc: Vector2i) -> Array[Image]:
 			var normal_y := 2.0 * spacing_rt / Vector3(hb[c - 1] - hb[c + 1], 2.0 * spacing_rt, hb[c - stride] - hb[c + stride]).length()
 			var wx := o.x + i * spacing_rt
 			var wz := o.y + j * spacing_rt
-			var w := WorldGen.color_at(wx, wz, h, 1.0 - normal_y)
+			var w := Color(0, 0, 0, 0)
+			if not fast or WorldGen.road_distance(wx, wz) < 14.0:
+				w = WorldGen.color_at(wx, wz, h, 1.0 - normal_y)
 			var ex: Array = []
 			if WorldMacro.active:
 				ex = macro_extras(wx, wz, h, 1.0 - normal_y, w)
