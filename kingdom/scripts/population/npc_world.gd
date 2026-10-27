@@ -700,6 +700,38 @@ const SPOT_TYPES := {
 }
 const WORK_IDS := ["farmer", "blacksmith", "merchant", "guard", "laborer", "woodcutter"]
 
+## Wall leans: spots are laid out from the building mesh bounds (no colliders yet at populate time), which sit 0.35-0.65 m
+## off the real wall (porches, overhangs). The first claim fits the spot to the actual wall with a ray at shoulder height:
+## back lean 0.17 m, shoulder lean 0.33 m from the surface (clip offsets, clip_end_probe.gd --back). False = no wall there.
+const LEAN_GAP := {"wall_lean_back": 0.17, "wall_lean_side": 0.33}
+
+
+static func fit_wall_lean(so: SmartObjects, id: int, space: PhysicsDirectSpaceState3D) -> bool:
+	var sp: Dictionary = so.spots[id]
+	if sp.get("fitted", false):
+		return true
+	if space == null:
+		return false
+	var x: Transform3D = sp["xform"]
+	var typ := String(sp["type"])
+	var away := x.basis.z if typ == "wall_lean_back" else x.basis.x
+	away.y = 0.0
+	away = away.normalized()
+	var from := x.origin + Vector3(0, 1.2, 0) + away * 0.6
+	var q := PhysicsRayQueryParameters3D.create(from, from - away * 2.2)
+	q.collision_mask = 1
+	var hit := space.intersect_ray(q)
+	if hit.is_empty() or absf((hit["normal"] as Vector3).dot(away)) < 0.8:
+		return false
+	var wall: Vector3 = hit["position"]
+	var o := Vector3(wall.x, x.origin.y, wall.z) + away * float(LEAN_GAP.get(typ, 0.2))
+	o.y = WorldGen.height(o.x, o.z)
+	x.origin = o
+	sp["xform"] = x
+	sp["fitted"] = true
+	return true
+
+
 ## Types this module adds to the data-driven SmartObjects catalogue (same schema as the JSON).
 const LOCAL_TYPES := {
 	"npc_haul": {
@@ -718,6 +750,19 @@ const LOCAL_TYPES := {
 		"slots": [{"stand": [0.0, 0.0, 0.9], "face": 180}], "approach": 0.9,
 		"activity": {"loop": ["Life_Ambient_Look_Around"], "duration": [3, 4], "cycles": [1, 1]},
 		"acts": ["search"], "tags": ["search"],
+	},
+	# Leaning on a house front (Mixamo set 5, docs/qa/AAA_GATE_LOG.md): placed on the facade plane from the building's mesh
+	# bounds; the root offsets come from the clips (tools_qa/living_world/clip_end_probe.gd --back): back on the wall 0.17 m
+	# behind the root, or the right shoulder on a wall 0.33 m to the side.
+	"wall_lean_back": {
+		"slots": [{"stand": [0.0, 0.0, 0.0], "face": 0}], "approach": 0.7,
+		"activity": {"loop": ["Life_Mx5_Lean_Wall_Leg_Up"], "duration": [30, 120], "cycles": [2, 4]},
+		"acts": ["rest", "social"], "hours": [8, 20], "tags": ["lean", "rest"],
+	},
+	"wall_lean_side": {
+		"slots": [{"stand": [0.0, 0.0, 0.0], "face": 0}], "approach": 0.7,
+		"activity": {"loop": ["Life_Mx5_Lean_Wall_Shoulder"], "duration": [30, 120], "cycles": [2, 4]},
+		"acts": ["rest", "social"], "hours": [8, 20], "tags": ["lean", "rest"],
 	},
 	"wall_idle": {
 		"slots": [{"stand": [0.0, 0.0, 0.0], "face": 0}], "approach": 0.6,
@@ -758,11 +803,10 @@ static func ensure_spots(sid: int, host: Node = null) -> void:
 	var places := {"stalls": stall_pts, "stall_yaw": stall_yaws, "benches": bench_pts,
 		"patrol": PackedVector2Array(), "plaza": c, "plaza_r": pr}
 	# Market stalls ring the plaza exactly as SettlementBuilder / StreetGraph lay them out.
-	var n_stalls := 6 if s["kind"] == "village" else 12
-	for i in n_stalls:
-		var ang := TAU * i / n_stalls + 0.2
-		var sp := c + Vector2(cos(ang), sin(ang)) * (pr - 3.0)
-		var yaw := atan2(-cos(ang), -sin(ang))
+	var n_stalls := 6 if s["kind"] == "village" else 12      # (bench spacing below)
+	for stall: Dictionary in CityPlanner.plaza_stalls(s):        # the stalls the builder actually placed
+		var sp: Vector2 = stall["pos"]
+		var yaw: float = stall["yaw"]
 		stall_pts.append(sp)
 		stall_yaws.append(yaw)
 		# Keeper behind the counter, customers on the plaza side (market_stall slot frame: +Z is the front).
@@ -801,6 +845,27 @@ static func ensure_spots(sid: int, host: Node = null) -> void:
 		if graph != null:
 			wp = graph.push_out(wp, 0.6)
 		so.add("wall_idle", Transform3D(Basis(Vector3.UP, yaw2 + PI), Vector3(wp.x, WorldGen.height(wp.x, wp.y), wp.y)), sid)
+	# Wall leans on every 4th house front (other lots than the wall_idle ones): on the real facade plane.
+	k = 0
+	for lot: Dictionary in lots:
+		k += 1
+		if k % 4 != 2 or not Assets.BUILDINGS.has(String(lot.get("asset", ""))):
+			continue
+		var mesh: Mesh = Assets.building_mesh(String(lot["asset"]))
+		if mesh == null:
+			continue
+		var bb := mesh.get_aabb()
+		var yaw3: float = lot["yaw"]
+		var n := Vector2(sin(yaw3), cos(yaw3))            # outward normal of the front wall (lot +Z)
+		var along := Vector2(n.y, -n.x)
+		var lat := clampf(bb.size.x * 0.5 - 0.9, 0.0, 3.0) * (1.0 if k % 8 == 2 else -1.0)   # beside the door, not in it
+		var w := (lot["pos"] as Vector2) + n * bb.end.z + along * lat
+		if k % 8 == 2:
+			var lp := w + n * 0.17
+			so.add("wall_lean_back", Transform3D(Basis(Vector3.UP, atan2(n.x, n.y)), Vector3(lp.x, WorldGen.height(lp.x, lp.y), lp.y)), sid)
+		else:
+			var sp2 := w + n * 0.33
+			so.add("wall_lean_side", Transform3D(Basis(Vector3.UP, atan2(-n.y, n.x)), Vector3(sp2.x, WorldGen.height(sp2.x, sp2.y), sp2.y)), sid)
 	# The training yard: four dummies in a row facing the plaza, a hay-bale target and a weapon rack beside each pair.
 	var yard := Schedule.spot(s, Schedule.Phase.TRAIN, 0, 1)
 	var to_plaza := (c - yard).normalized() if c.distance_to(yard) > 1.0 else Vector2.DOWN

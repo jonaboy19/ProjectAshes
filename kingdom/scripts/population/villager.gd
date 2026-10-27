@@ -1746,6 +1746,8 @@ func _idle_rate() -> float:
 func _so_begin(pick: Array) -> bool:
 	var so := NpcWorld.spots()
 	_so_release()
+	if String(so.spots[pick[0]]["type"]).begins_with("wall_lean") and not NpcWorld.fit_wall_lean(so, pick[0], get_world_3d().direct_space_state):
+		return false      # no real wall behind this lean spot
 	if not so.claim(pick[0], pick[1], person):
 		return false
 	_so = so.session(person, pick[0], pick[1])

@@ -17,7 +17,10 @@ PLAYTEST_MOVIE=1 PLAYTEST_MOVIE_FPS=30 PLAYTEST_STAGES=boot,slice_route PLAYTEST
   -- $Q --adult --qa=res://tools_qa/playtest_bot/playtest_bot.gd > "$TMP/log.txt" 2>&1
 git -C $R status --porcelain | sort > "$TMP/s2.txt"; comm -13 "$TMP/s1.txt" "$TMP/s2.txt" | grep '^ M .*\.import$' | cut -c4- | xargs -r -d '\n' git -C $R checkout --
 { echo "commit $SHA ($(git -C $R log -1 --format=%s | cut -c1-90))"; echo "args: $Q --adult (PLAYTEST_STAGES=boot,slice_route)"; grep -hoE "SLICECFG .*|SLICESEG .*" "$TMP/log.txt" "$TMP"/bot/*.log 2>/dev/null | sort -u; } > "$OUTV/$NAME.txt"
-bash $R/tools/qa/video/analyse_tour.sh "$TMP/slice.avi" "$TMP/an" 0.12 > /dev/null 2>&1
+# cut the loading screen: start at the movie frame the route logged (SLICEFRAME), like record_slice_move.sh
+FR=$(grep -h -m1 -oE "SLICEFRAME [0-9]+" "$TMP/log.txt" "$TMP"/bot/*.log 2>/dev/null | head -1 | grep -oE "[0-9]+")
+SS=$(python -c "print(max(0.0, ${FR:-0}/30.0 - 0.5))")
+bash $R/tools/qa/video/analyse_tour.sh "$TMP/slice.avi" "$TMP/an" 0.12 "$SS" > /dev/null 2>&1
 cp "$TMP/an/tour.mp4" "$OUTV/$NAME.mp4" 2>/dev/null
 mkdir -p "$R/docs/qa/video/slice/$NAME"; cp "$TMP"/an/sheet_*.jpg "$TMP/an/spikes.tsv" "$R/docs/qa/video/slice/$NAME/" 2>/dev/null
 # disk is tight: keep only the MP4, the sheets and the sidecar

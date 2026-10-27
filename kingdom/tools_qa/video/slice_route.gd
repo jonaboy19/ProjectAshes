@@ -24,6 +24,10 @@ func run(bot: Node) -> void:
 	if hud is CanvasLayer:
 		(hud as CanvasLayer).visible = false
 	_config_dump()
+	b.get_tree().process_frame.connect(_clean_ui)       # gate frames: no HUD, tips, quest popups or subtitles
+	if OS.get_environment("SLICE_LEANS") != "":
+		await _lean_check(int(OS.get_environment("SLICE_LEANS")))
+		return
 	if OS.get_environment("SLICE_CLIPS") != "":
 		await _clip_street(OS.get_environment("SLICE_CLIPS"))
 		return
@@ -37,6 +41,7 @@ func run(bot: Node) -> void:
 	_seg("square")
 	var a := c + g * (pr + 3.0)
 	await b.teleport(a, b.yaw_to(a, c), 2.0)
+	b.L("SLICEFRAME %d" % Engine.get_frames_drawn())   # movie frame of the route start: the recorder cuts the loading screen here
 	await b.wait(10.0)
 	# 2 across the square into the side street (walk)
 	_seg("side_street")
@@ -167,6 +172,7 @@ func _clip_street(spec: String) -> void:
 	var pr := float(town["plan"]["plaza_r"])
 	var a := c + g * (pr + 3.0)
 	await b.teleport(a, b.yaw_to(a, c), 2.0)
+	b.L("SLICEFRAME %d" % Engine.get_frames_drawn())
 	var mdl: Node = player.get("_model") if player else null
 	if mdl is Node3D:
 		(mdl as Node3D).visible = false
@@ -254,3 +260,73 @@ func _ground_y(p: Vector2) -> float:
 		if not hit.is_empty():
 			return float((hit["position"] as Vector3).y)
 	return WorldGen.height(p.x, p.y)
+
+
+## Every UI layer off except the one that shows the game view (the world renders into a SubViewport shown by a container).
+func _clean_ui() -> void:
+	for cl: Node in b.get_tree().root.find_children("*", "CanvasLayer", true, false):
+		if cl is CanvasLayer and (cl as CanvasLayer).visible and cl.find_children("*", "SubViewportContainer", true, false).is_empty():
+			(cl as CanvasLayer).visible = false
+
+
+## Wall-lean gate on the real house fronts: the nearest `n` wall_lean_* spots to the Ashford square; per spot the hero stands
+## 4.5 m out, three-quarter on, and a villager body plays the spot's lean clip at the spot's exact transform.
+func _lean_check(n: int) -> void:
+	var town: Dictionary = Slice.settlement("Ashford")
+	var c: Vector2 = town["pos"]
+	await b.teleport(c, 0.0, 2.0)
+	b.L("SLICEFRAME %d" % Engine.get_frames_drawn())
+	var so: SmartObjects = NpcWorld.smart
+	var cands := []
+	for i in so.spots.size():
+		var sp: Dictionary = so.spots[i]
+		if String(sp["type"]).begins_with("wall_lean"):
+			var o: Vector3 = (sp["xform"] as Transform3D).origin
+			cands.append([Vector2(o.x, o.z).distance_to(c), i])
+	cands.sort()
+	var mdl: Node = player.get("_model") if player else null
+	for j in mini(n, cands.size()):
+		var sid := int(cands[j][1])
+		if not NpcWorld.fit_wall_lean(so, sid, (player as Node3D).get_world_3d().direct_space_state):
+			b.L("LEANGAP spot %d: no wall found, skipped" % sid)
+			continue
+		var sp: Dictionary = so.spots[sid]
+		var x: Transform3D = sp["xform"]
+		var typ := String(sp["type"])
+		var clip: String = (so.types[typ]["activity"]["loop"] as Array)[0]
+		var away := Vector2(x.basis.z.x, x.basis.z.z) if typ == "wall_lean_back" else Vector2(x.basis.x.x, x.basis.x.z)
+		var side := Vector2(-away.y, away.x)
+		var o2 := Vector2(x.origin.x, x.origin.z)
+		var st := o2 + away * 3.0 + side * 1.5
+		# offset check: from the spot at shoulder height toward the wall, where is the real surface?
+		var want := 0.17 if typ == "wall_lean_back" else 0.33
+		var from := x.origin + Vector3(0, 1.2, 0)
+		var q := PhysicsRayQueryParameters3D.create(from, from - Vector3(away.x, 0, away.y) * 3.0)
+		var hit := (player as Node3D).get_world_3d().direct_space_state.intersect_ray(q)
+		var gap := from.distance_to(hit["position"]) if not hit.is_empty() else INF
+		b.L("LEANGAP %s want %.2f m, wall at %.2f m (%s)" % [typ, want, gap, hit.get("collider", "none")])
+		await b.teleport(st, b.yaw_to(st, o2), 1.5)
+		var m := Assets.mh_character("villager_man_a", 1.7)
+		player.get_parent().add_child(m)
+		m.global_transform = x
+		var ap := Assets.animation_player(m)
+		LifeLibrary.install(ap)
+		if ap.has_animation(clip):
+			ap.get_animation(clip).loop_mode = Animation.LOOP_LINEAR
+			ap.play(clip)
+		var cam := Camera3D.new()          # side-on gate camera (the follow camera puts the hero in front of the spot)
+		player.get_parent().add_child(cam)
+		var wall_n := Vector3(away.x, 0, away.y)
+		cam.global_position = x.origin + wall_n * 2.4 + Vector3(side.x, 0, side.y) * 1.3 + Vector3(0, 1.35, 0)
+		cam.look_at(x.origin + Vector3(0, 1.0, 0))
+		cam.fov = 50.0
+		cam.make_current()
+		_seg("lean_%d %s %s at %s" % [j, typ, clip, x.origin])
+		for k in 24:
+			if mdl is Node3D:
+				(mdl as Node3D).visible = false
+			await b.wait(0.25)
+		m.queue_free()
+		cam.queue_free()
+	_seg("end")
+	b.check("lean check finished", true)
