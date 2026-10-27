@@ -4791,6 +4791,15 @@ func st_do_defeat(o: Dictionary, st: Dictionary) -> bool:
 	if Life.count("venison_roast") < 1 and Life.count("bread") < 3:
 		st_hook("give bread x3 (the parley gift; a player carries bread)")
 		Life.give("bread", 3)
+	# a companion standing beside the player (Idra at the glade) wins the E prompt over the parley: a player steps away from them first
+	for _step in 3:
+		var who: Node3D = Interaction.node_of(Interaction.best(player))
+		if who == null or who.name == "R1ParleyStation":
+			break
+		var away := (p2() - Vector2(who.global_position.x, who.global_position.z))
+		away = away.normalized() if away.length() > 0.1 else Vector2(1, 0)
+		L("step away from %s so the parley is the nearest prompt" % who.name)
+		await st_walk(p2() + away * 7.0, 2.0, 20.0)
 	if not await st_press_e_menu("the parley with %s" % target):
 		st_blocker("no 'Parley' prompt at %s for %s (best %s)" % [place, target, str(Interaction.node_of(Interaction.best(player)))])
 		return false
