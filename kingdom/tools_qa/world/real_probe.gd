@@ -34,5 +34,14 @@ func _initialize() -> void:
 	var b := Time.get_ticks_msec()
 	var maps := Terrain3DBridge.build_maps(Terrain3DBridge.region_of(0.0, 0.0))
 	print("region_bake_ms=", Time.get_ticks_msec() - b, " size=", maps[0].get_width(), " snow_line_N=", Terrain3DBridge.snow_line(-7000.0))
+	var cm := Terrain3DBridge.build_maps(Terrain3DBridge.region_of(-114.0, -2275.0))
+	var hist := {}
+	var cimg: Image = cm[1]
+	for j in range(0, cimg.get_height(), 4):
+		for i in range(0, cimg.get_width(), 4):
+			var word := cimg.get_data().decode_u32((j * cimg.get_width() + i) * 4)
+			var key := "%d/%d" % [(word >> 27) & 31, (word >> 22) & 31]
+			hist[key] = int(hist.get(key, 0)) + 1
+	print("control base/overlay histogram near Highcliff: ", hist)
 	print("remap(1130,1004)=", RealWorld.remap(Vector2(1130, 1004)), " warp(0,0)=", RealWorld.warp(Vector2.ZERO))
 	quit()

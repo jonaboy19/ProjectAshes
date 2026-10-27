@@ -125,6 +125,20 @@ static func setup(seed_value: int) -> void:
 		_rebase_to_macro(seed_value)
 
 
+## True when `p` lies inside the playable world with `margin` metres to spare: +-WORLD_HALF, or the Valencious box in the real world
+## (once positions are final). Generators that run after setup (POIs, caves, towers, realm presence) use this instead of WORLD_HALF.
+## Half edge of the square the 2D maps draw (world map, minimap, strategic/war maps): WORLD_HALF, or 12 288 m in the real world, which holds
+## the whole Valencious box (x -12 000..4 000, z -7 000..9 000) around Ashford plus a rim of the locked realms.
+static func map_half() -> float:
+	return 12288.0 if RealWorld.active() else WORLD_HALF
+
+
+static func in_bounds(p: Vector2, margin := 0.0) -> bool:
+	if _real_ready and RealWorld.active():
+		return RealWorld.box().grow(-margin).has_point(p)
+	return absf(p.x) <= WORLD_HALF - margin and absf(p.y) <= WORLD_HALF - margin
+
+
 ## W6: settlements, sites, clearings and the hidden vale move to their data-driven real-world positions (data/world/real/layout.json).
 ## Road topology and every id stay; city plans are re-made for the new gate directions.
 static func _relocate_real(seed_value: int) -> void:
@@ -138,6 +152,9 @@ static func _relocate_real(seed_value: int) -> void:
 		var sp := RealWorld.remap(site["pos"])
 		if String(site.get("kind", "")) != "map_edge_text":   # outer-ring sites the warp pushed out come back inside the realm
 			sp = Vector2(clampf(sp.x, keep.position.x, keep.end.x), clampf(sp.y, keep.position.y, keep.end.y))
+		var sl: String = RealWorld.SLICE_PINS.get(String(site.get("name", "")), "")
+		if sl != "" and RealWorld.slice_anchor(sl) != Vector2.INF:
+			sp = RealWorld.slice_anchor(sl)    # vertical slice: bandit camp on the Kingsreach road, dungeon floor 1 in the fells above Ashford
 		site["pos"] = sp
 	clearings.clear()
 	for site in sites:

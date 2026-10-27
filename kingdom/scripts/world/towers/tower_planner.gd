@@ -44,7 +44,7 @@ static func _find(anchor: Vector2, rng: RandomNumberGenerator, taken: Array) -> 
 		var ang := rng.randf() * TAU
 		var dist := rng.randf_range(REACH_MIN, REACH_MAX)
 		var p := anchor + Vector2(cos(ang), sin(ang)) * dist
-		if absf(p.x) > WorldGen.WORLD_HALF - 500.0 or absf(p.y) > WorldGen.WORLD_HALF - 500.0:
+		if not WorldGen.in_bounds(p, 500.0):
 			continue
 		if not RegionSites._free(p, CLEAR + 40.0, _typed(taken), 30.0):
 			continue

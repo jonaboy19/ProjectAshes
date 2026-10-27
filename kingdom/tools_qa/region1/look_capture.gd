@@ -288,6 +288,10 @@ func _clear_overlays() -> void:
 	for n in root.find_children("*", "CanvasLayer", true, false):
 		# Keep the layer that presents the game's 3D SubViewport (hiding it drops the real render path).
 		if not n.find_children("*", "SubViewportContainer", true, false).is_empty():
+			# ...but hide its other overlays (job offers, toasts, the location card that sat on top of the W6 shots).
+			for ch in n.get_children():
+				if ch is CanvasItem and not ch is SubViewportContainer and ch.find_children("*", "SubViewportContainer", true, false).is_empty():
+					(ch as CanvasItem).visible = false
 			continue
 		(n as CanvasLayer).visible = false
 	if cam:
@@ -295,6 +299,7 @@ func _clear_overlays() -> void:
 
 
 func _save() -> void:
+	_clear_overlays()        # popups that opened during the warm-up frames
 	var v: Dictionary = views[idx]
 	if v.has("scan"):
 		var cp := cam.global_position

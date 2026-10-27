@@ -64613,15 +64613,16 @@
 "in_valencious": true
 },
 "site:Bandit Camp:490:612": {
-"x": 800.8,
-"z": 2827.4,
+"x": 551.1,
+"z": 196.1,
 "old": [
 489.6,
 612.0
 ],
 "kind": "bandit_camp",
 "name": "Bandit Camp",
-"in_valencious": true
+"in_valencious": true,
+"slice": "bandit_camp"
 },
 "site:Black Rill Grotto:3246:3109": {
 "x": 3295.5,
@@ -66043,15 +66044,16 @@
 "in_valencious": true
 },
 "site:Kestrel's Folly:-665:-1133": {
-"x": -1431.2,
-"z": -1195.0,
+"x": 790.5,
+"z": -1155.5,
 "old": [
 -665.4,
 -1133.1
 ],
 "kind": "old_mine",
 "name": "Kestrel's Folly",
-"in_valencious": true
+"in_valencious": true,
+"slice": "cave_entrance"
 },
 "site:Kingsreach Academy of Arms and Arts:241:-288": {
 "x": 441.2,

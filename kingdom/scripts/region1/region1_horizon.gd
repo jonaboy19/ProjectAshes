@@ -227,6 +227,16 @@ func _work() -> void:
 					bc += (BIOME_COL[bi] as Color) * sw[bi]
 				var open := clampf(1.0 - (w.r + w.g + w.b), 0.0, 1.0)
 				col = col.lerp(PATH, 0.0).lerp(bc, open * 0.9)
+				if WorldMacro.is_real():
+					# W6: the same layering as the streamed ground (Terrain3DBridge.real_layers) so far fells match near ones.
+					var sw2 := WorldBiomes.soft_weights(x, z)
+					var mm := WorldBiomes.ground_mix(sw2, 0.5)
+					var ly := Terrain3DBridge.real_layers(x, z, h, 1.0 - nrm.y, mm, 1.0, Terrain3DBridge.snow_line(z))
+					col = col.lerp(BIOME_COL[2], clampf(float(ly[0]), 0.0, 1.0) * 0.5)
+					col = col.lerp(BIOME_COL[1], clampf(float(ly[6]), 0.0, 1.0) * 0.6)
+					col = col.lerp(BIOME_COL[5], clampf(float(ly[5]), 0.0, 1.0))
+					col = col.lerp(ROCK, clampf(float(ly[7]), 0.0, 1.0))
+					col = col.lerp(BIOME_COL[7], clampf(float(ly[4]), 0.0, 1.0))
 			var lv := lvs[j * n + i]
 			if not is_nan(lv) and lv > h + 0.1:
 				# Water only where the whole neighbourhood is water or higher ground (see _water_interior): a river is far

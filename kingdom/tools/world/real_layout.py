@@ -375,6 +375,11 @@ def main():
               "bandit_camp": [round(float(v), 1) for v in best_c[1]] if best_c else None,
               "cave_entrance": [round(float(v), 1) for v in best_v[1]] if best_v else None}
     print("slice", slice_)
+    # pin the slice's camp and dungeon-floor-1 entrance (mine theme) onto those anchors so every reader (WorldGen sites, lore, discovery) agrees
+    for pid, key in (("site:Bandit Camp:490:612", "bandit_camp"), ("site:Kestrel's Folly:-665:-1133", "cave_entrance")):
+        if pid in out and slice_.get(key):
+            out[pid]["x"], out[pid]["z"] = slice_[key]
+            out[pid]["slice"] = key
     lay = {"version": 1, "tps": tps, "slice": slice_, "lakes": lakes_out, "rivers": rivers_out, "box_note": "x0,z0,x1,z1", "world_version": 3, "generator": "kingdom/tools/world/real_layout.py", "valencious_box": box, "spread": anc["spread"],
            "places": out}
     json.dump(lay, open(os.path.join(RD, "layout.json"), "w"), indent=0)

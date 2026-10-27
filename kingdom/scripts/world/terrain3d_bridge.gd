@@ -131,6 +131,8 @@ static func _make_assets() -> Terrain3DAssets:
 		ta.roughness = float(look[2])
 		if name == "grass":
 			ta.albedo_color = GRASS_TINT
+		elif name == "snow" and WorldMacro.is_real():
+			ta.albedo_color = Color(1.15, 1.35, 1.75)   # W6: the scree-grey snow read as sand on the real fells; lift it to snow white
 		assets.set_texture(i, ta)
 	return assets
 
@@ -193,10 +195,33 @@ static func macro_extras(x: float, z: float, h: float, slope: float, w: Color) -
 	var sw := WorldBiomes.soft_weights(x, z)
 	var patch := 0.5 + 0.5 * _patch_noise().get_noise_2d(x, z)
 	var m := WorldBiomes.ground_mix(sw, patch)
-	var free := clampf(1.0 - w.r - w.b - w.g, 0.0, 1.0)      # roads, cobble and rock faces keep priority
+	var free := clampf(1.0 - w.r - w.b - (0.0 if WorldMacro.is_real() else w.g), 0.0, 1.0)      # roads, cobble and rock faces keep priority (W6: real rock comes from real_layers)
 	var sl := snow_line(z)
+	if WorldMacro.is_real():
+		return real_layers(x, z, h, slope, m, free, sl)
 	var snow := smoothstep(sl - 6.0, sl + 10.0, h) * (1.0 - smoothstep(0.55, 0.85, slope))
 	return [m[1] * free, m[2] * free, m[3] * free, m[4] * free, maxf(m[5], snow) * free, m[6] * free, m[0] * free]   # last = forest litter (-> w.a)
+
+
+## W6 real world ground layering (owner review: hard green/tan blobs). On top of the soft biome mix: grass/meadow in the valley floors,
+## heather-brown highland on the fell sides (slope, noise-broken edge), scree/rock on steep faces, snow above a noisy snow line that
+## creeps lower in gullies (slope) - so materials follow the land like the Lake District fells instead of the biome cells.
+static func real_layers(x: float, z: float, h: float, slope: float, m: PackedFloat32Array, free: float, sl: float) -> Array:
+	var n1 := _patch_noise().get_noise_2d(x * 3.1, z * 3.1)            # ~50 m breakup
+	var n2 := _patch_noise().get_noise_2d(x * 0.9 + 400.0, z * 0.9)     # ~180 m breakup
+	var fell := smoothstep(0.16, 0.42, slope + n1 * 0.08 + n2 * 0.05) * smoothstep(60.0, 160.0, h + n2 * 40.0)
+	var crag := smoothstep(0.62, 0.95, slope + n1 * 0.1)
+	var snow_edge := sl + n1 * 35.0 + n2 * 25.0 - slope * 40.0
+	var snow := smoothstep(snow_edge - 12.0, snow_edge + 12.0, h) * (1.0 - smoothstep(0.7, 0.95, slope))
+	var valley := 1.0 - fell
+	# Fell sides stay green (grass + bracken-brown litter); the pale highland ground only in the alpine band below the snow.
+	var alpine := smoothstep(sl - 170.0, sl - 40.0, h + n2 * 30.0)
+	var meadow := (m[1] + 0.25 * valley * (0.5 + 0.5 * n2)) * valley
+	var high := maxf(m[6] * 0.4, alpine * 0.8) * (1.0 - snow) * (0.4 + 0.6 * fell)
+	var marsh := m[3] * valley
+	var farm := m[2] * valley
+	var forest := maxf(m[0], fell * (0.3 + 0.25 * n1)) * (1.0 - crag) * (1.0 - snow) * (1.0 - alpine)
+	return [meadow * free, farm * free, marsh * free, m[4] * free, snow * free, high * free, forest * free, crag]
 
 
 static var _patch: FastNoiseLite
@@ -240,6 +265,10 @@ static func build_maps(loc: Vector2i) -> Array[Image]:
 			var ex: Array = []
 			if WorldMacro.active:
 				ex = macro_extras(wx, wz, h, 1.0 - normal_y, w)
+				if ex.size() == 8:
+					# W6: color_at's rock weight is tuned for the 0-300 m world (every real fell side came out rock): the real world
+					# takes its rock from real_layers' crag/scree on genuinely steep faces only.
+					w.g = float(ex.pop_back())
 				w.a = float(ex.pop_back())               # forest litter weight from the soft biome field
 			cbytes.encode_u32((j * n + i) * 4, control_word(w, ex))
 	var himg := Image.create_from_data(n, n, false, Image.FORMAT_RF, hbytes)

@@ -69,6 +69,71 @@ func _build_posts() -> void:
 	(lamp.material as StandardMaterial3D).emission = Color(1.0, 0.6, 0.25)
 	(lamp.material as StandardMaterial3D).emission_energy_multiplier = 3.0
 	_mm(lamp, keep, Vector3(0.4, 3.0, 0))
+	_warden_camps(b)
+
+
+## Warden camps where the old roads left the realm (the four map-edge exits, projected onto the border): a tent, a brazier and two
+## spear-carrying wardens in Valencious red. Set pieces only (the turn-back line is spoken by the lock itself).
+func _warden_camps(b: Rect2) -> void:
+	var cloth := _box_mesh(Vector3(1, 1, 1), Color(0.55, 0.12, 0.1)).material
+	var steel := _box_mesh(Vector3(1, 1, 1), Color(0.55, 0.56, 0.6)).material
+	for id: String in ["edge:to_the_aurelis_patriarchate", "edge:to_the_frostcrown_holds", "edge:to_the_solkar_dominion", "site:The Eastern Gate:3772:481"]:
+		var p: Variant = RealWorld.place(id)
+		if p == null:
+			continue
+		var q := Vector2(clampf(p.x, b.position.x, b.end.x), clampf(p.y, b.position.y, b.end.y))
+		var inward := (b.get_center() - q).normalized()
+		q += inward * 14.0
+		var g := Vector3(q.x, WorldGen.height(q.x, q.y), q.y)
+		var tent := PrismMesh.new()
+		tent.size = Vector3(4.5, 3.0, 5.0)
+		tent.material = cloth
+		_one(tent, g + Vector3(inward.x * 6.0, 1.5, inward.y * 6.0))
+		var fire := SphereMesh.new()
+		fire.radius = 0.5
+		fire.height = 0.8
+		var fm := StandardMaterial3D.new()
+		fm.albedo_color = Color(1.0, 0.55, 0.2)
+		fm.emission_enabled = true
+		fm.emission = Color(1.0, 0.5, 0.15)
+		fm.emission_energy_multiplier = 4.0
+		fire.material = fm
+		_one(fire, g + Vector3(0, 1.0, 0))
+		var l := OmniLight3D.new()
+		l.light_color = Color(1.0, 0.6, 0.3)
+		l.omni_range = 18.0
+		l.light_energy = 2.0
+		l.position = g + Vector3(0, 2.0, 0)
+		l.distance_fade_enabled = true
+		l.distance_fade_begin = 400.0
+		add_child(l)
+		for s in [-1.0, 1.0]:
+			var side: Vector2 = Vector2(-inward.y, inward.x) * 3.0 * float(s)
+			var at := Vector3(q.x + side.x, WorldGen.height(q.x + side.x, q.y + side.y), q.y + side.y)
+			var body := CapsuleMesh.new()
+			body.radius = 0.35
+			body.height = 1.8
+			body.material = cloth
+			_one(body, at + Vector3(0, 0.9, 0))
+			var helm := SphereMesh.new()
+			helm.radius = 0.2
+			helm.height = 0.4
+			helm.material = steel
+			_one(helm, at + Vector3(0, 1.95, 0))
+			var spear := CylinderMesh.new()
+			spear.top_radius = 0.03
+			spear.bottom_radius = 0.03
+			spear.height = 2.6
+			spear.material = steel
+			_one(spear, at + Vector3(0.45, 1.3, 0))
+
+
+func _one(mesh: Mesh, at: Vector3) -> void:
+	var mi := MeshInstance3D.new()
+	mi.mesh = mesh
+	mi.position = at
+	mi.visibility_range_end = 700.0
+	add_child(mi)
 
 
 static func _box_mesh(size: Vector3, col: Color) -> BoxMesh:

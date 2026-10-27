@@ -10,7 +10,9 @@ extends RefCounted
 
 const LAYOUT := "res://data/world/real/layout.json"
 const LAKE_IDS := "res://data/world/real/lake_ids.png"
-const WORLD_VERSION := 3          # saves made before the real world carry 2 (or nothing)
+const WORLD_VERSION := 3
+## Vertical-slice sites (MASTER_BACKLOG section 3) pinned onto layout.json "slice" anchors: site name -> anchor key.
+const SLICE_PINS := {"Bandit Camp": "bandit_camp", "Kestrel's Folly": "cave_entrance"}          # saves made before the real world carry 2 (or nothing)
 const LAKE_GRID := 1024
 const LAKE_MPP := 32.0
 const HALF := 16384.0

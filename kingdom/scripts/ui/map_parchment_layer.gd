@@ -113,7 +113,7 @@ func _ensure_loaded() -> bool:
 ## the 12 km world outgrew the 8 km sheet, so until it is repainted the map draws its own terrain instead of showing
 ## the new land as blank paper.
 func covers_world() -> bool:
-	return -_origin.x >= WorldGen.WORLD_HALF - 8.0 and -_origin.y >= WorldGen.WORLD_HALF - 8.0
+	return -_origin.x >= WorldGen.map_half() - 8.0 and -_origin.y >= WorldGen.map_half() - 8.0
 
 
 ## Frees the texture reference (VRAM) while the map is closed.

@@ -155,7 +155,7 @@ static func world_signature() -> String:
 func world() -> Field:
 	var sig := world_signature()
 	if not _world_cache.has(sig):
-		var half := WorldGen.WORLD_HALF
+		var half := WorldGen.map_half()
 		var f := Field.new(Rect2(-half, -half, half * 2.0, half * 2.0), WORLD_RES)
 		_world_cache[sig] = f
 	var fld: Field = _world_cache[sig]

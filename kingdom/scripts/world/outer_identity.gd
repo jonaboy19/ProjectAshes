@@ -70,7 +70,7 @@ static func plan_coverage(p: Vector2) -> float:
 
 
 static func _ok(p: Vector2, rad: float, taken: Array[Dictionary], placed: Array[Dictionary], need_dry_treeless := true) -> bool:
-	if absf(p.x) > WorldGen.WORLD_HALF - 300.0 or absf(p.y) > WorldGen.WORLD_HALF - 300.0:
+	if not WorldGen.in_bounds(p, 300.0):
 		return false
 	if WorldGen.near_water(p.x, p.y, rad + 2.0):
 		return false

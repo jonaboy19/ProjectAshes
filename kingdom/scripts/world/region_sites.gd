@@ -122,7 +122,7 @@ static func _part(site: Dictionary, asset: String, off: Vector2, yaw := 0.0, col
 
 ## Ground a site may use: dry, off the roads, clear of settlements, camps and other sites.
 static func _free(p: Vector2, r: float, taken: Array[Dictionary], road_gap := 10.0, tight := false) -> bool:
-	if absf(p.x) > WorldGen.WORLD_HALF - 300.0 or absf(p.y) > WorldGen.WORLD_HALF - 300.0:
+	if not WorldGen.in_bounds(p, 300.0):
 		return false
 	if WorldGen.near_water(p.x, p.y, r + 4.0) or WorldGen.road_distance(p.x, p.y) < r + road_gap:
 		return false

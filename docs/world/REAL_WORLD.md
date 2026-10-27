@@ -46,6 +46,16 @@ WorldGen (`_detail` noise) and the Terrain3D bake keeps its 1.5 m vertex spacing
 Outer-ring places that fell outside the box were pulled 300 m inside it; the Eastern Gate stands on the east border; the four map-edge labels stay in the locked realms.
 Tests: `tests/test_world_real.gd`. Probe: `tools_qa/world/real_probe.gd`. Fly-over views: `tools_qa/world/w6_views_real.json` (`tools/world/gen_w6_views.py`).
 
+## Look pass (W6.3, owner review of the first shots)
+- Fog: Weather.region_fog_mul; the real world runs the depth/volumetric fog at 0.2x (km-scale views) times a per-biome factor (marsh 2.2, rift 1.8, forest 1.25, highland 0.8), eased with the per-biome grade in real_landmarks.gd.
+- Ground: Terrain3DBridge.real_layers - grass/meadow on valley floors, green fell sides with bracken-brown litter, pale highland only in the alpine band, crag/scree rock on steep faces, snow above a noise-broken line; color_at rock (tuned for the 0-300 m world) is ignored in the real world. The far horizon mesh uses the same layering and sits on the lowest ground of its 160 m cell (no poke-through).
+- Snow albedo lifted cool-white in the real world.
+- Field walls and hedgerows (with bushes) round every settlement on a worker thread, nearest Ashford first, one settlement at a time.
+- look_capture hides popups inside the game layer and re-clears overlays before each save.
+- Bounds: WorldGen.in_bounds(p, margin) (box in the real world) for towers / realm presence / creatures / outer identity; WorldGen.map_half() (12 288 m in the real world) for the world map, minimap, strategic and war maps.
+- Region lock: warden camps (tent, brazier, two wardens) where the old exits meet the border.
+- Vertical slice: Bandit Camp and Kestrel\'s Folly (mine theme, dungeon floor 1) pinned to layout.json slice anchors (551, 196) and (790, -1155).
+- WP-05 (cloud/wp05-threaded-regions) touches cell_streamer / threaded_loader / interior doors only: no overlap with the Terrain3D bake.
+
 ## Gaps
-WORLD_HALF (6144) is still the planning bound for the generators that run later (POIs, caves, towers, realm presence) and the 2D maps (world map,
-minimap, strategic) still draw +-6144; per-region colour grading beyond the biome tint is mock-up only.
+Ground transitions still show 6 m control-lattice steps from the air; field walls are plain boxes (no kit mesh yet); grass/flower density is the existing GrassField; snow reads warm under the noon grade; the parchment/region data of the world map are still old-coordinate.

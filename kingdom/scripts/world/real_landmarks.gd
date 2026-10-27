@@ -26,6 +26,112 @@ func _ready() -> void:
 	_giants(_site("lore:mistwood"))
 	_crystals()
 	_waterfalls()
+	# Field walls and hedgerows round every settlement, nearest Ashford first, one settlement per frame (never a blocking bake).
+	_field_meshes()
+	_field_queue = WorldGen.settlements.duplicate()
+	_field_queue.sort_custom(func(a: Dictionary, b: Dictionary) -> bool: return (a["pos"] as Vector2).length() < (b["pos"] as Vector2).length())
+
+
+var _field_queue: Array = []
+var _wall_mesh: BoxMesh
+var _hedge_mesh: BoxMesh
+var _bush_mesh: SphereMesh
+
+
+## Lake District field pattern: a slightly rotated grid of 60-110 m fields on gentle open ground around a settlement; each field edge is a
+## dry-stone wall (grey, 1.1 m) or a hedgerow (green, 1.8 m, with bushes); gaps at roads, water, forest and steep ground.
+func _field_meshes() -> void:
+	if _wall_mesh == null:
+		_wall_mesh = BoxMesh.new()
+		_wall_mesh.size = Vector3(4.0, 1.1, 0.7)
+		_wall_mesh.material = _mat(Color(0.52, 0.52, 0.5))
+		_hedge_mesh = BoxMesh.new()
+		_hedge_mesh.size = Vector3(4.0, 1.8, 1.4)
+		_hedge_mesh.material = _mat(Color(0.2, 0.36, 0.15))
+		_bush_mesh = SphereMesh.new()
+		_bush_mesh.radius = 1.3
+		_bush_mesh.height = 2.2
+		_bush_mesh.radial_segments = 8
+		_bush_mesh.rings = 4
+		_bush_mesh.material = _mat(Color(0.24, 0.4, 0.17))
+
+
+func _fields(st: Dictionary) -> void:
+	var c: Vector2 = st["pos"]
+	var r_in := float(st["radius"]) * 1.9
+	var r_out := r_in + 650.0
+	var rng := RandomNumberGenerator.new()
+	rng.seed = hash([1066, String(st["name"]), "fields"])
+	var ang := rng.randf_range(-0.5, 0.5)
+	var ax := Vector2(cos(ang), sin(ang))
+	var ay := ax.orthogonal()
+	var walls: Array[Transform3D] = []
+	var hedges: Array[Transform3D] = []
+	var bushes: Array[Transform3D] = []
+	var size := 85.0
+	var k := int(r_out / size) + 1
+	for gy in range(-k, k + 1):
+		for gx in range(-k, k + 1):
+			for side in 2:
+				var a := c + ax * gx * size + ay * gy * size
+				var dir := ax if side == 0 else ay
+				var hedge := rng.randf() < 0.35
+				var steps := int(size / 4.0)
+				for s in steps:
+					var p := a + dir * (s * 4.0 + 2.0)
+					var d := p.distance_to(c)
+					if d < r_in or d > r_out:
+						continue
+					if WorldGen.road_distance(p.x, p.y) < 8.0 or WorldGen.is_water(p.x, p.y) or WorldGen.forest_density(p.x, p.y) > 0.45:
+						continue
+					var h := WorldGen.height(p.x, p.y)
+					var h2 := WorldGen.height(p.x + dir.x * 4.0, p.y + dir.y * 4.0)
+					if absf(h2 - h) > 2.6:
+						continue
+					var yaw := -atan2(dir.y, dir.x)
+					var t := Transform3D(Basis(Vector3.UP, yaw), Vector3(p.x, h + (0.45 if not hedge else 0.8), p.y))
+					if hedge:
+						hedges.append(t)
+						if rng.randf() < 0.25:
+							bushes.append(Transform3D(Basis.from_scale(Vector3.ONE * rng.randf_range(0.8, 1.5)), Vector3(p.x, h + 1.2, p.y)))
+					else:
+						walls.append(t)
+	_done = [walls, hedges, bushes]
+
+
+var _task := -1
+var _done: Array = []
+
+
+## Background dressing step (main thread): start the next settlement's field layout on a worker, add the finished one's meshes.
+func _dress_step() -> void:
+	if _task >= 0:
+		if not WorkerThreadPool.is_task_completed(_task):
+			return
+		WorkerThreadPool.wait_for_task_completion(_task)
+		_task = -1
+		if _done.size() == 3:
+			_mmi(_wall_mesh, _done[0], 900.0)
+			_mmi(_hedge_mesh, _done[1], 900.0)
+			_mmi(_bush_mesh, _done[2], 700.0)
+		_done = []
+	if not _field_queue.is_empty():
+		_task = WorkerThreadPool.add_task(_fields.bind(_field_queue.pop_front()), false, "real fields")
+
+
+func _mmi(mesh: Mesh, ts: Array[Transform3D], range_end: float) -> void:
+	if ts.is_empty():
+		return
+	var mm := MultiMesh.new()
+	mm.transform_format = MultiMesh.TRANSFORM_3D
+	mm.mesh = mesh
+	mm.instance_count = ts.size()
+	for i in ts.size():
+		mm.set_instance_transform(i, ts[i])
+	var mi := MultiMeshInstance3D.new()
+	mi.multimesh = mm
+	mi.visibility_range_end = range_end
+	add_child(mi)
 
 
 ## Per-biome colour grade (docs/plans/ART_DIRECTION.md: per-biome fog + grade profiles). Biome under the camera -> Environment adjustment
@@ -43,6 +149,7 @@ var _g_fog := Color(0.78, 0.86, 0.95)
 func _process(delta: float) -> void:
 	if not RealWorld.active():
 		return
+	_dress_step()
 	var env: Environment = get_viewport().find_world_3d().environment if get_viewport() and get_viewport().find_world_3d() else null
 	var cam := get_viewport().get_camera_3d() if get_viewport() else null
 	if env == null or cam == null:
@@ -60,6 +167,23 @@ func _process(delta: float) -> void:
 	env.adjustment_contrast = _g_cur.y
 	env.adjustment_brightness = _g_cur.z
 	env.fog_light_color = env.fog_light_color.lerp(_g_fog, 0.35)
+	# Kilometre-scale views: the 12 km world's depth fog (0.0021) hid everything past 1 km. Base 0.2x, then per biome.
+	var b2 := clampi(WorldBiomes.at(cam.global_position.x, cam.global_position.z), 0, 7)
+	_fog_mul = lerpf(_fog_mul, 0.2 * float(FOG_BIOME[b2]), k)
+	WEATHER.region_fog_mul = _fog_mul
+
+
+const WEATHER := preload("res://scripts/world/weather.gd")
+## Fog per biome (x the real-world base): grass forest meadow farmland marsh highland rift snow.
+const FOG_BIOME := [1.0, 1.25, 1.0, 1.0, 2.2, 0.8, 1.8, 1.1]
+var _fog_mul := 0.2
+
+
+func _exit_tree() -> void:
+	WEATHER.region_fog_mul = 1.0
+	if _task >= 0:
+		WorkerThreadPool.wait_for_task_completion(_task)
+		_task = -1
 
 
 func _site(id: String) -> Vector2:
@@ -100,7 +224,8 @@ func _light(at: Vector3, col: Color, energy: float, rng_m: float) -> void:
 	l.light_energy = energy
 	l.omni_range = rng_m
 	l.position = at
-	l.visibility_range_end = 900.0
+	l.distance_fade_enabled = true
+	l.distance_fade_begin = 900.0
 	add_child(l)
 
 
