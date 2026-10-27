@@ -415,6 +415,7 @@ func test_a_player_pressed_door_enters_the_room_one_frame_later() -> void:
 	var door := InteriorDoor.new()
 	door.interior_scene = "res://scenes/interiors/chapel_interior.tscn"
 	host.add_child(door)
+	Assets.scene(door.interior_scene)                            # a room already in memory (the threaded loader queues an uncached one first: test_threaded_region)
 	door.enter(player, true)
 	assert_object(InteriorDoor.active).is_null()                 # instanced, not yet in the world
 	assert_object(door.interior).is_not_null()
