@@ -362,6 +362,7 @@ static func mesh_of(asset_name: String) -> Mesh:
 const MH_DIR := "res://assets/generated/characters/"
 ## Guard gear from the armor library (CC-BY 3.0: Lotnik; Jacques Fourie; see CREDITS.md).
 const GUARD_HELM := "res://assets/incoming/armor/opengameart/cc-by/anglo-saxon-helmets/anglo_saxon_helm2.glb"
+const ARMING_SWORD := "res://assets/generated/props/weapons/arming_sword.glb"
 const GUARD_SHIELD := "res://assets/incoming/armor/polypizza_sel/shield_round_wood_boss.glb"
 ## Look names -> MakeHuman character GLBs (one is picked at random).
 ## Paths containing "/" are full resource paths without ".glb" (the CC0 G6 and
@@ -500,7 +501,8 @@ static func mh_character(file: String, height: float, keep: Array[String] = [], 
 		elif part.contains("2H_Sword"):
 			_attach(skeleton, "hand_r", WEAPONS + "Sword_Bronze.gltf", 1.3, Vector3(0.05, 0.02, 0), Vector3(0, 0, -90))
 		elif part.contains("Sword"):
-			_attach(skeleton, "hand_r", WEAPONS + "Sword_Bronze.gltf", 0.95, Vector3(0.05, 0.02, 0), Vector3(0, 0, -90))
+			# arming sword (tools/blender/props/build_arming_sword.py): 95 cm, origin at the grip, blade along +Y like the KayKit set
+			_attach(skeleton, "hand_r", ARMING_SWORD if ResourceLoader.exists(ARMING_SWORD) else WEAPONS + "Sword_Bronze.gltf", 0.95, Vector3(0.05, 0.02, 0), Vector3(0, 0, -90))
 		elif part.contains("Shield"):
 			_attach(skeleton, "lowerarm_l", GUARD_SHIELD, 0.65, Vector3(0.12, 0, 0.08), Vector3(0, 90, 0))
 	var anim := AnimationPlayer.new()

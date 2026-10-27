@@ -37,3 +37,6 @@ Files: PA_plans/videos/slice_route_after.mp4 (v3), slice_route_before.mp4 (raw: 
 | Materials (wall, road) PBR breakup | FAIL | wall OK; road albedo too saturated/red |
 | HUD/branding | PASS | hidden |
 Verdict: WIP, not sendable. Next: road texture scale + rut normal strength + desaturate; dense grass mass via GrassField/MultiMesh cards at 0.25 m; tree masses (8-15 trees per group, under-storey); puddle decal.
+
+## 2026-10-28 · player lane · arming sword (Blender) — WIP (not gated at gameplay distance yet)
+File: docs/qa/golden/slice/arming_sword_in_hand.png (walk / attack / block, side camera). tools/blender/props/build_arming_sword.py: 96 cm overall, 79 cm lenticular blade with a fuller to a point, 20 cm guard, 10 cm wrapped grip, wheel pommel, ~1k tris, origin at the grip; replaces the KayKit starter (Assets.ARMING_SWORD, fallback kept). Held in the fist through walk/attack/block, no ground contact. Fully metallic steel rendered black without a reflection probe -> 0.55 metallic, lighter albedo. Still to gate: at the game camera distance in the slice route, and vs the swing trail.

@@ -11,6 +11,7 @@ extends SceneTree
 const BASE := 600.0
 const LOADOUTS := {
 	"unarmed": [],
+	"starter": [],
 	"dagger": ["bronze_dagger"],
 	"sword": ["bronze_sword"],
 	"sword_shield": ["bronze_sword", "bronze_shield"],

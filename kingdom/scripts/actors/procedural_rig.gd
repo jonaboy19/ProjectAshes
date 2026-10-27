@@ -1011,7 +1011,7 @@ func _spring_props(delta: float, xf: Transform3D, dt: float) -> void:
 		if not is_instance_valid(node) or p["bone"] < 0:
 			continue
 		var rest: Transform3D = p["rest"]
-		if _carry_w > 0.001 and String(node.name).begins_with("Sword") and String(_skeleton.get_bone_name(p["bone"])) == "hand_r":
+		if _carry_w > 0.001 and String(node.name).to_lower().contains("sword") and String(_skeleton.get_bone_name(p["bone"])) == "hand_r":
 			rest.basis = rest.basis * Basis(Vector3(0, 0, 1), deg_to_rad(WEAPON_CARRY_DEG * _carry_w))
 
 		var bone_xf: Transform3D = xf * _skeleton.get_bone_global_pose(p["bone"])
