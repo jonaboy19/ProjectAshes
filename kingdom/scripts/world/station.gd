@@ -31,6 +31,7 @@ func _ready() -> void:
 	var tag := Label3D.new()
 	tag.text = title
 	Nameplates.style(tag, Color("f0e0b0"), 28)
+	Nameplates.contextual(tag)
 	tag.position.y = 2.4
 	add_child(tag)
 	if subtitle != "":

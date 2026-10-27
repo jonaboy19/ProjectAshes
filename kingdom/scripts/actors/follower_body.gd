@@ -134,6 +134,7 @@ func _ready() -> void:
 		_props = LifeProps.Holder.new(_skeleton)
 	_tag = Label3D.new()
 	Nameplates.style(_tag, Color("ffe9b8"), 18, 14.0)
+	Nameplates.contextual(_tag)
 	_tag.position.y = 1.95
 	_tag.text = _name
 	add_child(_tag)
