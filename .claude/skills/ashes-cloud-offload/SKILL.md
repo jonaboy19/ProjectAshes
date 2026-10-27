@@ -13,5 +13,9 @@ Anything that needs no GPU/window: simulation and systems code with gdUnit tests
 - Prompt must be self-contained: shallow single-branch clone of **aaa/finish** (the only integration branch), branch name, the work package (point at its section in `docs/plans/MASTER_BACKLOG.md` when it exists), files not to touch (player.gd CRLF, animation files, terrain/town files owned by local workers), install Godot 4.6.3 headless Linux, gdUnit `--ignoreHeadlessMode`, commit trailer `Co-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>`, PR into aaa/finish, summary at the end, list of what needs local GPU verification.
 - One routine per independent work package; avoid two routines editing the same functions (say so in the prompt if adjacent).
 
+## Merging without GitHub's merge button (owner: GitHub has a billing issue)
+Don't depend on `gh pr merge`, GitHub Actions or any paid GitHub feature. Merge with plain git:
+`git fetch origin <branch> aaa/finish && git checkout aaa/finish && git merge --no-ff origin/<branch>` → resolve conflicts → run the tests → `git push origin aaa/finish`. If the push is rejected, fetch, rebase or merge again and push. Then close the PR with a comment (`gh pr close <n> -c "merged via git into aaa/finish at <sha>"`), or leave it if `gh` fails. Opening PRs is optional; pushing the branch is enough.
+
 ## After it runs
 `RemoteTrigger list_runs` / `get_run_log`; open PRs with `gh pr list`. Merge via a review routine (review diff, rebase on latest aaa/finish, run tests, fix, `gh pr merge --merge`). GitHub Actions currently fail in ~3 s (infrastructure) — don't rely on them. Usage-limit failures: re-run with `RemoteTrigger run`.
