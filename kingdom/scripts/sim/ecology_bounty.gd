@@ -110,7 +110,7 @@ func tick_day(day: int, rq: RefCounted, pay: Callable = Callable()) -> Array:
 
 
 func _drop_offer(rq: RefCounted, id: String) -> void:
-	var q := rq.find(id)
+	var q: Dictionary = rq.find(id)
 	if not q.is_empty() and String(q["state"]) == "offered":
 		rq.offers.erase(q)
 

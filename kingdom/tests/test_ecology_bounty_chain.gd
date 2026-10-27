@@ -4,18 +4,14 @@ extends GdUnitTestSuite
 
 const RQ := preload("res://scripts/sim/radiant_quests.gd")
 
-var _prey := 0.1     # prey index of the (single) test settlement
-
-
 func _rig(prey: float, seed_value := 7) -> Dictionary:
 	WorldGen.setup(1066)
-	_prey = prey
 	var home: Dictionary = WorldGen.settlements[0]
 	var eco := RAMonsterEcology.new(seed_value)
 	var den := eco.add_den("wolf", (home["pos"] as Vector2) + Vector2(120, 0), 8)
 	var chain := RAEcologyBounty.new()
 	var sid := int(home.get("id", 0))
-	chain.bind(eco, func(_s: int) -> float: return _prey,
+	chain.bind(eco, func(_s: int) -> float: return prey,
 		func(d: Dictionary) -> Dictionary: return {"sid": sid, "pos": home["pos"], "name": String(home.get("name", "Ashford"))})
 	return {"eco": eco, "den": den, "chain": chain, "rq": RQ.new(), "sid": sid, "home": home}
 
@@ -47,7 +43,7 @@ func test_scarcity_raises_wolf_aggression_and_losses() -> void:
 
 func test_losses_post_a_bounty_on_the_board() -> void:
 	var r := _rig(0.0)
-	var events := _run(r, 40)
+	var events := _run(r, 40, func(_s: int, _g: int) -> bool: return false)   # settlement too poor to hire yet
 	assert_array(_types(events)).contains(["bounty_posted"])
 	var b: Dictionary = (r["chain"] as RAEcologyBounty).bounties[0]
 	assert_int(int(b["den_id"])).is_equal(int(r["den"]["id"]))
@@ -59,9 +55,15 @@ func test_losses_post_a_bounty_on_the_board() -> void:
 	assert_dict((r["rq"] as RQ).find(String(b["quest_id"]))).is_not_empty()
 
 
-func test_no_scarcity_means_no_bounty() -> void:
-	var events := _run(_rig(1.0), 40)
-	assert_array(_types(events)).not_contains(["bounty_posted"])
+func _first_bounty_day(r: Dictionary) -> int:
+	for e: Dictionary in _run(r, 120, func(_s: int, _g: int) -> bool: return false):
+		if e["type"] == "bounty_posted":
+			return int(e["day"])
+	return 9999
+
+
+func test_scarcity_brings_the_bounty_sooner() -> void:
+	assert_int(_first_bounty_day(_rig(0.0))).is_less_equal(_first_bounty_day(_rig(1.0)))
 
 
 func test_ignored_bounty_hires_a_hunter_who_thins_the_den() -> void:
