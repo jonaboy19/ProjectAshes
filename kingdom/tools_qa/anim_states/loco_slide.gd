@@ -10,6 +10,7 @@ var _root3: Node3D
 var _ball_w: Array[Vector3] = [Vector3.ZERO, Vector3.ZERO]   # ball bones after every modifier ran (skeleton_updated)
 var _rec: Array = []                                          # [usec, left, right, body_v] per skeleton update while recording
 var _recording := false
+var _local_balls: Array = [Vector3.ZERO, Vector3.ZERO]
 var _joint_p: Array[Vector3] = []     # per foot x (ankle, ball, toe tip): world position
 var _joint_h: Array[float] = []       # ... and height above its own rest height
 var _sole_h: Array[float] = [0.0, 0.0]     # lowest of ankle / ball / toe tip against their rest heights (0 = flat on the floor)
@@ -98,8 +99,12 @@ func _on_updated() -> void:
 		_sole_h[i] = low
 	if _recording:
 		# skeleton_updated fires twice per frame with different poses (before / after the modifier stack): keep the LAST per frame
+		var mdl: Node3D = _p.get("_model")
+		var bl := mdl.global_transform.affine_inverse() * _ball_w[0]
+		var br := mdl.global_transform.affine_inverse() * _ball_w[1]
+		_local_balls = [bl * mdl.scale.x, br * mdl.scale.x]     # model space in world metres (undo the body scale)
 		var rig_lw: Variant = _p.get("_rig").get("_lock_w") if _p.get("_rig") != null else [0.0, 0.0]
-		var row := [Engine.get_process_frames() * 1000000 / 60, _ball_w[0], _ball_w[1], _p.get_real_velocity(), _sole_h[0], _sole_h[1], _joint_p.duplicate(), _joint_h.duplicate(), (rig_lw as Array).duplicate()]
+		var row := [Engine.get_process_frames() * 1000000 / 60, _ball_w[0], _ball_w[1], _p.get_real_velocity(), _sole_h[0], _sole_h[1], _joint_p.duplicate(), _joint_h.duplicate(), (rig_lw as Array).duplicate(), _local_balls.duplicate()]
 		if not _rec.is_empty() and int(_rec[_rec.size() - 1][0]) == int(row[0]):
 			_rec[_rec.size() - 1] = row
 		else:
@@ -199,6 +204,24 @@ func _case(name: String, strength: float, sprint: bool, extra := "") -> Dictiona
 			var hp: Array = _rec[i][7]
 			var pp: Array = _rec[i][6]
 			print("D %d hL=[%.3f %.3f %.3f] zL=[%.3f %.3f %.3f] hR=[%.3f %.3f %.3f] zR=[%.3f %.3f %.3f]" % [i, hp[0], hp[1], hp[2], pp[0].z, pp[1].z, pp[2].z, hp[3], hp[4], hp[5], pp[3].z, pp[4].z, pp[5].z])
+	# diagnostic (coordinator, walk mismatch): planted ball speed relative to the body (model space, world metres) vs capsule speed
+	var ratios: Array[float] = []
+	for m in range(1, _rec.size()):
+		for f in 2:
+			if float((_rec[m][7] as Array)[f * 3 + 1]) < 0.02:
+				var la: Vector3 = (_rec[m - 1][9] as Array)[f]
+				var lb: Vector3 = (_rec[m][9] as Array)[f]
+				var fv := Vector2(lb.x - la.x, lb.z - la.z).length() * 60.0
+				var bv := Vector2((_rec[m][3] as Vector3).x, (_rec[m][3] as Vector3).z).length()
+				if bv > 0.1:
+					ratios.append(fv / bv)
+	ratios.sort()
+	if not ratios.is_empty():
+		var mdl2: Node3D = _p.get("_model")
+		var an3: Object = _p.get("_animator")
+		print("LOCO %s foot/body ratio median %.3f p25 %.3f p75 %.3f n %d | model scale %.3f stride_scale %s rate %.3f" % [name,
+				ratios[ratios.size() / 2], ratios[ratios.size() / 4], ratios[ratios.size() * 3 / 4], ratios.size(), mdl2.scale.x,
+				str(an3.get("stride_scale")), float((an3.get("tree") as AnimationTree)["parameters/gait_rate/scale"])])
 	# diagnostic: slip of the ball bone on frames where the rig holds the foot fully locked
 	var lk: Array[float] = []
 	for m in range(1, _rec.size()):

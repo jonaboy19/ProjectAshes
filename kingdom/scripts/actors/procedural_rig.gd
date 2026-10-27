@@ -157,6 +157,13 @@ var _ball_off: Array[Vector2] = [Vector2.ZERO, Vector2.ZERO]   # animated ankle 
 var _lock_on: Array[bool] = [false, false]
 var _lock_xz: Array[Vector2] = [Vector2.ZERO, Vector2.ZERO]
 var _lock_w: Array[float] = [0.0, 0.0]
+## Heel-toe lock: a stance that starts on the heel pins the ANKLE until the ball comes down, then hands the pin to the ball (where the
+## pinned ankle puts it), so neither the heel at strike nor the ball at toe-off slides.
+var _lock_heel: Array[bool] = [false, false]
+var _ball_h: Array[float] = [1.0, 1.0]
+const HEEL_BALL_UP := 0.02      # m: ball this high above its rest at plant -> heel strike
+const HEEL_BALL_DOWN := 0.012   # m: ball down -> pin moves to the ball
+const HEEL_LOCK_MAX_SPEED := 1.8   # m/s: above this the heel phase is too short to pin (measured: it doubled jog slip)
 var _pelvis_off := 0.0
 var _reach_drop := 0.0
 var _weight := 0.0
@@ -660,6 +667,7 @@ func _pre_modify(delta: float) -> void:
 			if i < _leaf.size() and _leaf[i] >= 0:
 				lo = minf(lo, (xf * _skeleton.get_bone_global_pose(_leaf[i]).origin).y - by - _sole_rest[0].z)
 			_ball_lift[i] = lo
+			_ball_h[i] = bp.y - by - _sole_rest[0].y
 		else:
 			_ball_off[i] = Vector2.ZERO
 			_ball_lift[i] = _foot_anim[i].y - _model.global_position.y - _ankle_rest
@@ -704,7 +712,7 @@ func _pre_modify(delta: float) -> void:
 	for i in 2:
 		if _lock_w[i] > 0.001:
 			var tgt := _foot_anim[i] + Vector3(0.0, _ground[i], 0.0)
-			var lk := Vector2(tgt.x, tgt.z).lerp(_lock_xz[i] + _ball_off[i], _lock_w[i])
+			var lk := Vector2(tgt.x, tgt.z).lerp(_lock_xz[i] + (Vector2.ZERO if _lock_heel[i] else _ball_off[i]), _lock_w[i])
 			var r := Vector2(hips[i].x - lk.x, hips[i].z - lk.y).length()
 			var h := hips[i].y + _pelvis_off - tgt.y
 			var reach := _leg_len * REACH_MAX
@@ -726,7 +734,7 @@ func _pre_modify(delta: float) -> void:
 	for i in 2:
 		var target := _foot_anim[i] + Vector3(0.0, _ground[i], 0.0)
 		if _lock_w[i] > 0.001:
-			var lk := Vector2(target.x, target.z).lerp(_lock_xz[i] + _ball_off[i], _lock_w[i])
+			var lk := Vector2(target.x, target.z).lerp(_lock_xz[i] + (Vector2.ZERO if _lock_heel[i] else _ball_off[i]), _lock_w[i])
 			target.x = lk.x
 			target.z = lk.y
 		_markers[i].global_position = target
@@ -748,11 +756,15 @@ func _update_lock(i: int, delta: float) -> void:
 	if planted:
 		if not _lock_on[i]:
 			_lock_on[i] = true
-			_lock_xz[i] = anim_xz
+			_lock_heel[i] = _ball_h[i] / k > HEEL_BALL_UP and speed < HEEL_LOCK_MAX_SPEED * k   # walking heel strikes; jogs land on the forefoot
+			_lock_xz[i] = Vector2(_foot_anim[i].x, _foot_anim[i].z) if _lock_heel[i] else anim_xz
+		elif _lock_heel[i] and _ball_h[i] / k < HEEL_BALL_DOWN:
+			_lock_heel[i] = false
+			_lock_xz[i] = _lock_xz[i] - _ball_off[i]       # the ball where the pinned ankle puts it
 		else:
-			var lag := _lock_xz[i] - anim_xz
+			var lag := _lock_xz[i] - (Vector2(_foot_anim[i].x, _foot_anim[i].z) if _lock_heel[i] else anim_xz)
 			if lag.length() > LOCK_MAX * k:
-				_lock_xz[i] = anim_xz + lag.normalized() * LOCK_MAX * k
+				_lock_xz[i] = (Vector2(_foot_anim[i].x, _foot_anim[i].z) if _lock_heel[i] else anim_xz) + lag.normalized() * LOCK_MAX * k
 	else:
 		_lock_on[i] = false
 	# a sprint stance lasts ~6 frames: the 3-frame blend would eat half of it, so the blend shortens with speed (1 frame at 7.5 m/s)
