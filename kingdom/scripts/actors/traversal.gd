@@ -452,6 +452,8 @@ static func _ladder_pose(plan: Dictionary, t: float) -> Vector3:
 	var cy: float = plan.get("climb_y", dest.y)
 	if t < a + d:
 		return Vector3(at.x, lerpf(st.y, cy, (t - a) / d), at.z)
+	if plan.has("exit_from"):
+		return plan["exit_from"]
 	if plan.has("exit_clip"):
 		# the top-out clip carries the body over the top; its root sits further back (hands 0.45 m ahead of a pelvis 0.55 m
 		# behind the root, where the climb clip has the pelvis over the root): the capsule steps back with it, follows at the end
@@ -702,7 +704,10 @@ class Driver extends RefCounted:
 			_ladder_hands(delta)
 			if plan.has("exit_clip") and not plan.has("exit_started") and t >= float(plan["a"]) + float(plan["d"]):
 				plan["exit_started"] = true
+				plan["exit_from"] = p.global_position
 				_play(String(plan["exit_clip"]), float(plan["exit_rate"]))
+			if plan.has("exit_started"):
+				_exit_root_motion()
 		if t < dur:
 			return
 		match String(plan["shape"]):
@@ -800,11 +805,7 @@ class Driver extends RefCounted:
 		_tail = float(plan.get("handover", 0.0)) - t
 		if plan.has("exit_clip"):
 			_tail = -1.0
-			_match_clip_heading()
-			var an: Variant = p.get("_animator")
-			if an != null:
-				var tr: AnimationTree = (an as Object).get("tree")
-				tr["parameters/full/request"] = AnimationNodeOneShot.ONE_SHOT_REQUEST_ABORT
+			_stop_clip()      # root motion kept the body over the capsule: a normal fade into idle
 		elif _tail <= 0.0:
 			_tail = -1.0
 			_stop_clip()
@@ -814,6 +815,32 @@ class Driver extends RefCounted:
 			_done = Callable()
 			d.call()
 		finished.emit(k)
+
+
+	## Top-out root motion (RootExtract): the capsule follows the clip's extracted root path, so the body never leaves the capsule
+	## and the clip ends standing over it (no pose pop at the hand-over to idle).
+	func _exit_root_motion() -> void:
+		var an: Variant = p.get("_animator")
+		var m: Variant = p.get("_model")
+		if an == null or not (m is Node3D):
+			return
+		var ap: AnimationPlayer = (an as Object).get("player")
+		var clip := String(plan["exit_clip"])
+		if ap == null or not ap.has_animation(clip):
+			return
+		var anim := ap.get_animation(clip)
+		if not anim.has_meta(&"root_path"):
+			return
+		var f := (m as Node3D).find_children("*", "Skeleton3D", true, false)
+		if f.is_empty():
+			return
+		var sk := f[0] as Skeleton3D
+		var rb := sk.get_bone_parent(sk.find_bone("pelvis"))
+		var basis := sk.global_basis * (sk.get_bone_global_pose(rb).basis if rb >= 0 else Basis())
+		var ct := (t - float(plan["a"]) - float(plan["d"])) * float(plan["exit_rate"])
+		var d := RootExtract.at(anim.get_meta(&"root_path"), minf(ct, anim.length))
+		p.global_position = (plan["exit_from"] as Vector3) + basis * d
+		plan["end"] = p.global_position
 
 
 	## The top-out clip turns the body on its way over (it ends turned away from where its root faces): before the clip is cut, turn
@@ -883,7 +910,7 @@ class Driver extends RefCounted:
 				plan[wkey] = move_toward(float(plan.get(wkey, 0.0)), hold, _delta * 8.0)
 				var rb: float = plan.get("rung_base", 0.3)
 				var ry := base_y + rb + roundf((hp.y - base_y - rb) / rung) * rung      # nearest rung to the animated hand
-				var rail := -right * 0.2 if side == 0 else right * 0.2
+				var rail := -right * 0.21 if side == 0 else right * 0.21
 				pt = Vector3(lad.x, ry, lad.z) + rail - inw * 0.03
 				w = float(plan[wkey])
 			(rig as Object).call("set_hand_brace", side, pt, -inw, w)
@@ -894,6 +921,7 @@ class Driver extends RefCounted:
 			p.call("set_sheathed", false, false)     # drawn back with the draw clip, not snapped into the hand
 		var rig: Variant = p.get("_rig")
 		if rig is Object and kind == &"ladder":
+			(rig as Object).set("climbing", false)
 			(rig as Object).call("set_hand_brace", 0, Vector3.ZERO, Vector3.UP, 0.0)
 			(rig as Object).call("set_hand_brace", 1, Vector3.ZERO, Vector3.UP, 0.0)
 		p.collision_mask = _saved_mask
@@ -1011,7 +1039,7 @@ class Driver extends RefCounted:
 
 	## Climbs from the body's position to `dest` over time along a ladder at `ladder_at` (global). `done` runs
 	## when the move ends. Returns false when the body cannot start now (the caller may teleport instead).
-	func begin_ladder(ladder_at: Vector3, dest: Vector3, to_top: bool, done := Callable()) -> bool:
+	func begin_ladder(ladder_at: Vector3, dest: Vector3, to_top: bool, done := Callable(), ladder_facing := Vector3.ZERO) -> bool:
 		if not can_start():
 			return false
 		var lc: Dictionary = cfg["ladder"]
@@ -1020,6 +1048,10 @@ class Driver extends RefCounted:
 		var d := maxf(dist / float(lc["speed"]), float(lc["min_time"]))
 		var to_ladder := Vector3(ladder_at.x - s.x, 0.0, ladder_at.z - s.z)
 		var inward := to_ladder.normalized() if to_ladder.length() > 0.05 else facing_dir()
+		var lf := Vector3(ladder_facing.x, 0.0, ladder_facing.z)
+		if lf.length() > 0.1:
+			# square to the ladder, centred on it (head between the rails), whatever angle the player walked up from
+			inward = lf.normalized() if lf.dot(inward) >= 0.0 else -lf.normalized()
 		var clip := String(lc["up_clip"]) if to_top else String(lc["down_clip"])
 		var k := _body_k()
 		# the body hangs off the rungs (hands reach the ladder plane), not inside the ladder
@@ -1049,6 +1081,10 @@ class Driver extends RefCounted:
 		plan["was_sheathed"] = bool(p.get("sheathed")) if p.get("sheathed") != null else true
 		if p.has_method("set_sheathed"):
 			p.call("set_sheathed", true, true)
+		var rig0: Variant = p.get("_rig")
+		if rig0 is Object:
+			(rig0 as Object).set("shield_slung", true)
+			(rig0 as Object).set("climbing", true)    # the player's physics (which sets it each frame) is skipped while climbing
 		# camera level with the climber: a high orbit arm runs into the loft floor above the ladder, pulls in to the head and hides
 		# the body (player._update_camera); looking along the ladder keeps the climber framed up to the top-out
 		if p.get("_pitch") != null:

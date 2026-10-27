@@ -145,6 +145,7 @@ var long_holster := false
 ## Sheathed (unarmed stance): one-handed weapons ride the left hip, blade down and back, grip forward; shields and long weapons go on
 ## the back (owner also sets shield_slung / long_holster).
 var sheathed := false
+var climbing := false        ## on a ladder: a sheathed sword goes across the back too (it would stick out from the hip)
 var seated := 0.0             ## 0..1 sitting down: the hip blade lays back toward level, over the seat instead of through it
 var ground_guard_y := NAN
 var foot_lock := true
@@ -1235,9 +1236,9 @@ func _socket(e: Dictionary, bb: Dictionary, hand_g: Transform3D) -> Transform3D:
 	var ti := int(e["thin"])
 	var li := int(e["long"])
 	var oi := 3 - ti - li
-	if String(e["kind"]) == "hand":
+	if String(e["kind"]) == "hand" and not climbing:
 		return _hip_socket(e, bb, hand_g)
-	var is_long := String(e["kind"]) == "long"
+	var is_long := String(e["kind"]) != "shield"      # long weapons, and a sheathed sword while climbing, cross the back
 	var long_dir := up
 	var lsign := 1.0
 	if is_long:

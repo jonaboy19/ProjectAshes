@@ -56,14 +56,14 @@ def rail():
         row = []
         for s in range(segs):
             a = 2 * math.pi * s / segs
-            rx, ry = 0.028, 0.0225
+            rx, ry = 0.045, 0.04
             x, y = math.cos(a) * rx, math.sin(a) * ry
-            if x < -0.012:
-                x = -0.012                                          # the split face: flat on the inside
-            jitter = 1.0 + random.uniform(-0.06, 0.06) * (1.0 if x > 0 else 0.3)
+            if x < -0.02:
+                x = -0.02                                          # the split face: flat on the inside
+            jitter = 1.0 + random.uniform(-0.07, 0.07) * (1.0 if x > 0 else 0.3)
             knot = 0.0
             if abs(z - 0.37) < 0.04 and 0.5 < a < 1.6 or abs(z - 0.81) < 0.035 and 3.6 < a < 4.6:
-                knot = 0.004                                        # knots
+                knot = 0.007                                        # knots
             row.append(bm.verts.new((x * jitter + bow + (knot if x > 0 else 0), y * jitter, z)))
         rows.append(row)
     for r in range(rings):
@@ -114,19 +114,19 @@ def rung():
     wood = mat("LadderWood", (0.42, 0.33, 0.24), 0.9)
     rope = mat("HempRope", (0.55, 0.47, 0.33), 0.95)
     # rung along X from -0.25 to 0.25 (the rails' centres are at +-0.22), slight bend and taper
-    pts = [Vector((x, 0.0, -0.004 * (1 - (x / 0.25) ** 2))) for x in [i * 0.05 - 0.25 for i in range(11)]]
-    obs = [tube("Rung", pts, 0.016, 10, wood)]
+    pts = [Vector((x, 0.0, -0.005 * (1 - (x / 0.29) ** 2))) for x in [i * 0.058 - 0.29 for i in range(11)]]
+    obs = [tube("Rung", pts, 0.023, 12, wood)]
     # rope lashing at each rail: a helix around the rail (vertical, radius 3.6 cm) crossing over the rung
-    for sx in (-0.22, 0.22):
+    for sx in (-0.26, 0.26):
         hp = []
         turns = 4.5
         n = 90
         for i in range(n + 1):
             t = i / n
             a = 2 * math.pi * turns * t
-            z = -0.035 + 0.07 * t + 0.012 * math.sin(a * 2)        # wraps above and below the rung (cross-lashing)
-            hp.append(Vector((sx + math.cos(a) * 0.034, math.sin(a) * 0.03, z)))
-        obs.append(tube("Lash", hp, 0.0045, 6, rope))
+            z = -0.05 + 0.1 * t + 0.012 * math.sin(a * 2)        # wraps above and below the rung (cross-lashing)
+            hp.append(Vector((sx + math.cos(a) * 0.052, math.sin(a) * 0.047, z)))
+        obs.append(tube("Lash", hp, 0.008, 6, rope))
     finish(obs, OUT + "/ladder_rung.glb")
 
 

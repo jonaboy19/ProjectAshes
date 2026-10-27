@@ -13,7 +13,20 @@ func _initialize() -> void:
 	_run.call_deferred()
 
 
-func _box(parent: Node3D, size: Vector3, pos: Vector3, col: Color) -> void:
+static func _tex_mat(id: String, scale: float) -> StandardMaterial3D:
+	var base := "res://assets/cc0/textures/%s/%s_" % [id, id]
+	var m := StandardMaterial3D.new()
+	m.albedo_texture = load(base + "diff_2k.jpg")
+	m.normal_enabled = true
+	m.normal_texture = load(base + "nor_gl_2k.jpg")
+	m.roughness_texture = load(base + "arm_2k.jpg")
+	m.roughness_texture_channel = BaseMaterial3D.TEXTURE_CHANNEL_GREEN
+	m.uv1_triplanar = true
+	m.uv1_scale = Vector3.ONE * scale
+	return m
+
+
+func _box(parent: Node3D, size: Vector3, pos: Vector3, col: Variant) -> void:
 	var b := StaticBody3D.new()
 	b.collision_layer = 1
 	var cs := CollisionShape3D.new()
@@ -25,10 +38,13 @@ func _box(parent: Node3D, size: Vector3, pos: Vector3, col: Color) -> void:
 	var bm := BoxMesh.new()
 	bm.size = size
 	mi.mesh = bm
-	var m := StandardMaterial3D.new()
-	m.albedo_color = col
-	m.roughness = 0.9
-	mi.material_override = m
+	if col is Material:
+		mi.material_override = col
+	else:
+		var m := StandardMaterial3D.new()
+		m.albedo_color = col
+		m.roughness = 0.9
+		mi.material_override = m
 	b.add_child(mi)
 	parent.add_child(b)
 	b.position = pos
@@ -48,9 +64,22 @@ func _run() -> void:
 	sun.rotation_degrees = Vector3(-50, 35, 0)
 	sun.shadow_enabled = true
 	r3.add_child(sun)
-	_box(r3, Vector3(60, 1, 60), Vector3(0, BASE - 0.5, 0), Color(0.45, 0.42, 0.35))
+	var dirt := StandardMaterial3D.new()
+	var dp := "res://assets/incoming/polyhaven/textures/dirt/dirt_"
+	dirt.albedo_texture = load(dp + "diff_2k.jpg")
+	dirt.normal_enabled = true
+	dirt.normal_texture = load(dp + "nor_gl_2k.jpg")
+	dirt.uv1_triplanar = true
+	dirt.uv1_scale = Vector3.ONE * 0.4
+	_box(r3, Vector3(60, 1, 60), Vector3(0, BASE - 0.5, 0), dirt)
 	# hayloft-like platform: deck at H, its front edge at z = 0 (the ladder leans on it), the climber comes from -z
-	_box(r3, Vector3(4, 0.15, 3), Vector3(0, BASE + H - 0.075, 1.5), Color(0.42, 0.3, 0.18))
+	var deck := _tex_mat("weathered_brown_planks", 0.8)
+	var posts := _tex_mat("old_planks_02", 1.2)
+	_box(r3, Vector3(4, 0.12, 3), Vector3(0, BASE + H - 0.06, 1.5), deck)
+	_box(r3, Vector3(4.1, 0.22, 0.2), Vector3(0, BASE + H - 0.2, 0.05), posts)      # edge beam
+	for px in [-1.9, 1.9]:
+		for pz in [0.1, 2.9]:
+			_box(r3, Vector3(0.22, H, 0.22), Vector3(px, BASE + H * 0.5, pz), posts)
 	_p = (load("res://scripts/actors/player.gd") as GDScript).new()
 	r3.add_child(_p)
 	_p.global_position = Vector3(0, BASE, -2.5)

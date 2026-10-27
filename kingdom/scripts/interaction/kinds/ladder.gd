@@ -55,7 +55,7 @@ func climb(player: Node3D, to_top: bool) -> Vector3:
 	# F2: a player with a traversal driver climbs over time (ladder clip, scripted move); anything else is moved at once.
 	var trav: Variant = player.get("_trav")
 	if trav is Object and (trav as Object).has_method("begin_ladder") \
-			and bool((trav as Object).call("begin_ladder", global_position, dest, to_top, func() -> void: climbed.emit(to_top))):
+			and bool((trav as Object).call("begin_ladder", global_position, dest, to_top, func() -> void: climbed.emit(to_top), global_basis.z)):
 		return dest
 	player.global_position = dest
 	if player is CharacterBody3D:
@@ -101,7 +101,7 @@ func _build_visual(h: float) -> void:
 	_materials()
 	var rail_len := h + 0.35                # the rails stand above the top so the climber has something to hold on the top-out
 	if ResourceLoader.exists(RAIL_GLB) and ResourceLoader.exists(RUNG_GLB):
-		for sx in [-0.22, 0.22]:
+		for sx in [-0.26, 0.26]:
 			var r: Node3D = (load(RAIL_GLB) as PackedScene).instantiate()
 			r.scale = Vector3(-1.0 if sx < 0.0 else 1.0, rail_len, 1.0)      # split faces inward
 			r.position = Vector3(sx, 0, 0)

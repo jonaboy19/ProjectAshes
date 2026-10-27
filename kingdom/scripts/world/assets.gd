@@ -66,7 +66,14 @@ const UAL_FILES := [
 	# block idle, crawl, fall, ladder. Root track disabled (UAL_ANIM_DIR).
 	UAL_ANIM_DIR + "mixamo_owner/UAL_Mixamo_Owner.glb",
 	# Round 2: Mx_Get_Up_Knockdown, Mx_Sword_Sheath, Mx_Sword_Combat_To_Sheath, Mx_Trav_* (travel in the pelvis).
-	UAL_ANIM_DIR + "mixamo_owner/UAL_Mixamo_Owner2.glb"]
+	UAL_ANIM_DIR + "mixamo_owner/UAL_Mixamo_Owner2.glb",
+	# Full-motion combat (owner Mixamo packs 2026-10-27, tools/anim/combat_packs/): Mx_SnS_*, Mx_GS_*, Mx_Axe_*, Mx_Bow_*, Mx_Inj_*.
+	# Travel stays in the (disabled) root track; scripts/combat/combat_motion.gd reads it to move and warp the capsule.
+	UAL_ANIM_DIR + "mixamo_combat/UAL_Mx_sword_and_shield.glb",
+	UAL_ANIM_DIR + "mixamo_combat/UAL_Mx_great_sword.glb",
+	UAL_ANIM_DIR + "mixamo_combat/UAL_Mx_melee_axe.glb",
+	UAL_ANIM_DIR + "mixamo_combat/UAL_Mx_longbow.glb",
+	UAL_ANIM_DIR + "mixamo_combat/UAL_Mx_male_injured.glb"]
 const WEAPONS := Q + "fantasy-props-megakit/Exports/glTF/"
 const HELMET := Q + "lowpoly-animated-knight/FBX/Helmet1.fbx"
 ## Old KayKit clip names -> UAL clips, so gameplay code keeps using one vocabulary.
@@ -137,6 +144,18 @@ const BUILDINGS := {
 	"house_narrow_poor_b": [GEN + "town_small/house_narrow_poor_b.glb", 0.0, GEN + "town_small/house_narrow_poor_b_lod1.glb", 40.0],
 	"house_hovel_a": [GEN + "town_small/house_hovel_a.glb", 0.0, GEN + "town_small/house_hovel_a_lod1.glb", 40.0],
 	"house_hovel_b": [GEN + "town_small/house_hovel_b.glb", 0.0, GEN + "town_small/house_hovel_b_lod1.glb", 40.0],
+	# Benchmark slice props (docs/plans/CC0_SLICE_KIT.md PASS list; Meshy batch 2026-10-28 gated by the coordinator): real PBR, natural size
+	"ph_crate": ["res://assets/incoming/polyhaven/models/wooden_crate_01/wooden_crate_01_1k.gltf", 0.0],
+	"ph_barrel": ["res://assets/incoming/polyhaven/models/wine_barrel_01/wine_barrel_01_1k.gltf", 0.0],
+	"ph_bucket": ["res://assets/incoming/polyhaven/models/wooden_bucket_01/wooden_bucket_01_1k.gltf", 0.0],
+	"ph_lantern": ["res://assets/incoming/polyhaven/models/wooden_lantern_01/wooden_lantern_01_1k.gltf", 0.0],
+	"cc0_pot": ["res://assets/cc0/props/planter_pot_clay/planter_pot_clay_1k.gltf", 0.0],
+	"ms_cart": ["res://assets/meshy_slice/cart.glb", 0.0],
+	"ms_well": ["res://assets/meshy_slice/well.glb", 0.0],
+	"ms_crate_stack": ["res://assets/meshy_slice/crate_stack.glb", 0.0],
+	"ms_stall": ["res://assets/meshy_slice/market_stall.glb", 0.0],
+	"ms_table": ["res://assets/meshy_slice/trestle_table.glb", 0.0],
+	"ms_hearth": ["res://assets/meshy_slice/hearth.glb", 0.0],
 	"stable": [GEN + "village_barn.glb", 0.0, GEN + "village_barn_lod1.glb", 45.0, GEN + "village_barn_lod2.glb", 100.0],
 	"sawmill": [VILLAGE + "Buildings/FBX/Sawmill.fbx", 12.0],
 	"mill": [VILLAGE + "Buildings/FBX/Mill.fbx", 11.0],
@@ -701,7 +720,8 @@ static func _ual_for(skeleton_path: NodePath) -> AnimationLibrary:
 	AaaClipsScript.merge_into(lib, sk)
 	AirArms.soften(lib)     # arms stay down in the air (shield no longer flies overhead)
 	(load("res://scripts/actors/clip_retime.gd") as GDScript).call("apply", lib)    # stance retime: planted feet at one speed (data/anim/clip_retime.json, WP-02)
-	(load("res://scripts/actors/clip_lift.gd") as GDScript).call("apply", lib)    # ground-penetration repair (data/anim/clip_lift.json, WP-02)
+	(load("res://scripts/actors/clip_lift.gd") as GDScript).call("apply", lib)
+	(load("res://scripts/actors/root_extract.gd") as GDScript).call("apply", lib)    # traversal root motion (top-out)    # ground-penetration repair (data/anim/clip_lift.json, WP-02)
 	for alias: String in UAL_ALIASES:
 		var target: String = UAL_ALIASES[alias]
 		if lib.has_animation(target) and not lib.has_animation(alias):
@@ -791,7 +811,9 @@ static func building_mesh(key: String) -> ArrayMesh:
 	var lod := int(key.get_slice(":lod", 1)) if key.contains(":lod") else 0
 	var entry: Array = BUILDINGS[key.get_slice(":lod", 0)]
 	var path: String = entry[lod * 2]
-	var mesh := merged_mesh(path)
+	# Benchmark slice: real-scan / gated Meshy props keep their own PBR materials (normal + roughness maps); Style G would flatten them
+	var keep_pbr := path.contains("/polyhaven/models/") or path.contains("/assets/cc0/") or path.contains("/meshy_slice/")
+	var mesh := merged_mesh(path, not keep_pbr)
 	if mesh == null:
 		return null
 	var box := mesh.get_aabb()
@@ -802,7 +824,8 @@ static func building_mesh(key: String) -> ArrayMesh:
 	# Meshy buildings carry their own LOD chain (lod0/1/2 files): automatic LODs on
 	# top of already-decimated meshes crumpled their walls and roofs at mid range.
 	mesh = _transformed(mesh, fit, not path.begins_with(MESHY), key)
-	StyleG.restyle_mesh(mesh, key)       # Style G: every building/prop surface gets its role material (atlas + tints kept)
+	if not keep_pbr:
+		StyleG.restyle_mesh(mesh, key)       # Style G: every building/prop surface gets its role material (atlas + tints kept)
 	if mesh.has_meta("baked_vao"):
 		BakedVao.fix_materials(mesh)
 	if key.get_slice(":lod", 0) == "temple" and not CityPlanner.towns_off():
